@@ -627,14 +627,22 @@ function ActorView() {
                 const levels = it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
                 const current = checks[it.id];
                 const parts = parseSubItems(it.description);
+                const isBlocked =
+                  !isFinished &&
+                  typeof current !== "number" &&
+                  totals.scored >= totals.count - 1;
                 return (
                   <li
                     key={it.id}
+                    onClick={() => {
+                      if (isBlocked) toast.error("Você tem que terminar o checklist primeiro..");
+                    }}
                     className={cn(
                       "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
                       typeof current === "number"
                         ? "border-mint/30 bg-mint/5"
                         : "border-border bg-background/30",
+                      isBlocked && "cursor-not-allowed",
                     )}
                   >
                     <div className="min-w-0">
@@ -691,12 +699,7 @@ function ActorView() {
                       {levels.map((lv, li) => {
                         const selected = current === lv.points;
                         const tone = levelTone(li, levels.length);
-                        // Sempre bloqueia o "último" item: se já existem (count-1) marcados
-                        // e este ainda não foi pontuado, ele é o que falta — bloqueia até encerrar.
-                        const isBlocked =
-                          !isFinished &&
-                          typeof current !== "number" &&
-                          totals.scored >= totals.count - 1;
+                        
                         return (
                           <button
                             key={lv.label}
