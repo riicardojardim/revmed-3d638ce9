@@ -78,13 +78,18 @@ export type Database = {
         Row: {
           candidate_task: string
           clinical_case: string
+          competencies: string[]
           created_at: string
           created_by: string
           difficulty: string
           duration_minutes: number
+          evaluator_notes: string | null
           id: string
           patient_info: string | null
+          patient_script: string | null
+          post_materials: string | null
           published: boolean
+          scoring_criteria: string | null
           specialty: string
           support_materials: string | null
           title: string
@@ -93,13 +98,18 @@ export type Database = {
         Insert: {
           candidate_task: string
           clinical_case: string
+          competencies?: string[]
           created_at?: string
           created_by: string
           difficulty?: string
           duration_minutes?: number
+          evaluator_notes?: string | null
           id?: string
           patient_info?: string | null
+          patient_script?: string | null
+          post_materials?: string | null
           published?: boolean
+          scoring_criteria?: string | null
           specialty: string
           support_materials?: string | null
           title: string
@@ -108,13 +118,18 @@ export type Database = {
         Update: {
           candidate_task?: string
           clinical_case?: string
+          competencies?: string[]
           created_at?: string
           created_by?: string
           difficulty?: string
           duration_minutes?: number
+          evaluator_notes?: string | null
           id?: string
           patient_info?: string | null
+          patient_script?: string | null
+          post_materials?: string | null
           published?: boolean
+          scoring_criteria?: string | null
           specialty?: string
           support_materials?: string | null
           title?: string
@@ -274,6 +289,62 @@ export type Database = {
         }
         Relationships: []
       }
+      room_evaluations: {
+        Row: {
+          candidate_id: string | null
+          checks: Json
+          created_at: string
+          evaluator_id: string
+          final_feedback: string | null
+          final_score: number | null
+          id: string
+          item_comments: Json
+          room_id: string
+          station_id: string
+          status: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_id?: string | null
+          checks?: Json
+          created_at?: string
+          evaluator_id: string
+          final_feedback?: string | null
+          final_score?: number | null
+          id?: string
+          item_comments?: Json
+          room_id: string
+          station_id: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string | null
+          checks?: Json
+          created_at?: string
+          evaluator_id?: string
+          final_feedback?: string | null
+          final_score?: number | null
+          id?: string
+          item_comments?: Json
+          room_id?: string
+          station_id?: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_evaluations_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "training_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       station_checklist_items: {
         Row: {
           category: string
@@ -390,6 +461,7 @@ export type Database = {
           finished_at: string | null
           host_id: string
           id: string
+          mode: string
           started_at: string | null
           station_id: string
           station_title: string
@@ -402,6 +474,7 @@ export type Database = {
           finished_at?: string | null
           host_id: string
           id?: string
+          mode?: string
           started_at?: string | null
           station_id: string
           station_title: string
@@ -414,6 +487,7 @@ export type Database = {
           finished_at?: string | null
           host_id?: string
           id?: string
+          mode?: string
           started_at?: string | null
           station_id?: string
           station_title?: string
