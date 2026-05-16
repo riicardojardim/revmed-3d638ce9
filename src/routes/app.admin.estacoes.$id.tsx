@@ -746,33 +746,113 @@ function StepReview({
         </div>
       </Section>
 
-      <Section title="Pré-visualização rápida">
-        <div className="text-sm">
-          <div className="font-display text-xl font-bold">{station.title || "(sem título)"}</div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge variant="outline" className="border-medical/30 text-medical">{station.specialty}</Badge>
-            <Badge variant="outline">{station.difficulty}</Badge>
-            <Badge variant="outline">{station.duration_minutes} min</Badge>
-            <Badge variant="outline">{items.length} itens · {totalPts.toFixed(2)} pts</Badge>
+      <Section title="Pré-visualização rápida" hint="Layout padrão Estação Revalida — assim o assinante verá a estação.">
+        <div className="space-y-5 text-sm">
+          {/* Cabeçalho */}
+          <div>
+            <div className="font-display text-xl font-bold">{station.title || "(sem título)"}</div>
+            <div className="mt-1 flex flex-wrap gap-2">
+              <Badge variant="outline" className="border-medical/30 text-medical">{station.specialty}</Badge>
+              <Badge variant="outline">{station.difficulty}</Badge>
+              <Badge variant="outline">{station.duration_minutes} min</Badge>
+              <Badge variant="outline">{items.length} itens · {totalPts.toFixed(2)} pts</Badge>
+              <Badge variant="outline" className={station.published ? "border-mint/40 text-mint" : ""}>
+                {station.published ? "Publicada" : "Rascunho"}
+              </Badge>
+            </div>
           </div>
-          <p className="mt-3 whitespace-pre-wrap text-muted-foreground">{station.clinical_case}</p>
-          <div className="mt-4">
-            <div className="font-semibold">Impressos ({station.deliverable_materials?.length ?? 0})</div>
-            <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
-              {(station.deliverable_materials ?? []).map((m, i) => (
-                <li key={i}>Impresso {i + 1} — {m.name || "(sem nome)"}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-4 space-y-2">
-            {Object.entries(grouped).map(([cat, list]) => (
-              <div key={cat}>
-                <div className="font-semibold">{cat}</div>
-                <ul className="list-disc pl-5 text-xs text-muted-foreground">
-                  {list.map((i) => <li key={i.id}>{i.description} · {Number(i.points).toFixed(2)} pts</li>)}
-                </ul>
+
+          {/* Identificação do paciente */}
+          {(station.patient_profile?.name || station.patient_profile?.age || station.patient_profile?.city) && (
+            <div className="rounded-xl border border-border bg-background/40 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Paciente</div>
+              <div className="mt-1">
+                <span className="font-semibold">{station.patient_profile.name || "—"}</span>
+                {station.patient_profile.age && <>, {station.patient_profile.age} anos</>}
+                {station.patient_profile.sex && <>, {station.patient_profile.sex}</>}
+                {station.patient_profile.city && <> · {station.patient_profile.city}</>}
               </div>
-            ))}
+            </div>
+          )}
+
+          {/* Caso clínico */}
+          {station.clinical_case && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Caso clínico</div>
+              <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{station.clinical_case}</p>
+            </div>
+          )}
+
+          {/* Tarefa */}
+          {station.candidate_task && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tarefa do candidato</div>
+              <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{station.candidate_task}</p>
+            </div>
+          )}
+
+          {/* Impressos */}
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Impressos disponíveis ({station.deliverable_materials?.length ?? 0})
+            </div>
+            {(station.deliverable_materials ?? []).length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">Nenhum impresso cadastrado.</p>
+            ) : (
+              <div className="mt-2 space-y-2">
+                {(station.deliverable_materials ?? []).map((m, i) => (
+                  <div key={i} className="rounded-lg border border-border bg-background/40 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline" className="border-mint/30 text-mint">Impresso {i + 1}</Badge>
+                      <Badge variant="outline">{m.type}</Badge>
+                      <span className="font-semibold">{m.name || "(sem nome)"}</span>
+                    </div>
+                    {m.description && <div className="mt-1 text-xs text-muted-foreground">Gatilho: {m.description}</div>}
+                    {m.content && <pre className="mt-2 whitespace-pre-wrap rounded bg-muted/40 p-2 text-xs text-foreground/80">{m.content}</pre>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Checklist PEP graduado */}
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Checklist PEP graduado ({items.length} itens · {totalPts.toFixed(2)} pts)
+            </div>
+            {items.length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">Nenhum item cadastrado.</p>
+            ) : (
+              <div className="mt-2 space-y-3">
+                {items.map((it) => (
+                  <div key={it.id} className="rounded-lg border border-border bg-background/40 p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="font-semibold">{it.category}</div>
+                      <Badge className="bg-mint/15 text-mint hover:bg-mint/15">{Number(it.points).toFixed(2)} pts</Badge>
+                    </div>
+                    <p className="mt-1 whitespace-pre-wrap text-muted-foreground text-xs">{it.description}</p>
+                    {it.helper_text && <p className="mt-1 text-[11px] italic text-muted-foreground/80">{it.helper_text}</p>}
+                    <div className="mt-2 grid gap-1.5">
+                      {(it.levels ?? defaultLevels(Number(it.points) || 1)).map((lv, lvIdx) => {
+                        const tone =
+                          /inadequado/i.test(lv.label) && !/parcial/i.test(lv.label)
+                            ? "border-destructive/40 text-destructive"
+                            : /parcial/i.test(lv.label)
+                            ? "border-amber-500/40 text-amber-500"
+                            : "border-mint/40 text-mint";
+                        return (
+                          <div key={lvIdx} className={cn("flex items-start gap-2 rounded border bg-card/40 p-2 text-xs", tone)}>
+                            <span className="font-semibold whitespace-nowrap">{lv.label}</span>
+                            <span className="font-mono whitespace-nowrap">{Number(lv.points).toFixed(2)}</span>
+                            {lv.description && <span className="text-muted-foreground">— {lv.description}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Section>
