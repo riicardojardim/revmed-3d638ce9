@@ -1,10 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search } from "lucide-react";
+import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search, GraduationCap, ListChecks, Play, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { SimuladoBuilder } from "@/components/SimuladoBuilder";
+import { listSimulados, deleteSimulado, type Simulado } from "@/lib/simulado";
 
 export const Route = createFileRoute("/app/treinar")({
   component: TrainPage,
