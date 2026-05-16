@@ -16,6 +16,11 @@ import {
   ShieldCheck,
   Activity,
   X,
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  Stethoscope,
+  FileStack,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
