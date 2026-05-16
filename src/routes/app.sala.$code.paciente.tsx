@@ -67,12 +67,13 @@ function ActorView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
       setStation(st);
-      if (st) setRemaining(st.durationMinutes * 60);
+      const effMin = (r as Room).duration_minutes ?? st?.durationMinutes ?? 10;
+      setRemaining(effMin * 60);
 
       await refreshCandidate((r as Room).id);
 
