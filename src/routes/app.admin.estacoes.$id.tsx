@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/app/admin/estacoes/$id")({
 
 // -------- Types --------
 interface PatientProfile {
-  name?: string; age?: string; sex?: string; profession?: string;
+  name?: string; age?: string; sex?: string; city?: string; profession?: string;
   chiefComplaint?: string; hpi?: string; personalHistory?: string;
   medications?: string; allergies?: string; familyHistory?: string;
   habits?: string; symptoms?: string; vitals?: string; previousExams?: string;
@@ -79,16 +79,29 @@ const SPECIALTIES = [
   "Clínica Médica", "Pediatria", "Ginecologia e Obstetrícia",
   "Cirurgia", "Medicina da Família", "Urgência e Emergência",
 ];
-const CATEGORIES = ["Anamnese", "Exame físico", "Diagnóstico", "Conduta", "Comunicação", "Procedimento"];
+const CATEGORIES = [
+  "Apresentação", "Anamnese", "Exame físico", "Hipótese diagnóstica",
+  "Conduta", "Comunicação", "Procedimento", "Prescrição", "Orientações finais",
+];
 const MATERIAL_TYPES = ["Impresso", "Exame laboratorial", "Exame de imagem", "ECG", "Outro"];
 
+// PEP graduado padrão Estação Revalida: 3 níveis sempre na ordem
+// Inadequado → Parcialmente adequado → Adequado.
 function defaultLevels(maxPts: number): ChecklistLevel[] {
   const m = Number.isFinite(maxPts) ? maxPts : 1;
+  const mid = Math.round((m / 2) * 100) / 100;
   return [
-    { label: "Adequado", points: m, description: "" },
-    { label: "Parcialmente adequado", points: Math.round((m / 2) * 100) / 100, description: "" },
-    { label: "Inadequado", points: 0, description: "" },
+    { label: "Inadequado", points: 0, description: "Não realiza." },
+    { label: "Parcialmente adequado", points: mid, description: "Realiza parcialmente." },
+    { label: "Adequado", points: m, description: "Realiza completamente." },
   ];
+}
+
+// Numera o título do item ("1. Apresentação", "2. Anamnese", ...) seguindo
+// o padrão das estações de referência.
+function numberedCategory(index: number, title: string): string {
+  const clean = title.replace(/^\s*\d+\.\s*/, "").trim();
+  return `${index + 1}. ${clean}`;
 }
 
 const STEPS = [
@@ -369,10 +382,11 @@ function StepCase({ station, up }: { station: Station; up: <K extends keyof Stat
 
       <Section title="Perfil completo do paciente / ator"
         hint="Usado pelo participante que atua como paciente nas estações em dupla.">
-        <div className="grid gap-3 md:grid-cols-4">
-          <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} /></div>
-          <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} /></div>
-          <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} /></div>
+        <div className="grid gap-3 md:grid-cols-5">
+          <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Dona Maria" /></div>
+          <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="72" /></div>
+          <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="feminino" /></div>
+          <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} placeholder="Barreiras, BA" /></div>
           <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} /></div>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -489,19 +503,24 @@ function StepMaterials({ materials, onChange }: { materials: DeliverableMaterial
 }
 
 function StepChecklist({ stationId, items, reload }: { stationId: string; items: Item[]; reload: () => Promise<void> }) {
-  const [draft, setDraft] = useState({ description: "", category: "Anamnese", points: 1 });
+  const [draft, setDraft] = useState({ description: "", category: "Apresentação", points: 1 });
 
   async function addItem(e: React.FormEvent) {
     e.preventDefault();
     if (!draft.description.trim()) return toast.error("Descrição obrigatória");
     const pts = Number(draft.points) || 1;
+    // Padrão Estação Revalida: cada item recebe título numerado
+    // (ex.: "1. Apresentação"). Se o admin escolheu uma categoria do dropdown,
+    // ela vira o título numerado; senão usamos a própria descrição.
+    const titleSource = (draft.category || draft.description).trim();
     const payload = {
       station_id: stationId,
       description: draft.description.trim(),
-      category: draft.category,
+      category: numberedCategory(items.length, titleSource),
       points: pts,
       order_index: items.length,
       levels: defaultLevels(pts),
+      helper_text: null,
     } as never;
     const { error } = await supabase.from("station_checklist_items").insert(payload);
     if (error) return toast.error("Erro", { description: error.message });
@@ -668,11 +687,6 @@ function StepReview({
   togglePublish: () => unknown;
 }) {
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
-  const grouped = useMemo(() => {
-    const m: Record<string, Item[]> = {};
-    items.forEach((i) => { (m[i.category] ??= []).push(i); });
-    return m;
-  }, [items]);
 
   function addRef() {
     up("bibliographic_references", [...(station.bibliographic_references ?? []), { label: "", url: "" }]);
@@ -727,33 +741,113 @@ function StepReview({
         </div>
       </Section>
 
-      <Section title="Pré-visualização rápida">
-        <div className="text-sm">
-          <div className="font-display text-xl font-bold">{station.title || "(sem título)"}</div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge variant="outline" className="border-medical/30 text-medical">{station.specialty}</Badge>
-            <Badge variant="outline">{station.difficulty}</Badge>
-            <Badge variant="outline">{station.duration_minutes} min</Badge>
-            <Badge variant="outline">{items.length} itens · {totalPts.toFixed(2)} pts</Badge>
+      <Section title="Pré-visualização rápida" hint="Layout padrão Estação Revalida — assim o assinante verá a estação.">
+        <div className="space-y-5 text-sm">
+          {/* Cabeçalho */}
+          <div>
+            <div className="font-display text-xl font-bold">{station.title || "(sem título)"}</div>
+            <div className="mt-1 flex flex-wrap gap-2">
+              <Badge variant="outline" className="border-medical/30 text-medical">{station.specialty}</Badge>
+              <Badge variant="outline">{station.difficulty}</Badge>
+              <Badge variant="outline">{station.duration_minutes} min</Badge>
+              <Badge variant="outline">{items.length} itens · {totalPts.toFixed(2)} pts</Badge>
+              <Badge variant="outline" className={station.published ? "border-mint/40 text-mint" : ""}>
+                {station.published ? "Publicada" : "Rascunho"}
+              </Badge>
+            </div>
           </div>
-          <p className="mt-3 whitespace-pre-wrap text-muted-foreground">{station.clinical_case}</p>
-          <div className="mt-4">
-            <div className="font-semibold">Impressos ({station.deliverable_materials?.length ?? 0})</div>
-            <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
-              {(station.deliverable_materials ?? []).map((m, i) => (
-                <li key={i}>Impresso {i + 1} — {m.name || "(sem nome)"}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-4 space-y-2">
-            {Object.entries(grouped).map(([cat, list]) => (
-              <div key={cat}>
-                <div className="font-semibold">{cat}</div>
-                <ul className="list-disc pl-5 text-xs text-muted-foreground">
-                  {list.map((i) => <li key={i.id}>{i.description} · {Number(i.points).toFixed(2)} pts</li>)}
-                </ul>
+
+          {/* Identificação do paciente */}
+          {(station.patient_profile?.name || station.patient_profile?.age || station.patient_profile?.city) && (
+            <div className="rounded-xl border border-border bg-background/40 p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Paciente</div>
+              <div className="mt-1">
+                <span className="font-semibold">{station.patient_profile.name || "—"}</span>
+                {station.patient_profile.age && <>, {station.patient_profile.age} anos</>}
+                {station.patient_profile.sex && <>, {station.patient_profile.sex}</>}
+                {station.patient_profile.city && <> · {station.patient_profile.city}</>}
               </div>
-            ))}
+            </div>
+          )}
+
+          {/* Caso clínico */}
+          {station.clinical_case && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Caso clínico</div>
+              <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{station.clinical_case}</p>
+            </div>
+          )}
+
+          {/* Tarefa */}
+          {station.candidate_task && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tarefa do candidato</div>
+              <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{station.candidate_task}</p>
+            </div>
+          )}
+
+          {/* Impressos */}
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Impressos disponíveis ({station.deliverable_materials?.length ?? 0})
+            </div>
+            {(station.deliverable_materials ?? []).length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">Nenhum impresso cadastrado.</p>
+            ) : (
+              <div className="mt-2 space-y-2">
+                {(station.deliverable_materials ?? []).map((m, i) => (
+                  <div key={i} className="rounded-lg border border-border bg-background/40 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline" className="border-mint/30 text-mint">Impresso {i + 1}</Badge>
+                      <Badge variant="outline">{m.type}</Badge>
+                      <span className="font-semibold">{m.name || "(sem nome)"}</span>
+                    </div>
+                    {m.description && <div className="mt-1 text-xs text-muted-foreground">Gatilho: {m.description}</div>}
+                    {m.content && <pre className="mt-2 whitespace-pre-wrap rounded bg-muted/40 p-2 text-xs text-foreground/80">{m.content}</pre>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Checklist PEP graduado */}
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Checklist PEP graduado ({items.length} itens · {totalPts.toFixed(2)} pts)
+            </div>
+            {items.length === 0 ? (
+              <p className="mt-1 text-xs text-muted-foreground">Nenhum item cadastrado.</p>
+            ) : (
+              <div className="mt-2 space-y-3">
+                {items.map((it) => (
+                  <div key={it.id} className="rounded-lg border border-border bg-background/40 p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="font-semibold">{it.category}</div>
+                      <Badge className="bg-mint/15 text-mint hover:bg-mint/15">{Number(it.points).toFixed(2)} pts</Badge>
+                    </div>
+                    <p className="mt-1 whitespace-pre-wrap text-muted-foreground text-xs">{it.description}</p>
+                    {it.helper_text && <p className="mt-1 text-[11px] italic text-muted-foreground/80">{it.helper_text}</p>}
+                    <div className="mt-2 grid gap-1.5">
+                      {(it.levels ?? defaultLevels(Number(it.points) || 1)).map((lv, lvIdx) => {
+                        const tone =
+                          /inadequado/i.test(lv.label) && !/parcial/i.test(lv.label)
+                            ? "border-destructive/40 text-destructive"
+                            : /parcial/i.test(lv.label)
+                            ? "border-amber-500/40 text-amber-500"
+                            : "border-mint/40 text-mint";
+                        return (
+                          <div key={lvIdx} className={cn("flex items-start gap-2 rounded border bg-card/40 p-2 text-xs", tone)}>
+                            <span className="font-semibold whitespace-nowrap">{lv.label}</span>
+                            <span className="font-mono whitespace-nowrap">{Number(lv.points).toFixed(2)}</span>
+                            {lv.description && <span className="text-muted-foreground">— {lv.description}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Section>
