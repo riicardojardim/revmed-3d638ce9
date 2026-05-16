@@ -95,6 +95,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
     : `Queixa principal: ${mock.clinicalCase}\n\nComportamento: responda apenas ao que for perguntado. Mostre ansiedade leve.\n\nSinais simulados: ${mock.patientInfo}`;
   return {
     ...mock,
+    checklist: withDefaultLevels(mock.checklist),
     patientScript: script,
     competencies: Array.from(new Set(mock.checklist.map((c) => c.category))),
   };
