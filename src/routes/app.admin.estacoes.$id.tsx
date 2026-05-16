@@ -987,6 +987,11 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               <PRBlock icon={MessageSquare} title="Cenário de atuação">
                 <ScriptText text={station.clinical_case || "—"} />
               </PRBlock>
+              {station.case_description && (
+                <PRBlock icon={MessageSquare} title="Descrição do caso">
+                  <ScriptText text={station.case_description} />
+                </PRBlock>
+              )}
               <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
                 <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
               </PRBlock>
@@ -1035,6 +1040,11 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
             <PRBlock icon={MessageSquare} title="Cenário clínico (contexto)">
               <ScriptText text={station.clinical_case || "—"} />
             </PRBlock>
+            {station.case_description && (
+              <PRBlock icon={MessageSquare} title="Descrição do caso">
+                <ScriptText text={station.case_description} />
+              </PRBlock>
+            )}
             <PRBlock icon={Inbox} title="Impressos para entregar" right={<Badge variant="outline">{(station.deliverable_materials ?? []).length}</Badge>}>
               {(station.deliverable_materials ?? []).length === 0 ? (
                 <p className="text-sm text-muted-foreground">Nenhum impresso cadastrado.</p>
