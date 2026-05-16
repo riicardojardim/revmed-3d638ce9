@@ -540,11 +540,11 @@ function ActorView() {
                 {materials.map((m, idx) => {
                   const isDelivered = delivered.has(m.id);
                   const isOpen = previewMaterialId === m.id;
+                  const isRhythm = /ritmo/i.test(m.name);
                   return (
                     <div key={m.id} className={cn(
-                      "rounded-xl border p-3 transition-all",
+                      "rounded-xl border p-3 transition-all self-start",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
-                      isOpen && "sm:col-span-2",
                     )}>
                       <button
                         type="button"
