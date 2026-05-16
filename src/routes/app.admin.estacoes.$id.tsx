@@ -196,6 +196,37 @@ function StationEditor() {
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
 
   return (
+    <EditorBody
+      station={station}
+      items={items}
+      id={id}
+      saving={saving}
+      totalPts={totalPts}
+      up={up}
+      load={load}
+      saveStation={saveStation}
+      togglePublish={togglePublish}
+      setStation={setStation}
+    />
+  );
+}
+
+function EditorBody({
+  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation,
+}: {
+  station: Station;
+  items: Item[];
+  id: string;
+  saving: boolean;
+  totalPts: number;
+  up: <K extends keyof Station>(k: K, v: Station[K]) => void;
+  load: () => Promise<void>;
+  saveStation: (opts?: { silent?: boolean }) => Promise<unknown>;
+  togglePublish: () => Promise<unknown>;
+  setStation: React.Dispatch<React.SetStateAction<Station | null>>;
+}) {
+  const [tab, setTab] = useState<"ator" | "avaliado">("ator");
+  return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -289,13 +320,52 @@ function StationEditor() {
       />
 
       <SectionBasics station={station} up={up} />
-      <SectionCase station={station} up={up} />
-      <SectionMaterials
-        materials={station.deliverable_materials}
-        onChange={(m) => up("deliverable_materials", m)}
-      />
-      <SectionChecklist stationId={id} items={items} reload={load} />
-      <SectionReview station={station} items={items} up={up} togglePublish={togglePublish} />
+
+      {/* Tabs: Ator / Avaliado */}
+      <div className="inline-flex rounded-xl border border-border bg-background/40 p-1">
+        {([
+          { id: "ator", label: "Ator (preencher primeiro)", icon: Stethoscope },
+          { id: "avaliado", label: "Avaliado (o que ele recebe)", icon: User },
+        ] as const).map((t) => {
+          const Icon = t.icon;
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition",
+                active ? "bg-mint/15 text-mint shadow-sm" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="h-4 w-4" /> {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {tab === "ator" ? (
+        <>
+          <SectionCaseActor station={station} up={up} />
+          <SectionMaterials
+            materials={station.deliverable_materials}
+            onChange={(m) => up("deliverable_materials", m)}
+          />
+          <SectionChecklist stationId={id} items={items} reload={load} />
+          <SectionPedagogical station={station} up={up} />
+        </>
+      ) : (
+        <>
+          <SectionCaseCandidate station={station} up={up} />
+          <SectionReferences station={station} up={up} />
+          <Section title="Pré-visualização" hint="Selecione abaixo se quer ver como o avaliado ou o ator/paciente enxergam a estação no painel deles.">
+            <StationLivePreview station={station} items={items} />
+          </Section>
+        </>
+      )}
+
+      <SectionPublish station={station} togglePublish={togglePublish} />
     </div>
   );
 }
@@ -443,66 +513,73 @@ function SectionBasics({ station, up }: { station: Station; up: <K extends keyof
   );
 }
 
-function SectionCase({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+function SectionCaseCandidate({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+  return (
+    <Section title="Cenário de atuação e tarefas" hint="Texto que o avaliado lê no início da estação.">
+      <div>
+        <Label>Cenário de atuação (caso clínico)</Label>
+        <Textarea rows={5} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} />
+      </div>
+      <div>
+        <Label>Tarefas do candidato (o que ele deve executar)</Label>
+        <Textarea rows={3} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <Label>Dados rápidos do paciente (mostrados ao avaliado)</Label>
+          <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
+        </div>
+        <div>
+          <Label>Materiais disponíveis durante a estação</Label>
+          <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function SectionCaseActor({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
   const p = station.patient_profile ?? {};
   function setP<K extends keyof PatientProfile>(k: K, v: PatientProfile[K]) {
     up("patient_profile", { ...p, [k]: v });
   }
   return (
-    <>
-      <Section title="Caso clínico apresentado">
-        <div>
-          <Label>Caso clínico (mostrado ao candidato no início)</Label>
-          <Textarea rows={5} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} />
-        </div>
-        <div>
-          <Label>Tarefa do candidato</Label>
-          <Textarea rows={3} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} />
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <Label>Dados rápidos do paciente</Label>
-            <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
-          </div>
-          <div>
-            <Label>Materiais disponíveis durante a estação</Label>
-            <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Perfil completo do paciente / ator"
-        hint="Usado pelo participante que atua como paciente nas estações em dupla.">
-        <div className="grid gap-3 md:grid-cols-5">
-          <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Dona Maria" /></div>
-          <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="72" /></div>
-          <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="feminino" /></div>
-          <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} placeholder="Barreiras, BA" /></div>
-          <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} /></div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div><Label>Queixa principal</Label><Textarea rows={2} value={p.chiefComplaint ?? ""} onChange={(e) => setP("chiefComplaint", e.target.value)} /></div>
-          <div><Label>HMA (história da doença atual)</Label><Textarea rows={2} value={p.hpi ?? ""} onChange={(e) => setP("hpi", e.target.value)} /></div>
-          <div><Label>Antecedentes pessoais</Label><Textarea rows={2} value={p.personalHistory ?? ""} onChange={(e) => setP("personalHistory", e.target.value)} /></div>
-          <div><Label>Medicações em uso</Label><Textarea rows={2} value={p.medications ?? ""} onChange={(e) => setP("medications", e.target.value)} /></div>
-          <div><Label>Alergias</Label><Textarea rows={2} value={p.allergies ?? ""} onChange={(e) => setP("allergies", e.target.value)} /></div>
-          <div><Label>Antecedentes familiares</Label><Textarea rows={2} value={p.familyHistory ?? ""} onChange={(e) => setP("familyHistory", e.target.value)} /></div>
-          <div><Label>Hábitos</Label><Textarea rows={2} value={p.habits ?? ""} onChange={(e) => setP("habits", e.target.value)} /></div>
-          <div><Label>Sintomas associados</Label><Textarea rows={2} value={p.symptoms ?? ""} onChange={(e) => setP("symptoms", e.target.value)} /></div>
-          <div><Label>Sinais vitais</Label><Textarea rows={2} value={p.vitals ?? ""} onChange={(e) => setP("vitals", e.target.value)} /></div>
-          <div><Label>Exames prévios</Label><Textarea rows={2} value={p.previousExams ?? ""} onChange={(e) => setP("previousExams", e.target.value)} /></div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          <div><Label>O paciente fala espontaneamente</Label><Textarea rows={3} value={p.spontaneous ?? ""} onChange={(e) => setP("spontaneous", e.target.value)} /></div>
-          <div><Label>Só revela se perguntado</Label><Textarea rows={3} value={p.onlyIfAsked ?? ""} onChange={(e) => setP("onlyIfAsked", e.target.value)} /></div>
-          <div><Label>Não revelar</Label><Textarea rows={3} value={p.doNotReveal ?? ""} onChange={(e) => setP("doNotReveal", e.target.value)} /></div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div><Label>Tom emocional</Label><Input value={p.emotionalTone ?? ""} onChange={(e) => setP("emotionalTone", e.target.value)} /></div>
-          <div><Label>Dicas de atuação</Label><Input value={p.actingTips ?? ""} onChange={(e) => setP("actingTips", e.target.value)} /></div>
-        </div>
-      </Section>
-    </>
+    <Section title="Orientações do Ator / Atriz"
+      hint="Perfil completo do paciente que o ator vai interpretar — campos seguem o padrão dos PDFs oficiais.">
+      <div className="grid gap-3 md:grid-cols-5">
+        <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Miguel" /></div>
+        <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="40" /></div>
+        <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="masculino" /></div>
+        <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} /></div>
+        <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} placeholder="mecânico" /></div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div><Label>Motivo da consulta / queixa principal</Label><Textarea rows={2} value={p.chiefComplaint ?? ""} onChange={(e) => setP("chiefComplaint", e.target.value)} /></div>
+        <div><Label>Características do acidente / HMA</Label><Textarea rows={3} value={p.hpi ?? ""} onChange={(e) => setP("hpi", e.target.value)} placeholder="Tempo de evolução, local, dor, intensidade, irradiação, tipo de dor..." /></div>
+        <div><Label>Sintomas associados</Label><Textarea rows={3} value={p.symptoms ?? ""} onChange={(e) => setP("symptoms", e.target.value)} placeholder="Vômitos, alterações visuais, salivação, priapismo, astenia..." /></div>
+        <div><Label>Só revelar se perguntado</Label><Textarea rows={3} value={p.onlyIfAsked ?? ""} onChange={(e) => setP("onlyIfAsked", e.target.value)} placeholder="Ex: Se perguntado por limpeza/antissepsia: responder que não." /></div>
+        <div><Label>Antecedentes pessoais (doenças, cartão de vacina)</Label><Textarea rows={2} value={p.personalHistory ?? ""} onChange={(e) => setP("personalHistory", e.target.value)} /></div>
+        <div><Label>Medicações em uso</Label><Textarea rows={2} value={p.medications ?? ""} onChange={(e) => setP("medications", e.target.value)} /></div>
+        <div><Label>Alergias</Label><Textarea rows={2} value={p.allergies ?? ""} onChange={(e) => setP("allergies", e.target.value)} /></div>
+        <div><Label>Antecedentes familiares</Label><Textarea rows={2} value={p.familyHistory ?? ""} onChange={(e) => setP("familyHistory", e.target.value)} /></div>
+        <div><Label>Hábitos (álcool, cigarro, drogas, urina, sono)</Label><Textarea rows={3} value={p.habits ?? ""} onChange={(e) => setP("habits", e.target.value)} /></div>
+        <div><Label>Sinais vitais</Label><Textarea rows={2} value={p.vitals ?? ""} onChange={(e) => setP("vitals", e.target.value)} /></div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        <div><Label>O paciente fala espontaneamente</Label><Textarea rows={3} value={p.spontaneous ?? ""} onChange={(e) => setP("spontaneous", e.target.value)} /></div>
+        <div><Label>Exames prévios</Label><Textarea rows={3} value={p.previousExams ?? ""} onChange={(e) => setP("previousExams", e.target.value)} /></div>
+        <div><Label>Não revelar</Label><Textarea rows={3} value={p.doNotReveal ?? ""} onChange={(e) => setP("doNotReveal", e.target.value)} /></div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div><Label>Tom emocional</Label><Input value={p.emotionalTone ?? ""} onChange={(e) => setP("emotionalTone", e.target.value)} /></div>
+        <div><Label>Dicas de atuação</Label><Input value={p.actingTips ?? ""} onChange={(e) => setP("actingTips", e.target.value)} /></div>
+      </div>
+      <div>
+        <Label>Roteiro completo do paciente (fala literal, se houver)</Label>
+        <Textarea rows={6} value={station.patient_script ?? ""} onChange={(e) => up("patient_script", e.target.value)}
+          placeholder="Frases textuais que o ator pode usar durante a simulação." />
+      </div>
+    </Section>
   );
 }
 
@@ -765,15 +842,46 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
   );
 }
 
-function SectionReview({
-  station, items, up, togglePublish,
+function SectionPedagogical({
+  station, up,
 }: {
-  station: Station; items: Item[];
+  station: Station;
   up: <K extends keyof Station>(k: K, v: Station[K]) => void;
-  togglePublish: () => unknown;
 }) {
-  const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
+  return (
+    <Section title="Notas pedagógicas (para o ator/avaliador)" hint="Conteúdo que o ator usa para conduzir e avaliar, e que aparece no feedback final.">
+      <div>
+        <Label>Conduta esperada</Label>
+        <Textarea rows={4} value={station.expected_conduct ?? ""} onChange={(e) => up("expected_conduct", e.target.value)} />
+      </div>
+      <div>
+        <Label>Erros comuns</Label>
+        <Textarea rows={3} value={station.common_mistakes ?? ""} onChange={(e) => up("common_mistakes", e.target.value)} />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <Label>Observações para o ator / banca</Label>
+          <Textarea rows={3} value={station.evaluator_notes ?? ""} onChange={(e) => up("evaluator_notes", e.target.value)} />
+        </div>
+        <div>
+          <Label>Material de apoio pós-estação</Label>
+          <Textarea rows={3} value={station.post_materials ?? ""} onChange={(e) => up("post_materials", e.target.value)} />
+        </div>
+      </div>
+      <div>
+        <Label>Critérios de pontuação (resumo textual)</Label>
+        <Textarea rows={3} value={station.scoring_criteria ?? ""} onChange={(e) => up("scoring_criteria", e.target.value)} />
+      </div>
+    </Section>
+  );
+}
 
+function SectionReferences({
+  station, up,
+}: {
+  station: Station;
+  up: <K extends keyof Station>(k: K, v: Station[K]) => void;
+}) {
   function addRef() {
     up("bibliographic_references", [...(station.bibliographic_references ?? []), { label: "", url: "" }]);
   }
@@ -784,67 +892,44 @@ function SectionReview({
   function removeRef(i: number) {
     up("bibliographic_references", (station.bibliographic_references ?? []).filter((_, idx) => idx !== i));
   }
-
   return (
-    <>
-      <Section title="Notas pedagógicas (visíveis no feedback)">
-        <div>
-          <Label>Conduta esperada</Label>
-          <Textarea rows={4} value={station.expected_conduct ?? ""} onChange={(e) => up("expected_conduct", e.target.value)} />
-        </div>
-        <div>
-          <Label>Erros comuns</Label>
-          <Textarea rows={3} value={station.common_mistakes ?? ""} onChange={(e) => up("common_mistakes", e.target.value)} />
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <Label>Observações para o avaliador / banca</Label>
-            <Textarea rows={3} value={station.evaluator_notes ?? ""} onChange={(e) => up("evaluator_notes", e.target.value)} />
+    <Section title="Referências bibliográficas">
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={addRef}><Plus className="h-4 w-4" /> Adicionar referência</Button>
+      </div>
+      <div className="space-y-2">
+        {(station.bibliographic_references ?? []).map((r, i) => (
+          <div key={i} className="grid gap-2 md:grid-cols-[2fr,2fr,auto]">
+            <Input placeholder="Título / citação" value={r.label} onChange={(e) => updateRef(i, { label: e.target.value })} />
+            <Input placeholder="URL (opcional)" value={r.url ?? ""} onChange={(e) => updateRef(i, { url: e.target.value })} />
+            <Button variant="ghost" size="icon" onClick={() => removeRef(i)}><Trash2 className="h-4 w-4" /></Button>
           </div>
-          <div>
-            <Label>Material de apoio pós-estação</Label>
-            <Textarea rows={3} value={station.post_materials ?? ""} onChange={(e) => up("post_materials", e.target.value)} />
-          </div>
-        </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function SectionPublish({
+  station, togglePublish,
+}: {
+  station: Station;
+  togglePublish: () => unknown;
+}) {
+  return (
+    <Section title="Publicar para os assinantes" hint="Estações publicadas aparecem para todos os usuários ativos.">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background/40 p-4">
         <div>
-          <Label>Critérios de pontuação (resumo textual)</Label>
-          <Textarea rows={3} value={station.scoring_criteria ?? ""} onChange={(e) => up("scoring_criteria", e.target.value)} />
-        </div>
-      </Section>
-
-      <Section title="Referências bibliográficas">
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={addRef}><Plus className="h-4 w-4" /> Adicionar referência</Button>
-        </div>
-        <div className="space-y-2">
-          {(station.bibliographic_references ?? []).map((r, i) => (
-            <div key={i} className="grid gap-2 md:grid-cols-[2fr,2fr,auto]">
-              <Input placeholder="Título / citação" value={r.label} onChange={(e) => updateRef(i, { label: e.target.value })} />
-              <Input placeholder="URL (opcional)" value={r.url ?? ""} onChange={(e) => updateRef(i, { url: e.target.value })} />
-              <Button variant="ghost" size="icon" onClick={() => removeRef(i)}><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Pré-visualização" hint="Veja exatamente como o avaliado e o ator/paciente enxergam a estação no painel deles.">
-        <StationLivePreview station={station} items={items} />
-      </Section>
-
-      <Section title="Publicar para os assinantes" hint="Estações publicadas aparecem para todos os usuários ativos.">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background/40 p-4">
-          <div>
-            <div className="font-semibold">{station.published ? "Esta estação está PUBLICADA" : "Esta estação está em RASCUNHO"}</div>
-            <div className="text-xs text-muted-foreground">
-              {station.published ? "Visível para todos os assinantes." : "Apenas você e os admins enxergam."}
-            </div>
+          <div className="font-semibold">{station.published ? "Esta estação está PUBLICADA" : "Esta estação está em RASCUNHO"}</div>
+          <div className="text-xs text-muted-foreground">
+            {station.published ? "Visível para todos os assinantes." : "Apenas você e os admins enxergam."}
           </div>
-          <Button variant={station.published ? "outline" : "hero"} onClick={togglePublish}>
-            {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar agora</>}
-          </Button>
         </div>
-      </Section>
-    </>
+        <Button variant={station.published ? "outline" : "hero"} onClick={togglePublish}>
+          {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar agora</>}
+        </Button>
+      </div>
+    </Section>
   );
 }
 
