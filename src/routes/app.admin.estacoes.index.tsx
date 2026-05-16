@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
-export const Route = createFileRoute("/app/admin/estacoes")({
+export const Route = createFileRoute("/app/admin/estacoes/")({
   component: AdminStationsPage,
 });
 
