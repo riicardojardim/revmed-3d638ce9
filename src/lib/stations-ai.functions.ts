@@ -158,6 +158,141 @@ Schema do JSON:
   }]
 }`;
 
+type ParsedStation = z.infer<typeof ResultSchema>;
+
+async function callGateway(
+  apiKey: string,
+  pdfDataUrl: string,
+  pdfName: string,
+  model: string,
+  timeoutMs: number,
+): Promise<ParsedStation> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  try {
+    res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Não deixe de extrair: instruções do ator (patient_script), TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
+              },
+              { type: "image_url", image_url: { url: pdfDataUrl } },
+            ],
+          },
+        ],
+        response_format: { type: "json_object" },
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  if (!res.ok) {
+    const txt = await res.text();
+    if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
+    if (res.status === 402) throw new Error("Créditos de IA esgotados.");
+    const err = new Error(`AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
+    (err as Error & { status?: number }).status = res.status;
+    throw err;
+  }
+  const json = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+  };
+  if (json.choices?.[0]?.finish_reason === "length") {
+    throw new Error("A resposta da IA foi cortada (limite de tokens).");
+  }
+  const content = json.choices?.[0]?.message?.content ?? "{}";
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    const m = content.match(/\{[\s\S]*\}/);
+    parsed = m ? JSON.parse(m[0]) : {};
+  }
+  return ResultSchema.parse(parsed);
+}
+
+async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
+  // Try flash first (fast); fallback to pro on timeout/upstream errors
+  try {
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
+    if (!isTimeout) throw err;
+    // retry once with pro and longer budget
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
+  }
+}
+
+function pickLonger(a?: string, b?: string): string | undefined {
+  const av = (a ?? "").trim();
+  const bv = (b ?? "").trim();
+  if (!av) return bv || undefined;
+  if (!bv) return av || undefined;
+  return bv.length > av.length ? bv : av;
+}
+
+function mergeResults(parts: ParsedStation[]): ParsedStation {
+  if (parts.length === 1) return parts[0];
+  const out: ParsedStation = {};
+  const stringKeys: (keyof ParsedStation)[] = [
+    "title", "specialty", "educational_goal", "clinical_case", "candidate_task",
+    "patient_info", "patient_script", "support_materials", "expected_conduct",
+    "common_mistakes", "evaluator_notes", "scoring_criteria",
+  ];
+  for (const k of stringKeys) {
+    for (const p of parts) {
+      out[k] = pickLonger(out[k] as string | undefined, p[k] as string | undefined) as never;
+    }
+  }
+  // competencies: union
+  const comps = new Set<string>();
+  for (const p of parts) (p.competencies ?? []).forEach((c) => comps.add(c));
+  if (comps.size) out.competencies = [...comps];
+  // patient_profile: merge field-by-field, prefer longer
+  const profile: Record<string, string> = {};
+  for (const p of parts) {
+    const pp = p.patient_profile ?? {};
+    for (const [k, v] of Object.entries(pp)) {
+      if (typeof v === "string" && v.trim()) {
+        profile[k] = pickLonger(profile[k], v) ?? v;
+      }
+    }
+  }
+  if (Object.keys(profile).length) out.patient_profile = profile;
+  // deliverable_materials: concat, dedupe by name
+  const seenMat = new Set<string>();
+  const mats: NonNullable<ParsedStation["deliverable_materials"]> = [];
+  for (const p of parts) {
+    for (const m of p.deliverable_materials ?? []) {
+      const key = (m.name || "").toLowerCase().trim();
+      if (key && seenMat.has(key)) continue;
+      if (key) seenMat.add(key);
+      mats.push(m);
+    }
+  }
+  if (mats.length) out.deliverable_materials = mats;
+  // checklist_items: concat (renumbering happens client-side)
+  const items: NonNullable<ParsedStation["checklist_items"]> = [];
+  for (const p of parts) for (const it of p.checklist_items ?? []) items.push(it);
+  if (items.length) out.checklist_items = items;
+  return out;
+}
+
 export const parseStationPdfs = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
@@ -165,75 +300,13 @@ export const parseStationPdfs = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    const userContent: Array<Record<string, unknown>> = [
-      {
-        type: "text",
-        text: `Extraia a estação clínica destes ${data.pdfs.length} PDF(s) seguindo EXATAMENTE o padrão do gold standard descrito no system prompt. Não deixe de extrair: instruções do ator (patient_script), TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
-      },
-    ];
-    for (const f of data.pdfs) {
-      userContent.push({
-        type: "image_url",
-        image_url: { url: f.dataUrl },
-      });
+    // Process all PDFs in parallel — each one stays well under upstream timeout
+    const settled = await Promise.allSettled(data.pdfs.map((p) => processPdf(apiKey, p)));
+    const ok = settled.filter((s): s is PromiseFulfilledResult<ParsedStation> => s.status === "fulfilled").map((s) => s.value);
+    if (ok.length === 0) {
+      const first = settled[0];
+      const msg = first.status === "rejected" ? (first.reason instanceof Error ? first.reason.message : String(first.reason)) : "Falha desconhecida";
+      throw new Error(`Não foi possível ler os PDFs: ${msg}`);
     }
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 170_000);
-    let res: Response;
-    try {
-      res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-pro",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userContent },
-          ],
-          response_format: { type: "json_object" },
-        }),
-        signal: controller.signal,
-      });
-    } catch (err) {
-      clearTimeout(timer);
-      const msg = err instanceof Error ? err.message : String(err);
-      throw new Error(
-        `Falha de rede com o gateway de IA: ${msg}. Tente novamente, reduza o número de PDFs ou use arquivos menores.`,
-      );
-    }
-    clearTimeout(timer);
-
-    if (!res.ok) {
-      const txt = await res.text();
-      if (res.status === 504 || /timeout/i.test(txt)) {
-        throw new Error(
-          "A IA demorou demais para ler os PDFs (timeout). Tente enviar menos arquivos por vez ou um PDF menor.",
-        );
-      }
-      if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
-      if (res.status === 402) throw new Error("Créditos de IA esgotados.");
-      throw new Error(`AI Gateway falhou (${res.status}): ${txt.slice(0, 300)}`);
-    }
-    const json = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
-    };
-    const finish = json.choices?.[0]?.finish_reason;
-    if (finish === "length") {
-      throw new Error("A resposta da IA foi cortada (limite de tokens). Envie PDFs menores ou separe em pedaços.");
-    }
-    const content = json.choices?.[0]?.message?.content ?? "{}";
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(content);
-    } catch {
-      // try to extract a json object
-      const m = content.match(/\{[\s\S]*\}/);
-      parsed = m ? JSON.parse(m[0]) : {};
-    }
-    const result = ResultSchema.parse(parsed);
-    return result;
+    return mergeResults(ok);
   });
