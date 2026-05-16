@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { STATIONS, type Station, type ChecklistItem } from "@/data/stations";
+import { STATIONS, type Station, type ChecklistItem, type PatientProfile, type DeliverableMaterial } from "@/data/stations";
 
 export interface LoadedStation extends Station {
   patientScript: string;
@@ -32,6 +32,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       description: it.description,
       points: it.points,
     }));
+    const sx = s as unknown as Record<string, unknown>;
     return {
       id: s.id,
       slug: s.id,
@@ -49,17 +50,30 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       competencies: (s.competencies ?? []) as string[],
       scoringCriteria: s.scoring_criteria ?? undefined,
       postMaterials: s.post_materials ?? undefined,
+      patientProfile: (sx.patient_profile as PatientProfile) ?? undefined,
+      deliverableMaterials: (sx.deliverable_materials as DeliverableMaterial[]) ?? [],
+      educationalGoal: (sx.educational_goal as string) ?? undefined,
+      expectedConduct: (sx.expected_conduct as string) ?? undefined,
+      commonMistakes: (sx.common_mistakes as string) ?? undefined,
     };
   }
   const mock = STATIONS.find((s) => s.id === id);
   if (!mock) return null;
+  const p = mock.patientProfile;
+  const script = p
+    ? [
+        p.chiefComplaint && `Queixa principal: ${p.chiefComplaint}`,
+        p.hpi && `História: ${p.hpi}`,
+        p.emotionalTone && `Tom emocional: ${p.emotionalTone}`,
+        p.spontaneous && `Fale espontaneamente: ${p.spontaneous}`,
+        p.onlyIfAsked && `Revele só se perguntado: ${p.onlyIfAsked}`,
+        p.doNotReveal && `Não revele: ${p.doNotReveal}`,
+        p.actingTips && `Dicas: ${p.actingTips}`,
+      ].filter(Boolean).join("\n\n")
+    : `Queixa principal: ${mock.clinicalCase}\n\nComportamento: responda apenas ao que for perguntado. Mostre ansiedade leve.\n\nSinais simulados: ${mock.patientInfo}`;
   return {
     ...mock,
-    patientScript:
-      `Queixa principal: ${mock.clinicalCase}\n\n` +
-      `Comportamento: responda apenas ao que for perguntado. Mostre ansiedade leve.\n\n` +
-      `Sinais simulados: ${mock.patientInfo}\n\n` +
-      `Informações que só revela se questionado: antecedentes pessoais, hábitos, uso de medicamentos.`,
+    patientScript: script,
     competencies: Array.from(new Set(mock.checklist.map((c) => c.category))),
   };
 }
