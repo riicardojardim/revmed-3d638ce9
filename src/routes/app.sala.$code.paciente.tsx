@@ -280,7 +280,12 @@ function ActorView() {
 
   const totals = (() => {
     if (!station) return { total: 0, earned: 0, scored: 0, count: 0 };
-    const total = station.checklist.reduce((s, i) => s + i.points, 0);
+    const total = station.checklist.reduce((s, i) => {
+      const maxFromLevels = i.levels && i.levels.length > 0
+        ? Math.max(...i.levels.map((l) => l.points))
+        : 0;
+      return s + Math.max(i.points || 0, maxFromLevels);
+    }, 0);
     let earned = 0;
     let scored = 0;
     for (const i of station.checklist) {
