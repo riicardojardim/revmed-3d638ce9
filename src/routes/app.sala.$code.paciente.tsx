@@ -676,7 +676,7 @@ function ActorView() {
                 onClick={shareWhatsApp}
                 title="Enviar pelo WhatsApp"
               >
-                <MessageCircle className="h-3.5 w-3.5 text-emerald-400" />
+                <MessageCircle className="h-3.5 w-3.5 text-mint" />
                 WhatsApp
               </Button>
               <Button
