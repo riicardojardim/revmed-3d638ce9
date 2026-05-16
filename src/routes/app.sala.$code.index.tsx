@@ -7,7 +7,7 @@ import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, Clipboard
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/use-subscription";
 
-export const Route = createFileRoute("/app/sala/$code")({
+export const Route = createFileRoute("/app/sala/$code/")({
   component: RoomPage,
 });
 
