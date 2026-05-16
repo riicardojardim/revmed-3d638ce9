@@ -83,8 +83,22 @@ function RoomPage() {
     // eslint-disable-next-line
   }, [room?.id]);
 
-  async function pickRole(role: string) {
+  const sub = useSubscription();
+
+  function canPick(requires: "candidato" | "ator") {
+    return requires === "candidato" ? sub.canBeCandidato : sub.canBeAtor;
+  }
+
+  async function pickRole(role: string, requires: "candidato" | "ator") {
     if (!room || !user) return;
+    if (!canPick(requires)) {
+      toast.error(
+        requires === "candidato"
+          ? "Seu plano não permite entrar como candidato. Faça upgrade para o plano Completo."
+          : "Seu plano não permite atuar como ator/avaliador."
+      );
+      return;
+    }
     const existing = parts.find((p) => p.user_id === user.id);
     if (existing) {
       const { error } = await supabase.from("training_room_participants").update({ role }).eq("id", existing.id);
