@@ -130,11 +130,11 @@ function CandidateView() {
       setFinished(true);
       loadEvaluation(room.id);
     }
-  }, [room?.status, room?.started_at, station?.id, finished]);
+  }, [room?.status, room?.started_at, room?.duration_minutes, station?.id, finished]);
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
-  const total = (station?.durationMinutes ?? 10) * 60;
+  const total = ((room?.duration_minutes ?? station?.durationMinutes ?? 10)) * 60;
 
   async function finish() {
     if (!station || !user || !room) return;
