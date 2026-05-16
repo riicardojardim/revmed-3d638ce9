@@ -432,6 +432,24 @@ function ActorView() {
               <div className="font-display text-5xl font-bold tabular-nums text-white">
                 {mm}:{ss}
               </div>
+              {isWaiting && (
+                <div className="mt-3">
+                  <Select
+                    value={String(room.duration_minutes ?? station.durationMinutes)}
+                    onValueChange={(v) => changeDuration(Number(v))}
+                  >
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-violet-400/30 bg-background/40 px-3 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[3, 5, 7, 8, 10, 12, 15, 20, 25, 30, 45, 60].map((m) => (
+                        <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="mt-1 text-[10px] text-muted-foreground">Tempo da estação</div>
+                </div>
+              )}
             </div>
 
             {isWaiting && (
