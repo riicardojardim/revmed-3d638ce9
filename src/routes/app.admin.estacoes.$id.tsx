@@ -237,6 +237,7 @@ function StationEditor() {
               clinical_case: r.clinical_case ?? s.clinical_case,
               candidate_task: r.candidate_task ?? s.candidate_task,
               patient_info: r.patient_info ?? s.patient_info,
+              patient_script: r.patient_script ?? s.patient_script,
               support_materials: r.support_materials ?? s.support_materials,
               patient_profile: { ...s.patient_profile, ...(r.patient_profile ?? {}) },
               deliverable_materials: r.deliverable_materials?.length
@@ -260,10 +261,17 @@ function StationEditor() {
             const startIdx = items.length;
             const rows = r.checklist_items.map((ci, idx) => {
               const pts = Number(ci.points) > 0 ? Number(ci.points) : 1;
+              const number = startIdx + idx + 1;
+              const rawDesc = ci.description.trim();
+              // gold-standard: description starts with "N. ..."
+              const description = /^\d+\.\s/.test(rawDesc) ? rawDesc : `${number}. ${rawDesc}`;
+              // keep AI's clean category name; strip accidental leading number
+              const category =
+                (ci.category ?? "Anamnese").replace(/^\s*\d+\.\s*/, "").trim() || "Anamnese";
               return {
                 station_id: id,
-                description: ci.description,
-                category: numberedCategory(startIdx + idx, ci.category || ci.description),
+                description,
+                category,
                 points: pts,
                 helper_text: ci.helper_text ?? null,
                 order_index: startIdx + idx,
@@ -274,6 +282,7 @@ function StationEditor() {
             if (error) toast.error("Falha ao importar checklist", { description: error.message });
             await load();
           }
+
           await saveStation({ silent: true });
           toast.success("PDF importado e campos preenchidos");
         }}
