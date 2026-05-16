@@ -205,13 +205,13 @@ function CandidateView() {
         <div className="relative">
           <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/20" />
           <span className="absolute inset-0 -m-2 animate-pulse rounded-full bg-mint/30" />
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-mint/30 to-emerald-500/20 ring-2 ring-mint/40">
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-mint/15 ring-2 ring-mint/40">
             <Hourglass className="h-10 w-10 text-mint" />
           </div>
         </div>
 
-        <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+        <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-mint/15 px-3 py-1 text-xs font-medium text-mint">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
           Conectado à sala {code}
         </div>
 
@@ -219,7 +219,7 @@ function CandidateView() {
           Aguardando o avaliador iniciar...
         </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-          Você já está dentro da estação <span className="font-semibold text-emerald-300">{room.station_title ?? station.title}</span>.
+          Você já está dentro da estação <span className="font-semibold text-foreground">{room.station_title ?? station.title}</span>.
           Assim que o avaliador iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
         </p>
 
