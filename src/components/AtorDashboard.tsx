@@ -74,19 +74,23 @@ export function AtorDashboard() {
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <li className="flex gap-3">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">1</span>
-              Receba o código da sala e entre como <strong className="text-foreground">Ator/Avaliador</strong>.
+              Escolha a <strong className="text-foreground">estação</strong> que você quer conduzir.
             </li>
             <li className="flex gap-3">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">2</span>
-              Leia o cenário e o roteiro do paciente padronizado antes do candidato iniciar.
+              Um <strong className="text-foreground">código da sala</strong> é gerado automaticamente — o mesmo código serve para o candidato entrar e para você entrar como <strong className="text-foreground">Ator/Avaliador</strong>.
             </li>
             <li className="flex gap-3">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">3</span>
-              Entregue os impressos no momento certo e marque cada item do checklist PEP.
+              Ajuste o <strong className="text-foreground">tempo do cronômetro</strong> se precisar e clique em <strong className="text-foreground">Iniciar</strong>.
             </li>
             <li className="flex gap-3">
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">4</span>
-              Finalize com a nota e feedback — o candidato recebe o resultado automaticamente.
+              Durante a estação, você vê todas as <strong className="text-foreground">falas do paciente</strong> e libera os <strong className="text-foreground">impressos</strong> conforme o candidato solicita.
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">5</span>
+              Ao <strong className="text-foreground">encerrar</strong>, o <strong className="text-foreground">PEP</strong> é desbloqueado para você avaliar — e fica visível para o candidato acompanhar a correção em tempo real.
             </li>
           </ul>
         </div>
