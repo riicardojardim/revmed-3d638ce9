@@ -651,7 +651,7 @@ function ActorView() {
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {idx + 1}. {parts.lead}
+                        {idx + 1}. {parts.lead.replace(/^\s*\d+\.\s*/, "")}
                       </div>
                       {parts.subs.length > 0 && (
                         <ul className="mt-2 space-y-0.5">
