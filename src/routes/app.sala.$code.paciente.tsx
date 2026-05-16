@@ -335,7 +335,13 @@ function ActorView() {
     }
 
     toast.success(submit ? "Correção enviada" : "Rascunho salvo");
-    if (submit) nav({ to: "/app/sala/$code", params: { code } });
+    if (submit) {
+      try {
+        localStorage.removeItem("ator:activeRoom");
+        window.dispatchEvent(new Event("ator:activeRoom"));
+      } catch {}
+      nav({ to: "/app/sala/$code", params: { code } });
+    }
   }
 
   async function setEvaluatedCandidate(id: string) {
