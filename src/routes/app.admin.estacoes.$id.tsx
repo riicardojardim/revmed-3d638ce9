@@ -365,14 +365,14 @@ function EditorBody({
           <SectionPedagogical station={station} up={up} />
         </>
       ) : (
-        <>
-          <SectionCaseCandidate station={station} up={up} />
-          <SectionReferences station={station} up={up} />
-          <Section title="Pré-visualização" hint="Selecione abaixo se quer ver como o avaliado ou o ator/paciente enxergam a estação no painel deles.">
-            <StationLivePreview station={station} items={items} />
-          </Section>
-        </>
+        <SectionCaseCandidate station={station} up={up} />
       )}
+
+      {/* Sempre visíveis (ambas as abas) */}
+      <SectionReferences station={station} up={up} />
+      <Section title="Pré-visualização" hint="Veja como o avaliado e o ator/paciente enxergam a estação no painel deles.">
+        <StationLivePreview station={station} items={items} />
+      </Section>
 
       <SectionPublish station={station} togglePublish={togglePublish} />
     </div>
