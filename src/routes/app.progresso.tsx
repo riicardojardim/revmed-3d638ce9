@@ -18,6 +18,9 @@ interface DbAttempt {
   score: number;
   status: string;
   created_at: string;
+  professor_score: number | null;
+  reviewed_at: string | null;
+  professor_feedback: string | null;
 }
 
 function ProgressPage() {
@@ -29,7 +32,7 @@ function ProgressPage() {
     if (!user) return;
     supabase
       .from("attempts")
-      .select("id, station_id, station_title, specialty, score, status, created_at")
+      .select("id, station_id, station_title, specialty, score, status, created_at, professor_score, reviewed_at, professor_feedback")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20)
@@ -108,17 +111,29 @@ function ProgressPage() {
               const specialty = a.specialty || st?.specialty || "—";
               const date = new Date(a.created_at).toLocaleDateString("pt-BR");
               return (
-                <div key={a.id} className="flex items-center gap-4 py-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mint/10 font-display font-bold text-medical">
-                    {Number(a.score).toFixed(1)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium">{title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {specialty} · {date}
+                <div key={a.id} className="py-3">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mint/10 font-display font-bold text-medical">
+                      {Number(a.score).toFixed(1)}
                     </div>
+                    <div className="flex-1">
+                      <div className="font-medium">{title}</div>
+                      <div className="text-xs text-muted-foreground">{specialty} · {date}</div>
+                    </div>
+                    {a.reviewed_at ? (
+                      <Badge className="bg-success/15 text-success hover:bg-success/15">
+                        Prof: {a.professor_score?.toFixed(1) ?? "—"}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">{a.status}</Badge>
+                    )}
                   </div>
-                  <Badge variant="outline">{a.status}</Badge>
+                  {a.professor_feedback && (
+                    <div className="mt-2 ml-16 rounded-xl border border-mint/30 bg-mint/5 p-3 text-sm">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-medical">Feedback do professor</div>
+                      <p className="mt-1 text-foreground/90 whitespace-pre-wrap">{a.professor_feedback}</p>
+                    </div>
+                  )}
                 </div>
               );
             })}
