@@ -569,6 +569,7 @@ function SimuladoRunner() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="0.0833">5 segundos (teste)</SelectItem>
                       {[5, 6, 7, 8, 9, 10].map((m) => (
                         <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
                       ))}
