@@ -197,6 +197,56 @@ function TrainPage() {
 
         {/* Right column — info card */}
         <aside className="space-y-4">
+          {/* Opções: Simulados */}
+          <div className="rounded-3xl border border-mint/30 bg-card p-5 shadow-card">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Opções</div>
+            <Button variant="hero" className="mt-3 w-full" onClick={() => setBuilderOpen(true)}>
+              <GraduationCap className="mr-1 h-4 w-4" /> Criar simulado
+            </Button>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Monte uma sequência de checklists. Só avança para o próximo quando o PEP atual estiver completo.
+            </p>
+
+            {simulados.length > 0 && (
+              <div className="mt-4 space-y-2 border-t border-border pt-3">
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <ListChecks className="h-3.5 w-3.5" /> Meus simulados
+                </div>
+                <ul className="space-y-1.5">
+                  {simulados.map((s) => {
+                    const total = s.stations.length;
+                    const done = s.finished ? total : s.currentIndex;
+                    return (
+                      <li key={s.id} className="group flex items-center gap-2 rounded-lg border border-border bg-background/40 px-2.5 py-2">
+                        <Link
+                          to="/app/simulado/$id"
+                          params={{ id: s.id }}
+                          className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                        >
+                          <Play className="h-3.5 w-3.5 shrink-0 text-mint" />
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-xs font-medium">{s.name}</div>
+                            <div className="text-[10px] text-muted-foreground">
+                              {s.finished ? "Concluído" : `${done}/${total} estações`}
+                            </div>
+                          </div>
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => { deleteSimulado(s.id); setSimulados(listSimulados()); }}
+                          className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:text-rose-400 group-hover:opacity-100"
+                          aria-label="Remover simulado"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+
           <div className="rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant">
             <div className="text-xs uppercase tracking-wider text-white/70">Disponíveis</div>
             <div className="mt-1 font-display text-4xl font-bold">{stations.length}</div>
