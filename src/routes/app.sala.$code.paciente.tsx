@@ -769,7 +769,7 @@ function ActorView() {
             <div className="mt-4 flex items-center justify-between gap-3">
               <div className="text-sm">
                 <span className="text-muted-foreground">Nota parcial:</span>{" "}
-                <span className="font-bold text-emerald-300">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
+                <span className="font-bold text-mint">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => save(false)} disabled={saving}>Salvar rascunho</Button>
