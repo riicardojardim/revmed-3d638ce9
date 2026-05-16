@@ -120,19 +120,48 @@ function AppLayout() {
         <nav className="flex-1 space-y-1 px-3">
           {navItems.map((n) => {
             const active = isActive(n.to, n.exact);
+            const isSalas = n.to === "/app/treinar";
             return (
-              <Link
-                key={n.to}
-                to={n.to}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                  active
-                    ? "bg-mint/10 text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <n.icon className={`h-5 w-5 ${active ? "text-mint" : ""}`} />
-                {n.label}
-              </Link>
+              <div key={n.to}>
+                <Link
+                  to={n.to}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                    active
+                      ? "bg-mint/10 text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  <n.icon className={`h-5 w-5 ${active ? "text-mint" : ""}`} />
+                  {n.label}
+                </Link>
+                {isSalas && activeRoom && (
+                  <div className="ml-3 mt-1 border-l border-mint/30 pl-3">
+                    <Link
+                      to="/app/sala/$code/paciente"
+                      params={{ code: activeRoom.code }}
+                      className={`group flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
+                        pathname.startsWith(`/app/sala/${activeRoom.code}`)
+                          ? "bg-mint/15 text-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <Activity className="h-3.5 w-3.5 text-mint" />
+                      <span className="flex-1 truncate">Treinamento</span>
+                      <button
+                        type="button"
+                        onClick={clearActiveRoom}
+                        aria-label="Encerrar treinamento"
+                        className="rounded p-0.5 opacity-60 hover:bg-background hover:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Link>
+                    <div className="px-2.5 pb-1 pt-0.5 text-[10px] font-mono uppercase tracking-wider text-mint/80">
+                      {activeRoom.code}
+                    </div>
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
