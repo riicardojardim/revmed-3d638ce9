@@ -40,6 +40,7 @@ interface DeliverableMaterial {
   type: string;
   description?: string;
   content: string;
+  imageUrl?: string;
   autoDeliver?: boolean;
 }
 
