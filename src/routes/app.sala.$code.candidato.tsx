@@ -466,7 +466,7 @@ function LobbyStep({
   return (
     <div className={cn(
       "flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 transition-colors",
-      done && "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+      done && "border-mint/40 bg-mint/10 text-mint",
       active && "border-mint/40 bg-mint/10 text-mint",
       !done && !active && "border-border bg-card/50 text-muted-foreground",
     )}>
