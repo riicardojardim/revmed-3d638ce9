@@ -157,16 +157,36 @@ function ActorView() {
     if (submit) nav({ to: "/app/sala/$code", params: { code } });
   }
 
+  async function startStation() {
+    if (!room) return;
+    if (!candidateId) return toast.error("Aguarde o candidato entrar pelo link.");
+    setStarting(true);
+    const { error } = await supabase.from("training_rooms")
+      .update({ status: "running", started_at: new Date().toISOString() })
+      .eq("id", room.id);
+    setStarting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Cronômetro iniciado para o candidato.");
+  }
+
+  function copyInviteLink() {
+    const link = `${window.location.origin}/app/entrar/${code}`;
+    navigator.clipboard.writeText(link);
+    toast.success("Link de convite copiado");
+  }
+
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
   const delivered = new Set(deliveries.map((d) => d.material_id));
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
+  const isRunning = room.status === "running";
+  const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/app/entrar/${code}` : `/app/entrar/${code}`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
-      <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Voltar à sala
+      <Link to="/app/treinar" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Voltar ao painel
       </Link>
 
       <div className="rounded-3xl border border-rose-200/40 bg-gradient-to-br from-rose-50/60 to-amber-50/40 p-6 dark:from-rose-900/10 dark:to-amber-900/10">
@@ -177,6 +197,66 @@ function ActorView() {
         <p className="mt-1 text-sm text-muted-foreground">
           Você conduz o paciente, entrega materiais e pontua o candidato. O candidato não vê esta tela.
         </p>
+      </div>
+
+      {/* Lobby: link + status do candidato + iniciar */}
+      <div className={cn(
+        "rounded-3xl border p-5 shadow-card transition-colors",
+        isRunning ? "border-emerald-300/40 bg-emerald-50/40 dark:bg-emerald-900/10"
+                  : candidateId ? "border-mint/40 bg-mint/5"
+                                : "border-amber-300/40 bg-amber-50/40 dark:bg-amber-900/10",
+      )}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex-1 min-w-[260px]">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Link de convite para o candidato
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex flex-1 items-center gap-2 truncate rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs">
+                <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+                <span className="truncate">{inviteLink}</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={copyInviteLink}>
+                <Copy className="mr-1 h-4 w-4" /> Copiar
+              </Button>
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Envie por WhatsApp ou e-mail. Ao abrir, o candidato cai direto na estação.
+            </p>
+          </div>
+
+          <div className="min-w-[220px] rounded-2xl border border-border bg-card px-4 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Candidato
+            </div>
+            {candidateId ? (
+              <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <CheckCheck className="h-4 w-4 text-emerald-500" />
+                {candidateName ?? "Candidato"}
+                <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+              </div>
+            ) : (
+              <div className="mt-1 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300">
+                <UserPlus className="h-4 w-4" />
+                Aguardando candidato...
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end">
+          {isRunning ? (
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+              Cronômetro rodando — estação em andamento
+            </div>
+          ) : (
+            <Button variant="hero" onClick={startStation} disabled={starting || !candidateId}>
+              <Play className="mr-1 h-4 w-4" />
+              {candidateId ? "Iniciar cronômetro" : "Aguardando candidato..."}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Mobile tabs */}
