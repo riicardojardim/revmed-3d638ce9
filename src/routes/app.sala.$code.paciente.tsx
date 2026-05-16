@@ -560,10 +560,7 @@ function ActorView() {
               </div>
             )}
 
-            <div className="grid grid-cols-[1fr_auto] gap-x-4 border-b border-border pb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <span>Item</span>
-              <span className="text-right">Avaliação</span>
-            </div>
+
 
             <ol className="space-y-3">
               {station.checklist.map((it, idx) => {
