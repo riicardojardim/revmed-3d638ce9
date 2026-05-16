@@ -7,9 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from "@/components/ui/dialog";
-import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
@@ -17,7 +14,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle, Lock,
+  Square, Check, Share2, Mail, MessageCircle, Lock, ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -954,13 +951,14 @@ function ActorView() {
                     <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
                   ) : (
                     <ul className="space-y-1.5">
-                      {materials.map((m, idx) => {
+                       {materials.map((m, idx) => {
                         const isDelivered = delivered.has(m.id);
+                        const isOpen = previewMaterialId === m.id;
                         return (
                           <li key={m.id}>
                             <button
                               type="button"
-                              onClick={() => setPreviewMaterialId(m.id)}
+                              onClick={() => setPreviewMaterialId(isOpen ? null : m.id)}
                               className={cn(
                                 "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
                                 isDelivered
@@ -977,7 +975,31 @@ function ActorView() {
                                   Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
                                 </span>
                               </span>
+                              <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
                             </button>
+                            {isOpen && (
+                              <div className="mt-1 rounded-lg border border-border bg-muted/30 p-3 text-xs">
+                                {m.description && (
+                                  <p className="mb-2 text-[11px] italic text-muted-foreground">{m.description}</p>
+                                )}
+                                <div className="whitespace-pre-wrap leading-relaxed text-foreground/90">
+                                  {m.content || <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>}
+                                </div>
+                                <div className="mt-2 flex items-center justify-between gap-2">
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {isDelivered ? "Já entregue ao candidato." : "Ainda não entregue."}
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant={isDelivered ? "outline" : "hero"}
+                                    disabled={isDelivered || !isRunning}
+                                    onClick={() => deliver(m.id)}
+                                  >
+                                    {isDelivered ? <><PackageCheck className="mr-1 h-3.5 w-3.5" /> Entregue</> : <><Send className="mr-1 h-3.5 w-3.5" /> Entregar agora</>}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
                           </li>
                         );
                       })}
@@ -1023,46 +1045,6 @@ function ActorView() {
           </div>
         </aside>
       </div>
-
-      <Dialog open={previewMaterialId !== null} onOpenChange={(o) => !o && setPreviewMaterialId(null)}>
-        <DialogContent className="max-w-2xl">
-          {(() => {
-            const m = materials.find((x) => x.id === previewMaterialId);
-            if (!m) return null;
-            const idx = materials.findIndex((x) => x.id === m.id);
-            const isDelivered = delivered.has(m.id);
-            return (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-mint" />
-                    Impresso {idx + 1} · {m.name}
-                  </DialogTitle>
-                  {m.description && (
-                    <DialogDescription>{m.description}</DialogDescription>
-                  )}
-                </DialogHeader>
-                <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm leading-relaxed whitespace-pre-wrap">
-                  {m.content || <span className="text-muted-foreground italic">Sem conteúdo cadastrado.</span>}
-                </div>
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <span className="text-[11px] text-muted-foreground">
-                    {isDelivered ? "Já entregue ao candidato." : "Ainda não entregue."}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant={isDelivered ? "outline" : "hero"}
-                    disabled={isDelivered || !isRunning}
-                    onClick={() => { deliver(m.id); setPreviewMaterialId(null); }}
-                  >
-                    {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar agora</>}
-                  </Button>
-                </div>
-              </>
-            );
-          })()}
-        </DialogContent>
-      </Dialog>
 
     </div>
   );
