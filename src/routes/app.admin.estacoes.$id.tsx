@@ -52,6 +52,7 @@ interface Station {
   difficulty: string;
   duration_minutes: number;
   clinical_case: string;
+  case_description: string | null;
   candidate_task: string;
   patient_info: string | null;
   support_materials: string | null;
@@ -167,6 +168,7 @@ function StationEditor() {
       title: station.title,
       specialty: station.specialty,
       clinical_case: station.clinical_case,
+      case_description: station.case_description,
       candidate_task: station.candidate_task,
       patient_info: station.patient_info,
       support_materials: station.support_materials,
