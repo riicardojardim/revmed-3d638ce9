@@ -366,15 +366,15 @@ function CandidateView() {
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className={cn(
               "rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-emerald-500/15" : isFinished ? "bg-rose-500/15" : "bg-violet-500/20",
+              isRunning ? "bg-mint/15" : "bg-muted/40",
             )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">
+              <div className="font-display text-5xl font-bold tabular-nums text-foreground">
                 {mm}:{ss}
               </div>
             </div>
 
             {isWaiting && (
-              <div className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-300">
+              <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
                 Aguardando o avaliador iniciar a estação...
               </div>
             )}
@@ -384,7 +384,7 @@ function CandidateView() {
               </Button>
             )}
             {isFinished && (
-              <div className="mt-3 rounded-lg bg-rose-500/10 px-3 py-2 text-center text-xs text-rose-300">
+              <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
                 Estação encerrada.
               </div>
             )}
@@ -397,7 +397,7 @@ function CandidateView() {
             </div>
             <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
               {correctionReady ? (
-                <div className="font-display text-xl font-bold tabular-nums text-emerald-300">
+                <div className="font-display text-xl font-bold tabular-nums text-mint">
                   {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
                 </div>
               ) : (
