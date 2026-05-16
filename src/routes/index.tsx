@@ -327,6 +327,86 @@ function Differentials() {
   );
 }
 
+function RolesSimulation() {
+  const roles = [
+    {
+      icon: Stethoscope,
+      title: "Candidato",
+      desc: "Vê o caso clínico, a tarefa e o cronômetro. Não vê o checklist — exatamente como na prova real.",
+      accent: "from-mint/20 to-medical/10",
+    },
+    {
+      icon: UserRound,
+      title: "Paciente / ator",
+      desc: "Recebe um roteiro: queixa, história, emoções e o que só revelar se for perguntado.",
+      accent: "from-rose-200/30 to-amber-100/20",
+    },
+    {
+      icon: ClipboardCheck,
+      title: "Médico avaliador",
+      desc: "Corrige o candidato pelo checklist oficial, pontua, comenta cada item e dá o feedback final.",
+      accent: "from-indigo-200/30 to-mint/10",
+    },
+  ];
+  return (
+    <section id="papeis" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+      <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+        <div>
+          <Badge className="border-mint/30 bg-mint/10 text-foreground hover:bg-mint/10">
+            <Theater className="mr-1.5 h-3.5 w-3.5 text-mint" /> Simulação com papéis reais
+          </Badge>
+          <h2 className="mt-4 font-display text-3xl font-bold leading-tight md:text-4xl">
+            Simulação com paciente e médico avaliador.{" "}
+            <span className="text-gradient">Sinta a pressão de uma estação real.</span>
+          </h2>
+          <p className="mt-5 text-muted-foreground">
+            O candidato vê o caso, o paciente segue o roteiro e o avaliador corrige pelo checklist.
+            Crie uma sala, compartilhe o código e treine como se já estivesse na prova.
+          </p>
+          <ul className="mt-6 space-y-3 text-sm">
+            {[
+              "Treine com paciente simulado e médico avaliador.",
+              "Cada papel vê apenas o conteúdo do seu perfil.",
+              "Ideal para professores, mentorias, turmas e cursos preparatórios.",
+              "Funciona no celular — chame seu colega por chamada de vídeo e abra a sala aqui.",
+            ].map((t) => (
+              <li key={t} className="flex items-start gap-2">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" /> <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link to="/cadastro">
+              <Button variant="hero" size="lg">Criar uma sala agora <ArrowRight className="ml-1 h-4 w-4" /></Button>
+            </Link>
+            <a href="#planos">
+              <Button variant="outline" size="lg">Ver planos</Button>
+            </a>
+          </div>
+        </div>
+
+        <div className="grid gap-4">
+          {roles.map((r) => (
+            <div key={r.title} className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-card">
+              <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${r.accent} opacity-60`} />
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-mint">
+                  <r.icon className="h-6 w-6 text-night" />
+                </div>
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-wider text-medical">{r.title}</div>
+                  <div className="mt-1 font-display text-lg font-bold">{`Sou ${r.title.toLowerCase()}`}</div>
+                  <p className="mt-2 text-sm text-muted-foreground">{r.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const areas = [
   { icon: Activity, name: "Clínica Médica", count: 28 },
   { icon: Baby, name: "Pediatria", count: 22 },
