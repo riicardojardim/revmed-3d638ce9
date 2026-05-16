@@ -919,7 +919,7 @@ function ActorView() {
                     </div>
                     <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
                       <div className="font-display text-xl font-bold tabular-nums text-mint">
-                        {score.toFixed(2)}
+                        {totals.earned.toFixed(2)} / {totals.total.toFixed(2)}
                       </div>
                     </div>
                   </div>
