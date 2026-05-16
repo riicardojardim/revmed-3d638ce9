@@ -699,20 +699,24 @@ function ActorView() {
                       {levels.map((lv, li) => {
                         const selected = current === lv.points;
                         const tone = levelTone(li, levels.length);
+                        const isBlocked = !isFinished && it.id === blockedItemId;
                         return (
                           <button
                             key={lv.label}
                             type="button"
-                            disabled={!isFinished}
-                            onClick={() =>
-                              setChecks((c) => ({ ...c, [it.id]: lv.points }))
-                            }
+                            onClick={() => {
+                              if (isBlocked) {
+                                toast.error("Você tem que terminar o checklist primeiro..");
+                                return;
+                              }
+                              setChecks((c) => ({ ...c, [it.id]: lv.points }));
+                            }}
                             className={cn(
                               "flex h-7 w-9 items-center justify-center rounded-md text-sm font-bold transition-colors",
                               selected ? tone.active : tone.idle,
-                              !isFinished && "cursor-not-allowed opacity-40",
+                              isBlocked && "cursor-not-allowed opacity-40",
                             )}
-                            title={lv.label}
+                            title={isBlocked ? "Aguarde o término da estação" : lv.label}
                           >
                             {lv.points}
                           </button>
