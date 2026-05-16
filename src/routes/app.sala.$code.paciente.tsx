@@ -716,7 +716,7 @@ function ActorView() {
           <div className="my-8 w-full max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-elegant">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-mint">
                   PEP — Padrão Esperado de Procedimento
                 </div>
                 <h2 className="mt-1 font-display text-2xl font-bold">Avaliação do candidato</h2>
