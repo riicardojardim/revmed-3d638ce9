@@ -1210,15 +1210,14 @@ function formatPatientProfile(p: NonNullable<LoadedStation["patientProfile"]>): 
     }).filter(Boolean);
   };
 
-  // DADOS PESSOAIS — um bullet por campo (sem linha resumo)
-  const dados: string[] = [];
-  if (p.name) dados.push(`- **Nome:** ${p.name}`);
-  if (p.age) dados.push(`- **Idade:** ${p.age}`);
-  if (p.sex) dados.push(`- **Sexo:** ${p.sex}`);
-  if (p.profession) dados.push(`- **Profissão:** ${p.profession}`);
-  if (dados.length) {
+  // DADOS PESSOAIS — linha resumo (Nome, idade, profissão)
+  const dadosParts: string[] = [];
+  if (p.name) dadosParts.push(p.name);
+  if (p.age) dadosParts.push(`${p.age} de idade`);
+  if (p.profession) dadosParts.push(String(p.profession).toLowerCase());
+  if (dadosParts.length) {
     out.push("DADOS PESSOAIS:");
-    out.push(...dados);
+    out.push(`- ${dadosParts.join(", ")}.`);
     out.push("");
   }
 
