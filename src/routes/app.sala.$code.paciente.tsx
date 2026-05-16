@@ -587,7 +587,14 @@ function ActorView() {
                               className="mb-3 block w-full h-auto rounded-md border border-border"
                             />
                           )}
-                          {m.content || (!isRhythm && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                          {isSpider && (
+                            <img
+                              src={aranhaArmadeira}
+                              alt="Aranha responsável pelo acidente"
+                              className="mb-3 block w-full h-auto rounded-md border border-border"
+                            />
+                          )}
+                          {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <Button
