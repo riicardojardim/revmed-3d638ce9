@@ -118,7 +118,7 @@ function RoomPage() {
     }
     const me = parts.find((p) => p.user_id === user.id);
     if (!me) return toast.error("Escolha seu papel antes de iniciar.");
-    if (me.role === "paciente" || me.role === "avaliador") nav({ to: "/app/sala/$code/paciente", params: { code } });
+    if (me.role === "paciente" || me.role === "avaliador") nav({ to: "/app/sala/$code/banca", params: { code } });
     else nav({ to: "/app/sala/$code/candidato", params: { code } });
   }
 
