@@ -505,41 +505,43 @@ function ActorView() {
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
-            <p className="mb-3 text-[11px] text-muted-foreground italic">Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las; clique novamente para desfazer.</p>
-            {station.patientScript && (
-              <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
-            )}
-            {p && (
-              <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                {patientFields(p).map(([label, value]) => value && (
-                  <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
-                    <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                    <dd className="mt-0.5 text-sm">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-            {p?.spontaneous && (
-              <SubBlock label="O que falar espontaneamente">
-                <ScriptText text={p.spontaneous} strikeable prefix="sp" struck={struckWords} toggle={toggleStruck} />
-              </SubBlock>
-            )}
-            {p?.onlyIfAsked && (
-              <SubBlock label="Revelar APENAS se perguntado">
-                <ScriptText text={p.onlyIfAsked} strikeable prefix="oia" struck={struckWords} toggle={toggleStruck} />
-              </SubBlock>
-            )}
-            {p?.doNotReveal && (
-              <SubBlock label="Nunca revelar" tone="rose">
-                <ScriptText text={p.doNotReveal} strikeable prefix="dnr" struck={struckWords} toggle={toggleStruck} />
-              </SubBlock>
-            )}
-            {(p?.emotionalTone || p?.actingTips) && (
-              <SubBlock label="Tom emocional e atuação">
-                {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
-                {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
-              </SubBlock>
-            )}
+            <p className="mb-3 text-[11px] text-muted-foreground italic">Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.</p>
+            <Highlightable>
+              {station.patientScript && (
+                <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
+              )}
+              {p && (
+                <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                  {patientFields(p).map(([label, value]) => value && (
+                    <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
+                      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
+                      <dd className="mt-0.5 text-sm">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {p?.spontaneous && (
+                <SubBlock label="O que falar espontaneamente">
+                  <ScriptText text={p.spontaneous} strikeable prefix="sp" struck={struckWords} toggle={toggleStruck} />
+                </SubBlock>
+              )}
+              {p?.onlyIfAsked && (
+                <SubBlock label="Revelar APENAS se perguntado">
+                  <ScriptText text={p.onlyIfAsked} strikeable prefix="oia" struck={struckWords} toggle={toggleStruck} />
+                </SubBlock>
+              )}
+              {p?.doNotReveal && (
+                <SubBlock label="Nunca revelar" tone="rose">
+                  <ScriptText text={p.doNotReveal} strikeable prefix="dnr" struck={struckWords} toggle={toggleStruck} />
+                </SubBlock>
+              )}
+              {(p?.emotionalTone || p?.actingTips) && (
+                <SubBlock label="Tom emocional e atuação">
+                  {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
+                  {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
+                </SubBlock>
+              )}
+            </Highlightable>
           </PRBlock>
 
 
@@ -1178,6 +1180,105 @@ function SubBlock({ label, children }: { label: string; tone?: "rose"; children:
     </div>
   );
 }
+
+/** Marca-texto persistente: selecionar destaca; selecionar de novo na mesma área remove. */
+function Highlightable({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ranges, setRanges] = useState<Array<[number, number]>>([]);
+
+  function getOffsetIn(root: HTMLElement, node: Node, offset: number): number {
+    let total = 0;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n = walker.nextNode();
+    while (n) {
+      if (n === node) return total + offset;
+      total += (n as Text).length;
+      n = walker.nextNode();
+    }
+    // node not a text node (e.g. element). Fall back: count text up to it.
+    if (node.nodeType !== 3) {
+      const w2 = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      total = 0;
+      let m = w2.nextNode();
+      while (m) {
+        // stop when text node is after `node` in document order
+        const pos = node.compareDocumentPosition(m);
+        if (pos & Node.DOCUMENT_POSITION_FOLLOWING) break;
+        total += (m as Text).length;
+        m = w2.nextNode();
+      }
+    }
+    return total;
+  }
+
+  // Re-apply highlight spans after every render
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    // Unwrap existing
+    root.querySelectorAll('.user-highlight').forEach((el) => {
+      const parent = el.parentNode!;
+      while (el.firstChild) parent.insertBefore(el.firstChild, el);
+      parent.removeChild(el);
+    });
+    root.normalize();
+    // Apply each range
+    for (const [start, end] of ranges) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const pieces: Array<{ node: Text; s: number; e: number }> = [];
+      let pos = 0;
+      let n = walker.nextNode() as Text | null;
+      while (n) {
+        const len = n.length;
+        const s = Math.max(start, pos);
+        const e = Math.min(end, pos + len);
+        if (s < e) pieces.push({ node: n, s: s - pos, e: e - pos });
+        pos += len;
+        if (pos >= end) break;
+        n = walker.nextNode() as Text | null;
+      }
+      // wrap in reverse so splits don't invalidate refs
+      for (let i = pieces.length - 1; i >= 0; i--) {
+        const { node, s, e } = pieces[i];
+        let target = node;
+        if (s > 0) target = target.splitText(s);
+        if (e - s < target.length) target.splitText(e - s);
+        const span = document.createElement('span');
+        span.className = 'user-highlight';
+        target.parentNode!.insertBefore(span, target);
+        span.appendChild(target);
+      }
+    }
+  }, [ranges]);
+
+  const handleMouseUp = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    const root = ref.current;
+    if (!root || !root.contains(range.commonAncestorContainer)) return;
+    const a = getOffsetIn(root, range.startContainer, range.startOffset);
+    const b = getOffsetIn(root, range.endContainer, range.endOffset);
+    const [s, e] = a < b ? [a, b] : [b, a];
+    if (s === e) return;
+    setRanges((prev) => {
+      const overlapping = prev.filter(([x, y]) => !(y <= s || x >= e));
+      if (overlapping.length > 0) {
+        // toggle off: remove any overlapping highlights
+        return prev.filter((r) => !overlapping.includes(r));
+      }
+      return [...prev, [s, e] as [number, number]];
+    });
+    sel.removeAllRanges();
+  };
+
+  return (
+    <div ref={ref} className="highlightable" onMouseUp={handleMouseUp}>
+      {children}
+    </div>
+  );
+}
+
 
 function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string, string | undefined][] {
   return [

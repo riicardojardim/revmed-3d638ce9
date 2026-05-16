@@ -186,14 +186,18 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Marca-texto: seleção de texto com a paleta mint do site */
-::selection {
+/* Marca-texto persistente (Orientações do Ator/Atriz) */
+.user-highlight {
   background: color-mix(in oklab, var(--mint) 55%, transparent);
   color: var(--night);
-  text-shadow: none;
+  border-radius: 2px;
+  padding: 0 1px;
+  cursor: pointer;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
-::-moz-selection {
-  background: color-mix(in oklab, var(--mint) 55%, transparent);
+.highlightable ::selection {
+  background: color-mix(in oklab, var(--mint) 40%, transparent);
   color: var(--night);
   text-shadow: none;
 }
