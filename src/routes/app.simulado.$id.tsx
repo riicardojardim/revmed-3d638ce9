@@ -701,16 +701,26 @@ function SimuladoRunner() {
                 </div>
               )}
             </div>
-            {isWaiting && (
-              <button
-                type="button"
-                onClick={startTimer}
-                style={{ color: "var(--medical)" }}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
-              >
-                <Play className="h-4 w-4" /> Iniciar cronômetro
-              </button>
-            )}
+            {isWaiting && (() => {
+              const canStart = !!evaluatedCandidateId;
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!canStart) { toast.error("Selecione o candidato avaliado antes de iniciar."); return; }
+                    startTimer();
+                  }}
+                  disabled={!canStart}
+                  style={canStart ? { color: "var(--medical)" } : undefined}
+                  className={cn(
+                    "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
+                    canStart ? "bg-white hover:bg-white/90 hover:shadow" : "bg-white/10 text-white/60 cursor-not-allowed border border-white/20",
+                  )}
+                >
+                  <Play className="h-4 w-4" /> {canStart ? "Iniciar cronômetro" : "Aguardando candidato…"}
+                </button>
+              );
+            })()}
             {running && (
               <button
                 type="button"
