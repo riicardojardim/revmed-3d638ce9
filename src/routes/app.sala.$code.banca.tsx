@@ -486,32 +486,49 @@ function EvaluatorView() {
                                 <span>Vale <b className="text-foreground tabular-nums">{it.points}</b> pts</span>
                               </div>
 
-                              {/* Pontuação por nível (estilo PR: 3 colunas com pontos) */}
-                              <div className="mt-3 grid grid-cols-3 gap-2">
-                                {LEVELS.map((L) => {
-                                  const active = lvl === L.v;
-                                  const pts = it.points * L.v;
-                                  return (
-                                    <button key={L.v} type="button"
-                                      onClick={() => setLevels((s) => ({ ...s, [it.id]: L.v }))}
-                                      className={cn(
-                                        "group relative rounded-xl border-2 px-2.5 py-2 text-left transition-all",
-                                        active ? L.activeCls : `bg-card ${L.cls}`,
-                                      )}>
-                                      <div className="flex items-center gap-1.5">
-                                        <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", active ? "bg-white" : L.dot)} />
-                                        <span className="text-[11px] font-semibold leading-tight">
-                                          <span className="hidden md:inline">{L.label}</span>
-                                          <span className="md:hidden">{L.short}</span>
-                                        </span>
-                                      </div>
-                                      <div className={cn("mt-1 font-display text-base font-bold tabular-nums", active ? "text-white" : "")}>
-                                        {pts === 0 ? "0" : pts % 1 === 0 ? pts.toFixed(0) : pts.toFixed(2)}
-                                      </div>
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                              {/* Pontuação por nível (estilo Pense Revalida: níveis com pontos próprios) */}
+                              {(() => {
+                                const itemLevels = (it.levels && it.levels.length > 0)
+                                  ? it.levels
+                                  : [
+                                      { label: "Inadequado", points: 0 },
+                                      { label: "Adequado", points: it.points },
+                                    ];
+                                const cols = itemLevels.length === 2 ? "grid-cols-2" : "grid-cols-3";
+                                return (
+                                  <div className={cn("mt-3 grid gap-2", cols)}>
+                                    {itemLevels.map((L) => {
+                                      const active = lvl === L.points;
+                                      const meta = levelStyle(L.label);
+                                      return (
+                                        <button key={L.label} type="button"
+                                          onClick={() => setLevels((s) => ({ ...s, [it.id]: L.points }))}
+                                          className={cn(
+                                            "group relative rounded-xl border-2 px-2.5 py-2 text-left transition-all",
+                                            active ? meta.activeCls : `bg-card ${meta.cls}`,
+                                          )}>
+                                          <div className="flex items-center gap-1.5">
+                                            <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", active ? "bg-white" : meta.dot)} />
+                                            <span className="text-[11px] font-semibold leading-tight">
+                                              <span className="hidden md:inline">{L.label}</span>
+                                              <span className="md:hidden">{meta.short}</span>
+                                            </span>
+                                          </div>
+                                          <div className={cn("mt-1 font-display text-base font-bold tabular-nums", active ? "text-white" : "")}>
+                                            {L.points === 0 ? "0" : L.points % 1 === 0 ? L.points.toFixed(0) : L.points.toFixed(2)}
+                                          </div>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })()}
+
+                              {it.helperText && (
+                                <div className="mt-3 rounded-lg border border-indigo-300/30 bg-indigo-50/40 px-3 py-2 text-[12px] leading-relaxed text-indigo-900/80 dark:border-indigo-400/20 dark:bg-indigo-950/20 dark:text-indigo-200/80">
+                                  {it.helperText}
+                                </div>
+                              )}
 
                               <Textarea value={comments[it.id] ?? ""}
                                 onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
