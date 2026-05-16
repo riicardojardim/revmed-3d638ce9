@@ -6,9 +6,9 @@ import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
   Upload, Sparkles, FileText, MessageSquare, ListChecks, Inbox, StickyNote,
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
-  Image as ImageIcon, X,
+  Image as ImageIcon, X, Theater, Send,
 } from "lucide-react";
-import { PRBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1117,7 +1117,24 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
 
         {mode === "ator" && (
           <div className="space-y-4">
-            <PRBlock icon={User} title="Orientações do Ator / Atriz">
+            <PRBlock icon={MessageSquare} title="Cenário de atuação">
+              <ScriptText text={station.clinical_case || "—"} />
+            </PRBlock>
+
+            {station.case_description && (
+              <PRBlock icon={MessageSquare} title="Descrição do caso">
+                <ScriptText text={station.case_description} />
+              </PRBlock>
+            )}
+
+            <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
+              <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
+            </PRBlock>
+
+            <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
+              <p className="mb-3 text-[11px] text-muted-foreground italic">
+                Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.
+              </p>
               {station.patient_script ? (
                 <ScriptText text={station.patient_script} />
               ) : hasProfile ? (
@@ -1125,31 +1142,71 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               ) : (
                 <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
               )}
+              {(p as { spontaneous?: string }).spontaneous && (
+                <SubBlock label="O que falar espontaneamente">
+                  <ScriptText text={(p as { spontaneous?: string }).spontaneous ?? ""} />
+                </SubBlock>
+              )}
+              {(p as { doNotReveal?: string }).doNotReveal && (
+                <SubBlock label="Nunca revelar" tone="rose">
+                  <ScriptText text={(p as { doNotReveal?: string }).doNotReveal ?? ""} />
+                </SubBlock>
+              )}
+              {((p as { emotionalTone?: string; actingTips?: string }).emotionalTone || (p as { emotionalTone?: string; actingTips?: string }).actingTips) && (
+                <SubBlock label="Tom emocional e atuação">
+                  {(p as { emotionalTone?: string }).emotionalTone && <p><span className="font-medium">Tom:</span> {(p as { emotionalTone?: string }).emotionalTone}</p>}
+                  {(p as { actingTips?: string }).actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {(p as { actingTips?: string }).actingTips}</p>}
+                </SubBlock>
+              )}
             </PRBlock>
-            <PRBlock icon={MessageSquare} title="Cenário clínico (contexto)">
-              <ScriptText text={station.clinical_case || "—"} />
-            </PRBlock>
-            {station.case_description && (
-              <PRBlock icon={MessageSquare} title="Descrição do caso">
-                <ScriptText text={station.case_description} />
-              </PRBlock>
-            )}
-            <PRBlock icon={Inbox} title="Impressos para entregar" right={<Badge variant="outline">{(station.deliverable_materials ?? []).length}</Badge>}>
+
+            <PRBlock
+              icon={Inbox}
+              title="Materiais para entregar ao candidato"
+              right={<Badge variant="outline" className="text-white border-white/30">0/{(station.deliverable_materials ?? []).length}</Badge>}
+            >
               {(station.deliverable_materials ?? []).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nenhum impresso cadastrado.</p>
+                <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
               ) : (
-                <div className="space-y-3">
-                  {(station.deliverable_materials ?? []).map((m, i) => (
-                    <div key={i} className="rounded-xl border border-mint/30 bg-mint/5 p-4">
-                      <div className="flex items-center gap-2 text-sm font-semibold">
-                        <FileText className="h-4 w-4 text-mint" /> {m.name || `Impresso ${i + 1}`}
-                        {m.type && <Badge variant="outline" className="ml-auto">{m.type}</Badge>}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(station.deliverable_materials ?? []).map((m, idx) => {
+                    const cleanName = (() => {
+                      const clean = (m.name || "").replace(/^\s*impresso\s*\d+\s*[:\-–—()]*\s*/i, "").replace(/^\(\s*|\s*\)$/g, "").trim();
+                      if (!clean) return "";
+                      const sentence = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+                      return `( ${sentence} )`;
+                    })();
+                    return (
+                      <div key={idx} className="rounded-xl border border-border bg-background/40 p-3 flex flex-col h-full">
+                        <div className="flex w-full items-start justify-between gap-2 text-left">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 text-sm font-semibold">
+                              <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1}{" "}
+                              <span className="text-muted-foreground font-normal">{cleanName}</span>
+                            </div>
+                            {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
+                          </div>
+                        </div>
+                        <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
+                          {m.imageUrl && (
+                            <img
+                              src={m.imageUrl}
+                              alt={m.name || "Material"}
+                              className="mb-3 block w-full h-auto rounded-md border border-border"
+                            />
+                          )}
+                          {m.content
+                            ? <ScriptText text={m.content} />
+                            : (!m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                        </div>
+                        <div className="mt-auto pt-3">
+                          <Button size="sm" variant="hero" className="w-full" disabled>
+                            <Send className="mr-1 h-4 w-4" /> Entregar
+                          </Button>
+                        </div>
                       </div>
-                      {m.description && <div className="mt-2 text-xs text-muted-foreground">Gatilho: {m.description}</div>}
-                      {m.content && <pre className="mt-2 whitespace-pre-wrap rounded bg-background/60 p-2 text-xs">{m.content}</pre>}
-                      {m.imageUrl && <img src={m.imageUrl} alt={m.name || "Material"} className="mt-2 max-h-80 rounded-lg border border-border" />}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </PRBlock>
