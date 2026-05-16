@@ -595,19 +595,6 @@ function ActorView() {
               </div>
             )}
 
-          <PRBlock icon={Theater} title="Ritmo do paciente">
-            <figure className="overflow-hidden rounded-xl border border-border bg-background/40">
-              <img
-                src={ecgRitmoSinusal}
-                alt="Traçado de ECG do paciente — ritmo sinusal"
-                className="block w-full h-auto"
-              />
-              <figcaption className="px-3 py-2 text-[11px] text-muted-foreground">
-                ECG de demonstração — ritmo sinusal regular.
-              </figcaption>
-            </figure>
-          </PRBlock>
-
 
             <ol className="space-y-3">
               {station.checklist.map((it, idx) => {
