@@ -625,7 +625,7 @@ function ActorView() {
             {!isFinished && (
               <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
                 <Lock className="mr-1 inline h-3.5 w-3.5" />
-                Disponível para preenchimento após encerrar a estação.
+                Você pode pontuar durante a estação, mas 1 item será liberado apenas após encerrar.
               </div>
             )}
 
