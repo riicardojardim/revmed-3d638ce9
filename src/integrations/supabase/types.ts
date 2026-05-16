@@ -383,6 +383,7 @@ export type Database = {
           material_content: string | null
           material_description: string | null
           material_id: string
+          material_image_url: string | null
           material_name: string
           material_type: string | null
           room_id: string
@@ -394,6 +395,7 @@ export type Database = {
           material_content?: string | null
           material_description?: string | null
           material_id: string
+          material_image_url?: string | null
           material_name: string
           material_type?: string | null
           room_id: string
@@ -405,6 +407,7 @@ export type Database = {
           material_content?: string | null
           material_description?: string | null
           material_id?: string
+          material_image_url?: string | null
           material_name?: string
           material_type?: string | null
           room_id?: string
