@@ -614,20 +614,6 @@ function SimuladoRunner() {
             </div>
           </div>
 
-          {/* Status */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Status da avaliação</div>
-            <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="em_andamento">Aguardando...</SelectItem>
-                <SelectItem value="aprovado">Aprovado</SelectItem>
-                <SelectItem value="reprovado">Reprovado</SelectItem>
-                <SelectItem value="repetir">Pedir repetição</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Participante (treino individual) */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
