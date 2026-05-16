@@ -474,66 +474,73 @@ function SectionBasics({ station, up }: { station: Station; up: <K extends keyof
   );
 }
 
-function SectionCase({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+function SectionCaseCandidate({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+  return (
+    <Section title="Cenário de atuação e tarefas" hint="Texto que o avaliado lê no início da estação.">
+      <div>
+        <Label>Cenário de atuação (caso clínico)</Label>
+        <Textarea rows={5} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} />
+      </div>
+      <div>
+        <Label>Tarefas do candidato (o que ele deve executar)</Label>
+        <Textarea rows={3} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div>
+          <Label>Dados rápidos do paciente (mostrados ao avaliado)</Label>
+          <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
+        </div>
+        <div>
+          <Label>Materiais disponíveis durante a estação</Label>
+          <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function SectionCaseActor({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
   const p = station.patient_profile ?? {};
   function setP<K extends keyof PatientProfile>(k: K, v: PatientProfile[K]) {
     up("patient_profile", { ...p, [k]: v });
   }
   return (
-    <>
-      <Section title="Caso clínico apresentado">
-        <div>
-          <Label>Caso clínico (mostrado ao candidato no início)</Label>
-          <Textarea rows={5} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} />
-        </div>
-        <div>
-          <Label>Tarefa do candidato</Label>
-          <Textarea rows={3} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} />
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <Label>Dados rápidos do paciente</Label>
-            <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
-          </div>
-          <div>
-            <Label>Materiais disponíveis durante a estação</Label>
-            <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Perfil completo do paciente / ator"
-        hint="Usado pelo participante que atua como paciente nas estações em dupla.">
-        <div className="grid gap-3 md:grid-cols-5">
-          <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Dona Maria" /></div>
-          <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="72" /></div>
-          <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="feminino" /></div>
-          <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} placeholder="Barreiras, BA" /></div>
-          <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} /></div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div><Label>Queixa principal</Label><Textarea rows={2} value={p.chiefComplaint ?? ""} onChange={(e) => setP("chiefComplaint", e.target.value)} /></div>
-          <div><Label>HMA (história da doença atual)</Label><Textarea rows={2} value={p.hpi ?? ""} onChange={(e) => setP("hpi", e.target.value)} /></div>
-          <div><Label>Antecedentes pessoais</Label><Textarea rows={2} value={p.personalHistory ?? ""} onChange={(e) => setP("personalHistory", e.target.value)} /></div>
-          <div><Label>Medicações em uso</Label><Textarea rows={2} value={p.medications ?? ""} onChange={(e) => setP("medications", e.target.value)} /></div>
-          <div><Label>Alergias</Label><Textarea rows={2} value={p.allergies ?? ""} onChange={(e) => setP("allergies", e.target.value)} /></div>
-          <div><Label>Antecedentes familiares</Label><Textarea rows={2} value={p.familyHistory ?? ""} onChange={(e) => setP("familyHistory", e.target.value)} /></div>
-          <div><Label>Hábitos</Label><Textarea rows={2} value={p.habits ?? ""} onChange={(e) => setP("habits", e.target.value)} /></div>
-          <div><Label>Sintomas associados</Label><Textarea rows={2} value={p.symptoms ?? ""} onChange={(e) => setP("symptoms", e.target.value)} /></div>
-          <div><Label>Sinais vitais</Label><Textarea rows={2} value={p.vitals ?? ""} onChange={(e) => setP("vitals", e.target.value)} /></div>
-          <div><Label>Exames prévios</Label><Textarea rows={2} value={p.previousExams ?? ""} onChange={(e) => setP("previousExams", e.target.value)} /></div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          <div><Label>O paciente fala espontaneamente</Label><Textarea rows={3} value={p.spontaneous ?? ""} onChange={(e) => setP("spontaneous", e.target.value)} /></div>
-          <div><Label>Só revela se perguntado</Label><Textarea rows={3} value={p.onlyIfAsked ?? ""} onChange={(e) => setP("onlyIfAsked", e.target.value)} /></div>
-          <div><Label>Não revelar</Label><Textarea rows={3} value={p.doNotReveal ?? ""} onChange={(e) => setP("doNotReveal", e.target.value)} /></div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div><Label>Tom emocional</Label><Input value={p.emotionalTone ?? ""} onChange={(e) => setP("emotionalTone", e.target.value)} /></div>
-          <div><Label>Dicas de atuação</Label><Input value={p.actingTips ?? ""} onChange={(e) => setP("actingTips", e.target.value)} /></div>
-        </div>
-      </Section>
-    </>
+    <Section title="Orientações do Ator / Atriz"
+      hint="Perfil completo do paciente que o ator vai interpretar — campos seguem o padrão dos PDFs oficiais.">
+      <div className="grid gap-3 md:grid-cols-5">
+        <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Miguel" /></div>
+        <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="40" /></div>
+        <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="masculino" /></div>
+        <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} /></div>
+        <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} placeholder="mecânico" /></div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div><Label>Motivo da consulta / queixa principal</Label><Textarea rows={2} value={p.chiefComplaint ?? ""} onChange={(e) => setP("chiefComplaint", e.target.value)} /></div>
+        <div><Label>Características do acidente / HMA</Label><Textarea rows={3} value={p.hpi ?? ""} onChange={(e) => setP("hpi", e.target.value)} placeholder="Tempo de evolução, local, dor, intensidade, irradiação, tipo de dor..." /></div>
+        <div><Label>Sintomas associados</Label><Textarea rows={3} value={p.symptoms ?? ""} onChange={(e) => setP("symptoms", e.target.value)} placeholder="Vômitos, alterações visuais, salivação, priapismo, astenia..." /></div>
+        <div><Label>Só revelar se perguntado</Label><Textarea rows={3} value={p.onlyIfAsked ?? ""} onChange={(e) => setP("onlyIfAsked", e.target.value)} placeholder="Ex: Se perguntado por limpeza/antissepsia: responder que não." /></div>
+        <div><Label>Antecedentes pessoais (doenças, cartão de vacina)</Label><Textarea rows={2} value={p.personalHistory ?? ""} onChange={(e) => setP("personalHistory", e.target.value)} /></div>
+        <div><Label>Medicações em uso</Label><Textarea rows={2} value={p.medications ?? ""} onChange={(e) => setP("medications", e.target.value)} /></div>
+        <div><Label>Alergias</Label><Textarea rows={2} value={p.allergies ?? ""} onChange={(e) => setP("allergies", e.target.value)} /></div>
+        <div><Label>Antecedentes familiares</Label><Textarea rows={2} value={p.familyHistory ?? ""} onChange={(e) => setP("familyHistory", e.target.value)} /></div>
+        <div><Label>Hábitos (álcool, cigarro, drogas, urina, sono)</Label><Textarea rows={3} value={p.habits ?? ""} onChange={(e) => setP("habits", e.target.value)} /></div>
+        <div><Label>Sinais vitais</Label><Textarea rows={2} value={p.vitals ?? ""} onChange={(e) => setP("vitals", e.target.value)} /></div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-3">
+        <div><Label>O paciente fala espontaneamente</Label><Textarea rows={3} value={p.spontaneous ?? ""} onChange={(e) => setP("spontaneous", e.target.value)} /></div>
+        <div><Label>Exames prévios</Label><Textarea rows={3} value={p.previousExams ?? ""} onChange={(e) => setP("previousExams", e.target.value)} /></div>
+        <div><Label>Não revelar</Label><Textarea rows={3} value={p.doNotReveal ?? ""} onChange={(e) => setP("doNotReveal", e.target.value)} /></div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <div><Label>Tom emocional</Label><Input value={p.emotionalTone ?? ""} onChange={(e) => setP("emotionalTone", e.target.value)} /></div>
+        <div><Label>Dicas de atuação</Label><Input value={p.actingTips ?? ""} onChange={(e) => setP("actingTips", e.target.value)} /></div>
+      </div>
+      <div>
+        <Label>Roteiro completo do paciente (fala literal, se houver)</Label>
+        <Textarea rows={6} value={station.patient_script ?? ""} onChange={(e) => up("patient_script", e.target.value)}
+          placeholder="Frases textuais que o ator pode usar durante a simulação." />
+      </div>
+    </Section>
   );
 }
 
