@@ -553,34 +553,49 @@ function ForTeachers() {
 
 const plans = [
   {
-    name: "Básico",
-    price: "R$ 49",
-    desc: "Para começar a treinar com método.",
-    features: ["Acesso a estações liberadas", "Cronômetro integrado", "Histórico simples"],
+    name: "Grátis",
+    price: "R$ 0",
+    period: "/ 3 dias",
+    desc: "Experimente a plataforma completa por 3 dias.",
+    features: [
+      "3 dias de acesso completo",
+      "Treine como médico ou ator",
+      "+600 checklists atualizados",
+      "Flashcards e resumos",
+      "Estatísticas de estudo",
+    ],
+    cta: "Começar grátis",
   },
   {
-    name: "Pro",
-    price: "R$ 119",
-    desc: "O plano mais escolhido pelos médicos.",
+    name: "Completo",
+    price: "R$ 800",
+    period: "até o dia da prova",
+    desc: "Treine como médico/candidato OU como ator/avaliador.",
     features: [
-      "Todas as estações",
-      "Feedback inteligente",
-      "Dashboard avançado",
-      "Flashcards e resumos",
-      "Treino em dupla",
+      "Acesso até o dia da prova",
+      "Treine como médico OU ator/avaliador",
+      "+600 checklists e +450 flashcards",
+      "Treinamentos ilimitados",
+      "Grupo de WhatsApp e CHAT",
+      "Crie checklists com IA",
+      "Correção por IA com feedback",
     ],
     highlight: true,
+    cta: "Quero o Completo",
   },
   {
-    name: "Mentoria",
-    price: "R$ 249",
-    desc: "Com correção e simulados guiados.",
+    name: "Ator",
+    price: "R$ 170",
+    period: "até o dia da prova",
+    desc: "Exclusivo para quem vai avaliar e atuar como paciente.",
     features: [
-      "Tudo do plano Pro",
-      "Correção de professores",
-      "Simulados guiados",
-      "Feedback individual",
+      "Acesso até o dia da prova",
+      "Atue como ator/avaliador",
+      "+600 checklists atualizados",
+      "Treinamentos ilimitados",
+      "Use a plataforma como avaliador",
     ],
+    cta: "Quero ser Ator",
   },
 ];
 
@@ -608,7 +623,7 @@ function Plans() {
               <div className="mt-1 text-sm text-muted-foreground">{p.desc}</div>
               <div className="mt-5 flex items-baseline gap-1">
                 <span className="font-display text-4xl font-bold">{p.price}</span>
-                <span className="text-sm text-muted-foreground">/ mês</span>
+                <span className="text-sm text-muted-foreground">{p.period}</span>
               </div>
               <ul className="mt-6 space-y-3 text-sm">
                 {p.features.map((f) => (
@@ -620,7 +635,7 @@ function Plans() {
               </ul>
               <Link to="/cadastro" className="mt-8">
                 <Button variant={p.highlight ? "hero" : "outline"} className="w-full">
-                  Quero esse plano
+                  {p.cta}
                 </Button>
               </Link>
             </div>

@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, ClipboardCheck } from "lucide-react";
+import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, ClipboardCheck, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: RoomPage,
@@ -19,6 +20,7 @@ type Participant = { id: string; user_id: string; role: string; joined_at: strin
 const ROLE_CARDS = [
   {
     role: "candidato",
+    requires: "candidato" as const,
     title: "Sou candidato",
     desc: "Vou treinar a estação. Vejo o caso clínico, a tarefa e o cronômetro.",
     icon: Stethoscope,
@@ -26,6 +28,7 @@ const ROLE_CARDS = [
   },
   {
     role: "paciente",
+    requires: "ator" as const,
     title: "Sou paciente / ator",
     desc: "Vou interpretar o paciente seguindo o roteiro entregue pela banca.",
     icon: UserRound,
@@ -33,6 +36,7 @@ const ROLE_CARDS = [
   },
   {
     role: "avaliador",
+    requires: "ator" as const,
     title: "Sou médico avaliador",
     desc: "Vou corrigir o candidato pelo checklist, pontuar e dar feedback.",
     icon: ClipboardCheck,
@@ -79,8 +83,22 @@ function RoomPage() {
     // eslint-disable-next-line
   }, [room?.id]);
 
-  async function pickRole(role: string) {
+  const sub = useSubscription();
+
+  function canPick(requires: "candidato" | "ator") {
+    return requires === "candidato" ? sub.canBeCandidato : sub.canBeAtor;
+  }
+
+  async function pickRole(role: string, requires: "candidato" | "ator") {
     if (!room || !user) return;
+    if (!canPick(requires)) {
+      toast.error(
+        requires === "candidato"
+          ? "Seu plano não permite entrar como candidato. Faça upgrade para o plano Completo."
+          : "Seu plano não permite atuar como ator/avaliador."
+      );
+      return;
+    }
     const existing = parts.find((p) => p.user_id === user.id);
     if (existing) {
       const { error } = await supabase.from("training_room_participants").update({ role }).eq("id", existing.id);
@@ -132,6 +150,23 @@ function RoomPage() {
         </div>
       </div>
 
+      {sub.plan && !sub.isPrivileged && (
+        <div className={`rounded-2xl border p-4 text-sm ${sub.plan.expired ? "border-rose-300 bg-rose-50 text-rose-800 dark:bg-rose-950/30" : "border-mint/40 bg-mint/5"}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="font-semibold">Plano {sub.plan.name}</span>
+              {sub.plan.slug === "free" && sub.daysLeft !== null && !sub.plan.expired && (
+                <span className="ml-2 text-xs">· {sub.daysLeft} {sub.daysLeft === 1 ? "dia restante" : "dias restantes"} do teste</span>
+              )}
+              {sub.plan.expired && <span className="ml-2 text-xs">· expirado</span>}
+            </div>
+            {(sub.plan.slug === "free" || sub.plan.expired) && (
+              <Link to="/" className="text-xs font-semibold text-medical hover:underline">Ver planos →</Link>
+            )}
+          </div>
+        </div>
+      )}
+
       <div>
         <h2 className="font-display text-lg font-bold">Escolha seu papel</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -141,9 +176,13 @@ function RoomPage() {
           {ROLE_CARDS.map((c) => {
             const isMe = me?.role === c.role;
             const count = roleCount(c.role);
+            const locked = !canPick(c.requires);
             return (
-              <button key={c.role} onClick={() => pickRole(c.role)}
-                className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5 ${
+              <button key={c.role} onClick={() => pickRole(c.role, c.requires)}
+                disabled={locked}
+                className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all ${
+                  locked ? "cursor-not-allowed opacity-60" : "hover:-translate-y-0.5"
+                } ${
                   isMe ? "border-mint bg-mint/5 shadow-elegant" : "border-border bg-card hover:border-mint/40 hover:shadow-card"
                 }`}>
                 <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${c.accent} opacity-60`} />
@@ -152,7 +191,13 @@ function RoomPage() {
                 <div className="mt-2 text-sm text-muted-foreground">{c.desc}</div>
                 <div className="mt-4 flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{count} na sala</span>
-                  {isMe && <span className="rounded-full bg-mint px-2 py-0.5 font-medium text-night">Selecionado</span>}
+                  {locked ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 font-medium text-muted-foreground">
+                      <Lock className="h-3 w-3" /> Bloqueado pelo plano
+                    </span>
+                  ) : isMe ? (
+                    <span className="rounded-full bg-mint px-2 py-0.5 font-medium text-night">Selecionado</span>
+                  ) : null}
                 </div>
               </button>
             );
