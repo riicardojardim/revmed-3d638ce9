@@ -45,7 +45,20 @@ function TrainPage() {
   const [busy, setBusy] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
   const [stations, setStations] = useState<DBStation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
+  const [builderOpen, setBuilderOpen] = useState(false);
+  const [simulados, setSimulados] = useState<Simulado[]>([]);
+
+  useEffect(() => {
+    const refresh = () => setSimulados(listSimulados());
+    refresh();
+    window.addEventListener("estacao:simulados", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("estacao:simulados", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
 
   useEffect(() => {
     (async () => {
