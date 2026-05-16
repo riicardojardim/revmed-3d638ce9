@@ -676,7 +676,7 @@ function ActorView() {
                       <div className="mt-3 space-y-0.5 text-xs text-muted-foreground">
                         {levels.map((lv) => (
                           <div key={lv.label}>
-                            <span className="font-medium text-foreground">{lv.label}</span>
+                            <span className="font-bold text-foreground">{lv.label}</span>
                             {lv.description ? <><span>: </span><span>{lv.description}</span></> : null}
                           </div>
                         ))}
