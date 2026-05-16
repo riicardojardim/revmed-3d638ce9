@@ -518,14 +518,9 @@ function ActorView() {
                 <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
               )}
               {p && (
-                <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  {patientFields(p).map(([label, value]) => value && (
-                    <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
-                      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                      <dd className="mt-0.5 text-sm">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
+                <div className="mt-4">
+                  <ScriptText text={formatPatientProfile(p)} strikeable prefix="pp" struck={struckWords} toggle={toggleStruck} />
+                </div>
               )}
               {p?.spontaneous && (
                 <SubBlock label="O que falar espontaneamente">
