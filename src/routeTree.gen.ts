@@ -36,6 +36,7 @@ import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professo
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
+import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoes'
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
 import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
 import { Route as AppAdminEstacoesIndexRouteImport } from './routes/app.admin.estacoes.index'
@@ -181,6 +182,11 @@ const AppAdminPlanosRoute = AppAdminPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminEstacoesRoute = AppAdminEstacoesRouteImport.update({
+  id: '/estacoes',
+  path: '/estacoes',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminConteudoRoute = AppAdminConteudoRouteImport.update({
   id: '/conteudo',
   path: '/conteudo',
@@ -192,9 +198,9 @@ const AppSalaCodeIndexRoute = AppSalaCodeIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminEstacoesIndexRoute = AppAdminEstacoesIndexRouteImport.update({
-  id: '/estacoes/',
-  path: '/estacoes/',
-  getParentRoute: () => AppAdminRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
 const AppSalaCodePacienteRoute = AppSalaCodePacienteRouteImport.update({
   id: '/sala/$code/paciente',
@@ -222,9 +228,9 @@ const AppProfessorCorrecoesIdRoute = AppProfessorCorrecoesIdRouteImport.update({
   getParentRoute: () => AppProfessorCorrecoesRoute,
 } as any)
 const AppAdminEstacoesIdRoute = AppAdminEstacoesIdRouteImport.update({
-  id: '/estacoes/$id',
-  path: '/estacoes/$id',
-  getParentRoute: () => AppAdminRoute,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
+  '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -317,6 +324,7 @@ export interface FileRoutesById {
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
+  '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -357,6 +365,7 @@ export interface FileRouteTypes {
     | '/e/$code'
     | '/app/'
     | '/app/admin/conteudo'
+    | '/app/admin/estacoes'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/e/$code'
     | '/app/'
     | '/app/admin/conteudo'
+    | '/app/admin/estacoes'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -652,6 +662,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPlanosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/estacoes': {
+      id: '/app/admin/estacoes'
+      path: '/estacoes'
+      fullPath: '/app/admin/estacoes'
+      preLoaderRoute: typeof AppAdminEstacoesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/conteudo': {
       id: '/app/admin/conteudo'
       path: '/conteudo'
@@ -668,10 +685,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/admin/estacoes/': {
       id: '/app/admin/estacoes/'
-      path: '/estacoes'
+      path: '/'
       fullPath: '/app/admin/estacoes/'
       preLoaderRoute: typeof AppAdminEstacoesIndexRouteImport
-      parentRoute: typeof AppAdminRoute
+      parentRoute: typeof AppAdminEstacoesRoute
     }
     '/app/sala/$code/paciente': {
       id: '/app/sala/$code/paciente'
@@ -710,30 +727,41 @@ declare module '@tanstack/react-router' {
     }
     '/app/admin/estacoes/$id': {
       id: '/app/admin/estacoes/$id'
-      path: '/estacoes/$id'
+      path: '/$id'
       fullPath: '/app/admin/estacoes/$id'
       preLoaderRoute: typeof AppAdminEstacoesIdRouteImport
-      parentRoute: typeof AppAdminRoute
+      parentRoute: typeof AppAdminEstacoesRoute
     }
   }
 }
 
-interface AppAdminRouteChildren {
-  AppAdminConteudoRoute: typeof AppAdminConteudoRoute
-  AppAdminPlanosRoute: typeof AppAdminPlanosRoute
-  AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
-  AppAdminIndexRoute: typeof AppAdminIndexRoute
+interface AppAdminEstacoesRouteChildren {
   AppAdminEstacoesIdRoute: typeof AppAdminEstacoesIdRoute
   AppAdminEstacoesIndexRoute: typeof AppAdminEstacoesIndexRoute
 }
 
+const AppAdminEstacoesRouteChildren: AppAdminEstacoesRouteChildren = {
+  AppAdminEstacoesIdRoute: AppAdminEstacoesIdRoute,
+  AppAdminEstacoesIndexRoute: AppAdminEstacoesIndexRoute,
+}
+
+const AppAdminEstacoesRouteWithChildren =
+  AppAdminEstacoesRoute._addFileChildren(AppAdminEstacoesRouteChildren)
+
+interface AppAdminRouteChildren {
+  AppAdminConteudoRoute: typeof AppAdminConteudoRoute
+  AppAdminEstacoesRoute: typeof AppAdminEstacoesRouteWithChildren
+  AppAdminPlanosRoute: typeof AppAdminPlanosRoute
+  AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
+}
+
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminConteudoRoute: AppAdminConteudoRoute,
+  AppAdminEstacoesRoute: AppAdminEstacoesRouteWithChildren,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
-  AppAdminEstacoesIdRoute: AppAdminEstacoesIdRoute,
-  AppAdminEstacoesIndexRoute: AppAdminEstacoesIndexRoute,
 }
 
 const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
