@@ -25,6 +25,11 @@ interface Station {
   candidate_task: string;
   patient_info: string | null;
   support_materials: string | null;
+  patient_script: string | null;
+  evaluator_notes: string | null;
+  competencies: string[];
+  scoring_criteria: string | null;
+  post_materials: string | null;
   published: boolean;
 }
 
