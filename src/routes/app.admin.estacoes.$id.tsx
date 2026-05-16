@@ -827,7 +827,7 @@ function SectionReview({
         </div>
       </Section>
 
-      <Section title="Pré-visualização" hint="Veja exatamente como o avaliado, o ator/paciente ou o avaliador enxergam a estação no painel deles.">
+      <Section title="Pré-visualização" hint="Veja exatamente como o avaliado e o ator/paciente enxergam a estação no painel deles.">
         <StationLivePreview station={station} items={items} />
       </Section>
 
