@@ -148,7 +148,7 @@ function EvaluatorView() {
   const totals = useMemo(() => {
     if (!station) return { total: 0, earned: 0, done: 0 };
     const total = station.checklist.reduce((s, i) => s + i.points, 0);
-    const earned = station.checklist.reduce((s, i) => s + (levels[i.id] !== undefined ? i.points * levels[i.id] : 0), 0);
+    const earned = station.checklist.reduce((s, i) => s + (levels[i.id] ?? 0), 0);
     const done = station.checklist.filter((i) => levels[i.id] !== undefined).length;
     return { total, earned, done };
   }, [station, levels]);
