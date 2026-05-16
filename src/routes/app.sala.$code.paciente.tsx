@@ -63,22 +63,15 @@ function parseSubItems(description: string): { lead: string; subs: string[] } {
 }
 
 function levelTone(index: number, total: number): { idle: string; active: string } {
+  // Idle = apenas o número, sem caixa. Selecionado = pill colorido (vermelho/âmbar/verde).
+  const base = "text-muted-foreground hover:text-foreground";
   if (index === 0) {
-    return {
-      idle: "border-rose-500/30 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10",
-      active: "border-rose-500 bg-rose-500/80 text-white shadow-sm",
-    };
+    return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
   }
   if (index === total - 1) {
-    return {
-      idle: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300 hover:bg-emerald-500/10",
-      active: "border-emerald-500 bg-emerald-500/80 text-white shadow-sm",
-    };
+    return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
   }
-  return {
-    idle: "border-amber-500/30 bg-amber-500/5 text-amber-300 hover:bg-amber-500/10",
-    active: "border-amber-500 bg-amber-500/80 text-white shadow-sm",
-  };
+  return { idle: base, active: "bg-amber-500/85 text-white shadow-sm ring-1 ring-amber-400/60" };
 }
 
 function ActorView() {
