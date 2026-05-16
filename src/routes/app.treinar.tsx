@@ -98,7 +98,7 @@ function TrainPage() {
         <Theater className="h-5 w-5 text-mint" />
         <span className="text-sm font-semibold text-foreground">Painel do Ator · Estações</span>
         <span className="ml-auto rounded-full bg-mint/15 px-3 py-1 text-xs font-mono font-bold text-mint">
-          {filtered.length}/{STATIONS.length}
+          {filtered.length}/{stations.length}
         </span>
       </div>
 
@@ -156,7 +156,7 @@ function TrainPage() {
                         <div className="text-xs text-muted-foreground">{s.specialty}</div>
                       </div>
                     </div>
-                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.durationMinutes} min</div>
+                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.duration_minutes} min</div>
                     <div className="text-center text-xs text-muted-foreground md:text-sm">{s.difficulty}</div>
                     <div className="md:text-right">
                       <Button
@@ -184,7 +184,7 @@ function TrainPage() {
         <aside className="space-y-4">
           <div className="rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant">
             <div className="text-xs uppercase tracking-wider text-white/70">Disponíveis</div>
-            <div className="mt-1 font-display text-4xl font-bold">{STATIONS.length}</div>
+            <div className="mt-1 font-display text-4xl font-bold">{stations.length}</div>
             <div className="text-xs text-white/70">estações atualizadas</div>
 
             <div className="mt-5 space-y-2 text-xs text-white/80">
