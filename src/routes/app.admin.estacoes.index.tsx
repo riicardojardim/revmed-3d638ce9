@@ -193,8 +193,6 @@ function AdminStationsPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" className="border-medical/30 text-medical">{s.specialty}</Badge>
-                  <Badge variant="outline">{s.difficulty}</Badge>
-                  <Badge variant="outline">{s.duration_minutes} min</Badge>
                   <Badge variant="outline">{s.checklist_count} itens</Badge>
                   {s.published ? (
                     <Badge className="bg-success/15 text-success hover:bg-success/15">Publicada</Badge>
