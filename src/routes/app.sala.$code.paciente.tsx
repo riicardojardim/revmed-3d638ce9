@@ -546,16 +546,21 @@ function ActorView() {
                       "rounded-xl border p-3 transition-all",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
                     )}>
-                      <div className="flex items-start justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMaterialId(m.id)}
+                        className="flex w-full items-start justify-between gap-2 text-left group"
+                        title="Clique para visualizar o conteúdo"
+                      >
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 text-sm font-semibold">
+                          <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
                             <FileText className="h-4 w-4 text-mint" /> {m.name}
                           </div>
-                          <div className="mt-0.5 text-[11px] text-muted-foreground">{m.type}</div>
+                          <div className="mt-0.5 text-[11px] text-muted-foreground">{m.type} · clique para ver</div>
                           {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
                         </div>
                         {m.autoDeliver && <Badge variant="outline" className="shrink-0 text-[10px]">Auto</Badge>}
-                      </div>
+                      </button>
                       <Button
                         size="sm"
                         variant={isDelivered ? "outline" : "hero"}
