@@ -14,19 +14,24 @@ function ProfilePage() {
   const { user, profile, roles, signOut } = useAuth();
   const { plan, daysLeft, isPrivileged } = useSubscription();
   const nav = useNavigate();
-  const planName = isPrivileged
+  const isAtorPlan = plan?.slug === "ator" && !plan.expired;
+  const planName = isAtorPlan
+    ? "Plano Ator"
+    : isPrivileged
     ? "Acesso institucional"
     : plan && !plan.expired
       ? `Plano ${plan.name}`
       : "Plano Free";
-  const planDescription = isPrivileged
+  const planDescription = isAtorPlan
+    ? "Você atua como ator/avaliador em salas de treino."
+    : isPrivileged
     ? "Você tem acesso completo como equipe da plataforma."
-    : plan?.slug === "ator"
-      ? "Você atua como ator/avaliador em salas de treino."
-      : plan?.slug === "completo"
+    : plan?.slug === "completo"
         ? "Acesso completo a estações, flashcards, resumos e correções."
         : "Atualize para desbloquear todas as estações e correção do professor.";
-  const planStatus = isPrivileged
+  const planStatus = isAtorPlan
+    ? "Ativo"
+    : isPrivileged
     ? "Ativo"
     : plan && !plan.expired
       ? plan.status === "trialing"
@@ -35,7 +40,9 @@ function ProfilePage() {
       : "Inativo";
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "—";
   const initial = displayName.charAt(0).toUpperCase();
-  const roleLabel = roles.includes("admin")
+  const roleLabel = isAtorPlan
+    ? "Ator/Avaliador"
+    : roles.includes("admin")
     ? "Admin"
     : roles.includes("professor")
       ? "Professor"

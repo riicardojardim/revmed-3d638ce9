@@ -43,7 +43,7 @@ function AppLayout() {
 
   const isTeacher = roles.includes("professor") || roles.includes("admin");
   const isAdmin = roles.includes("admin");
-  const isAtorOnly = !isPrivileged && plan?.slug === "ator";
+  const isAtorOnly = plan?.slug === "ator" && !plan.expired;
 
   const candidateItems = baseNavItems.slice(0, baseNavItems.length - 1);
   const profileItem = baseNavItems[baseNavItems.length - 1];

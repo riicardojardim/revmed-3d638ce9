@@ -29,12 +29,13 @@ const indicators = [
 function Dashboard() {
   const { plan, isPrivileged, loading } = useSubscription();
   const recommended = STATIONS[0];
+  const isAtorPlan = plan?.slug === "ator" && !plan.expired;
 
   if (loading) {
     return <div className="text-sm text-muted-foreground">Carregando...</div>;
   }
 
-  if (!isPrivileged && plan?.slug === "ator") {
+  if (isAtorPlan) {
     return <AtorDashboard />;
   }
 
