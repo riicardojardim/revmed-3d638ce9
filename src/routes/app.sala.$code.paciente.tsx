@@ -14,7 +14,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle, Lock, ChevronDown,
+  Square, Check, Share2, Mail, MessageCircle, Lock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
