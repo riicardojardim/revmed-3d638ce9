@@ -563,7 +563,14 @@ function ActorView() {
                       </button>
                       {isOpen && (
                         <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
-                          {m.content || <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>}
+                          {isRhythm && (
+                            <img
+                              src={ecgRitmoSinusal}
+                              alt="Traçado de ECG do paciente"
+                              className="mb-3 block w-full h-auto rounded-md border border-border"
+                            />
+                          )}
+                          {m.content || (!isRhythm && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <Button
