@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { STATIONS, type Station, type ChecklistItem, type PatientProfile, type DeliverableMaterial } from "@/data/stations";
+import { STATIONS, type Station, type ChecklistItem, type ChecklistLevel, type PatientProfile, type DeliverableMaterial } from "@/data/stations";
 
 export interface LoadedStation extends Station {
   patientScript: string;
@@ -11,6 +11,28 @@ export interface LoadedStation extends Station {
 
 function isUuid(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+}
+
+// Generate default 3-level grading when a checklist item doesn't bring its own.
+// Adequado = full points · Parcialmente = half · Inadequado = 0.
+function withDefaultLevels(items: ChecklistItem[]): ChecklistItem[] {
+  return items.map((it) => {
+    if (it.levels && it.levels.length > 0) return it;
+    const full = it.points;
+    const half = Math.round((full / 2) * 100) / 100;
+    const levels: ChecklistLevel[] =
+      full > 0 && half > 0 && half < full
+        ? [
+            { label: "Inadequado", points: 0 },
+            { label: "Parcialmente adequado", points: half },
+            { label: "Adequado", points: full },
+          ]
+        : [
+            { label: "Inadequado", points: 0 },
+            { label: "Adequado", points: full },
+          ];
+    return { ...it, levels };
+  });
 }
 
 export async function loadStation(id: string): Promise<LoadedStation | null> {
