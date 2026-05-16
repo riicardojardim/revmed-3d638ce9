@@ -61,42 +61,31 @@ export function SubBlock({ label, children }: { label: string; tone?: "rose"; ch
 
 export function ScriptText({ text, className }: { text: unknown; className?: string }) {
   const safe = typeof text === "string" ? text : text == null ? "" : String(text);
-  const isAllCapsCue = (line: string) => {
-    const t = line.trim().replace(/[:：]+$/, "");
-    if (t.length < 3) return false;
-    const letters = t.replace(/[^A-Za-zÀ-ÿ]/g, "");
-    if (letters.length < 3) return false;
-    return letters === letters.toUpperCase();
-  };
-  const KEYWORD_RE = /(\*\*[^*]+\*\*|manejo da emergência[^.;\n]*|protocolo[^.;\n]*|questionamentos|seguindo protocolo[^.;\n]*|Nível de atenção:|Tipo de atendimento:|DESCRIÇÃO DO CASO:)/gi;
   const Bold = ({ children }: { children: React.ReactNode }) => (
     <strong className="font-semibold text-foreground">{children}</strong>
   );
-  const renderInline = (line: string) => {
-    const parts = line.split(KEYWORD_RE).filter((p) => p !== undefined);
+  const renderLine = (ln: string) => {
+    const idx = ln.indexOf(":");
+    if (idx < 0) return <span>{ln}</span>;
+    const before = ln.slice(0, idx + 1);
+    const after = ln.slice(idx + 1);
+    const m = before.match(/^(\s*[-•—–]\s*)(.*)$/);
+    const marker = m ? m[1] : "";
+    const boldText = m ? m[2] : before;
     return (
       <span>
-        {parts.map((p, i) => {
-          if (!p) return null;
-          if (p.startsWith("**") && p.endsWith("**")) return <Bold key={i}>{p.slice(2, -2)}</Bold>;
-          if (KEYWORD_RE.test(p)) { KEYWORD_RE.lastIndex = 0; return <Bold key={i}>{p}</Bold>; }
-          return <span key={i}>{p}</span>;
-        })}
+        {marker}
+        <Bold>{boldText}</Bold>
+        {after}
       </span>
     );
   };
   const lines = safe.split("\n");
-  const firstNonEmptyIdx = lines.findIndex((l) => l.trim().length > 0);
   return (
     <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
       {lines.map((ln, i) => {
         if (ln.trim() === "") return <div key={i} className="h-4" aria-hidden />;
-        const isIntro = i === firstNonEmptyIdx && !ln.trim().startsWith("-") && !isAllCapsCue(ln);
-        if (isAllCapsCue(ln) || isIntro) {
-          const prevBlank = i > 0 && lines[i - 1].trim() === "";
-          return <div key={i} className={cn(prevBlank && "mt-2")}><Bold>{ln}</Bold></div>;
-        }
-        return <div key={i}>{renderInline(ln)}</div>;
+        return <div key={i}>{renderLine(ln)}</div>;
       })}
     </div>
   );
