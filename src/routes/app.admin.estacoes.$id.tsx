@@ -573,6 +573,86 @@ function SectionCaseActor({ station, up }: { station: Station; up: <K extends ke
   );
 }
 
+function MaterialImageUpload({ value, onChange }: { value: string | undefined; onChange: (url: string | undefined) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Imagem muito grande (máx 10MB).");
+      return;
+    }
+    setUploading(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id ?? "anon";
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("station-materials").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("station-materials").getPublicUrl(path);
+      onChange(pub.publicUrl);
+      toast.success("Imagem enviada.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error("Falha no upload", { description: msg });
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      {value ? (
+        <div className="relative inline-block">
+          <img src={value} alt="Material" className="max-h-48 rounded-lg border border-border" />
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            className="absolute -right-2 -top-2 h-6 w-6"
+            onClick={() => onChange(undefined)}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+          <ImageIcon className="mx-auto mb-2 h-6 w-6 opacity-50" />
+          Nenhuma imagem
+        </div>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFile}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+      >
+        <Upload className="h-4 w-4" /> {uploading ? "Enviando..." : value ? "Trocar imagem" : "Enviar imagem"}
+      </Button>
+    </div>
+  );
+}
+
 function SectionMaterials({ materials, onChange }: { materials: DeliverableMaterial[]; onChange: (m: DeliverableMaterial[]) => void }) {
   function add() {
     const next = [...materials, {
