@@ -1,0 +1,23 @@
+{
+  "name": "Estação Revalida",
+  "short_name": "Revalida",
+  "description": "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro e feedback inteligente.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07111F",
+  "theme_color": "#07111F",
+  "lang": "pt-BR",
+  "categories": ["education", "medical", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Treinar agora", "url": "/app/treinar", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Estações", "url": "/app/estacoes", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Flashcards", "url": "/app/flashcards", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
