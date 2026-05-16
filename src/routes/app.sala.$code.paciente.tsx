@@ -1,36 +1,30 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import {
-  ArrowLeft, Theater, AlertTriangle, UserRound, Send, Check, PackageCheck,
-  CheckCircle2, XCircle, RotateCw, ClipboardCheck, FileText, Inbox,
-  Copy, Link2, Play, UserPlus, CheckCheck,
+  ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
+  Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
-  head: () => ({ meta: [{ title: "Roteiro do Ator — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Estação — Ator/Avaliador" }] }),
 });
 
 type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
 type Delivery = { id: string; material_id: string; material_name: string };
-type Tab = "roteiro" | "paciente" | "materiais" | "checklist" | "finalizar";
-
-const TABS: { k: Tab; l: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { k: "roteiro", l: "Roteiro", icon: Theater },
-  { k: "paciente", l: "Paciente", icon: UserRound },
-  { k: "materiais", l: "Materiais", icon: Inbox },
-  { k: "checklist", l: "Checklist", icon: ClipboardCheck },
-  { k: "finalizar", l: "Finalizar", icon: Send },
-];
 
 function ActorView() {
   const { code } = Route.useParams();
@@ -44,10 +38,15 @@ function ActorView() {
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
-  const [status, setStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
+  const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [tab, setTab] = useState<Tab>("roteiro");
+  const [showPEP, setShowPEP] = useState(false);
+
+  // Timer state (synced with room.started_at)
+  const [remaining, setRemaining] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   async function refreshCandidate(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
@@ -69,7 +68,9 @@ function ActorView() {
         .select("id, code, station_id, station_title, status, started_at").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
-      setStation(await loadStation((r as Room).station_id));
+      const st = await loadStation((r as Room).station_id);
+      setStation(st);
+      if (st) setRemaining(st.durationMinutes * 60);
 
       await refreshCandidate((r as Room).id);
 
@@ -84,7 +85,7 @@ function ActorView() {
           setChecks((ev.checks ?? {}) as Record<string, boolean>);
           setComments((ev.item_comments ?? {}) as Record<string, string>);
           setFeedback(ev.final_feedback ?? "");
-          setStatus(ev.status as typeof status);
+          setEvalStatus(ev.status as typeof evalStatus);
         }
       }
     })();
@@ -109,6 +110,26 @@ function ActorView() {
     return () => { supabase.removeChannel(ch); };
   }, [room?.id]);
 
+  // Sync timer with room.started_at
+  useEffect(() => {
+    if (!room || !station) return;
+    if (room.status === "running" && room.started_at && !finished) {
+      const totalSec = station.durationMinutes * 60;
+      const tick = () => {
+        const elapsed = Math.floor((Date.now() - new Date(room.started_at!).getTime()) / 1000);
+        const left = Math.max(0, totalSec - elapsed);
+        setRemaining(left);
+        if (left <= 0) {
+          setFinished(true);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+        }
+      };
+      tick();
+      intervalRef.current = setInterval(tick, 1000);
+      return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    }
+  }, [room?.status, room?.started_at, station?.id, finished]);
+
   const totals = useMemo(() => {
     if (!station) return { total: 0, earned: 0 };
     const total = station.checklist.reduce((s, i) => s + i.points, 0);
@@ -116,6 +137,7 @@ function ActorView() {
     return { total, earned };
   }, [station, checks]);
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
+  const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
 
   async function deliver(materialId: string) {
     if (!room || !user || !station) return;
@@ -146,7 +168,7 @@ function ActorView() {
       item_comments: comments,
       final_feedback: feedback,
       final_score: Number(score.toFixed(2)),
-      status: submit ? status : "em_andamento",
+      status: submit ? evalStatus : "em_andamento",
       submitted_at: submit ? new Date().toISOString() : null,
     };
     const { error } = await supabase.from("room_evaluations")
@@ -169,10 +191,20 @@ function ActorView() {
     toast.success("Cronômetro iniciado para o candidato.");
   }
 
+  async function finishStation() {
+    if (!room) return;
+    await supabase.from("training_rooms")
+      .update({ status: "finished", finished_at: new Date().toISOString() })
+      .eq("id", room.id);
+    setFinished(true);
+    setShowPEP(true);
+    toast.success("Estação finalizada. Agora preencha o PEP.");
+  }
+
   function copyInviteLink() {
     const link = `${window.location.origin}/app/entrar/${code}`;
     navigator.clipboard.writeText(link);
-    toast.success("Link de convite copiado");
+    toast.success("Link copiado.");
   }
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
@@ -180,321 +212,347 @@ function ActorView() {
   const delivered = new Set(deliveries.map((d) => d.material_id));
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
-  const isRunning = room.status === "running";
+  const isRunning = room.status === "running" && !finished;
+  const isFinished = finished || room.status === "finished";
+  const isWaiting = !isRunning && !isFinished;
   const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/app/entrar/${code}` : `/app/entrar/${code}`;
+  const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+  const ss = String(remaining % 60).padStart(2, "0");
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
-      <Link to="/app/treinar" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Voltar ao painel
-      </Link>
-
-      <div className="rounded-3xl border border-rose-200/40 bg-gradient-to-br from-rose-50/60 to-amber-50/40 p-6 dark:from-rose-900/10 dark:to-amber-900/10">
-        <div className="inline-flex items-center gap-2 rounded-full border border-rose-300/40 bg-rose-100/40 px-3 py-1 text-xs font-medium text-rose-700 dark:text-rose-300">
-          <Theater className="h-3.5 w-3.5" /> Roteiro do Ator / Avaliador
+    <div className="mx-auto max-w-7xl space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link to="/app/treinar" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </Link>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-1 font-medium text-violet-300">
+            <Theater className="h-3 w-3" /> Painel do Ator
+          </span>
+          <span>•</span>
+          <span>{station.specialty}</span>
         </div>
-        <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">{room.station_title ?? station.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Você conduz o paciente, entrega materiais e pontua o candidato. O candidato não vê esta tela.
-        </p>
-      </div>
-
-      {/* Lobby: link + status do candidato + iniciar */}
-      <div className={cn(
-        "rounded-3xl border p-5 shadow-card transition-colors",
-        isRunning ? "border-emerald-300/40 bg-emerald-50/40 dark:bg-emerald-900/10"
-                  : candidateId ? "border-mint/40 bg-mint/5"
-                                : "border-amber-300/40 bg-amber-50/40 dark:bg-amber-900/10",
-      )}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex-1 min-w-[260px]">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Link de convite para o candidato
-            </div>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex flex-1 items-center gap-2 truncate rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs">
-                <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
-                <span className="truncate">{inviteLink}</span>
-              </div>
-              <Button variant="outline" size="sm" onClick={copyInviteLink}>
-                <Copy className="mr-1 h-4 w-4" /> Copiar
-              </Button>
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Envie por WhatsApp ou e-mail. Ao abrir, o candidato cai direto na estação.
-            </p>
-          </div>
-
-          <div className="min-w-[220px] rounded-2xl border border-border bg-card px-4 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Candidato
-            </div>
-            {candidateId ? (
-              <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-foreground">
-                <CheckCheck className="h-4 w-4 text-emerald-500" />
-                {candidateName ?? "Candidato"}
-                <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-              </div>
-            ) : (
-              <div className="mt-1 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300">
-                <UserPlus className="h-4 w-4" />
-                Aguardando candidato...
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-4 flex items-center justify-end">
-          {isRunning ? (
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-              Cronômetro rodando — estação em andamento
-            </div>
-          ) : (
-            <Button variant="hero" onClick={startStation} disabled={starting || !candidateId}>
-              <Play className="mr-1 h-4 w-4" />
-              {candidateId ? "Iniciar cronômetro" : "Aguardando candidato..."}
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile tabs */}
-      <div className="-mx-1 flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1 lg:hidden no-scrollbar">
-        {TABS.map((t) => (
-          <button key={t.k} onClick={() => setTab(t.k)}
-            className={cn(
-              "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium",
-              tab === t.k ? "bg-mint/10 text-foreground" : "text-muted-foreground",
-            )}>
-            <t.icon className="h-4 w-4" /> {t.l}
-          </button>
-        ))}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-5">
-          {/* Roteiro */}
-          <section className={cn(tab !== "roteiro" && "hidden lg:block")}>
-            <div className="rounded-2xl border border-amber-200/60 bg-amber-50/60 p-4 text-sm text-amber-900 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-200">
-              <div className="flex items-center gap-2 font-medium">
-                <AlertTriangle className="h-4 w-4" /> Regras de interpretação
-              </div>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
-                <li>Responda apenas o que for perguntado pelo candidato.</li>
-                <li>Não revele espontaneamente informações sensíveis.</li>
-                <li>Mantenha o comportamento descrito (ansiedade, dor, calma...).</li>
-                <li>Não corrija o candidato durante a estação.</li>
-              </ul>
+        {/* LEFT: station content */}
+        <div className="space-y-4">
+          {/* Title bar like Pense Revalida */}
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-xs font-bold text-emerald-400">PE</span>
+              <h1 className="truncate font-display text-lg font-bold text-emerald-300 md:text-xl">
+                {room.station_title ?? station.title}
+              </h1>
             </div>
-            <Section className="mt-4" title="Caso clínico (contexto)">
-              <p className="leading-relaxed">{station.clinicalCase}</p>
-            </Section>
-            <Section title="Roteiro detalhado" highlight>
+            <button
+              onClick={copyInviteLink}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 font-mono text-[11px] text-muted-foreground hover:border-mint/40 hover:text-foreground"
+              title="Copiar link de convite"
+            >
+              <span className="truncate max-w-[160px]">{code}</span>
+              <Copy className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* Content blocks (Pense Revalida-style colored cards) */}
+          <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
+            <p className="whitespace-pre-wrap leading-relaxed">{station.clinicalCase}</p>
+          </PRBlock>
+
+          <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
+            <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+          </PRBlock>
+
+          <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
+            {station.patientScript && (
               <p className="whitespace-pre-wrap leading-relaxed">{station.patientScript}</p>
-            </Section>
+            )}
+            {p && (
+              <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                {patientFields(p).map(([label, value]) => value && (
+                  <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
+                    <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
+                    <dd className="mt-0.5 text-sm">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
             {p?.spontaneous && (
-              <Section title="O que falar espontaneamente">
-                <p className="whitespace-pre-wrap">{p.spontaneous}</p>
-              </Section>
+              <SubBlock label="O que falar espontaneamente">{p.spontaneous}</SubBlock>
             )}
             {p?.onlyIfAsked && (
-              <Section title="Revelar APENAS se perguntado">
-                <p className="whitespace-pre-wrap">{p.onlyIfAsked}</p>
-              </Section>
+              <SubBlock label="Revelar APENAS se perguntado">{p.onlyIfAsked}</SubBlock>
             )}
             {p?.doNotReveal && (
-              <Section title="Nunca revelar">
-                <p className="whitespace-pre-wrap text-rose-700 dark:text-rose-400">{p.doNotReveal}</p>
-              </Section>
+              <SubBlock label="Nunca revelar" tone="rose">{p.doNotReveal}</SubBlock>
             )}
             {(p?.emotionalTone || p?.actingTips) && (
-              <Section title="Tom emocional e atuação">
+              <SubBlock label="Tom emocional e atuação">
                 {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
                 {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
-              </Section>
+              </SubBlock>
             )}
-          </section>
+          </PRBlock>
 
-          {/* Paciente */}
-          <section className={cn(tab !== "paciente" && "hidden lg:block")}>
-            <Section title="Dados do paciente fictício">
-              {p ? (
-                <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  {patientFields(p).map(([label, value]) => value && (
-                    <div key={label} className="rounded-lg bg-muted/40 px-3 py-2">
-                      <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                      <dd className="mt-0.5 text-sm">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : (
-                <p className="text-sm text-muted-foreground">Perfil do paciente não cadastrado. Use o roteiro detalhado.</p>
-              )}
-            </Section>
-            {p?.vitals && (
-              <Section title="Sinais vitais">
-                <p>{p.vitals}</p>
-              </Section>
-            )}
-            {p?.previousExams && (
-              <Section title="Exames prévios">
-                <p className="whitespace-pre-wrap">{p.previousExams}</p>
-              </Section>
-            )}
-          </section>
-
-          {/* Materiais */}
-          <section className={cn(tab !== "materiais" && "hidden lg:block")}>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-lg font-bold">Materiais para entregar ao candidato</h2>
-              <Badge variant="outline">{deliveries.length}/{materials.length} entregues</Badge>
-            </div>
+          <PRBlock
+            icon={Inbox}
+            title="Materiais para entregar ao candidato"
+            tone="sky"
+            right={<Badge variant="outline">{deliveries.length}/{materials.length}</Badge>}
+          >
             {materials.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-5 text-center text-sm text-muted-foreground">
-                Esta estação não possui materiais cadastrados.
-              </div>
+              <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2">
                 {materials.map((m) => {
                   const isDelivered = delivered.has(m.id);
                   return (
                     <div key={m.id} className={cn(
-                      "rounded-2xl border p-4 transition-all",
-                      isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-card hover:border-mint/40",
+                      "rounded-xl border p-3 transition-all",
+                      isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
                     )}>
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 text-sm font-semibold">
                             <FileText className="h-4 w-4 text-mint" /> {m.name}
                           </div>
-                          <div className="mt-0.5 text-xs text-muted-foreground">{m.type}</div>
+                          <div className="mt-0.5 text-[11px] text-muted-foreground">{m.type}</div>
                           {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
                         </div>
                         {m.autoDeliver && <Badge variant="outline" className="shrink-0 text-[10px]">Auto</Badge>}
                       </div>
-                      {m.content && (
-                        <div className="mt-3 max-h-32 overflow-auto rounded-lg bg-background/60 p-2 text-xs">{m.content}</div>
-                      )}
-                      <Button size="sm" variant={isDelivered ? "outline" : "hero"} className="mt-3 w-full"
-                        disabled={isDelivered} onClick={() => deliver(m.id)}>
-                        {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar ao candidato</>}
+                      <Button
+                        size="sm"
+                        variant={isDelivered ? "outline" : "hero"}
+                        className="mt-3 w-full"
+                        disabled={isDelivered || !isRunning}
+                        onClick={() => deliver(m.id)}
+                      >
+                        {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
                       </Button>
                     </div>
                   );
                 })}
               </div>
             )}
-          </section>
+          </PRBlock>
+        </div>
 
-          {/* Checklist */}
-          <section className={cn(tab !== "checklist" && "hidden lg:block")}>
-            <h2 className="mb-3 font-display text-lg font-bold">Checklist de avaliação</h2>
-            <div className="space-y-2">
+        {/* RIGHT: sticky control panel (Pense Revalida-style) */}
+        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
+          {/* Timer */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className={cn(
+              "rounded-xl px-5 py-6 text-center transition-colors",
+              isRunning ? "bg-emerald-500/15" : isFinished ? "bg-rose-500/15" : "bg-violet-500/20",
+            )}>
+              <div className="font-display text-5xl font-bold tabular-nums text-white">
+                {mm}:{ss}
+              </div>
+            </div>
+
+            {isWaiting && (
+              <Button
+                variant="hero"
+                className="mt-3 w-full"
+                onClick={startStation}
+                disabled={starting || !candidateId}
+              >
+                <Play className="mr-1 h-4 w-4" />
+                {candidateId ? "Iniciar cronômetro" : "Aguardando candidato..."}
+              </Button>
+            )}
+            {isRunning && (
+              <Button variant="outline" className="mt-3 w-full" onClick={finishStation}>
+                <Square className="mr-1 h-4 w-4" /> Encerrar estação
+              </Button>
+            )}
+            {isFinished && (
+              <Button variant="hero" className="mt-3 w-full" onClick={() => setShowPEP(true)}>
+                <ClipboardCheck className="mr-1 h-4 w-4" /> Preencher PEP
+              </Button>
+            )}
+          </div>
+
+          {/* Resultado */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Resultado
+            </div>
+            <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+              <div className="font-display text-xl font-bold tabular-nums text-emerald-300">
+                {score.toFixed(2)} / {pct.toFixed(0)}%
+              </div>
+            </div>
+          </div>
+
+          {/* Avaliado */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Avaliado
+            </div>
+            <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
+              <SelectTrigger className="mt-2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="em_andamento">Aguardando...</SelectItem>
+                <SelectItem value="aprovado">Aprovado</SelectItem>
+                <SelectItem value="reprovado">Reprovado</SelectItem>
+                <SelectItem value="repetir">Pedir repetição</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Participantes */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Participantes
+            </div>
+            {candidateId ? (
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-300">
+                <CheckCheck className="h-4 w-4" />
+                {candidateName ?? "Candidato"}
+                <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+              </div>
+            ) : (
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+                <UserPlus className="h-4 w-4" />
+                Aguardando participante.
+              </div>
+            )}
+          </div>
+
+          {/* Link de convite */}
+          <div className="rounded-2xl border border-dashed border-border bg-card p-3">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Link do candidato
+            </div>
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <div className="flex flex-1 items-center gap-1.5 truncate rounded-md border border-border bg-background px-2 py-1.5 font-mono text-[10px]">
+                <Link2 className="h-3 w-3 shrink-0 text-mint" />
+                <span className="truncate">{inviteLink}</span>
+              </div>
+              <Button variant="outline" size="sm" className="h-7 px-2" onClick={copyInviteLink}>
+                <Copy className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* PEP — modal/overlay aberto somente após encerramento */}
+      {showPEP && isFinished && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+          <div className="my-8 w-full max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-elegant">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+                  PEP — Padrão Esperado de Procedimento
+                </div>
+                <h2 className="mt-1 font-display text-2xl font-bold">Avaliação do candidato</h2>
+              </div>
+              <button
+                onClick={() => setShowPEP(false)}
+                className="rounded-md border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-2">
               {station.checklist.map((it) => (
-                <div key={it.id} className={cn("rounded-2xl border p-4", checks[it.id] ? "border-mint/50 bg-mint/5" : "border-border bg-card")}>
+                <div key={it.id} className={cn("rounded-xl border p-3", checks[it.id] ? "border-mint/50 bg-mint/5" : "border-border bg-background/30")}>
                   <div className="flex items-start gap-3">
-                    <Checkbox checked={!!checks[it.id]}
-                      onCheckedChange={(v) => setChecks((c) => ({ ...c, [it.id]: v === true }))}
-                      className="mt-0.5" />
+                    <Checkbox checked={!!checks[it.id]} onCheckedChange={(v) => setChecks((c) => ({ ...c, [it.id]: v === true }))} className="mt-0.5" />
                     <div className="flex-1">
                       <div className="text-sm">{it.description}</div>
                       <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                         <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
                         <span>{it.points} pts</span>
-                        <span className={cn("inline-flex items-center gap-0.5 ml-auto", checks[it.id] ? "text-emerald-600" : "text-muted-foreground")}>
-                          {checks[it.id] ? <Check className="h-3 w-3" /> : null}
-                          {checks[it.id] ? "Realizou" : "Não realizou"}
-                        </span>
                       </div>
                     </div>
                   </div>
-                  <Textarea value={comments[it.id] ?? ""}
+                  <Textarea
+                    value={comments[it.id] ?? ""}
                     onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
-                    placeholder="Comentário para este item (opcional)" rows={2} className="mt-3" />
+                    placeholder="Comentário (opcional)"
+                    rows={2}
+                    className="mt-2"
+                  />
                 </div>
               ))}
             </div>
-          </section>
 
-          {/* Finalizar */}
-          <section className={cn(tab !== "finalizar" && "hidden lg:block")}>
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Comentário final ao candidato</div>
-              <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={5}
-                placeholder="Pontos fortes, pontos a melhorar, recomendação..." className="mt-2" />
-              <div className="mt-4 flex flex-wrap gap-2">
-                {([
-                  { v: "aprovado", l: "Aprovar", icon: CheckCircle2, cls: "border-emerald-300 text-emerald-700" },
-                  { v: "reprovado", l: "Reprovar", icon: XCircle, cls: "border-rose-300 text-rose-700" },
-                  { v: "repetir", l: "Pedir repetição", icon: RotateCw, cls: "border-amber-300 text-amber-700" },
-                ] as const).map((b) => (
-                  <Button key={b.v} variant={status === b.v ? "secondary" : "outline"}
-                    className={status === b.v ? "" : b.cls} onClick={() => setStatus(b.v)}>
-                    <b.icon className="mr-1 h-4 w-4" /> {b.l}
-                  </Button>
-                ))}
+            <div className="mt-5 rounded-xl border border-border bg-background/40 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Comentário final ao candidato
               </div>
-              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                <Button variant="outline" onClick={() => save(false)} disabled={saving} className="flex-1">
-                  Salvar rascunho
-                </Button>
-                <Button variant="hero" onClick={() => save(true)} disabled={saving || status === "em_andamento"} className="flex-1">
-                  <Send className="mr-1 h-4 w-4" /> Finalizar avaliação
+              <Textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+                placeholder="Pontos fortes, pontos a melhorar..."
+                className="mt-2"
+              />
+            </div>
+
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Nota parcial:</span>{" "}
+                <span className="font-bold text-emerald-300">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => save(false)} disabled={saving}>Salvar rascunho</Button>
+                <Button variant="hero" onClick={() => save(true)} disabled={saving || evalStatus === "em_andamento"}>
+                  <Send className="mr-1 h-4 w-4" /> Enviar correção
                 </Button>
               </div>
             </div>
-          </section>
+          </div>
         </div>
-
-        {/* Sidebar: scoring */}
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="rounded-3xl border bg-gradient-hero p-6 text-white shadow-elegant">
-            <div className="text-xs font-medium uppercase tracking-wider text-mint">Pontuação ao vivo</div>
-            <div className="mt-2 font-display text-5xl font-bold tabular-nums">{score.toFixed(1)}</div>
-            <div className="mt-1 text-sm text-white/70">{totals.earned} / {totals.total} pts</div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-              <div className="h-full rounded-full bg-gradient-mint transition-all" style={{ width: `${totals.total ? (totals.earned / totals.total) * 100 : 0}%` }} />
-            </div>
-
-            <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-              <Stat label="Itens" value={station.checklist.length} />
-              <Stat label="Marcados" value={Object.values(checks).filter(Boolean).length} />
-              <Stat label="Materiais" value={`${deliveries.length}/${materials.length}`} />
-            </div>
-
-            {station.evaluatorNotes && (
-              <div className="mt-5 rounded-xl border border-white/15 bg-white/5 p-3 text-xs text-white/80">
-                <div className="font-medium text-mint">Observações para a banca</div>
-                <div className="mt-1 whitespace-pre-wrap">{station.evaluatorNotes}</div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-dashed border-border bg-card p-3 text-[11px] text-muted-foreground">
-            <Theater className="mr-1 inline h-3 w-3 text-mint" />
-            Esta tela é exclusiva do ator/avaliador. O candidato vê apenas a tela dele.
-          </div>
-        </aside>
-      </div>
+      )}
     </div>
   );
 }
 
-function Section({ title, children, highlight, className }: { title: string; children: React.ReactNode; highlight?: boolean; className?: string }) {
+function PRBlock({
+  icon: Icon, title, tone, right, children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  tone: "violet" | "emerald" | "amber" | "sky";
+  right?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const tones = {
+    violet: "bg-violet-500/15 text-violet-300 border-violet-500/20",
+    emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
+    amber: "bg-amber-500/15 text-amber-300 border-amber-500/20",
+    sky: "bg-sky-500/15 text-sky-300 border-sky-500/20",
+  };
   return (
-    <section className={cn("rounded-2xl border p-5", highlight ? "border-mint/40 bg-mint/5" : "border-border bg-card", className)}>
-      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
-      <div className="mt-2 text-sm md:text-base">{children}</div>
+    <section className="overflow-hidden rounded-2xl border border-border bg-card">
+      <header className={cn("flex items-center justify-between gap-2 border-b px-4 py-2.5 text-sm font-medium", tones[tone])}>
+        <span className="inline-flex items-center gap-2">
+          <Icon className="h-4 w-4" /> {title}
+        </span>
+        {right}
+      </header>
+      <div className="p-5 text-sm">{children}</div>
     </section>
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+function SubBlock({ label, tone, children }: { label: string; tone?: "rose"; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-white/5 px-2 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-white/60">{label}</div>
-      <div className="mt-0.5 font-display text-lg font-bold">{value}</div>
+    <div className={cn(
+      "mt-3 rounded-lg border bg-background/40 px-3 py-2",
+      tone === "rose" ? "border-rose-500/30" : "border-border",
+    )}>
+      <div className={cn("text-[10px] font-semibold uppercase tracking-wider", tone === "rose" ? "text-rose-400" : "text-muted-foreground")}>{label}</div>
+      <div className={cn("mt-1 whitespace-pre-wrap text-sm", tone === "rose" && "text-rose-300")}>{children}</div>
     </div>
   );
 }
