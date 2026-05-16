@@ -42,8 +42,6 @@ function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]
   return out;
 }
 
-function ActorView() {
-
 function parseSubItems(description: string): { lead: string; subs: string[] } {
   // Detect "(1) ... (2) ..." numbered sub-items inside the description
   const numbered = description.match(/\(\d+\)\s*[^()]+/g);
@@ -65,7 +63,6 @@ function parseSubItems(description: string): { lead: string; subs: string[] } {
 }
 
 function levelTone(index: number, total: number): { idle: string; active: string } {
-  // First = Inadequado (red), last = Adequado (green), middle = Parcial (amber)
   if (index === 0) {
     return {
       idle: "border-rose-500/30 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10",
@@ -84,6 +81,7 @@ function levelTone(index: number, total: number): { idle: string; active: string
   };
 }
 
+function ActorView() {
   const { code } = Route.useParams();
   const { user } = useAuth();
   const nav = useNavigate();
