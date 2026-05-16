@@ -378,7 +378,7 @@ function ActorView() {
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-1 font-medium text-violet-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">
             <Theater className="h-3 w-3" /> Painel do Ator
           </span>
           <span>•</span>
@@ -392,8 +392,15 @@ function ActorView() {
           {/* Title bar like Pense Revalida */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-xs font-bold text-emerald-400">PE</span>
-              <h1 className="truncate font-display text-lg font-bold text-emerald-300 md:text-xl">
+              {(() => {
+                const meta = getSpecialtyMeta(station.specialty);
+                return (
+                  <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
+                    {meta.code}
+                  </span>
+                );
+              })()}
+              <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
                 {room.station_title ?? station.title}
               </h1>
             </div>
@@ -403,7 +410,7 @@ function ActorView() {
               title="Copiar link de convite"
             >
               <span className="truncate max-w-[160px]">{code}</span>
-              {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+              {copied ? <Check className="h-3 w-3 text-mint" /> : <Copy className="h-3 w-3" />}
             </button>
           </div>
 
