@@ -800,14 +800,11 @@ function PRBlock({
   );
 }
 
-function SubBlock({ label, tone, children }: { label: string; tone?: "rose"; children: React.ReactNode }) {
+function SubBlock({ label, children }: { label: string; tone?: "rose"; children: React.ReactNode }) {
   return (
-    <div className={cn(
-      "mt-3 rounded-lg border bg-background/40 px-3 py-2",
-      tone === "rose" ? "border-rose-500/30" : "border-border",
-    )}>
-      <div className={cn("text-[10px] font-semibold uppercase tracking-wider", tone === "rose" ? "text-rose-400" : "text-muted-foreground")}>{label}</div>
-      <div className={cn("mt-1 whitespace-pre-wrap text-sm", tone === "rose" && "text-rose-300")}>{children}</div>
+    <div className="mt-3 rounded-lg border border-border bg-background/40 px-3 py-2">
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-1 whitespace-pre-wrap text-sm">{children}</div>
     </div>
   );
 }
