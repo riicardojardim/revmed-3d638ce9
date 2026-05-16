@@ -10,8 +10,9 @@ export type Specialty =
 export type Difficulty = "Fácil" | "Médio" | "Difícil";
 
 export interface ChecklistLevel {
-  label: string;   // "Adequado" | "Parcialmente adequado" | "Inadequado"
-  points: number;  // value awarded for this level
+  label: string;        // "Adequado" | "Parcialmente adequado" | "Inadequado"
+  points: number;       // value awarded for this level
+  description?: string; // descriptive criterion (e.g. "Realiza as duas ações.")
 }
 
 export interface ChecklistItem {
