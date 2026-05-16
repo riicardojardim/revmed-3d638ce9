@@ -565,7 +565,7 @@ function SimuladoRunner() {
               <div className="font-display text-5xl font-bold tabular-nums text-white">{mm}:{ss}</div>
               {isWaiting && (
                 <div className="mt-3">
-                  <Select value={String(duration)} onValueChange={(v) => { setDuration(Number(v)); setRemaining(Number(v) * 60); }}>
+                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
                     <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -581,9 +581,13 @@ function SimuladoRunner() {
               )}
             </div>
             {isWaiting && (
-              <Button variant="hero" className="mt-3 w-full" onClick={startTimer}>
-                <Play className="mr-1 h-4 w-4" /> Iniciar cronômetro
-              </Button>
+              <button
+                type="button"
+                onClick={startTimer}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-medical shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
+              >
+                <Play className="h-4 w-4" /> Iniciar cronômetro
+              </button>
             )}
             {running && (
               <Button variant="outline" className="mt-3 w-full" onClick={finishTimer}>
