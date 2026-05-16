@@ -687,11 +687,6 @@ function StepReview({
   togglePublish: () => unknown;
 }) {
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
-  const grouped = useMemo(() => {
-    const m: Record<string, Item[]> = {};
-    items.forEach((i) => { (m[i.category] ??= []).push(i); });
-    return m;
-  }, [items]);
 
   function addRef() {
     up("bibliographic_references", [...(station.bibliographic_references ?? []), { label: "", url: "" }]);
