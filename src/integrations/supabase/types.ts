@@ -78,14 +78,19 @@ export type Database = {
         Row: {
           candidate_task: string
           clinical_case: string
+          common_mistakes: string | null
           competencies: string[]
           created_at: string
           created_by: string
+          deliverable_materials: Json
           difficulty: string
           duration_minutes: number
+          educational_goal: string | null
           evaluator_notes: string | null
+          expected_conduct: string | null
           id: string
           patient_info: string | null
+          patient_profile: Json
           patient_script: string | null
           post_materials: string | null
           published: boolean
@@ -98,14 +103,19 @@ export type Database = {
         Insert: {
           candidate_task: string
           clinical_case: string
+          common_mistakes?: string | null
           competencies?: string[]
           created_at?: string
           created_by: string
+          deliverable_materials?: Json
           difficulty?: string
           duration_minutes?: number
+          educational_goal?: string | null
           evaluator_notes?: string | null
+          expected_conduct?: string | null
           id?: string
           patient_info?: string | null
+          patient_profile?: Json
           patient_script?: string | null
           post_materials?: string | null
           published?: boolean
@@ -118,14 +128,19 @@ export type Database = {
         Update: {
           candidate_task?: string
           clinical_case?: string
+          common_mistakes?: string | null
           competencies?: string[]
           created_at?: string
           created_by?: string
+          deliverable_materials?: Json
           difficulty?: string
           duration_minutes?: number
+          educational_goal?: string | null
           evaluator_notes?: string | null
+          expected_conduct?: string | null
           id?: string
           patient_info?: string | null
+          patient_profile?: Json
           patient_script?: string | null
           post_materials?: string | null
           published?: boolean
@@ -344,6 +359,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      room_material_deliveries: {
+        Row: {
+          delivered_at: string
+          delivered_by: string
+          id: string
+          material_content: string | null
+          material_description: string | null
+          material_id: string
+          material_name: string
+          material_type: string | null
+          room_id: string
+        }
+        Insert: {
+          delivered_at?: string
+          delivered_by: string
+          id?: string
+          material_content?: string | null
+          material_description?: string | null
+          material_id: string
+          material_name: string
+          material_type?: string | null
+          room_id: string
+        }
+        Update: {
+          delivered_at?: string
+          delivered_by?: string
+          id?: string
+          material_content?: string | null
+          material_description?: string | null
+          material_id?: string
+          material_name?: string
+          material_type?: string | null
+          room_id?: string
+        }
+        Relationships: []
       }
       station_checklist_items: {
         Row: {
