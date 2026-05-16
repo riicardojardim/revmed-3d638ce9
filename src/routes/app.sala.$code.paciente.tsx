@@ -79,9 +79,10 @@ function ActorView() {
       setRemaining(effMin * 60);
 
       const list = await refreshCandidates((r as Room).id);
-      // Auto-select first candidate if none was chosen yet
-      if (!(r as Room).evaluated_candidate_id && list.length > 0 && user && (r as Room).host_id !== undefined) {
+      // Auto-select first candidate as the evaluated if none chosen yet
+      if (!(r as Room).evaluated_candidate_id && list.length > 0) {
         await supabase.from("training_rooms").update({ evaluated_candidate_id: list[0].id }).eq("id", (r as Room).id);
+        setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: list[0].id } : prev);
       }
 
       const { data: dels } = await supabase.from("room_material_deliveries")
