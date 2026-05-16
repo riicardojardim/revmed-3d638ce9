@@ -1147,6 +1147,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                       </div>
                       {m.description && <div className="mt-2 text-xs text-muted-foreground">Gatilho: {m.description}</div>}
                       {m.content && <pre className="mt-2 whitespace-pre-wrap rounded bg-background/60 p-2 text-xs">{m.content}</pre>}
+                      {m.imageUrl && <img src={m.imageUrl} alt={m.name || "Material"} className="mt-2 max-h-80 rounded-lg border border-border" />}
                     </div>
                   ))}
                 </div>
