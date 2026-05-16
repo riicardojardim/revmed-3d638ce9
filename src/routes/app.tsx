@@ -41,7 +41,7 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const { user, loading, profile, roles, signOut } = useAuth();
-  const { plan, isPrivileged } = useSubscription();
+  const { plan, isPrivileged, loading: subLoading } = useSubscription();
 
   const isTeacher = roles.includes("professor") || roles.includes("admin");
   const isAdmin = roles.includes("admin");
