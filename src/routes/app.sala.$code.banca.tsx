@@ -169,6 +169,7 @@ function EvaluatorView() {
       material_type: m.type,
       material_description: m.description ?? null,
       material_content: m.content,
+      material_image_url: m.imageUrl ?? null,
       delivered_by: user.id,
     });
     if (error) return toast.error(error.message);
