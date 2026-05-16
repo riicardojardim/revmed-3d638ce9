@@ -70,17 +70,40 @@ function SimulationPage() {
     [checked, station],
   );
 
-  function finish() {
+  async function finish() {
     const score = (earned / totalPoints) * 10;
+    const checkedIds = Object.entries(checked).filter(([, v]) => v).map(([k]) => k);
+    const used = total - remaining;
+
+    // Persist attempt (best-effort)
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("attempts").insert({
+          user_id: user.id,
+          station_id: station.id,
+          station_title: station.title,
+          specialty: station.specialty,
+          score: Number(score.toFixed(2)),
+          earned,
+          total_points: totalPoints,
+          used_seconds: used,
+          checked_items: checkedIds,
+          notes: notes || null,
+          status: "concluida",
+        });
+      }
+    } catch (e) {
+      console.error("Falha ao salvar tentativa", e);
+    }
+
     const params = new URLSearchParams({
       score: score.toFixed(2),
       earned: String(earned),
       total: String(totalPoints),
-      used: String(total - remaining),
-      checked: Object.entries(checked)
-        .filter(([, v]) => v)
-        .map(([k]) => k)
-        .join(","),
+      used: String(used),
+      checked: checkedIds.join(","),
     });
     nav({ to: `/app/resultado/${station.id}?${params.toString()}` });
   }
