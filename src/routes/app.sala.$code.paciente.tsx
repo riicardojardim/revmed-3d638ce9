@@ -652,7 +652,7 @@ function ActorView() {
                                   className={cn(
                                     "w-full rounded-md px-2 py-1 text-left text-sm transition-colors",
                                     active
-                                      ? "bg-mint/25 text-white ring-1 ring-mint/60"
+                                      ? "bg-mint/40 text-night ring-1 ring-mint/60"
                                       : "text-foreground/85 hover:bg-white/5",
                                   )}
                                 >
