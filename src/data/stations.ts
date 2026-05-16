@@ -291,8 +291,9 @@ export const STATIONS: Station[] = [
           "1. Apresentação:\n(1) Identifica-se; e\n(2) Cumprimenta enfermeiro auxiliar.",
         points: 0.2,
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Adequado", points: 0.2 },
+          { label: "Inadequado: Não realiza.", points: 0 },
+          { label: "Parcialmente adequado: Realiza uma ação.", points: 0.1 },
+          { label: "Adequado: Realiza as duas ações.", points: 0.2 },
         ],
       },
       {
@@ -301,9 +302,9 @@ export const STATIONS: Station[] = [
           "2. Verifica responsividade do paciente:\n(1) Chama o paciente em voz alta; e\n(2) Realiza estímulo tátil.",
         points: 1.0,
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Parcialmente adequado", points: 0.5 },
-          { label: "Adequado", points: 1.0 },
+          { label: "Inadequado: Não verbaliza nenhuma ação.", points: 0 },
+          { label: "Parcialmente adequado: Verbaliza apenas uma ação.", points: 0.5 },
+          { label: "Adequado: Verbaliza as duas ações.", points: 1.0 },
         ],
       },
       {
@@ -312,8 +313,8 @@ export const STATIONS: Station[] = [
           "3. Verifica pulso e respiração do paciente:\n(1) Verifica pulso; e\n(2) Verifica respiração.",
         points: 1.0,
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Adequado", points: 1.0 },
+          { label: "Inadequado: Realiza uma ou nenhuma ação.", points: 0 },
+          { label: "Adequado: Realiza as duas ações.", points: 1.0 },
         ],
       },
       {
@@ -322,9 +323,9 @@ export const STATIONS: Station[] = [
           "4. Solicita:\n(1) Ajuda da equipe treinada; e\n(2) Preparação do desfibrilador.",
         points: 1.1,
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Parcialmente adequado", points: 0.5 },
-          { label: "Adequado", points: 1.1 },
+          { label: "Inadequado: Não verbaliza nenhuma ação.", points: 0 },
+          { label: "Parcialmente adequado: Verbaliza apenas uma ação.", points: 0.5 },
+          { label: "Adequado: Verbaliza duas ações.", points: 1.1 },
         ],
       },
       {
@@ -335,9 +336,9 @@ export const STATIONS: Station[] = [
         helperText:
           "O paciente deve estar em decúbito dorsal horizontal (deitado de barriga para cima), sobre uma superfície rígida e plana. Em um hospital, isso geralmente significa que a prancha de reanimação (prancha rígida) deve ser colocada sob o paciente na cama hospitalar. Essa prancha é fundamental para que as compressões não sejam absorvidas pelo colchão.",
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Parcialmente adequado", points: 0.75 },
-          { label: "Adequado", points: 1.5 },
+          { label: "Inadequado: Verbaliza duas ou menos ações.", points: 0 },
+          { label: "Parcialmente adequado: Verbaliza de três a cinco ações.", points: 0.75 },
+          { label: "Adequado: Verbaliza de seis a oito ações.", points: 1.5 },
         ],
       },
       {
@@ -348,9 +349,9 @@ export const STATIONS: Station[] = [
         helperText:
           "Via aérea: hiperextensão cabeça (sniffing) ou jaw-thrust se trauma. Ambu: selo máscara com C-E, ventilação lenta (1s), volume tidal 6-7 mL/kg (~500-600 mL), evitar hiperventilação (causa hipercapnia). Razão 30:2 sem IA avançado; confirme expansão torácica.",
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Parcialmente adequado", points: 0.75 },
-          { label: "Adequado", points: 1.5 },
+          { label: "Inadequado: Verbaliza duas ou menos ações.", points: 0 },
+          { label: "Parcialmente adequado: Verbaliza três ações.", points: 0.75 },
+          { label: "Adequado: Verbaliza quatro a cinco ações.", points: 1.5 },
         ],
       },
       {
@@ -361,8 +362,8 @@ export const STATIONS: Station[] = [
         helperText:
           "AESP (PEA): atividade elétrica organizada sem pulso palpável. Ritmos: sinusal/assistolia com QRS sem perfusão.",
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Adequado", points: 1.1 },
+          { label: "Inadequado: Não interpreta ou erra.", points: 0 },
+          { label: "Adequado: Interpreta corretamente.", points: 1.1 },
         ],
       },
       {
@@ -373,9 +374,9 @@ export const STATIONS: Station[] = [
         helperText:
           "AESP: RCP ininterrupta (minimizar pausas), epinefrina 1 mg IV/IO ciclo 1 (repetir 3-5 min), via IV periférica/IO proximal. Alternativa: IO se IV difícil. Ciclos: ritmo a cada 2 min, choque se FV/TV.",
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Parcialmente adequado", points: 0.75 },
-          { label: "Adequado", points: 1.5 },
+          { label: "Inadequado: Indica uma ou nenhuma ação.", points: 0 },
+          { label: "Parcialmente adequado: Indica duas ações.", points: 0.75 },
+          { label: "Adequado: Indica três ações.", points: 1.5 },
         ],
       },
       {
@@ -386,9 +387,9 @@ export const STATIONS: Station[] = [
         helperText:
           "Hs e Ts (ACLS): 4Hs (Hipovolemia, Hipóxia, Hidrogênio/acidose, Hipoglicemia/Hipo/hiperK/Hipotermia) + 5Ts. Prova: Verbalize mnemônico 'Hs e Ts' + liste; priorize reversíveis no paciente (ex.: hipoglicemia em diabética).",
         levels: [
-          { label: "Inadequado", points: 0 },
-          { label: "Parcialmente adequado", points: 0.5 },
-          { label: "Adequado", points: 1.1 },
+          { label: "Inadequado: Verbaliza uma ou menos.", points: 0 },
+          { label: "Parcialmente adequado: Verbaliza duas ou três causas.", points: 0.5 },
+          { label: "Adequado: Verbaliza quatro ou mais causas.", points: 1.1 },
         ],
       },
     ]),
