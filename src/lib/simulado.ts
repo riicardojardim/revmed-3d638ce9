@@ -18,6 +18,8 @@ export type Simulado = {
   currentIndex: number;
   finished: boolean;
   stations: SimuladoStationState[];
+  roomId?: string;
+  roomCode?: string;
 };
 
 const KEY = "estacao:simulados";

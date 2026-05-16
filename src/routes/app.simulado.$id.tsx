@@ -12,11 +12,13 @@ import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, ArrowRight, CheckCircle2, ClipboardCheck, Lock, Trophy,
   MessageSquare, ListChecks, Theater, Inbox, FileText, PackageCheck, Send,
-  Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, User,
+  Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile } from "@/components/station/shared";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
@@ -25,9 +27,12 @@ export const Route = createFileRoute("/app/simulado/$id")({
   head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
 });
 
+type Candidate = { id: string; name: string };
+
 function SimuladoRunner() {
   const { id } = Route.useParams();
   const nav = useNavigate();
+  const { user } = useAuth();
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +51,11 @@ function SimuladoRunner() {
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const tickRef = useRef<number | null>(null);
+
+  // Room / participants state
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Load simulado
   useEffect(() => {
@@ -79,6 +89,117 @@ function SimuladoRunner() {
       }
     });
   }, [sim?.currentIndex, sim?.id, sim?.finished]);
+
+  // Ensure a training_room exists for this simulado (created lazily, reused across stations).
+  useEffect(() => {
+    if (!sim || sim.finished || !user || !station) return;
+    let cancelled = false;
+    (async () => {
+      // If we already have a room, just sync its station to the current one.
+      if (sim.roomId) {
+        const cur = sim.stations[sim.currentIndex];
+        await supabase.from("training_rooms")
+          .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
+          .eq("id", sim.roomId);
+        const { data: r } = await supabase.from("training_rooms")
+          .select("evaluated_candidate_id").eq("id", sim.roomId).maybeSingle();
+        if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
+        await refreshCandidates(sim.roomId);
+        return;
+      }
+      // Create the room with a short, friendly code.
+      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      const cur = sim.stations[sim.currentIndex];
+      const { data: created, error } = await supabase.from("training_rooms").insert({
+        code,
+        host_id: user.id,
+        station_id: cur.id,
+        station_title: cur.title,
+        mode: "simulado",
+        status: "waiting",
+        duration_minutes: station.durationMinutes ?? 10,
+      }).select("id, code").single();
+      if (error || !created) { console.error(error); return; }
+      setSim((prev) => {
+        if (!prev) return prev;
+        const next = { ...prev, roomId: created.id as string, roomCode: created.code as string };
+        saveSimulado(next);
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [sim?.id, sim?.currentIndex, sim?.finished, user?.id, station?.id]);
+
+  async function refreshCandidates(roomId: string) {
+    const { data: parts } = await supabase.from("training_room_participants")
+      .select("user_id, role").eq("room_id", roomId);
+    const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
+    if (candUsers.length === 0) { setCandidates([]); return; }
+    const ids = candUsers.map((c: { user_id: string }) => c.user_id);
+    const { data: profs } = await supabase.from("profiles")
+      .select("id, full_name").in("id", ids);
+    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    setCandidates(ids.map((uid: string) => ({ id: uid, name: map.get(uid) ?? "Candidato" })));
+  }
+
+  // Realtime: participants + room updates
+  useEffect(() => {
+    if (!sim?.roomId) return;
+    const roomId = sim.roomId;
+    const ch = supabase.channel(`simulado-${roomId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "training_room_participants", filter: `room_id=eq.${roomId}` }, async (payload) => {
+        await refreshCandidates(roomId);
+        if (payload.eventType === "INSERT") {
+          const row = payload.new as { user_id: string; role: string };
+          if (row.role === "candidato") {
+            const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", row.user_id).maybeSingle();
+            toast.success(`${prof?.full_name ?? "Candidato"} entrou no simulado`);
+          }
+        }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${roomId}` }, (payload) => {
+        const row = payload.new as { evaluated_candidate_id: string | null };
+        setEvaluatedCandidateId(row.evaluated_candidate_id ?? null);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [sim?.roomId]);
+
+  async function setEvaluatedCandidate(candId: string) {
+    if (!sim?.roomId) return;
+    if (running) return toast.error("Encerre a estação atual antes de trocar o avaliado.");
+    const { error } = await supabase.from("training_rooms")
+      .update({ evaluated_candidate_id: candId }).eq("id", sim.roomId);
+    if (error) return toast.error(error.message);
+    setEvaluatedCandidateId(candId);
+    const name = candidates.find((c) => c.id === candId)?.name ?? "Candidato";
+    toast.success(`Avaliado: ${name}`);
+  }
+
+  async function copyInviteLink() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+      toast.success("Link copiado");
+    } catch { toast.error("Não foi possível copiar."); }
+  }
+  function shareWhatsApp() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(`Vamos treinar um simulado no Estação Revalida 🩺\nEntre: ${link}`)}`, "_blank", "noopener,noreferrer");
+  }
+  function shareEmail() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent("Convite — Simulado Estação Revalida")}&body=${encodeURIComponent(`Entre pelo link: ${link}\n\nCódigo: ${sim?.roomCode ?? ""}`)}`;
+  }
+  async function shareNative() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try { await navigator.share({ title: "Estação Revalida", text: "Entre no simulado:", url: link }); return; } catch {}
+    }
+    copyInviteLink();
+  }
 
   // Timer
   useEffect(() => {
@@ -580,16 +701,26 @@ function SimuladoRunner() {
                 </div>
               )}
             </div>
-            {isWaiting && (
-              <button
-                type="button"
-                onClick={startTimer}
-                style={{ color: "var(--medical)" }}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
-              >
-                <Play className="h-4 w-4" /> Iniciar cronômetro
-              </button>
-            )}
+            {isWaiting && (() => {
+              const canStart = !!evaluatedCandidateId;
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!canStart) { toast.error("Selecione o candidato avaliado antes de iniciar."); return; }
+                    startTimer();
+                  }}
+                  disabled={!canStart}
+                  style={canStart ? { color: "var(--medical)" } : undefined}
+                  className={cn(
+                    "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
+                    canStart ? "bg-white hover:bg-white/90 hover:shadow" : "bg-white/10 text-white/60 cursor-not-allowed border border-white/20",
+                  )}
+                >
+                  <Play className="h-4 w-4" /> {canStart ? "Iniciar cronômetro" : "Aguardando candidato…"}
+                </button>
+              );
+            })()}
             {running && (
               <button
                 type="button"
@@ -614,18 +745,87 @@ function SimuladoRunner() {
             </div>
           </div>
 
-          {/* Participante (treino individual) */}
+          {/* Participantes */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Participante</div>
-              <span className="text-[10px] text-muted-foreground">treino individual</span>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Participantes ({candidates.length})
+              </div>
+              <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
             </div>
-            <div className="mt-2 flex items-center gap-2 rounded-xl border border-mint/40 bg-mint/10 px-3 py-2 text-sm">
-              <User className="h-4 w-4 text-mint" />
-              <span className="flex-1 truncate font-medium">Você (avaliando-se)</span>
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
-            </div>
+            {candidates.length === 0 ? (
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                <UserPlus className="h-4 w-4" />
+                Aguardando participantes.
+              </div>
+            ) : (
+              <ul className="mt-2 space-y-1.5">
+                {candidates.map((c) => {
+                  const isEvaluated = c.id === evaluatedCandidateId;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => setEvaluatedCandidate(c.id)}
+                        disabled={running && !isEvaluated}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                          isEvaluated
+                            ? "border-mint/50 bg-mint/10 text-foreground"
+                            : "border-border bg-background/40 text-foreground hover:border-mint/40",
+                          running && !isEvaluated && "opacity-50 cursor-not-allowed",
+                        )}
+                      >
+                        <span className={cn(
+                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                          isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
+                        )}>
+                          {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
+                        </span>
+                        <span className="flex-1 truncate font-medium">{c.name}</span>
+                        {isEvaluated && <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
+
+          {/* Convite do candidato */}
+          {sim.roomCode && (
+            <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Convite do candidato</div>
+                <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">{sim.roomCode}</span>
+              </div>
+              <button
+                onClick={copyInviteLink}
+                className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
+              >
+                <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+                <span className="flex-1 truncate font-mono text-[11px] text-foreground">estacaorevalida.com.br/e/{sim.roomCode}</span>
+                {copied ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
+                    <Check className="h-3 w-3" /> Copiado
+                  </span>
+                ) : (
+                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+              </button>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareWhatsApp}>
+                  <MessageCircle className="h-3.5 w-3.5 text-mint" /> WhatsApp
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareEmail}>
+                  <Mail className="h-3.5 w-3.5 text-mint" /> E-mail
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareNative}>
+                  <Share2 className="h-3.5 w-3.5 text-mint" /> Reenviar
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Progresso do simulado — sem títulos das próximas estações para não revelar ao candidato */}
           <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
