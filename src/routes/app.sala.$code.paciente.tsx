@@ -293,6 +293,16 @@ function ActorView() {
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
 
+  // Item bloqueado até o fim do tempo (1 item fixo por estação)
+  const blockedItemId = useMemo(() => {
+    if (!station || station.checklist.length === 0) return null;
+    let hash = 0;
+    const seed = `${room?.id ?? ""}:${station.id ?? station.title ?? ""}`;
+    for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+    const idx = Math.abs(hash) % station.checklist.length;
+    return station.checklist[idx].id;
+  }, [station, room?.id]);
+
   async function deliver(materialId: string) {
     if (!room || !user || !station) return;
     const m = station.deliverableMaterials?.find((x) => x.id === materialId);
