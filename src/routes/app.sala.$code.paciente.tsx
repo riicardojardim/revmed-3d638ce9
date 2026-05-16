@@ -94,6 +94,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
+  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   const [struckWords, setStruckWords] = useState<Set<string>>(new Set());
   const toggleStruck = (id: string) => setStruckWords((prev) => {
     const next = new Set(prev);
