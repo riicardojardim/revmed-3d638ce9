@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import {
   ArrowLeft, Theater, AlertTriangle, UserRound, Send, Check, PackageCheck,
-  CheckCircle2, XCircle, RotateCw, ClipboardCheck, Pill, FileText, Inbox,
+  CheckCircle2, XCircle, RotateCw, ClipboardCheck, FileText, Inbox,
+  Copy, Link2, Play, UserPlus, CheckCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
   head: () => ({ meta: [{ title: "Roteiro do Ator — Estação Revalida" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
 type Delivery = { id: string; material_id: string; material_name: string };
 type Tab = "roteiro" | "paciente" | "materiais" | "checklist" | "finalizar";
 
@@ -38,26 +39,39 @@ function ActorView() {
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [candidateId, setCandidateId] = useState<string | null>(null);
+  const [candidateName, setCandidateName] = useState<string | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
   const [status, setStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [tab, setTab] = useState<Tab>("roteiro");
+
+  async function refreshCandidate(roomId: string) {
+    const { data: parts } = await supabase.from("training_room_participants")
+      .select("user_id, role").eq("room_id", roomId);
+    const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
+    setCandidateId(cand?.user_id ?? null);
+    if (cand?.user_id) {
+      const { data: prof } = await supabase.from("profiles")
+        .select("full_name").eq("id", cand.user_id).maybeSingle();
+      setCandidateName(prof?.full_name ?? "Candidato");
+    } else {
+      setCandidateName(null);
+    }
+  }
 
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, status, started_at").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       setStation(await loadStation((r as Room).station_id));
 
-      const { data: parts } = await supabase.from("training_room_participants")
-        .select("user_id, role").eq("room_id", (r as Room).id);
-      const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
-      setCandidateId(cand?.user_id ?? null);
+      await refreshCandidate((r as Room).id);
 
       const { data: dels } = await supabase.from("room_material_deliveries")
         .select("id, material_id, material_name").eq("room_id", (r as Room).id);
@@ -84,6 +98,12 @@ function ActorView() {
         const { data: dels } = await supabase.from("room_material_deliveries")
           .select("id, material_id, material_name").eq("room_id", room.id);
         setDeliveries((dels ?? []) as Delivery[]);
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async () => {
+        await refreshCandidate(room.id);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${room.id}` }, (payload) => {
+        setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -137,16 +157,36 @@ function ActorView() {
     if (submit) nav({ to: "/app/sala/$code", params: { code } });
   }
 
+  async function startStation() {
+    if (!room) return;
+    if (!candidateId) return toast.error("Aguarde o candidato entrar pelo link.");
+    setStarting(true);
+    const { error } = await supabase.from("training_rooms")
+      .update({ status: "running", started_at: new Date().toISOString() })
+      .eq("id", room.id);
+    setStarting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Cronômetro iniciado para o candidato.");
+  }
+
+  function copyInviteLink() {
+    const link = `${window.location.origin}/app/entrar/${code}`;
+    navigator.clipboard.writeText(link);
+    toast.success("Link de convite copiado");
+  }
+
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
   const delivered = new Set(deliveries.map((d) => d.material_id));
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
+  const isRunning = room.status === "running";
+  const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/app/entrar/${code}` : `/app/entrar/${code}`;
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
-      <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Voltar à sala
+      <Link to="/app/treinar" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Voltar ao painel
       </Link>
 
       <div className="rounded-3xl border border-rose-200/40 bg-gradient-to-br from-rose-50/60 to-amber-50/40 p-6 dark:from-rose-900/10 dark:to-amber-900/10">
@@ -157,6 +197,66 @@ function ActorView() {
         <p className="mt-1 text-sm text-muted-foreground">
           Você conduz o paciente, entrega materiais e pontua o candidato. O candidato não vê esta tela.
         </p>
+      </div>
+
+      {/* Lobby: link + status do candidato + iniciar */}
+      <div className={cn(
+        "rounded-3xl border p-5 shadow-card transition-colors",
+        isRunning ? "border-emerald-300/40 bg-emerald-50/40 dark:bg-emerald-900/10"
+                  : candidateId ? "border-mint/40 bg-mint/5"
+                                : "border-amber-300/40 bg-amber-50/40 dark:bg-amber-900/10",
+      )}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex-1 min-w-[260px]">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Link de convite para o candidato
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex flex-1 items-center gap-2 truncate rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs">
+                <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+                <span className="truncate">{inviteLink}</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={copyInviteLink}>
+                <Copy className="mr-1 h-4 w-4" /> Copiar
+              </Button>
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Envie por WhatsApp ou e-mail. Ao abrir, o candidato cai direto na estação.
+            </p>
+          </div>
+
+          <div className="min-w-[220px] rounded-2xl border border-border bg-card px-4 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Candidato
+            </div>
+            {candidateId ? (
+              <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <CheckCheck className="h-4 w-4 text-emerald-500" />
+                {candidateName ?? "Candidato"}
+                <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+              </div>
+            ) : (
+              <div className="mt-1 flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300">
+                <UserPlus className="h-4 w-4" />
+                Aguardando candidato...
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end">
+          {isRunning ? (
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+              Cronômetro rodando — estação em andamento
+            </div>
+          ) : (
+            <Button variant="hero" onClick={startStation} disabled={starting || !candidateId}>
+              <Play className="mr-1 h-4 w-4" />
+              {candidateId ? "Iniciar cronômetro" : "Aguardando candidato..."}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Mobile tabs */}
@@ -372,7 +472,7 @@ function ActorView() {
           </div>
 
           <div className="mt-4 rounded-2xl border border-dashed border-border bg-card p-3 text-[11px] text-muted-foreground">
-            <Pill className="mr-1 inline h-3 w-3 text-mint" />
+            <Theater className="mr-1 inline h-3 w-3 text-mint" />
             Esta tela é exclusiva do ator/avaliador. O candidato vê apenas a tela dele.
           </div>
         </aside>

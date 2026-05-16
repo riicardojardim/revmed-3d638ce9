@@ -31,6 +31,7 @@ import { Route as AppProfessorResumosRouteImport } from './routes/app.professor.
 import { Route as AppProfessorFlashcardsRouteImport } from './routes/app.professor.flashcards'
 import { Route as AppProfessorEstacoesRouteImport } from './routes/app.professor.estacoes'
 import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professor.correcoes'
+import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
 import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
@@ -150,6 +151,11 @@ const AppProfessorCorrecoesRoute = AppProfessorCorrecoesRouteImport.update({
   path: '/correcoes',
   getParentRoute: () => AppProfessorRoute,
 } as any)
+const AppEntrarCodeRoute = AppEntrarCodeRouteImport.update({
+  id: '/entrar/$code',
+  path: '/entrar/$code',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminUsuariosRoute = AppAdminUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/professor/flashcards': typeof AppProfessorFlashcardsRoute
@@ -236,6 +243,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/professor/flashcards': typeof AppProfessorFlashcardsRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/professor/flashcards': typeof AppProfessorFlashcardsRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
+    | '/app/entrar/$code'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
     | '/app/professor/flashcards'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
+    | '/app/entrar/$code'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
     | '/app/professor/flashcards'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
+    | '/app/entrar/$code'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
     | '/app/professor/flashcards'
@@ -544,6 +556,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfessorCorrecoesRouteImport
       parentRoute: typeof AppProfessorRoute
     }
+    '/app/entrar/$code': {
+      id: '/app/entrar/$code'
+      path: '/entrar/$code'
+      fullPath: '/app/entrar/$code'
+      preLoaderRoute: typeof AppEntrarCodeRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/admin/usuarios': {
       id: '/app/admin/usuarios'
       path: '/usuarios'
@@ -685,6 +704,7 @@ interface AppRouteChildren {
   AppResumosRoute: typeof AppResumosRouteWithChildren
   AppTreinarRoute: typeof AppTreinarRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppEntrarCodeRoute: typeof AppEntrarCodeRoute
   AppResultadoIdRoute: typeof AppResultadoIdRoute
   AppSimulacaoIdRoute: typeof AppSimulacaoIdRoute
   AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
@@ -703,6 +723,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppResumosRoute: AppResumosRouteWithChildren,
   AppTreinarRoute: AppTreinarRoute,
   AppIndexRoute: AppIndexRoute,
+  AppEntrarCodeRoute: AppEntrarCodeRoute,
   AppResultadoIdRoute: AppResultadoIdRoute,
   AppSimulacaoIdRoute: AppSimulacaoIdRoute,
   AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,

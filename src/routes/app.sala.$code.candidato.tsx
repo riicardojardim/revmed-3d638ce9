@@ -79,6 +79,19 @@ function CandidateView() {
     return () => { supabase.removeChannel(ch); };
   }, [room?.id]);
 
+  // Auto-start quando o ator inicia o cronômetro (room.status === "running")
+  useEffect(() => {
+    if (!room || !station) return;
+    if (room.status === "running" && room.started_at && !finished) {
+      const elapsed = Math.floor((Date.now() - new Date(room.started_at).getTime()) / 1000);
+      const totalSec = station.durationMinutes * 60;
+      const left = Math.max(0, totalSec - elapsed);
+      setRemaining(left);
+      if (left > 0) setRunning(true);
+      else { setRunning(false); setFinished(true); }
+    }
+  }, [room?.status, room?.started_at, station?.id]);
+
   useEffect(() => {
     if (!running) return;
     intervalRef.current = setInterval(() => {
@@ -232,16 +245,20 @@ function CandidateView() {
                 Tempo encerrado. Finalize a estação para receber a correção.
               </div>
             )}
+            {room?.status !== "running" && !finished && (
+              <div className="mt-4 rounded-xl bg-white/10 px-3 py-2 text-sm text-white/90">
+                <Play className="mr-1 inline h-4 w-4" />
+                Aguardando o avaliador iniciar a estação...
+              </div>
+            )}
             <div className="mt-5 flex gap-2">
-              {!running ? (
-                <Button variant="hero" className="flex-1" onClick={() => setRunning(true)} disabled={finished}>
-                  <Play className="h-4 w-4" /> {remaining === total ? "Iniciar estação" : "Retomar"}
-                </Button>
-              ) : (
-                <Button variant="hero" className="flex-1" onClick={() => setRunning(false)}>Pausar</Button>
-              )}
-              <Button variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10" onClick={finish}>
-                <Square className="h-4 w-4" /> Finalizar
+              <Button
+                variant="outline"
+                className="flex-1 border-white/20 bg-white/5 text-white hover:bg-white/10"
+                onClick={finish}
+                disabled={room?.status !== "running" && !finished}
+              >
+                <Square className="h-4 w-4" /> Finalizar estação
               </Button>
             </div>
             <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/70">
