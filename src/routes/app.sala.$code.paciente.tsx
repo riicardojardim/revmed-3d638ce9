@@ -518,14 +518,9 @@ function ActorView() {
                 <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
               )}
               {p && (
-                <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  {patientFields(p).map(([label, value]) => value && (
-                    <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
-                      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                      <dd className="mt-0.5 text-sm">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
+                <div className="mt-4">
+                  <ScriptText text={formatPatientProfile(p)} strikeable prefix="pp" struck={struckWords} toggle={toggleStruck} />
+                </div>
               )}
               {p?.spontaneous && (
                 <SubBlock label="O que falar espontaneamente">
@@ -1195,6 +1190,76 @@ function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string
     ["Hábitos de vida", p.habits],
     ["Sinais e sintomas", p.symptoms],
   ];
+}
+
+/**
+ * Format patient profile into Pense Revalida-style script:
+ * section headers in ALL CAPS + bullet lines with **Label:** bolded.
+ */
+function formatPatientProfile(p: NonNullable<LoadedStation["patientProfile"]>): string {
+  const out: string[] = [];
+
+  const boldLabelLines = (raw?: string): string[] => {
+    if (!raw) return [];
+    return raw.split("\n").map((ln) => {
+      const t = ln.trim();
+      if (!t) return "";
+      const m = t.match(/^([^:]{1,60}):\s*(.*)$/);
+      if (m) return `- **${m[1].trim()}:** ${m[2].trim()}`;
+      return `- ${t}`;
+    }).filter(Boolean);
+  };
+
+  // DADOS PESSOAIS
+  const personal = [p.name, p.age && `${p.age} de idade`, p.profession].filter(Boolean).join(", ");
+  if (personal) {
+    out.push("DADOS PESSOAIS:");
+    out.push(`- ${personal}.`);
+    out.push("");
+  }
+
+  if (p.chiefComplaint) {
+    out.push("MOTIVO DE CONSULTA:");
+    out.push(`- ${p.chiefComplaint}`);
+    out.push("");
+  }
+
+  if (p.hpi) {
+    out.push("CARACTERÍSTICAS DO ACIDENTE:");
+    out.push(...boldLabelLines(p.hpi));
+    out.push("");
+  }
+
+  if (p.symptoms) {
+    out.push("SINTOMAS ASSOCIADOS:");
+    out.push(...boldLabelLines(p.symptoms));
+    out.push("");
+  }
+
+  if (p.onlyIfAsked) {
+    out.push("SE PERGUNTADO POR LIMPEZA OU ANTISSEPSIA DO LOCAL:");
+    out.push(`- ${p.onlyIfAsked.replace(/^Se perguntado[^:]*:\s*/i, "")}`);
+    out.push("");
+  }
+
+  const antecedentes: string[] = [];
+  if (p.personalHistory) antecedentes.push(...boldLabelLines(p.personalHistory));
+  if (p.medications) antecedentes.push(`- **Medicamentos:** ${p.medications}`);
+  if (p.allergies) antecedentes.push(`- **Alergias:** ${p.allergies}`);
+  if (p.familyHistory) antecedentes.push(`- **História familiar:** ${p.familyHistory}`);
+  if (antecedentes.length) {
+    out.push("ANTECEDENTES PESSOAIS:");
+    out.push(...antecedentes);
+    out.push("");
+  }
+
+  if (p.habits) {
+    out.push("HÁBITOS:");
+    out.push(...boldLabelLines(p.habits));
+    out.push("");
+  }
+
+  return out.join("\n").trimEnd();
 }
 
 /**
