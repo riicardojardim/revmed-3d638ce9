@@ -755,7 +755,7 @@ function ActorView() {
               <button
                 type="button"
                 onClick={() => setShowAnalysis((v) => !v)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-400/30 bg-violet-500/20 px-4 py-3 text-sm font-semibold text-violet-100 transition-colors hover:bg-violet-500/30"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-gradient-hero px-4 py-3 text-sm font-medium text-white shadow-elegant transition-opacity hover:opacity-90"
               >
                 <BarChart3 className="h-4 w-4" />
                 Análise de resultados
