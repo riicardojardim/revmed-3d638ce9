@@ -1207,7 +1207,8 @@ function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string
  *  - explicit **markdown** segments
  *  - lines in ALL CAPS ending with ":" (typical PR-style cues like "SE PERGUNTADO ... :")
  */
-function ScriptText({ text, className }: { text: string; className?: string }) {
+function ScriptText({ text, className, strikeable, prefix, struck, toggle }: { text: unknown; className?: string; strikeable?: boolean; prefix?: string; struck?: Set<string>; toggle?: (id: string) => void }) {
+  const safe = typeof text === "string" ? text : text == null ? "" : String(text);
   const isAllCapsCue = (line: string) => {
     const t = line.trim().replace(/[:：]+$/, "");
     if (t.length < 3) return false;
@@ -1215,40 +1216,61 @@ function ScriptText({ text, className }: { text: string; className?: string }) {
     if (letters.length < 3) return false;
     return letters === letters.toUpperCase();
   };
-  // Inline keyword auto-bolding (Pense Revalida-style emphasis).
   const KEYWORD_RE = /(\*\*[^*]+\*\*|manejo da emergência[^.;\n]*|protocolo[^.;\n]*|questionamentos|seguindo protocolo[^.;\n]*|Nível de atenção:|Tipo de atendimento:|DESCRIÇÃO DO CASO:)/gi;
-  const renderInline = (line: string, key: React.Key) => {
+
+  const Bold = ({ id, children }: { id: string; children: React.ReactNode }) => {
+    if (!strikeable || !struck || !toggle) {
+      return <strong className="font-semibold text-foreground">{children}</strong>;
+    }
+    const isStruck = struck.has(id);
+    return (
+      <strong
+        onClick={() => toggle(id)}
+        className={cn(
+          "font-semibold text-foreground cursor-pointer rounded px-0.5 transition-colors select-none",
+          isStruck ? "line-through opacity-50 hover:opacity-70" : "hover:bg-amber-500/20"
+        )}
+      >
+        {children}
+      </strong>
+    );
+  };
+
+  const renderInline = (line: string, lineIdx: number) => {
     const parts = line.split(KEYWORD_RE).filter((p) => p !== undefined);
     return (
-      <span key={key}>
+      <span>
         {parts.map((p, i) => {
           if (!p) return null;
+          const id = `${prefix ?? "st"}-${lineIdx}-${i}`;
           if (p.startsWith("**") && p.endsWith("**")) {
-            return <strong key={i} className="font-semibold text-foreground">{p.slice(2, -2)}</strong>;
+            return <Bold key={i} id={id}>{p.slice(2, -2)}</Bold>;
           }
           if (KEYWORD_RE.test(p)) {
             KEYWORD_RE.lastIndex = 0;
-            return <strong key={i} className="font-semibold text-foreground">{p}</strong>;
+            return <Bold key={i} id={id}>{p}</Bold>;
           }
           return <span key={i}>{p}</span>;
         })}
       </span>
     );
   };
-  const lines = text.split("\n");
+
+  const lines = safe.split("\n");
   let firstNonEmptyIdx = lines.findIndex((l) => l.trim().length > 0);
   return (
     <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
       {lines.map((ln, i) => {
         const isIntro = i === firstNonEmptyIdx && !ln.trim().startsWith("-") && !isAllCapsCue(ln);
         if (isAllCapsCue(ln) || isIntro) {
-          return <div key={i}><strong className="font-semibold text-foreground">{ln}</strong></div>;
+          return <div key={i}><Bold id={`${prefix ?? "st"}-line-${i}`}>{ln}</Bold></div>;
         }
         return <div key={i}>{renderInline(ln, i)}</div>;
       })}
     </div>
   );
 }
+
 
 
 function StrikeText({ text, prefix, struck, toggle, className, inline }: { text: unknown; prefix: string; struck: Set<string>; toggle: (id: string) => void; className?: string; inline?: boolean }) {
