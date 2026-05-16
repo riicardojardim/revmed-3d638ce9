@@ -76,7 +76,9 @@ function TrainPage() {
   const { user } = useAuth();
   const nav = useNavigate();
   const { plan, isPrivileged } = useSubscription();
-  const isAtorOnly = !isPrivileged && plan?.slug === "ator";
+  // Plano Ator tem precedência sobre o papel admin/professor para a UI
+  const isAtorOnly = plan?.slug === "ator";
+  void isPrivileged;
   const [stationId, setStationId] = useState(STATIONS[0].id);
   const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState(false);
