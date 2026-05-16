@@ -159,9 +159,13 @@ function RoomPage() {
           {ROLE_CARDS.map((c) => {
             const isMe = me?.role === c.role;
             const count = roleCount(c.role);
+            const locked = !canPick(c.requires);
             return (
-              <button key={c.role} onClick={() => pickRole(c.role)}
-                className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5 ${
+              <button key={c.role} onClick={() => pickRole(c.role, c.requires)}
+                disabled={locked}
+                className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all ${
+                  locked ? "cursor-not-allowed opacity-60" : "hover:-translate-y-0.5"
+                } ${
                   isMe ? "border-mint bg-mint/5 shadow-elegant" : "border-border bg-card hover:border-mint/40 hover:shadow-card"
                 }`}>
                 <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${c.accent} opacity-60`} />
@@ -170,7 +174,13 @@ function RoomPage() {
                 <div className="mt-2 text-sm text-muted-foreground">{c.desc}</div>
                 <div className="mt-4 flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{count} na sala</span>
-                  {isMe && <span className="rounded-full bg-mint px-2 py-0.5 font-medium text-night">Selecionado</span>}
+                  {locked ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 font-medium text-muted-foreground">
+                      <Lock className="h-3 w-3" /> Bloqueado pelo plano
+                    </span>
+                  ) : isMe ? (
+                    <span className="rounded-full bg-mint px-2 py-0.5 font-medium text-night">Selecionado</span>
+                  ) : null}
                 </div>
               </button>
             );
