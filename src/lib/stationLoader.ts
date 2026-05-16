@@ -1,12 +1,18 @@
 import { supabase } from "@/integrations/supabase/client";
 import { STATIONS, type Station, type ChecklistItem, type ChecklistLevel, type PatientProfile, type DeliverableMaterial } from "@/data/stations";
 
+export interface StationReference {
+  label: string;
+  url?: string;
+}
+
 export interface LoadedStation extends Station {
   patientScript: string;
   evaluatorNotes?: string;
   competencies?: string[];
   scoringCriteria?: string;
   postMaterials?: string;
+  references?: StationReference[];
 }
 
 function isUuid(s: string) {
