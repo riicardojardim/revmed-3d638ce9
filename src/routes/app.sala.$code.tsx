@@ -20,7 +20,15 @@ type Participant = { id: string; user_id: string; role: string; joined_at: strin
 const ROLE_CARDS = [
   {
     role: "candidato",
+    requires: "candidato" as const,
     title: "Sou candidato",
+    desc: "Vou treinar a estação. Vejo o caso clínico, a tarefa e o cronômetro.",
+    icon: Stethoscope,
+    accent: "from-mint/20 to-medical/10",
+  },
+  {
+    role: "paciente",
+    requires: "ator" as const,
     desc: "Vou treinar a estação. Vejo o caso clínico, a tarefa e o cronômetro.",
     icon: Stethoscope,
     accent: "from-mint/20 to-medical/10",
