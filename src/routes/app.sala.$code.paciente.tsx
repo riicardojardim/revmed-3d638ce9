@@ -313,7 +313,7 @@ function ActorView() {
               title="Copiar link de convite"
             >
               <span className="truncate max-w-[160px]">{code}</span>
-              <Copy className="h-3 w-3" />
+              {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
             </button>
           </div>
 
