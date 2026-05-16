@@ -4,8 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
-  Upload, Sparkles, FileText,
+  Upload, Sparkles, FileText, MessageSquare, ListChecks, Inbox, StickyNote,
+  User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
 } from "lucide-react";
+import { PRBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
