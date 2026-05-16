@@ -440,3 +440,24 @@ function PRBlock({
     </section>
   );
 }
+
+function LobbyStep({
+  icon: Icon, label, done, active,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  done?: boolean;
+  active?: boolean;
+}) {
+  return (
+    <div className={cn(
+      "flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 transition-colors",
+      done && "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+      active && "border-mint/40 bg-mint/10 text-mint",
+      !done && !active && "border-border bg-card/50 text-muted-foreground",
+    )}>
+      <Icon className={cn("h-4 w-4", active && "animate-pulse")} />
+      <span className="text-[10px] font-medium uppercase tracking-wider">{label}</span>
+    </div>
+  );
+}
