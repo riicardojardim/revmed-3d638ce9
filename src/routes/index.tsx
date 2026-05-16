@@ -22,6 +22,9 @@ import {
   ChevronDown,
   Instagram,
   MessageCircle,
+  Theater,
+  UserRound,
+  ClipboardCheck,
 } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
