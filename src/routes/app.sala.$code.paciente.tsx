@@ -84,6 +84,7 @@ function ActorView() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, number>>({});
+  const [showAnalysis, setShowAnalysis] = useState(false);
   const [comments, setComments] = useState<Record<string, string>>({});
   const [highlights, setHighlights] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState("");
