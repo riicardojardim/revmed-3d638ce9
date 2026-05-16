@@ -7,7 +7,7 @@ import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, Clipboard
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/use-subscription";
 
-export const Route = createFileRoute("/app/sala/$code")({
+export const Route = createFileRoute("/app/sala/$code/")({
   component: RoomPage,
 });
 
@@ -71,6 +71,19 @@ function RoomPage() {
   }
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [code]);
+
+  // Auto-redireciona quando o usuário já tem um papel (ex: ator entra direto como paciente)
+  useEffect(() => {
+    if (!user || !room) return;
+    const me = parts.find((p) => p.user_id === user.id);
+    if (!me) return;
+    if (me.role === "paciente" || me.role === "avaliador") {
+      nav({ to: "/app/sala/$code/paciente", params: { code }, replace: true });
+    } else if (me.role === "candidato") {
+      nav({ to: "/app/sala/$code/candidato", params: { code }, replace: true });
+    }
+    // eslint-disable-next-line
+  }, [user?.id, room?.id, parts.length]);
 
   useEffect(() => {
     if (!room) return;

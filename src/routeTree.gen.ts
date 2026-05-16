@@ -25,7 +25,6 @@ import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as AppSimulacaoIdRouteImport } from './routes/app.simulacao.$id'
-import { Route as AppSalaCodeRouteImport } from './routes/app.sala.$code'
 import { Route as AppResumosIdRouteImport } from './routes/app.resumos.$id'
 import { Route as AppResultadoIdRouteImport } from './routes/app.resultado.$id'
 import { Route as AppProfessorResumosRouteImport } from './routes/app.professor.resumos'
@@ -34,6 +33,7 @@ import { Route as AppProfessorEstacoesRouteImport } from './routes/app.professor
 import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professor.correcoes'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
+import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
 import { Route as AppSalaCodePacienteRouteImport } from './routes/app.sala.$code.paciente'
 import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$code.candidato'
 import { Route as AppSalaCodeBancaRouteImport } from './routes/app.sala.$code.banca'
@@ -120,11 +120,6 @@ const AppSimulacaoIdRoute = AppSimulacaoIdRouteImport.update({
   path: '/simulacao/$id',
   getParentRoute: () => AppRoute,
 } as any)
-const AppSalaCodeRoute = AppSalaCodeRouteImport.update({
-  id: '/sala/$code',
-  path: '/sala/$code',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppResumosIdRoute = AppResumosIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -165,20 +160,25 @@ const AppAdminPlanosRoute = AppAdminPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppSalaCodeIndexRoute = AppSalaCodeIndexRouteImport.update({
+  id: '/sala/$code/',
+  path: '/sala/$code/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSalaCodePacienteRoute = AppSalaCodePacienteRouteImport.update({
-  id: '/paciente',
-  path: '/paciente',
-  getParentRoute: () => AppSalaCodeRoute,
+  id: '/sala/$code/paciente',
+  path: '/sala/$code/paciente',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSalaCodeCandidatoRoute = AppSalaCodeCandidatoRouteImport.update({
-  id: '/candidato',
-  path: '/candidato',
-  getParentRoute: () => AppSalaCodeRoute,
+  id: '/sala/$code/candidato',
+  path: '/sala/$code/candidato',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSalaCodeBancaRoute = AppSalaCodeBancaRouteImport.update({
-  id: '/banca',
-  path: '/banca',
-  getParentRoute: () => AppSalaCodeRoute,
+  id: '/sala/$code/banca',
+  path: '/sala/$code/banca',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppProfessorEstacoesIdRoute = AppProfessorEstacoesIdRouteImport.update({
   id: '/$id',
@@ -213,7 +213,6 @@ export interface FileRoutesByFullPath {
   '/app/professor/resumos': typeof AppProfessorResumosRoute
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
-  '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
@@ -222,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
+  '/app/sala/$code/': typeof AppSalaCodeIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -242,7 +242,6 @@ export interface FileRoutesByTo {
   '/app/professor/resumos': typeof AppProfessorResumosRoute
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
-  '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
@@ -251,6 +250,7 @@ export interface FileRoutesByTo {
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
+  '/app/sala/$code': typeof AppSalaCodeIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -275,7 +275,6 @@ export interface FileRoutesById {
   '/app/professor/resumos': typeof AppProfessorResumosRoute
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
-  '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
@@ -284,6 +283,7 @@ export interface FileRoutesById {
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
+  '/app/sala/$code/': typeof AppSalaCodeIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -309,7 +309,6 @@ export interface FileRouteTypes {
     | '/app/professor/resumos'
     | '/app/resultado/$id'
     | '/app/resumos/$id'
-    | '/app/sala/$code'
     | '/app/simulacao/$id'
     | '/app/admin/'
     | '/app/professor/'
@@ -318,6 +317,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/banca'
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
+    | '/app/sala/$code/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -338,7 +338,6 @@ export interface FileRouteTypes {
     | '/app/professor/resumos'
     | '/app/resultado/$id'
     | '/app/resumos/$id'
-    | '/app/sala/$code'
     | '/app/simulacao/$id'
     | '/app/admin'
     | '/app/professor'
@@ -347,6 +346,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/banca'
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
+    | '/app/sala/$code'
   id:
     | '__root__'
     | '/'
@@ -370,7 +370,6 @@ export interface FileRouteTypes {
     | '/app/professor/resumos'
     | '/app/resultado/$id'
     | '/app/resumos/$id'
-    | '/app/sala/$code'
     | '/app/simulacao/$id'
     | '/app/admin/'
     | '/app/professor/'
@@ -379,6 +378,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/banca'
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
+    | '/app/sala/$code/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -502,13 +502,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSimulacaoIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/sala/$code': {
-      id: '/app/sala/$code'
-      path: '/sala/$code'
-      fullPath: '/app/sala/$code'
-      preLoaderRoute: typeof AppSalaCodeRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/resumos/$id': {
       id: '/app/resumos/$id'
       path: '/$id'
@@ -565,26 +558,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPlanosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/sala/$code/': {
+      id: '/app/sala/$code/'
+      path: '/sala/$code'
+      fullPath: '/app/sala/$code/'
+      preLoaderRoute: typeof AppSalaCodeIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/sala/$code/paciente': {
       id: '/app/sala/$code/paciente'
-      path: '/paciente'
+      path: '/sala/$code/paciente'
       fullPath: '/app/sala/$code/paciente'
       preLoaderRoute: typeof AppSalaCodePacienteRouteImport
-      parentRoute: typeof AppSalaCodeRoute
+      parentRoute: typeof AppRoute
     }
     '/app/sala/$code/candidato': {
       id: '/app/sala/$code/candidato'
-      path: '/candidato'
+      path: '/sala/$code/candidato'
       fullPath: '/app/sala/$code/candidato'
       preLoaderRoute: typeof AppSalaCodeCandidatoRouteImport
-      parentRoute: typeof AppSalaCodeRoute
+      parentRoute: typeof AppRoute
     }
     '/app/sala/$code/banca': {
       id: '/app/sala/$code/banca'
-      path: '/banca'
+      path: '/sala/$code/banca'
       fullPath: '/app/sala/$code/banca'
       preLoaderRoute: typeof AppSalaCodeBancaRouteImport
-      parentRoute: typeof AppSalaCodeRoute
+      parentRoute: typeof AppRoute
     }
     '/app/professor/estacoes/$id': {
       id: '/app/professor/estacoes/$id'
@@ -675,22 +675,6 @@ const AppResumosRouteWithChildren = AppResumosRoute._addFileChildren(
   AppResumosRouteChildren,
 )
 
-interface AppSalaCodeRouteChildren {
-  AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
-  AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
-  AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
-}
-
-const AppSalaCodeRouteChildren: AppSalaCodeRouteChildren = {
-  AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
-  AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
-  AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
-}
-
-const AppSalaCodeRouteWithChildren = AppSalaCodeRoute._addFileChildren(
-  AppSalaCodeRouteChildren,
-)
-
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppEstacoesRoute: typeof AppEstacoesRoute
@@ -702,8 +686,11 @@ interface AppRouteChildren {
   AppTreinarRoute: typeof AppTreinarRoute
   AppIndexRoute: typeof AppIndexRoute
   AppResultadoIdRoute: typeof AppResultadoIdRoute
-  AppSalaCodeRoute: typeof AppSalaCodeRouteWithChildren
   AppSimulacaoIdRoute: typeof AppSimulacaoIdRoute
+  AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
+  AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
+  AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
+  AppSalaCodeIndexRoute: typeof AppSalaCodeIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -717,8 +704,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppTreinarRoute: AppTreinarRoute,
   AppIndexRoute: AppIndexRoute,
   AppResultadoIdRoute: AppResultadoIdRoute,
-  AppSalaCodeRoute: AppSalaCodeRouteWithChildren,
   AppSimulacaoIdRoute: AppSimulacaoIdRoute,
+  AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
+  AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
+  AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
+  AppSalaCodeIndexRoute: AppSalaCodeIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
