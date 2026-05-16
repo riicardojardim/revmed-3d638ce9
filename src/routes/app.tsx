@@ -100,7 +100,7 @@ function AppLayout() {
     nav({ to: "/login" });
   }
 
-  if (loading || !user) {
+  if (loading || !user || subLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-sm text-muted-foreground">Carregando...</div>
