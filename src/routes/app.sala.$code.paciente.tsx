@@ -516,6 +516,12 @@ function ActorView() {
             <ScriptText text={station.clinicalCase} />
           </PRBlock>
 
+          {station.caseDescription && (
+            <PRBlock icon={MessageSquare} title="Descrição do caso" tone="violet">
+              <ScriptText text={station.caseDescription} />
+            </PRBlock>
+          )}
+
           <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
             <ScriptText text={station.candidateTask} />
           </PRBlock>

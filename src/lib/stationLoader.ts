@@ -13,6 +13,7 @@ export interface LoadedStation extends Station {
   scoringCriteria?: string;
   postMaterials?: string;
   references?: StationReference[];
+  caseDescription?: string;
 }
 
 function isUuid(s: string) {
@@ -96,6 +97,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       educationalGoal: (sx.educational_goal as string) ?? undefined,
       expectedConduct: (sx.expected_conduct as string) ?? undefined,
       commonMistakes: (sx.common_mistakes as string) ?? undefined,
+      caseDescription: (sx.case_description as string) ?? undefined,
     };
   }
   const mock = STATIONS.find((s) => s.id === id);

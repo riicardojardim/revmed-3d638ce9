@@ -300,6 +300,12 @@ function EvaluatorView() {
                 </div>
               </PanelSection>
 
+              {station.caseDescription && (
+                <PanelSection icon={ScrollText} title="Descrição do caso" accent="indigo">
+                  <p className="whitespace-pre-wrap leading-relaxed">{station.caseDescription}</p>
+                </PanelSection>
+              )}
+
               <PanelSection icon={Target} title={`Tarefas dos ${station.durationMinutes} minutos`} accent="mint">
                 <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
               </PanelSection>
