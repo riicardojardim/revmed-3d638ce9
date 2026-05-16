@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,7 +14,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle,
+  Square, Check, Share2, Mail, MessageCircle, Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,19 @@ type Room = { id: string; code: string; station_id: string; station_title: strin
 type Delivery = { id: string; material_id: string; material_name: string };
 type Candidate = { id: string; name: string };
 
+// Migrate legacy checks (boolean) to new shape (number = chosen level points).
+// `true` → full points, `false`/missing → unscored.
+function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]): Record<string, number> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, number> = {};
+  const map = new Map(checklist.map((i) => [i.id, i.points]));
+  for (const [id, val] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof val === "number") out[id] = val;
+    else if (val === true) out[id] = map.get(id) ?? 0;
+  }
+  return out;
+}
+
 function ActorView() {
   const { code } = Route.useParams();
   const { user } = useAuth();
@@ -37,13 +50,12 @@ function ActorView() {
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [checks, setChecks] = useState<Record<string, number>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [showPEP, setShowPEP] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Timer state (synced with room.started_at)
@@ -95,7 +107,7 @@ function ActorView() {
           .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id)
           .eq("candidate_id", (r as Room).evaluated_candidate_id!).maybeSingle();
         if (ev) {
-          setChecks((ev.checks ?? {}) as Record<string, boolean>);
+          setChecks(migrateChecks(ev.checks, st?.checklist ?? []));
           setComments((ev.item_comments ?? {}) as Record<string, string>);
           setFeedback(ev.final_feedback ?? "");
           setEvalStatus(ev.status as typeof evalStatus);
@@ -115,7 +127,7 @@ function ActorView() {
         .select("*").eq("room_id", room.id).eq("evaluator_id", user.id)
         .eq("candidate_id", room.evaluated_candidate_id!).maybeSingle();
       if (ev) {
-        setChecks((ev.checks ?? {}) as Record<string, boolean>);
+        setChecks(migrateChecks(ev.checks, station?.checklist ?? []));
         setComments((ev.item_comments ?? {}) as Record<string, string>);
         setFeedback(ev.final_feedback ?? "");
         setEvalStatus(ev.status as typeof evalStatus);
@@ -213,11 +225,17 @@ function ActorView() {
   }
 
   const totals = useMemo(() => {
-    if (!station) return { total: 0, earned: 0 };
+    if (!station) return { total: 0, earned: 0, scored: 0, count: 0 };
     const total = station.checklist.reduce((s, i) => s + i.points, 0);
-    const earned = station.checklist.reduce((s, i) => s + (checks[i.id] ? i.points : 0), 0);
-    return { total, earned };
+    let earned = 0;
+    let scored = 0;
+    for (const i of station.checklist) {
+      const v = checks[i.id];
+      if (typeof v === "number") { earned += v; scored += 1; }
+    }
+    return { total, earned, scored, count: station.checklist.length };
   }, [station, checks]);
+  const allScored = totals.scored === totals.count && totals.count > 0;
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
 
@@ -316,8 +334,7 @@ function ActorView() {
       .update({ status: "finished", finished_at: new Date().toISOString() })
       .eq("id", room.id);
     setFinished(true);
-    setShowPEP(true);
-    toast.success("Estação finalizada. Agora preencha o PEP.");
+    toast.success("Estação finalizada. Preencha o PEP abaixo.");
   }
 
   async function copyInviteLink() {
@@ -496,6 +513,142 @@ function ActorView() {
               </div>
             )}
           </PRBlock>
+
+          {/* CHECKLIST (PEP) inline — só editável após encerrar */}
+          <PRBlock
+            icon={ClipboardCheck}
+            title="CHECKLIST ( PEP )"
+            right={
+              <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-mono text-white/80">
+                {totals.scored}/{totals.count}
+              </span>
+            }
+          >
+            {!isFinished && (
+              <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
+                <Lock className="mr-1 inline h-3.5 w-3.5" />
+                Disponível para preenchimento após encerrar a estação.
+              </div>
+            )}
+
+            <div className="grid grid-cols-[1fr_auto] gap-x-4 border-b border-border pb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span>Item</span>
+              <span className="text-right">Avaliação</span>
+            </div>
+
+            <ol className="divide-y divide-border">
+              {station.checklist.map((it, idx) => {
+                const levels = it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
+                const current = checks[it.id];
+                return (
+                  <li key={it.id} className="grid grid-cols-[1fr_auto] gap-x-4 py-4">
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-foreground">
+                        {idx + 1}. {it.description}
+                      </div>
+                      <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                        {levels.map((lv) => (
+                          <div key={lv.label}>
+                            <span className="font-medium text-foreground">{lv.label}:</span>{" "}
+                            <span>{lv.points} pt{lv.points === 1 ? "" : "s"}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {it.helperText && (
+                        <div className="mt-2 rounded-md border border-border bg-background/40 px-3 py-1.5 text-[11px] text-muted-foreground">
+                          {it.helperText}
+                        </div>
+                      )}
+                      <Textarea
+                        value={comments[it.id] ?? ""}
+                        onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
+                        placeholder="Comentário (opcional)"
+                        rows={2}
+                        className="mt-3"
+                        disabled={!isFinished}
+                      />
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5 tabular-nums">
+                      {levels.map((lv) => {
+                        const selected = current === lv.points;
+                        return (
+                          <button
+                            key={lv.label}
+                            type="button"
+                            disabled={!isFinished}
+                            onClick={() =>
+                              setChecks((c) => ({ ...c, [it.id]: lv.points }))
+                            }
+                            className={cn(
+                              "min-w-[2.5rem] rounded-md border px-2.5 py-1 text-xs font-bold transition-colors",
+                              selected
+                                ? "border-mint bg-mint text-white shadow-sm"
+                                : "border-border bg-background/40 text-muted-foreground hover:border-mint/40 hover:text-foreground",
+                              !isFinished && "cursor-not-allowed opacity-50",
+                            )}
+                            title={lv.label}
+                          >
+                            {lv.points}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {/* Final feedback + save */}
+            <div className="mt-5 rounded-xl border border-border bg-background/40 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Comentário final ao candidato
+              </div>
+              <Textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+                placeholder="Pontos fortes, pontos a melhorar..."
+                className="mt-2"
+                disabled={!isFinished}
+              />
+            </div>
+
+            {isFinished && !allScored && (
+              <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                <span className="font-bold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados.
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Nota parcial:</span>{" "}
+                <span className="font-bold text-mint">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)} disabled={!isFinished}>
+                  <SelectTrigger className="h-9 w-[180px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="em_andamento">Em andamento</SelectItem>
+                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                    <SelectItem value="reprovado">Reprovado</SelectItem>
+                    <SelectItem value="repetir">Pedir repetição</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" onClick={() => save(false)} disabled={saving || !isFinished}>
+                  Salvar rascunho
+                </Button>
+                <Button
+                  variant="hero"
+                  onClick={() => save(true)}
+                  disabled={saving || !isFinished || !allScored || evalStatus === "em_andamento"}
+                >
+                  <Send className="mr-1 h-4 w-4" /> Enviar correção
+                </Button>
+              </div>
+            </div>
+          </PRBlock>
         </div>
 
         {/* RIGHT: sticky control panel (Pense Revalida-style) */}
@@ -549,9 +702,9 @@ function ActorView() {
               </Button>
             )}
             {isFinished && (
-              <Button variant="hero" className="mt-3 w-full" onClick={() => setShowPEP(true)}>
-                <ClipboardCheck className="mr-1 h-4 w-4" /> Preencher PEP
-              </Button>
+              <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
+                Estação encerrada — preencha o PEP abaixo.
+              </div>
             )}
           </div>
 
@@ -713,77 +866,6 @@ function ActorView() {
         </aside>
       </div>
 
-      {/* PEP — modal/overlay aberto somente após encerramento */}
-      {showPEP && isFinished && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
-          <div className="my-8 w-full max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-elegant">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-mint">
-                  PEP — Padrão Esperado de Procedimento
-                </div>
-                <h2 className="mt-1 font-display text-2xl font-bold">Avaliação do candidato</h2>
-              </div>
-              <button
-                onClick={() => setShowPEP(false)}
-                className="rounded-md border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground"
-              >
-                Fechar
-              </button>
-            </div>
-
-            <div className="mt-5 space-y-2">
-              {station.checklist.map((it) => (
-                <div key={it.id} className={cn("rounded-xl border p-3", checks[it.id] ? "border-mint/50 bg-mint/5" : "border-border bg-background/30")}>
-                  <div className="flex items-start gap-3">
-                    <Checkbox checked={!!checks[it.id]} onCheckedChange={(v) => setChecks((c) => ({ ...c, [it.id]: v === true }))} className="mt-0.5" />
-                    <div className="flex-1">
-                      <div className="text-sm">{it.description}</div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
-                        <span>{it.points} pts</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Textarea
-                    value={comments[it.id] ?? ""}
-                    onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
-                    placeholder="Comentário (opcional)"
-                    rows={2}
-                    className="mt-2"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 rounded-xl border border-border bg-background/40 p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Comentário final ao candidato
-              </div>
-              <Textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                rows={4}
-                placeholder="Pontos fortes, pontos a melhorar..."
-                className="mt-2"
-              />
-            </div>
-
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <div className="text-sm">
-                <span className="text-muted-foreground">Nota parcial:</span>{" "}
-                <span className="font-bold text-mint">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => save(false)} disabled={saving}>Salvar rascunho</Button>
-                <Button variant="hero" onClick={() => save(true)} disabled={saving || evalStatus === "em_andamento"}>
-                  <Send className="mr-1 h-4 w-4" /> Enviar correção
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
