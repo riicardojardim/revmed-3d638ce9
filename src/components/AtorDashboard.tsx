@@ -19,29 +19,29 @@ export function AtorDashboard() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
-      <div className="flex items-center gap-2">
-        <Badge className="border-mint/40 bg-mint/15 text-mint">
+      {/* Header */}
+      <header className="space-y-3">
+        <Badge className="border-mint/40 bg-mint/15 text-mint hover:bg-mint/15">
           <Theater className="mr-1 h-3 w-3" /> Plano Ator / Avaliador
         </Badge>
-      </div>
-
-      <div>
         <p className="text-sm text-muted-foreground">Bem-vindo, ator</p>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">
+        <h1 className="font-display text-2xl font-bold leading-tight md:text-3xl">
           Olá, {name}. Pronto para conduzir uma estação?
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Como ator você entra em salas de treino, interpreta o paciente padronizado
-          e aplica o checklist avaliando o PEP para gerar a nota do candidato em tempo real.
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Como ator você escolhe a estação, recebe um código de sala automático, interpreta o
+          paciente padronizado, libera os impressos quando solicitados e, ao encerrar, desbloqueia
+          o PEP para avaliar o candidato em tempo real.
         </p>
-      </div>
+      </header>
 
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-card">
             <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
               <s.icon className="h-4 w-4 text-mint" />
-              {s.label}
+              <span className="truncate">{s.label}</span>
             </div>
             <div className="mt-2 font-display text-2xl font-bold">{s.value}</div>
           </div>
@@ -51,57 +51,66 @@ export function AtorDashboard() {
       {/* Entry hero */}
       <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-mint/30 blur-3xl" />
-        <Badge className="border-mint/40 bg-mint/15 text-mint hover:bg-mint/15">
-          <Sparkles className="mr-1 h-3 w-3" /> Banca avaliadora
-        </Badge>
-        <h2 className="mt-4 font-display text-2xl font-bold md:text-3xl">
-          Entre em uma sala de treino
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm text-white/80">
-          Use o código fornecido pelo candidato (ou pelo professor) para acessar a sala como
-          ator/avaliador. Você terá acesso ao roteiro do paciente, impressos e ao checklist PEP completo.
-        </p>
-        <Link to="/app/treinar" className="mt-6 inline-block">
-          <Button variant="hero" size="lg">
-            Acessar salas <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="relative space-y-4">
+          <Badge className="border-mint/40 bg-mint/15 text-mint hover:bg-mint/15">
+            <Sparkles className="mr-1 h-3 w-3" /> Banca avaliadora
+          </Badge>
+          <h2 className="font-display text-2xl font-bold leading-tight md:text-3xl">
+            Escolha uma estação e abra sua sala
+          </h2>
+          <p className="max-w-2xl text-sm leading-relaxed text-white/80">
+            Ao selecionar a estação, o sistema gera automaticamente um <strong>código de sala</strong>.
+            Esse mesmo código é usado pelo candidato para entrar — e por você, como Ator/Avaliador.
+          </p>
+          <Link to="/app/treinar" className="inline-block">
+            <Button variant="hero" size="lg">
+              Escolher estação <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
+      {/* Como funciona */}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <h3 className="font-semibold">Como funciona seu papel</h3>
-          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">1</span>
-              Escolha a <strong className="text-foreground">estação</strong> que você quer conduzir.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">2</span>
-              Um <strong className="text-foreground">código da sala</strong> é gerado automaticamente — o mesmo código serve para o candidato entrar e para você entrar como <strong className="text-foreground">Ator/Avaliador</strong>.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">3</span>
-              Ajuste o <strong className="text-foreground">tempo do cronômetro</strong> se precisar e clique em <strong className="text-foreground">Iniciar</strong>.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">4</span>
-              Durante a estação, você vê todas as <strong className="text-foreground">falas do paciente</strong> e libera os <strong className="text-foreground">impressos</strong> conforme o candidato solicita.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">5</span>
-              Ao <strong className="text-foreground">encerrar</strong>, o <strong className="text-foreground">PEP</strong> é desbloqueado para você avaliar — e fica visível para o candidato acompanhar a correção em tempo real.
-            </li>
-          </ul>
+          <ol className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+            {[
+              <>Escolha a <strong className="text-foreground">estação</strong> que você quer conduzir.</>,
+              <>O <strong className="text-foreground">código da sala</strong> é gerado automaticamente — o mesmo código que o candidato usa para entrar.</>,
+              <>Ajuste o <strong className="text-foreground">tempo do cronômetro</strong> se precisar e clique em <strong className="text-foreground">Iniciar</strong>.</>,
+              <>Durante a estação, você acompanha todas as <strong className="text-foreground">falas do paciente</strong> e libera os <strong className="text-foreground">impressos bloqueados</strong> conforme o candidato solicita.</>,
+              <>Ao <strong className="text-foreground">encerrar</strong>, o <strong className="text-foreground">PEP</strong> é desbloqueado para avaliação e aparece também para o candidato — vocês analisam juntos em tempo real.</>,
+            ].map((text, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">
+                  {i + 1}
+                </span>
+                <span className="flex-1">{text}</span>
+              </li>
+            ))}
+          </ol>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <h3 className="font-semibold">Boas práticas do ator</h3>
-          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-            <li>• Mantenha-se fiel ao roteiro: revele informações somente quando perguntado.</li>
-            <li>• Use a tri-avaliação: Adequado (1.0), Parcial (0.5), Inadequado (0).</li>
-            <li>• Comente itens-chave para enriquecer o feedback final.</li>
-            <li>• Respeite o tempo da estação — o cronômetro é sincronizado com o candidato.</li>
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" />
+              <span>Mantenha-se fiel ao roteiro: revele informações somente quando perguntado.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" />
+              <span>Use a tri-avaliação: Adequado (1.0), Parcial (0.5), Inadequado (0).</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" />
+              <span>Só libere o impresso quando o candidato pedir — é parte da avaliação.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" />
+              <span>Respeite o tempo da estação — o cronômetro é sincronizado com o candidato.</span>
+            </li>
           </ul>
         </div>
       </div>
