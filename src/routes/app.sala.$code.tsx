@@ -29,12 +29,6 @@ const ROLE_CARDS = [
   {
     role: "paciente",
     requires: "ator" as const,
-    desc: "Vou treinar a estação. Vejo o caso clínico, a tarefa e o cronômetro.",
-    icon: Stethoscope,
-    accent: "from-mint/20 to-medical/10",
-  },
-  {
-    role: "paciente",
     title: "Sou paciente / ator",
     desc: "Vou interpretar o paciente seguindo o roteiro entregue pela banca.",
     icon: UserRound,
@@ -42,6 +36,7 @@ const ROLE_CARDS = [
   },
   {
     role: "avaliador",
+    requires: "ator" as const,
     title: "Sou médico avaliador",
     desc: "Vou corrigir o candidato pelo checklist, pontuar e dar feedback.",
     icon: ClipboardCheck,
