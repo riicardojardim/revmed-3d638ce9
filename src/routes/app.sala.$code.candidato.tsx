@@ -289,7 +289,7 @@ function CandidateView() {
           )}
 
           <PRBlock icon={ListChecks} title={`Nos ${room.duration_minutes ?? station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+            <ScriptText text={station.candidateTask} />
           </PRBlock>
 
           <PRBlock
