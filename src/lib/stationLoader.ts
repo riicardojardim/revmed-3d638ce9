@@ -112,5 +112,6 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
     checklist: withDefaultLevels(mock.checklist),
     patientScript: script,
     competencies: Array.from(new Set(mock.checklist.map((c) => c.category))),
+    references: mock.references ?? [],
   };
 }
