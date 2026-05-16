@@ -597,16 +597,17 @@ function ActorView() {
                           {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
-                      <Button
-                        size="sm"
-                        variant={isDelivered ? "outline" : "hero"}
-                        className="mt-auto w-full !mt-auto"
-                        style={{ marginTop: 'auto' }}
-                        disabled={isDelivered || !isRunning}
-                        onClick={() => deliver(m.id)}
-                      >
-                        {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
-                      </Button>
+                      <div className="mt-auto pt-3">
+                        <Button
+                          size="sm"
+                          variant={isDelivered ? "outline" : "hero"}
+                          className="w-full"
+                          disabled={isDelivered || !isRunning}
+                          onClick={() => deliver(m.id)}
+                        >
+                          {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}
