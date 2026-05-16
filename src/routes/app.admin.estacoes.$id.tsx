@@ -356,6 +356,7 @@ function EditorBody({
 
       {tab === "ator" ? (
         <>
+          <SectionCaseCandidate station={station} up={up} />
           <SectionCaseActor station={station} up={up} />
           <SectionMaterials
             materials={station.deliverable_materials}
