@@ -14,6 +14,7 @@ import {
   Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ScriptText } from "@/components/station/shared";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
