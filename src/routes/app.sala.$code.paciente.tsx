@@ -763,7 +763,7 @@ function ActorView() {
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm">
                 <span className="text-muted-foreground">Nota parcial:</span>{" "}
-                <span className="font-bold text-mint">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
+                <span className="font-bold text-mint">{score.toFixed(2)}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)} disabled={!isFinished}>
@@ -922,7 +922,7 @@ function ActorView() {
                     </div>
                     <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
                       <div className="font-display text-xl font-bold tabular-nums text-mint">
-                        {score.toFixed(2)} / {pct.toFixed(0)}%
+                        {score.toFixed(2)}
                       </div>
                     </div>
                   </div>
