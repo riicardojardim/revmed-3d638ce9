@@ -94,7 +94,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
-  const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos" | "avaliado">("controle");
+  const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos">("controle");
 
   // Timer state (synced with room.started_at)
   const [remaining, setRemaining] = useState(0);
