@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { STATIONS } from "@/data/stations";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +27,14 @@ const SPECIALTY_BADGE: Record<string, { code: string; cls: string }> = {
   "Urgência e Emergência":    { code: "UE", cls: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-400/30" },
 };
 
+type DBStation = {
+  id: string;
+  title: string;
+  specialty: string;
+  difficulty: string;
+  duration_minutes: number;
+};
+
 function TrainPage() {
   const { user } = useAuth();
   const nav = useNavigate();
@@ -35,9 +42,23 @@ function TrainPage() {
   const [specialty, setSpecialty] = useState<string>("all");
   const [busy, setBusy] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
+  const [stations, setStations] = useState<DBStation[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const specialties = Array.from(new Set(STATIONS.map((s) => s.specialty)));
-  const filtered = STATIONS.filter((s) => {
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("custom_stations")
+        .select("id, title, specialty, difficulty, duration_minutes")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      setStations((data ?? []) as DBStation[]);
+      setLoading(false);
+    })();
+  }, []);
+
+  const specialties = Array.from(new Set(stations.map((s) => s.specialty)));
+  const filtered = stations.filter((s) => {
     const matchText = s.title.toLowerCase().includes(search.toLowerCase());
     const matchSpec = specialty === "all" || s.specialty === specialty;
     return matchText && matchSpec;
