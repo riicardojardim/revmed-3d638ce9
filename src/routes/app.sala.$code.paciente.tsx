@@ -499,7 +499,7 @@ function ActorView() {
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
             {station.patientScript && (
-              <p className="whitespace-pre-wrap leading-relaxed">{station.patientScript}</p>
+              <ScriptText text={station.patientScript} />
             )}
             {p && (
               <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
@@ -988,7 +988,7 @@ function ActorView() {
                     <Theater className="h-4 w-4 text-mint" /> Orientações do Ator/Atriz
                   </div>
                   {station.patientScript && (
-                    <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">{station.patientScript}</p>
+                    <ScriptText text={station.patientScript} className="text-foreground/90" />
                   )}
                   {p && (
                     <dl className="grid grid-cols-1 gap-2">
@@ -1166,3 +1166,44 @@ function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string
     ["Sinais e sintomas", p.symptoms],
   ];
 }
+
+/**
+ * Render plain script text with auto-bold for "trigger" lines.
+ * Bolds:
+ *  - explicit **markdown** segments
+ *  - lines in ALL CAPS ending with ":" (typical PR-style cues like "SE PERGUNTADO ... :")
+ */
+function ScriptText({ text, className }: { text: string; className?: string }) {
+  const isAllCapsCue = (line: string) => {
+    const t = line.trim();
+    if (t.length < 4 || !t.endsWith(":")) return false;
+    const letters = t.replace(/[^A-Za-zÀ-ÿ]/g, "");
+    if (letters.length < 3) return false;
+    return letters === letters.toUpperCase();
+  };
+  const renderInline = (line: string, key: React.Key) => {
+    const parts = line.split(/(\*\*[^*]+\*\*)/g);
+    return (
+      <span key={key}>
+        {parts.map((p, i) =>
+          p.startsWith("**") && p.endsWith("**")
+            ? <strong key={i} className="font-semibold text-foreground">{p.slice(2, -2)}</strong>
+            : <span key={i}>{p}</span>
+        )}
+      </span>
+    );
+  };
+  const lines = text.split("\n");
+  return (
+    <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
+      {lines.map((ln, i) => (
+        <div key={i}>
+          {isAllCapsCue(ln)
+            ? <strong className="font-semibold text-foreground">{ln}</strong>
+            : renderInline(ln, i)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
