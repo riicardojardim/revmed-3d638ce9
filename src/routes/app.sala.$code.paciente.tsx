@@ -671,7 +671,7 @@ function ActorView() {
               />
             </div>
 
-            {isFinished && !allScored && (
+            {!allScored && (
               <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 <span className="font-bold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados ({totals.scored}/{totals.count}).
               </div>
