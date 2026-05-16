@@ -90,6 +90,15 @@ const CATEGORIES = [
 ];
 const MATERIAL_TYPES = ["Impresso", "Exame laboratorial", "Exame de imagem", "ECG", "Outro"];
 
+function withDuration(text: string, mins: number): string {
+  if (!text) return text;
+  const n = Number.isFinite(mins) && mins > 0 ? mins : 10;
+  return text
+    .replace(/Nos\s+\d+\s*min\.?\s*minutos/gi, `Nos ${n} minutos`)
+    .replace(/Nos\s+\d+\s*minutos/gi, `Nos ${n} minutos`)
+    .replace(/em\s+at[ée]\s+\d+\s*minutos/gi, `em até ${n} minutos`);
+}
+
 function defaultLevels(maxPts: number): ChecklistLevel[] {
   const m = Number.isFinite(maxPts) ? maxPts : 1;
   const mid = Math.round((m / 2) * 100) / 100;
@@ -999,8 +1008,8 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               <PRBlock icon={MessageSquare} title="Cenário de atuação">
                 <ScriptText text={station.clinical_case || "—"} />
               </PRBlock>
-              <PRBlock icon={ListChecks} title="Tarefas da estação">
-                <ScriptText text={station.candidate_task || "—"} />
+              <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
+                <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
               </PRBlock>
               <PRBlock icon={Inbox} title="Materiais recebidos" right={<Badge variant="outline">0</Badge>}>
                 <p className="text-sm text-muted-foreground">
@@ -1026,7 +1035,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" /> Tempo
                 </div>
-                <div className="mt-2 font-mono text-3xl font-bold">10:00</div>
+                <div className="mt-2 font-mono text-3xl font-bold">{String(station.duration_minutes).padStart(2, "0")}:00</div>
                 <div className="text-xs text-muted-foreground">Definido pelo ator/banca na sala.</div>
               </div>
             </div>
