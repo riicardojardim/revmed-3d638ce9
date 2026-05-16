@@ -42,7 +42,47 @@ function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]
   return out;
 }
 
-function ActorView() {
+
+function parseSubItems(description: string): { lead: string; subs: string[] } {
+  // Detect "(1) ... (2) ..." numbered sub-items inside the description
+  const numbered = description.match(/\(\d+\)\s*[^()]+/g);
+  if (numbered && numbered.length >= 2) {
+    const firstIdx = description.indexOf(numbered[0]);
+    const lead = description.slice(0, firstIdx).trim().replace(/[:;]\s*$/, "") || description.split(/[(:]/)[0].trim();
+    return { lead, subs: numbered.map((s) => s.trim().replace(/[;.]$/, "")) };
+  }
+  // Detect parenthesized comma-list e.g. "Caracteriza dor (início, qualidade, irradiação)"
+  const paren = description.match(/^(.*?)\(([^()]+,[^()]+)\)\s*$/);
+  if (paren) {
+    const subs = paren[2].split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    if (subs.length >= 2) return { lead: paren[1].trim(), subs };
+  }
+  // Fallback: split on ";" if multiple clauses
+  const parts = description.split(";").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 2) return { lead: parts[0], subs: parts.slice(1) };
+  return { lead: description, subs: [] };
+}
+
+function levelTone(index: number, total: number): { idle: string; active: string } {
+  // First = Inadequado (red), last = Adequado (green), middle = Parcial (amber)
+  if (index === 0) {
+    return {
+      idle: "border-rose-500/30 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10",
+      active: "border-rose-500 bg-rose-500/80 text-white shadow-sm",
+    };
+  }
+  if (index === total - 1) {
+    return {
+      idle: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300 hover:bg-emerald-500/10",
+      active: "border-emerald-500 bg-emerald-500/80 text-white shadow-sm",
+    };
+  }
+  return {
+    idle: "border-amber-500/30 bg-amber-500/5 text-amber-300 hover:bg-amber-500/10",
+    active: "border-amber-500 bg-amber-500/80 text-white shadow-sm",
+  };
+}
+
   const { code } = Route.useParams();
   const { user } = useAuth();
   const nav = useNavigate();
