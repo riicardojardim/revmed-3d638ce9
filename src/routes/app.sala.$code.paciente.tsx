@@ -50,18 +50,21 @@ function ActorView() {
   const [finished, setFinished] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  async function refreshCandidate(roomId: string) {
+  async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
       .select("user_id, role").eq("room_id", roomId);
-    const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
-    setCandidateId(cand?.user_id ?? null);
-    if (cand?.user_id) {
-      const { data: prof } = await supabase.from("profiles")
-        .select("full_name").eq("id", cand.user_id).maybeSingle();
-      setCandidateName(prof?.full_name ?? "Candidato");
-    } else {
-      setCandidateName(null);
+    const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
+    if (candUsers.length === 0) {
+      setCandidates([]);
+      return [];
     }
+    const ids = candUsers.map((c: { user_id: string }) => c.user_id);
+    const { data: profs } = await supabase.from("profiles")
+      .select("id, full_name").in("id", ids);
+    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    const list: Candidate[] = ids.map((id: string) => ({ id, name: map.get(id) ?? "Candidato" }));
+    setCandidates(list);
+    return list;
   }
 
   useEffect(() => {
