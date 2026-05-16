@@ -136,16 +136,18 @@ function ActorView() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async (payload) => {
         const row = payload.new as { user_id: string; role: string };
         if (row.role === "candidato") {
-          setCandidateId(row.user_id);
           const { data: prof } = await supabase.from("profiles")
             .select("full_name").eq("id", row.user_id).maybeSingle();
           const name = prof?.full_name ?? "Candidato";
-          setCandidateName(name);
-          toast.success(`${name} entrou na sala`, { description: "Você já pode iniciar o cronômetro." });
+          setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
+          toast.success(`${name} entrou na sala`);
+          if (!room.evaluated_candidate_id) {
+            await supabase.from("training_rooms").update({ evaluated_candidate_id: row.user_id }).eq("id", room.id);
+          }
         }
       })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async () => {
-        await refreshCandidate(room.id);
+        await refreshCandidates(room.id);
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${room.id}` }, (payload) => {
         setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
