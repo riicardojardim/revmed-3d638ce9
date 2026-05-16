@@ -76,6 +76,7 @@ export type Database = {
       }
       custom_stations: {
         Row: {
+          bibliographic_references: Json
           candidate_task: string
           clinical_case: string
           common_mistakes: string | null
@@ -101,6 +102,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          bibliographic_references?: Json
           candidate_task: string
           clinical_case: string
           common_mistakes?: string | null
@@ -126,6 +128,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          bibliographic_references?: Json
           candidate_task?: string
           clinical_case?: string
           common_mistakes?: string | null
@@ -410,7 +413,9 @@ export type Database = {
           category: string
           created_at: string
           description: string
+          helper_text: string | null
           id: string
+          levels: Json
           order_index: number
           points: number
           station_id: string
@@ -419,7 +424,9 @@ export type Database = {
           category: string
           created_at?: string
           description: string
+          helper_text?: string | null
           id?: string
+          levels?: Json
           order_index?: number
           points?: number
           station_id: string
@@ -428,7 +435,9 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          helper_text?: string | null
           id?: string
+          levels?: Json
           order_index?: number
           points?: number
           station_id?: string
