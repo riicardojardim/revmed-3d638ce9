@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LogOut, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/perfil")({
   component: ProfilePage,
@@ -11,7 +12,27 @@ export const Route = createFileRoute("/app/perfil")({
 
 function ProfilePage() {
   const { user, profile, roles, signOut } = useAuth();
+  const { plan, daysLeft, isPrivileged } = useSubscription();
   const nav = useNavigate();
+  const planName = isPrivileged
+    ? "Acesso institucional"
+    : plan && !plan.expired
+      ? `Plano ${plan.name}`
+      : "Plano Free";
+  const planDescription = isPrivileged
+    ? "Você tem acesso completo como equipe da plataforma."
+    : plan?.slug === "ator"
+      ? "Você atua como ator/avaliador em salas de treino."
+      : plan?.slug === "completo"
+        ? "Acesso completo a estações, flashcards, resumos e correções."
+        : "Atualize para desbloquear todas as estações e correção do professor.";
+  const planStatus = isPrivileged
+    ? "Ativo"
+    : plan && !plan.expired
+      ? plan.status === "trialing"
+        ? `Teste · ${daysLeft ?? 0} dias`
+        : "Ativo"
+      : "Inativo";
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "—";
   const initial = displayName.charAt(0).toUpperCase();
   const roleLabel = roles.includes("admin")
@@ -50,12 +71,15 @@ function ProfilePage() {
         <h3 className="font-semibold">Minha assinatura</h3>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="font-display text-2xl font-bold">Plano Free</div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              Atualize para desbloquear todas as estações e correção do professor.
-            </div>
+            <div className="font-display text-2xl font-bold">{planName}</div>
+            <div className="mt-1 text-sm text-muted-foreground">{planDescription}</div>
+            {plan?.current_period_end && !isPrivileged && (
+              <div className="mt-1 text-xs text-muted-foreground">
+                Válido até {new Date(plan.current_period_end).toLocaleDateString("pt-BR")}
+              </div>
+            )}
           </div>
-          <Badge className="bg-mint/15 text-medical hover:bg-mint/15">Ativo</Badge>
+          <Badge className="bg-mint/15 text-medical hover:bg-mint/15">{planStatus}</Badge>
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
           <Button variant="hero">Fazer upgrade</Button>
