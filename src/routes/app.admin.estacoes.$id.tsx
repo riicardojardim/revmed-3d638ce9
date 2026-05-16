@@ -320,13 +320,52 @@ function EditorBody({
       />
 
       <SectionBasics station={station} up={up} />
-      <SectionCase station={station} up={up} />
-      <SectionMaterials
-        materials={station.deliverable_materials}
-        onChange={(m) => up("deliverable_materials", m)}
-      />
-      <SectionChecklist stationId={id} items={items} reload={load} />
-      <SectionReview station={station} items={items} up={up} togglePublish={togglePublish} />
+
+      {/* Tabs: Ator / Avaliado */}
+      <div className="inline-flex rounded-xl border border-border bg-background/40 p-1">
+        {([
+          { id: "ator", label: "Ator (preencher primeiro)", icon: Stethoscope },
+          { id: "avaliado", label: "Avaliado (o que ele recebe)", icon: User },
+        ] as const).map((t) => {
+          const Icon = t.icon;
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition",
+                active ? "bg-mint/15 text-mint shadow-sm" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <Icon className="h-4 w-4" /> {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {tab === "ator" ? (
+        <>
+          <SectionCaseActor station={station} up={up} />
+          <SectionMaterials
+            materials={station.deliverable_materials}
+            onChange={(m) => up("deliverable_materials", m)}
+          />
+          <SectionChecklist stationId={id} items={items} reload={load} />
+          <SectionPedagogical station={station} up={up} />
+        </>
+      ) : (
+        <>
+          <SectionCaseCandidate station={station} up={up} />
+          <SectionReferences station={station} up={up} />
+          <Section title="Pré-visualização" hint="Selecione abaixo se quer ver como o avaliado ou o ator/paciente enxergam a estação no painel deles.">
+            <StationLivePreview station={station} items={items} />
+          </Section>
+        </>
+      )}
+
+      <SectionPublish station={station} togglePublish={togglePublish} />
     </div>
   );
 }
