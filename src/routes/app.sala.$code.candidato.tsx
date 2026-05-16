@@ -10,7 +10,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -180,6 +180,54 @@ function CandidateView() {
   const isFinished = finished || room.status === "finished";
   const correctionReady = !!evaluation && evaluation.status !== "em_andamento";
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
+
+  // Lobby de espera — tela cheia, transita sozinha quando room.status virar "running"
+  if (isWaiting) {
+    return (
+      <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
+        <Link to="/app/sala/$code" params={{ code }} className="absolute left-6 top-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </Link>
+
+        <div className="relative">
+          <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/20" />
+          <span className="absolute inset-0 -m-2 animate-pulse rounded-full bg-mint/30" />
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-mint/30 to-emerald-500/20 ring-2 ring-mint/40">
+            <Hourglass className="h-10 w-10 text-mint" />
+          </div>
+        </div>
+
+        <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+          Conectado à sala {code}
+        </div>
+
+        <h1 className="mt-6 font-display text-3xl font-bold md:text-4xl">
+          Aguardando o avaliador iniciar...
+        </h1>
+        <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
+          Você já está dentro da estação <span className="font-semibold text-emerald-300">{room.station_title ?? station.title}</span>.
+          Assim que o avaliador iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
+        </p>
+
+        <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
+          <LobbyStep icon={CheckCheck} label="Entrou na sala" done />
+          <LobbyStep icon={Hourglass} label="Aguardando início" active />
+          <LobbyStep icon={Play} label="Estação inicia" />
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
+          <Badge variant="outline">{station.specialty}</Badge>
+          <Badge variant="outline">{station.difficulty}</Badge>
+          <Badge variant="outline">{station.durationMinutes} min</Badge>
+        </div>
+
+        <div className="mt-10 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
+          💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o avaliador clicar em iniciar.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl space-y-4">
@@ -390,5 +438,26 @@ function PRBlock({
       </header>
       <div className="p-5 text-sm">{children}</div>
     </section>
+  );
+}
+
+function LobbyStep({
+  icon: Icon, label, done, active,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  done?: boolean;
+  active?: boolean;
+}) {
+  return (
+    <div className={cn(
+      "flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 transition-colors",
+      done && "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+      active && "border-mint/40 bg-mint/10 text-mint",
+      !done && !active && "border-border bg-card/50 text-muted-foreground",
+    )}>
+      <Icon className={cn("h-4 w-4", active && "animate-pulse")} />
+      <span className="text-[10px] font-medium uppercase tracking-wider">{label}</span>
+    </div>
   );
 }
