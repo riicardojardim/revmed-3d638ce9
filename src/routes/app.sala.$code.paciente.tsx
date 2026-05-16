@@ -293,6 +293,16 @@ function ActorView() {
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
 
+  // Item bloqueado até o fim do tempo (1 item fixo por estação)
+  const blockedItemId = useMemo(() => {
+    if (!station || station.checklist.length === 0) return null;
+    let hash = 0;
+    const seed = `${room?.id ?? ""}:${station.id ?? station.title ?? ""}`;
+    for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+    const idx = Math.abs(hash) % station.checklist.length;
+    return station.checklist[idx].id;
+  }, [station, room?.id]);
+
   async function deliver(materialId: string) {
     if (!room || !user || !station) return;
     const m = station.deliverableMaterials?.find((x) => x.id === materialId);
@@ -615,7 +625,7 @@ function ActorView() {
             {!isFinished && (
               <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
                 <Lock className="mr-1 inline h-3.5 w-3.5" />
-                Disponível para preenchimento após encerrar a estação.
+                Você pode pontuar durante a estação, mas 1 item será liberado apenas após encerrar.
               </div>
             )}
 
@@ -689,20 +699,24 @@ function ActorView() {
                       {levels.map((lv, li) => {
                         const selected = current === lv.points;
                         const tone = levelTone(li, levels.length);
+                        const isBlocked = !isFinished && it.id === blockedItemId;
                         return (
                           <button
                             key={lv.label}
                             type="button"
-                            disabled={!isFinished}
-                            onClick={() =>
-                              setChecks((c) => ({ ...c, [it.id]: lv.points }))
-                            }
+                            onClick={() => {
+                              if (isBlocked) {
+                                toast.error("Você tem que terminar o checklist primeiro..");
+                                return;
+                              }
+                              setChecks((c) => ({ ...c, [it.id]: lv.points }));
+                            }}
                             className={cn(
                               "flex h-7 w-9 items-center justify-center rounded-md text-sm font-bold transition-colors",
                               selected ? tone.active : tone.idle,
-                              !isFinished && "cursor-not-allowed opacity-40",
+                              isBlocked && "cursor-not-allowed opacity-40",
                             )}
-                            title={lv.label}
+                            title={isBlocked ? "Aguarde o término da estação" : lv.label}
                           >
                             {lv.points}
                           </button>
