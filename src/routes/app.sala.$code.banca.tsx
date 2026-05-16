@@ -412,7 +412,7 @@ function EvaluatorView() {
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5 text-sm font-semibold">
                                 {isDelivered ? <Unlock className="h-3.5 w-3.5 text-emerald-600" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
-                                Impresso {idx + 1}{(() => { const clean = (m.name || "").replace(/^\s*impresso\s*\d+\s*[:\-–—()]*\s*/i, "").replace(/^\(\s*|\s*\)$/g, "").trim(); return clean ? <> <span className="text-muted-foreground">·</span> {clean}</> : null; })()}
+                                Impresso {idx + 1}{(() => { const clean = (m.name || "").replace(/^\s*impresso\s*\d+\s*[:\-–—()]*\s*/i, "").replace(/^\(\s*|\s*\)$/g, "").trim(); if (!clean) return null; const sentence = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase(); return <> <span className="text-muted-foreground">·</span> {sentence}</>; })()}
                               </div>
                               <div className="mt-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">{m.type}</div>
                               {m.description && <div className="mt-1.5 text-xs text-muted-foreground">{m.description}</div>}
