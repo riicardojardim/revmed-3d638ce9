@@ -382,10 +382,11 @@ function StepCase({ station, up }: { station: Station; up: <K extends keyof Stat
 
       <Section title="Perfil completo do paciente / ator"
         hint="Usado pelo participante que atua como paciente nas estações em dupla.">
-        <div className="grid gap-3 md:grid-cols-4">
-          <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} /></div>
-          <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} /></div>
-          <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} /></div>
+        <div className="grid gap-3 md:grid-cols-5">
+          <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Dona Maria" /></div>
+          <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="72" /></div>
+          <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="feminino" /></div>
+          <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} placeholder="Barreiras, BA" /></div>
           <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} /></div>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
