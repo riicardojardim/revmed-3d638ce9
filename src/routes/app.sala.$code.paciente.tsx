@@ -1316,9 +1316,17 @@ function ScriptText({ text, className, strikeable, prefix, struck, toggle }: { t
   return (
     <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
       {lines.map((ln, i) => {
+        if (ln.trim() === "") {
+          return <div key={i} className="h-4" aria-hidden />;
+        }
         const isIntro = i === firstNonEmptyIdx && !ln.trim().startsWith("-") && !isAllCapsCue(ln);
         if (isAllCapsCue(ln) || isIntro) {
-          return <div key={i}><Bold id={`${prefix ?? "st"}-line-${i}`}>{ln}</Bold></div>;
+          const prevBlank = i > 0 && lines[i - 1].trim() === "";
+          return (
+            <div key={i} className={cn(prevBlank && "mt-2")}>
+              <Bold id={`${prefix ?? "st"}-line-${i}`}>{ln}</Bold>
+            </div>
+          );
         }
         return <div key={i}>{renderInline(ln, i)}</div>;
       })}
