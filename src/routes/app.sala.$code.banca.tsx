@@ -425,6 +425,9 @@ function EvaluatorView() {
                             <ScriptText text={m.content} />
                           </div>
                         )}
+                        {isDelivered && m.imageUrl && (
+                          <img src={m.imageUrl} alt={m.name || "Material"} className="mt-3 max-h-48 w-full rounded-lg border border-emerald-300/30 object-contain" />
+                        )}
 
                         <Button size="sm" variant={isDelivered ? "outline" : "hero"} className="mt-3 w-full"
                           disabled={isDelivered} onClick={() => deliver(m.id)}>
