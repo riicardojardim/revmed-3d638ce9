@@ -205,17 +205,15 @@ function TrainPage() {
 
           {/* Stations table */}
           <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
-            <div className="hidden grid-cols-[1fr_110px_110px_140px] gap-3 border-b border-border bg-muted/30 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground md:grid">
+            <div className="hidden grid-cols-[1fr_140px] gap-3 border-b border-border bg-muted/30 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground md:grid">
               <div>Estação</div>
-              <div className="text-center">Duração</div>
-              <div className="text-center">Nível</div>
               <div className="text-right">Ação</div>
             </div>
             <ul className="divide-y divide-border">
               {filtered.map((s) => {
                 const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
                 return (
-                  <li key={s.id} className="grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-muted/20 md:grid-cols-[1fr_110px_110px_140px] md:items-center">
+                  <li key={s.id} className="grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-muted/20 md:grid-cols-[1fr_140px] md:items-center">
                     <div className="flex items-center gap-3">
                       <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-1.5 font-mono text-xs font-bold ${b.cls}`}>
                         {b.code}
@@ -225,8 +223,6 @@ function TrainPage() {
                         <div className="text-xs text-muted-foreground">{s.specialty}</div>
                       </div>
                     </div>
-                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.duration_minutes} min</div>
-                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.difficulty}</div>
                     <div className="md:text-right">
                       <Button
                         size="sm"
