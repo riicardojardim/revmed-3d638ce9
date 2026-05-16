@@ -32,13 +32,16 @@ const TABS: { k: Tab; l: string; icon: React.ComponentType<{ className?: string 
   { k: "feedback",  l: "Resultado",    icon: Send },
 ];
 
-// 1 = Adequado · 0.5 = Parcialmente · 0 = Inadequado
-type Level = 1 | 0.5 | 0;
-const LEVELS: { v: Level; label: string; short: string; cls: string; activeCls: string; dot: string }[] = [
-  { v: 1,   label: "Adequado",              short: "ADQ", dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]" },
-  { v: 0.5, label: "Parcialmente adequado", short: "PAR", dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",      activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]" },
-  { v: 0,   label: "Inadequado",            short: "INA", dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",         activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]" },
-];
+// Stores the points awarded per item (matches the level's `points`)
+type Level = number;
+
+// Visual mapping derived from the level label (Pense Revalida style)
+function levelStyle(label: string) {
+  const k = label.toLowerCase();
+  if (k.startsWith("adequado")) return { dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]", short: "ADQ" };
+  if (k.startsWith("parc"))     return { dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",         activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]", short: "PAR" };
+  return                          { dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",             activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]", short: "INA" };
+}
 
 function fmt(t: number) {
   const m = Math.floor(t / 60).toString().padStart(2, "0");
