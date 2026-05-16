@@ -1012,18 +1012,15 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
 
         {mode === "ator" && (
           <div className="space-y-4">
-            <PRBlock icon={User} title="Perfil do paciente / informações para o ator">
-              {hasProfile ? (
+            <PRBlock icon={User} title="Orientações do Ator / Atriz">
+              {station.patient_script ? (
+                <ScriptText text={station.patient_script} />
+              ) : hasProfile ? (
                 <ScriptText text={patientFormatted} />
               ) : (
-                <p className="text-sm text-muted-foreground">Nenhum perfil de paciente preenchido.</p>
+                <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
               )}
             </PRBlock>
-            {station.patient_script && (
-              <PRBlock icon={MessageSquare} title="Roteiro de atuação (fala do paciente)">
-                <ScriptText text={station.patient_script} />
-              </PRBlock>
-            )}
             <PRBlock icon={MessageSquare} title="Cenário clínico (contexto)">
               <ScriptText text={station.clinical_case || "—"} />
             </PRBlock>
