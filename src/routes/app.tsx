@@ -10,6 +10,7 @@ import {
   User,
   Bell,
   LogOut,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-const navItems = [
+const baseNavItems = [
   { to: "/app", label: "Início", icon: Home, exact: true },
   { to: "/app/estacoes", label: "Estações", icon: ClipboardList, exact: false },
   { to: "/app/treinar", label: "Treinar", icon: Dumbbell, exact: false },
@@ -26,10 +27,21 @@ const navItems = [
   { to: "/app/perfil", label: "Perfil", icon: User, exact: false },
 ] as const;
 
+type NavItem = { to: string; label: string; icon: typeof Home; exact: boolean };
+
 function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
-  const { user, loading, profile, signOut } = useAuth();
+  const { user, loading, profile, roles, signOut } = useAuth();
+
+  const isTeacher = roles.includes("professor") || roles.includes("admin");
+  const navItems: NavItem[] = isTeacher
+    ? [
+        ...baseNavItems.slice(0, 4),
+        { to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false },
+        baseNavItems[4],
+      ]
+    : [...baseNavItems];
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
