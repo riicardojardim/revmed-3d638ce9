@@ -20,7 +20,7 @@ export const Route = createFileRoute("/app/sala/$code/banca")({
   head: () => ({ meta: [{ title: "Painel do Avaliador — Estação Revalida" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string };
+type Room = { id: string; code: string; station_id: string; station_title: string; duration_minutes: number | null };
 type Delivery = { id: string; material_id: string; material_name: string };
 type Tab = "cenario" | "roteiro" | "impressos" | "checklist" | "feedback";
 
@@ -74,7 +74,7 @@ function EvaluatorView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, duration_minutes").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
@@ -306,7 +306,7 @@ function EvaluatorView() {
                 </PanelSection>
               )}
 
-              <PanelSection icon={Target} title={`Tarefas dos ${station.durationMinutes} minutos`} accent="mint">
+              <PanelSection icon={Target} title={`Tarefas dos ${room?.duration_minutes ?? station.durationMinutes} minutos`} accent="mint">
                 <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
               </PanelSection>
 
