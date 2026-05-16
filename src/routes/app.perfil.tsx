@@ -12,26 +12,24 @@ export const Route = createFileRoute("/app/perfil")({
 
 function ProfilePage() {
   const { user, profile, roles, signOut } = useAuth();
-  const { plan, daysLeft, isPrivileged } = useSubscription();
+  const { plan, daysLeft } = useSubscription();
   const nav = useNavigate();
   const isAtorPlan = plan?.slug === "ator" && !plan.expired;
+  // Note: institutional access (admin/professor) is intentionally hidden from
+  // the public profile. Privileged users keep their bypass in app logic but
+  // see the same plan UI as a regular candidato. The internal institutional
+  // panel lives under a hidden admin-only route.
   const planName = isAtorPlan
     ? "Plano Ator"
-    : isPrivileged
-    ? "Acesso institucional"
     : plan && !plan.expired
       ? `Plano ${plan.name}`
       : "Plano Free";
   const planDescription = isAtorPlan
     ? "Você atua como ator/avaliador em salas de treino."
-    : isPrivileged
-    ? "Você tem acesso completo como equipe da plataforma."
     : plan?.slug === "completo"
-        ? "Acesso completo a estações, flashcards, resumos e correções."
-        : "Atualize para desbloquear todas as estações e correção do professor.";
+      ? "Acesso completo a estações, flashcards, resumos e correções."
+      : "Atualize para desbloquear todas as estações e correção do professor.";
   const planStatus = isAtorPlan
-    ? "Ativo"
-    : isPrivileged
     ? "Ativo"
     : plan && !plan.expired
       ? plan.status === "trialing"
@@ -42,8 +40,6 @@ function ProfilePage() {
   const initial = displayName.charAt(0).toUpperCase();
   const roleLabel = isAtorPlan
     ? "Ator/Avaliador"
-    : roles.includes("admin")
-    ? "Admin"
     : roles.includes("professor")
       ? "Professor"
       : "Aluno";
@@ -80,7 +76,7 @@ function ProfilePage() {
           <div>
             <div className="font-display text-2xl font-bold">{planName}</div>
             <div className="mt-1 text-sm text-muted-foreground">{planDescription}</div>
-            {plan?.current_period_end && !isPrivileged && (
+            {plan?.current_period_end && (
               <div className="mt-1 text-xs text-muted-foreground">
                 Válido até {new Date(plan.current_period_end).toLocaleDateString("pt-BR")}
               </div>
