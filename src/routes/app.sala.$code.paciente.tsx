@@ -275,7 +275,9 @@ function ActorView() {
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
   const isWaiting = !isRunning && !isFinished;
-  const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/app/entrar/${code}` : `/app/entrar/${code}`;
+  const inviteHost = "estacaorevalida.lovable.app";
+  const inviteLink = `https://${inviteHost}/e/${code}`;
+  const inviteLinkDisplay = `${inviteHost}/e/${code}`;
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
 
