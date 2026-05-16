@@ -154,24 +154,44 @@ export const parseStationPdfs = createServerFn({ method: "POST" })
       });
     }
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userContent },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 110_000);
+    let res: Response;
+    try {
+      res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: userContent },
+          ],
+          response_format: { type: "json_object" },
+        }),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      clearTimeout(timer);
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(
+        `Falha de rede com o gateway de IA: ${msg}. Tente novamente, reduza o número de PDFs ou use arquivos menores.`,
+      );
+    }
+    clearTimeout(timer);
 
     if (!res.ok) {
       const txt = await res.text();
+      if (res.status === 504 || /timeout/i.test(txt)) {
+        throw new Error(
+          "A IA demorou demais para ler os PDFs (timeout). Tente enviar menos arquivos por vez ou um PDF menor.",
+        );
+      }
+      if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
+      if (res.status === 402) throw new Error("Créditos de IA esgotados.");
       throw new Error(`AI Gateway falhou (${res.status}): ${txt.slice(0, 300)}`);
     }
     const json = (await res.json()) as {
