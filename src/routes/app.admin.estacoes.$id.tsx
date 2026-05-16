@@ -503,19 +503,24 @@ function StepMaterials({ materials, onChange }: { materials: DeliverableMaterial
 }
 
 function StepChecklist({ stationId, items, reload }: { stationId: string; items: Item[]; reload: () => Promise<void> }) {
-  const [draft, setDraft] = useState({ description: "", category: "Anamnese", points: 1 });
+  const [draft, setDraft] = useState({ description: "", category: "Apresentação", points: 1 });
 
   async function addItem(e: React.FormEvent) {
     e.preventDefault();
     if (!draft.description.trim()) return toast.error("Descrição obrigatória");
     const pts = Number(draft.points) || 1;
+    // Padrão Estação Revalida: cada item recebe título numerado
+    // (ex.: "1. Apresentação"). Se o admin escolheu uma categoria do dropdown,
+    // ela vira o título numerado; senão usamos a própria descrição.
+    const titleSource = (draft.category || draft.description).trim();
     const payload = {
       station_id: stationId,
       description: draft.description.trim(),
-      category: draft.category,
+      category: numberedCategory(items.length, titleSource),
       points: pts,
       order_index: items.length,
       levels: defaultLevels(pts),
+      helper_text: null,
     } as never;
     const { error } = await supabase.from("station_checklist_items").insert(payload);
     if (error) return toast.error("Erro", { description: error.message });
