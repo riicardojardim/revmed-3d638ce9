@@ -475,7 +475,7 @@ function ActorView() {
             icon={Inbox}
             title="Materiais para entregar ao candidato"
             tone="sky"
-            right={<Badge variant="outline">{deliveries.length}/{materials.length}</Badge>}
+            right={<Badge variant="outline" className="text-white border-white/30">{deliveries.length}/{materials.length}</Badge>}
           >
             {materials.length === 0 ? (
               <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
@@ -518,11 +518,7 @@ function ActorView() {
           <PRBlock
             icon={ClipboardCheck}
             title="CHECKLIST ( PEP )"
-            right={
-              <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-mono text-white/80">
-                {totals.scored}/{totals.count}
-              </span>
-            }
+            right={<Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>}
           >
             {!isFinished && (
               <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
