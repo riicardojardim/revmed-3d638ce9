@@ -505,48 +505,43 @@ function ActorView() {
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
-            <p className="mb-3 text-[11px] text-muted-foreground italic">Dica: clique em qualquer palavra para riscá-la; clique novamente para desfazer.</p>
+            <p className="mb-3 text-[11px] text-muted-foreground italic">Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las; clique novamente para desfazer.</p>
             {station.patientScript && (
-              <StrikeText text={station.patientScript} prefix="ps" struck={struckWords} toggle={toggleStruck} />
+              <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
             )}
             {p && (
               <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
                 {patientFields(p).map(([label, value]) => value && (
                   <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
                     <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                    <dd className="mt-0.5 text-sm">
-                      <StrikeText text={value} prefix={`pf-${label}`} struck={struckWords} toggle={toggleStruck} />
-                    </dd>
+                    <dd className="mt-0.5 text-sm">{value}</dd>
                   </div>
                 ))}
               </dl>
             )}
             {p?.spontaneous && (
               <SubBlock label="O que falar espontaneamente">
-                <StrikeText text={p.spontaneous} prefix="sp" struck={struckWords} toggle={toggleStruck} />
+                <ScriptText text={p.spontaneous} strikeable prefix="sp" struck={struckWords} toggle={toggleStruck} />
               </SubBlock>
             )}
             {p?.onlyIfAsked && (
               <SubBlock label="Revelar APENAS se perguntado">
-                <StrikeText text={p.onlyIfAsked} prefix="oia" struck={struckWords} toggle={toggleStruck} />
+                <ScriptText text={p.onlyIfAsked} strikeable prefix="oia" struck={struckWords} toggle={toggleStruck} />
               </SubBlock>
             )}
             {p?.doNotReveal && (
               <SubBlock label="Nunca revelar" tone="rose">
-                <StrikeText text={p.doNotReveal} prefix="dnr" struck={struckWords} toggle={toggleStruck} />
+                <ScriptText text={p.doNotReveal} strikeable prefix="dnr" struck={struckWords} toggle={toggleStruck} />
               </SubBlock>
             )}
             {(p?.emotionalTone || p?.actingTips) && (
               <SubBlock label="Tom emocional e atuação">
-                {p?.emotionalTone && (
-                  <div><span className="font-medium">Tom:</span> <StrikeText text={p.emotionalTone} prefix="et" struck={struckWords} toggle={toggleStruck} inline /></div>
-                )}
-                {p?.actingTips && (
-                  <div className="mt-1"><span className="font-medium">Dicas:</span> <StrikeText text={p.actingTips} prefix="at" struck={struckWords} toggle={toggleStruck} inline /></div>
-                )}
+                {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
+                {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
               </SubBlock>
             )}
           </PRBlock>
+
 
 
           <PRBlock
