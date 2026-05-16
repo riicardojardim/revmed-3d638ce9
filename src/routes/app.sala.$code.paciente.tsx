@@ -538,25 +538,33 @@ function ActorView() {
               <div className="grid gap-3 sm:grid-cols-2">
                 {materials.map((m, idx) => {
                   const isDelivered = delivered.has(m.id);
+                  const isOpen = previewMaterialId === m.id;
                   return (
                     <div key={m.id} className={cn(
                       "rounded-xl border p-3 transition-all",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
+                      isOpen && "sm:col-span-2",
                     )}>
                       <button
                         type="button"
-                        onClick={() => setPreviewMaterialId(m.id)}
+                        onClick={() => setPreviewMaterialId(isOpen ? null : m.id)}
                         className="flex w-full items-start justify-between gap-2 text-left group"
-                        title="Clique para visualizar o conteúdo"
+                        title="Clique para expandir / recolher"
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
                             <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1} <span className="text-muted-foreground font-normal">({m.name})</span>
                           </div>
-                          <div className="mt-0.5 text-[11px] text-muted-foreground">clique para ver o conteúdo</div>
+                          <div className="mt-0.5 text-[11px] text-muted-foreground">{isOpen ? "clique para recolher" : "clique para ver o conteúdo"}</div>
                           {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
                         </div>
+                        <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform mt-1", isOpen && "rotate-180")} />
                       </button>
+                      {isOpen && (
+                        <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
+                          {m.content || <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>}
+                        </div>
+                      )}
                       <Button
                         size="sm"
                         variant={isDelivered ? "outline" : "hero"}
