@@ -582,18 +582,34 @@ function ActorView() {
                       {isOpen && (
                         <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
                           {isRhythm && (
-                            <img
-                              src={ecgRitmoSinusal}
-                              alt="Traçado de ECG do paciente"
-                              className="mb-3 block w-full h-auto rounded-md border border-border"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: ecgRitmoSinusal, alt: "Traçado de ECG do paciente" })}
+                              className="mb-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img
+                                src={ecgRitmoSinusal}
+                                alt="Traçado de ECG do paciente"
+                                className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90"
+                              />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
                           )}
                           {isSpider && (
-                            <img
-                              src={aranhaArmadeira}
-                              alt="Aranha responsável pelo acidente"
-                              className="mb-3 block w-full h-auto rounded-md border border-border"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: aranhaArmadeira, alt: "Aranha responsável pelo acidente" })}
+                              className="mb-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img
+                                src={aranhaArmadeira}
+                                alt="Aranha responsável pelo acidente"
+                                className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90"
+                              />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
                           )}
                           {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
