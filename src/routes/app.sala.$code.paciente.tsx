@@ -70,7 +70,7 @@ function ActorView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, duration_minutes").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
@@ -78,15 +78,20 @@ function ActorView() {
       const effMin = (r as Room).duration_minutes ?? st?.durationMinutes ?? 10;
       setRemaining(effMin * 60);
 
-      await refreshCandidate((r as Room).id);
+      const list = await refreshCandidates((r as Room).id);
+      // Auto-select first candidate if none was chosen yet
+      if (!(r as Room).evaluated_candidate_id && list.length > 0 && user && (r as Room).host_id !== undefined) {
+        await supabase.from("training_rooms").update({ evaluated_candidate_id: list[0].id }).eq("id", (r as Room).id);
+      }
 
       const { data: dels } = await supabase.from("room_material_deliveries")
         .select("id, material_id, material_name").eq("room_id", (r as Room).id);
       setDeliveries((dels ?? []) as Delivery[]);
 
-      if (user) {
+      if (user && (r as Room).evaluated_candidate_id) {
         const { data: ev } = await supabase.from("room_evaluations")
-          .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id).maybeSingle();
+          .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id)
+          .eq("candidate_id", (r as Room).evaluated_candidate_id!).maybeSingle();
         if (ev) {
           setChecks((ev.checks ?? {}) as Record<string, boolean>);
           setComments((ev.item_comments ?? {}) as Record<string, string>);
@@ -96,6 +101,27 @@ function ActorView() {
       }
     })();
   }, [code, user?.id]);
+
+  // When the evaluated candidate changes, reload draft for that candidate (or reset)
+  useEffect(() => {
+    if (!room || !user || !room.evaluated_candidate_id) {
+      setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
+      return;
+    }
+    (async () => {
+      const { data: ev } = await supabase.from("room_evaluations")
+        .select("*").eq("room_id", room.id).eq("evaluator_id", user.id)
+        .eq("candidate_id", room.evaluated_candidate_id!).maybeSingle();
+      if (ev) {
+        setChecks((ev.checks ?? {}) as Record<string, boolean>);
+        setComments((ev.item_comments ?? {}) as Record<string, string>);
+        setFeedback(ev.final_feedback ?? "");
+        setEvalStatus(ev.status as typeof evalStatus);
+      } else {
+        setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
+      }
+    })();
+  }, [room?.evaluated_candidate_id, room?.id, user?.id]);
 
   useEffect(() => {
     if (!room) return;
