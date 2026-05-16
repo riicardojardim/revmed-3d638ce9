@@ -532,7 +532,12 @@ function SectionCaseCandidate({ station, up }: { station: Station; up: <K extend
       <div>
         <Label>Cenário de atuação</Label>
         <p className="mb-1 text-xs text-muted-foreground">{formattingHint}</p>
-        <Textarea rows={12} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} placeholder={"Ex.:\nVocê está atendendo no pronto-socorro...\n\nDESCRIÇÃO DO CASO:\nPaciente de 45 anos..."} />
+        <Textarea rows={12} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} placeholder={"Ex.:\nVocê está atendendo no pronto-socorro..."} />
+      </div>
+      <div>
+        <Label>Descrição do caso</Label>
+        <p className="mb-1 text-xs text-muted-foreground">{formattingHint}</p>
+        <Textarea rows={12} value={station.case_description ?? ""} onChange={(e) => up("case_description", e.target.value)} placeholder={"Cole aqui a descrição completa do caso (como vem no PDF)."} />
       </div>
       <div>
         <Label>Tarefas do candidato (Nos X minutos de duração da estação, você deverá executar as seguintes tarefas)</Label>
