@@ -281,6 +281,12 @@ function CandidateView() {
             <p className="whitespace-pre-wrap leading-relaxed">{station.clinicalCase}</p>
           </PRBlock>
 
+          {station.caseDescription && (
+            <PRBlock icon={MessageSquare} title="Descrição do caso" tone="violet">
+              <p className="whitespace-pre-wrap leading-relaxed">{station.caseDescription}</p>
+            </PRBlock>
+          )}
+
           <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
             <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
           </PRBlock>
