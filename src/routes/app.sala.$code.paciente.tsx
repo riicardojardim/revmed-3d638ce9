@@ -230,10 +230,41 @@ function ActorView() {
     toast.success("Estação finalizada. Agora preencha o PEP.");
   }
 
-  function copyInviteLink() {
-    const link = `${window.location.origin}/app/entrar/${code}`;
-    navigator.clipboard.writeText(link);
-    toast.success("Link copiado.");
+  async function copyInviteLink() {
+    const link = inviteLink;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast.success("Link copiado!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar. Copie manualmente.");
+    }
+  }
+
+  function shareWhatsApp() {
+    const text = `Olá! Vamos treinar uma estação no Estação Revalida 🩺\nEntre pelo link: ${inviteLink}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  }
+
+  function shareEmail() {
+    const subject = "Convite para treinar estação — Estação Revalida";
+    const body = `Olá!\n\nVocê foi convidado(a) para treinar uma estação clínica.\nEntre pelo link abaixo:\n\n${inviteLink}\n\nCódigo da sala: ${code}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  async function shareNative() {
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({
+          title: "Estação Revalida",
+          text: "Vamos treinar uma estação? Entre na sala:",
+          url: inviteLink,
+        });
+        return;
+      } catch { /* user cancelled */ }
+    }
+    copyInviteLink();
   }
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
