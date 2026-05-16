@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -527,6 +528,19 @@ function ActorView() {
             )}
           </PRBlock>
 
+          <PRBlock icon={Theater} title="Ritmo do paciente">
+            <figure className="overflow-hidden rounded-xl border border-border bg-background/40">
+              <img
+                src={ecgRitmoSinusal}
+                alt="Traçado de ECG do paciente — ritmo sinusal"
+                className="block w-full h-auto"
+              />
+              <figcaption className="px-3 py-2 text-[11px] text-muted-foreground">
+                ECG de demonstração — ritmo sinusal regular.
+              </figcaption>
+            </figure>
+          </PRBlock>
+
           <PRBlock
             icon={Inbox}
             title="Materiais para entregar ao candidato"
@@ -593,7 +607,6 @@ function ActorView() {
                 Disponível para preenchimento após encerrar a estação.
               </div>
             )}
-
 
 
             <ol className="space-y-3">
