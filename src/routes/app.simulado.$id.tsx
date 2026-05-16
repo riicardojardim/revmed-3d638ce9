@@ -90,6 +90,117 @@ function SimuladoRunner() {
     });
   }, [sim?.currentIndex, sim?.id, sim?.finished]);
 
+  // Ensure a training_room exists for this simulado (created lazily, reused across stations).
+  useEffect(() => {
+    if (!sim || sim.finished || !user || !station) return;
+    let cancelled = false;
+    (async () => {
+      // If we already have a room, just sync its station to the current one.
+      if (sim.roomId) {
+        const cur = sim.stations[sim.currentIndex];
+        await supabase.from("training_rooms")
+          .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
+          .eq("id", sim.roomId);
+        const { data: r } = await supabase.from("training_rooms")
+          .select("evaluated_candidate_id").eq("id", sim.roomId).maybeSingle();
+        if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
+        await refreshCandidates(sim.roomId);
+        return;
+      }
+      // Create the room with a short, friendly code.
+      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      const cur = sim.stations[sim.currentIndex];
+      const { data: created, error } = await supabase.from("training_rooms").insert({
+        code,
+        host_id: user.id,
+        station_id: cur.id,
+        station_title: cur.title,
+        mode: "simulado",
+        status: "waiting",
+        duration_minutes: station.durationMinutes ?? 10,
+      }).select("id, code").single();
+      if (error || !created) { console.error(error); return; }
+      setSim((prev) => {
+        if (!prev) return prev;
+        const next = { ...prev, roomId: created.id as string, roomCode: created.code as string };
+        saveSimulado(next);
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [sim?.id, sim?.currentIndex, sim?.finished, user?.id, station?.id]);
+
+  async function refreshCandidates(roomId: string) {
+    const { data: parts } = await supabase.from("training_room_participants")
+      .select("user_id, role").eq("room_id", roomId);
+    const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
+    if (candUsers.length === 0) { setCandidates([]); return; }
+    const ids = candUsers.map((c: { user_id: string }) => c.user_id);
+    const { data: profs } = await supabase.from("profiles")
+      .select("id, full_name").in("id", ids);
+    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    setCandidates(ids.map((uid: string) => ({ id: uid, name: map.get(uid) ?? "Candidato" })));
+  }
+
+  // Realtime: participants + room updates
+  useEffect(() => {
+    if (!sim?.roomId) return;
+    const roomId = sim.roomId;
+    const ch = supabase.channel(`simulado-${roomId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "training_room_participants", filter: `room_id=eq.${roomId}` }, async (payload) => {
+        await refreshCandidates(roomId);
+        if (payload.eventType === "INSERT") {
+          const row = payload.new as { user_id: string; role: string };
+          if (row.role === "candidato") {
+            const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", row.user_id).maybeSingle();
+            toast.success(`${prof?.full_name ?? "Candidato"} entrou no simulado`);
+          }
+        }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${roomId}` }, (payload) => {
+        const row = payload.new as { evaluated_candidate_id: string | null };
+        setEvaluatedCandidateId(row.evaluated_candidate_id ?? null);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [sim?.roomId]);
+
+  async function setEvaluatedCandidate(candId: string) {
+    if (!sim?.roomId) return;
+    if (running) return toast.error("Encerre a estação atual antes de trocar o avaliado.");
+    const { error } = await supabase.from("training_rooms")
+      .update({ evaluated_candidate_id: candId }).eq("id", sim.roomId);
+    if (error) return toast.error(error.message);
+    setEvaluatedCandidateId(candId);
+    const name = candidates.find((c) => c.id === candId)?.name ?? "Candidato";
+    toast.success(`Avaliado: ${name}`);
+  }
+
+  async function copyInviteLink() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+      toast.success("Link copiado");
+    } catch { toast.error("Não foi possível copiar."); }
+  }
+  function shareWhatsApp() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(`Vamos treinar um simulado no Estação Revalida 🩺\nEntre: ${link}`)}`, "_blank", "noopener,noreferrer");
+  }
+  function shareEmail() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent("Convite — Simulado Estação Revalida")}&body=${encodeURIComponent(`Entre pelo link: ${link}\n\nCódigo: ${sim?.roomCode ?? ""}`)}`;
+  }
+  async function shareNative() {
+    const link = `https://estacaorevalida.com.br/e/${sim?.roomCode ?? ""}`;
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try { await navigator.share({ title: "Estação Revalida", text: "Entre no simulado:", url: link }); return; } catch {}
+    }
+    copyInviteLink();
+  }
+
   // Timer
   useEffect(() => {
     if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
