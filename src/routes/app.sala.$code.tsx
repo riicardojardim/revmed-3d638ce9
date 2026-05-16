@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Copy, Users, Play, ArrowRight, Crown } from "lucide-react";
+import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, ClipboardCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/sala/$code")({
@@ -12,11 +12,33 @@ export const Route = createFileRoute("/app/sala/$code")({
 
 type Room = {
   id: string; code: string; host_id: string; station_id: string;
-  station_title: string; status: string; started_at: string | null;
+  station_title: string; status: string; mode: string; started_at: string | null;
 };
-type Participant = {
-  id: string; user_id: string; role: string; joined_at: string;
-};
+type Participant = { id: string; user_id: string; role: string; joined_at: string };
+
+const ROLE_CARDS = [
+  {
+    role: "candidato",
+    title: "Sou candidato",
+    desc: "Vou treinar a estação. Vejo o caso clínico, a tarefa e o cronômetro.",
+    icon: Stethoscope,
+    accent: "from-mint/20 to-medical/10",
+  },
+  {
+    role: "paciente",
+    title: "Sou paciente / ator",
+    desc: "Vou interpretar o paciente seguindo o roteiro entregue pela banca.",
+    icon: UserRound,
+    accent: "from-rose-200/30 to-amber-100/20",
+  },
+  {
+    role: "avaliador",
+    title: "Sou médico avaliador",
+    desc: "Vou corrigir o candidato pelo checklist, pontuar e dar feedback.",
+    icon: ClipboardCheck,
+    accent: "from-indigo-200/30 to-mint/10",
+  },
+] as const;
 
 function RoomPage() {
   const { code } = Route.useParams();
@@ -36,26 +58,18 @@ function RoomPage() {
       if (ids.length) {
         const { data: profs } = await supabase.from("profiles").select("id, full_name").in("id", ids);
         const map: Record<string, string> = {};
-        (profs ?? []).forEach((pr: { id: string; full_name: string | null }) => { map[pr.id] = pr.full_name ?? "Anônimo"; });
+        (profs ?? []).forEach((pr: { id: string; full_name: string | null }) => {
+          map[pr.id] = pr.full_name ?? "Anônimo";
+        });
         setNames(map);
       }
     }
   }
 
-  // Auto-join + realtime
-  useEffect(() => {
-    load();
-    // eslint-disable-next-line
-  }, [code]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [code]);
 
   useEffect(() => {
-    if (!room || !user) return;
-    // Auto-join if not yet a participant and not host
-    if (room.host_id !== user.id && !parts.find((p) => p.user_id === user.id)) {
-      supabase.from("training_room_participants").insert({
-        room_id: room.id, user_id: user.id, role: "candidato",
-      }).then(() => load());
-    }
+    if (!room) return;
     const ch = supabase
       .channel(`room-${room.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, load)
@@ -63,19 +77,34 @@ function RoomPage() {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line
-  }, [room?.id, user?.id]);
+  }, [room?.id]);
 
-  async function setRole(role: string) {
+  async function pickRole(role: string) {
     if (!room || !user) return;
-    const { error } = await supabase.from("training_room_participants")
-      .update({ role }).eq("room_id", room.id).eq("user_id", user.id);
-    if (error) toast.error(error.message);
+    const existing = parts.find((p) => p.user_id === user.id);
+    if (existing) {
+      const { error } = await supabase.from("training_room_participants").update({ role }).eq("id", existing.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("training_room_participants").insert({ room_id: room.id, user_id: user.id, role });
+      if (error) return toast.error(error.message);
+    }
+    toast.success("Você entrou como " + role);
+    load();
   }
-  async function start() {
-    if (!room) return;
-    await supabase.from("training_rooms").update({ status: "running", started_at: new Date().toISOString() }).eq("id", room.id);
-    nav({ to: "/app/simulacao/$id", params: { id: room.station_id } });
+
+  async function startAndGo() {
+    if (!room || !user) return;
+    if (room.status !== "running") {
+      await supabase.from("training_rooms").update({ status: "running", started_at: new Date().toISOString() }).eq("id", room.id);
+    }
+    const me = parts.find((p) => p.user_id === user.id);
+    if (!me) return toast.error("Escolha seu papel antes de iniciar.");
+    if (me.role === "paciente") nav({ to: "/app/sala/$code/paciente", params: { code } });
+    else if (me.role === "avaliador") nav({ to: "/app/sala/$code/banca", params: { code } });
+    else nav({ to: "/app/simulacao/$id", params: { id: room.station_id } });
   }
+
   function copyCode() {
     navigator.clipboard.writeText(code);
     toast.success("Código copiado");
@@ -84,24 +113,58 @@ function RoomPage() {
   if (!room) return <div className="text-sm text-muted-foreground">Sala não encontrada ou carregando...</div>;
   const isHost = user?.id === room.host_id;
   const me = parts.find((p) => p.user_id === user?.id);
+  const roleCount = (r: string) => parts.filter((p) => p.role === r).length;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <Link to="/app/treinar" className="text-sm text-muted-foreground hover:text-foreground">← Voltar</Link>
       <div className="rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant">
-        <div className="text-xs uppercase tracking-wider text-white/60">Sala de treino</div>
+        <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-white/60">
+          <span>Sala · Modo {room.mode}</span>
+          <span className="inline-block h-1 w-1 rounded-full bg-white/40" />
+          <span>{room.status === "running" ? "Em andamento" : "Aguardando"}</span>
+        </div>
         <h1 className="mt-1 font-display text-2xl font-bold">{room.station_title}</h1>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="rounded-xl bg-white/10 px-4 py-3 font-mono text-xl font-bold tracking-widest">{room.code}</div>
-          <Button variant="outline" size="sm" onClick={copyCode} className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+          <Button variant="outline" size="sm" onClick={copyCode} className="border-white/20 bg-white/10 text-white hover:bg-white/20">
             <Copy className="mr-1 h-4 w-4" /> Copiar código
           </Button>
         </div>
-        <p className="mt-3 text-sm text-white/70">Compartilhe o código com seu colega para que ele entre.</p>
+      </div>
+
+      <div>
+        <h2 className="font-display text-lg font-bold">Escolha seu papel</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Você verá apenas o conteúdo do seu papel — assim a simulação fica realista.
+        </p>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          {ROLE_CARDS.map((c) => {
+            const isMe = me?.role === c.role;
+            const count = roleCount(c.role);
+            return (
+              <button key={c.role} onClick={() => pickRole(c.role)}
+                className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5 ${
+                  isMe ? "border-mint bg-mint/5 shadow-elegant" : "border-border bg-card hover:border-mint/40 hover:shadow-card"
+                }`}>
+                <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${c.accent} opacity-60`} />
+                <c.icon className="h-7 w-7 text-mint" />
+                <div className="mt-4 font-display text-lg font-bold">{c.title}</div>
+                <div className="mt-2 text-sm text-muted-foreground">{c.desc}</div>
+                <div className="mt-4 flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{count} na sala</span>
+                  {isMe && <span className="rounded-full bg-mint px-2 py-0.5 font-medium text-night">Selecionado</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-center gap-2 text-sm font-medium"><Users className="h-4 w-4 text-mint" /> Participantes</div>
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <Users className="h-4 w-4 text-mint" /> Participantes
+        </div>
         <ul className="mt-3 space-y-2">
           <li className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm">
             <span className="inline-flex items-center gap-2"><Crown className="h-4 w-4 text-amber-500" /> {names[room.host_id] ?? "Host"}</span>
@@ -114,34 +177,29 @@ function RoomPage() {
             </li>
           ))}
         </ul>
+      </div>
 
-        {me && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground">Meu papel:</span>
-            {(["candidato", "avaliador", "observador"] as const).map((r) => (
-              <Button key={r} size="sm" variant={me.role === r ? "secondary" : "outline"} onClick={() => setRole(r)}>
-                {r}
-              </Button>
-            ))}
+      <div className="flex flex-wrap gap-2">
+        {isHost ? (
+          <Button variant="hero" className="flex-1" onClick={startAndGo}>
+            <Play className="mr-1 h-4 w-4" /> {room.status === "running" ? "Entrar na estação" : "Iniciar estação"}
+          </Button>
+        ) : me ? (
+          room.status === "running" ? (
+            <Button variant="hero" className="flex-1" onClick={startAndGo}>
+              Entrar como {me.role} <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
+          ) : (
+            <div className="flex-1 rounded-xl border border-dashed border-border bg-card p-4 text-center text-sm text-muted-foreground">
+              Aguardando o organizador iniciar...
+            </div>
+          )
+        ) : (
+          <div className="flex-1 rounded-xl border border-dashed border-border bg-card p-4 text-center text-sm text-muted-foreground">
+            Escolha um papel para entrar.
           </div>
         )}
       </div>
-
-      {isHost ? (
-        <Button variant="hero" className="w-full" onClick={start}>
-          <Play className="mr-1 h-4 w-4" /> Iniciar estação
-        </Button>
-      ) : room.status === "running" ? (
-        <Link to="/app/simulacao/$id" params={{ id: room.station_id }} className="block">
-          <Button variant="hero" className="w-full">
-            Entrar na estação <ArrowRight className="ml-1 h-4 w-4" />
-          </Button>
-        </Link>
-      ) : (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-5 text-center text-sm text-muted-foreground">
-          Aguardando o organizador iniciar...
-        </div>
-      )}
     </div>
   );
 }
