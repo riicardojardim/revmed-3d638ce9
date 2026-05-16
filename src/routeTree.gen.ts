@@ -35,6 +35,7 @@ import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professo
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
 import { Route as AppSalaCodePacienteRouteImport } from './routes/app.sala.$code.paciente'
+import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$code.candidato'
 import { Route as AppSalaCodeBancaRouteImport } from './routes/app.sala.$code.banca'
 import { Route as AppProfessorEstacoesIdRouteImport } from './routes/app.professor.estacoes.$id'
 import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.professor.correcoes.$id'
@@ -169,6 +170,11 @@ const AppSalaCodePacienteRoute = AppSalaCodePacienteRouteImport.update({
   path: '/paciente',
   getParentRoute: () => AppSalaCodeRoute,
 } as any)
+const AppSalaCodeCandidatoRoute = AppSalaCodeCandidatoRouteImport.update({
+  id: '/candidato',
+  path: '/candidato',
+  getParentRoute: () => AppSalaCodeRoute,
+} as any)
 const AppSalaCodeBancaRoute = AppSalaCodeBancaRouteImport.update({
   id: '/banca',
   path: '/banca',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
+  '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
 }
 export interface FileRoutesByTo {
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
+  '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
 }
 export interface FileRoutesById {
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
+  '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
 }
 export interface FileRouteTypes {
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
+    | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
+    | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
   id:
     | '__root__'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
+    | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
   fileRoutesById: FileRoutesById
 }
@@ -560,6 +572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSalaCodePacienteRouteImport
       parentRoute: typeof AppSalaCodeRoute
     }
+    '/app/sala/$code/candidato': {
+      id: '/app/sala/$code/candidato'
+      path: '/candidato'
+      fullPath: '/app/sala/$code/candidato'
+      preLoaderRoute: typeof AppSalaCodeCandidatoRouteImport
+      parentRoute: typeof AppSalaCodeRoute
+    }
     '/app/sala/$code/banca': {
       id: '/app/sala/$code/banca'
       path: '/banca'
@@ -658,11 +677,13 @@ const AppResumosRouteWithChildren = AppResumosRoute._addFileChildren(
 
 interface AppSalaCodeRouteChildren {
   AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
+  AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
   AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
 }
 
 const AppSalaCodeRouteChildren: AppSalaCodeRouteChildren = {
   AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
+  AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
   AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
 }
 
