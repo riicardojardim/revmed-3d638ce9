@@ -1210,13 +1210,7 @@ function formatPatientProfile(p: NonNullable<LoadedStation["patientProfile"]>): 
     }).filter(Boolean);
   };
 
-  // DADOS PESSOAIS
-  const personal = [p.name, p.age && `${p.age} de idade`, p.profession].filter(Boolean).join(", ");
-  if (personal) {
-    out.push("DADOS PESSOAIS:");
-    out.push(`- ${personal}.`);
-    out.push("");
-  }
+  // (DADOS PESSOAIS omitido — nome/idade/profissão já aparecem no topo da sala)
 
   if (p.chiefComplaint) {
     out.push("MOTIVO DE CONSULTA:");
@@ -1322,9 +1316,17 @@ function ScriptText({ text, className, strikeable, prefix, struck, toggle }: { t
   return (
     <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
       {lines.map((ln, i) => {
+        if (ln.trim() === "") {
+          return <div key={i} className="h-4" aria-hidden />;
+        }
         const isIntro = i === firstNonEmptyIdx && !ln.trim().startsWith("-") && !isAllCapsCue(ln);
         if (isAllCapsCue(ln) || isIntro) {
-          return <div key={i}><Bold id={`${prefix ?? "st"}-line-${i}`}>{ln}</Bold></div>;
+          const prevBlank = i > 0 && lines[i - 1].trim() === "";
+          return (
+            <div key={i} className={cn(prevBlank && "mt-2")}>
+              <Bold id={`${prefix ?? "st"}-line-${i}`}>{ln}</Bold>
+            </div>
+          );
         }
         return <div key={i}>{renderInline(ln, i)}</div>;
       })}
