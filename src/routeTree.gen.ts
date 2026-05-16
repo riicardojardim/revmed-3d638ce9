@@ -16,10 +16,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppTreinarRouteImport } from './routes/app.treinar'
 import { Route as AppProgressoRouteImport } from './routes/app.progresso'
+import { Route as AppProfessorRouteImport } from './routes/app.professor'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppEstacoesRouteImport } from './routes/app.estacoes'
+import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
 import { Route as AppSimulacaoIdRouteImport } from './routes/app.simulacao.$id'
 import { Route as AppResultadoIdRouteImport } from './routes/app.resultado.$id'
+import { Route as AppProfessorEstacoesRouteImport } from './routes/app.professor.estacoes'
+import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professor.correcoes'
+import { Route as AppProfessorEstacoesIdRouteImport } from './routes/app.professor.estacoes.$id'
+import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.professor.correcoes.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -56,6 +62,11 @@ const AppProgressoRoute = AppProgressoRouteImport.update({
   path: '/progresso',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfessorRoute = AppProfessorRouteImport.update({
+  id: '/professor',
+  path: '/professor',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPerfilRoute = AppPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
@@ -65,6 +76,11 @@ const AppEstacoesRoute = AppEstacoesRouteImport.update({
   id: '/estacoes',
   path: '/estacoes',
   getParentRoute: () => AppRoute,
+} as any)
+const AppProfessorIndexRoute = AppProfessorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppProfessorRoute,
 } as any)
 const AppSimulacaoIdRoute = AppSimulacaoIdRouteImport.update({
   id: '/simulacao/$id',
@@ -76,6 +92,26 @@ const AppResultadoIdRoute = AppResultadoIdRouteImport.update({
   path: '/resultado/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfessorEstacoesRoute = AppProfessorEstacoesRouteImport.update({
+  id: '/estacoes',
+  path: '/estacoes',
+  getParentRoute: () => AppProfessorRoute,
+} as any)
+const AppProfessorCorrecoesRoute = AppProfessorCorrecoesRouteImport.update({
+  id: '/correcoes',
+  path: '/correcoes',
+  getParentRoute: () => AppProfessorRoute,
+} as any)
+const AppProfessorEstacoesIdRoute = AppProfessorEstacoesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppProfessorEstacoesRoute,
+} as any)
+const AppProfessorCorrecoesIdRoute = AppProfessorCorrecoesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppProfessorCorrecoesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -84,11 +120,17 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/estacoes': typeof AppEstacoesRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/professor': typeof AppProfessorRouteWithChildren
   '/app/progresso': typeof AppProgressoRoute
   '/app/treinar': typeof AppTreinarRoute
   '/app/': typeof AppIndexRoute
+  '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
+  '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/app/professor/': typeof AppProfessorIndexRoute
+  '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
+  '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,8 +141,13 @@ export interface FileRoutesByTo {
   '/app/progresso': typeof AppProgressoRoute
   '/app/treinar': typeof AppTreinarRoute
   '/app': typeof AppIndexRoute
+  '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
+  '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/app/professor': typeof AppProfessorIndexRoute
+  '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
+  '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -110,11 +157,17 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/estacoes': typeof AppEstacoesRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/professor': typeof AppProfessorRouteWithChildren
   '/app/progresso': typeof AppProgressoRoute
   '/app/treinar': typeof AppTreinarRoute
   '/app/': typeof AppIndexRoute
+  '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
+  '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/app/professor/': typeof AppProfessorIndexRoute
+  '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
+  '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -125,11 +178,17 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/estacoes'
     | '/app/perfil'
+    | '/app/professor'
     | '/app/progresso'
     | '/app/treinar'
     | '/app/'
+    | '/app/professor/correcoes'
+    | '/app/professor/estacoes'
     | '/app/resultado/$id'
     | '/app/simulacao/$id'
+    | '/app/professor/'
+    | '/app/professor/correcoes/$id'
+    | '/app/professor/estacoes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,8 +199,13 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/treinar'
     | '/app'
+    | '/app/professor/correcoes'
+    | '/app/professor/estacoes'
     | '/app/resultado/$id'
     | '/app/simulacao/$id'
+    | '/app/professor'
+    | '/app/professor/correcoes/$id'
+    | '/app/professor/estacoes/$id'
   id:
     | '__root__'
     | '/'
@@ -150,11 +214,17 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/estacoes'
     | '/app/perfil'
+    | '/app/professor'
     | '/app/progresso'
     | '/app/treinar'
     | '/app/'
+    | '/app/professor/correcoes'
+    | '/app/professor/estacoes'
     | '/app/resultado/$id'
     | '/app/simulacao/$id'
+    | '/app/professor/'
+    | '/app/professor/correcoes/$id'
+    | '/app/professor/estacoes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProgressoRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/professor': {
+      id: '/app/professor'
+      path: '/professor'
+      fullPath: '/app/professor'
+      preLoaderRoute: typeof AppProfessorRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/perfil': {
       id: '/app/perfil'
       path: '/perfil'
@@ -228,6 +305,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/estacoes'
       preLoaderRoute: typeof AppEstacoesRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/app/professor/': {
+      id: '/app/professor/'
+      path: '/'
+      fullPath: '/app/professor/'
+      preLoaderRoute: typeof AppProfessorIndexRouteImport
+      parentRoute: typeof AppProfessorRoute
     }
     '/app/simulacao/$id': {
       id: '/app/simulacao/$id'
@@ -243,12 +327,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppResultadoIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/professor/estacoes': {
+      id: '/app/professor/estacoes'
+      path: '/estacoes'
+      fullPath: '/app/professor/estacoes'
+      preLoaderRoute: typeof AppProfessorEstacoesRouteImport
+      parentRoute: typeof AppProfessorRoute
+    }
+    '/app/professor/correcoes': {
+      id: '/app/professor/correcoes'
+      path: '/correcoes'
+      fullPath: '/app/professor/correcoes'
+      preLoaderRoute: typeof AppProfessorCorrecoesRouteImport
+      parentRoute: typeof AppProfessorRoute
+    }
+    '/app/professor/estacoes/$id': {
+      id: '/app/professor/estacoes/$id'
+      path: '/$id'
+      fullPath: '/app/professor/estacoes/$id'
+      preLoaderRoute: typeof AppProfessorEstacoesIdRouteImport
+      parentRoute: typeof AppProfessorEstacoesRoute
+    }
+    '/app/professor/correcoes/$id': {
+      id: '/app/professor/correcoes/$id'
+      path: '/$id'
+      fullPath: '/app/professor/correcoes/$id'
+      preLoaderRoute: typeof AppProfessorCorrecoesIdRouteImport
+      parentRoute: typeof AppProfessorCorrecoesRoute
+    }
   }
 }
+
+interface AppProfessorCorrecoesRouteChildren {
+  AppProfessorCorrecoesIdRoute: typeof AppProfessorCorrecoesIdRoute
+}
+
+const AppProfessorCorrecoesRouteChildren: AppProfessorCorrecoesRouteChildren = {
+  AppProfessorCorrecoesIdRoute: AppProfessorCorrecoesIdRoute,
+}
+
+const AppProfessorCorrecoesRouteWithChildren =
+  AppProfessorCorrecoesRoute._addFileChildren(
+    AppProfessorCorrecoesRouteChildren,
+  )
+
+interface AppProfessorEstacoesRouteChildren {
+  AppProfessorEstacoesIdRoute: typeof AppProfessorEstacoesIdRoute
+}
+
+const AppProfessorEstacoesRouteChildren: AppProfessorEstacoesRouteChildren = {
+  AppProfessorEstacoesIdRoute: AppProfessorEstacoesIdRoute,
+}
+
+const AppProfessorEstacoesRouteWithChildren =
+  AppProfessorEstacoesRoute._addFileChildren(AppProfessorEstacoesRouteChildren)
+
+interface AppProfessorRouteChildren {
+  AppProfessorCorrecoesRoute: typeof AppProfessorCorrecoesRouteWithChildren
+  AppProfessorEstacoesRoute: typeof AppProfessorEstacoesRouteWithChildren
+  AppProfessorIndexRoute: typeof AppProfessorIndexRoute
+}
+
+const AppProfessorRouteChildren: AppProfessorRouteChildren = {
+  AppProfessorCorrecoesRoute: AppProfessorCorrecoesRouteWithChildren,
+  AppProfessorEstacoesRoute: AppProfessorEstacoesRouteWithChildren,
+  AppProfessorIndexRoute: AppProfessorIndexRoute,
+}
+
+const AppProfessorRouteWithChildren = AppProfessorRoute._addFileChildren(
+  AppProfessorRouteChildren,
+)
 
 interface AppRouteChildren {
   AppEstacoesRoute: typeof AppEstacoesRoute
   AppPerfilRoute: typeof AppPerfilRoute
+  AppProfessorRoute: typeof AppProfessorRouteWithChildren
   AppProgressoRoute: typeof AppProgressoRoute
   AppTreinarRoute: typeof AppTreinarRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -259,6 +412,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppEstacoesRoute: AppEstacoesRoute,
   AppPerfilRoute: AppPerfilRoute,
+  AppProfessorRoute: AppProfessorRouteWithChildren,
   AppProgressoRoute: AppProgressoRoute,
   AppTreinarRoute: AppTreinarRoute,
   AppIndexRoute: AppIndexRoute,
