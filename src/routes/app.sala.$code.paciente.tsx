@@ -442,7 +442,7 @@ function ActorView() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {[3, 5, 7, 8, 10, 12, 15, 20, 25, 30, 45, 60].map((m) => (
+                      {[5, 6, 7, 8, 9, 10].map((m) => (
                         <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
                       ))}
                     </SelectContent>
