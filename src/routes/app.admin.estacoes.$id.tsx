@@ -646,6 +646,13 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
                 <Textarea rows={4} value={m.content} onChange={(e) => update(i, { content: e.target.value })}
                   placeholder="Texto/resultado que será mostrado ao candidato." />
               </div>
+              <div>
+                <Label>Imagem (opcional) — ex: ECG, radiografia, foto de lesão</Label>
+                <MaterialImageUpload
+                  value={m.imageUrl}
+                  onChange={(url) => update(i, { imageUrl: url })}
+                />
+              </div>
               <div className="flex items-center gap-2">
                 <Switch checked={!!m.autoDeliver} onCheckedChange={(v) => update(i, { autoDeliver: v })} />
                 <span className="text-sm text-muted-foreground">Entregar automaticamente no início</span>
