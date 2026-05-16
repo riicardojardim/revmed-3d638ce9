@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { GraduationCap, ClipboardEdit, BookPlus, LayoutDashboard } from "lucide-react";
+import { GraduationCap, ClipboardEdit, BookPlus, LayoutDashboard, Brain, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/professor")({
@@ -11,7 +11,9 @@ export const Route = createFileRoute("/app/professor")({
 
 const tabs = [
   { to: "/app/professor", label: "Visão geral", icon: LayoutDashboard, exact: true },
-  { to: "/app/professor/estacoes", label: "Minhas estações", icon: BookPlus, exact: false },
+  { to: "/app/professor/estacoes", label: "Estações", icon: BookPlus, exact: false },
+  { to: "/app/professor/flashcards", label: "Flashcards", icon: Brain, exact: false },
+  { to: "/app/professor/resumos", label: "Resumos", icon: BookOpen, exact: false },
   { to: "/app/professor/correcoes", label: "Correções", icon: ClipboardEdit, exact: false },
 ] as const;
 
