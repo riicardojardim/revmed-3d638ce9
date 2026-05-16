@@ -309,7 +309,7 @@ function CandidateView() {
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-1.5 text-sm font-semibold">
-                          <FileText className="h-4 w-4 text-mint" /> {d.material_name}
+                          <FileText className="h-4 w-4 text-mint" /> {(() => { const n = (d.material_name || "").trim(); return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : n; })()}
                         </div>
                         {d.material_type && <div className="text-xs text-muted-foreground">{d.material_type}</div>}
                       </div>
