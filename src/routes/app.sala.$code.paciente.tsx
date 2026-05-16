@@ -522,7 +522,7 @@ function ActorView() {
             </PRBlock>
           )}
 
-          <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
+          <PRBlock icon={ListChecks} title={`Nos ${room.duration_minutes ?? station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
             <ScriptText text={station.candidateTask} />
           </PRBlock>
 
