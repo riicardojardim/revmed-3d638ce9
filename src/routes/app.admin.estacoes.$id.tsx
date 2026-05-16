@@ -196,6 +196,37 @@ function StationEditor() {
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
 
   return (
+    <EditorBody
+      station={station}
+      items={items}
+      id={id}
+      saving={saving}
+      totalPts={totalPts}
+      up={up}
+      load={load}
+      saveStation={saveStation}
+      togglePublish={togglePublish}
+      setStation={setStation}
+    />
+  );
+}
+
+function EditorBody({
+  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation,
+}: {
+  station: Station;
+  items: Item[];
+  id: string;
+  saving: boolean;
+  totalPts: number;
+  up: <K extends keyof Station>(k: K, v: Station[K]) => void;
+  load: () => Promise<void>;
+  saveStation: (opts?: { silent?: boolean }) => Promise<void>;
+  togglePublish: () => Promise<void>;
+  setStation: React.Dispatch<React.SetStateAction<Station | null>>;
+}) {
+  const [tab, setTab] = useState<"ator" | "avaliado">("ator");
+  return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
