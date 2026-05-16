@@ -24,13 +24,14 @@ export function useSubscription() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      if (!user) {
+      if (!user || isPrivileged) {
         if (!cancelled) {
           setPlan(null);
           setLoading(false);
         }
         return;
       }
+      setLoading(true);
       const { data } = await supabase
         .from("user_subscriptions")
         .select("status, current_period_end, plans:plan_id ( slug, name, allows_candidato, allows_ator )")
@@ -58,7 +59,7 @@ export function useSubscription() {
     }
     load();
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [user?.id, isPrivileged]);
 
   const canBeCandidato = isPrivileged || (!!plan && !plan.expired && plan.allows_candidato);
   const canBeAtor = isPrivileged || (!!plan && !plan.expired && plan.allows_ator);
