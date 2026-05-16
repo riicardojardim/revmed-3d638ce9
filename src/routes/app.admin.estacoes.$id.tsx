@@ -665,7 +665,7 @@ function StepReview({
 }: {
   station: Station; items: Item[];
   up: <K extends keyof Station>(k: K, v: Station[K]) => void;
-  togglePublish: () => void | Promise<void>;
+  togglePublish: () => unknown;
 }) {
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
   const grouped = useMemo(() => {
