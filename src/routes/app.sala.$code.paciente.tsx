@@ -1250,3 +1250,35 @@ function ScriptText({ text, className }: { text: string; className?: string }) {
   );
 }
 
+
+function StrikeText({ text, prefix, struck, toggle, className, inline }: { text: string; prefix: string; struck: Set<string>; toggle: (id: string) => void; className?: string; inline?: boolean }) {
+  const lines = text.split("\n");
+  const Wrapper: React.ElementType = inline ? "span" : "div";
+  return (
+    <Wrapper className={cn(!inline && "whitespace-pre-wrap leading-relaxed", className)}>
+      {lines.map((line, li) => {
+        const tokens = line.split(/(\s+)/);
+        const content = tokens.map((tok, wi) => {
+          if (!tok) return null;
+          if (/^\s+$/.test(tok)) return <span key={wi}>{tok}</span>;
+          const id = `${prefix}-${li}-${wi}`;
+          const isStruck = struck.has(id);
+          return (
+            <span
+              key={wi}
+              onClick={() => toggle(id)}
+              className={cn(
+                "cursor-pointer rounded px-0.5 transition-colors select-none",
+                isStruck ? "line-through opacity-50" : "hover:bg-amber-500/20"
+              )}
+            >
+              {tok}
+            </span>
+          );
+        });
+        if (inline) return <span key={li}>{content}{li < lines.length - 1 && "\n"}</span>;
+        return <div key={li}>{line === "" ? <br /> : content}</div>;
+      })}
+    </Wrapper>
+  );
+}
