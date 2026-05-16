@@ -34,8 +34,7 @@ function ActorView() {
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
-  const [candidateId, setCandidateId] = useState<string | null>(null);
-  const [candidateName, setCandidateName] = useState<string | null>(null);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
