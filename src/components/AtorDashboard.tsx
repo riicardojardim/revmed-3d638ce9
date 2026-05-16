@@ -79,8 +79,8 @@ export function AtorDashboard() {
               <>Escolha a <strong className="text-foreground">estação</strong> que você quer conduzir.</>,
               <>O <strong className="text-foreground">código da sala</strong> é gerado automaticamente — o mesmo código que o candidato usa para entrar.</>,
               <>Ajuste o <strong className="text-foreground">tempo do cronômetro</strong> se precisar e clique em <strong className="text-foreground">Iniciar</strong>.</>,
-              <>Durante a estação, você acompanha todas as <strong className="text-foreground">falas do paciente</strong> e libera os <strong className="text-foreground">impressos bloqueados</strong> conforme o candidato solicita.</>,
-              <>Ao <strong className="text-foreground">encerrar</strong>, o <strong className="text-foreground">PEP</strong> é desbloqueado para avaliação e aparece também para o candidato — vocês analisam juntos em tempo real.</>,
+              <>Durante a estação, você acompanha todas as <strong className="text-foreground">falas do paciente</strong>, já tem o <strong className="text-foreground">PEP disponível</strong> para ir marcando, e libera os <strong className="text-foreground">impressos bloqueados</strong> conforme o candidato solicita.</>,
+              <>Ao <strong className="text-foreground">encerrar</strong>, o <strong className="text-foreground">PEP é desbloqueado para o candidato</strong> — antes do fim ele não vê nada do checklist, só ao terminar para analisarem juntos em tempo real.</>,
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-mint/15 text-xs font-bold text-mint">
