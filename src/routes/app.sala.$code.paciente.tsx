@@ -1251,8 +1251,9 @@ function ScriptText({ text, className }: { text: string; className?: string }) {
 }
 
 
-function StrikeText({ text, prefix, struck, toggle, className, inline }: { text: string; prefix: string; struck: Set<string>; toggle: (id: string) => void; className?: string; inline?: boolean }) {
-  const lines = text.split("\n");
+function StrikeText({ text, prefix, struck, toggle, className, inline }: { text: unknown; prefix: string; struck: Set<string>; toggle: (id: string) => void; className?: string; inline?: boolean }) {
+  const safe = typeof text === "string" ? text : text == null ? "" : String(text);
+  const lines = safe.split("\n");
   const Wrapper: React.ElementType = inline ? "span" : "div";
   return (
     <Wrapper className={cn(!inline && "whitespace-pre-wrap leading-relaxed", className)}>
