@@ -22,8 +22,18 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  async function resolveDestination(): Promise<string> {
+    const { data } = await supabase.auth.getUser();
+    const uid = data.user?.id;
+    if (!uid) return "/app";
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+    return roles?.some((r) => r.role === "admin") ? "/app/admin" : "/app";
+  }
+
   useEffect(() => {
-    if (!loading && user) nav({ to: "/app" });
+    if (!loading && user) {
+      resolveDestination().then((to) => nav({ to }));
+    }
   }, [user, loading, nav]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -36,7 +46,8 @@ function LoginPage() {
       return;
     }
     toast.success("Bem-vindo de volta!");
-    nav({ to: "/app" });
+    const to = await resolveDestination();
+    nav({ to });
   }
 
   async function handleGoogle() {

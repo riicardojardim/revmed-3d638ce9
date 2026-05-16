@@ -49,19 +49,6 @@ function AdminLayout() {
         </div>
         <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">Gestão da plataforma</h1>
       </div>
-      <div className="flex flex-wrap gap-1 rounded-2xl border border-border bg-card p-1">
-        {tabs.map((t) => {
-          const active = isActive(t.to, t.exact);
-          return (
-            <Link key={t.to} to={t.to} className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-              active ? "bg-mint/10 text-foreground" : "text-muted-foreground hover:bg-muted",
-            )}>
-              <t.icon className={cn("h-4 w-4", active && "text-mint")} /> {t.label}
-            </Link>
-          );
-        })}
-      </div>
       <Outlet />
     </div>
   );

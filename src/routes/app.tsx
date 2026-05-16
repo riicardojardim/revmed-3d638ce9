@@ -16,6 +16,11 @@ import {
   ShieldCheck,
   Activity,
   X,
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  Stethoscope,
+  FileStack,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -50,7 +55,18 @@ function AppLayout() {
   const candidateItems = baseNavItems.slice(0, baseNavItems.length - 1);
   const profileItem = baseNavItems[baseNavItems.length - 1];
 
-  const navItems: NavItem[] = isAtorOnly
+  const adminNavItems: NavItem[] = [
+    { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
+    { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope, exact: false },
+    { to: "/app/admin/usuarios", label: "Usuários", icon: Users, exact: false },
+    { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack, exact: false },
+    { to: "/app/admin/planos", label: "Planos", icon: CreditCard, exact: false },
+    { to: "/app/perfil", label: "Perfil", icon: User, exact: false },
+  ];
+
+  const navItems: NavItem[] = isAdmin
+    ? adminNavItems
+    : isAtorOnly
     ? [
         { to: "/app", label: "Início", icon: Home, exact: true },
         { to: "/app/treinar", label: "Salas", icon: Dumbbell, exact: false },
@@ -59,7 +75,6 @@ function AppLayout() {
     : [
         ...candidateItems,
         ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false }] : []),
-        ...(isAdmin ? [{ to: "/app/admin", label: "Admin", icon: ShieldCheck, exact: false }] : []),
         profileItem,
       ];
 
@@ -91,6 +106,12 @@ function AppLayout() {
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
   }, [user, loading, nav]);
+
+  useEffect(() => {
+    if (!loading && user && isAdmin && pathname === "/app") {
+      nav({ to: "/app/admin" });
+    }
+  }, [loading, user, isAdmin, pathname, nav]);
 
   const isActive = (to: string, exact: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
