@@ -513,6 +513,142 @@ function ActorView() {
               </div>
             )}
           </PRBlock>
+
+          {/* CHECKLIST (PEP) inline — só editável após encerrar */}
+          <PRBlock
+            icon={ClipboardCheck}
+            title="CHECKLIST ( PEP )"
+            right={
+              <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-mono text-white/80">
+                {totals.scored}/{totals.count}
+              </span>
+            }
+          >
+            {!isFinished && (
+              <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
+                <Lock className="mr-1 inline h-3.5 w-3.5" />
+                Disponível para preenchimento após encerrar a estação.
+              </div>
+            )}
+
+            <div className="grid grid-cols-[1fr_auto] gap-x-4 border-b border-border pb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span>Item</span>
+              <span className="text-right">Avaliação</span>
+            </div>
+
+            <ol className="divide-y divide-border">
+              {station.checklist.map((it, idx) => {
+                const levels = it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
+                const current = checks[it.id];
+                return (
+                  <li key={it.id} className="grid grid-cols-[1fr_auto] gap-x-4 py-4">
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-foreground">
+                        {idx + 1}. {it.description}
+                      </div>
+                      <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                        {levels.map((lv) => (
+                          <div key={lv.label}>
+                            <span className="font-medium text-foreground">{lv.label}:</span>{" "}
+                            <span>{lv.points} pt{lv.points === 1 ? "" : "s"}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {it.helperText && (
+                        <div className="mt-2 rounded-md border border-border bg-background/40 px-3 py-1.5 text-[11px] text-muted-foreground">
+                          {it.helperText}
+                        </div>
+                      )}
+                      <Textarea
+                        value={comments[it.id] ?? ""}
+                        onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
+                        placeholder="Comentário (opcional)"
+                        rows={2}
+                        className="mt-3"
+                        disabled={!isFinished}
+                      />
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5 tabular-nums">
+                      {levels.map((lv) => {
+                        const selected = current === lv.points;
+                        return (
+                          <button
+                            key={lv.label}
+                            type="button"
+                            disabled={!isFinished}
+                            onClick={() =>
+                              setChecks((c) => ({ ...c, [it.id]: lv.points }))
+                            }
+                            className={cn(
+                              "min-w-[2.5rem] rounded-md border px-2.5 py-1 text-xs font-bold transition-colors",
+                              selected
+                                ? "border-mint bg-mint text-white shadow-sm"
+                                : "border-border bg-background/40 text-muted-foreground hover:border-mint/40 hover:text-foreground",
+                              !isFinished && "cursor-not-allowed opacity-50",
+                            )}
+                            title={lv.label}
+                          >
+                            {lv.points}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {/* Final feedback + save */}
+            <div className="mt-5 rounded-xl border border-border bg-background/40 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Comentário final ao candidato
+              </div>
+              <Textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={4}
+                placeholder="Pontos fortes, pontos a melhorar..."
+                className="mt-2"
+                disabled={!isFinished}
+              />
+            </div>
+
+            {isFinished && !allScored && (
+              <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                <span className="font-bold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados.
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="text-sm">
+                <span className="text-muted-foreground">Nota parcial:</span>{" "}
+                <span className="font-bold text-mint">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)} disabled={!isFinished}>
+                  <SelectTrigger className="h-9 w-[180px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="em_andamento">Em andamento</SelectItem>
+                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                    <SelectItem value="reprovado">Reprovado</SelectItem>
+                    <SelectItem value="repetir">Pedir repetição</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" onClick={() => save(false)} disabled={saving || !isFinished}>
+                  Salvar rascunho
+                </Button>
+                <Button
+                  variant="hero"
+                  onClick={() => save(true)}
+                  disabled={saving || !isFinished || !allScored || evalStatus === "em_andamento"}
+                >
+                  <Send className="mr-1 h-4 w-4" /> Enviar correção
+                </Button>
+              </div>
+            </div>
+          </PRBlock>
         </div>
 
         {/* RIGHT: sticky control panel (Pense Revalida-style) */}
