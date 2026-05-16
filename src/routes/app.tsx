@@ -11,6 +11,9 @@ import {
   Bell,
   LogOut,
   GraduationCap,
+  Brain,
+  BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
