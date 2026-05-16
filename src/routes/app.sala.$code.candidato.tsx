@@ -142,6 +142,10 @@ function CandidateView() {
       toast.error("A estação ainda não foi iniciada pelo avaliador.");
       return;
     }
+    if (room.evaluated_candidate_id && room.evaluated_candidate_id !== user.id) {
+      toast.error("Apenas o avaliado da vez pode finalizar a estação.");
+      return;
+    }
     if (intervalRef.current) clearInterval(intervalRef.current);
     setFinished(true);
     try {
