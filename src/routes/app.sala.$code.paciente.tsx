@@ -153,7 +153,7 @@ function ActorView() {
         <div className="inline-flex items-center gap-2 rounded-full border border-rose-300/40 bg-rose-100/40 px-3 py-1 text-xs font-medium text-rose-700 dark:text-rose-300">
           <Theater className="h-3.5 w-3.5" /> Roteiro do Ator / Avaliador
         </div>
-        <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">{station.station_title ?? station.title}</h1>
+        <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">{room.station_title ?? station.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Você conduz o paciente, entrega materiais e pontua o candidato. O candidato não vê esta tela.
         </p>
