@@ -26,6 +26,8 @@ const baseNavItems = [
   { to: "/app", label: "Início", icon: Home, exact: true },
   { to: "/app/estacoes", label: "Estações", icon: ClipboardList, exact: false },
   { to: "/app/treinar", label: "Treinar", icon: Dumbbell, exact: false },
+  { to: "/app/flashcards", label: "Flashcards", icon: Brain, exact: false },
+  { to: "/app/resumos", label: "Resumos", icon: BookOpen, exact: false },
   { to: "/app/progresso", label: "Progresso", icon: TrendingUp, exact: false },
   { to: "/app/perfil", label: "Perfil", icon: User, exact: false },
 ] as const;
@@ -38,13 +40,13 @@ function AppLayout() {
   const { user, loading, profile, roles, signOut } = useAuth();
 
   const isTeacher = roles.includes("professor") || roles.includes("admin");
-  const navItems: NavItem[] = isTeacher
-    ? [
-        ...baseNavItems.slice(0, 4),
-        { to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false },
-        baseNavItems[4],
-      ]
-    : [...baseNavItems];
+  const isAdmin = roles.includes("admin");
+  const navItems: NavItem[] = [
+    ...baseNavItems.slice(0, baseNavItems.length - 1),
+    ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false }] : []),
+    ...(isAdmin ? [{ to: "/app/admin", label: "Admin", icon: ShieldCheck, exact: false }] : []),
+    baseNavItems[baseNavItems.length - 1],
+  ];
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
