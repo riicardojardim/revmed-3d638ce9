@@ -107,7 +107,7 @@ function ActorView() {
           .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id)
           .eq("candidate_id", (r as Room).evaluated_candidate_id!).maybeSingle();
         if (ev) {
-          setChecks((ev.checks ?? {}) as Record<string, boolean>);
+          setChecks(migrateChecks(ev.checks, st?.checklist ?? []));
           setComments((ev.item_comments ?? {}) as Record<string, string>);
           setFeedback(ev.final_feedback ?? "");
           setEvalStatus(ev.status as typeof evalStatus);
