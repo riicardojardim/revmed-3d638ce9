@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { STATIONS } from "@/data/stations";
 import { Button } from "@/components/ui/button";
-import { Users, Sparkles, ArrowRight, Hash, Stethoscope, UserRound, ClipboardCheck, GraduationCap } from "lucide-react";
+import { Users, Sparkles, ArrowRight, Hash, Stethoscope, UserRound, ClipboardCheck, GraduationCap, Theater, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/treinar")({
