@@ -237,7 +237,7 @@ function AtorTreinarView({
   busy, createRoom, lastCode, copyLastCode,
 }: {
   busy: boolean;
-  createRoom: (mode: "dupla" | "completa", autoRole?: "paciente" | "avaliador") => Promise<void>;
+  createRoom: (mode: "dupla" | "completa", autoRole?: "paciente" | "avaliador") => Promise<unknown>;
   lastCode: string | null;
   copyLastCode: () => void;
 }) {
