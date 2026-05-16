@@ -241,6 +241,8 @@ export type Database = {
       plans: {
         Row: {
           active: boolean
+          allows_ator: boolean
+          allows_candidato: boolean
           created_at: string
           description: string | null
           features: Json
@@ -248,10 +250,13 @@ export type Database = {
           name: string
           price_cents: number
           slug: string
+          trial_days: number
           updated_at: string
         }
         Insert: {
           active?: boolean
+          allows_ator?: boolean
+          allows_candidato?: boolean
           created_at?: string
           description?: string | null
           features?: Json
@@ -259,10 +264,13 @@ export type Database = {
           name: string
           price_cents?: number
           slug: string
+          trial_days?: number
           updated_at?: string
         }
         Update: {
           active?: boolean
+          allows_ator?: boolean
+          allows_candidato?: boolean
           created_at?: string
           description?: string | null
           features?: Json
@@ -270,6 +278,7 @@ export type Database = {
           name?: string
           price_cents?: number
           slug?: string
+          trial_days?: number
           updated_at?: string
         }
         Relationships: []
