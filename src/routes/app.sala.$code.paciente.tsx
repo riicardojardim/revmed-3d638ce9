@@ -260,8 +260,8 @@ function ActorView() {
 
     if (submit) {
       // Atualiza a tentativa do candidato avaliado com a nota do PEP (vai para o histórico dele)
-      const totalPts = checklist.reduce((s, i) => s + i.points, 0);
-      const earnedPts = checklist.reduce((s, i) => s + (checks[i.id] === "sim" ? i.points : checks[i.id] === "parcial" ? i.points / 2 : 0), 0);
+      const totalPts = totals.total;
+      const earnedPts = totals.earned;
       const { data: lastAttempt } = await supabase.from("attempts")
         .select("id")
         .eq("user_id", room.evaluated_candidate_id)
