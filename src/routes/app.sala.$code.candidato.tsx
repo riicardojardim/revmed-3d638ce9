@@ -79,6 +79,19 @@ function CandidateView() {
     return () => { supabase.removeChannel(ch); };
   }, [room?.id]);
 
+  // Auto-start quando o ator inicia o cronômetro (room.status === "running")
+  useEffect(() => {
+    if (!room || !station) return;
+    if (room.status === "running" && room.started_at && !finished) {
+      const elapsed = Math.floor((Date.now() - new Date(room.started_at).getTime()) / 1000);
+      const totalSec = station.durationMinutes * 60;
+      const left = Math.max(0, totalSec - elapsed);
+      setRemaining(left);
+      if (left > 0) setRunning(true);
+      else { setRunning(false); setFinished(true); }
+    }
+  }, [room?.status, room?.started_at, station?.id]);
+
   useEffect(() => {
     if (!running) return;
     intervalRef.current = setInterval(() => {
