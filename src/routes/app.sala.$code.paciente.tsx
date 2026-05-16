@@ -531,10 +531,10 @@ function ActorView() {
             </div>
           </div>
 
-          {/* Avaliado */}
+          {/* Status da avaliação */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Avaliado
+              Status da avaliação
             </div>
             <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
               <SelectTrigger className="mt-2">
@@ -549,22 +549,59 @@ function ActorView() {
             </Select>
           </div>
 
-          {/* Participantes */}
+          {/* Participantes + escolha do avaliado da vez */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Participantes
-            </div>
-            {candidateId ? (
-              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-300">
-                <CheckCheck className="h-4 w-4" />
-                {candidateName ?? "Candidato"}
-                <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Participantes ({candidates.length})
               </div>
-            ) : (
+              <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
+            </div>
+
+            {candidates.length === 0 ? (
               <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
                 <UserPlus className="h-4 w-4" />
-                Aguardando participante.
+                Aguardando participantes.
               </div>
+            ) : (
+              <ul className="mt-2 space-y-1.5">
+                {candidates.map((c) => {
+                  const isEvaluated = c.id === room.evaluated_candidate_id;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => setEvaluatedCandidate(c.id)}
+                        disabled={isRunning && !isEvaluated}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                          isEvaluated
+                            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200"
+                            : "border-border bg-background/40 text-foreground hover:border-mint/40",
+                          isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
+                        )}
+                        title={isRunning && !isEvaluated ? "Encerre a estação atual para trocar o avaliado" : "Marcar como avaliado da vez"}
+                      >
+                        <span className={cn(
+                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                          isEvaluated ? "border-emerald-400 bg-emerald-400/20" : "border-muted-foreground/40",
+                        )}>
+                          {isEvaluated && <CheckCheck className="h-3 w-3 text-emerald-300" />}
+                        </span>
+                        <span className="flex-1 truncate font-medium">{c.name}</span>
+                        {isEvaluated && (
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {candidates.length > 1 && (
+              <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+                Vários alunos podem entrar pela mesma sala. Apenas o avaliado da vez é corrigido — os demais assistem.
+              </p>
             )}
           </div>
 
