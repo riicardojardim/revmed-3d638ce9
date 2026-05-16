@@ -39,26 +39,39 @@ function ActorView() {
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [candidateId, setCandidateId] = useState<string | null>(null);
+  const [candidateName, setCandidateName] = useState<string | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
   const [status, setStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [tab, setTab] = useState<Tab>("roteiro");
+
+  async function refreshCandidate(roomId: string) {
+    const { data: parts } = await supabase.from("training_room_participants")
+      .select("user_id, role").eq("room_id", roomId);
+    const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
+    setCandidateId(cand?.user_id ?? null);
+    if (cand?.user_id) {
+      const { data: prof } = await supabase.from("profiles")
+        .select("full_name").eq("id", cand.user_id).maybeSingle();
+      setCandidateName(prof?.full_name ?? "Candidato");
+    } else {
+      setCandidateName(null);
+    }
+  }
 
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, status, started_at").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       setStation(await loadStation((r as Room).station_id));
 
-      const { data: parts } = await supabase.from("training_room_participants")
-        .select("user_id, role").eq("room_id", (r as Room).id);
-      const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
-      setCandidateId(cand?.user_id ?? null);
+      await refreshCandidate((r as Room).id);
 
       const { data: dels } = await supabase.from("room_material_deliveries")
         .select("id, material_id, material_name").eq("room_id", (r as Room).id);
@@ -85,6 +98,12 @@ function ActorView() {
         const { data: dels } = await supabase.from("room_material_deliveries")
           .select("id, material_id, material_name").eq("room_id", room.id);
         setDeliveries((dels ?? []) as Delivery[]);
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async () => {
+        await refreshCandidate(room.id);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${room.id}` }, (payload) => {
+        setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
