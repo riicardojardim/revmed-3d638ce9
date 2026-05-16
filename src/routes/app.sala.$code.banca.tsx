@@ -423,7 +423,7 @@ function EvaluatorView() {
 
                         {isDelivered && m.content && (
                           <div className="mt-3 max-h-32 overflow-auto rounded-lg border border-emerald-300/30 bg-background/60 p-2.5 text-xs leading-relaxed">
-                            {m.content}
+                            <ScriptText text={m.content} />
                           </div>
                         )}
 
