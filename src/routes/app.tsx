@@ -101,7 +101,7 @@ function AppLayout() {
               <Bell className="h-5 w-5" />
             </Button>
             <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-gradient-mint text-sm font-bold text-night sm:flex">
-              M
+              {initial}
             </div>
           </div>
         </header>
