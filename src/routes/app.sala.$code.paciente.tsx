@@ -499,7 +499,7 @@ function ActorView() {
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
             {station.patientScript && (
-              <p className="whitespace-pre-wrap leading-relaxed">{station.patientScript}</p>
+              <ScriptText text={station.patientScript} />
             )}
             {p && (
               <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
