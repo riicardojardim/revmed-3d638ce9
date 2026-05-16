@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
       { name: "author", content: "Estação Revalida" },
       { property: "og:title", content: "Estação Revalida — Treine a prova prática com método" },
-      { property: "og:description", content: "Simule casos clínicos, pratique com checklists e acompanhe sua evolução até o dia da prova." },
+      { property: "og:description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "/icon-512.png" },
       { name: "twitter:card", content: "summary" },
@@ -88,6 +88,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Revalida" },
       { name: "mobile-web-app-capable", content: "yes" },
+      { name: "twitter:title", content: "Estação Revalida — Treine a prova prática com método" },
+      { name: "twitter:description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
+      { name: "twitter:image", content: "/icon-512.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
