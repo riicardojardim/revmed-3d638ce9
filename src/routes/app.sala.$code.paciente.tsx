@@ -37,13 +37,12 @@ function ActorView() {
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
-  const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [checks, setChecks] = useState<Record<string, number>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [showPEP, setShowPEP] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Timer state (synced with room.started_at)
