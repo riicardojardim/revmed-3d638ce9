@@ -257,6 +257,31 @@ function ActorView() {
       .upsert(payload, { onConflict: "room_id,evaluator_id,candidate_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
+
+    if (submit) {
+      // Atualiza a tentativa do candidato avaliado com a nota do PEP (vai para o histórico dele)
+      const totalPts = totals.total;
+      const earnedPts = totals.earned;
+      const { data: lastAttempt } = await supabase.from("attempts")
+        .select("id")
+        .eq("user_id", room.evaluated_candidate_id)
+        .eq("station_id", room.station_id)
+        .order("created_at", { ascending: false })
+        .limit(1).maybeSingle();
+      if (lastAttempt?.id) {
+        await supabase.from("attempts").update({
+          score: Number(score.toFixed(2)),
+          earned: Math.round(earnedPts),
+          total_points: totalPts,
+          professor_score: Number(score.toFixed(2)),
+          professor_feedback: feedback || null,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: user.id,
+          status: "corrigida",
+        }).eq("id", lastAttempt.id);
+      }
+    }
+
     toast.success(submit ? "Correção enviada" : "Rascunho salvo");
     if (submit) nav({ to: "/app/sala/$code", params: { code } });
   }
