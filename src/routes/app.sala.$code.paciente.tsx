@@ -1210,13 +1210,7 @@ function formatPatientProfile(p: NonNullable<LoadedStation["patientProfile"]>): 
     }).filter(Boolean);
   };
 
-  // DADOS PESSOAIS
-  const personal = [p.name, p.age && `${p.age} de idade`, p.profession].filter(Boolean).join(", ");
-  if (personal) {
-    out.push("DADOS PESSOAIS:");
-    out.push(`- ${personal}.`);
-    out.push("");
-  }
+  // (DADOS PESSOAIS omitido — nome/idade/profissão já aparecem no topo da sala)
 
   if (p.chiefComplaint) {
     out.push("MOTIVO DE CONSULTA:");
