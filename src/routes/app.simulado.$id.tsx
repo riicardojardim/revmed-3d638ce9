@@ -584,7 +584,8 @@ function SimuladoRunner() {
               <button
                 type="button"
                 onClick={startTimer}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-medical shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
+                style={{ color: "var(--medical)" }}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
               >
                 <Play className="h-4 w-4" /> Iniciar cronômetro
               </button>
