@@ -410,6 +410,181 @@ export const STATIONS: Station[] = [
     ],
   },
   {
+    id: "8",
+    slug: "acidente-por-aranha",
+    title: "Acidente Por Aranha",
+    specialty: "Clínica Médica",
+    difficulty: "Difícil",
+    durationMinutes: 10,
+    tag: "Nova",
+    clinicalCase:
+      "Nível de atenção: Unidade de atenção terciária à saúde.\nTipo de atendimento: Urgência e Emergência.\n\nA unidade apresenta a seguinte infraestrutura:\n- Consultórios de atenção médica;\n- Enfermaria;\n- Laboratório de análises clínicas;\n- Serviço de radiologia convencional e tomografia computadorizada;\n- Centro cirúrgico.\n\nDescrição do caso:\nVocê é médico(a) plantonista em um pronto-socorro de um hospital de terceiro nível e recebe para atendimento um homem que refere ter sido picado por uma aranha enquanto limpava o quintal da sua casa.",
+    candidateTask:
+      "Nos 10 min. minutos de duração da estação, você deverá executar as seguintes tarefas:\n\n- Realizar anamnese direcionada à queixa principal do paciente;\n- Solicitar e interpretar o exame físico;\n- Identificar e verbalizar corretamente o gênero da aranha mostrada pelo paciente;\n- Solicitar exames complementares, se necessário;\n- Propor conduta terapêutica adequada;\n- Realizar orientações sobre prevenção de acidentes por animais peçonhentos.",
+    patientInfo: "Miguel, 40 anos, mecânico. PA 170x100 mmHg · FC 115 bpm · SpO₂ 99% · T 36,3°C · FR 16 ipm.",
+    supportMaterials: "Impressos disponíveis: Exame físico, Laboratório, Imagem da aranha.",
+    patientProfile: {
+      name: "Miguel",
+      age: "40 anos",
+      sex: "Masculino",
+      profession: "Mecânico",
+      chiefComplaint: "Estava limpando o quintal da minha casa e uma aranha me picou.",
+      hpi: "Tempo de evolução: Já tem umas duas horas.\nLocal: Foi na mão direita.\nDor: Sim, começou logo depois da picada.\nIntensidade: Muito forte (8/10).\nIrradiação: Não.\nTipo de dor: Queimação.",
+      symptoms:
+        "Vômitos: Vomitei umas 6 vezes já, não paro de vomitar.\nAlterações visuais: Minha visão está embaçada.\nExcesso de salivação/sialorreia: Sim, estou até babando.\nOutros sintomas: Nega.\nPriapismo: Sim.\nAstenia: Dr., eu me sinto muito fraco.",
+      personalHistory: "Doenças: Não tenho nenhuma doença.\nCartão de vacina: Atualizado.",
+      medications: "Não uso nenhuma medicação.",
+      allergies: "Que eu saiba, não.",
+      habits:
+        "Álcool: Cerveja de vez em quando.\nCigarro: Não fumo.\nDrogas: Não uso nenhuma droga.\nAlteração na urina: Minha urina está normal, eu acho.",
+      onlyIfAsked: "Se perguntado por limpeza ou antissepsia do local: responder que não.",
+    },
+    deliverableMaterials: [
+      {
+        id: "m1",
+        name: "Impresso 1 ( Exame físico )",
+        type: "Exame físico",
+        description: "Entregue após solicitação do exame físico.",
+        content:
+          "Sinais vitais:\n- Pressão arterial: 170 x 100 mmHg\n- Frequência cardíaca: 115 batimentos por minuto\n- Saturação de O2: 99% em AA\n- Temperatura axilar: 36,3°C\n- Frequência respiratória: 16 incursões por minuto\n\nEstado geral:\nPaciente se encontra agitado e em mau estado geral. Afebril, acianótico, pálido, sudorese profusa, anictérico, hidratado, alerta, orientado no tempo e espaço.\n\nNeurológico:\nSem alterações.\n\nExame da mão:\nSe constatam sinais discretos de inflamação e 2 pontos de inoculação.",
+      },
+      {
+        id: "m2",
+        name: "Impresso 2 ( Laboratório )",
+        type: "Exame laboratorial",
+        description: "Entregue após solicitação de exames laboratoriais.",
+        content:
+          "Hemácias: 4,5 milhões/mm3 (Valor de referência: 4,3 a 5,8 milhões/mm3)\nHemoglobina: 15 g/dl (Valor de referência: 14 a 18 mg/dl)\nHematócrito: 45% (Valor de referência: 39-52%)\nVCM: 85 fL (Valor de referência: 80 a 100 fL)\nHCM: 30 pg (Valor de referência: 26-33 pg)\nCHCM: 30 g/dl (Valor de referência: 30-34 g/dl)\nRDW CV: 12% (Valor de referência: 11-14%)\n\nPlaquetas: 175.000 mm/3 (150.000-400.000 mm/3)\n\nPCR: 40mg/dL (menor ou igual a 8mg/dL)\n\nLeucócitos: 5.240/mm3 (Valor de referência: 4.000-10.000/mm3)\nNeutrófilos: 65% (Valor de referência: 40-70%)\nBastões: 3% (Valor de referência: 0-5%)\nLinfócitos: 25% (Valor de referência: 20-50%)\nBasófilos: 1% (Valor de referência: 0-2%)\nEosinófilos: 2% (Valor de referência: 0-6%)\nMonócitos: 4% (Valor de referência: 4-8%)\n\nGlicemia sérica: 95 mg/dl\n\nCreatinina: 0,8 mg/dL (Valor de referência: 0,7-1,1 mg/dL)\nUreia: 19 mg/dl (Valor de referência: < 40 mg/dl)\n\nSódio: 140 mEq/l (Valor de referência: 135-145 mEq/l)\nK: 4 mEq/l (Valor de referência: 3,5-5 mEq/l)",
+      },
+      {
+        id: "m3",
+        name: "Impresso 3 ( Imagem da aranha )",
+        type: "Imagem",
+        description: "Entregue após solicitação da identificação do animal.",
+        content: "Imagem da aranha responsável pelo acidente — gênero Phoneutria (aranha-armadeira).",
+      },
+    ],
+    checklist: cl([
+      {
+        category: "Comunicação",
+        description: "1. Apresentação:\n(1) Identifica-se;\n(2) Cumprimenta o paciente simulado.",
+        points: 0.25,
+        levels: [
+          { label: "Inadequado: Realiza apenas uma ação ou não realiza nenhuma ação.", points: 0 },
+          { label: "Adequado: Realiza as duas ações.", points: 0.25 },
+        ],
+      },
+      {
+        category: "Anamnese",
+        description:
+          "2. Realiza anamnese direcionada perguntando por:\n(1) Tempo de evolução;\n(2) Dor no local da picada;\n(3) Salivação excessiva ou sialorreia;\n(4) Vômitos;\n(5) Priapismo;\n(6) Sudorese;\n(7) Limpeza da região afetada;",
+        points: 1.5,
+        levels: [
+          { label: "Inadequado: Pergunta por dois ou menos itens.", points: 0 },
+          { label: "Parcialmente adequado: Pergunta de três a cinco itens.", points: 0.75 },
+          { label: "Adequado: Pergunta seis ou sete itens.", points: 1.5 },
+        ],
+      },
+      {
+        category: "Anamnese",
+        description:
+          "3. Investiga os antecedentes pessoais:\n(1) Doenças;\n(2) Uso de medicamentos;\n(3) Alergias;\n(4) Álcool;\n(5) Drogas ilícitas;\n(6) Estado vacinal.",
+        points: 0.5,
+        levels: [
+          { label: "Inadequado: Investiga dois ou menos itens.", points: 0 },
+          { label: "Parcialmente adequado: Investiga três ou quatro itens.", points: 0.25 },
+          { label: "Adequado: Investiga cinco ou seis itens.", points: 0.5 },
+        ],
+      },
+      {
+        category: "Exame físico",
+        description: "4. Solicita o exame físico.",
+        points: 0.5,
+        levels: [
+          { label: "Inadequado: Não solicita.", points: 0 },
+          { label: "Adequado: Solicita.", points: 0.5 },
+        ],
+      },
+      {
+        category: "Diagnóstico",
+        description:
+          "5. Solicita os exames laboratoriais:\n(1) Hemograma;\n(2) PCR e/ou VHS;\n(3) Gasometria arterial;\n(4) Ureia e/ou creatinina;\n(5) Urina I ou EAS;\n(6) Sódio e potássio.",
+        points: 1.0,
+        levels: [
+          { label: "Inadequado: Solicita dois ou menos itens.", points: 0 },
+          { label: "Parcialmente adequado: Solicita três ou quatro itens.", points: 0.5 },
+          { label: "Adequado: Solicita de cinco a seis itens.", points: 1.0 },
+        ],
+      },
+      {
+        category: "Diagnóstico",
+        description: "6. Identifica corretamente a aranha mostrada na foto:",
+        points: 1.75,
+        levels: [
+          { label: "Inadequado: Não identifica.", points: 0 },
+          { label: "Adequado: Identifica o gênero Phoneutria ou aranha armadeira.", points: 1.75 },
+        ],
+      },
+      {
+        category: "Diagnóstico",
+        description: "7. Realiza o diagnóstico de acidente grave por Phoneutria ou aranha-armadeira.",
+        points: 2.0,
+        helperText:
+          "Classificação grave por Phoneutria: priapismo, sialorreia intensa, vômitos, visão embaçada, sudorese, taquicardia, astenia. Sinais sistêmicos graves indicam risco de choque/hipotensão; monitorar e tratar suporte inicial (VB, O2 se necessário). Ref: Manual Fiocruz/MS(2).",
+        levels: [
+          { label: "Inadequado: Não realiza o diagnóstico.", points: 0 },
+          { label: "Parcialmente adequado: Realiza o diagnóstico, mas não classifica como grave.", points: 1.0 },
+          { label: "Adequado: Realiza o diagnóstico (acidente por Phoneutria/aranha-armadeira) e classifica como grave.", points: 2.0 },
+        ],
+      },
+      {
+        category: "Conduta",
+        description:
+          "8. Realiza a conduta terapêutica adequada:\n(1) Indica soro antirrácnico, 5 a 10 ampolas (validar se citar soro antirrácnico e número de ampolas);\n(2) Indica analgesia endovenosa;\n(3) Limpeza e/ou antissepsia da região afetada;\n(4) Solicita internação em unidade de cuidados intensivos.",
+        points: 1.5,
+        helperText:
+          "Soro antirrácnico (SAR ant Phoneutria): grave = 5-10 ampolas IV diluído, infusão lenta (monitorar reação/anafilaxia com teste prévio se possível). Analgesia: opioide IV (morfina/fentanil). Suporte: VB 2 acessos, monitorização contínua. Alternativa: sem infiltração local (risco disseminação). Ref: Fiocruz/MS(2).",
+        levels: [
+          { label: "Inadequado: Não indica corretamente o item 1 ou não realiza nenhuma ação.", points: 0 },
+          { label: "Parcialmente adequado: Realiza de uma a três ações (obrigatoriamente inclui item 1).", points: 0.75 },
+          { label: "Adequado: Realiza as quatro ações.", points: 1.5 },
+        ],
+      },
+      {
+        category: "Comunicação",
+        description:
+          "9. Orienta sobre prevenção de acidentes com animais peçonhentos:\n(1) Manter jardins e quintais limpos;\n(2) Usar luvas ou botas;\n(3) Verificar roupas e sapatos antes de usá-los;\n(4) Combater a proliferação de insetos;\n(5) Evitar folhagens densas.",
+        points: 0.5,
+        levels: [
+          { label: "Inadequado: Orienta dois ou menos itens.", points: 0 },
+          { label: "Adequado: Orienta ao menos três itens.", points: 0.5 },
+        ],
+      },
+      {
+        category: "Conduta",
+        description: "10. Realiza a notificação de acidente por animais peçonhentos ao SINAN.",
+        points: 0.5,
+        levels: [
+          { label: "Inadequado: Não realiza.", points: 0 },
+          { label: "Adequado: Realiza.", points: 0.5 },
+        ],
+      },
+    ]),
+    references: [
+      {
+        label: "Ofício Circular nº 02/2014 - Acidentes ofídicos (Ministério da Saúde)",
+        url: "https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/a/animais-peconhentos/acidentes-ofidicos/publicacoes/oficio-circular-no-02-2014-cgdt-devit-svs-ms/view",
+      },
+      {
+        label: "Manual de Diagnóstico e Tratamento de Acidentes por Animais Peçonhentos (ICICT/Fiocruz)",
+        url: "https://www.icict.fiocruz.br/sites/www.icict.fiocruz.br/files/Manual-De-Diagnostico-e-Tratamento-de-Acidentes-por-Animais-Pe--onhentos.pdf",
+      },
+      {
+        label: "Manual de Diagnóstico e Tratamento de Acidentes por Animais Peçonhentos - Fiocruz/MS",
+      },
+    ],
+  },
+  {
     id: "6",
     slug: "aconselhamento-diabetes",
     title: "Aconselhamento sobre diabetes",
