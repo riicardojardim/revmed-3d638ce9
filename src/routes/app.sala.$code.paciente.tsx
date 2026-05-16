@@ -24,7 +24,7 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
   head: () => ({ meta: [{ title: "Estação — Ator/Avaliador" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null };
 type Delivery = { id: string; material_id: string; material_name: string };
 
 function ActorView() {
