@@ -182,3 +182,6 @@
 @utility shadow-card {
   box-shadow: var(--shadow-card);
 }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
