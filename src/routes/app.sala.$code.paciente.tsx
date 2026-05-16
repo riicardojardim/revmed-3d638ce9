@@ -501,12 +501,15 @@ function ActorView() {
         {/* RIGHT: sticky control panel (Pense Revalida-style) */}
         <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
           {/* Timer */}
-          <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+              {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando início"}
+            </div>
             <div className={cn(
-              "rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-mint/15" : "bg-muted/40",
+              "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
+              isRunning ? "bg-mint/15" : "bg-white/5",
             )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-foreground">
+              <div className="font-display text-5xl font-bold tabular-nums text-white">
                 {mm}:{ss}
               </div>
               {isWaiting && (
@@ -515,7 +518,7 @@ function ActorView() {
                     value={String(room.duration_minutes ?? station.durationMinutes)}
                     onValueChange={(v) => changeDuration(Number(v))}
                   >
-                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-border bg-background/40 px-3 text-xs">
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -524,7 +527,7 @@ function ActorView() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <div className="mt-1 text-[10px] text-muted-foreground">Tempo da estação</div>
+                  <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
                 </div>
               )}
             </div>
