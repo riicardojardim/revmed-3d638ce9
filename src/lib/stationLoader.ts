@@ -1,12 +1,18 @@
 import { supabase } from "@/integrations/supabase/client";
 import { STATIONS, type Station, type ChecklistItem, type ChecklistLevel, type PatientProfile, type DeliverableMaterial } from "@/data/stations";
 
+export interface StationReference {
+  label: string;
+  url?: string;
+}
+
 export interface LoadedStation extends Station {
   patientScript: string;
   evaluatorNotes?: string;
   competencies?: string[];
   scoringCriteria?: string;
   postMaterials?: string;
+  references?: StationReference[];
 }
 
 function isUuid(s: string) {
@@ -48,13 +54,20 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       .select("*")
       .eq("station_id", id)
       .order("order_index");
-    const checklist: ChecklistItem[] = (items ?? []).map((it: { id: string; category: string; description: string; points: number }) => ({
-      id: it.id,
-      category: it.category as ChecklistItem["category"],
-      description: it.description,
-      points: it.points,
-    }));
+    const checklist: ChecklistItem[] = (items ?? []).map((it: { id: string; category: string; description: string; points: number; helper_text?: string | null; levels?: unknown }) => {
+      const rawLevels = Array.isArray(it.levels) ? (it.levels as ChecklistLevel[]) : [];
+      return {
+        id: it.id,
+        category: it.category as ChecklistItem["category"],
+        description: it.description,
+        points: it.points,
+        helperText: it.helper_text ?? undefined,
+        levels: rawLevels.length > 0 ? rawLevels : undefined,
+      };
+    });
     const sx = s as unknown as Record<string, unknown>;
+    const refsRaw = sx.bibliographic_references;
+    const references: StationReference[] = Array.isArray(refsRaw) ? (refsRaw as StationReference[]) : [];
     return {
       id: s.id,
       slug: s.id,
@@ -72,6 +85,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       competencies: (s.competencies ?? []) as string[],
       scoringCriteria: s.scoring_criteria ?? undefined,
       postMaterials: s.post_materials ?? undefined,
+      references,
       patientProfile: (sx.patient_profile as PatientProfile) ?? undefined,
       deliverableMaterials: (sx.deliverable_materials as DeliverableMaterial[]) ?? [],
       educationalGoal: (sx.educational_goal as string) ?? undefined,

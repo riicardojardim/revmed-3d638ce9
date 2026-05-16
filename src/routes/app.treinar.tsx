@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { STATIONS } from "@/data/stations";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +27,14 @@ const SPECIALTY_BADGE: Record<string, { code: string; cls: string }> = {
   "Urgência e Emergência":    { code: "UE", cls: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-400/30" },
 };
 
+type DBStation = {
+  id: string;
+  title: string;
+  specialty: string;
+  difficulty: string;
+  duration_minutes: number;
+};
+
 function TrainPage() {
   const { user } = useAuth();
   const nav = useNavigate();
@@ -35,9 +42,23 @@ function TrainPage() {
   const [specialty, setSpecialty] = useState<string>("all");
   const [busy, setBusy] = useState(false);
   const [lastCode, setLastCode] = useState<string | null>(null);
+  const [stations, setStations] = useState<DBStation[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const specialties = Array.from(new Set(STATIONS.map((s) => s.specialty)));
-  const filtered = STATIONS.filter((s) => {
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("custom_stations")
+        .select("id, title, specialty, difficulty, duration_minutes")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      setStations((data ?? []) as DBStation[]);
+      setLoading(false);
+    })();
+  }, []);
+
+  const specialties = Array.from(new Set(stations.map((s) => s.specialty)));
+  const filtered = stations.filter((s) => {
     const matchText = s.title.toLowerCase().includes(search.toLowerCase());
     const matchSpec = specialty === "all" || s.specialty === specialty;
     return matchText && matchSpec;
@@ -45,7 +66,8 @@ function TrainPage() {
 
   async function startStation(stationId: string) {
     if (!user) return toast.error("Faça login para criar uma sala.");
-    const st = STATIONS.find((s) => s.id === stationId)!;
+    const st = stations.find((s) => s.id === stationId);
+    if (!st) return toast.error("Estação não encontrada.");
     setBusy(true);
     const code = genCode();
     const { data, error } = await supabase.from("training_rooms")
@@ -76,7 +98,7 @@ function TrainPage() {
         <Theater className="h-5 w-5 text-mint" />
         <span className="text-sm font-semibold text-foreground">Painel do Ator · Estações</span>
         <span className="ml-auto rounded-full bg-mint/15 px-3 py-1 text-xs font-mono font-bold text-mint">
-          {filtered.length}/{STATIONS.length}
+          {filtered.length}/{stations.length}
         </span>
       </div>
 
@@ -134,7 +156,7 @@ function TrainPage() {
                         <div className="text-xs text-muted-foreground">{s.specialty}</div>
                       </div>
                     </div>
-                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.durationMinutes} min</div>
+                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.duration_minutes} min</div>
                     <div className="text-center text-xs text-muted-foreground md:text-sm">{s.difficulty}</div>
                     <div className="md:text-right">
                       <Button
@@ -162,7 +184,7 @@ function TrainPage() {
         <aside className="space-y-4">
           <div className="rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant">
             <div className="text-xs uppercase tracking-wider text-white/70">Disponíveis</div>
-            <div className="mt-1 font-display text-4xl font-bold">{STATIONS.length}</div>
+            <div className="mt-1 font-display text-4xl font-bold">{stations.length}</div>
             <div className="text-xs text-white/70">estações atualizadas</div>
 
             <div className="mt-5 space-y-2 text-xs text-white/80">
