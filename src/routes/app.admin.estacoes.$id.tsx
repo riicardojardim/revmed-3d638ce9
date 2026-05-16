@@ -548,45 +548,13 @@ function SectionCaseCandidate({ station, up }: { station: Station; up: <K extend
 }
 
 function SectionCaseActor({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
-  const p = station.patient_profile ?? {};
-  function setP<K extends keyof PatientProfile>(k: K, v: PatientProfile[K]) {
-    up("patient_profile", { ...p, [k]: v });
-  }
   return (
     <Section title="Orientações do Ator / Atriz"
-      hint="Perfil completo do paciente que o ator vai interpretar — campos seguem o padrão dos PDFs oficiais.">
-      <div className="grid gap-3 md:grid-cols-5">
-        <div><Label>Nome</Label><Input value={p.name ?? ""} onChange={(e) => setP("name", e.target.value)} placeholder="Miguel" /></div>
-        <div><Label>Idade</Label><Input value={p.age ?? ""} onChange={(e) => setP("age", e.target.value)} placeholder="40" /></div>
-        <div><Label>Sexo</Label><Input value={p.sex ?? ""} onChange={(e) => setP("sex", e.target.value)} placeholder="masculino" /></div>
-        <div><Label>Cidade / UF</Label><Input value={p.city ?? ""} onChange={(e) => setP("city", e.target.value)} /></div>
-        <div><Label>Profissão</Label><Input value={p.profession ?? ""} onChange={(e) => setP("profession", e.target.value)} placeholder="mecânico" /></div>
-      </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div><Label>Motivo da consulta / queixa principal</Label><Textarea rows={2} value={p.chiefComplaint ?? ""} onChange={(e) => setP("chiefComplaint", e.target.value)} /></div>
-        <div><Label>Características do acidente / HMA</Label><Textarea rows={3} value={p.hpi ?? ""} onChange={(e) => setP("hpi", e.target.value)} placeholder="Tempo de evolução, local, dor, intensidade, irradiação, tipo de dor..." /></div>
-        <div><Label>Sintomas associados</Label><Textarea rows={3} value={p.symptoms ?? ""} onChange={(e) => setP("symptoms", e.target.value)} placeholder="Vômitos, alterações visuais, salivação, priapismo, astenia..." /></div>
-        <div><Label>Só revelar se perguntado</Label><Textarea rows={3} value={p.onlyIfAsked ?? ""} onChange={(e) => setP("onlyIfAsked", e.target.value)} placeholder="Ex: Se perguntado por limpeza/antissepsia: responder que não." /></div>
-        <div><Label>Antecedentes pessoais (doenças, cartão de vacina)</Label><Textarea rows={2} value={p.personalHistory ?? ""} onChange={(e) => setP("personalHistory", e.target.value)} /></div>
-        <div><Label>Medicações em uso</Label><Textarea rows={2} value={p.medications ?? ""} onChange={(e) => setP("medications", e.target.value)} /></div>
-        <div><Label>Alergias</Label><Textarea rows={2} value={p.allergies ?? ""} onChange={(e) => setP("allergies", e.target.value)} /></div>
-        <div><Label>Antecedentes familiares</Label><Textarea rows={2} value={p.familyHistory ?? ""} onChange={(e) => setP("familyHistory", e.target.value)} /></div>
-        <div><Label>Hábitos (álcool, cigarro, drogas, urina, sono)</Label><Textarea rows={3} value={p.habits ?? ""} onChange={(e) => setP("habits", e.target.value)} /></div>
-        <div><Label>Sinais vitais</Label><Textarea rows={2} value={p.vitals ?? ""} onChange={(e) => setP("vitals", e.target.value)} /></div>
-      </div>
-      <div className="grid gap-3 md:grid-cols-3">
-        <div><Label>O paciente fala espontaneamente</Label><Textarea rows={3} value={p.spontaneous ?? ""} onChange={(e) => setP("spontaneous", e.target.value)} /></div>
-        <div><Label>Exames prévios</Label><Textarea rows={3} value={p.previousExams ?? ""} onChange={(e) => setP("previousExams", e.target.value)} /></div>
-        <div><Label>Não revelar</Label><Textarea rows={3} value={p.doNotReveal ?? ""} onChange={(e) => setP("doNotReveal", e.target.value)} /></div>
-      </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div><Label>Tom emocional</Label><Input value={p.emotionalTone ?? ""} onChange={(e) => setP("emotionalTone", e.target.value)} /></div>
-        <div><Label>Dicas de atuação</Label><Input value={p.actingTips ?? ""} onChange={(e) => setP("actingTips", e.target.value)} /></div>
-      </div>
+      hint="Cole aqui o texto integral das orientações do ator (como está no PDF). Linhas em CAIXA ALTA e títulos terminados em ':' aparecem em negrito automaticamente. Use **palavra** para destacar manualmente.">
       <div>
-        <Label>Roteiro completo do paciente (fala literal, se houver)</Label>
-        <Textarea rows={6} value={station.patient_script ?? ""} onChange={(e) => up("patient_script", e.target.value)}
-          placeholder="Frases textuais que o ator pode usar durante a simulação." />
+        <Label>Texto completo das orientações do ator</Label>
+        <Textarea rows={20} value={station.patient_script ?? ""} onChange={(e) => up("patient_script", e.target.value)}
+          placeholder={`Ex:\n\nDADOS PESSOAIS:\n- Miguel, 40 anos, mecânico.\n\nMOTIVO DA CONSULTA:\n- "Doutor, fui picado por uma aranha..."\n\nCARACTERÍSTICAS DO ACIDENTE:\n- Tempo de evolução: 2 horas\n- Local: mão direita\n- Dor: intensa, em queimação\n\nSE PERGUNTADO POR LIMPEZA:\n- Responder que não fez nada no local.`} />
       </div>
     </Section>
   );
@@ -1044,18 +1012,15 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
 
         {mode === "ator" && (
           <div className="space-y-4">
-            <PRBlock icon={User} title="Perfil do paciente / informações para o ator">
-              {hasProfile ? (
+            <PRBlock icon={User} title="Orientações do Ator / Atriz">
+              {station.patient_script ? (
+                <ScriptText text={station.patient_script} />
+              ) : hasProfile ? (
                 <ScriptText text={patientFormatted} />
               ) : (
-                <p className="text-sm text-muted-foreground">Nenhum perfil de paciente preenchido.</p>
+                <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
               )}
             </PRBlock>
-            {station.patient_script && (
-              <PRBlock icon={MessageSquare} title="Roteiro de atuação (fala do paciente)">
-                <ScriptText text={station.patient_script} />
-              </PRBlock>
-            )}
             <PRBlock icon={MessageSquare} title="Cenário clínico (contexto)">
               <ScriptText text={station.clinical_case || "—"} />
             </PRBlock>
