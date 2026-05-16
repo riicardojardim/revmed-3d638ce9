@@ -124,7 +124,7 @@ function AppLayout() {
 
         {/* Mobile bottom nav */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
-          <div className="grid grid-cols-5">
+          <div className="grid" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
             {navItems.map((n) => {
               const active = isActive(n.to, n.exact);
               return (
