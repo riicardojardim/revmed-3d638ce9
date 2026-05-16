@@ -300,6 +300,13 @@ function ActorView() {
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
 
+  // Auto-preencher status: >=61.17% aprovado, <61.17% reprovado (apenas quando o checklist está completo)
+  useEffect(() => {
+    if (!allScored) return;
+    const auto = pct >= 61.17 ? "aprovado" : "reprovado";
+    setEvalStatus((prev) => (prev === auto ? prev : auto));
+  }, [allScored, pct]);
+
 
 
   async function deliver(materialId: string) {
