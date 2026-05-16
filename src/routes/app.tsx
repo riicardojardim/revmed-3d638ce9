@@ -63,6 +63,31 @@ function AppLayout() {
         profileItem,
       ];
 
+  const [activeRoom, setActiveRoom] = useState<{ code: string; title: string } | null>(null);
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem("ator:activeRoom");
+        setActiveRoom(raw ? JSON.parse(raw) : null);
+      } catch { setActiveRoom(null); }
+    };
+    read();
+    window.addEventListener("ator:activeRoom", read);
+    window.addEventListener("storage", read);
+    return () => {
+      window.removeEventListener("ator:activeRoom", read);
+      window.removeEventListener("storage", read);
+    };
+  }, []);
+  function clearActiveRoom(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      localStorage.removeItem("ator:activeRoom");
+      window.dispatchEvent(new Event("ator:activeRoom"));
+    } catch {}
+  }
+
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
   }, [user, loading, nav]);
