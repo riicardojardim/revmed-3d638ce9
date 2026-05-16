@@ -43,6 +43,7 @@ function ActorView() {
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
   const [showPEP, setShowPEP] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Timer state (synced with room.started_at)
   const [remaining, setRemaining] = useState(0);
