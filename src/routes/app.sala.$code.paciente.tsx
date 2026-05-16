@@ -320,6 +320,7 @@ function ActorView() {
       material_type: m.type,
       material_description: m.description ?? null,
       material_content: m.content,
+      material_image_url: m.imageUrl ?? null,
       delivered_by: user.id,
     });
     if (error) return toast.error(error.message);
@@ -624,9 +625,24 @@ function ActorView() {
                               <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
                             </button>
                           )}
+                          {m.imageUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: m.imageUrl!, alt: m.name || "Material" })}
+                              className="mb-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img
+                                src={m.imageUrl}
+                                alt={m.name || "Material"}
+                                className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90"
+                              />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
+                          )}
                           {m.content
                             ? <ScriptText text={m.content} />
-                            : (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                            : (!isRhythm && !isSpider && !m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <div className="mt-auto pt-3">

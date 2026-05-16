@@ -169,6 +169,7 @@ function EvaluatorView() {
       material_type: m.type,
       material_description: m.description ?? null,
       material_content: m.content,
+      material_image_url: m.imageUrl ?? null,
       delivered_by: user.id,
     });
     if (error) return toast.error(error.message);
@@ -423,6 +424,9 @@ function EvaluatorView() {
                           <div className="mt-3 max-h-32 overflow-auto rounded-lg border border-emerald-300/30 bg-background/60 p-2.5 text-xs leading-relaxed">
                             <ScriptText text={m.content} />
                           </div>
+                        )}
+                        {isDelivered && m.imageUrl && (
+                          <img src={m.imageUrl} alt={m.name || "Material"} className="mt-3 max-h-48 w-full rounded-lg border border-emerald-300/30 object-contain" />
                         )}
 
                         <Button size="sm" variant={isDelivered ? "outline" : "hero"} className="mt-3 w-full"

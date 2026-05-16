@@ -29,6 +29,7 @@ type Delivery = {
   material_type: string | null;
   material_description: string | null;
   material_content: string | null;
+  material_image_url: string | null;
   delivered_at: string;
 };
 
@@ -181,6 +182,7 @@ function CandidateView() {
         material_type: m.type,
         material_description: m.description ?? null,
         material_content: m.content,
+        material_image_url: m.imageUrl ?? null,
         delivered_at: "",
       }));
     const seen = new Set(deliveries.map((d) => d.material_id));
@@ -322,6 +324,13 @@ function CandidateView() {
                       <div className="mt-3 rounded-lg bg-background/60 p-3 text-sm">
                         <ScriptText text={d.material_content} />
                       </div>
+                    )}
+                    {d.material_image_url && (
+                      <img
+                        src={d.material_image_url}
+                        alt={d.material_name || "Material"}
+                        className="mt-3 w-full rounded-lg border border-border object-contain"
+                      />
                     )}
                   </div>
                 ))}
