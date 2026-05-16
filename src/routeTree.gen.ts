@@ -14,6 +14,7 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as ECodeRouteImport } from './routes/e.$code'
 import { Route as AppTreinarRouteImport } from './routes/app.treinar'
 import { Route as AppResumosRouteImport } from './routes/app.resumos'
 import { Route as AppProgressoRouteImport } from './routes/app.progresso'
@@ -65,6 +66,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const ECodeRoute = ECodeRouteImport.update({
+  id: '/e/$code',
+  path: '/e/$code',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppTreinarRoute = AppTreinarRouteImport.update({
   id: '/treinar',
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/treinar': typeof AppTreinarRoute
+  '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/treinar': typeof AppTreinarRoute
+  '/e/$code': typeof ECodeRoute
   '/app': typeof AppIndexRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/treinar': typeof AppTreinarRoute
+  '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/treinar'
+    | '/e/$code'
     | '/app/'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
@@ -339,6 +349,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/treinar'
+    | '/e/$code'
     | '/app'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/treinar'
+    | '/e/$code'
     | '/app/'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
@@ -398,6 +410,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   CadastroRoute: typeof CadastroRoute
   LoginRoute: typeof LoginRoute
+  ECodeRoute: typeof ECodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -436,6 +449,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/e/$code': {
+      id: '/e/$code'
+      path: '/e/$code'
+      fullPath: '/e/$code'
+      preLoaderRoute: typeof ECodeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/treinar': {
       id: '/app/treinar'
@@ -739,7 +759,18 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   CadastroRoute: CadastroRoute,
   LoginRoute: LoginRoute,
+  ECodeRoute: ECodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
