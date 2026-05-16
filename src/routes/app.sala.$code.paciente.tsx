@@ -954,6 +954,46 @@ function ActorView() {
         </aside>
       </div>
 
+      <Dialog open={previewMaterialId !== null} onOpenChange={(o) => !o && setPreviewMaterialId(null)}>
+        <DialogContent className="max-w-2xl">
+          {(() => {
+            const m = materials.find((x) => x.id === previewMaterialId);
+            if (!m) return null;
+            const idx = materials.findIndex((x) => x.id === m.id);
+            const isDelivered = delivered.has(m.id);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-mint" />
+                    Impresso {idx + 1} · {m.name}
+                  </DialogTitle>
+                  {m.description && (
+                    <DialogDescription>{m.description}</DialogDescription>
+                  )}
+                </DialogHeader>
+                <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm leading-relaxed whitespace-pre-wrap">
+                  {m.content || <span className="text-muted-foreground italic">Sem conteúdo cadastrado.</span>}
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-[11px] text-muted-foreground">
+                    {isDelivered ? "Já entregue ao candidato." : "Ainda não entregue."}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant={isDelivered ? "outline" : "hero"}
+                    disabled={isDelivered || !isRunning}
+                    onClick={() => { deliver(m.id); setPreviewMaterialId(null); }}
+                  >
+                    {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar agora</>}
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
