@@ -560,7 +560,7 @@ function ActorView() {
                     const isSpider = /aranha/i.test(m.name);
                   return (
                     <div key={m.id} className={cn(
-                      "rounded-xl border p-3 transition-all self-start",
+                      "rounded-xl border p-3 transition-all flex flex-col h-full",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
                     )}>
                       <button
@@ -597,15 +597,17 @@ function ActorView() {
                           {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
-                      <Button
-                        size="sm"
-                        variant={isDelivered ? "outline" : "hero"}
-                        className="mt-3 w-full"
-                        disabled={isDelivered || !isRunning}
-                        onClick={() => deliver(m.id)}
-                      >
-                        {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
-                      </Button>
+                      <div className="mt-auto pt-3">
+                        <Button
+                          size="sm"
+                          variant={isDelivered ? "outline" : "hero"}
+                          className="w-full"
+                          disabled={isDelivered || !isRunning}
+                          onClick={() => deliver(m.id)}
+                        >
+                          {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}
