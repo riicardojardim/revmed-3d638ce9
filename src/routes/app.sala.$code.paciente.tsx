@@ -29,6 +29,19 @@ type Room = { id: string; code: string; station_id: string; station_title: strin
 type Delivery = { id: string; material_id: string; material_name: string };
 type Candidate = { id: string; name: string };
 
+// Migrate legacy checks (boolean) to new shape (number = chosen level points).
+// `true` → full points, `false`/missing → unscored.
+function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]): Record<string, number> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, number> = {};
+  const map = new Map(checklist.map((i) => [i.id, i.points]));
+  for (const [id, val] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof val === "number") out[id] = val;
+    else if (val === true) out[id] = map.get(id) ?? 0;
+  }
+  return out;
+}
+
 function ActorView() {
   const { code } = Route.useParams();
   const { user } = useAuth();
