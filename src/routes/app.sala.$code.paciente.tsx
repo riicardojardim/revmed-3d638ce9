@@ -528,19 +528,6 @@ function ActorView() {
             )}
           </PRBlock>
 
-          <PRBlock icon={Theater} title="Ritmo do paciente">
-            <figure className="overflow-hidden rounded-xl border border-border bg-background/40">
-              <img
-                src={ecgRitmoSinusal}
-                alt="Traçado de ECG do paciente — ritmo sinusal"
-                className="block w-full h-auto"
-              />
-              <figcaption className="px-3 py-2 text-[11px] text-muted-foreground">
-                ECG de demonstração — ritmo sinusal regular.
-              </figcaption>
-            </figure>
-          </PRBlock>
-
           <PRBlock
             icon={Inbox}
             title="Materiais para entregar ao candidato"
@@ -553,11 +540,11 @@ function ActorView() {
                 {materials.map((m, idx) => {
                   const isDelivered = delivered.has(m.id);
                   const isOpen = previewMaterialId === m.id;
+                  const isRhythm = /ritmo/i.test(m.name);
                   return (
                     <div key={m.id} className={cn(
-                      "rounded-xl border p-3 transition-all",
+                      "rounded-xl border p-3 transition-all self-start",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
-                      isOpen && "sm:col-span-2",
                     )}>
                       <button
                         type="button"
@@ -576,7 +563,14 @@ function ActorView() {
                       </button>
                       {isOpen && (
                         <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
-                          {m.content || <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>}
+                          {isRhythm && (
+                            <img
+                              src={ecgRitmoSinusal}
+                              alt="Traçado de ECG do paciente"
+                              className="mb-3 block w-full h-auto rounded-md border border-border"
+                            />
+                          )}
+                          {m.content || (!isRhythm && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <Button
