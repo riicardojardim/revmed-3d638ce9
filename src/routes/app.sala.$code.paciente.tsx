@@ -569,7 +569,7 @@ function ActorView() {
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
-                            <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1} <span className="text-muted-foreground font-normal">({m.name})</span>
+                            <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1} <span className="text-muted-foreground font-normal">({m.type || m.name})</span>
                           </div>
                           <div className="mt-0.5 text-[11px] text-muted-foreground">{isOpen ? "clique para recolher" : "clique para ver o conteúdo"}</div>
                           {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
