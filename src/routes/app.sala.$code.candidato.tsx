@@ -19,7 +19,7 @@ export const Route = createFileRoute("/app/sala/$code/candidato")({
   head: () => ({ meta: [{ title: "Estação — Candidato" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
 type Delivery = {
   id: string;
   material_id: string;
@@ -47,7 +47,7 @@ function CandidateView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, duration_minutes")
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
@@ -140,6 +140,10 @@ function CandidateView() {
     if (!station || !user || !room) return;
     if (room.status !== "running") {
       toast.error("A estação ainda não foi iniciada pelo avaliador.");
+      return;
+    }
+    if (room.evaluated_candidate_id && room.evaluated_candidate_id !== user.id) {
+      toast.error("Apenas o avaliado da vez pode finalizar a estação.");
       return;
     }
     if (intervalRef.current) clearInterval(intervalRef.current);

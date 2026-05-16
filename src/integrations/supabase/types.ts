@@ -519,6 +519,7 @@ export type Database = {
           code: string
           created_at: string
           duration_minutes: number | null
+          evaluated_candidate_id: string | null
           finished_at: string | null
           host_id: string
           id: string
@@ -533,6 +534,7 @@ export type Database = {
           code: string
           created_at?: string
           duration_minutes?: number | null
+          evaluated_candidate_id?: string | null
           finished_at?: string | null
           host_id: string
           id?: string
@@ -547,6 +549,7 @@ export type Database = {
           code?: string
           created_at?: string
           duration_minutes?: number | null
+          evaluated_candidate_id?: string | null
           finished_at?: string | null
           host_id?: string
           id?: string

@@ -24,8 +24,9 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
   head: () => ({ meta: [{ title: "Estação — Ator/Avaliador" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
 type Delivery = { id: string; material_id: string; material_name: string };
+type Candidate = { id: string; name: string };
 
 function ActorView() {
   const { code } = Route.useParams();
@@ -33,8 +34,7 @@ function ActorView() {
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
-  const [candidateId, setCandidateId] = useState<string | null>(null);
-  const [candidateName, setCandidateName] = useState<string | null>(null);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
@@ -50,24 +50,27 @@ function ActorView() {
   const [finished, setFinished] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  async function refreshCandidate(roomId: string) {
+  async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
       .select("user_id, role").eq("room_id", roomId);
-    const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
-    setCandidateId(cand?.user_id ?? null);
-    if (cand?.user_id) {
-      const { data: prof } = await supabase.from("profiles")
-        .select("full_name").eq("id", cand.user_id).maybeSingle();
-      setCandidateName(prof?.full_name ?? "Candidato");
-    } else {
-      setCandidateName(null);
+    const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
+    if (candUsers.length === 0) {
+      setCandidates([]);
+      return [];
     }
+    const ids = candUsers.map((c: { user_id: string }) => c.user_id);
+    const { data: profs } = await supabase.from("profiles")
+      .select("id, full_name").in("id", ids);
+    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    const list: Candidate[] = ids.map((id: string) => ({ id, name: map.get(id) ?? "Candidato" }));
+    setCandidates(list);
+    return list;
   }
 
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, duration_minutes").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
@@ -75,15 +78,21 @@ function ActorView() {
       const effMin = (r as Room).duration_minutes ?? st?.durationMinutes ?? 10;
       setRemaining(effMin * 60);
 
-      await refreshCandidate((r as Room).id);
+      const list = await refreshCandidates((r as Room).id);
+      // Auto-select first candidate as the evaluated if none chosen yet
+      if (!(r as Room).evaluated_candidate_id && list.length > 0) {
+        await supabase.from("training_rooms").update({ evaluated_candidate_id: list[0].id }).eq("id", (r as Room).id);
+        setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: list[0].id } : prev);
+      }
 
       const { data: dels } = await supabase.from("room_material_deliveries")
         .select("id, material_id, material_name").eq("room_id", (r as Room).id);
       setDeliveries((dels ?? []) as Delivery[]);
 
-      if (user) {
+      if (user && (r as Room).evaluated_candidate_id) {
         const { data: ev } = await supabase.from("room_evaluations")
-          .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id).maybeSingle();
+          .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id)
+          .eq("candidate_id", (r as Room).evaluated_candidate_id!).maybeSingle();
         if (ev) {
           setChecks((ev.checks ?? {}) as Record<string, boolean>);
           setComments((ev.item_comments ?? {}) as Record<string, string>);
@@ -93,6 +102,27 @@ function ActorView() {
       }
     })();
   }, [code, user?.id]);
+
+  // When the evaluated candidate changes, reload draft for that candidate (or reset)
+  useEffect(() => {
+    if (!room || !user || !room.evaluated_candidate_id) {
+      setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
+      return;
+    }
+    (async () => {
+      const { data: ev } = await supabase.from("room_evaluations")
+        .select("*").eq("room_id", room.id).eq("evaluator_id", user.id)
+        .eq("candidate_id", room.evaluated_candidate_id!).maybeSingle();
+      if (ev) {
+        setChecks((ev.checks ?? {}) as Record<string, boolean>);
+        setComments((ev.item_comments ?? {}) as Record<string, string>);
+        setFeedback(ev.final_feedback ?? "");
+        setEvalStatus(ev.status as typeof evalStatus);
+      } else {
+        setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
+      }
+    })();
+  }, [room?.evaluated_candidate_id, room?.id, user?.id]);
 
   useEffect(() => {
     if (!room) return;
@@ -106,16 +136,18 @@ function ActorView() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async (payload) => {
         const row = payload.new as { user_id: string; role: string };
         if (row.role === "candidato") {
-          setCandidateId(row.user_id);
           const { data: prof } = await supabase.from("profiles")
             .select("full_name").eq("id", row.user_id).maybeSingle();
           const name = prof?.full_name ?? "Candidato";
-          setCandidateName(name);
-          toast.success(`${name} entrou na sala`, { description: "Você já pode iniciar o cronômetro." });
+          setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
+          toast.success(`${name} entrou na sala`);
+          if (!room.evaluated_candidate_id) {
+            await supabase.from("training_rooms").update({ evaluated_candidate_id: row.user_id }).eq("id", room.id);
+          }
         }
       })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async () => {
-        await refreshCandidate(room.id);
+        await refreshCandidates(room.id);
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${room.id}` }, (payload) => {
         setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
@@ -207,11 +239,12 @@ function ActorView() {
 
   async function save(submit = false) {
     if (!room || !user) return;
+    if (!room.evaluated_candidate_id) return toast.error("Selecione um candidato avaliado antes de salvar.");
     setSaving(true);
     const payload = {
       room_id: room.id,
       evaluator_id: user.id,
-      candidate_id: candidateId,
+      candidate_id: room.evaluated_candidate_id,
       station_id: room.station_id,
       checks,
       item_comments: comments,
@@ -221,16 +254,27 @@ function ActorView() {
       submitted_at: submit ? new Date().toISOString() : null,
     };
     const { error } = await supabase.from("room_evaluations")
-      .upsert(payload, { onConflict: "room_id,evaluator_id" });
+      .upsert(payload, { onConflict: "room_id,evaluator_id,candidate_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(submit ? "Correção enviada" : "Rascunho salvo");
     if (submit) nav({ to: "/app/sala/$code", params: { code } });
   }
 
+  async function setEvaluatedCandidate(id: string) {
+    if (!room) return;
+    if (room.status === "running") return toast.error("Encerre a estação atual antes de trocar o avaliado.");
+    const { error } = await supabase.from("training_rooms")
+      .update({ evaluated_candidate_id: id }).eq("id", room.id);
+    if (error) return toast.error(error.message);
+    setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: id } : prev);
+    const name = candidates.find((c) => c.id === id)?.name ?? "Candidato";
+    toast.success(`Avaliado da vez: ${name}`);
+  }
+
   async function startStation() {
     if (!room) return;
-    if (!candidateId) return toast.error("Aguarde o candidato entrar pelo link.");
+    if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
     setStarting(true);
     const { error } = await supabase.from("training_rooms")
       .update({ status: "running", started_at: new Date().toISOString() })
@@ -457,10 +501,10 @@ function ActorView() {
                 variant="hero"
                 className="mt-3 w-full"
                 onClick={startStation}
-                disabled={starting || !candidateId}
+                disabled={starting || !room.evaluated_candidate_id}
               >
                 <Play className="mr-1 h-4 w-4" />
-                {candidateId ? "Iniciar cronômetro" : "Aguardando candidato..."}
+                {room.evaluated_candidate_id ? "Iniciar cronômetro" : "Aguardando candidato..."}
               </Button>
             )}
             {isRunning && (
@@ -487,10 +531,10 @@ function ActorView() {
             </div>
           </div>
 
-          {/* Avaliado */}
+          {/* Status da avaliação */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Avaliado
+              Status da avaliação
             </div>
             <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
               <SelectTrigger className="mt-2">
@@ -505,22 +549,59 @@ function ActorView() {
             </Select>
           </div>
 
-          {/* Participantes */}
+          {/* Participantes + escolha do avaliado da vez */}
           <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Participantes
-            </div>
-            {candidateId ? (
-              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-300">
-                <CheckCheck className="h-4 w-4" />
-                {candidateName ?? "Candidato"}
-                <span className="ml-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Participantes ({candidates.length})
               </div>
-            ) : (
+              <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
+            </div>
+
+            {candidates.length === 0 ? (
               <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
                 <UserPlus className="h-4 w-4" />
-                Aguardando participante.
+                Aguardando participantes.
               </div>
+            ) : (
+              <ul className="mt-2 space-y-1.5">
+                {candidates.map((c) => {
+                  const isEvaluated = c.id === room.evaluated_candidate_id;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => setEvaluatedCandidate(c.id)}
+                        disabled={isRunning && !isEvaluated}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                          isEvaluated
+                            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200"
+                            : "border-border bg-background/40 text-foreground hover:border-mint/40",
+                          isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
+                        )}
+                        title={isRunning && !isEvaluated ? "Encerre a estação atual para trocar o avaliado" : "Marcar como avaliado da vez"}
+                      >
+                        <span className={cn(
+                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                          isEvaluated ? "border-emerald-400 bg-emerald-400/20" : "border-muted-foreground/40",
+                        )}>
+                          {isEvaluated && <CheckCheck className="h-3 w-3 text-emerald-300" />}
+                        </span>
+                        <span className="flex-1 truncate font-medium">{c.name}</span>
+                        {isEvaluated && (
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {candidates.length > 1 && (
+              <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+                Vários alunos podem entrar pela mesma sala. Apenas o avaliado da vez é corrigido — os demais assistem.
+              </p>
             )}
           </div>
 
