@@ -60,6 +60,7 @@ function LandingPage() {
       <Trust />
       <HowItWorks />
       <Differentials />
+      <RolesSimulation />
       <Areas />
       <ForStudents />
       <ForTeachers />
