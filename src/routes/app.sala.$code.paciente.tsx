@@ -94,6 +94,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
+  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   const [struckWords, setStruckWords] = useState<Set<string>>(new Set());
   const toggleStruck = (id: string) => setStruckWords((prev) => {
     const next = new Set(prev);
@@ -581,18 +582,34 @@ function ActorView() {
                       {isOpen && (
                         <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
                           {isRhythm && (
-                            <img
-                              src={ecgRitmoSinusal}
-                              alt="Traçado de ECG do paciente"
-                              className="mb-3 block w-full h-auto rounded-md border border-border"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: ecgRitmoSinusal, alt: "Traçado de ECG do paciente" })}
+                              className="mb-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img
+                                src={ecgRitmoSinusal}
+                                alt="Traçado de ECG do paciente"
+                                className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90"
+                              />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
                           )}
                           {isSpider && (
-                            <img
-                              src={aranhaArmadeira}
-                              alt="Aranha responsável pelo acidente"
-                              className="mb-3 block w-full h-auto rounded-md border border-border"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: aranhaArmadeira, alt: "Aranha responsável pelo acidente" })}
+                              className="mb-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img
+                                src={aranhaArmadeira}
+                                alt="Aranha responsável pelo acidente"
+                                className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90"
+                              />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
                           )}
                           {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
@@ -1041,6 +1058,32 @@ function ActorView() {
         </aside>
       </div>
 
+
+      {zoomImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out animate-in fade-in"
+          onClick={() => setZoomImage(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setZoomImage(null); }}
+            className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white h-10 w-10 flex items-center justify-center text-xl"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+          <img
+            src={zoomImage.src}
+            alt={zoomImage.alt}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-full max-w-full object-contain rounded-md shadow-2xl cursor-zoom-in"
+            style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
+          />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+            Clique fora ou pressione × para fechar
+          </div>
+        </div>
+      )}
     </div>
   );
 }
