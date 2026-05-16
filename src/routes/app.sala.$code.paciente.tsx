@@ -709,7 +709,13 @@ function ActorView() {
                                 toast.error("Você tem que terminar o checklist primeiro..");
                                 return;
                               }
-                              setChecks((c) => ({ ...c, [it.id]: lv.points }));
+                              setChecks((c) => {
+                                if (c[it.id] === lv.points) {
+                                  const { [it.id]: _, ...rest } = c;
+                                  return rest;
+                                }
+                                return { ...c, [it.id]: lv.points };
+                              });
                             }}
                             className={cn(
                               "flex h-7 w-9 items-center justify-center rounded-md text-sm font-bold transition-colors",
