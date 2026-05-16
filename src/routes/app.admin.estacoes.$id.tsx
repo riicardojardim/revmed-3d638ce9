@@ -221,8 +221,8 @@ function EditorBody({
   totalPts: number;
   up: <K extends keyof Station>(k: K, v: Station[K]) => void;
   load: () => Promise<void>;
-  saveStation: (opts?: { silent?: boolean }) => Promise<void>;
-  togglePublish: () => Promise<void>;
+  saveStation: (opts?: { silent?: boolean }) => Promise<unknown>;
+  togglePublish: () => Promise<unknown>;
   setStation: React.Dispatch<React.SetStateAction<Station | null>>;
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
