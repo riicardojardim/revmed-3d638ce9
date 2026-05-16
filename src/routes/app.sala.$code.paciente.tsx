@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -377,7 +378,7 @@ function ActorView() {
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2.5 py-1 font-medium text-violet-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">
             <Theater className="h-3 w-3" /> Painel do Ator
           </span>
           <span>•</span>
@@ -391,8 +392,15 @@ function ActorView() {
           {/* Title bar like Pense Revalida */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-xs font-bold text-emerald-400">PE</span>
-              <h1 className="truncate font-display text-lg font-bold text-emerald-300 md:text-xl">
+              {(() => {
+                const meta = getSpecialtyMeta(station.specialty);
+                return (
+                  <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
+                    {meta.code}
+                  </span>
+                );
+              })()}
+              <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
                 {room.station_title ?? station.title}
               </h1>
             </div>
@@ -402,7 +410,7 @@ function ActorView() {
               title="Copiar link de convite"
             >
               <span className="truncate max-w-[160px]">{code}</span>
-              {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+              {copied ? <Check className="h-3 w-3 text-mint" /> : <Copy className="h-3 w-3" />}
             </button>
           </div>
 
@@ -496,9 +504,9 @@ function ActorView() {
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className={cn(
               "rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-emerald-500/15" : isFinished ? "bg-rose-500/15" : "bg-violet-500/20",
+              isRunning ? "bg-mint/15" : "bg-muted/40",
             )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">
+              <div className="font-display text-5xl font-bold tabular-nums text-foreground">
                 {mm}:{ss}
               </div>
               {isWaiting && (
@@ -507,7 +515,7 @@ function ActorView() {
                     value={String(room.duration_minutes ?? station.durationMinutes)}
                     onValueChange={(v) => changeDuration(Number(v))}
                   >
-                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-violet-400/30 bg-background/40 px-3 text-xs">
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-border bg-background/40 px-3 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -550,7 +558,7 @@ function ActorView() {
               Resultado
             </div>
             <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-              <div className="font-display text-xl font-bold tabular-nums text-emerald-300">
+              <div className="font-display text-xl font-bold tabular-nums text-mint">
                 {score.toFixed(2)} / {pct.toFixed(0)}%
               </div>
             </div>
@@ -584,7 +592,7 @@ function ActorView() {
             </div>
 
             {candidates.length === 0 ? (
-              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                 <UserPlus className="h-4 w-4" />
                 Aguardando participantes.
               </div>
@@ -601,7 +609,7 @@ function ActorView() {
                         className={cn(
                           "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
                           isEvaluated
-                            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200"
+                            ? "border-mint/50 bg-mint/10 text-foreground"
                             : "border-border bg-background/40 text-foreground hover:border-mint/40",
                           isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
                         )}
@@ -609,13 +617,13 @@ function ActorView() {
                       >
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                          isEvaluated ? "border-emerald-400 bg-emerald-400/20" : "border-muted-foreground/40",
+                          isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
                         )}>
-                          {isEvaluated && <CheckCheck className="h-3 w-3 text-emerald-300" />}
+                          {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
                         </span>
                         <span className="flex-1 truncate font-medium">{c.name}</span>
                         {isEvaluated && (
-                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
                         )}
                       </button>
                     </li>
@@ -651,7 +659,7 @@ function ActorView() {
                 {inviteLinkDisplay}
               </span>
               {copied ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
                   <Check className="h-3 w-3" /> Copiado
                 </span>
               ) : (
@@ -668,7 +676,7 @@ function ActorView() {
                 onClick={shareWhatsApp}
                 title="Enviar pelo WhatsApp"
               >
-                <MessageCircle className="h-3.5 w-3.5 text-emerald-400" />
+                <MessageCircle className="h-3.5 w-3.5 text-mint" />
                 WhatsApp
               </Button>
               <Button
@@ -679,7 +687,7 @@ function ActorView() {
                 onClick={shareEmail}
                 title="Enviar por e-mail"
               >
-                <Mail className="h-3.5 w-3.5 text-sky-400" />
+                <Mail className="h-3.5 w-3.5 text-mint" />
                 E-mail
               </Button>
               <Button
@@ -690,7 +698,7 @@ function ActorView() {
                 onClick={shareNative}
                 title="Compartilhar / Reenviar"
               >
-                <Share2 className="h-3.5 w-3.5 text-violet-400" />
+                <Share2 className="h-3.5 w-3.5 text-mint" />
                 Reenviar
               </Button>
             </div>
@@ -708,7 +716,7 @@ function ActorView() {
           <div className="my-8 w-full max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-elegant">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-mint">
                   PEP — Padrão Esperado de Procedimento
                 </div>
                 <h2 className="mt-1 font-display text-2xl font-bold">Avaliação do candidato</h2>
@@ -761,7 +769,7 @@ function ActorView() {
             <div className="mt-4 flex items-center justify-between gap-3">
               <div className="text-sm">
                 <span className="text-muted-foreground">Nota parcial:</span>{" "}
-                <span className="font-bold text-emerald-300">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
+                <span className="font-bold text-mint">{score.toFixed(2)} / {pct.toFixed(0)}%</span>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => save(false)} disabled={saving}>Salvar rascunho</Button>
@@ -778,25 +786,20 @@ function ActorView() {
 }
 
 function PRBlock({
-  icon: Icon, title, tone, right, children,
+  icon: Icon, title, right, children,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  tone: "violet" | "emerald" | "amber" | "sky";
+  // tone kept for API compat but ignored — we keep the page to 2 colors (neutral + mint)
+  tone?: string;
   right?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const tones = {
-    violet: "bg-violet-500/15 text-violet-300 border-violet-500/20",
-    emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
-    amber: "bg-amber-500/15 text-amber-300 border-amber-500/20",
-    sky: "bg-sky-500/15 text-sky-300 border-sky-500/20",
-  };
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <header className={cn("flex items-center justify-between gap-2 border-b px-4 py-2.5 text-sm font-medium", tones[tone])}>
+      <header className="flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-4 py-2.5 text-sm font-medium text-muted-foreground">
         <span className="inline-flex items-center gap-2">
-          <Icon className="h-4 w-4" /> {title}
+          <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
         {right}
       </header>
@@ -805,14 +808,11 @@ function PRBlock({
   );
 }
 
-function SubBlock({ label, tone, children }: { label: string; tone?: "rose"; children: React.ReactNode }) {
+function SubBlock({ label, children }: { label: string; tone?: "rose"; children: React.ReactNode }) {
   return (
-    <div className={cn(
-      "mt-3 rounded-lg border bg-background/40 px-3 py-2",
-      tone === "rose" ? "border-rose-500/30" : "border-border",
-    )}>
-      <div className={cn("text-[10px] font-semibold uppercase tracking-wider", tone === "rose" ? "text-rose-400" : "text-muted-foreground")}>{label}</div>
-      <div className={cn("mt-1 whitespace-pre-wrap text-sm", tone === "rose" && "text-rose-300")}>{children}</div>
+    <div className="mt-3 rounded-lg border border-border bg-background/40 px-3 py-2">
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-1 whitespace-pre-wrap text-sm">{children}</div>
     </div>
   );
 }

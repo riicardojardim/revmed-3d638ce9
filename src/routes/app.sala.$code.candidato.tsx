@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { getServerOffset, serverNow } from "@/lib/serverClock";
 import { cn } from "@/lib/utils";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
   Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
@@ -204,13 +205,13 @@ function CandidateView() {
         <div className="relative">
           <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/20" />
           <span className="absolute inset-0 -m-2 animate-pulse rounded-full bg-mint/30" />
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-mint/30 to-emerald-500/20 ring-2 ring-mint/40">
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-mint/15 ring-2 ring-mint/40">
             <Hourglass className="h-10 w-10 text-mint" />
           </div>
         </div>
 
-        <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+        <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-mint/15 px-3 py-1 text-xs font-medium text-mint">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
           Conectado à sala {code}
         </div>
 
@@ -218,7 +219,7 @@ function CandidateView() {
           Aguardando o avaliador iniciar...
         </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-          Você já está dentro da estação <span className="font-semibold text-emerald-300">{room.station_title ?? station.title}</span>.
+          Você já está dentro da estação <span className="font-semibold text-foreground">{room.station_title ?? station.title}</span>.
           Assim que o avaliador iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
         </p>
 
@@ -259,8 +260,15 @@ function CandidateView() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-xs font-bold text-emerald-400">PE</span>
-              <h1 className="truncate font-display text-lg font-bold text-emerald-300 md:text-xl">
+              {(() => {
+                const meta = getSpecialtyMeta(station.specialty);
+                return (
+                  <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
+                    {meta.code}
+                  </span>
+                );
+              })()}
+              <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
                 {room.station_title ?? station.title}
               </h1>
             </div>
@@ -329,7 +337,7 @@ function CandidateView() {
                 <div className="space-y-3">
                   <div className="rounded-xl bg-background/60 p-4 text-center">
                     <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sua nota</div>
-                    <div className="mt-1 font-display text-3xl font-bold text-emerald-300 tabular-nums">
+                    <div className="mt-1 font-display text-3xl font-bold text-mint tabular-nums">
                       {evaluation!.final_score?.toFixed(2) ?? "—"} / {pct.toFixed(0)}%
                     </div>
                     <Badge className="mt-2" variant="outline">
@@ -344,7 +352,7 @@ function CandidateView() {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-4 py-6 text-sm text-amber-300">
+                <div className="flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-4 py-6 text-sm text-muted-foreground">
                   <Lock className="h-4 w-4" /> Aguardando o avaliador finalizar a correção...
                 </div>
               )}
@@ -358,15 +366,15 @@ function CandidateView() {
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className={cn(
               "rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-emerald-500/15" : isFinished ? "bg-rose-500/15" : "bg-violet-500/20",
+              isRunning ? "bg-mint/15" : "bg-muted/40",
             )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">
+              <div className="font-display text-5xl font-bold tabular-nums text-foreground">
                 {mm}:{ss}
               </div>
             </div>
 
             {isWaiting && (
-              <div className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-300">
+              <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
                 Aguardando o avaliador iniciar a estação...
               </div>
             )}
@@ -376,7 +384,7 @@ function CandidateView() {
               </Button>
             )}
             {isFinished && (
-              <div className="mt-3 rounded-lg bg-rose-500/10 px-3 py-2 text-center text-xs text-rose-300">
+              <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
                 Estação encerrada.
               </div>
             )}
@@ -389,7 +397,7 @@ function CandidateView() {
             </div>
             <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
               {correctionReady ? (
-                <div className="font-display text-xl font-bold tabular-nums text-emerald-300">
+                <div className="font-display text-xl font-bold tabular-nums text-mint">
                   {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
                 </div>
               ) : (
@@ -426,25 +434,19 @@ function CandidateView() {
 }
 
 function PRBlock({
-  icon: Icon, title, tone, right, children,
+  icon: Icon, title, right, children,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  tone: "violet" | "emerald" | "amber" | "sky";
+  tone?: string;
   right?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const tones = {
-    violet: "bg-violet-500/15 text-violet-300 border-violet-500/20",
-    emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
-    amber: "bg-amber-500/15 text-amber-300 border-amber-500/20",
-    sky: "bg-sky-500/15 text-sky-300 border-sky-500/20",
-  };
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <header className={cn("flex items-center justify-between gap-2 border-b px-4 py-2.5 text-sm font-medium", tones[tone])}>
+      <header className="flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-4 py-2.5 text-sm font-medium text-muted-foreground">
         <span className="inline-flex items-center gap-2">
-          <Icon className="h-4 w-4" /> {title}
+          <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
         {right}
       </header>
@@ -464,7 +466,7 @@ function LobbyStep({
   return (
     <div className={cn(
       "flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 transition-colors",
-      done && "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+      done && "border-mint/40 bg-mint/10 text-mint",
       active && "border-mint/40 bg-mint/10 text-mint",
       !done && !active && "border-border bg-card/50 text-muted-foreground",
     )}>
