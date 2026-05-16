@@ -1,0 +1,2 @@
+ALTER TABLE public.training_rooms ADD COLUMN duration_minutes integer;
+ALTER TABLE public.training_rooms ADD CONSTRAINT training_rooms_duration_check CHECK (duration_minutes IS NULL OR (duration_minutes BETWEEN 1 AND 60));

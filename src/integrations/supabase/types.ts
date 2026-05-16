@@ -518,6 +518,7 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          duration_minutes: number | null
           finished_at: string | null
           host_id: string
           id: string
@@ -531,6 +532,7 @@ export type Database = {
         Insert: {
           code: string
           created_at?: string
+          duration_minutes?: number | null
           finished_at?: string | null
           host_id: string
           id?: string
@@ -544,6 +546,7 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
+          duration_minutes?: number | null
           finished_at?: string | null
           host_id?: string
           id?: string
