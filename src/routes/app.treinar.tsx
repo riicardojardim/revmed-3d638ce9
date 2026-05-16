@@ -2,12 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search, GraduationCap, ListChecks, Play, Trash2, ListOrdered } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search, GraduationCap, ListChecks, Play, Trash2, ListOrdered, ChevronUp, ChevronDown, X, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { SimuladoBuilder } from "@/components/SimuladoBuilder";
-import { listSimulados, deleteSimulado, type Simulado } from "@/lib/simulado";
+import { createSimulado, listSimulados, deleteSimulado, type Simulado } from "@/lib/simulado";
 
 export const Route = createFileRoute("/app/treinar")({
   component: TrainPage,
@@ -47,11 +47,51 @@ function TrainPage() {
   const [lastCode, setLastCode] = useState<string | null>(null);
   const [stations, setStations] = useState<DBStation[]>([]);
   const [, setLoading] = useState(true);
-  const [builderOpen, setBuilderOpen] = useState(false);
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpecialty, setAllSpecialty] = useState<string>("all");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<DBStation[]>([]);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [simName, setSimName] = useState("");
   const [simulados, setSimulados] = useState<Simulado[]>([]);
+
+  function toggleSelected(s: DBStation) {
+    setSelected((prev) => prev.find((x) => x.id === s.id)
+      ? prev.filter((x) => x.id !== s.id)
+      : [...prev, s]);
+  }
+  function moveSelected(idx: number, dir: -1 | 1) {
+    setSelected((prev) => {
+      const next = [...prev];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return prev;
+      [next[idx], next[j]] = [next[j], next[idx]];
+      return next;
+    });
+  }
+  function openSelectMode() {
+    setSelectMode(true);
+    setSelected([]);
+    setAllOpen(true);
+  }
+  function startSimulado() {
+    if (selected.length === 0) {
+      toast.error("Adicione pelo menos um checklist.");
+      return;
+    }
+    const today = new Date().toLocaleDateString("pt-BR");
+    const sim = createSimulado(
+      simName.trim() || `Simulado ${today}`,
+      selected.map((s) => ({ id: s.id, title: s.title, specialty: s.specialty })),
+    );
+    setReviewOpen(false);
+    setAllOpen(false);
+    setSelectMode(false);
+    setSelected([]);
+    setSimName("");
+    nav({ to: "/app/simulado/$id", params: { id: sim.id } });
+  }
 
   const allFiltered = useMemo(() => {
     return stations
@@ -214,11 +254,11 @@ function TrainPage() {
           {/* Opções: Simulados */}
           <div className="rounded-3xl border border-mint/30 bg-card p-5 shadow-card">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Opções</div>
-            <Button variant="hero" className="mt-3 w-full" onClick={() => setAllOpen(true)}>
+            <Button variant="hero" className="mt-3 w-full" onClick={() => { setSelectMode(false); setAllOpen(true); }}>
               <ListOrdered className="mr-1 h-4 w-4" /> Todos os Checklists
             </Button>
-            <Button variant="hero" className="mt-2 w-full" onClick={() => setBuilderOpen(true)}>
-              <GraduationCap className="mr-1 h-4 w-4" /> Criar simulado
+            <Button variant="hero" className="mt-2 w-full" onClick={openSelectMode}>
+              <GraduationCap className="mr-1 h-4 w-4" /> Criar Simulado
             </Button>
             <p className="mt-2 text-[11px] text-muted-foreground">
               Monte uma sequência de checklists. Só avança para o próximo quando o PEP atual estiver completo.
@@ -319,13 +359,12 @@ function TrainPage() {
         </aside>
       </div>
 
-      <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
-
-      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+      <Dialog open={allOpen} onOpenChange={(v) => { setAllOpen(v); if (!v) setSelectMode(false); }}>
         <DialogContent className="max-w-5xl max-h-[88vh] overflow-hidden p-0 flex flex-col">
           <DialogHeader className="px-6 pt-6 pb-3 border-b border-border">
             <DialogTitle className="flex items-center gap-2">
-              <ListOrdered className="h-5 w-5 text-mint" /> Todos os Checklists
+              <ListOrdered className="h-5 w-5 text-mint" />
+              Todos os Checklists{selectMode ? " | Simulado" : ""}
             </DialogTitle>
           </DialogHeader>
 
@@ -363,6 +402,7 @@ function TrainPage() {
             <ul className="divide-y divide-border">
               {allFiltered.map((s) => {
                 const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
+                const isSel = !!selected.find((x) => x.id === s.id);
                 return (
                   <li key={s.id} className="grid grid-cols-1 gap-2 px-6 py-3 transition-colors hover:bg-muted/20 md:grid-cols-[1fr_90px_90px_120px] md:items-center">
                     <div className="flex items-center gap-3 min-w-0">
@@ -374,14 +414,26 @@ function TrainPage() {
                     <div className="text-center text-xs text-muted-foreground md:text-sm">—</div>
                     <div className="text-center text-xs text-muted-foreground md:text-sm">—</div>
                     <div className="md:text-right">
-                      <Button
-                        size="sm"
-                        variant="hero"
-                        disabled={busy}
-                        onClick={() => { setAllOpen(false); startStation(s.id); }}
-                      >
-                        Iniciar
-                      </Button>
+                      {selectMode ? (
+                        isSel ? (
+                          <Button size="sm" variant="outline" disabled className="opacity-60">
+                            Adicionado
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="hero" onClick={() => toggleSelected(s)}>
+                            Adicionar
+                          </Button>
+                        )
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="hero"
+                          disabled={busy}
+                          onClick={() => { setAllOpen(false); startStation(s.id); }}
+                        >
+                          Iniciar
+                        </Button>
+                      )}
                     </div>
                   </li>
                 );
@@ -395,7 +447,105 @@ function TrainPage() {
           </div>
 
           <div className="flex justify-end gap-2 border-t border-border px-6 py-3">
-            <Button variant="outline" onClick={() => setAllOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => { setAllOpen(false); setSelectMode(false); }}>Cancelar</Button>
+            {selectMode && (
+              <Button
+                variant="hero"
+                disabled={selected.length === 0}
+                onClick={() => {
+                  const today = new Date().toLocaleDateString("pt-BR");
+                  setSimName(`Simulado ${today}`);
+                  setReviewOpen(true);
+                }}
+              >
+                Simulado ({selected.length})
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Criar Simulado — review/order/name */}
+      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-mint" /> Criar Simulado
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Nome do simulado
+              </label>
+              <Input
+                value={simName}
+                onChange={(e) => setSimName(e.target.value)}
+                placeholder="Ex.: Simulado 16/05/2026"
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Tema
+              </div>
+              <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
+                {selected.map((s, idx) => {
+                  const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
+                  return (
+                    <li key={s.id} className="flex items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-2.5">
+                      <div className="flex flex-col">
+                        <button
+                          type="button"
+                          className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                          onClick={() => moveSelected(idx, -1)}
+                          disabled={idx === 0}
+                          aria-label="Subir"
+                        >
+                          <ChevronUp className="h-3 w-3" />
+                        </button>
+                        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/60" />
+                        <button
+                          type="button"
+                          className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                          onClick={() => moveSelected(idx, 1)}
+                          disabled={idx === selected.length - 1}
+                          aria-label="Descer"
+                        >
+                          <ChevronDown className="h-3 w-3" />
+                        </button>
+                      </div>
+                      <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-md border px-1.5 font-mono text-[10px] font-bold ${b.cls}`}>
+                        {b.code}
+                      </span>
+                      <div className="min-w-0 flex-1 truncate text-sm font-medium">{s.title}</div>
+                      <button
+                        type="button"
+                        className="rounded p-1 text-muted-foreground hover:text-rose-400"
+                        onClick={() => toggleSelected(s)}
+                        aria-label="Remover"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </li>
+                  );
+                })}
+                {selected.length === 0 && (
+                  <li className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+                    Nenhum checklist selecionado.
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setReviewOpen(false)}>Cancelar</Button>
+            <Button variant="hero" onClick={startSimulado} disabled={selected.length === 0}>
+              Iniciar Simulado
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
