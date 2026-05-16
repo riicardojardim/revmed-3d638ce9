@@ -319,7 +319,9 @@ function CandidateView() {
                       <div className="mt-2 text-xs text-muted-foreground">{d.material_description}</div>
                     )}
                     {d.material_content && (
-                      <div className="mt-3 whitespace-pre-wrap rounded-lg bg-background/60 p-3 text-sm">{d.material_content}</div>
+                      <div className="mt-3 rounded-lg bg-background/60 p-3 text-sm">
+                        <ScriptText text={d.material_content} />
+                      </div>
                     )}
                   </div>
                 ))}
