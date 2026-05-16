@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { cn } from "@/lib/utils";
 import {
-  ArrowLeft, Play, Square, AlertTriangle, FileText, StickyNote, Inbox, Sparkles, Stethoscope,
+  ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
+  Lock, Sparkles, ClipboardCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
-  head: () => ({ meta: [{ title: "Tela do Candidato — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Estação — Candidato" }] }),
 });
 
 type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
@@ -36,9 +37,9 @@ function CandidateView() {
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [notes, setNotes] = useState("");
-  const [running, setRunning] = useState(false);
   const [remaining, setRemaining] = useState(600);
   const [finished, setFinished] = useState(false);
+  const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
 
@@ -70,49 +71,56 @@ function CandidateView() {
         if (seenIds.current.has(d.id)) return;
         seenIds.current.add(d.id);
         setDeliveries((prev) => [...prev, d]);
-        toast.success(`Material recebido: ${d.material_name}`, { description: "O ator entregou um novo material." });
+        toast.success(`Material recebido: ${d.material_name}`);
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${room.id}` }, (payload) => {
         setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "room_evaluations", filter: `room_id=eq.${room.id}` }, async () => {
+        await loadEvaluation(room.id);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [room?.id]);
 
-  // Auto-start quando o ator inicia o cronômetro (room.status === "running")
+  async function loadEvaluation(roomId: string) {
+    const { data } = await supabase.from("room_evaluations")
+      .select("final_score, status, final_feedback")
+      .eq("room_id", roomId).maybeSingle();
+    if (data) setEvaluation(data);
+  }
+
+  // Timer sync
   useEffect(() => {
     if (!room || !station) return;
     if (room.status === "running" && room.started_at && !finished) {
-      const elapsed = Math.floor((Date.now() - new Date(room.started_at).getTime()) / 1000);
       const totalSec = station.durationMinutes * 60;
-      const left = Math.max(0, totalSec - elapsed);
-      setRemaining(left);
-      if (left > 0) setRunning(true);
-      else { setRunning(false); setFinished(true); }
+      const tick = () => {
+        const elapsed = Math.floor((Date.now() - new Date(room.started_at!).getTime()) / 1000);
+        const left = Math.max(0, totalSec - elapsed);
+        setRemaining(left);
+        if (left <= 0) {
+          setFinished(true);
+          if (intervalRef.current) clearInterval(intervalRef.current);
+        }
+      };
+      tick();
+      intervalRef.current = setInterval(tick, 1000);
+      return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
     }
-  }, [room?.status, room?.started_at, station?.id]);
-
-  useEffect(() => {
-    if (!running) return;
-    intervalRef.current = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) { setRunning(false); setFinished(true); return 0; }
-        return r - 1;
-      });
-    }, 1000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running]);
+    if (room.status === "finished") {
+      setFinished(true);
+      loadEvaluation(room.id);
+    }
+  }, [room?.status, room?.started_at, station?.id, finished]);
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
   const total = (station?.durationMinutes ?? 10) * 60;
-  const pct = (remaining / total) * 100;
-  const lastMinute = remaining > 0 && remaining <= 60;
 
   async function finish() {
     if (!station || !user || !room) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
-    setRunning(false);
     setFinished(true);
     try {
       await supabase.from("attempts").insert({
@@ -129,10 +137,7 @@ function CandidateView() {
         status: "aguardando_correcao",
       });
       toast.success("Estação finalizada. Aguarde a correção do avaliador.");
-    } catch (e) {
-      console.error(e);
-    }
-    nav({ to: "/app/sala/$code", params: { code } });
+    } catch (e) { console.error(e); }
   }
 
   const visibleDeliveries = useMemo(() => {
@@ -148,61 +153,72 @@ function CandidateView() {
         delivered_at: "",
       }));
     const seen = new Set(deliveries.map((d) => d.material_id));
-    const merged = [...autos.filter((a) => !seen.has(a.material_id)), ...deliveries];
-    return merged;
+    return [...autos.filter((a) => !seen.has(a.material_id)), ...deliveries];
   }, [deliveries, station]);
 
-  if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando estação...</div>;
+  if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
+
+  const isWaiting = room.status !== "running" && !finished;
+  const isRunning = room.status === "running" && !finished;
+  const isFinished = finished || room.status === "finished";
+  const correctionReady = !!evaluation && evaluation.status !== "em_andamento";
+  const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Voltar à sala
-      </Link>
+    <div className="mx-auto max-w-7xl space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </Link>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">Candidato</span>
+          <span>•</span>
+          <span>{station.specialty}</span>
+        </div>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-5">
-          <div className="rounded-3xl border border-mint/30 bg-gradient-to-br from-mint/10 to-medical/5 p-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1 text-xs font-medium text-mint">
-              <Stethoscope className="h-3.5 w-3.5" /> Tela do Candidato
+      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+        {/* LEFT */}
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-xs font-bold text-emerald-400">PE</span>
+              <h1 className="truncate font-display text-lg font-bold text-emerald-300 md:text-xl">
+                {room.station_title ?? station.title}
+              </h1>
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge variant="outline" className="border-medical/30 text-medical">{station.specialty}</Badge>
-              <Badge variant="outline">{station.difficulty}</Badge>
-              <Badge variant="outline">{station.durationMinutes} min</Badge>
-            </div>
-            <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">{station.title}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Você está em uma unidade de saúde. Atenda o paciente, realize a abordagem adequada e explique sua conduta.
-            </p>
+            <span className="rounded-md border border-border bg-background px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
+              {code}
+            </span>
           </div>
 
-          <Card title="Caso clínico" icon={FileText}>
-            <p className="leading-relaxed text-foreground/90">{station.clinicalCase}</p>
-          </Card>
+          <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
+            <p className="whitespace-pre-wrap leading-relaxed">{station.clinicalCase}</p>
+          </PRBlock>
 
-          <Card title="Tarefa do candidato">
-            <p className="leading-relaxed text-foreground/90">{station.candidateTask}</p>
-          </Card>
+          <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
+            <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+          </PRBlock>
 
-          <section>
-            <div className="mb-2 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-semibold">
-                <Inbox className="h-4 w-4 text-mint" /> Materiais recebidos
-              </div>
-              <Badge variant="outline">{visibleDeliveries.length}</Badge>
-            </div>
+          <PRBlock
+            icon={Inbox}
+            title="Materiais recebidos"
+            tone="sky"
+            right={<Badge variant="outline">{visibleDeliveries.length}</Badge>}
+          >
             {visibleDeliveries.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-5 text-center text-sm text-muted-foreground">
-                Nenhum material recebido ainda. Solicite exames e o ator entregará durante a estação.
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Nenhum material ainda. Solicite exames e o avaliador entregará durante a estação.
+              </p>
             ) : (
               <div className="space-y-3">
                 {visibleDeliveries.map((d) => (
-                  <div key={d.id} className="rounded-2xl border border-mint/40 bg-mint/5 p-4 shadow-card">
+                  <div key={d.id} className="rounded-xl border border-mint/40 bg-mint/5 p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="text-sm font-semibold">{d.material_name}</div>
+                        <div className="flex items-center gap-1.5 text-sm font-semibold">
+                          <FileText className="h-4 w-4 text-mint" /> {d.material_name}
+                        </div>
                         {d.material_type && <div className="text-xs text-muted-foreground">{d.material_type}</div>}
                       </div>
                       <Sparkles className="h-4 w-4 text-mint" />
@@ -217,52 +233,113 @@ function CandidateView() {
                 ))}
               </div>
             )}
-          </section>
+          </PRBlock>
 
-          <Card title="Anotações" icon={StickyNote}>
-            <Textarea placeholder="Anote raciocínio, hipóteses, conduta…" value={notes} onChange={(e) => setNotes(e.target.value)} rows={6} />
-          </Card>
+          <PRBlock icon={StickyNote} title="Anotações" tone="amber">
+            <Textarea
+              placeholder="Anote raciocínio, hipóteses, conduta…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={6}
+              disabled={!isRunning}
+            />
+          </PRBlock>
+
+          {/* PEP — só aparece quando avaliador finalizar correção */}
+          {isFinished && (
+            <PRBlock icon={ClipboardCheck} title="PEP — Resultado da estação" tone="emerald">
+              {correctionReady ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl bg-background/60 p-4 text-center">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sua nota</div>
+                    <div className="mt-1 font-display text-3xl font-bold text-emerald-300 tabular-nums">
+                      {evaluation!.final_score?.toFixed(2) ?? "—"} / {pct.toFixed(0)}%
+                    </div>
+                    <Badge className="mt-2" variant="outline">
+                      {evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : "Pedir repetição"}
+                    </Badge>
+                  </div>
+                  {evaluation!.final_feedback && (
+                    <div className="rounded-xl border border-border bg-background/40 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Feedback do avaliador</div>
+                      <p className="mt-1 whitespace-pre-wrap text-sm">{evaluation!.final_feedback}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-4 py-6 text-sm text-amber-300">
+                  <Lock className="h-4 w-4" /> Aguardando o avaliador finalizar a correção...
+                </div>
+              )}
+            </PRBlock>
+          )}
         </div>
 
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className={cn(
-            "overflow-hidden rounded-3xl border bg-gradient-hero p-6 text-white shadow-elegant",
-            lastMinute && "border-warning/60",
-            finished && "border-destructive/60",
-          )}>
-            <div className="text-xs font-medium uppercase tracking-wider text-mint">Cronômetro</div>
-            <div className="mt-2 font-display text-6xl font-bold tabular-nums leading-none">{mm}:{ss}</div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15">
-              <div className={cn("h-full rounded-full transition-all", finished ? "bg-destructive" : lastMinute ? "bg-warning" : "bg-gradient-mint")} style={{ width: `${pct}%` }} />
+        {/* RIGHT */}
+        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
+          {/* Timer */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className={cn(
+              "rounded-xl px-5 py-6 text-center transition-colors",
+              isRunning ? "bg-emerald-500/15" : isFinished ? "bg-rose-500/15" : "bg-violet-500/20",
+            )}>
+              <div className="font-display text-5xl font-bold tabular-nums text-white">
+                {mm}:{ss}
+              </div>
             </div>
-            {lastMinute && !finished && (
-              <div className="mt-4 flex items-center gap-2 rounded-xl bg-warning/15 px-3 py-2 text-sm text-warning">
-                <AlertTriangle className="h-4 w-4" /> Falta 1 minuto.
-              </div>
-            )}
-            {finished && (
-              <div className="mt-4 rounded-xl bg-destructive/15 px-3 py-2 text-sm text-white">
-                Tempo encerrado. Finalize a estação para receber a correção.
-              </div>
-            )}
-            {room?.status !== "running" && !finished && (
-              <div className="mt-4 rounded-xl bg-white/10 px-3 py-2 text-sm text-white/90">
-                <Play className="mr-1 inline h-4 w-4" />
+
+            {isWaiting && (
+              <div className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-center text-xs text-amber-300">
                 Aguardando o avaliador iniciar a estação...
               </div>
             )}
-            <div className="mt-5 flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1 border-white/20 bg-white/5 text-white hover:bg-white/10"
-                onClick={finish}
-                disabled={room?.status !== "running" && !finished}
-              >
-                <Square className="h-4 w-4" /> Finalizar estação
+            {isRunning && (
+              <Button variant="outline" className="mt-3 w-full" onClick={finish}>
+                <Square className="mr-1 h-4 w-4" /> Finalizar estação
               </Button>
+            )}
+            {isFinished && (
+              <div className="mt-3 rounded-lg bg-rose-500/10 px-3 py-2 text-center text-xs text-rose-300">
+                Estação encerrada.
+              </div>
+            )}
+          </div>
+
+          {/* Resultado */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Resultado
             </div>
-            <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/70">
-              Você não vê o checklist nem a pontuação até o avaliador finalizar a correção.
+            <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+              {correctionReady ? (
+                <div className="font-display text-xl font-bold tabular-nums text-emerald-300">
+                  {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
+                </div>
+              ) : (
+                <div className="font-display text-xl font-bold tabular-nums text-muted-foreground">
+                  0.00 / 0%
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Avaliado */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Avaliado
+            </div>
+            <div className="mt-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-center text-sm">
+              {correctionReady
+                ? (evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : "Pedir repetição")
+                : "Aguardando..."}
+            </div>
+          </div>
+
+          {/* PEP locked card */}
+          <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
+            <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
+            <div className="mt-2 text-[11px] text-muted-foreground">
+              {isFinished ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
             </div>
           </div>
         </aside>
@@ -271,14 +348,30 @@ function CandidateView() {
   );
 }
 
-function Card({ title, icon: Icon, children }: { title: string; icon?: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
+function PRBlock({
+  icon: Icon, title, tone, right, children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  tone: "violet" | "emerald" | "amber" | "sky";
+  right?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const tones = {
+    violet: "bg-violet-500/15 text-violet-300 border-violet-500/20",
+    emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
+    amber: "bg-amber-500/15 text-amber-300 border-amber-500/20",
+    sky: "bg-sky-500/15 text-sky-300 border-sky-500/20",
+  };
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-card md:p-6">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {Icon && <Icon className="h-4 w-4 text-mint" />}
-        {title}
-      </div>
-      <div className="mt-3">{children}</div>
-    </div>
+    <section className="overflow-hidden rounded-2xl border border-border bg-card">
+      <header className={cn("flex items-center justify-between gap-2 border-b px-4 py-2.5 text-sm font-medium", tones[tone])}>
+        <span className="inline-flex items-center gap-2">
+          <Icon className="h-4 w-4" /> {title}
+        </span>
+        {right}
+      </header>
+      <div className="p-5 text-sm">{children}</div>
+    </section>
   );
 }
