@@ -487,19 +487,73 @@ function ActorView() {
           </div>
 
           {/* Link de convite */}
-          <div className="rounded-2xl border border-dashed border-border bg-card p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Link do candidato
-            </div>
-            <div className="mt-1.5 flex items-center gap-1.5">
-              <div className="flex flex-1 items-center gap-1.5 truncate rounded-md border border-border bg-background px-2 py-1.5 font-mono text-[10px]">
-                <Link2 className="h-3 w-3 shrink-0 text-mint" />
-                <span className="truncate">{inviteLink}</span>
+          <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">
+                Convite do candidato
               </div>
-              <Button variant="outline" size="sm" className="h-7 px-2" onClick={copyInviteLink}>
-                <Copy className="h-3 w-3" />
+              <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">
+                {code}
+              </span>
+            </div>
+
+            <button
+              onClick={copyInviteLink}
+              className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
+              title="Clique para copiar"
+            >
+              <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+              <span className="flex-1 truncate font-mono text-[11px] text-foreground">
+                {inviteLinkDisplay}
+              </span>
+              {copied ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                  <Check className="h-3 w-3" /> Copiado
+                </span>
+              ) : (
+                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+            </button>
+
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1 px-2 text-[11px]"
+                onClick={shareWhatsApp}
+                title="Enviar pelo WhatsApp"
+              >
+                <MessageCircle className="h-3.5 w-3.5 text-emerald-400" />
+                WhatsApp
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1 px-2 text-[11px]"
+                onClick={shareEmail}
+                title="Enviar por e-mail"
+              >
+                <Mail className="h-3.5 w-3.5 text-sky-400" />
+                E-mail
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1 px-2 text-[11px]"
+                onClick={shareNative}
+                title="Compartilhar / Reenviar"
+              >
+                <Share2 className="h-3.5 w-3.5 text-violet-400" />
+                Reenviar
               </Button>
             </div>
+
+            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+              O candidato entra direto pelo link. Mesmo se já enviou, pode reenviar a qualquer momento.
+            </p>
           </div>
         </aside>
       </div>
