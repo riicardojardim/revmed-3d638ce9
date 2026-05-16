@@ -1193,6 +1193,76 @@ function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string
 }
 
 /**
+ * Format patient profile into Pense Revalida-style script:
+ * section headers in ALL CAPS + bullet lines with **Label:** bolded.
+ */
+function formatPatientProfile(p: NonNullable<LoadedStation["patientProfile"]>): string {
+  const out: string[] = [];
+
+  const boldLabelLines = (raw?: string): string[] => {
+    if (!raw) return [];
+    return raw.split("\n").map((ln) => {
+      const t = ln.trim();
+      if (!t) return "";
+      const m = t.match(/^([^:]{1,60}):\s*(.*)$/);
+      if (m) return `- **${m[1].trim()}:** ${m[2].trim()}`;
+      return `- ${t}`;
+    }).filter(Boolean);
+  };
+
+  // DADOS PESSOAIS
+  const personal = [p.name, p.age && `${p.age} de idade`, p.profession].filter(Boolean).join(", ");
+  if (personal) {
+    out.push("DADOS PESSOAIS:");
+    out.push(`- ${personal}.`);
+    out.push("");
+  }
+
+  if (p.chiefComplaint) {
+    out.push("MOTIVO DE CONSULTA:");
+    out.push(`- ${p.chiefComplaint}`);
+    out.push("");
+  }
+
+  if (p.hpi) {
+    out.push("CARACTERÍSTICAS DO ACIDENTE:");
+    out.push(...boldLabelLines(p.hpi));
+    out.push("");
+  }
+
+  if (p.symptoms) {
+    out.push("SINTOMAS ASSOCIADOS:");
+    out.push(...boldLabelLines(p.symptoms));
+    out.push("");
+  }
+
+  if (p.onlyIfAsked) {
+    out.push("SE PERGUNTADO POR LIMPEZA OU ANTISSEPSIA DO LOCAL:");
+    out.push(`- ${p.onlyIfAsked.replace(/^Se perguntado[^:]*:\s*/i, "")}`);
+    out.push("");
+  }
+
+  const antecedentes: string[] = [];
+  if (p.personalHistory) antecedentes.push(...boldLabelLines(p.personalHistory));
+  if (p.medications) antecedentes.push(`- **Medicamentos:** ${p.medications}`);
+  if (p.allergies) antecedentes.push(`- **Alergias:** ${p.allergies}`);
+  if (p.familyHistory) antecedentes.push(`- **História familiar:** ${p.familyHistory}`);
+  if (antecedentes.length) {
+    out.push("ANTECEDENTES PESSOAIS:");
+    out.push(...antecedentes);
+    out.push("");
+  }
+
+  if (p.habits) {
+    out.push("HÁBITOS:");
+    out.push(...boldLabelLines(p.habits));
+    out.push("");
+  }
+
+  return out.join("\n").trimEnd();
+}
+
+/**
  * Render plain script text with auto-bold for "trigger" lines.
  * Bolds:
  *  - explicit **markdown** segments
