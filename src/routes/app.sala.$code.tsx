@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, ClipboardCheck } from "lucide-react";
+import { Copy, Users, Play, ArrowRight, Crown, Stethoscope, UserRound, ClipboardCheck, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: RoomPage,
