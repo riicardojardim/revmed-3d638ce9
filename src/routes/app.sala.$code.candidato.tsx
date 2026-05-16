@@ -260,8 +260,15 @@ function CandidateView() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex h-7 items-center rounded-md bg-emerald-500/15 px-2 text-xs font-bold text-emerald-400">PE</span>
-              <h1 className="truncate font-display text-lg font-bold text-emerald-300 md:text-xl">
+              {(() => {
+                const meta = getSpecialtyMeta(station.specialty);
+                return (
+                  <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
+                    {meta.code}
+                  </span>
+                );
+              })()}
+              <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
                 {room.station_title ?? station.title}
               </h1>
             </div>
