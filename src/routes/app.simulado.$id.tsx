@@ -12,11 +12,13 @@ import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, ArrowRight, CheckCircle2, ClipboardCheck, Lock, Trophy,
   MessageSquare, ListChecks, Theater, Inbox, FileText, PackageCheck, Send,
-  Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, User,
+  Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile } from "@/components/station/shared";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
