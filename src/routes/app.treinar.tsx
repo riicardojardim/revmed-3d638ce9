@@ -2,9 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { STATIONS } from "@/data/stations";
 import { Button } from "@/components/ui/button";
-import { Users, Sparkles, ArrowRight, Hash, Stethoscope, UserRound, ClipboardCheck, GraduationCap } from "lucide-react";
+import { Users, Sparkles, ArrowRight, Hash, Stethoscope, UserRound, ClipboardCheck, GraduationCap, Theater, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/treinar")({
@@ -74,9 +75,33 @@ const ROLE_PREVIEW = [
 function TrainPage() {
   const { user } = useAuth();
   const nav = useNavigate();
+  const { plan, isPrivileged } = useSubscription();
+  const isAtorOnly = !isPrivileged && plan?.slug === "ator";
   const [stationId, setStationId] = useState(STATIONS[0].id);
   const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lastCode, setLastCode] = useState<string | null>(null);
+
+  async function createRoom(mode: "dupla" | "completa", autoRole?: "paciente" | "avaliador") {
+    if (!user) return toast.error("Faça login para criar uma sala.");
+    const st = STATIONS.find((s) => s.id === stationId)!;
+    setBusy(true);
+    const code = genCode();
+    const { data, error } = await supabase.from("training_rooms")
+      .insert({ code, host_id: user.id, station_id: st.id, station_title: st.title, mode })
+      .select("id, code").single();
+    if (error || !data) {
+      setBusy(false);
+      return toast.error(error?.message ?? "Falha ao criar sala.");
+    }
+    if (autoRole) {
+      await supabase.from("training_room_participants")
+        .insert({ room_id: data.id, user_id: user.id, role: autoRole });
+    }
+    setBusy(false);
+    setLastCode(data.code);
+    nav({ to: "/app/sala/$code", params: { code: data.code } });
+  }
 
   async function startMode(mode: typeof MODES[number]["id"]) {
     if (mode === "individual") {
@@ -84,20 +109,10 @@ function TrainPage() {
       return;
     }
     if (mode === "correcao") {
-      // Run simulation; result page will let user request review
       nav({ to: "/app/simulacao/$id", params: { id: stationId }, search: { review: 1 } as never });
       return;
     }
-    if (!user) return toast.error("Faça login para criar uma sala.");
-    const st = STATIONS.find((s) => s.id === stationId)!;
-    setBusy(true);
-    const code = genCode();
-    const { data, error } = await supabase.from("training_rooms")
-      .insert({ code, host_id: user.id, station_id: st.id, station_title: st.title, mode })
-      .select("code").single();
-    setBusy(false);
-    if (error || !data) return toast.error(error?.message ?? "Falha ao criar sala.");
-    nav({ to: "/app/sala/$code", params: { code: data.code } });
+    await createRoom(mode as "dupla" | "completa");
   }
 
   async function joinRoom() {
@@ -108,6 +123,121 @@ function TrainPage() {
     nav({ to: "/app/sala/$code", params: { code: data.code } });
   }
 
+  function copyLastCode() {
+    if (!lastCode) return;
+    navigator.clipboard.writeText(lastCode);
+    toast.success("Código copiado");
+  }
+
+  // ============== ATOR-ONLY VIEW ==============
+  if (isAtorOnly) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-10">
+        <header>
+          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/5 px-3 py-1 text-xs font-medium text-medical">
+            <Theater className="h-3.5 w-3.5" /> Painel do Ator / Avaliador
+          </div>
+          <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
+            Abra uma sala e envie o código ao candidato
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            Escolha a estação. O sistema gera um código único — você compartilha esse código com o
+            candidato (WhatsApp, e-mail, qualquer canal) para que ele entre na mesma sala.
+          </p>
+        </header>
+
+        <section className="rounded-3xl border border-border bg-card p-5 shadow-card">
+          <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Estação
+          </label>
+          <select
+            value={stationId}
+            onChange={(e) => setStationId(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          >
+            {STATIONS.map((s) => (
+              <option key={s.id} value={s.id}>{s.title} · {s.specialty}</option>
+            ))}
+          </select>
+
+          {lastCode && (
+            <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-mint/40 bg-mint/5 p-4">
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Último código gerado
+              </div>
+              <div className="rounded-lg bg-background px-3 py-1.5 font-mono text-lg font-bold tracking-widest">
+                {lastCode}
+              </div>
+              <Button variant="outline" size="sm" onClick={copyLastCode}>
+                <Copy className="mr-1 h-4 w-4" /> Copiar
+              </Button>
+            </div>
+          )}
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-bold">Como você quer atuar?</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Você entra direto no papel — o candidato recebe o código e entra como candidato.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <button
+              onClick={() => createRoom("dupla", "avaliador")}
+              disabled={busy}
+              className="group rounded-3xl border border-border bg-gradient-card p-6 text-left transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-elegant"
+            >
+              <ClipboardCheck className="h-7 w-7 text-mint" />
+              <div className="mt-4 font-display text-lg font-bold">Atuar como Avaliador</div>
+              <div className="mt-2 text-sm text-muted-foreground">
+                Você acompanha as falas do paciente, libera os impressos sob demanda e marca o PEP
+                durante a estação. Ao encerrar, o PEP é desbloqueado para o candidato.
+              </div>
+              <div className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-medical">
+                Abrir sala como avaliador <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </button>
+
+            <button
+              onClick={() => createRoom("dupla", "paciente")}
+              disabled={busy}
+              className="group rounded-3xl border border-border bg-gradient-card p-6 text-left transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-elegant"
+            >
+              <UserRound className="h-7 w-7 text-mint" />
+              <div className="mt-4 font-display text-lg font-bold">Interpretar o Paciente</div>
+              <div className="mt-2 text-sm text-muted-foreground">
+                Você recebe o roteiro do paciente padronizado: queixa, história, emoções e o que
+                só revelar se for perguntado pelo candidato.
+              </div>
+              <div className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-medical">
+                Abrir sala como paciente <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="font-semibold">Estações populares</h3>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {STATIONS.slice(0, 4).map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setStationId(s.id)}
+                className={`rounded-2xl border bg-card p-4 text-left transition-all hover:border-mint/40 hover:shadow-card ${
+                  stationId === s.id ? "border-mint" : "border-border"
+                }`}
+              >
+                <div className="text-xs text-muted-foreground">{s.specialty}</div>
+                <div className="mt-1 font-medium">{s.title}</div>
+                <div className="mt-2 text-xs text-muted-foreground">{s.durationMinutes} min · {s.difficulty}</div>
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // ============== DEFAULT (candidato / completo / admin) VIEW ==============
   return (
     <div className="mx-auto max-w-5xl space-y-10">
       <header>
