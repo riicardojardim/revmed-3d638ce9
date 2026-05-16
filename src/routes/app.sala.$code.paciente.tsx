@@ -94,7 +94,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
-  const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos" | "avaliado">("controle");
+  const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos">("controle");
 
   // Timer state (synced with room.started_at)
   const [remaining, setRemaining] = useState(0);
@@ -530,6 +530,52 @@ function ActorView() {
             )}
           </PRBlock>
 
+          <PRBlock
+            icon={Inbox}
+            title="Materiais para entregar ao candidato"
+            right={<Badge variant="outline" className="text-white border-white/30">{deliveries.length}/{materials.length}</Badge>}
+          >
+            {materials.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {materials.map((m, idx) => {
+                  const isDelivered = delivered.has(m.id);
+                  return (
+                    <div key={m.id} className={cn(
+                      "rounded-xl border p-3 transition-all",
+                      isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
+                    )}>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMaterialId(m.id)}
+                        className="flex w-full items-start justify-between gap-2 text-left group"
+                        title="Clique para visualizar o conteúdo"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
+                            <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1} <span className="text-muted-foreground font-normal">({m.name})</span>
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-muted-foreground">clique para ver o conteúdo</div>
+                          {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
+                        </div>
+                      </button>
+                      <Button
+                        size="sm"
+                        variant={isDelivered ? "outline" : "hero"}
+                        className="mt-3 w-full"
+                        disabled={isDelivered || !isRunning}
+                        onClick={() => deliver(m.id)}
+                      >
+                        {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </PRBlock>
+
           {/* CHECKLIST (PEP) inline — só editável após encerrar */}
           <PRBlock
             icon={ClipboardCheck}
@@ -782,83 +828,7 @@ function ActorView() {
                       </SelectContent>
                     </Select>
                   </div>
-                </>
-              )}
 
-              {sideTab === "orientacoes" && (
-                <div className="rounded-2xl border border-border bg-card p-4 space-y-3 text-sm max-h-[calc(100vh-7rem)] overflow-y-auto">
-                  <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <Theater className="h-4 w-4 text-mint" /> Orientações do Ator/Atriz
-                  </div>
-                  {station.patientScript && (
-                    <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">{station.patientScript}</p>
-                  )}
-                  {p && (
-                    <dl className="grid grid-cols-1 gap-2">
-                      {patientFields(p).map(([label, value]) => value && (
-                        <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
-                          <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                          <dd className="mt-0.5 text-sm">{value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  )}
-                  {p?.spontaneous && <SubBlock label="O que falar espontaneamente">{p.spontaneous}</SubBlock>}
-                  {p?.onlyIfAsked && <SubBlock label="Revelar APENAS se perguntado">{p.onlyIfAsked}</SubBlock>}
-                  {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose">{p.doNotReveal}</SubBlock>}
-                </div>
-              )}
-
-              {sideTab === "impressos" && (
-                <div className="rounded-2xl border border-border bg-card p-3 max-h-[calc(100vh-7rem)] overflow-y-auto">
-                  <div className="flex items-center justify-between px-1 pb-2">
-                    <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                      <Inbox className="h-4 w-4 text-mint" />
-                      {materials.length} Impresso{materials.length === 1 ? "" : "s"}
-                    </div>
-                    <Badge variant="outline" className="text-[10px]">{deliveries.length}/{materials.length}</Badge>
-                  </div>
-                  {materials.length === 0 ? (
-                    <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
-                  ) : (
-                    <ul className="space-y-1.5">
-                      {materials.map((m, idx) => {
-                        const isDelivered = delivered.has(m.id);
-                        return (
-                          <li key={m.id}>
-                            <button
-                              type="button"
-                              onClick={() => setPreviewMaterialId(m.id)}
-                              className={cn(
-                                "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
-                                isDelivered
-                                  ? "border-mint/50 bg-mint/10 text-foreground"
-                                  : "border-border bg-background/40 text-foreground/90 hover:border-mint/40 hover:text-foreground",
-                              )}
-                              title="Clique para visualizar / liberar o impresso"
-                            >
-                              <span className="flex min-w-0 items-center gap-2">
-                                {isDelivered
-                                  ? <PackageCheck className="h-3.5 w-3.5 shrink-0 text-mint" />
-                                  : <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-                                <span className="truncate">
-                                  Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
-                                </span>
-                              </span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                  <p className="mt-3 px-1 text-[10px] leading-relaxed text-muted-foreground">
-                    Clique em um impresso para visualizar o conteúdo e liberá-lo ao candidato.
-                  </p>
-                </div>
-              )}
-
-              {sideTab === "avaliado" && (
-                <div className="space-y-3">
                   {/* Participantes */}
                   <div className="rounded-2xl border border-border bg-card p-4">
                     <div className="flex items-center justify-between">
@@ -867,7 +837,6 @@ function ActorView() {
                       </div>
                       <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
                     </div>
-
                     {candidates.length === 0 ? (
                       <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                         <UserPlus className="h-4 w-4" />
@@ -945,8 +914,81 @@ function ActorView() {
                       </Button>
                     </div>
                   </div>
+                </>
+              )}
+
+              {sideTab === "orientacoes" && (
+                <div className="rounded-2xl border border-border bg-card p-4 space-y-3 text-sm max-h-[calc(100vh-7rem)] overflow-y-auto">
+                  <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Theater className="h-4 w-4 text-mint" /> Orientações do Ator/Atriz
+                  </div>
+                  {station.patientScript && (
+                    <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">{station.patientScript}</p>
+                  )}
+                  {p && (
+                    <dl className="grid grid-cols-1 gap-2">
+                      {patientFields(p).map(([label, value]) => value && (
+                        <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
+                          <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
+                          <dd className="mt-0.5 text-sm">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                  {p?.spontaneous && <SubBlock label="O que falar espontaneamente">{p.spontaneous}</SubBlock>}
+                  {p?.onlyIfAsked && <SubBlock label="Revelar APENAS se perguntado">{p.onlyIfAsked}</SubBlock>}
+                  {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose">{p.doNotReveal}</SubBlock>}
                 </div>
               )}
+
+              {sideTab === "impressos" && (
+                <div className="rounded-2xl border border-border bg-card p-3 max-h-[calc(100vh-7rem)] overflow-y-auto">
+                  <div className="flex items-center justify-between px-1 pb-2">
+                    <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                      <Inbox className="h-4 w-4 text-mint" />
+                      {materials.length} Impresso{materials.length === 1 ? "" : "s"}
+                    </div>
+                    <Badge variant="outline" className="text-[10px]">{deliveries.length}/{materials.length}</Badge>
+                  </div>
+                  {materials.length === 0 ? (
+                    <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {materials.map((m, idx) => {
+                        const isDelivered = delivered.has(m.id);
+                        return (
+                          <li key={m.id}>
+                            <button
+                              type="button"
+                              onClick={() => setPreviewMaterialId(m.id)}
+                              className={cn(
+                                "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
+                                isDelivered
+                                  ? "border-mint/50 bg-mint/10 text-foreground"
+                                  : "border-border bg-background/40 text-foreground/90 hover:border-mint/40 hover:text-foreground",
+                              )}
+                              title="Clique para visualizar / liberar o impresso"
+                            >
+                              <span className="flex min-w-0 items-center gap-2">
+                                {isDelivered
+                                  ? <PackageCheck className="h-3.5 w-3.5 shrink-0 text-mint" />
+                                  : <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+                                <span className="truncate">
+                                  Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
+                                </span>
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                  <p className="mt-3 px-1 text-[10px] leading-relaxed text-muted-foreground">
+                    Clique em um impresso para visualizar o conteúdo e liberá-lo ao candidato.
+                  </p>
+                </div>
+              )}
+
             </div>
 
             {/* Rail vertical de abas */}
@@ -955,7 +997,7 @@ function ActorView() {
                 { id: "controle", label: "Controle/Resultado", letter: "C", color: "bg-violet-500" },
                 { id: "orientacoes", label: "Orientações do Ator/Atriz", letter: "O", color: "bg-amber-500" },
                 { id: "impressos", label: "Impressos", letter: "I", color: "bg-emerald-500" },
-                { id: "avaliado", label: "Avaliado / Convite", letter: "A", color: "bg-rose-500" },
+                
               ] as const).map((t) => {
                 const active = sideTab === t.id;
                 return (
