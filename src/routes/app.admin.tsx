@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { ShieldCheck, Users, CreditCard, LayoutDashboard } from "lucide-react";
+import { ShieldCheck, Users, CreditCard, LayoutDashboard, Stethoscope, FileStack } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/admin")({
@@ -11,7 +11,9 @@ export const Route = createFileRoute("/app/admin")({
 
 const tabs = [
   { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
+  { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope, exact: false },
   { to: "/app/admin/usuarios", label: "Usuários", icon: Users, exact: false },
+  { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack, exact: false },
   { to: "/app/admin/planos", label: "Planos", icon: CreditCard, exact: false },
 ] as const;
 
