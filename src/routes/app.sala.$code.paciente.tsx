@@ -699,12 +699,7 @@ function ActorView() {
                       {levels.map((lv, li) => {
                         const selected = current === lv.points;
                         const tone = levelTone(li, levels.length);
-                        // Sempre bloqueia o "último" item: se já existem (count-1) marcados
-                        // e este ainda não foi pontuado, ele é o que falta — bloqueia até encerrar.
-                        const isBlocked =
-                          !isFinished &&
-                          typeof current !== "number" &&
-                          totals.scored >= totals.count - 1;
+                        
                         return (
                           <button
                             key={lv.label}
