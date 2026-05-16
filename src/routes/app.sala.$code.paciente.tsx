@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
+import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
@@ -90,6 +93,7 @@ function ActorView() {
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
 
   // Timer state (synced with room.started_at)
   const [remaining, setRemaining] = useState(0);
@@ -542,16 +546,21 @@ function ActorView() {
                       "rounded-xl border p-3 transition-all",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
                     )}>
-                      <div className="flex items-start justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMaterialId(m.id)}
+                        className="flex w-full items-start justify-between gap-2 text-left group"
+                        title="Clique para visualizar o conteúdo"
+                      >
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 text-sm font-semibold">
+                          <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
                             <FileText className="h-4 w-4 text-mint" /> {m.name}
                           </div>
-                          <div className="mt-0.5 text-[11px] text-muted-foreground">{m.type}</div>
+                          <div className="mt-0.5 text-[11px] text-muted-foreground">{m.type} · clique para ver</div>
                           {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
                         </div>
                         {m.autoDeliver && <Badge variant="outline" className="shrink-0 text-[10px]">Auto</Badge>}
-                      </div>
+                      </button>
                       <Button
                         size="sm"
                         variant={isDelivered ? "outline" : "hero"}
@@ -944,6 +953,46 @@ function ActorView() {
           </div>
         </aside>
       </div>
+
+      <Dialog open={previewMaterialId !== null} onOpenChange={(o) => !o && setPreviewMaterialId(null)}>
+        <DialogContent className="max-w-2xl">
+          {(() => {
+            const m = materials.find((x) => x.id === previewMaterialId);
+            if (!m) return null;
+            const idx = materials.findIndex((x) => x.id === m.id);
+            const isDelivered = delivered.has(m.id);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-mint" />
+                    Impresso {idx + 1} · {m.name}
+                  </DialogTitle>
+                  {m.description && (
+                    <DialogDescription>{m.description}</DialogDescription>
+                  )}
+                </DialogHeader>
+                <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm leading-relaxed whitespace-pre-wrap">
+                  {m.content || <span className="text-muted-foreground italic">Sem conteúdo cadastrado.</span>}
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-[11px] text-muted-foreground">
+                    {isDelivered ? "Já entregue ao candidato." : "Ainda não entregue."}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant={isDelivered ? "outline" : "hero"}
+                    disabled={isDelivered || !isRunning}
+                    onClick={() => { deliver(m.id); setPreviewMaterialId(null); }}
+                  >
+                    {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar agora</>}
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
