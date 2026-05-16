@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import {
   ArrowLeft, Theater, AlertTriangle, UserRound, Send, Check, PackageCheck,
-  CheckCircle2, XCircle, RotateCw, ClipboardCheck, Pill, FileText, Inbox,
+  CheckCircle2, XCircle, RotateCw, ClipboardCheck, FileText, Inbox,
+  Copy, Link2, Play, UserPlus, CheckCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
   head: () => ({ meta: [{ title: "Roteiro do Ator — Estação Revalida" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
 type Delivery = { id: string; material_id: string; material_name: string };
 type Tab = "roteiro" | "paciente" | "materiais" | "checklist" | "finalizar";
 
