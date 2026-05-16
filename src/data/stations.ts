@@ -577,7 +577,7 @@ export const STATIONS: Station[] = [
       },
       {
         label: "Manual de Diagnóstico e Tratamento de Acidentes por Animais Peçonhentos (ICICT/Fiocruz)",
-        url: "https://www.icict.fiocruz.br/sites/www.icict.fiocruz.br/files/Manual-De-Diagnostico-e-Tratamento-de-Acidentes-por-Animais-Pe--onhentos.pdf",
+        url: "https://www.icict.fiocruz.br/sites/www.icict.fiocruz.br/files/Manual-de-Diagnostico-e-Tratamento-de-Acidentes-por-Animais-Pe--onhentos.pdf",
       },
       {
         label: "Manual de Diagnóstico e Tratamento de Acidentes por Animais Peçonhentos - Fiocruz/MS",
