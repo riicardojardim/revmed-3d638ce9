@@ -440,7 +440,7 @@ function ActorView() {
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
   const isWaiting = !isRunning && !isFinished;
-  const inviteHost = "estacaorevalida.lovable.app";
+  const inviteHost = "estacaorevalida.com.br";
   const inviteLink = `https://${inviteHost}/e/${code}`;
   const inviteLinkDisplay = `${inviteHost}/e/${code}`;
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
