@@ -147,14 +147,6 @@ function AppLayout() {
                     >
                       <Activity className="h-3.5 w-3.5 text-mint" />
                       <span className="flex-1 truncate">Treinamento</span>
-                      <button
-                        type="button"
-                        onClick={clearActiveRoom}
-                        aria-label="Encerrar treinamento"
-                        className="rounded p-0.5 opacity-60 hover:bg-background hover:opacity-100"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
                     </Link>
                     <div className="px-2.5 pb-1 pt-0.5 text-[10px] font-mono uppercase tracking-wider text-mint/80">
                       {activeRoom.code}
