@@ -682,7 +682,7 @@ function ActorView() {
                         {levels.map((lv) => (
                           <div key={lv.label}>
                             <span className="font-medium text-foreground">{lv.label}:</span>{" "}
-                            <span>{lv.points} pt{lv.points === 1 ? "" : "s"}</span>
+                            <span>{lv.description ?? `${lv.points} pt${lv.points === 1 ? "" : "s"}`}</span>
                           </div>
                         ))}
                       </div>
