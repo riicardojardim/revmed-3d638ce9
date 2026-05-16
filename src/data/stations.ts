@@ -393,6 +393,20 @@ export const STATIONS: Station[] = [
         ],
       },
     ]),
+    references: [
+      {
+        label: "Diretrizes de Ressuscitação Cardiopulmonar e de Emergência Cardiovascular (AHA 2020) - Highlights em Português",
+        url: "https://cpr.heart.org/-/media/cpr-files/cpr-guidelines-files/highlights/hghlghts_2020eccguidelines_portuguese.pdf",
+      },
+      {
+        label: "Protocolo de Suporte Avançado de Vida em Cardiologia (SBC/AMIB)",
+        url: "https://departamentos.cardiol.br/sbc-deic/wp-content/uploads/2021/01/Protocolo-SAVC-SBC-AMIB-2020.pdf",
+      },
+      {
+        label: "Material complementar (Google Drive)",
+        url: "https://drive.google.com/file/d/1VdtALFZTTRNrnxiejFab6RzG7lE-pnXC/view?usp=drivesdk",
+      },
+    ],
   },
   {
     id: "6",
