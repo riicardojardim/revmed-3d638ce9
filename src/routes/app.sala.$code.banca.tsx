@@ -570,6 +570,30 @@ function EvaluatorView() {
                   )}
                 </div>
               )}
+
+              {station.references && station.references.length > 0 && (
+                <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <BookOpen className="h-4 w-4 text-indigo-500" />
+                    Referências bibliográficas
+                  </div>
+                  <ul className="mt-3 space-y-1.5 text-sm">
+                    {station.references.map((r, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-indigo-400" />
+                        {r.url ? (
+                          <a href={r.url} target="_blank" rel="noreferrer"
+                             className="break-all text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300">
+                            {r.label}
+                          </a>
+                        ) : (
+                          <span className="text-foreground/90">{r.label}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
