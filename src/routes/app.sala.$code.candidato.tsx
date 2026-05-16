@@ -29,6 +29,7 @@ type Delivery = {
   material_type: string | null;
   material_description: string | null;
   material_content: string | null;
+  material_image_url: string | null;
   delivered_at: string;
 };
 
