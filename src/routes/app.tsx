@@ -129,14 +129,14 @@ function AppLayout() {
 
         {/* Mobile bottom nav */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
-          <div className="grid" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
+          <div className="flex overflow-x-auto no-scrollbar">
             {navItems.map((n) => {
               const active = isActive(n.to, n.exact);
               return (
                 <Link
                   key={n.to}
                   to={n.to}
-                  className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-medium ${
+                  className={`flex min-w-[68px] flex-1 flex-col items-center justify-center gap-1 px-2 py-2.5 text-[10px] font-medium ${
                     active ? "text-mint" : "text-muted-foreground"
                   }`}
                 >
