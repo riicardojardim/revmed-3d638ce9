@@ -631,24 +631,23 @@ function SimuladoRunner() {
             </div>
           </div>
 
-          {/* Progresso do simulado */}
+          {/* Progresso do simulado — sem títulos das próximas estações para não revelar ao candidato */}
           <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Progresso do simulado</div>
             <div className="mt-2 text-xs text-muted-foreground">
               Estação <span className="font-bold text-foreground">{sim.currentIndex + 1}</span> de <span className="font-bold text-foreground">{sim.stations.length}</span>
             </div>
-            <ul className="mt-2 space-y-1">
-              {sim.stations.map((s, i) => (
-                <li key={i} className={cn(
-                  "flex items-center gap-2 rounded-md px-2 py-1 text-xs",
-                  i === sim.currentIndex ? "bg-mint/15 text-foreground" : i < sim.currentIndex ? "text-muted-foreground" : "text-muted-foreground/60",
-                )}>
-                  <span className="font-mono text-[10px]">{i + 1}.</span>
-                  <span className="flex-1 truncate">{s.title}</span>
-                  {i < sim.currentIndex && <CheckCircle2 className="h-3 w-3 text-mint" />}
-                </li>
+            <div className="mt-2 flex gap-1">
+              {sim.stations.map((_, i) => (
+                <div key={i} className={cn(
+                  "h-1.5 flex-1 rounded-full",
+                  i < sim.currentIndex ? "bg-mint" : i === sim.currentIndex ? "bg-mint/60" : "bg-muted",
+                )} />
               ))}
-            </ul>
+            </div>
+            <div className="mt-2 text-[10px] text-muted-foreground/70 italic">
+              Os títulos das próximas estações ficam ocultos para não revelar o conteúdo ao candidato.
+            </div>
           </div>
         </aside>
       </div>
