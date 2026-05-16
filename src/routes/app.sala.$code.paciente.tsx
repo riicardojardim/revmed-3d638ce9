@@ -954,13 +954,14 @@ function ActorView() {
                     <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
                   ) : (
                     <ul className="space-y-1.5">
-                      {materials.map((m, idx) => {
+                       {materials.map((m, idx) => {
                         const isDelivered = delivered.has(m.id);
+                        const isOpen = previewMaterialId === m.id;
                         return (
                           <li key={m.id}>
                             <button
                               type="button"
-                              onClick={() => setPreviewMaterialId(m.id)}
+                              onClick={() => setPreviewMaterialId(isOpen ? null : m.id)}
                               className={cn(
                                 "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
                                 isDelivered
@@ -977,7 +978,31 @@ function ActorView() {
                                   Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
                                 </span>
                               </span>
+                              <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
                             </button>
+                            {isOpen && (
+                              <div className="mt-1 rounded-lg border border-border bg-muted/30 p-3 text-xs">
+                                {m.description && (
+                                  <p className="mb-2 text-[11px] italic text-muted-foreground">{m.description}</p>
+                                )}
+                                <div className="whitespace-pre-wrap leading-relaxed text-foreground/90">
+                                  {m.content || <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>}
+                                </div>
+                                <div className="mt-2 flex items-center justify-between gap-2">
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {isDelivered ? "Já entregue ao candidato." : "Ainda não entregue."}
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant={isDelivered ? "outline" : "hero"}
+                                    disabled={isDelivered || !isRunning}
+                                    onClick={() => deliver(m.id)}
+                                  >
+                                    {isDelivered ? <><PackageCheck className="mr-1 h-3.5 w-3.5" /> Entregue</> : <><Send className="mr-1 h-3.5 w-3.5" /> Entregar agora</>}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
                           </li>
                         );
                       })}
