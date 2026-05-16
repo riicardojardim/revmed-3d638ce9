@@ -687,7 +687,7 @@ function ActorView() {
                 onClick={shareEmail}
                 title="Enviar por e-mail"
               >
-                <Mail className="h-3.5 w-3.5 text-sky-400" />
+                <Mail className="h-3.5 w-3.5 text-mint" />
                 E-mail
               </Button>
               <Button
