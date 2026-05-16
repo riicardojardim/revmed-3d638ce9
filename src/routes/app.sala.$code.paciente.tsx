@@ -659,7 +659,7 @@ function ActorView() {
                 {inviteLinkDisplay}
               </span>
               {copied ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
                   <Check className="h-3 w-3" /> Copiado
                 </span>
               ) : (
