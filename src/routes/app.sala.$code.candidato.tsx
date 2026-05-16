@@ -279,17 +279,17 @@ function CandidateView() {
           </div>
 
           <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.clinicalCase}</p>
+            <ScriptText text={station.clinicalCase} />
           </PRBlock>
 
           {station.caseDescription && (
             <PRBlock icon={MessageSquare} title="Descrição do caso" tone="violet">
-              <p className="whitespace-pre-wrap leading-relaxed">{station.caseDescription}</p>
+              <ScriptText text={station.caseDescription} />
             </PRBlock>
           )}
 
           <PRBlock icon={ListChecks} title={`Nos ${room.duration_minutes ?? station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+            <ScriptText text={station.candidateTask} />
           </PRBlock>
 
           <PRBlock
