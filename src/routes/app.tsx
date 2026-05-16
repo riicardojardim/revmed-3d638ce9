@@ -14,6 +14,8 @@ import {
   Brain,
   BookOpen,
   ShieldCheck,
+  Activity,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
