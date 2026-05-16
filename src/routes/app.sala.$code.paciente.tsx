@@ -1272,8 +1272,20 @@ function Highlightable({ children }: { children: React.ReactNode }) {
     sel.removeAllRanges();
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed) return;
+    const target = e.target as HTMLElement;
+    const hl = target.closest('.user-highlight') as HTMLElement | null;
+    const root = ref.current;
+    if (!hl || !root || !root.contains(hl)) return;
+    const start = getOffsetIn(root, hl.firstChild ?? hl, 0);
+    const end = start + (hl.textContent?.length ?? 0);
+    setRanges((prev) => prev.filter(([x, y]) => !(x < end && y > start)));
+  };
+
   return (
-    <div ref={ref} className="highlightable" onMouseUp={handleMouseUp}>
+    <div ref={ref} className="highlightable" onMouseUp={handleMouseUp} onClick={handleClick}>
       {children}
     </div>
   );
