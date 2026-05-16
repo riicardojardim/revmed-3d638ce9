@@ -80,6 +80,11 @@ function StationEditor() {
         candidate_task: station.candidate_task,
         patient_info: station.patient_info,
         support_materials: station.support_materials,
+        patient_script: station.patient_script,
+        evaluator_notes: station.evaluator_notes,
+        competencies: station.competencies,
+        scoring_criteria: station.scoring_criteria,
+        post_materials: station.post_materials,
       })
       .eq("id", id);
     setSaving(false);
