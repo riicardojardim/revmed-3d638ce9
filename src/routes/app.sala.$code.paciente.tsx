@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
+import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -555,7 +556,8 @@ function ActorView() {
                 {materials.map((m, idx) => {
                   const isDelivered = delivered.has(m.id);
                   const isOpen = previewMaterialId === m.id;
-                  const isRhythm = /ritmo/i.test(m.name);
+                    const isRhythm = /ritmo/i.test(m.name);
+                    const isSpider = /aranha/i.test(m.name);
                   return (
                     <div key={m.id} className={cn(
                       "rounded-xl border p-3 transition-all self-start",
@@ -585,7 +587,14 @@ function ActorView() {
                               className="mb-3 block w-full h-auto rounded-md border border-border"
                             />
                           )}
-                          {m.content || (!isRhythm && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                          {isSpider && (
+                            <img
+                              src={aranhaArmadeira}
+                              alt="Aranha responsável pelo acidente"
+                              className="mb-3 block w-full h-auto rounded-md border border-border"
+                            />
+                          )}
+                          {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <Button
