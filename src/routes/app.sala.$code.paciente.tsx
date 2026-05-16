@@ -239,11 +239,12 @@ function ActorView() {
 
   async function save(submit = false) {
     if (!room || !user) return;
+    if (!room.evaluated_candidate_id) return toast.error("Selecione um candidato avaliado antes de salvar.");
     setSaving(true);
     const payload = {
       room_id: room.id,
       evaluator_id: user.id,
-      candidate_id: candidateId,
+      candidate_id: room.evaluated_candidate_id,
       station_id: room.station_id,
       checks,
       item_comments: comments,
@@ -253,16 +254,27 @@ function ActorView() {
       submitted_at: submit ? new Date().toISOString() : null,
     };
     const { error } = await supabase.from("room_evaluations")
-      .upsert(payload, { onConflict: "room_id,evaluator_id" });
+      .upsert(payload, { onConflict: "room_id,evaluator_id,candidate_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(submit ? "Correção enviada" : "Rascunho salvo");
     if (submit) nav({ to: "/app/sala/$code", params: { code } });
   }
 
+  async function setEvaluatedCandidate(id: string) {
+    if (!room) return;
+    if (room.status === "running") return toast.error("Encerre a estação atual antes de trocar o avaliado.");
+    const { error } = await supabase.from("training_rooms")
+      .update({ evaluated_candidate_id: id }).eq("id", room.id);
+    if (error) return toast.error(error.message);
+    setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: id } : prev);
+    const name = candidates.find((c) => c.id === id)?.name ?? "Candidato";
+    toast.success(`Avaliado da vez: ${name}`);
+  }
+
   async function startStation() {
     if (!room) return;
-    if (!candidateId) return toast.error("Aguarde o candidato entrar pelo link.");
+    if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
     setStarting(true);
     const { error } = await supabase.from("training_rooms")
       .update({ status: "running", started_at: new Date().toISOString() })
