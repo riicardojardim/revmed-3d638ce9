@@ -834,13 +834,8 @@ function ActorView() {
           </PRBlock>
         </div>
 
-        {/* RIGHT: tabbed control panel + vertical rail */}
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="flex gap-2">
-            {/* Painel ativo */}
-            <div className="flex-1 space-y-3 min-w-0">
-              {sideTab === "controle" && (
-                <>
+        {/* RIGHT: control panel (timer, participantes, convite) */}
+        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
                   {/* Timer */}
                   <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
                     <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
