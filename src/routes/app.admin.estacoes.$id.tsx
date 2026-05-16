@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
-  CheckCircle2, FileText, ClipboardList, User, FlaskConical, BookCheck,
+  Upload, Sparkles, FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +15,10 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { parseStationPdfs } from "@/lib/stations-ai.functions";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
-  component: StationWizard,
+  component: StationEditor,
 });
 
 // -------- Types --------
@@ -85,8 +87,6 @@ const CATEGORIES = [
 ];
 const MATERIAL_TYPES = ["Impresso", "Exame laboratorial", "Exame de imagem", "ECG", "Outro"];
 
-// PEP graduado padrão Estação Revalida: 3 níveis sempre na ordem
-// Inadequado → Parcialmente adequado → Adequado.
 function defaultLevels(maxPts: number): ChecklistLevel[] {
   const m = Number.isFinite(maxPts) ? maxPts : 1;
   const mid = Math.round((m / 2) * 100) / 100;
@@ -97,29 +97,26 @@ function defaultLevels(maxPts: number): ChecklistLevel[] {
   ];
 }
 
-// Numera o título do item ("1. Apresentação", "2. Anamnese", ...) seguindo
-// o padrão das estações de referência.
 function numberedCategory(index: number, title: string): string {
   const clean = title.replace(/^\s*\d+\.\s*/, "").trim();
   return `${index + 1}. ${clean}`;
 }
 
-const STEPS = [
-  { key: "basics",     label: "Informações", icon: ClipboardList },
-  { key: "case",       label: "Caso clínico", icon: User },
-  { key: "materials",  label: "Impressos",   icon: FileText },
-  { key: "checklist",  label: "Checklist PEP", icon: CheckCircle2 },
-  { key: "review",     label: "Revisão & publicar", icon: BookCheck },
-] as const;
-type StepKey = typeof STEPS[number]["key"];
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
 
-function StationWizard() {
+function StationEditor() {
   const { id } = Route.useParams();
   const nav = useNavigate();
   const [station, setStation] = useState<Station | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [saving, setSaving] = useState(false);
-  const [step, setStep] = useState<StepKey>("basics");
 
   async function load() {
     const [{ data: s }, { data: it }] = await Promise.all([
@@ -157,8 +154,6 @@ function StationWizard() {
     const payload = {
       title: station.title,
       specialty: station.specialty,
-      difficulty: station.difficulty,
-      duration_minutes: station.duration_minutes,
       clinical_case: station.clinical_case,
       candidate_task: station.candidate_task,
       patient_info: station.patient_info,
@@ -196,12 +191,6 @@ function StationWizard() {
   if (!station) return <div className="text-sm text-muted-foreground">Carregando estação...</div>;
 
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
-  const stepIdx = STEPS.findIndex((s) => s.key === step);
-
-  async function goStep(next: StepKey) {
-    await saveStation({ silent: true });
-    setStep(next);
-  }
 
   return (
     <div className="space-y-6">
@@ -220,32 +209,6 @@ function StationWizard() {
         </div>
       </div>
 
-      {/* Stepper */}
-      <div className="rounded-2xl border border-border bg-card p-3">
-        <div className="grid gap-1 sm:grid-cols-5">
-          {STEPS.map((s, i) => {
-            const active = s.key === step;
-            const done = i < stepIdx;
-            return (
-              <button
-                key={s.key}
-                onClick={() => goStep(s.key)}
-                className={cn(
-                  "flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors",
-                  active ? "bg-mint/15 text-foreground font-semibold" : done ? "text-mint hover:bg-muted" : "text-muted-foreground hover:bg-muted",
-                )}
-              >
-                <span className={cn(
-                  "flex h-6 w-6 items-center justify-center rounded-full border text-xs font-bold",
-                  active ? "border-mint bg-mint/20 text-mint" : done ? "border-mint bg-mint text-background" : "border-border",
-                )}>{i + 1}</span>
-                <span className="hidden sm:inline">{s.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="flex items-center justify-between text-sm">
         <div className="text-muted-foreground">
           {items.length} itens · <span className="font-semibold text-foreground">{totalPts.toFixed(2)} pts</span> totais
@@ -255,42 +218,77 @@ function StationWizard() {
         </Badge>
       </div>
 
-      {/* Step content */}
-      {step === "basics" && <StepBasics station={station} up={up} />}
-      {step === "case" && <StepCase station={station} up={up} />}
-      {step === "materials" && (
-        <StepMaterials
-          materials={station.deliverable_materials}
-          onChange={(m) => up("deliverable_materials", m)}
-        />
-      )}
-      {step === "checklist" && (
-        <StepChecklist stationId={id} items={items} reload={load} />
-      )}
-      {step === "review" && <StepReview station={station} items={items} up={up} togglePublish={togglePublish} />}
+      {/* PDF Import */}
+      <PdfImportSection
+        stationId={id}
+        currentItemsCount={items.length}
+        applyResult={async (r) => {
+          setStation((s) => {
+            if (!s) return s;
+            return {
+              ...s,
+              title: r.title || s.title,
+              specialty: r.specialty || s.specialty,
+              educational_goal: r.educational_goal ?? s.educational_goal,
+              competencies: r.competencies?.length ? r.competencies : s.competencies,
+              clinical_case: r.clinical_case ?? s.clinical_case,
+              candidate_task: r.candidate_task ?? s.candidate_task,
+              patient_info: r.patient_info ?? s.patient_info,
+              support_materials: r.support_materials ?? s.support_materials,
+              patient_profile: { ...s.patient_profile, ...(r.patient_profile ?? {}) },
+              deliverable_materials: r.deliverable_materials?.length
+                ? r.deliverable_materials.map((m, i) => ({
+                    id: `imp${i + 1}`,
+                    name: m.name,
+                    type: m.type || "Impresso",
+                    description: m.description ?? "",
+                    content: m.content ?? "",
+                    autoDeliver: false,
+                  }))
+                : s.deliverable_materials,
+              expected_conduct: r.expected_conduct ?? s.expected_conduct,
+              common_mistakes: r.common_mistakes ?? s.common_mistakes,
+              evaluator_notes: r.evaluator_notes ?? s.evaluator_notes,
+              scoring_criteria: r.scoring_criteria ?? s.scoring_criteria,
+            };
+          });
+          // checklist items go directly into the DB so they show up
+          if (r.checklist_items?.length) {
+            const startIdx = items.length;
+            const rows = r.checklist_items.map((ci, idx) => {
+              const pts = Number(ci.points) > 0 ? Number(ci.points) : 1;
+              return {
+                station_id: id,
+                description: ci.description,
+                category: numberedCategory(startIdx + idx, ci.category || ci.description),
+                points: pts,
+                helper_text: ci.helper_text ?? null,
+                order_index: startIdx + idx,
+                levels: ci.levels?.length ? ci.levels : defaultLevels(pts),
+              };
+            });
+            const { error } = await supabase.from("station_checklist_items").insert(rows as never);
+            if (error) toast.error("Falha ao importar checklist", { description: error.message });
+            await load();
+          }
+          await saveStation({ silent: true });
+          toast.success("PDF importado e campos preenchidos");
+        }}
+      />
 
-      {/* Footer nav */}
-      <div className="flex justify-between gap-2 border-t border-border pt-4">
-        <Button
-          variant="outline"
-          onClick={() => goStep(STEPS[Math.max(0, stepIdx - 1)].key)}
-          disabled={stepIdx === 0}
-        >
-          ← Voltar
-        </Button>
-        <Button
-          variant="hero"
-          onClick={() => goStep(STEPS[Math.min(STEPS.length - 1, stepIdx + 1)].key)}
-          disabled={stepIdx === STEPS.length - 1}
-        >
-          Próximo passo →
-        </Button>
-      </div>
+      <SectionBasics station={station} up={up} />
+      <SectionCase station={station} up={up} />
+      <SectionMaterials
+        materials={station.deliverable_materials}
+        onChange={(m) => up("deliverable_materials", m)}
+      />
+      <SectionChecklist stationId={id} items={items} reload={load} />
+      <SectionReview station={station} items={items} up={up} togglePublish={togglePublish} />
     </div>
   );
 }
 
-// ============= STEPS =============
+// ============= Sections =============
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -304,39 +302,120 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   );
 }
 
-function StepBasics({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+function PdfImportSection({
+  stationId: _stationId,
+  currentItemsCount: _currentItemsCount,
+  applyResult,
+}: {
+  stationId: string;
+  currentItemsCount: number;
+  applyResult: (r: Awaited<ReturnType<typeof parseStationPdfs>>) => Promise<void>;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
+  const parseFn = useServerFn(parseStationPdfs);
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    const next = Array.from(list).filter((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
+    if (next.length === 0) return toast.error("Selecione arquivos PDF");
+    setFiles((prev) => [...prev, ...next].slice(0, 5));
+  }
+
+  async function run() {
+    if (!files.length) return toast.error("Adicione ao menos 1 PDF");
+    setLoading(true);
+    try {
+      const pdfs = await Promise.all(
+        files.map(async (f) => ({ name: f.name, dataUrl: await fileToDataUrl(f) })),
+      );
+      const result = await parseFn({ data: { pdfs } });
+      await applyResult(result);
+      setFiles([]);
+      if (inputRef.current) inputRef.current.value = "";
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Falha ao processar PDF";
+      toast.error("Falha na IA", { description: msg });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Section
+      title="Importar checklist em PDF"
+      hint="Anexe um ou mais PDFs (checklist, caso, impressos) e a IA preenche os campos abaixo automaticamente."
+    >
+      <div
+        className="rounded-xl border border-dashed border-border bg-background/40 p-4 text-sm"
+        onDragOver={(e) => { e.preventDefault(); }}
+        onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
+            <Upload className="h-4 w-4" /> Escolher PDFs
+          </Button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="application/pdf"
+            multiple
+            className="hidden"
+            onChange={(e) => addFiles(e.target.files)}
+          />
+          <span className="text-xs text-muted-foreground">
+            Ou arraste e solte aqui · até 5 arquivos
+          </span>
+        </div>
+        {files.length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {files.map((f, i) => (
+              <li key={i} className="flex items-center justify-between rounded border border-border bg-card/60 px-3 py-1.5 text-xs">
+                <span className="flex items-center gap-2 truncate">
+                  <FileText className="h-3.5 w-3.5 text-mint" /> {f.name}
+                  <span className="text-muted-foreground">({Math.round(f.size / 1024)} KB)</span>
+                </span>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            A IA NÃO sobrescreve impressos já cadastrados a menos que estejam vazios. Os itens de
+            checklist são adicionados ao final da lista.
+          </p>
+          <Button type="button" variant="hero" onClick={run} disabled={loading || !files.length}>
+            <Sparkles className="h-4 w-4" /> {loading ? "Processando com IA..." : "Preencher com IA"}
+          </Button>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function SectionBasics({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
   return (
     <Section title="Informações básicas" hint="Como a estação aparece para o assinante.">
       <div>
         <Label>Título</Label>
         <Input value={station.title} onChange={(e) => up("title", e.target.value)} />
       </div>
-      <div className="grid gap-3 md:grid-cols-3">
-        <div>
-          <Label>Especialidade</Label>
-          <Select value={station.specialty} onValueChange={(v) => up("specialty", v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Dificuldade</Label>
-          <Select value={station.difficulty} onValueChange={(v) => up("difficulty", v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Fácil">Fácil</SelectItem>
-              <SelectItem value="Intermediário">Intermediário</SelectItem>
-              <SelectItem value="Avançado">Avançado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Duração (min)</Label>
-          <Input type="number" min={3} max={30} value={station.duration_minutes}
-            onChange={(e) => up("duration_minutes", Number(e.target.value))} />
-        </div>
+      <div>
+        <Label>Especialidade</Label>
+        <Select value={station.specialty} onValueChange={(v) => up("specialty", v)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <Label>Objetivo educacional</Label>
@@ -352,7 +431,7 @@ function StepBasics({ station, up }: { station: Station; up: <K extends keyof St
   );
 }
 
-function StepCase({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+function SectionCase({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
   const p = station.patient_profile ?? {};
   function setP<K extends keyof PatientProfile>(k: K, v: PatientProfile[K]) {
     up("patient_profile", { ...p, [k]: v });
@@ -415,7 +494,7 @@ function StepCase({ station, up }: { station: Station; up: <K extends keyof Stat
   );
 }
 
-function StepMaterials({ materials, onChange }: { materials: DeliverableMaterial[]; onChange: (m: DeliverableMaterial[]) => void }) {
+function SectionMaterials({ materials, onChange }: { materials: DeliverableMaterial[]; onChange: (m: DeliverableMaterial[]) => void }) {
   function add() {
     const next = [...materials, {
       id: `imp${materials.length + 1}`,
@@ -456,9 +535,7 @@ function StepMaterials({ materials, onChange }: { materials: DeliverableMaterial
           {materials.map((m, i) => (
             <div key={i} className="rounded-xl border border-border bg-background/40 p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="border-mint/30 text-mint">Impresso {i + 1}</Badge>
-                </div>
+                <Badge variant="outline" className="border-mint/30 text-mint">Impresso {i + 1}</Badge>
                 <div className="flex gap-1">
                   <Button variant="ghost" size="icon" onClick={() => move(i, -1)} disabled={i === 0}><ChevronUp className="h-4 w-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => move(i, 1)} disabled={i === materials.length - 1}><ChevronDown className="h-4 w-4" /></Button>
@@ -502,16 +579,13 @@ function StepMaterials({ materials, onChange }: { materials: DeliverableMaterial
   );
 }
 
-function StepChecklist({ stationId, items, reload }: { stationId: string; items: Item[]; reload: () => Promise<void> }) {
+function SectionChecklist({ stationId, items, reload }: { stationId: string; items: Item[]; reload: () => Promise<void> }) {
   const [draft, setDraft] = useState({ description: "", category: "Apresentação", points: 1 });
 
   async function addItem(e: React.FormEvent) {
     e.preventDefault();
     if (!draft.description.trim()) return toast.error("Descrição obrigatória");
     const pts = Number(draft.points) || 1;
-    // Padrão Estação Revalida: cada item recebe título numerado
-    // (ex.: "1. Apresentação"). Se o admin escolheu uma categoria do dropdown,
-    // ela vira o título numerado; senão usamos a própria descrição.
     const titleSource = (draft.category || draft.description).trim();
     const payload = {
       station_id: stationId,
@@ -587,7 +661,7 @@ function StepChecklist({ stationId, items, reload }: { stationId: string; items:
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
 
   return (
-    <Section title="Checklist PEP graduado" hint="Cada item tem 3 níveis: Adequado / Parcialmente adequado / Inadequado.">
+    <Section title="Checklist PEP graduado" hint="Cada item tem 3 níveis: Inadequado / Parcialmente adequado / Adequado.">
       <form onSubmit={addItem} className="grid gap-2 rounded-xl border border-border bg-background/40 p-3 md:grid-cols-[1fr,180px,90px,auto]">
         <Input placeholder="Descrição do item (ex: 'Apresentação')" value={draft.description}
           onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
@@ -651,7 +725,7 @@ function StepChecklist({ stationId, items, reload }: { stationId: string; items:
               </div>
 
               <div>
-                <Label>Texto auxiliar (opcional, exibido em cinza abaixo do item)</Label>
+                <Label>Texto auxiliar (opcional)</Label>
                 <Input defaultValue={item.helper_text ?? ""}
                   onBlur={(e) => (e.target.value || null) !== item.helper_text && patchItem(item, { helper_text: e.target.value || null })} />
               </div>
@@ -679,7 +753,7 @@ function StepChecklist({ stationId, items, reload }: { stationId: string; items:
   );
 }
 
-function StepReview({
+function SectionReview({
   station, items, up, togglePublish,
 }: {
   station: Station; items: Item[];
@@ -743,13 +817,10 @@ function StepReview({
 
       <Section title="Pré-visualização rápida" hint="Layout padrão Estação Revalida — assim o assinante verá a estação.">
         <div className="space-y-5 text-sm">
-          {/* Cabeçalho */}
           <div>
             <div className="font-display text-xl font-bold">{station.title || "(sem título)"}</div>
             <div className="mt-1 flex flex-wrap gap-2">
               <Badge variant="outline" className="border-medical/30 text-medical">{station.specialty}</Badge>
-              <Badge variant="outline">{station.difficulty}</Badge>
-              <Badge variant="outline">{station.duration_minutes} min</Badge>
               <Badge variant="outline">{items.length} itens · {totalPts.toFixed(2)} pts</Badge>
               <Badge variant="outline" className={station.published ? "border-mint/40 text-mint" : ""}>
                 {station.published ? "Publicada" : "Rascunho"}
@@ -757,7 +828,6 @@ function StepReview({
             </div>
           </div>
 
-          {/* Identificação do paciente */}
           {(station.patient_profile?.name || station.patient_profile?.age || station.patient_profile?.city) && (
             <div className="rounded-xl border border-border bg-background/40 p-3">
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Paciente</div>
@@ -770,7 +840,6 @@ function StepReview({
             </div>
           )}
 
-          {/* Caso clínico */}
           {station.clinical_case && (
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Caso clínico</div>
@@ -778,7 +847,6 @@ function StepReview({
             </div>
           )}
 
-          {/* Tarefa */}
           {station.candidate_task && (
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tarefa do candidato</div>
@@ -786,7 +854,6 @@ function StepReview({
             </div>
           )}
 
-          {/* Impressos */}
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Impressos disponíveis ({station.deliverable_materials?.length ?? 0})
@@ -810,7 +877,6 @@ function StepReview({
             )}
           </div>
 
-          {/* Checklist PEP graduado */}
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Checklist PEP graduado ({items.length} itens · {totalPts.toFixed(2)} pts)
