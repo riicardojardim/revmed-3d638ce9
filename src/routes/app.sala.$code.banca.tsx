@@ -74,7 +74,7 @@ function EvaluatorView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, duration_minutes").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
