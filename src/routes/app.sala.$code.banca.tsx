@@ -7,22 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import {
-  ArrowLeft,
-  ClipboardCheck,
-  Send,
-  CheckCircle2,
-  XCircle,
-  RotateCw,
-  Play,
-  Pause,
-  TimerReset,
-  Sparkles,
-  BookOpen,
-  AlertTriangle,
-  Target,
-  ChevronDown,
+  ArrowLeft, ClipboardCheck, Send, CheckCircle2, XCircle, RotateCw,
+  Play, Pause, TimerReset, Sparkles, BookOpen, AlertTriangle, Target,
+  ChevronDown, Theater, FileText, UserRound, Inbox, PackageCheck,
+  ScrollText, Lock, Unlock,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
   component: EvaluatorView,
@@ -30,13 +21,23 @@ export const Route = createFileRoute("/app/sala/$code/banca")({
 });
 
 type Room = { id: string; code: string; station_id: string; station_title: string };
+type Delivery = { id: string; material_id: string; material_name: string };
+type Tab = "cenario" | "roteiro" | "impressos" | "checklist" | "feedback";
 
-// 1 = Adequado · 0.5 = Parcialmente adequado · 0 = Inadequado · undefined = não avaliado
+const TABS: { k: Tab; l: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { k: "cenario",   l: "Cenário",      icon: ScrollText },
+  { k: "roteiro",   l: "Roteiro",      icon: Theater },
+  { k: "impressos", l: "Impressos",    icon: Inbox },
+  { k: "checklist", l: "Checklist",    icon: ClipboardCheck },
+  { k: "feedback",  l: "Resultado",    icon: Send },
+];
+
+// 1 = Adequado · 0.5 = Parcialmente · 0 = Inadequado
 type Level = 1 | 0.5 | 0;
-const LEVELS: { v: Level; label: string; short: string; cls: string; activeCls: string }[] = [
-  { v: 1,   label: "Adequado",               short: "ADQ", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]" },
-  { v: 0.5, label: "Parcialmente adequado",  short: "PAR", cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",      activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]" },
-  { v: 0,   label: "Inadequado",             short: "INA", cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",          activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]" },
+const LEVELS: { v: Level; label: string; short: string; cls: string; activeCls: string; dot: string }[] = [
+  { v: 1,   label: "Adequado",              short: "ADQ", dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]" },
+  { v: 0.5, label: "Parcialmente adequado", short: "PAR", dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",      activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]" },
+  { v: 0,   label: "Inadequado",            short: "INA", dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",         activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]" },
 ];
 
 function fmt(t: number) {
@@ -49,37 +50,47 @@ function EvaluatorView() {
   const { code } = Route.useParams();
   const { user } = useAuth();
   const nav = useNavigate();
+
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [candidateId, setCandidateId] = useState<string | null>(null);
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [levels, setLevels] = useState<Record<string, Level>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
   const [status, setStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [openAnalysis, setOpenAnalysis] = useState(false);
+  const [tab, setTab] = useState<Tab>("cenario");
 
-  // Timer (regressivo a partir da duração da estação)
+  // Timer regressivo
   const [seconds, setSeconds] = useState(600);
   const [running, setRunning] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     (async () => {
-      const { data: r } = await supabase.from("training_rooms").select("id, code, station_id, station_title").eq("code", code).maybeSingle();
+      const { data: r } = await supabase.from("training_rooms")
+        .select("id, code, station_id, station_title").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
       setStation(st);
       if (st) setSeconds((st.durationMinutes ?? 10) * 60);
-      const { data: parts } = await supabase.from("training_room_participants").select("user_id, role").eq("room_id", (r as Room).id);
+
+      const { data: parts } = await supabase.from("training_room_participants")
+        .select("user_id, role").eq("room_id", (r as Room).id);
       const cand = (parts ?? []).find((p: { role: string }) => p.role === "candidato");
       setCandidateId(cand?.user_id ?? null);
+
+      const { data: dels } = await supabase.from("room_material_deliveries")
+        .select("id, material_id, material_name").eq("room_id", (r as Room).id);
+      setDeliveries((dels ?? []) as Delivery[]);
+
       if (user) {
         const { data: ev } = await supabase.from("room_evaluations")
           .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id).maybeSingle();
         if (ev) {
-          // back-compat: campo `checks` era boolean; converte para Level
           const raw = (ev.checks ?? {}) as Record<string, unknown>;
           const converted: Record<string, Level> = {};
           for (const [k, v] of Object.entries(raw)) {
@@ -94,6 +105,22 @@ function EvaluatorView() {
       }
     })();
   }, [code, user?.id]);
+
+  // Realtime deliveries
+  useEffect(() => {
+    if (!room) return;
+    const ch = supabase
+      .channel(`banca-${room.id}`)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "room_material_deliveries", filter: `room_id=eq.${room.id}` },
+        async () => {
+          const { data: dels } = await supabase.from("room_material_deliveries")
+            .select("id, material_id, material_name").eq("room_id", room.id);
+          setDeliveries((dels ?? []) as Delivery[]);
+        })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [room?.id]);
 
   useEffect(() => {
     if (!running) return;
@@ -123,8 +150,26 @@ function EvaluatorView() {
     return { total, earned, done };
   }, [station, levels]);
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
+  const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
   const progress = station ? (totals.done / station.checklist.length) * 100 : 0;
   const allEvaluated = station ? totals.done === station.checklist.length : false;
+
+  async function deliver(materialId: string) {
+    if (!room || !user || !station) return;
+    const m = station.deliverableMaterials?.find((x) => x.id === materialId);
+    if (!m) return;
+    const { error } = await supabase.from("room_material_deliveries").insert({
+      room_id: room.id,
+      material_id: m.id,
+      material_name: m.name,
+      material_type: m.type,
+      material_description: m.description ?? null,
+      material_content: m.content,
+      delivered_by: user.id,
+    });
+    if (error) return toast.error(error.message);
+    toast.success(`Impresso entregue: ${m.name}`);
+  }
 
   async function save(submit = false) {
     if (!room || !user) return;
@@ -161,6 +206,10 @@ function EvaluatorView() {
     );
   }
 
+  const materials = station.deliverableMaterials ?? [];
+  const delivered = new Set(deliveries.map((d) => d.material_id));
+  const p = station.patientProfile;
+
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-24">
       <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground">
@@ -174,18 +223,21 @@ function EvaluatorView() {
         <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-md">
-              <ClipboardCheck className="h-3.5 w-3.5 text-mint" /> Painel do Avaliador
+              <ClipboardCheck className="h-3.5 w-3.5 text-mint" /> Painel da Banca / Ator-Avaliador
             </div>
             <h1 className="font-display text-3xl font-bold leading-tight md:text-4xl">{room.station_title}</h1>
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <Badge className="border-0 bg-white/15 text-white">{station.specialty}</Badge>
               <Badge className="border-0 bg-white/15 text-white">{station.difficulty}</Badge>
               <Badge className="border-0 bg-mint/20 text-mint">Sala #{code}</Badge>
-              {candidateId && <Badge className="border-0 bg-emerald-400/20 text-emerald-200">Candidato conectado</Badge>}
+              <Badge className="border-0 bg-white/15 text-white">{station.durationMinutes} min</Badge>
+              {candidateId
+                ? <Badge className="border-0 bg-emerald-400/20 text-emerald-200">Candidato conectado</Badge>
+                : <Badge className="border-0 bg-amber-400/20 text-amber-200">Aguardando candidato</Badge>}
             </div>
           </div>
 
-          {/* Timer card */}
+          {/* Timer */}
           <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-md">
             <div className="text-center">
               <div className="text-[10px] font-semibold uppercase tracking-widest text-white/60">Cronômetro</div>
@@ -204,113 +256,296 @@ function EvaluatorView() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        {/* CHECKLIST */}
-        <section className="space-y-6">
-          {grouped.map(([cat, items]) => (
-            <div key={cat} className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-              <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-indigo-50/60 to-transparent px-5 py-3 dark:from-indigo-950/30">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-[11px] font-bold text-indigo-600 dark:text-indigo-300">
-                    {items.length}
-                  </span>
-                  <h3 className="text-sm font-semibold tracking-wide">{cat}</h3>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {items.reduce((s, i) => s + i.points, 0)} pts
+      {/* TABS */}
+      <div className="sticky top-16 z-20 -mx-1 flex gap-1 overflow-x-auto rounded-2xl border border-border/60 bg-card/80 p-1.5 shadow-sm backdrop-blur-md no-scrollbar">
+        {TABS.map((t) => {
+          const Icon = t.icon;
+          const active = tab === t.k;
+          const badge =
+            t.k === "impressos" ? `${deliveries.length}/${materials.length}` :
+            t.k === "checklist" ? `${totals.done}/${station.checklist.length}` :
+            null;
+          return (
+            <button key={t.k} onClick={() => setTab(t.k)}
+              className={cn(
+                "group flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all md:px-4",
+                active
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-elegant"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}>
+              <Icon className="h-4 w-4" /> {t.l}
+              {badge && (
+                <span className={cn("ml-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                  active ? "bg-white/20" : "bg-muted text-muted-foreground")}>
+                  {badge}
                 </span>
-              </div>
-              <ul className="divide-y divide-border/50">
-                {items.map((it, idx) => {
-                  const lvl = levels[it.id];
-                  return (
-                    <li key={it.id} className="p-5 transition hover:bg-muted/30">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
-                          {idx + 1}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm leading-relaxed">{it.description}</p>
-                          <div className="mt-1 text-xs text-muted-foreground">Vale {it.points} pts</div>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-                          <div className="mt-3 grid grid-cols-3 gap-2">
-                            {LEVELS.map((L) => {
-                              const active = lvl === L.v;
-                              return (
-                                <button
-                                  key={L.v}
-                                  type="button"
-                                  onClick={() => setLevels((s) => ({ ...s, [it.id]: L.v }))}
-                                  className={`group relative rounded-xl border-2 px-2 py-2 text-left text-xs font-medium transition-all ${active ? L.activeCls : `bg-card ${L.cls}`}`}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <span className="hidden md:inline">{L.label}</span>
-                                    <span className="md:hidden">{L.short}</span>
-                                    <span className={`tabular-nums ${active ? "text-white/90" : "opacity-60"}`}>
-                                      {(it.points * L.v).toFixed(L.v === 0.5 ? 1 : 0)}
-                                    </span>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <section className="space-y-6">
 
-                          <Textarea
-                            value={comments[it.id] ?? ""}
-                            onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
-                            placeholder="Observação para este item (opcional)"
-                            rows={2}
-                            className="mt-3 resize-none bg-background/50 text-sm"
-                          />
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-
-          {/* Análise da estação */}
-          {(station.expectedConduct || station.commonMistakes || station.scoringCriteria || station.evaluatorNotes) && (
-            <div className="overflow-hidden rounded-2xl border border-indigo-200/40 bg-gradient-to-br from-indigo-50/40 to-mint/5 dark:from-indigo-950/20 dark:to-mint/5">
-              <button
-                type="button"
-                onClick={() => setOpenAnalysis((o) => !o)}
-                className="flex w-full items-center justify-between px-5 py-4 text-left"
-              >
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-indigo-500" />
-                  <span className="font-semibold">Análise da estação</span>
+          {/* === CENÁRIO === */}
+          {tab === "cenario" && (
+            <div className="space-y-5">
+              <PanelSection icon={ScrollText} title="Cenário de atuação" accent="indigo">
+                <div className="space-y-3 leading-relaxed">
+                  <p className="whitespace-pre-wrap">{station.clinicalCase}</p>
                 </div>
-                <ChevronDown className={`h-4 w-4 transition-transform ${openAnalysis ? "rotate-180" : ""}`} />
-              </button>
-              {openAnalysis && (
-                <div className="space-y-4 border-t border-indigo-200/30 px-5 py-5 text-sm">
-                  {station.expectedConduct && (
-                    <div className="rounded-xl border border-emerald-200/40 bg-emerald-50/40 p-4 dark:bg-emerald-950/20">
-                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-                        <Target className="h-3.5 w-3.5" /> Conduta esperada
+              </PanelSection>
+
+              <PanelSection icon={Target} title={`Tarefas dos ${station.durationMinutes} minutos`} accent="mint">
+                <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+              </PanelSection>
+
+              {station.educationalGoal && (
+                <PanelSection icon={Sparkles} title="Objetivo educacional" accent="indigo">
+                  <p className="whitespace-pre-wrap">{station.educationalGoal}</p>
+                </PanelSection>
+              )}
+            </div>
+          )}
+
+          {/* === ROTEIRO DO ATOR === */}
+          {tab === "roteiro" && (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-amber-300/40 bg-amber-50/60 p-4 text-sm text-amber-900 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-200">
+                <div className="flex items-center gap-2 font-medium">
+                  <AlertTriangle className="h-4 w-4" /> Regras de interpretação
+                </div>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-xs">
+                  <li>Responda apenas o que for perguntado pelo candidato.</li>
+                  <li>Não revele espontaneamente informações sensíveis.</li>
+                  <li>Mantenha o comportamento/tom emocional descrito.</li>
+                  <li>Não corrija o candidato durante a estação.</li>
+                </ul>
+              </div>
+
+              {p && (
+                <PanelSection icon={UserRound} title="Dados pessoais & queixa" accent="indigo">
+                  <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {patientFields(p).map(([k, v]) => v && (
+                      <div key={k} className="rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
+                        <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{k}</dt>
+                        <dd className="mt-0.5 text-sm">{v}</dd>
                       </div>
-                      <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{station.expectedConduct}</p>
+                    ))}
+                  </dl>
+                </PanelSection>
+              )}
+
+              <PanelSection icon={Theater} title="Roteiro detalhado do paciente" accent="mint">
+                <p className="whitespace-pre-wrap leading-relaxed">{station.patientScript}</p>
+              </PanelSection>
+
+              {p?.spontaneous && (
+                <PanelSection icon={Sparkles} title="Falar espontaneamente" accent="emerald">
+                  <p className="whitespace-pre-wrap">{p.spontaneous}</p>
+                </PanelSection>
+              )}
+              {p?.onlyIfAsked && (
+                <PanelSection icon={BookOpen} title="Revelar apenas se perguntado" accent="indigo">
+                  <p className="whitespace-pre-wrap">{p.onlyIfAsked}</p>
+                </PanelSection>
+              )}
+              {p?.doNotReveal && (
+                <PanelSection icon={Lock} title="Nunca revelar" accent="rose">
+                  <p className="whitespace-pre-wrap">{p.doNotReveal}</p>
+                </PanelSection>
+              )}
+              {(p?.emotionalTone || p?.actingTips) && (
+                <PanelSection icon={Theater} title="Tom emocional e dicas de atuação" accent="amber">
+                  {p?.emotionalTone && <p><span className="font-semibold">Tom:</span> {p.emotionalTone}</p>}
+                  {p?.actingTips && <p className="mt-1"><span className="font-semibold">Dicas:</span> {p.actingTips}</p>}
+                </PanelSection>
+              )}
+            </div>
+          )}
+
+          {/* === IMPRESSOS === */}
+          {tab === "impressos" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-display text-xl font-bold">Impressos para entregar</h2>
+                  <p className="text-xs text-muted-foreground">Entregue cada impresso somente quando o candidato solicitar.</p>
+                </div>
+                <Badge variant="outline" className="text-xs">{deliveries.length}/{materials.length} entregues</Badge>
+              </div>
+
+              {materials.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
+                  Esta estação não possui impressos cadastrados.
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {materials.map((m, idx) => {
+                    const isDelivered = delivered.has(m.id);
+                    return (
+                      <div key={m.id} className={cn(
+                        "group relative overflow-hidden rounded-2xl border p-4 transition-all",
+                        isDelivered
+                          ? "border-emerald-400/50 bg-gradient-to-br from-emerald-50/60 to-mint/5 dark:from-emerald-950/20"
+                          : "border-border bg-card hover:border-indigo-400/40 hover:shadow-md",
+                      )}>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start gap-2.5">
+                            <div className={cn(
+                              "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold",
+                              isDelivered ? "bg-emerald-500 text-white" : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-300",
+                            )}>
+                              {String(idx + 1).padStart(2, "0")}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 text-sm font-semibold">
+                                {isDelivered ? <Unlock className="h-3.5 w-3.5 text-emerald-600" /> : <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
+                                Impresso {idx + 1} <span className="text-muted-foreground">·</span> {m.name}
+                              </div>
+                              <div className="mt-0.5 text-[11px] uppercase tracking-wider text-muted-foreground">{m.type}</div>
+                              {m.description && <div className="mt-1.5 text-xs text-muted-foreground">{m.description}</div>}
+                            </div>
+                          </div>
+                          {m.autoDeliver && <Badge variant="outline" className="shrink-0 text-[10px]">Auto</Badge>}
+                        </div>
+
+                        {isDelivered && m.content && (
+                          <div className="mt-3 max-h-32 overflow-auto rounded-lg border border-emerald-300/30 bg-background/60 p-2.5 text-xs leading-relaxed">
+                            {m.content}
+                          </div>
+                        )}
+
+                        <Button size="sm" variant={isDelivered ? "outline" : "hero"} className="mt-3 w-full"
+                          disabled={isDelivered} onClick={() => deliver(m.id)}>
+                          {isDelivered
+                            ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue ao candidato</>
+                            : <><Send className="mr-1 h-4 w-4" /> Entregar agora</>}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* === CHECKLIST PEP === */}
+          {tab === "checklist" && (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-indigo-300/30 bg-gradient-to-r from-indigo-50/60 to-mint/5 px-5 py-3 text-xs dark:from-indigo-950/20">
+                <div className="flex items-center gap-2 font-semibold text-indigo-700 dark:text-indigo-300">
+                  <ClipboardCheck className="h-3.5 w-3.5" /> Checklist (PEP)
+                </div>
+                <p className="mt-1 text-muted-foreground">
+                  Avalie cada item em <b className="text-emerald-700 dark:text-emerald-300">Adequado</b>,
+                  {" "}<b className="text-amber-700 dark:text-amber-300">Parcialmente adequado</b> ou
+                  {" "}<b className="text-rose-700 dark:text-rose-300">Inadequado</b>. A pontuação é calculada automaticamente.
+                </p>
+              </div>
+
+              {grouped.map(([cat, items]) => (
+                <div key={cat} className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+                  <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-indigo-50/60 to-transparent px-5 py-3 dark:from-indigo-950/30">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-[11px] font-bold text-indigo-600 dark:text-indigo-300">
+                        {items.length}
+                      </span>
+                      <h3 className="text-sm font-semibold tracking-wide">{cat}</h3>
                     </div>
-                  )}
-                  {station.commonMistakes && (
-                    <div className="rounded-xl border border-amber-200/40 bg-amber-50/40 p-4 dark:bg-amber-950/20">
-                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Erros comuns
-                      </div>
-                      <p className="mt-2 whitespace-pre-wrap text-muted-foreground">{station.commonMistakes}</p>
+                    <span className="text-xs text-muted-foreground">
+                      {items.reduce((s, i) => s + i.points, 0)} pts
+                    </span>
+                  </div>
+                  <ul className="divide-y divide-border/50">
+                    {items.map((it, idx) => {
+                      const lvl = levels[it.id];
+                      return (
+                        <li key={it.id} className={cn(
+                          "p-5 transition",
+                          lvl === 1 && "bg-emerald-50/30 dark:bg-emerald-950/10",
+                          lvl === 0.5 && "bg-amber-50/30 dark:bg-amber-950/10",
+                          lvl === 0 && "bg-rose-50/30 dark:bg-rose-950/10",
+                          lvl === undefined && "hover:bg-muted/30",
+                        )}>
+                          <div className="flex items-start gap-3">
+                            <div className={cn(
+                              "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                              lvl === undefined ? "bg-muted text-muted-foreground" : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md",
+                            )}>
+                              {idx + 1}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold leading-relaxed">{it.description}</p>
+                              <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                                <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
+                                <span>Vale <b className="text-foreground tabular-nums">{it.points}</b> pts</span>
+                              </div>
+
+                              {/* Pontuação por nível (estilo PR: 3 colunas com pontos) */}
+                              <div className="mt-3 grid grid-cols-3 gap-2">
+                                {LEVELS.map((L) => {
+                                  const active = lvl === L.v;
+                                  const pts = it.points * L.v;
+                                  return (
+                                    <button key={L.v} type="button"
+                                      onClick={() => setLevels((s) => ({ ...s, [it.id]: L.v }))}
+                                      className={cn(
+                                        "group relative rounded-xl border-2 px-2.5 py-2 text-left transition-all",
+                                        active ? L.activeCls : `bg-card ${L.cls}`,
+                                      )}>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", active ? "bg-white" : L.dot)} />
+                                        <span className="text-[11px] font-semibold leading-tight">
+                                          <span className="hidden md:inline">{L.label}</span>
+                                          <span className="md:hidden">{L.short}</span>
+                                        </span>
+                                      </div>
+                                      <div className={cn("mt-1 font-display text-base font-bold tabular-nums", active ? "text-white" : "")}>
+                                        {pts === 0 ? "0" : pts % 1 === 0 ? pts.toFixed(0) : pts.toFixed(2)}
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              <Textarea value={comments[it.id] ?? ""}
+                                onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
+                                placeholder="Observação para este item (opcional)"
+                                rows={2}
+                                className="mt-3 resize-none bg-background/50 text-sm" />
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+
+              {/* Análise da estação */}
+              {(station.expectedConduct || station.commonMistakes || station.scoringCriteria || station.evaluatorNotes) && (
+                <div className="overflow-hidden rounded-2xl border border-indigo-200/40 bg-gradient-to-br from-indigo-50/40 to-mint/5 dark:from-indigo-950/20">
+                  <button type="button" onClick={() => setOpenAnalysis((o) => !o)}
+                    className="flex w-full items-center justify-between px-5 py-4 text-left">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-indigo-500" />
+                      <span className="font-semibold">Análise da estação (gabarito da banca)</span>
                     </div>
-                  )}
-                  {(station.scoringCriteria || station.evaluatorNotes) && (
-                    <div className="rounded-xl border border-border/60 bg-card p-4">
-                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        <BookOpen className="h-3.5 w-3.5" /> Observações para a banca
-                      </div>
-                      <p className="mt-2 whitespace-pre-wrap text-muted-foreground">
-                        {station.scoringCriteria ?? station.evaluatorNotes}
-                      </p>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", openAnalysis && "rotate-180")} />
+                  </button>
+                  {openAnalysis && (
+                    <div className="space-y-4 border-t border-indigo-200/30 px-5 py-5 text-sm">
+                      {station.expectedConduct && (
+                        <InfoCard color="emerald" icon={Target} title="Conduta esperada" content={station.expectedConduct} />
+                      )}
+                      {station.commonMistakes && (
+                        <InfoCard color="amber" icon={AlertTriangle} title="Erros comuns" content={station.commonMistakes} />
+                      )}
+                      {(station.scoringCriteria || station.evaluatorNotes) && (
+                        <InfoCard color="slate" icon={BookOpen} title="Observações para a banca" content={station.scoringCriteria ?? station.evaluatorNotes ?? ""} />
+                      )}
                     </div>
                   )}
                 </div>
@@ -318,76 +553,100 @@ function EvaluatorView() {
             </div>
           )}
 
-          {/* Feedback final */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-mint" />
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Feedback final ao candidato</h3>
-            </div>
-            <Textarea
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              rows={6}
-              placeholder="Pontos fortes, oportunidades de melhoria, recomendações para o próximo treino..."
-              className="mt-3 resize-none"
-            />
+          {/* === FEEDBACK / RESULTADO === */}
+          {tab === "feedback" && (
+            <div className="space-y-5">
+              <PanelSection icon={Send} title="Feedback final ao candidato" accent="mint">
+                <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={7}
+                  placeholder="Pontos fortes, oportunidades de melhoria, recomendações para o próximo treino..."
+                  className="resize-none" />
+              </PanelSection>
 
-            <div className="mt-5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resultado final</div>
-              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {([
-                  { v: "aprovado", l: "Aprovado", icon: CheckCircle2, cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", active: "border-emerald-500 bg-emerald-500 text-white" },
-                  { v: "repetir",  l: "Repetir",  icon: RotateCw,     cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",       active: "border-amber-500 bg-amber-500 text-white" },
-                  { v: "reprovado", l: "Reprovado", icon: XCircle,    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",          active: "border-rose-500 bg-rose-500 text-white" },
-                ] as const).map((b) => {
-                  const active = status === b.v;
-                  return (
-                    <button key={b.v} type="button" onClick={() => setStatus(b.v)}
-                      className={`flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-2.5 text-sm font-medium transition-all ${active ? b.active : `bg-card ${b.cls}`}`}>
-                      <b.icon className="h-4 w-4" /> {b.l}
-                    </button>
-                  );
-                })}
-              </div>
+              <PanelSection icon={CheckCircle2} title="Resultado final" accent="indigo">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {([
+                    { v: "aprovado",  l: "Aprovado",  icon: CheckCircle2, cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", active: "border-emerald-500 bg-emerald-500 text-white" },
+                    { v: "repetir",   l: "Repetir",   icon: RotateCw,     cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",       active: "border-amber-500 bg-amber-500 text-white" },
+                    { v: "reprovado", l: "Reprovado", icon: XCircle,      cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",          active: "border-rose-500 bg-rose-500 text-white" },
+                  ] as const).map((b) => {
+                    const active = status === b.v;
+                    return (
+                      <button key={b.v} type="button" onClick={() => setStatus(b.v)}
+                        className={cn("flex items-center justify-center gap-2 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-all",
+                          active ? b.active : `bg-card ${b.cls}`)}>
+                        <b.icon className="h-4 w-4" /> {b.l}
+                      </button>
+                    );
+                  })}
+                </div>
+              </PanelSection>
             </div>
-          </div>
+          )}
         </section>
 
         {/* SIDEBAR */}
-        <aside className="lg:sticky lg:top-20 lg:self-start">
+        <aside className="lg:sticky lg:top-32 lg:self-start">
           <div className="space-y-4">
             {/* Score card */}
             <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-6 text-white shadow-elegant">
               <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-mint/20 blur-3xl" />
               <div className="relative">
-                <div className="text-[11px] font-semibold uppercase tracking-widest text-mint/90">Pontuação atual</div>
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-mint/90">Resultado ao vivo</div>
                 <div className="mt-1 flex items-baseline gap-2">
                   <span className="font-display text-6xl font-bold tabular-nums">{score.toFixed(2)}</span>
                   <span className="text-lg text-white/50">/ 10</span>
                 </div>
                 <div className="mt-1 text-xs text-white/60">
-                  {totals.earned.toFixed(1)} de {totals.total} pts · {totals.done}/{station.checklist.length} itens
+                  {totals.earned.toFixed(2)} / {totals.total} pts · {pct.toFixed(0)}%
                 </div>
 
-                {/* Progress */}
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
                   <div className="h-full rounded-full bg-gradient-to-r from-mint via-emerald-400 to-mint transition-all"
                        style={{ width: `${progress}%` }} />
                 </div>
+                <div className="mt-1 text-[10px] text-white/50">
+                  Progresso da avaliação · {totals.done}/{station.checklist.length} itens
+                </div>
 
-                {/* Mini legend */}
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                   {[
-                    { c: "bg-emerald-500", n: Object.values(levels).filter((v) => v === 1).length, l: "Adq." },
+                    { c: "bg-emerald-500", n: Object.values(levels).filter((v) => v === 1).length,   l: "Adq." },
                     { c: "bg-amber-500",   n: Object.values(levels).filter((v) => v === 0.5).length, l: "Parc." },
-                    { c: "bg-rose-500",    n: Object.values(levels).filter((v) => v === 0).length, l: "Inad." },
+                    { c: "bg-rose-500",    n: Object.values(levels).filter((v) => v === 0).length,   l: "Inad." },
                   ].map((x, i) => (
                     <div key={i} className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">
-                      <div className={`mx-auto h-1.5 w-6 rounded-full ${x.c}`} />
+                      <div className={cn("mx-auto h-1.5 w-6 rounded-full", x.c)} />
                       <div className="mt-1 font-display text-xl font-bold tabular-nums">{x.n}</div>
                       <div className="text-[10px] uppercase tracking-wider text-white/60">{x.l}</div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Participantes */}
+            <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Participantes</div>
+              <div className="mt-2 space-y-2">
+                <div className="flex items-center gap-2.5 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-xs font-bold text-white">A</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold">Você (Ator-Avaliador)</div>
+                    <div className="text-[10px] text-emerald-600">● Conectado</div>
+                  </div>
+                </div>
+                <div className={cn("flex items-center gap-2.5 rounded-lg border px-3 py-2",
+                  candidateId ? "border-emerald-300/40 bg-emerald-50/40 dark:bg-emerald-950/10" : "border-dashed border-border/60 bg-muted/20")}>
+                  <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold",
+                    candidateId ? "bg-gradient-to-br from-mint to-emerald-500 text-white" : "bg-muted text-muted-foreground")}>
+                    C
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold">Candidato</div>
+                    <div className={cn("text-[10px]", candidateId ? "text-emerald-600" : "text-muted-foreground")}>
+                      {candidateId ? "● Conectado" : "Aguardando..."}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -409,13 +668,13 @@ function EvaluatorView() {
               )}
             </div>
 
-            {/* Quick legend */}
+            {/* Legenda */}
             <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 text-xs">
               <div className="font-semibold text-foreground">Como pontuar</div>
               <ul className="mt-2 space-y-1.5 text-muted-foreground">
-                <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" /> <b className="text-emerald-700 dark:text-emerald-300">Adequado</b> — executou completamente</li>
-                <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" /> <b className="text-amber-700 dark:text-amber-300">Parcial</b> — executou de forma incompleta</li>
-                <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-rose-500" /> <b className="text-rose-700 dark:text-rose-300">Inadequado</b> — não executou</li>
+                <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" /> <b className="text-emerald-700 dark:text-emerald-300">Adequado</b> — executou completamente (1.0×)</li>
+                <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" /> <b className="text-amber-700 dark:text-amber-300">Parcial</b> — executou de forma incompleta (0.5×)</li>
+                <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-rose-500" /> <b className="text-rose-700 dark:text-rose-300">Inadequado</b> — não executou (0×)</li>
               </ul>
             </div>
           </div>
@@ -423,4 +682,75 @@ function EvaluatorView() {
       </div>
     </div>
   );
+}
+
+/* ===== Helpers ===== */
+
+function PanelSection({
+  icon: Icon, title, accent = "indigo", children,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  accent?: "indigo" | "mint" | "emerald" | "rose" | "amber";
+  children: React.ReactNode;
+}) {
+  const accents = {
+    indigo:  "from-indigo-50/60 to-transparent dark:from-indigo-950/30 text-indigo-600 dark:text-indigo-300",
+    mint:    "from-mint/10 to-transparent text-emerald-600 dark:text-mint",
+    emerald: "from-emerald-50/60 to-transparent dark:from-emerald-950/30 text-emerald-600 dark:text-emerald-300",
+    rose:    "from-rose-50/60 to-transparent dark:from-rose-950/30 text-rose-600 dark:text-rose-300",
+    amber:   "from-amber-50/60 to-transparent dark:from-amber-950/30 text-amber-600 dark:text-amber-300",
+  }[accent];
+  const [bgClass, iconClass] = accents.split(" text-");
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+      <div className={cn("flex items-center gap-2 border-b border-border/60 bg-gradient-to-r px-5 py-3", bgClass)}>
+        <Icon className={cn("h-4 w-4", `text-${iconClass}`)} />
+        <h3 className="text-sm font-semibold tracking-wide">{title}</h3>
+      </div>
+      <div className="px-5 py-4 text-sm text-foreground/90">{children}</div>
+    </div>
+  );
+}
+
+function InfoCard({
+  color, icon: Icon, title, content,
+}: {
+  color: "emerald" | "amber" | "slate";
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  content: string;
+}) {
+  const cls = {
+    emerald: "border-emerald-200/40 bg-emerald-50/40 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300",
+    amber:   "border-amber-200/40 bg-amber-50/40 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300",
+    slate:   "border-border/60 bg-card text-muted-foreground",
+  }[color];
+  return (
+    <div className={cn("rounded-xl border p-4", cls)}>
+      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+        <Icon className="h-3.5 w-3.5" /> {title}
+      </div>
+      <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{content}</p>
+    </div>
+  );
+}
+
+function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string, string | undefined][] {
+  return [
+    ["Nome", p.name],
+    ["Idade", p.age],
+    ["Sexo", p.sex],
+    ["Profissão", p.profession],
+    ["Queixa principal", p.chiefComplaint],
+    ["História da doença atual", p.hpi],
+    ["Antecedentes pessoais", p.personalHistory],
+    ["Medicamentos em uso", p.medications],
+    ["Alergias", p.allergies],
+    ["História familiar", p.familyHistory],
+    ["Hábitos de vida", p.habits],
+    ["Sinais e sintomas", p.symptoms],
+    ["Sinais vitais", p.vitals],
+    ["Exames prévios", p.previousExams],
+  ];
 }
