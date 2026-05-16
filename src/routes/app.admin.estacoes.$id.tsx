@@ -851,7 +851,7 @@ function SectionReview({
 // ============================================================
 // Live preview — mirrors the actual Avaliado / Ator / Avaliador panels
 // ============================================================
-type PreviewMode = "candidato" | "ator" | "avaliador";
+type PreviewMode = "candidato" | "ator";
 
 function StationLivePreview({ station, items }: { station: Station; items: Item[] }) {
   const [mode, setMode] = useState<PreviewMode>("candidato");
@@ -861,7 +861,6 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
   const tabs: { id: PreviewMode; label: string; icon: ComponentType<{ className?: string }> }[] = [
     { id: "candidato", label: "Avaliado (candidato)", icon: User },
     { id: "ator",      label: "Ator / Paciente",      icon: Stethoscope },
-    { id: "avaliador", label: "Avaliador (banca)",    icon: ClipboardCheck },
   ];
 
   const p = station.patient_profile ?? {};
@@ -902,7 +901,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">
-              {mode === "candidato" ? "Candidato" : mode === "ator" ? "Ator/Paciente" : "Avaliador"}
+              {mode === "candidato" ? "Candidato" : "Ator/Paciente"}
             </span>
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground">{station.specialty}</span>
@@ -987,78 +986,6 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
           </div>
         )}
 
-        {mode === "avaliador" && (
-          <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-            <div className="space-y-4">
-              <PRBlock icon={MessageSquare} title="Caso clínico">
-                <ScriptText text={station.clinical_case || "—"} />
-              </PRBlock>
-              <PRBlock icon={ListChecks} title="Tarefas do candidato">
-                <ScriptText text={station.candidate_task || "—"} />
-              </PRBlock>
-              {(station.expected_conduct || station.common_mistakes || station.evaluator_notes) && (
-                <PRBlock icon={BookOpen} title="Notas pedagógicas">
-                  {station.expected_conduct && (
-                    <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
-                      <div className="flex items-center gap-1 text-xs font-semibold text-emerald-400">
-                        <Target className="h-3.5 w-3.5" /> Conduta esperada
-                      </div>
-                      <div className="mt-1 whitespace-pre-wrap text-sm">{station.expected_conduct}</div>
-                    </div>
-                  )}
-                  {station.common_mistakes && (
-                    <div className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
-                      <div className="flex items-center gap-1 text-xs font-semibold text-amber-400">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Erros comuns
-                      </div>
-                      <div className="mt-1 whitespace-pre-wrap text-sm">{station.common_mistakes}</div>
-                    </div>
-                  )}
-                  {station.evaluator_notes && (
-                    <div className="mt-2 rounded-lg border border-border bg-background/40 p-3">
-                      <div className="text-xs font-semibold text-muted-foreground">Observações para a banca</div>
-                      <div className="mt-1 whitespace-pre-wrap text-sm">{station.evaluator_notes}</div>
-                    </div>
-                  )}
-                </PRBlock>
-              )}
-            </div>
-            <div className="space-y-4">
-              <PRBlock icon={ClipboardCheck} title={`Checklist PEP (${items.length} · ${totalPts.toFixed(2)} pts)`}>
-                {items.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Nenhum item cadastrado.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {items.map((it, idx) => (
-                      <div key={it.id} className="rounded-lg border border-border bg-background/40 p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="text-sm font-semibold">{idx + 1}. {it.category}</div>
-                          <Badge className="bg-mint/15 text-mint hover:bg-mint/15">{Number(it.points).toFixed(2)} pts</Badge>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground whitespace-pre-wrap">{it.description}</p>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {(it.levels ?? defaultLevels(Number(it.points) || 1)).map((lv, li) => {
-                            const tone =
-                              /inadequado/i.test(lv.label) && !/parcial/i.test(lv.label)
-                                ? "border-rose-500/40 text-rose-400"
-                                : /parcial/i.test(lv.label)
-                                ? "border-amber-500/40 text-amber-400"
-                                : "border-emerald-500/40 text-emerald-400";
-                            return (
-                              <span key={li} className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]", tone)}>
-                                {lv.label} · {Number(lv.points).toFixed(2)}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </PRBlock>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
