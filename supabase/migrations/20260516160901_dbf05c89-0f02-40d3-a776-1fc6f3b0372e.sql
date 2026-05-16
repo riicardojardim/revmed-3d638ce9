@@ -1,0 +1,1 @@
+ALTER TABLE public.training_rooms ADD COLUMN evaluated_candidate_id uuid;
