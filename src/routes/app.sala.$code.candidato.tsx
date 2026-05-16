@@ -10,7 +10,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
 } from "lucide-react";
 import { toast } from "sonner";
 
