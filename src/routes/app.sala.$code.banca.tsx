@@ -306,7 +306,7 @@ function EvaluatorView() {
                 </PanelSection>
               )}
 
-              <PanelSection icon={Target} title={`Tarefas dos ${station.durationMinutes} minutos`} accent="mint">
+              <PanelSection icon={Target} title={`Tarefas dos ${room?.duration_minutes ?? station.durationMinutes} minutos`} accent="mint">
                 <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
               </PanelSection>
 
