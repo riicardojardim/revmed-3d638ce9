@@ -137,6 +137,10 @@ function CandidateView() {
 
   async function finish() {
     if (!station || !user || !room) return;
+    if (room.status !== "running") {
+      toast.error("A estação ainda não foi iniciada pelo avaliador.");
+      return;
+    }
     if (intervalRef.current) clearInterval(intervalRef.current);
     setFinished(true);
     try {
