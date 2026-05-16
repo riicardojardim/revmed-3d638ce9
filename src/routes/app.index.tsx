@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { STATIONS, RECENT_ATTEMPTS, COMPETENCIES } from "@/data/stations";
+import { useSubscription } from "@/hooks/use-subscription";
+import { AtorDashboard } from "@/components/AtorDashboard";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
@@ -25,7 +27,16 @@ const indicators = [
 ];
 
 function Dashboard() {
+  const { plan, isPrivileged, loading } = useSubscription();
   const recommended = STATIONS[0];
+
+  if (loading) {
+    return <div className="text-sm text-muted-foreground">Carregando...</div>;
+  }
+
+  if (!isPrivileged && plan?.slug === "ator") {
+    return <AtorDashboard />;
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">

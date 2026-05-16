@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -38,15 +39,27 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const { user, loading, profile, roles, signOut } = useAuth();
+  const { plan, isPrivileged } = useSubscription();
 
   const isTeacher = roles.includes("professor") || roles.includes("admin");
   const isAdmin = roles.includes("admin");
-  const navItems: NavItem[] = [
-    ...baseNavItems.slice(0, baseNavItems.length - 1),
-    ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false }] : []),
-    ...(isAdmin ? [{ to: "/app/admin", label: "Admin", icon: ShieldCheck, exact: false }] : []),
-    baseNavItems[baseNavItems.length - 1],
-  ];
+  const isAtorOnly = !isPrivileged && plan?.slug === "ator";
+
+  const candidateItems = baseNavItems.slice(0, baseNavItems.length - 1);
+  const profileItem = baseNavItems[baseNavItems.length - 1];
+
+  const navItems: NavItem[] = isAtorOnly
+    ? [
+        { to: "/app", label: "Início", icon: Home, exact: true },
+        { to: "/app/treinar", label: "Salas", icon: Dumbbell, exact: false },
+        profileItem,
+      ]
+    : [
+        ...candidateItems,
+        ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false }] : []),
+        ...(isAdmin ? [{ to: "/app/admin", label: "Admin", icon: ShieldCheck, exact: false }] : []),
+        profileItem,
+      ];
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
