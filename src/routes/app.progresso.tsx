@@ -18,6 +18,9 @@ interface DbAttempt {
   score: number;
   status: string;
   created_at: string;
+  professor_score: number | null;
+  reviewed_at: string | null;
+  professor_feedback: string | null;
 }
 
 function ProgressPage() {
@@ -29,7 +32,7 @@ function ProgressPage() {
     if (!user) return;
     supabase
       .from("attempts")
-      .select("id, station_id, station_title, specialty, score, status, created_at")
+      .select("id, station_id, station_title, specialty, score, status, created_at, professor_score, reviewed_at, professor_feedback")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20)
