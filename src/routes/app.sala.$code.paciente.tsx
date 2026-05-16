@@ -1210,7 +1210,17 @@ function formatPatientProfile(p: NonNullable<LoadedStation["patientProfile"]>): 
     }).filter(Boolean);
   };
 
-  // (DADOS PESSOAIS omitido — nome/idade/profissão já aparecem no topo da sala)
+  // DADOS PESSOAIS — um bullet por campo (sem linha resumo)
+  const dados: string[] = [];
+  if (p.name) dados.push(`- **Nome:** ${p.name}`);
+  if (p.age) dados.push(`- **Idade:** ${p.age}`);
+  if (p.sex) dados.push(`- **Sexo:** ${p.sex}`);
+  if (p.profession) dados.push(`- **Profissão:** ${p.profession}`);
+  if (dados.length) {
+    out.push("DADOS PESSOAIS:");
+    out.push(...dados);
+    out.push("");
+  }
 
   if (p.chiefComplaint) {
     out.push("MOTIVO DE CONSULTA:");
