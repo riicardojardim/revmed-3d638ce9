@@ -592,7 +592,7 @@ function ActorView() {
             </div>
 
             {candidates.length === 0 ? (
-              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                 <UserPlus className="h-4 w-4" />
                 Aguardando participantes.
               </div>
@@ -609,7 +609,7 @@ function ActorView() {
                         className={cn(
                           "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
                           isEvaluated
-                            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-200"
+                            ? "border-mint/50 bg-mint/10 text-foreground"
                             : "border-border bg-background/40 text-foreground hover:border-mint/40",
                           isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
                         )}
@@ -617,13 +617,13 @@ function ActorView() {
                       >
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                          isEvaluated ? "border-emerald-400 bg-emerald-400/20" : "border-muted-foreground/40",
+                          isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
                         )}>
-                          {isEvaluated && <CheckCheck className="h-3 w-3 text-emerald-300" />}
+                          {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
                         </span>
                         <span className="flex-1 truncate font-medium">{c.name}</span>
                         {isEvaluated && (
-                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
                         )}
                       </button>
                     </li>
