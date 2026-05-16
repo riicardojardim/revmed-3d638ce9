@@ -1179,6 +1179,105 @@ function SubBlock({ label, children }: { label: string; tone?: "rose"; children:
   );
 }
 
+/** Marca-texto persistente: selecionar destaca; selecionar de novo na mesma área remove. */
+function Highlightable({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ranges, setRanges] = useState<Array<[number, number]>>([]);
+
+  function getOffsetIn(root: HTMLElement, node: Node, offset: number): number {
+    let total = 0;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n = walker.nextNode();
+    while (n) {
+      if (n === node) return total + offset;
+      total += (n as Text).length;
+      n = walker.nextNode();
+    }
+    // node not a text node (e.g. element). Fall back: count text up to it.
+    if (node.nodeType !== 3) {
+      const w2 = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      total = 0;
+      let m = w2.nextNode();
+      while (m) {
+        // stop when text node is after `node` in document order
+        const pos = node.compareDocumentPosition(m);
+        if (pos & Node.DOCUMENT_POSITION_FOLLOWING) break;
+        total += (m as Text).length;
+        m = w2.nextNode();
+      }
+    }
+    return total;
+  }
+
+  // Re-apply highlight spans after every render
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    // Unwrap existing
+    root.querySelectorAll('.user-highlight').forEach((el) => {
+      const parent = el.parentNode!;
+      while (el.firstChild) parent.insertBefore(el.firstChild, el);
+      parent.removeChild(el);
+    });
+    root.normalize();
+    // Apply each range
+    for (const [start, end] of ranges) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      const pieces: Array<{ node: Text; s: number; e: number }> = [];
+      let pos = 0;
+      let n = walker.nextNode() as Text | null;
+      while (n) {
+        const len = n.length;
+        const s = Math.max(start, pos);
+        const e = Math.min(end, pos + len);
+        if (s < e) pieces.push({ node: n, s: s - pos, e: e - pos });
+        pos += len;
+        if (pos >= end) break;
+        n = walker.nextNode() as Text | null;
+      }
+      // wrap in reverse so splits don't invalidate refs
+      for (let i = pieces.length - 1; i >= 0; i--) {
+        const { node, s, e } = pieces[i];
+        let target = node;
+        if (s > 0) target = target.splitText(s);
+        if (e - s < target.length) target.splitText(e - s);
+        const span = document.createElement('span');
+        span.className = 'user-highlight';
+        target.parentNode!.insertBefore(span, target);
+        span.appendChild(target);
+      }
+    }
+  }, [ranges]);
+
+  const handleMouseUp = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    const root = ref.current;
+    if (!root || !root.contains(range.commonAncestorContainer)) return;
+    const a = getOffsetIn(root, range.startContainer, range.startOffset);
+    const b = getOffsetIn(root, range.endContainer, range.endOffset);
+    const [s, e] = a < b ? [a, b] : [b, a];
+    if (s === e) return;
+    setRanges((prev) => {
+      const overlapping = prev.filter(([x, y]) => !(y <= s || x >= e));
+      if (overlapping.length > 0) {
+        // toggle off: remove any overlapping highlights
+        return prev.filter((r) => !overlapping.includes(r));
+      }
+      return [...prev, [s, e] as [number, number]];
+    });
+    sel.removeAllRanges();
+  };
+
+  return (
+    <div ref={ref} className="highlightable" onMouseUp={handleMouseUp}>
+      {children}
+    </div>
+  );
+}
+
+
 function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string, string | undefined][] {
   return [
     ["Nome", p.name],
