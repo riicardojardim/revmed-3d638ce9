@@ -1,5 +1,6 @@
-import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Logo } from "@/components/Logo";
 import {
   Home,
@@ -11,6 +12,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -26,8 +28,30 @@ const navItems = [
 
 function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const nav = useNavigate();
+  const { user, loading, profile, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/login" });
+  }, [user, loading, nav]);
+
   const isActive = (to: string, exact: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
+
+  async function handleLogout() {
+    await signOut();
+    nav({ to: "/login" });
+  }
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Carregando...</div>
+      </div>
+    );
+  }
+
+  const initial = (profile?.full_name || user.email || "?").charAt(0).toUpperCase();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -56,10 +80,13 @@ function AppLayout() {
           })}
         </nav>
         <div className="border-t border-border p-3">
-          <Link to="/" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted-foreground hover:bg-muted"
+          >
             <LogOut className="h-5 w-5" />
             Sair
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -74,7 +101,7 @@ function AppLayout() {
               <Bell className="h-5 w-5" />
             </Button>
             <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-gradient-mint text-sm font-bold text-night sm:flex">
-              M
+              {initial}
             </div>
           </div>
         </header>
