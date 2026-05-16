@@ -21,7 +21,7 @@ export const Route = createFileRoute("/app/admin/estacoes/$id")({
 
 // -------- Types --------
 interface PatientProfile {
-  name?: string; age?: string; sex?: string; profession?: string;
+  name?: string; age?: string; sex?: string; city?: string; profession?: string;
   chiefComplaint?: string; hpi?: string; personalHistory?: string;
   medications?: string; allergies?: string; familyHistory?: string;
   habits?: string; symptoms?: string; vitals?: string; previousExams?: string;
