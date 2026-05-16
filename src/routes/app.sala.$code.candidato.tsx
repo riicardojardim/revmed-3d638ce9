@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
+import { getServerOffset, serverNow } from "@/lib/serverClock";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
@@ -95,8 +96,11 @@ function CandidateView() {
     if (!room || !station) return;
     if (room.status === "running" && room.started_at && !finished) {
       const totalSec = station.durationMinutes * 60;
+      const startedMs = new Date(room.started_at).getTime();
+      let cancelled = false;
+
       const tick = () => {
-        const elapsed = Math.floor((Date.now() - new Date(room.started_at!).getTime()) / 1000);
+        const elapsed = Math.floor((serverNow() - startedMs) / 1000);
         const left = Math.max(0, totalSec - elapsed);
         setRemaining(left);
         if (left <= 0) {
@@ -104,9 +108,22 @@ function CandidateView() {
           if (intervalRef.current) clearInterval(intervalRef.current);
         }
       };
-      tick();
+
+      const onVisible = () => {
+        if (document.visibilityState === "visible") {
+          getServerOffset(true).then(() => { if (!cancelled) tick(); });
+        }
+      };
+
+      getServerOffset().then(() => { if (!cancelled) tick(); });
       intervalRef.current = setInterval(tick, 1000);
-      return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+      document.addEventListener("visibilitychange", onVisible);
+
+      return () => {
+        cancelled = true;
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        document.removeEventListener("visibilitychange", onVisible);
+      };
     }
     if (room.status === "finished") {
       setFinished(true);
