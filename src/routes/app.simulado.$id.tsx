@@ -236,8 +236,9 @@ function SimuladoRunner() {
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
   const isWaiting = !running && !finishedStation;
-  const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
-  const ss = String(remaining % 60).padStart(2, "0");
+  const totalSec = Math.max(0, Math.floor(remaining));
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
+  const ss = String(totalSec % 60).padStart(2, "0");
   const progress = ((sim.currentIndex + (allScored ? 1 : 0)) / sim.stations.length) * 100;
 
   return (
@@ -564,7 +565,7 @@ function SimuladoRunner() {
               <div className="font-display text-5xl font-bold tabular-nums text-white">{mm}:{ss}</div>
               {isWaiting && (
                 <div className="mt-3">
-                  <Select value={String(duration)} onValueChange={(v) => { setDuration(Number(v)); setRemaining(Number(v) * 60); }}>
+                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
                     <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -580,14 +581,22 @@ function SimuladoRunner() {
               )}
             </div>
             {isWaiting && (
-              <Button variant="hero" className="mt-3 w-full" onClick={startTimer}>
-                <Play className="mr-1 h-4 w-4" /> Iniciar cronômetro
-              </Button>
+              <button
+                type="button"
+                onClick={startTimer}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-medical shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
+              >
+                <Play className="h-4 w-4" /> Iniciar cronômetro
+              </button>
             )}
             {running && (
-              <Button variant="outline" className="mt-3 w-full" onClick={finishTimer}>
-                <Square className="mr-1 h-4 w-4" /> Encerrar estação
-              </Button>
+              <button
+                type="button"
+                onClick={finishTimer}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 active:scale-[0.98]"
+              >
+                <Square className="h-4 w-4" /> Encerrar estação
+              </button>
             )}
             {finishedStation && (
               <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
