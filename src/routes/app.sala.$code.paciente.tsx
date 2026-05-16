@@ -588,61 +588,6 @@ function ActorView() {
               </div>
             )}
           </PRBlock>
-
-          {/* Análise de resultados */}
-          {(station.educationalGoal || station.expectedConduct || station.commonMistakes) && (
-            <PRBlock icon={BarChart3} title="Análise de resultados">
-              {station.educationalGoal && (
-                <SubBlock label="Objetivo educacional">{station.educationalGoal}</SubBlock>
-              )}
-              {station.expectedConduct && (
-                <SubBlock label="Conduta esperada">{station.expectedConduct}</SubBlock>
-              )}
-              {station.commonMistakes && (
-                <SubBlock label="Erros comuns" tone="rose">{station.commonMistakes}</SubBlock>
-              )}
-            </PRBlock>
-          )}
-
-          {/* Referências bibliográficas */}
-          {station.references && station.references.length > 0 && (
-            <PRBlock icon={BookOpen} title="Referências bibliográficas">
-              <ul className="space-y-2">
-                {station.references.map((r, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
-                    <Link2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-mint" />
-                    {r.url ? (
-                      <a
-                        href={r.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-mint underline-offset-2 hover:underline break-all"
-                      >
-                        {r.label || r.url}
-                      </a>
-                    ) : (
-                      <span className="text-foreground/90">{r.label}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </PRBlock>
-          )}
-
-          {/* Feedback */}
-          <PRBlock icon={MessageSquareWarning} title="Feedback | Erro, Dúvida ou Sugestão">
-            <p className="text-sm text-muted-foreground">
-              Encontrou algum problema ou tem sugestões sobre esta estação? Envie um feedback para a equipe.
-            </p>
-            <Button
-              variant="hero"
-              className="mt-3"
-              onClick={() => toast.success("Obrigado! Seu feedback foi registrado.")}
-            >
-              <MessageCircle className="mr-1 h-4 w-4" /> Enviar feedback
-            </Button>
-          </PRBlock>
-
           {/* CHECKLIST (PEP) inline — só editável após encerrar */}
           <PRBlock
             icon={ClipboardCheck}
