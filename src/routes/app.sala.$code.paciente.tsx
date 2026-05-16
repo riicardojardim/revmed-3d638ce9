@@ -373,7 +373,7 @@ function ActorView() {
           </div>
 
           <div className="mt-4 rounded-2xl border border-dashed border-border bg-card p-3 text-[11px] text-muted-foreground">
-            <Pill className="mr-1 inline h-3 w-3 text-mint" />
+            <Theater className="mr-1 inline h-3 w-3 text-mint" />
             Esta tela é exclusiva do ator/avaliador. O candidato vê apenas a tela dele.
           </div>
         </aside>
