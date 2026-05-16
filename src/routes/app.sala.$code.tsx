@@ -150,6 +150,23 @@ function RoomPage() {
         </div>
       </div>
 
+      {sub.plan && !sub.isPrivileged && (
+        <div className={`rounded-2xl border p-4 text-sm ${sub.plan.expired ? "border-rose-300 bg-rose-50 text-rose-800 dark:bg-rose-950/30" : "border-mint/40 bg-mint/5"}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="font-semibold">Plano {sub.plan.name}</span>
+              {sub.plan.slug === "free" && sub.daysLeft !== null && !sub.plan.expired && (
+                <span className="ml-2 text-xs">· {sub.daysLeft} {sub.daysLeft === 1 ? "dia restante" : "dias restantes"} do teste</span>
+              )}
+              {sub.plan.expired && <span className="ml-2 text-xs">· expirado</span>}
+            </div>
+            {(sub.plan.slug === "free" || sub.plan.expired) && (
+              <Link to="/" className="text-xs font-semibold text-medical hover:underline">Ver planos →</Link>
+            )}
+          </div>
+        </div>
+      )}
+
       <div>
         <h2 className="font-display text-lg font-bold">Escolha seu papel</h2>
         <p className="mt-1 text-sm text-muted-foreground">
