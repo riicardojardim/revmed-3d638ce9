@@ -13,7 +13,7 @@ import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Lock, Clock, Pause, Square,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
