@@ -79,16 +79,29 @@ const SPECIALTIES = [
   "Clínica Médica", "Pediatria", "Ginecologia e Obstetrícia",
   "Cirurgia", "Medicina da Família", "Urgência e Emergência",
 ];
-const CATEGORIES = ["Anamnese", "Exame físico", "Diagnóstico", "Conduta", "Comunicação", "Procedimento"];
+const CATEGORIES = [
+  "Apresentação", "Anamnese", "Exame físico", "Hipótese diagnóstica",
+  "Conduta", "Comunicação", "Procedimento", "Prescrição", "Orientações finais",
+];
 const MATERIAL_TYPES = ["Impresso", "Exame laboratorial", "Exame de imagem", "ECG", "Outro"];
 
+// PEP graduado padrão Estação Revalida: 3 níveis sempre na ordem
+// Inadequado → Parcialmente adequado → Adequado.
 function defaultLevels(maxPts: number): ChecklistLevel[] {
   const m = Number.isFinite(maxPts) ? maxPts : 1;
+  const mid = Math.round((m / 2) * 100) / 100;
   return [
-    { label: "Adequado", points: m, description: "" },
-    { label: "Parcialmente adequado", points: Math.round((m / 2) * 100) / 100, description: "" },
-    { label: "Inadequado", points: 0, description: "" },
+    { label: "Inadequado", points: 0, description: "Não realiza." },
+    { label: "Parcialmente adequado", points: mid, description: "Realiza parcialmente." },
+    { label: "Adequado", points: m, description: "Realiza completamente." },
   ];
+}
+
+// Numera o título do item ("1. Apresentação", "2. Anamnese", ...) seguindo
+// o padrão das estações de referência.
+function numberedCategory(index: number, title: string): string {
+  const clean = title.replace(/^\s*\d+\.\s*/, "").trim();
+  return `${index + 1}. ${clean}`;
 }
 
 const STEPS = [
