@@ -48,7 +48,20 @@ function TrainPage() {
   const [stations, setStations] = useState<DBStation[]>([]);
   const [, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
+  const [allSpecialty, setAllSpecialty] = useState<string>("all");
   const [simulados, setSimulados] = useState<Simulado[]>([]);
+
+  const allFiltered = useMemo(() => {
+    return stations
+      .filter((s) => {
+        const t = s.title.toLowerCase().includes(allSearch.toLowerCase());
+        const sp = allSpecialty === "all" || s.specialty === allSpecialty;
+        return t && sp;
+      })
+      .sort((a, b) => a.title.localeCompare(b.title, "pt-BR"));
+  }, [stations, allSearch, allSpecialty]);
 
   useEffect(() => {
     const refresh = () => setSimulados(listSimulados());
