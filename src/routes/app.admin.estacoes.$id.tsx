@@ -999,8 +999,8 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               <PRBlock icon={MessageSquare} title="Cenário de atuação">
                 <ScriptText text={station.clinical_case || "—"} />
               </PRBlock>
-              <PRBlock icon={ListChecks} title="Tarefas da estação">
-                <ScriptText text={station.candidate_task || "—"} />
+              <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
+                <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
               </PRBlock>
               <PRBlock icon={Inbox} title="Materiais recebidos" right={<Badge variant="outline">0</Badge>}>
                 <p className="text-sm text-muted-foreground">
