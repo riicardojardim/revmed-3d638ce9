@@ -93,6 +93,12 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
+  const [struckWords, setStruckWords] = useState<Set<string>>(new Set());
+  const toggleStruck = (id: string) => setStruckWords((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
   const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos">("controle");
 
   // Timer state (synced with room.started_at)
@@ -499,35 +505,49 @@ function ActorView() {
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
+            <p className="mb-3 text-[11px] text-muted-foreground italic">Dica: clique em qualquer palavra para riscá-la; clique novamente para desfazer.</p>
             {station.patientScript && (
-              <ScriptText text={station.patientScript} />
+              <StrikeText text={station.patientScript} prefix="ps" struck={struckWords} toggle={toggleStruck} />
             )}
             {p && (
               <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
                 {patientFields(p).map(([label, value]) => value && (
                   <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
                     <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
-                    <dd className="mt-0.5 text-sm">{value}</dd>
+                    <dd className="mt-0.5 text-sm">
+                      <StrikeText text={value} prefix={`pf-${label}`} struck={struckWords} toggle={toggleStruck} />
+                    </dd>
                   </div>
                 ))}
               </dl>
             )}
             {p?.spontaneous && (
-              <SubBlock label="O que falar espontaneamente">{p.spontaneous}</SubBlock>
+              <SubBlock label="O que falar espontaneamente">
+                <StrikeText text={p.spontaneous} prefix="sp" struck={struckWords} toggle={toggleStruck} />
+              </SubBlock>
             )}
             {p?.onlyIfAsked && (
-              <SubBlock label="Revelar APENAS se perguntado">{p.onlyIfAsked}</SubBlock>
+              <SubBlock label="Revelar APENAS se perguntado">
+                <StrikeText text={p.onlyIfAsked} prefix="oia" struck={struckWords} toggle={toggleStruck} />
+              </SubBlock>
             )}
             {p?.doNotReveal && (
-              <SubBlock label="Nunca revelar" tone="rose">{p.doNotReveal}</SubBlock>
+              <SubBlock label="Nunca revelar" tone="rose">
+                <StrikeText text={p.doNotReveal} prefix="dnr" struck={struckWords} toggle={toggleStruck} />
+              </SubBlock>
             )}
             {(p?.emotionalTone || p?.actingTips) && (
               <SubBlock label="Tom emocional e atuação">
-                {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
-                {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
+                {p?.emotionalTone && (
+                  <div><span className="font-medium">Tom:</span> <StrikeText text={p.emotionalTone} prefix="et" struck={struckWords} toggle={toggleStruck} inline /></div>
+                )}
+                {p?.actingTips && (
+                  <div className="mt-1"><span className="font-medium">Dicas:</span> <StrikeText text={p.actingTips} prefix="at" struck={struckWords} toggle={toggleStruck} inline /></div>
+                )}
               </SubBlock>
             )}
           </PRBlock>
+
 
           <PRBlock
             icon={Inbox}
@@ -1230,3 +1250,35 @@ function ScriptText({ text, className }: { text: string; className?: string }) {
   );
 }
 
+
+function StrikeText({ text, prefix, struck, toggle, className, inline }: { text: string; prefix: string; struck: Set<string>; toggle: (id: string) => void; className?: string; inline?: boolean }) {
+  const lines = text.split("\n");
+  const Wrapper: React.ElementType = inline ? "span" : "div";
+  return (
+    <Wrapper className={cn(!inline && "whitespace-pre-wrap leading-relaxed", className)}>
+      {lines.map((line, li) => {
+        const tokens = line.split(/(\s+)/);
+        const content = tokens.map((tok, wi) => {
+          if (!tok) return null;
+          if (/^\s+$/.test(tok)) return <span key={wi}>{tok}</span>;
+          const id = `${prefix}-${li}-${wi}`;
+          const isStruck = struck.has(id);
+          return (
+            <span
+              key={wi}
+              onClick={() => toggle(id)}
+              className={cn(
+                "cursor-pointer rounded px-0.5 transition-colors select-none",
+                isStruck ? "line-through opacity-50" : "hover:bg-amber-500/20"
+              )}
+            >
+              {tok}
+            </span>
+          );
+        });
+        if (inline) return <span key={li}>{content}{li < lines.length - 1 && "\n"}</span>;
+        return <div key={li}>{line === "" ? <br /> : content}</div>;
+      })}
+    </Wrapper>
+  );
+}
