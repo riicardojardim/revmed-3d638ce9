@@ -698,7 +698,7 @@ function ActorView() {
                 onClick={shareNative}
                 title="Compartilhar / Reenviar"
               >
-                <Share2 className="h-3.5 w-3.5 text-violet-400" />
+                <Share2 className="h-3.5 w-3.5 text-mint" />
                 Reenviar
               </Button>
             </div>
