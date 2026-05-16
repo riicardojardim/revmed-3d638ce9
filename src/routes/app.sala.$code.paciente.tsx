@@ -527,11 +527,6 @@ function ActorView() {
                   <ScriptText text={p.spontaneous} strikeable prefix="sp" struck={struckWords} toggle={toggleStruck} />
                 </SubBlock>
               )}
-              {p?.onlyIfAsked && (
-                <SubBlock label="Revelar APENAS se perguntado">
-                  <ScriptText text={p.onlyIfAsked} strikeable prefix="oia" struck={struckWords} toggle={toggleStruck} />
-                </SubBlock>
-              )}
               {p?.doNotReveal && (
                 <SubBlock label="Nunca revelar" tone="rose">
                   <ScriptText text={p.doNotReveal} strikeable prefix="dnr" struck={struckWords} toggle={toggleStruck} />
