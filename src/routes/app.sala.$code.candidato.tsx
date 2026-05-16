@@ -86,9 +86,12 @@ function CandidateView() {
   }, [room?.id]);
 
   async function loadEvaluation(roomId: string) {
+    if (!user) return;
     const { data } = await supabase.from("room_evaluations")
       .select("final_score, status, final_feedback")
-      .eq("room_id", roomId).maybeSingle();
+      .eq("room_id", roomId)
+      .eq("candidate_id", user.id)
+      .maybeSingle();
     if (data) setEvaluation(data);
   }
 
