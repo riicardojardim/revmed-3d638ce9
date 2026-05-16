@@ -107,6 +107,12 @@ function AppLayout() {
     if (!loading && !user) nav({ to: "/login" });
   }, [user, loading, nav]);
 
+  useEffect(() => {
+    if (!loading && user && isAdmin && pathname === "/app") {
+      nav({ to: "/app/admin" });
+    }
+  }, [loading, user, isAdmin, pathname, nav]);
+
   const isActive = (to: string, exact: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
