@@ -135,6 +135,11 @@ function ActorView() {
         .select("id, material_id, material_name").eq("room_id", (r as Room).id);
       setDeliveries((dels ?? []) as Delivery[]);
 
+      try {
+        localStorage.setItem("ator:activeRoom", JSON.stringify({ code, title: (r as Room).station_title ?? st?.title ?? "Treinamento" }));
+        window.dispatchEvent(new Event("ator:activeRoom"));
+      } catch {}
+
       if (user && (r as Room).evaluated_candidate_id) {
         const { data: ev } = await supabase.from("room_evaluations")
           .select("*").eq("room_id", (r as Room).id).eq("evaluator_id", user.id)
