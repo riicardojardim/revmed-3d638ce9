@@ -9,11 +9,18 @@ export type Specialty =
 
 export type Difficulty = "Fácil" | "Médio" | "Difícil";
 
+export interface ChecklistLevel {
+  label: string;   // "Adequado" | "Parcialmente adequado" | "Inadequado"
+  points: number;  // value awarded for this level
+}
+
 export interface ChecklistItem {
   id: string;
   category: "Anamnese" | "Exame físico" | "Diagnóstico" | "Conduta" | "Comunicação";
   description: string;
-  points: number;
+  points: number;            // max value (used for totals)
+  levels?: ChecklistLevel[]; // optional: graded scoring (Adequado/Parcial/Inadequado)
+  helperText?: string;       // optional grey hint under item
 }
 
 export interface PatientProfile {
