@@ -94,6 +94,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
+  const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos" | "avaliado">("controle");
 
   // Timer state (synced with room.started_at)
   const [remaining, setRemaining] = useState(0);
@@ -691,261 +692,292 @@ function ActorView() {
           </PRBlock>
         </div>
 
-        {/* RIGHT: sticky control panel (Pense Revalida-style) */}
-        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
-          {/* Timer */}
-          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
-              {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando início"}
-            </div>
-            <div className={cn(
-              "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-mint/15" : "bg-white/5",
-            )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">
-                {mm}:{ss}
-              </div>
-              {isWaiting && (
-                <div className="mt-3">
-                  <Select
-                    value={String(room.duration_minutes ?? station.durationMinutes)}
-                    onValueChange={(v) => changeDuration(Number(v))}
-                  >
-                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[5, 6, 7, 8, 9, 10].map((m) => (
-                        <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+        {/* RIGHT: tabbed control panel + vertical rail */}
+        <aside className="lg:sticky lg:top-20 lg:self-start">
+          <div className="flex gap-2">
+            {/* Painel ativo */}
+            <div className="flex-1 space-y-3 min-w-0">
+              {sideTab === "controle" && (
+                <>
+                  {/* Timer */}
+                  <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+                    <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                      {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando início"}
+                    </div>
+                    <div className={cn(
+                      "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
+                      isRunning ? "bg-mint/15" : "bg-white/5",
+                    )}>
+                      <div className="font-display text-5xl font-bold tabular-nums text-white">
+                        {mm}:{ss}
+                      </div>
+                      {isWaiting && (
+                        <div className="mt-3">
+                          <Select
+                            value={String(room.duration_minutes ?? station.durationMinutes)}
+                            onValueChange={(v) => changeDuration(Number(v))}
+                          >
+                            <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[5, 6, 7, 8, 9, 10].map((m) => (
+                                <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
+                        </div>
+                      )}
+                    </div>
+                    {isWaiting && (
+                      <Button
+                        variant="hero"
+                        className="mt-3 w-full"
+                        onClick={startStation}
+                        disabled={starting || !room.evaluated_candidate_id}
+                      >
+                        <Play className="mr-1 h-4 w-4" />
+                        {room.evaluated_candidate_id ? "Iniciar cronômetro" : "Aguardando candidato..."}
+                      </Button>
+                    )}
+                    {isRunning && (
+                      <Button variant="outline" className="mt-3 w-full" onClick={finishStation}>
+                        <Square className="mr-1 h-4 w-4" /> Encerrar estação
+                      </Button>
+                    )}
+                    {isFinished && (
+                      <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
+                        Estação encerrada — preencha o PEP abaixo.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Resultado */}
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Resultado
+                    </div>
+                    <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+                      <div className="font-display text-xl font-bold tabular-nums text-mint">
+                        {score.toFixed(2)} / {pct.toFixed(0)}%
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status da avaliação */}
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Status da avaliação
+                    </div>
+                    <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="em_andamento">Aguardando...</SelectItem>
+                        <SelectItem value="aprovado">Aprovado</SelectItem>
+                        <SelectItem value="reprovado">Reprovado</SelectItem>
+                        <SelectItem value="repetir">Pedir repetição</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
+              {sideTab === "orientacoes" && (
+                <div className="rounded-2xl border border-border bg-card p-4 space-y-3 text-sm max-h-[calc(100vh-7rem)] overflow-y-auto">
+                  <div className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Theater className="h-4 w-4 text-mint" /> Orientações do Ator/Atriz
+                  </div>
+                  {station.patientScript && (
+                    <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">{station.patientScript}</p>
+                  )}
+                  {p && (
+                    <dl className="grid grid-cols-1 gap-2">
+                      {patientFields(p).map(([label, value]) => value && (
+                        <div key={label} className="rounded-lg bg-background/50 px-3 py-2">
+                          <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</dt>
+                          <dd className="mt-0.5 text-sm">{value}</dd>
+                        </div>
                       ))}
-                    </SelectContent>
-                  </Select>
-                  <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
+                    </dl>
+                  )}
+                  {p?.spontaneous && <SubBlock label="O que falar espontaneamente">{p.spontaneous}</SubBlock>}
+                  {p?.onlyIfAsked && <SubBlock label="Revelar APENAS se perguntado">{p.onlyIfAsked}</SubBlock>}
+                  {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose">{p.doNotReveal}</SubBlock>}
+                </div>
+              )}
+
+              {sideTab === "impressos" && (
+                <div className="rounded-2xl border border-border bg-card p-3 max-h-[calc(100vh-7rem)] overflow-y-auto">
+                  <div className="flex items-center justify-between px-1 pb-2">
+                    <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                      <Inbox className="h-4 w-4 text-mint" />
+                      {materials.length} Impresso{materials.length === 1 ? "" : "s"}
+                    </div>
+                    <Badge variant="outline" className="text-[10px]">{deliveries.length}/{materials.length}</Badge>
+                  </div>
+                  {materials.length === 0 ? (
+                    <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {materials.map((m, idx) => {
+                        const isDelivered = delivered.has(m.id);
+                        return (
+                          <li key={m.id}>
+                            <button
+                              type="button"
+                              onClick={() => setPreviewMaterialId(m.id)}
+                              className={cn(
+                                "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
+                                isDelivered
+                                  ? "border-mint/50 bg-mint/10 text-foreground"
+                                  : "border-border bg-background/40 text-foreground/90 hover:border-mint/40 hover:text-foreground",
+                              )}
+                              title="Clique para visualizar / liberar o impresso"
+                            >
+                              <span className="flex min-w-0 items-center gap-2">
+                                {isDelivered
+                                  ? <PackageCheck className="h-3.5 w-3.5 shrink-0 text-mint" />
+                                  : <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+                                <span className="truncate">
+                                  Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
+                                </span>
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                  <p className="mt-3 px-1 text-[10px] leading-relaxed text-muted-foreground">
+                    Clique em um impresso para visualizar o conteúdo e liberá-lo ao candidato.
+                  </p>
+                </div>
+              )}
+
+              {sideTab === "avaliado" && (
+                <div className="space-y-3">
+                  {/* Participantes */}
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Participantes ({candidates.length})
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
+                    </div>
+
+                    {candidates.length === 0 ? (
+                      <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                        <UserPlus className="h-4 w-4" />
+                        Aguardando participantes.
+                      </div>
+                    ) : (
+                      <ul className="mt-2 space-y-1.5">
+                        {candidates.map((c) => {
+                          const isEvaluated = c.id === room.evaluated_candidate_id;
+                          return (
+                            <li key={c.id}>
+                              <button
+                                type="button"
+                                onClick={() => setEvaluatedCandidate(c.id)}
+                                disabled={isRunning && !isEvaluated}
+                                className={cn(
+                                  "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                                  isEvaluated
+                                    ? "border-mint/50 bg-mint/10 text-foreground"
+                                    : "border-border bg-background/40 text-foreground hover:border-mint/40",
+                                  isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
+                                )}
+                              >
+                                <span className={cn(
+                                  "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                                  isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
+                                )}>
+                                  {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
+                                </span>
+                                <span className="flex-1 truncate font-medium">{c.name}</span>
+                                {isEvaluated && (
+                                  <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
+                                )}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+
+                  {/* Link de convite */}
+                  <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">
+                        Convite do candidato
+                      </div>
+                      <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">
+                        {code}
+                      </span>
+                    </div>
+                    <button
+                      onClick={copyInviteLink}
+                      className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
+                    >
+                      <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+                      <span className="flex-1 truncate font-mono text-[11px] text-foreground">{inviteLinkDisplay}</span>
+                      {copied ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
+                          <Check className="h-3 w-3" /> Copiado
+                        </span>
+                      ) : (
+                        <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </button>
+                    <div className="mt-2 grid grid-cols-3 gap-1.5">
+                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareWhatsApp}>
+                        <MessageCircle className="h-3.5 w-3.5 text-mint" /> WhatsApp
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareEmail}>
+                        <Mail className="h-3.5 w-3.5 text-mint" /> E-mail
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareNative}>
+                        <Share2 className="h-3.5 w-3.5 text-mint" /> Reenviar
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            {isWaiting && (
-              <Button
-                variant="hero"
-                className="mt-3 w-full"
-                onClick={startStation}
-                disabled={starting || !room.evaluated_candidate_id}
-              >
-                <Play className="mr-1 h-4 w-4" />
-                {room.evaluated_candidate_id ? "Iniciar cronômetro" : "Aguardando candidato..."}
-              </Button>
-            )}
-            {isRunning && (
-              <Button variant="outline" className="mt-3 w-full" onClick={finishStation}>
-                <Square className="mr-1 h-4 w-4" /> Encerrar estação
-              </Button>
-            )}
-            {isFinished && (
-              <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
-                Estação encerrada — preencha o PEP abaixo.
-              </div>
-            )}
-          </div>
-
-          {/* Impressos para entregar */}
-          <div className="rounded-2xl border border-border bg-card p-3">
-            <div className="flex items-center justify-between px-1 pb-2">
-              <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                <Inbox className="h-4 w-4 text-mint" />
-                {materials.length} Impresso{materials.length === 1 ? "" : "s"}
-              </div>
-              <Badge variant="outline" className="text-[10px]">{deliveries.length}/{materials.length}</Badge>
+            {/* Rail vertical de abas */}
+            <div className="flex flex-col gap-2 shrink-0">
+              {([
+                { id: "controle", label: "Controle/Resultado", letter: "C", color: "bg-violet-500" },
+                { id: "orientacoes", label: "Orientações do Ator/Atriz", letter: "O", color: "bg-amber-500" },
+                { id: "impressos", label: "Impressos", letter: "I", color: "bg-emerald-500" },
+                { id: "avaliado", label: "Avaliado / Convite", letter: "A", color: "bg-rose-500" },
+              ] as const).map((t) => {
+                const active = sideTab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setSideTab(t.id)}
+                    title={t.label}
+                    className={cn(
+                      "group relative h-10 w-10 rounded-full text-sm font-bold transition-all flex items-center justify-center text-white",
+                      t.color,
+                      active ? "ring-2 ring-white/70 scale-110 shadow-lg" : "opacity-70 hover:opacity-100",
+                    )}
+                  >
+                    {t.letter}
+                    <span className="pointer-events-none absolute right-12 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] font-medium text-background opacity-0 shadow-md transition group-hover:opacity-100">
+                      {t.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-            {materials.length === 0 ? (
-              <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
-            ) : (
-              <ul className="space-y-1.5">
-                {materials.map((m, idx) => {
-                  const isDelivered = delivered.has(m.id);
-                  return (
-                    <li key={m.id}>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewMaterialId(m.id)}
-                        className={cn(
-                          "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
-                          isDelivered
-                            ? "border-mint/50 bg-mint/10 text-foreground"
-                            : "border-border bg-background/40 text-foreground/90 hover:border-mint/40 hover:text-foreground",
-                        )}
-                        title="Clique para visualizar o impresso"
-                      >
-                        <span className="flex min-w-0 items-center gap-2">
-                          {isDelivered
-                            ? <PackageCheck className="h-3.5 w-3.5 shrink-0 text-mint" />
-                            : <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-                          <span className="truncate">
-                            Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </div>
-
-          {/* Resultado */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Resultado
-            </div>
-            <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-              <div className="font-display text-xl font-bold tabular-nums text-mint">
-                {score.toFixed(2)} / {pct.toFixed(0)}%
-              </div>
-            </div>
-          </div>
-
-          {/* Status da avaliação */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Status da avaliação
-            </div>
-            <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
-              <SelectTrigger className="mt-2">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="em_andamento">Aguardando...</SelectItem>
-                <SelectItem value="aprovado">Aprovado</SelectItem>
-                <SelectItem value="reprovado">Reprovado</SelectItem>
-                <SelectItem value="repetir">Pedir repetição</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Participantes + escolha do avaliado da vez */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Participantes ({candidates.length})
-              </div>
-              <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
-            </div>
-
-            {candidates.length === 0 ? (
-              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                <UserPlus className="h-4 w-4" />
-                Aguardando participantes.
-              </div>
-            ) : (
-              <ul className="mt-2 space-y-1.5">
-                {candidates.map((c) => {
-                  const isEvaluated = c.id === room.evaluated_candidate_id;
-                  return (
-                    <li key={c.id}>
-                      <button
-                        type="button"
-                        onClick={() => setEvaluatedCandidate(c.id)}
-                        disabled={isRunning && !isEvaluated}
-                        className={cn(
-                          "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
-                          isEvaluated
-                            ? "border-mint/50 bg-mint/10 text-foreground"
-                            : "border-border bg-background/40 text-foreground hover:border-mint/40",
-                          isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
-                        )}
-                        title={isRunning && !isEvaluated ? "Encerre a estação atual para trocar o avaliado" : "Marcar como avaliado da vez"}
-                      >
-                        <span className={cn(
-                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                          isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
-                        )}>
-                          {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
-                        </span>
-                        <span className="flex-1 truncate font-medium">{c.name}</span>
-                        {isEvaluated && (
-                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
-                        )}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {candidates.length > 1 && (
-              <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-                Vários alunos podem entrar pela mesma sala. Apenas o avaliado da vez é corrigido — os demais assistem.
-              </p>
-            )}
-          </div>
-
-          {/* Link de convite */}
-          <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">
-                Convite do candidato
-              </div>
-              <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">
-                {code}
-              </span>
-            </div>
-
-            <button
-              onClick={copyInviteLink}
-              className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
-              title="Clique para copiar"
-            >
-              <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
-              <span className="flex-1 truncate font-mono text-[11px] text-foreground">
-                {inviteLinkDisplay}
-              </span>
-              {copied ? (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
-                  <Check className="h-3 w-3" /> Copiado
-                </span>
-              ) : (
-                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-              )}
-            </button>
-
-            <div className="mt-2 grid grid-cols-3 gap-1.5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1 px-2 text-[11px]"
-                onClick={shareWhatsApp}
-                title="Enviar pelo WhatsApp"
-              >
-                <MessageCircle className="h-3.5 w-3.5 text-mint" />
-                WhatsApp
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1 px-2 text-[11px]"
-                onClick={shareEmail}
-                title="Enviar por e-mail"
-              >
-                <Mail className="h-3.5 w-3.5 text-mint" />
-                E-mail
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1 px-2 text-[11px]"
-                onClick={shareNative}
-                title="Compartilhar / Reenviar"
-              >
-                <Share2 className="h-3.5 w-3.5 text-mint" />
-                Reenviar
-              </Button>
-            </div>
-
-            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-              O candidato entra direto pelo link. Mesmo se já enviou, pode reenviar a qualquer momento.
-            </p>
           </div>
         </aside>
       </div>
