@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
