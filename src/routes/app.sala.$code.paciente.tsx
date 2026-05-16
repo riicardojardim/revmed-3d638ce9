@@ -490,11 +490,11 @@ function ActorView() {
 
           {/* Content blocks (Pense Revalida-style colored cards) */}
           <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.clinicalCase}</p>
+            <ScriptText text={station.clinicalCase} />
           </PRBlock>
 
           <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+            <ScriptText text={station.candidateTask} />
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
@@ -1175,34 +1175,43 @@ function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string
  */
 function ScriptText({ text, className }: { text: string; className?: string }) {
   const isAllCapsCue = (line: string) => {
-    const t = line.trim();
-    if (t.length < 4 || !t.endsWith(":")) return false;
+    const t = line.trim().replace(/[:：]+$/, "");
+    if (t.length < 3) return false;
     const letters = t.replace(/[^A-Za-zÀ-ÿ]/g, "");
     if (letters.length < 3) return false;
     return letters === letters.toUpperCase();
   };
+  // Inline keyword auto-bolding (Pense Revalida-style emphasis).
+  const KEYWORD_RE = /(\*\*[^*]+\*\*|manejo da emergência[^.;\n]*|protocolo[^.;\n]*|questionamentos|seguindo protocolo[^.;\n]*|Nível de atenção:|Tipo de atendimento:|DESCRIÇÃO DO CASO:)/gi;
   const renderInline = (line: string, key: React.Key) => {
-    const parts = line.split(/(\*\*[^*]+\*\*)/g);
+    const parts = line.split(KEYWORD_RE).filter((p) => p !== undefined);
     return (
       <span key={key}>
-        {parts.map((p, i) =>
-          p.startsWith("**") && p.endsWith("**")
-            ? <strong key={i} className="font-semibold text-foreground">{p.slice(2, -2)}</strong>
-            : <span key={i}>{p}</span>
-        )}
+        {parts.map((p, i) => {
+          if (!p) return null;
+          if (p.startsWith("**") && p.endsWith("**")) {
+            return <strong key={i} className="font-semibold text-foreground">{p.slice(2, -2)}</strong>;
+          }
+          if (KEYWORD_RE.test(p)) {
+            KEYWORD_RE.lastIndex = 0;
+            return <strong key={i} className="font-semibold text-foreground">{p}</strong>;
+          }
+          return <span key={i}>{p}</span>;
+        })}
       </span>
     );
   };
   const lines = text.split("\n");
+  let firstNonEmptyIdx = lines.findIndex((l) => l.trim().length > 0);
   return (
     <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
-      {lines.map((ln, i) => (
-        <div key={i}>
-          {isAllCapsCue(ln)
-            ? <strong className="font-semibold text-foreground">{ln}</strong>
-            : renderInline(ln, i)}
-        </div>
-      ))}
+      {lines.map((ln, i) => {
+        const isIntro = i === firstNonEmptyIdx && !ln.trim().startsWith("-") && !isAllCapsCue(ln);
+        if (isAllCapsCue(ln) || isIntro) {
+          return <div key={i}><strong className="font-semibold text-foreground">{ln}</strong></div>;
+        }
+        return <div key={i}>{renderInline(ln, i)}</div>;
+      })}
     </div>
   );
 }
