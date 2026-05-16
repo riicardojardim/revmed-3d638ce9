@@ -51,16 +51,19 @@ function AdminStationsPage() {
       .select("id, title, specialty, difficulty, duration_minutes, published, created_at, created_by")
       .order("created_at", { ascending: false });
     const list = (data ?? []) as Station[];
-    // counts in parallel
-    const counts = await Promise.all(
-      list.map((s) =>
-        supabase
-          .from("station_checklist_items")
-          .select("id", { count: "exact", head: true })
-          .eq("station_id", s.id),
-      ),
-    );
-    setStations(list.map((s, i) => ({ ...s, checklist_count: counts[i].count ?? 0 })));
+    const ids = list.map((s) => s.id);
+    const countsByStation = new Map<string, number>();
+    if (ids.length) {
+      const { data: checklistItems } = await supabase
+        .from("station_checklist_items")
+        .select("station_id")
+        .in("station_id", ids);
+      (checklistItems ?? []).forEach((item) => {
+        const stationId = item.station_id as string;
+        countsByStation.set(stationId, (countsByStation.get(stationId) ?? 0) + 1);
+      });
+    }
+    setStations(list.map((s) => ({ ...s, checklist_count: countsByStation.get(s.id) ?? 0 })));
     setLoading(false);
   }
 
