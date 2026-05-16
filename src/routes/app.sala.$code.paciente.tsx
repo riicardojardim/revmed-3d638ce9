@@ -997,7 +997,7 @@ function ActorView() {
                 { id: "controle", label: "Controle/Resultado", letter: "C", color: "bg-violet-500" },
                 { id: "orientacoes", label: "Orientações do Ator/Atriz", letter: "O", color: "bg-amber-500" },
                 { id: "impressos", label: "Impressos", letter: "I", color: "bg-emerald-500" },
-                { id: "avaliado", label: "Avaliado / Convite", letter: "A", color: "bg-rose-500" },
+                
               ] as const).map((t) => {
                 const active = sideTab === t.id;
                 return (
