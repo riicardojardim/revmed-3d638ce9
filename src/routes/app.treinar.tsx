@@ -301,6 +301,8 @@ function TrainPage() {
           )}
         </aside>
       </div>
+
+      <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
     </div>
   );
 }
