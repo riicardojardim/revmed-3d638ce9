@@ -24,7 +24,7 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
   head: () => ({ meta: [{ title: "Estação — Ator/Avaliador" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null };
 type Delivery = { id: string; material_id: string; material_name: string };
 
 function ActorView() {
@@ -67,12 +67,13 @@ function ActorView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at").eq("code", code).maybeSingle();
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes").eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
       setStation(st);
-      if (st) setRemaining(st.durationMinutes * 60);
+      const effMin = (r as Room).duration_minutes ?? st?.durationMinutes ?? 10;
+      setRemaining(effMin * 60);
 
       await refreshCandidate((r as Room).id);
 
@@ -127,7 +128,7 @@ function ActorView() {
   useEffect(() => {
     if (!room || !station) return;
     if (room.status === "running" && room.started_at && !finished) {
-      const totalSec = station.durationMinutes * 60;
+      const totalSec = (room.duration_minutes ?? station.durationMinutes) * 60;
       const startedMs = new Date(room.started_at).getTime();
       let cancelled = false;
 
@@ -157,7 +158,26 @@ function ActorView() {
         document.removeEventListener("visibilitychange", onVisible);
       };
     }
-  }, [room?.status, room?.started_at, station?.id, finished]);
+  }, [room?.status, room?.started_at, room?.duration_minutes, station?.id, finished]);
+
+  // Keep displayed remaining in sync with chosen duration while waiting
+  useEffect(() => {
+    if (!room || !station) return;
+    if (room.status !== "running") {
+      const effMin = room.duration_minutes ?? station.durationMinutes;
+      setRemaining(effMin * 60);
+    }
+  }, [room?.duration_minutes, room?.status, station?.id]);
+
+  async function changeDuration(min: number) {
+    if (!room) return;
+    if (room.status === "running") return toast.error("A estação já está em andamento.");
+    const { error } = await supabase.from("training_rooms")
+      .update({ duration_minutes: min }).eq("id", room.id);
+    if (error) return toast.error(error.message);
+    setRoom((prev) => prev ? { ...prev, duration_minutes: min } : prev);
+    toast.success(`Tempo da estação: ${min} min`);
+  }
 
   const totals = useMemo(() => {
     if (!station) return { total: 0, earned: 0 };
@@ -412,6 +432,24 @@ function ActorView() {
               <div className="font-display text-5xl font-bold tabular-nums text-white">
                 {mm}:{ss}
               </div>
+              {isWaiting && (
+                <div className="mt-3">
+                  <Select
+                    value={String(room.duration_minutes ?? station.durationMinutes)}
+                    onValueChange={(v) => changeDuration(Number(v))}
+                  >
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-violet-400/30 bg-background/40 px-3 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[3, 5, 7, 8, 10, 12, 15, 20, 25, 30, 45, 60].map((m) => (
+                        <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="mt-1 text-[10px] text-muted-foreground">Tempo da estação</div>
+                </div>
+              )}
             </div>
 
             {isWaiting && (

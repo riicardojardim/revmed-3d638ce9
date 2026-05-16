@@ -19,7 +19,7 @@ export const Route = createFileRoute("/app/sala/$code/candidato")({
   head: () => ({ meta: [{ title: "Estação — Candidato" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null };
 type Delivery = {
   id: string;
   material_id: string;
@@ -47,13 +47,14 @@ function CandidateView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at")
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes")
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
       const st = await loadStation((r as Room).station_id);
       setStation(st);
-      if (st) setRemaining(st.durationMinutes * 60);
+      const effMin = (r as Room).duration_minutes ?? st?.durationMinutes ?? 10;
+      setRemaining(effMin * 60);
 
       const { data: dels } = await supabase.from("room_material_deliveries")
         .select("*").eq("room_id", (r as Room).id).order("delivered_at");
@@ -95,7 +96,7 @@ function CandidateView() {
   useEffect(() => {
     if (!room || !station) return;
     if (room.status === "running" && room.started_at && !finished) {
-      const totalSec = station.durationMinutes * 60;
+      const totalSec = (room.duration_minutes ?? station.durationMinutes) * 60;
       const startedMs = new Date(room.started_at).getTime();
       let cancelled = false;
 
@@ -129,11 +130,11 @@ function CandidateView() {
       setFinished(true);
       loadEvaluation(room.id);
     }
-  }, [room?.status, room?.started_at, station?.id, finished]);
+  }, [room?.status, room?.started_at, room?.duration_minutes, station?.id, finished]);
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
-  const total = (station?.durationMinutes ?? 10) * 60;
+  const total = ((room?.duration_minutes ?? station?.durationMinutes ?? 10)) * 60;
 
   async function finish() {
     if (!station || !user || !room) return;
