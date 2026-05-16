@@ -152,6 +152,12 @@ function ActorView() {
         }
       }
     })();
+    return () => {
+      try {
+        localStorage.removeItem("ator:activeRoom");
+        window.dispatchEvent(new Event("ator:activeRoom"));
+      } catch {}
+    };
   }, [code, user?.id]);
 
   // When the evaluated candidate changes, reload draft for that candidate (or reset)
