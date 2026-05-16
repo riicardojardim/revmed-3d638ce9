@@ -42,6 +42,45 @@ function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]
   return out;
 }
 
+function parseSubItems(description: string): { lead: string; subs: string[] } {
+  // Detect "(1) ... (2) ..." numbered sub-items inside the description
+  const numbered = description.match(/\(\d+\)\s*[^()]+/g);
+  if (numbered && numbered.length >= 2) {
+    const firstIdx = description.indexOf(numbered[0]);
+    const lead = description.slice(0, firstIdx).trim().replace(/[:;]\s*$/, "") || description.split(/[(:]/)[0].trim();
+    return { lead, subs: numbered.map((s) => s.trim().replace(/[;.]$/, "")) };
+  }
+  // Detect parenthesized comma-list e.g. "Caracteriza dor (início, qualidade, irradiação)"
+  const paren = description.match(/^(.*?)\(([^()]+,[^()]+)\)\s*$/);
+  if (paren) {
+    const subs = paren[2].split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    if (subs.length >= 2) return { lead: paren[1].trim(), subs };
+  }
+  // Fallback: split on ";" if multiple clauses
+  const parts = description.split(";").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 2) return { lead: parts[0], subs: parts.slice(1) };
+  return { lead: description, subs: [] };
+}
+
+function levelTone(index: number, total: number): { idle: string; active: string } {
+  if (index === 0) {
+    return {
+      idle: "border-rose-500/30 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10",
+      active: "border-rose-500 bg-rose-500/80 text-white shadow-sm",
+    };
+  }
+  if (index === total - 1) {
+    return {
+      idle: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300 hover:bg-emerald-500/10",
+      active: "border-emerald-500 bg-emerald-500/80 text-white shadow-sm",
+    };
+  }
+  return {
+    idle: "border-amber-500/30 bg-amber-500/5 text-amber-300 hover:bg-amber-500/10",
+    active: "border-amber-500 bg-amber-500/80 text-white shadow-sm",
+  };
+}
+
 function ActorView() {
   const { code } = Route.useParams();
   const { user } = useAuth();
@@ -52,6 +91,7 @@ function ActorView() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, number>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
+  const [highlights, setHighlights] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState("");
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
@@ -536,12 +576,38 @@ function ActorView() {
               {station.checklist.map((it, idx) => {
                 const levels = it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
                 const current = checks[it.id];
+                // Parse sub-items: split on ";" or by "(N)" markers so the ator can highlight each one
+                const parts = parseSubItems(it.description);
                 return (
                   <li key={it.id} className="grid grid-cols-[1fr_auto] gap-x-4 py-4">
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {idx + 1}. {it.description}
+                        {idx + 1}. {parts.lead}
                       </div>
+                      {parts.subs.length > 0 && (
+                        <ul className="mt-2 space-y-1">
+                          {parts.subs.map((sub, si) => {
+                            const key = `${it.id}::${si}`;
+                            const active = !!highlights[key];
+                            return (
+                              <li key={key}>
+                                <button
+                                  type="button"
+                                  onClick={() => setHighlights((h) => ({ ...h, [key]: !h[key] }))}
+                                  className={cn(
+                                    "w-full rounded-md px-2 py-1 text-left text-sm transition-colors",
+                                    active
+                                      ? "bg-amber-500/30 text-amber-100 ring-1 ring-amber-500/50"
+                                      : "text-foreground/80 hover:bg-white/5",
+                                  )}
+                                >
+                                  {sub}
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
                       <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
                         {levels.map((lv) => (
                           <div key={lv.label}>
@@ -565,8 +631,9 @@ function ActorView() {
                       />
                     </div>
                     <div className="flex flex-col items-end gap-1.5 tabular-nums">
-                      {levels.map((lv) => {
+                      {levels.map((lv, li) => {
                         const selected = current === lv.points;
+                        const tone = levelTone(li, levels.length);
                         return (
                           <button
                             key={lv.label}
@@ -576,10 +643,8 @@ function ActorView() {
                               setChecks((c) => ({ ...c, [it.id]: lv.points }))
                             }
                             className={cn(
-                              "min-w-[2.5rem] rounded-md border px-2.5 py-1 text-xs font-bold transition-colors",
-                              selected
-                                ? "border-mint bg-mint text-white shadow-sm"
-                                : "border-border bg-background/40 text-muted-foreground hover:border-mint/40 hover:text-foreground",
+                              "min-w-[3rem] rounded-md border px-2.5 py-1 text-xs font-bold transition-colors",
+                              selected ? tone.active : tone.idle,
                               !isFinished && "cursor-not-allowed opacity-50",
                             )}
                             title={lv.label}
