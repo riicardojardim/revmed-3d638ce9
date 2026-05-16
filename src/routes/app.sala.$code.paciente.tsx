@@ -501,10 +501,10 @@ function ActorView() {
                 variant="hero"
                 className="mt-3 w-full"
                 onClick={startStation}
-                disabled={starting || !candidateId}
+                disabled={starting || !room.evaluated_candidate_id}
               >
                 <Play className="mr-1 h-4 w-4" />
-                {candidateId ? "Iniciar cronômetro" : "Aguardando candidato..."}
+                {room.evaluated_candidate_id ? "Iniciar cronômetro" : "Aguardando candidato..."}
               </Button>
             )}
             {isRunning && (
