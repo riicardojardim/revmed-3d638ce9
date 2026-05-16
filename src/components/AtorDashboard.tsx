@@ -31,8 +31,8 @@ export function AtorDashboard() {
           Olá, {name}. Pronto para conduzir uma estação?
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Como ator/avaliador você entra em salas de treino, interpreta o paciente padronizado
-          e aplica o checklist PEP para gerar a nota do candidato em tempo real.
+          Como ator você entra em salas de treino, interpreta o paciente padronizado
+          e aplica o checklist avaliando o PEP para gerar a nota do candidato em tempo real.
         </p>
       </div>
 
