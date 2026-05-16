@@ -42,6 +42,7 @@ function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]
   return out;
 }
 
+function ActorView() {
 
 function parseSubItems(description: string): { lead: string; subs: string[] } {
   // Detect "(1) ... (2) ..." numbered sub-items inside the description
