@@ -52,6 +52,7 @@ function ActorView() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [checks, setChecks] = useState<Record<string, number>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
+  const [highlights, setHighlights] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState("");
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
