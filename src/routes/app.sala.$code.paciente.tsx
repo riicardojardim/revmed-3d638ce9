@@ -674,12 +674,19 @@ function ActorView() {
                         </ul>
                       )}
                       <div className="mt-3 space-y-0.5 text-xs text-muted-foreground">
-                        {levels.map((lv) => (
-                          <div key={lv.label}>
-                            <span className="font-bold text-foreground">{lv.label}</span>
-                            {lv.description ? <><span>: </span><span>{lv.description}</span></> : null}
-                          </div>
-                        ))}
+                        {levels.map((lv) => {
+                          const m = lv.label.match(/^([^:]+):\s*(.*)$/);
+                          const head = m ? m[1] : lv.label;
+                          const rest = m ? m[2] : "";
+                          return (
+                            <div key={lv.label}>
+                              <span className="font-bold text-foreground">{head}</span>
+                              {(rest || lv.description) && <span>: </span>}
+                              {rest && <span>{rest}</span>}
+                              {lv.description && <span>{rest ? " " : ""}{lv.description}</span>}
+                            </div>
+                          );
+                        })}
                       </div>
                       {it.helperText && (
                         <div className="mt-2 rounded-md border border-border bg-background/40 px-3 py-1.5 text-[11px] text-muted-foreground">
