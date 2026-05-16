@@ -337,7 +337,7 @@ function CandidateView() {
                 <div className="space-y-3">
                   <div className="rounded-xl bg-background/60 p-4 text-center">
                     <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sua nota</div>
-                    <div className="mt-1 font-display text-3xl font-bold text-emerald-300 tabular-nums">
+                    <div className="mt-1 font-display text-3xl font-bold text-mint tabular-nums">
                       {evaluation!.final_score?.toFixed(2) ?? "—"} / {pct.toFixed(0)}%
                     </div>
                     <Badge className="mt-2" variant="outline">
@@ -352,7 +352,7 @@ function CandidateView() {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 px-4 py-6 text-sm text-amber-300">
+                <div className="flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-4 py-6 text-sm text-muted-foreground">
                   <Lock className="h-4 w-4" /> Aguardando o avaliador finalizar a correção...
                 </div>
               )}
