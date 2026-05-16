@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
