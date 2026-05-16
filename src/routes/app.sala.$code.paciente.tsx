@@ -988,7 +988,7 @@ function ActorView() {
                     <Theater className="h-4 w-4 text-mint" /> Orientações do Ator/Atriz
                   </div>
                   {station.patientScript && (
-                    <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">{station.patientScript}</p>
+                    <ScriptText text={station.patientScript} className="text-foreground/90" />
                   )}
                   {p && (
                     <dl className="grid grid-cols-1 gap-2">
