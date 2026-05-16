@@ -566,9 +566,9 @@ function ActorView() {
               </Button>
             )}
             {isFinished && (
-              <Button variant="hero" className="mt-3 w-full" onClick={() => setShowPEP(true)}>
-                <ClipboardCheck className="mr-1 h-4 w-4" /> Preencher PEP
-              </Button>
+              <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
+                Estação encerrada — preencha o PEP abaixo.
+              </div>
             )}
           </div>
 
