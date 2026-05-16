@@ -490,11 +490,11 @@ function ActorView() {
 
           {/* Content blocks (Pense Revalida-style colored cards) */}
           <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.clinicalCase}</p>
+            <ScriptText text={station.clinicalCase} />
           </PRBlock>
 
           <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
-            <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+            <ScriptText text={station.candidateTask} />
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
