@@ -325,6 +325,13 @@ function CandidateView() {
                         <ScriptText text={d.material_content} />
                       </div>
                     )}
+                    {d.material_image_url && (
+                      <img
+                        src={d.material_image_url}
+                        alt={d.material_name || "Material"}
+                        className="mt-3 w-full rounded-lg border border-border object-contain"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
