@@ -90,6 +90,15 @@ const CATEGORIES = [
 ];
 const MATERIAL_TYPES = ["Impresso", "Exame laboratorial", "Exame de imagem", "ECG", "Outro"];
 
+function withDuration(text: string, mins: number): string {
+  if (!text) return text;
+  const n = Number.isFinite(mins) && mins > 0 ? mins : 10;
+  return text
+    .replace(/Nos\s+\d+\s*min\.?\s*minutos/gi, `Nos ${n} minutos`)
+    .replace(/Nos\s+\d+\s*minutos/gi, `Nos ${n} minutos`)
+    .replace(/em\s+at[ée]\s+\d+\s*minutos/gi, `em até ${n} minutos`);
+}
+
 function defaultLevels(maxPts: number): ChecklistLevel[] {
   const m = Number.isFinite(maxPts) ? maxPts : 1;
   const mid = Math.round((m / 2) * 100) / 100;
