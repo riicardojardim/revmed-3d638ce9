@@ -80,7 +80,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       patientInfo: s.patient_info ?? "",
       supportMaterials: s.support_materials ?? "",
       checklist: withDefaultLevels(checklist),
-      patientScript: s.patient_script ?? s.patient_info ?? "",
+      patientScript: s.patient_script ?? "",
       evaluatorNotes: s.evaluator_notes ?? undefined,
       competencies: (s.competencies ?? []) as string[],
       scoringCriteria: s.scoring_criteria ?? undefined,
