@@ -56,11 +56,16 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       .order("order_index");
     const checklist: ChecklistItem[] = (items ?? []).map((it: { id: string; category: string; description: string; points: number; helper_text?: string | null; levels?: unknown }) => {
       const rawLevels = Array.isArray(it.levels) ? (it.levels as ChecklistLevel[]) : [];
+      // The DB `points` column is integer and truncates decimals (e.g. 1.5 -> 1, 0.2 -> 0).
+      // Levels keep decimal precision in JSONB, so derive the real max from them when available.
+      const maxFromLevels = rawLevels.length > 0
+        ? Math.max(0, ...rawLevels.map((l) => Number(l.points) || 0))
+        : 0;
       return {
         id: it.id,
         category: it.category as ChecklistItem["category"],
         description: it.description,
-        points: it.points,
+        points: maxFromLevels > 0 ? maxFromLevels : it.points,
         helperText: it.helper_text ?? undefined,
         levels: rawLevels.length > 0 ? rawLevels : undefined,
       };
