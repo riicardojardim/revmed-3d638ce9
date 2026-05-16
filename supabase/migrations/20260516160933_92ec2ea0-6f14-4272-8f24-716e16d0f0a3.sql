@@ -1,0 +1,2 @@
+ALTER TABLE public.room_evaluations DROP CONSTRAINT IF EXISTS room_evaluations_room_id_evaluator_id_key;
+ALTER TABLE public.room_evaluations ADD CONSTRAINT room_evaluations_room_evaluator_candidate_key UNIQUE (room_id, evaluator_id, candidate_id);
