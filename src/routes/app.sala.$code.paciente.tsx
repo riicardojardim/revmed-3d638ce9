@@ -128,7 +128,7 @@ function ActorView() {
   useEffect(() => {
     if (!room || !station) return;
     if (room.status === "running" && room.started_at && !finished) {
-      const totalSec = station.durationMinutes * 60;
+      const totalSec = (room.duration_minutes ?? station.durationMinutes) * 60;
       const startedMs = new Date(room.started_at).getTime();
       let cancelled = false;
 
