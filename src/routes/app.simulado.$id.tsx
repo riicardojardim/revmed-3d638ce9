@@ -236,8 +236,9 @@ function SimuladoRunner() {
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
   const isWaiting = !running && !finishedStation;
-  const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
-  const ss = String(remaining % 60).padStart(2, "0");
+  const totalSec = Math.max(0, Math.floor(remaining));
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
+  const ss = String(totalSec % 60).padStart(2, "0");
   const progress = ((sim.currentIndex + (allScored ? 1 : 0)) / sim.stations.length) * 100;
 
   return (
