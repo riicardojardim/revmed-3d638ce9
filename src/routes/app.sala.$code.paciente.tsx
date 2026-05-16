@@ -335,7 +335,13 @@ function ActorView() {
     }
 
     toast.success(submit ? "Correção enviada" : "Rascunho salvo");
-    if (submit) nav({ to: "/app/sala/$code", params: { code } });
+    if (submit) {
+      try {
+        localStorage.removeItem("ator:activeRoom");
+        window.dispatchEvent(new Event("ator:activeRoom"));
+      } catch {}
+      nav({ to: "/app/sala/$code", params: { code } });
+    }
   }
 
   async function setEvaluatedCandidate(id: string) {
@@ -358,6 +364,10 @@ function ActorView() {
       .eq("id", room.id);
     setStarting(false);
     if (error) return toast.error(error.message);
+    try {
+      localStorage.setItem("ator:activeRoom", JSON.stringify({ code, title: room.station_title ?? station?.title ?? "Treinamento" }));
+      window.dispatchEvent(new Event("ator:activeRoom"));
+    } catch {}
     toast.success("Cronômetro iniciado para o candidato.");
   }
 
