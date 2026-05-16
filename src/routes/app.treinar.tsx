@@ -47,11 +47,51 @@ function TrainPage() {
   const [lastCode, setLastCode] = useState<string | null>(null);
   const [stations, setStations] = useState<DBStation[]>([]);
   const [, setLoading] = useState(true);
-  const [builderOpen, setBuilderOpen] = useState(false);
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpecialty, setAllSpecialty] = useState<string>("all");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<DBStation[]>([]);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [simName, setSimName] = useState("");
   const [simulados, setSimulados] = useState<Simulado[]>([]);
+
+  function toggleSelected(s: DBStation) {
+    setSelected((prev) => prev.find((x) => x.id === s.id)
+      ? prev.filter((x) => x.id !== s.id)
+      : [...prev, s]);
+  }
+  function moveSelected(idx: number, dir: -1 | 1) {
+    setSelected((prev) => {
+      const next = [...prev];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return prev;
+      [next[idx], next[j]] = [next[j], next[idx]];
+      return next;
+    });
+  }
+  function openSelectMode() {
+    setSelectMode(true);
+    setSelected([]);
+    setAllOpen(true);
+  }
+  function startSimulado() {
+    if (selected.length === 0) {
+      toast.error("Adicione pelo menos um checklist.");
+      return;
+    }
+    const today = new Date().toLocaleDateString("pt-BR");
+    const sim = createSimulado(
+      simName.trim() || `Simulado ${today}`,
+      selected.map((s) => ({ id: s.id, title: s.title, specialty: s.specialty })),
+    );
+    setReviewOpen(false);
+    setAllOpen(false);
+    setSelectMode(false);
+    setSelected([]);
+    setSimName("");
+    nav({ to: "/app/simulado/$id", params: { id: sim.id } });
+  }
 
   const allFiltered = useMemo(() => {
     return stations
