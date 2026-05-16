@@ -769,7 +769,7 @@ function ActorView() {
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm">
                 <span className="text-muted-foreground">Nota parcial:</span>{" "}
-                <span className="font-bold text-mint">{score.toFixed(2)}</span>
+                <span className="font-bold text-mint">{totals.earned.toFixed(2)}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)} disabled={!isFinished}>
