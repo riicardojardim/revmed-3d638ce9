@@ -99,7 +99,7 @@ function ActorView() {
     if (next.has(id)) next.delete(id); else next.add(id);
     return next;
   });
-  const [sideTab, setSideTab] = useState<"controle" | "orientacoes" | "impressos">("controle");
+  
 
   // Timer state (synced with room.started_at)
   const [remaining, setRemaining] = useState(0);
