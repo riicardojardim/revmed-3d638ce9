@@ -185,3 +185,15 @@
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Marca-texto: seleção de texto com a paleta mint do site */
+::selection {
+  background: color-mix(in oklab, var(--mint) 55%, transparent);
+  color: var(--night);
+  text-shadow: none;
+}
+::-moz-selection {
+  background: color-mix(in oklab, var(--mint) 55%, transparent);
+  color: var(--night);
+  text-shadow: none;
+}
