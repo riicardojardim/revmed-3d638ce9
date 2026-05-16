@@ -12,7 +12,7 @@ export const Route = createFileRoute("/app/perfil")({
 
 function ProfilePage() {
   const { user, profile, roles, signOut } = useAuth();
-  const { plan, daysLeft } = useSubscription();
+  const { plan, daysLeft, loading: subLoading } = useSubscription();
   const nav = useNavigate();
   const isAtorPlan = plan?.slug === "ator" && !plan.expired;
   // Note: institutional access (admin/professor) is intentionally hidden from
@@ -47,6 +47,10 @@ function ProfilePage() {
   async function handleLogout() {
     await signOut();
     nav({ to: "/login" });
+  }
+
+  if (subLoading) {
+    return <div className="mx-auto max-w-3xl text-sm text-muted-foreground">Carregando...</div>;
   }
 
   return (
