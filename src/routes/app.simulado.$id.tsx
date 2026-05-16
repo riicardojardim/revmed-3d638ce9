@@ -590,9 +590,13 @@ function SimuladoRunner() {
               </button>
             )}
             {running && (
-              <Button variant="outline" className="mt-3 w-full" onClick={finishTimer}>
-                <Square className="mr-1 h-4 w-4" /> Encerrar estação
-              </Button>
+              <button
+                type="button"
+                onClick={finishTimer}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 active:scale-[0.98]"
+              >
+                <Square className="h-4 w-4" /> Encerrar estação
+              </button>
             )}
             {finishedStation && (
               <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
