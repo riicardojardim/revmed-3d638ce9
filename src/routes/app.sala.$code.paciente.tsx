@@ -225,11 +225,17 @@ function ActorView() {
   }
 
   const totals = useMemo(() => {
-    if (!station) return { total: 0, earned: 0 };
+    if (!station) return { total: 0, earned: 0, scored: 0, count: 0 };
     const total = station.checklist.reduce((s, i) => s + i.points, 0);
-    const earned = station.checklist.reduce((s, i) => s + (checks[i.id] ? i.points : 0), 0);
-    return { total, earned };
+    let earned = 0;
+    let scored = 0;
+    for (const i of station.checklist) {
+      const v = checks[i.id];
+      if (typeof v === "number") { earned += v; scored += 1; }
+    }
+    return { total, earned, scored, count: station.checklist.length };
   }, [station, checks]);
+  const allScored = totals.scored === totals.count && totals.count > 0;
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
 
