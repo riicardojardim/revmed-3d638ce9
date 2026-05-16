@@ -748,19 +748,32 @@ function ActorView() {
             </div>
           </PRBlock>
 
-          {/* Análise de resultados */}
+          {/* Análise de resultados — botão expansível (estilo Pense Revalida) */}
           {(station.educationalGoal || station.expectedConduct || station.commonMistakes) && (
-            <PRBlock icon={BarChart3} title="Análise de resultados">
-              {station.educationalGoal && (
-                <SubBlock label="Objetivo educacional">{station.educationalGoal}</SubBlock>
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowAnalysis((v) => !v)}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-violet-400/30 bg-violet-500/20 px-4 py-3 text-sm font-semibold text-violet-100 transition-colors hover:bg-violet-500/30"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Análise de resultados
+                <ChevronDown className={cn("h-4 w-4 transition-transform", showAnalysis && "rotate-180")} />
+              </button>
+              {showAnalysis && (
+                <div className="mt-3 space-y-3">
+                  {station.educationalGoal && (
+                    <SubBlock label="Objetivo educacional">{station.educationalGoal}</SubBlock>
+                  )}
+                  {station.expectedConduct && (
+                    <SubBlock label="Conduta esperada">{station.expectedConduct}</SubBlock>
+                  )}
+                  {station.commonMistakes && (
+                    <SubBlock label="Erros comuns" tone="rose">{station.commonMistakes}</SubBlock>
+                  )}
+                </div>
               )}
-              {station.expectedConduct && (
-                <SubBlock label="Conduta esperada">{station.expectedConduct}</SubBlock>
-              )}
-              {station.commonMistakes && (
-                <SubBlock label="Erros comuns" tone="rose">{station.commonMistakes}</SubBlock>
-              )}
-            </PRBlock>
+            </div>
           )}
 
           {/* Referências bibliográficas */}
