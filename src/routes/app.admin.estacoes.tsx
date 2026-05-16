@@ -89,9 +89,10 @@ function AdminStationsPage() {
     const { data: full } = await supabase.from("custom_stations").select("*").eq("id", s.id).maybeSingle();
     if (!full) return toast.error("Não foi possível duplicar");
     const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = full as Record<string, unknown>;
+    const insertPayload = { ...rest, created_by: user.id, title: `${s.title} (cópia)`, published: false } as never;
     const { data: created, error } = await supabase
       .from("custom_stations")
-      .insert({ ...rest, created_by: user.id, title: `${s.title} (cópia)`, published: false })
+      .insert(insertPayload)
       .select("id")
       .single();
     if (error || !created) return toast.error("Falha ao duplicar", { description: error?.message });
