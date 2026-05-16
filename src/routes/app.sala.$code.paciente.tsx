@@ -624,7 +624,9 @@ function ActorView() {
                               <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
                             </button>
                           )}
-                          {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                          {m.content
+                            ? <ScriptText text={m.content} />
+                            : (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <div className="mt-auto pt-3">
