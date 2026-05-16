@@ -6,9 +6,9 @@ import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
   Upload, Sparkles, FileText, MessageSquare, ListChecks, Inbox, StickyNote,
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
-  Image as ImageIcon, X,
+  Image as ImageIcon, X, Theater, Send, PackageCheck,
 } from "lucide-react";
-import { PRBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
