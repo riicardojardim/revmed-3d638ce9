@@ -66,7 +66,8 @@ function TrainPage() {
 
   async function startStation(stationId: string) {
     if (!user) return toast.error("Faça login para criar uma sala.");
-    const st = STATIONS.find((s) => s.id === stationId)!;
+    const st = stations.find((s) => s.id === stationId);
+    if (!st) return toast.error("Estação não encontrada.");
     setBusy(true);
     const code = genCode();
     const { data, error } = await supabase.from("training_rooms")
