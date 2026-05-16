@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { parseStationPdfs } from "@/lib/stations-ai.functions";
+import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
