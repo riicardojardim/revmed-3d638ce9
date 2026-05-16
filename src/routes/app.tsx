@@ -46,7 +46,7 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const { user, loading, profile, roles, signOut } = useAuth();
-  const { plan, isPrivileged, loading: subLoading } = useSubscription();
+  const { plan } = useSubscription();
 
   const isTeacher = roles.includes("professor") || roles.includes("admin");
   const isAdmin = roles.includes("admin");
@@ -121,7 +121,7 @@ function AppLayout() {
     nav({ to: "/login" });
   }
 
-  if (loading || !user || subLoading) {
+  if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-sm text-muted-foreground">Carregando...</div>

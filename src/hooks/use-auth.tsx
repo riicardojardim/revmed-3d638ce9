@@ -32,12 +32,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function loadExtras(uid: string) {
-    const [{ data: prof }, { data: rs }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, whatsapp, exam_year, avatar_url").eq("id", uid).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", uid),
-    ]);
-    setProfile((prof as Profile | null) ?? null);
-    setRoles(((rs ?? []) as { role: AppRole }[]).map((r) => r.role));
+    try {
+      const [{ data: prof }, { data: rs }] = await Promise.all([
+        supabase.from("profiles").select("id, full_name, whatsapp, exam_year, avatar_url").eq("id", uid).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", uid),
+      ]);
+      setProfile((prof as Profile | null) ?? null);
+      setRoles(((rs ?? []) as { role: AppRole }[]).map((r) => r.role));
+    } catch {
+      setProfile(null);
+      setRoles([]);
+    }
   }
 
   useEffect(() => {
@@ -45,17 +50,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
-        setTimeout(() => void loadExtras(s.user.id), 0);
+        setTimeout(() => {
+          void loadExtras(s.user.id);
+        }, 0);
       } else {
         setProfile(null);
         setRoles([]);
+        setLoading(false);
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) void loadExtras(s.user.id);
+      if (s?.user) await loadExtras(s.user.id);
       setLoading(false);
     });
 
