@@ -271,6 +271,129 @@ export const STATIONS: Station[] = [
     ]),
   },
   {
+    id: "7",
+    slug: "pcr-aesp-suporte-avancado",
+    title: "PCR em AESP — Suporte Avançado de Vida",
+    specialty: "Urgência e Emergência",
+    difficulty: "Difícil",
+    durationMinutes: 10,
+    tag: "Nova",
+    clinicalCase:
+      "Paciente em parada cardiorrespiratória no setor de emergência. Monitor mostra atividade elétrica sem pulso (AESP).",
+    candidateTask:
+      "Conduza o atendimento da PCR seguindo o protocolo ACLS: avaliação inicial, RCP de alta qualidade, identificação do ritmo e tratamento das causas reversíveis.",
+    patientInfo: "Paciente inconsciente, sem pulso central palpável. Monitor: AESP.",
+    supportMaterials: "Carro de parada, desfibrilador, ambu, prancha rígida, equipe treinada.",
+    checklist: cl([
+      {
+        category: "Comunicação",
+        description:
+          "1. Apresentação:\n(1) Identifica-se; e\n(2) Cumprimenta enfermeiro auxiliar.",
+        points: 0.2,
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Adequado", points: 0.2 },
+        ],
+      },
+      {
+        category: "Exame físico",
+        description:
+          "2. Verifica responsividade do paciente:\n(1) Chama o paciente em voz alta; e\n(2) Realiza estímulo tátil.",
+        points: 1.0,
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Parcialmente adequado", points: 0.5 },
+          { label: "Adequado", points: 1.0 },
+        ],
+      },
+      {
+        category: "Exame físico",
+        description:
+          "3. Verifica pulso e respiração do paciente:\n(1) Verifica pulso; e\n(2) Verifica respiração.",
+        points: 1.0,
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Adequado", points: 1.0 },
+        ],
+      },
+      {
+        category: "Conduta",
+        description:
+          "4. Solicita:\n(1) Ajuda da equipe treinada; e\n(2) Preparação do desfibrilador.",
+        points: 1.1,
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Parcialmente adequado", points: 0.5 },
+          { label: "Adequado", points: 1.1 },
+        ],
+      },
+      {
+        category: "Conduta",
+        description:
+          "5. Explica corretamente a técnica de massagem cardíaca:\n(1) Posicionamento da prancha de reanimação (rígida) sob o tórax do paciente;\n(2) Mãos sobrepostas e dedos entrelaçados;\n(3) Membros superiores esticados;\n(4) Base da mão sobre o esterno;\n(5) Compressão de ao menos 5 cm;\n(6) Frequência de 100 a 120 compressões por minuto;\n(7) Permite o retorno completo do tórax em cada compressão;\n(8) Interrupções mínimas das compressões.",
+        points: 1.5,
+        helperText:
+          "O paciente deve estar em decúbito dorsal horizontal (deitado de barriga para cima), sobre uma superfície rígida e plana. Em um hospital, isso geralmente significa que a prancha de reanimação (prancha rígida) deve ser colocada sob o paciente na cama hospitalar. Essa prancha é fundamental para que as compressões não sejam absorvidas pelo colchão.",
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Parcialmente adequado", points: 0.75 },
+          { label: "Adequado", points: 1.5 },
+        ],
+      },
+      {
+        category: "Conduta",
+        description:
+          "6. Explica corretamente a técnica de ventilação com ambu:\n(1) Posição da cabeça em leve extensão (posição olfativa) ou manter via aérea pérvia;\n(2) Máscara bem posicionada no rosto da vítima;\n(3) Técnica em C e E dos dedos;\n(4) Realizar 2 ventilações a cada 30 compressões;\n(5) Evitar ventilações excessivas (volume 500-600 mL, visível expansão torácica).",
+        points: 1.5,
+        helperText:
+          "Via aérea: hiperextensão cabeça (sniffing) ou jaw-thrust se trauma. Ambu: selo máscara com C-E, ventilação lenta (1s), volume tidal 6-7 mL/kg (~500-600 mL), evitar hiperventilação (causa hipercapnia). Razão 30:2 sem IA avançado; confirme expansão torácica.",
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Parcialmente adequado", points: 0.75 },
+          { label: "Adequado", points: 1.5 },
+        ],
+      },
+      {
+        category: "Diagnóstico",
+        description:
+          "7. Interpreta o ritmo do impresso como Atividade Elétrica Sem Pulso (AESP).",
+        points: 1.1,
+        helperText:
+          "AESP (PEA): atividade elétrica organizada sem pulso palpável. Ritmos: sinusal/assistolia com QRS sem perfusão.",
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Adequado", points: 1.1 },
+        ],
+      },
+      {
+        category: "Conduta",
+        description:
+          "8. Após identificação do ritmo (AESP), indica:\n(1) Retorno/continua das compressões torácicas;\n(2) Acesso intravenoso (IV) ou intraósseo (IO);\n(3) Adrenalina/Epinefrina 1 mg IV/IO a cada 3-5 min.",
+        points: 1.5,
+        helperText:
+          "AESP: RCP ininterrupta (minimizar pausas), epinefrina 1 mg IV/IO ciclo 1 (repetir 3-5 min), via IV periférica/IO proximal. Alternativa: IO se IV difícil. Ciclos: ritmo a cada 2 min, choque se FV/TV.",
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Parcialmente adequado", points: 0.75 },
+          { label: "Adequado", points: 1.5 },
+        ],
+      },
+      {
+        category: "Diagnóstico",
+        description:
+          "9. Responde a dúvida do chefe de plantão, informando possíveis causas reversíveis (Hs e Ts):\n(1) Hipovolemia;\n(2) Hipóxia;\n(3) Hidrogênio (acidose);\n(4) Hipoglicemia;\n(5) Hipocalemia/hipercalemia;\n(6) Hipotermia;\n(7) Tensão pneumotórax;\n(8) Tamponamento cardíaco;\n(9) Toxinas;\n(10) Trombose pulmonar;\n(11) Trombose coronariana (IAM).",
+        points: 1.1,
+        helperText:
+          "Hs e Ts (ACLS): 4Hs (Hipovolemia, Hipóxia, Hidrogênio/acidose, Hipoglicemia/Hipo/hiperK/Hipotermia) + 5Ts. Prova: Verbalize mnemônico 'Hs e Ts' + liste; priorize reversíveis no paciente (ex.: hipoglicemia em diabética).",
+        levels: [
+          { label: "Inadequado", points: 0 },
+          { label: "Parcialmente adequado", points: 0.5 },
+          { label: "Adequado", points: 1.1 },
+        ],
+      },
+    ]),
+  },
+  {
     id: "6",
     slug: "aconselhamento-diabetes",
     title: "Aconselhamento sobre diabetes",
