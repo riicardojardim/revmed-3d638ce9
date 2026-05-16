@@ -1,0 +1,109 @@
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Logo } from "@/components/Logo";
+import {
+  Home,
+  ClipboardList,
+  Dumbbell,
+  TrendingUp,
+  User,
+  Bell,
+  LogOut,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export const Route = createFileRoute("/app")({
+  component: AppLayout,
+});
+
+const navItems = [
+  { to: "/app", label: "Início", icon: Home, exact: true },
+  { to: "/app/estacoes", label: "Estações", icon: ClipboardList, exact: false },
+  { to: "/app/treinar", label: "Treinar", icon: Dumbbell, exact: false },
+  { to: "/app/progresso", label: "Progresso", icon: TrendingUp, exact: false },
+  { to: "/app/perfil", label: "Perfil", icon: User, exact: false },
+] as const;
+
+function AppLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isActive = (to: string, exact: boolean) =>
+    exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
+
+  return (
+    <div className="flex min-h-screen w-full bg-background">
+      {/* Desktop sidebar */}
+      <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
+        <div className="px-6 py-5">
+          <Logo />
+        </div>
+        <nav className="flex-1 space-y-1 px-3">
+          {navItems.map((n) => {
+            const active = isActive(n.to, n.exact);
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                  active
+                    ? "bg-mint/10 text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <n.icon className={`h-5 w-5 ${active ? "text-mint" : ""}`} />
+                {n.label}
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="border-t border-border p-3">
+          <Link to="/" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted">
+            <LogOut className="h-5 w-5" />
+            Sair
+          </Link>
+        </div>
+      </aside>
+
+      <div className="flex min-h-screen flex-1 flex-col">
+        {/* Topbar */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8">
+          <div className="lg:hidden">
+            <Logo />
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="ghost" size="icon" aria-label="Notificações">
+              <Bell className="h-5 w-5" />
+            </Button>
+            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-gradient-mint text-sm font-bold text-night sm:flex">
+              M
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 px-4 pb-24 pt-6 lg:px-8 lg:pb-10">
+          <Outlet />
+        </main>
+
+        {/* Mobile bottom nav */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
+          <div className="grid grid-cols-5">
+            {navItems.map((n) => {
+              const active = isActive(n.to, n.exact);
+              return (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-medium ${
+                    active ? "text-mint" : "text-muted-foreground"
+                  }`}
+                >
+                  <n.icon className="h-5 w-5" />
+                  {n.label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
+    </div>
+  );
+}
