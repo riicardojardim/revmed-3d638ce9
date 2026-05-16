@@ -159,6 +159,19 @@ function SimuladoRunner() {
       saveSimulado(next);
       setSim(next);
       setStation(null);
+      // Reset timer + per-station UI immediately (load effect also resets after fetch)
+      if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+      setRunning(false);
+      setFinishedStation(false);
+      setRemaining(0);
+      setDuration(10);
+      setDelivered(new Set());
+      setPreviewMaterialId(null);
+      setHighlights({});
+      setComments({});
+      setFeedback("");
+      setEvalStatus("em_andamento");
+      setShowAnalysis(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       const next = { ...sim, finished: true };
