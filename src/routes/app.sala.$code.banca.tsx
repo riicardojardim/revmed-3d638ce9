@@ -20,7 +20,7 @@ export const Route = createFileRoute("/app/sala/$code/banca")({
   head: () => ({ meta: [{ title: "Painel do Avaliador — Estação Revalida" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string };
+type Room = { id: string; code: string; station_id: string; station_title: string; duration_minutes: number | null };
 type Delivery = { id: string; material_id: string; material_name: string };
 type Tab = "cenario" | "roteiro" | "impressos" | "checklist" | "feedback";
 
