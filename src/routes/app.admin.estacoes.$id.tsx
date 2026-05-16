@@ -523,24 +523,27 @@ function SectionBasics({ station, up }: { station: Station; up: <K extends keyof
 }
 
 function SectionCaseCandidate({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+  const formattingHint = "Cole o texto integral (como está no PDF). Linhas em CAIXA ALTA e títulos terminados em ':' ficam em negrito automaticamente. Use **palavra** para destacar manualmente.";
   return (
     <Section title="Cenário de atuação e tarefas" hint="Texto que o avaliado lê no início da estação.">
       <div>
-        <Label>Cenário de atuação (caso clínico)</Label>
-        <Textarea rows={5} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} />
+        <Label>Cenário de atuação</Label>
+        <p className="mb-1 text-xs text-muted-foreground">{formattingHint}</p>
+        <Textarea rows={12} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} placeholder={"Ex.:\nVocê está atendendo no pronto-socorro...\n\nDESCRIÇÃO DO CASO:\nPaciente de 45 anos..."} />
       </div>
       <div>
-        <Label>Tarefas do candidato (o que ele deve executar)</Label>
-        <Textarea rows={3} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} />
+        <Label>Tarefas do candidato (Nos X minutos de duração da estação, você deverá executar as seguintes tarefas)</Label>
+        <p className="mb-1 text-xs text-muted-foreground">{formattingHint} A quantidade de minutos no título do preview é preenchida automaticamente.</p>
+        <Textarea rows={10} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} placeholder={"Ex.:\n- Realizar anamnese dirigida\n- Solicitar **exames complementares**\n- Comunicar a hipótese diagnóstica"} />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <Label>Dados rápidos do paciente (mostrados ao avaliado)</Label>
-          <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
+          <Textarea rows={4} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
         </div>
         <div>
           <Label>Materiais disponíveis durante a estação</Label>
-          <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
+          <Textarea rows={4} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
         </div>
       </div>
     </Section>
