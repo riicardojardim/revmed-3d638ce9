@@ -292,7 +292,6 @@ export const STATIONS: Station[] = [
         points: 0.2,
         levels: [
           { label: "Inadequado: Não realiza.", points: 0 },
-          { label: "Parcialmente adequado: Realiza uma ação.", points: 0.1 },
           { label: "Adequado: Realiza as duas ações.", points: 0.2 },
         ],
       },
