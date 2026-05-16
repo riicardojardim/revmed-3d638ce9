@@ -185,12 +185,40 @@ function StationEditor() {
         </div>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <Label>Dados do paciente</Label>
+            <Label>Dados do paciente (sinais vitais, contexto rápido)</Label>
             <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
           </div>
           <div>
-            <Label>Materiais disponíveis</Label>
+            <Label>Materiais disponíveis durante a estação</Label>
             <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
+          </div>
+        </div>
+        <div>
+          <Label>Roteiro do paciente / ator</Label>
+          <p className="mb-1 text-xs text-muted-foreground">
+            Queixa, história, emoções, sinais simulados, o que só revelar se perguntado.
+          </p>
+          <Textarea rows={6} value={station.patient_script ?? ""} onChange={(e) => up("patient_script", e.target.value)} />
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <Label>Competências avaliadas (separadas por vírgula)</Label>
+            <Input value={(station.competencies ?? []).join(", ")}
+              onChange={(e) => up("competencies", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} />
+          </div>
+          <div>
+            <Label>Critérios de pontuação</Label>
+            <Textarea rows={3} value={station.scoring_criteria ?? ""} onChange={(e) => up("scoring_criteria", e.target.value)} />
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <Label>Observações para o professor / banca</Label>
+            <Textarea rows={3} value={station.evaluator_notes ?? ""} onChange={(e) => up("evaluator_notes", e.target.value)} />
+          </div>
+          <div>
+            <Label>Material de apoio pós-estação</Label>
+            <Textarea rows={3} value={station.post_materials ?? ""} onChange={(e) => up("post_materials", e.target.value)} />
           </div>
         </div>
       </div>
