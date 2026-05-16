@@ -284,7 +284,7 @@ function CandidateView() {
 
           {station.caseDescription && (
             <PRBlock icon={MessageSquare} title="Descrição do caso" tone="violet">
-              <p className="whitespace-pre-wrap leading-relaxed">{station.caseDescription}</p>
+              <ScriptText text={station.caseDescription} />
             </PRBlock>
           )}
 
