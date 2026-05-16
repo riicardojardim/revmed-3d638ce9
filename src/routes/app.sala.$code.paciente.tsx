@@ -504,9 +504,9 @@ function ActorView() {
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className={cn(
               "rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-emerald-500/15" : isFinished ? "bg-rose-500/15" : "bg-violet-500/20",
+              isRunning ? "bg-mint/15" : "bg-muted/40",
             )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">
+              <div className="font-display text-5xl font-bold tabular-nums text-foreground">
                 {mm}:{ss}
               </div>
               {isWaiting && (
@@ -515,7 +515,7 @@ function ActorView() {
                     value={String(room.duration_minutes ?? station.durationMinutes)}
                     onValueChange={(v) => changeDuration(Number(v))}
                   >
-                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-violet-400/30 bg-background/40 px-3 text-xs">
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-border bg-background/40 px-3 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -558,7 +558,7 @@ function ActorView() {
               Resultado
             </div>
             <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-              <div className="font-display text-xl font-bold tabular-nums text-emerald-300">
+              <div className="font-display text-xl font-bold tabular-nums text-mint">
                 {score.toFixed(2)} / {pct.toFixed(0)}%
               </div>
             </div>
