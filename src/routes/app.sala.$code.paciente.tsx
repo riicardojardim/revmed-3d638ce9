@@ -358,6 +358,10 @@ function ActorView() {
       .eq("id", room.id);
     setStarting(false);
     if (error) return toast.error(error.message);
+    try {
+      localStorage.setItem("ator:activeRoom", JSON.stringify({ code, title: room.station_title ?? station?.title ?? "Treinamento" }));
+      window.dispatchEvent(new Event("ator:activeRoom"));
+    } catch {}
     toast.success("Cronômetro iniciado para o candidato.");
   }
 
