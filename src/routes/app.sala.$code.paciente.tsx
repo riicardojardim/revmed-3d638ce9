@@ -158,7 +158,26 @@ function ActorView() {
         document.removeEventListener("visibilitychange", onVisible);
       };
     }
-  }, [room?.status, room?.started_at, station?.id, finished]);
+  }, [room?.status, room?.started_at, room?.duration_minutes, station?.id, finished]);
+
+  // Keep displayed remaining in sync with chosen duration while waiting
+  useEffect(() => {
+    if (!room || !station) return;
+    if (room.status !== "running") {
+      const effMin = room.duration_minutes ?? station.durationMinutes;
+      setRemaining(effMin * 60);
+    }
+  }, [room?.duration_minutes, room?.status, station?.id]);
+
+  async function changeDuration(min: number) {
+    if (!room) return;
+    if (room.status === "running") return toast.error("A estação já está em andamento.");
+    const { error } = await supabase.from("training_rooms")
+      .update({ duration_minutes: min }).eq("id", room.id);
+    if (error) return toast.error(error.message);
+    setRoom((prev) => prev ? { ...prev, duration_minutes: min } : prev);
+    toast.success(`Tempo da estação: ${min} min`);
+  }
 
   const totals = useMemo(() => {
     if (!station) return { total: 0, earned: 0 };
