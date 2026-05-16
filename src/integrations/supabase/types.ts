@@ -122,6 +122,128 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcard_reviews: {
+        Row: {
+          card_id: string
+          created_at: string
+          ease: number
+          id: string
+          interval_days: number
+          last_quality: number | null
+          next_review_at: string
+          reviews_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          ease?: number
+          id?: string
+          interval_days?: number
+          last_quality?: number | null
+          next_review_at?: string
+          reviews_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          ease?: number
+          id?: string
+          interval_days?: number
+          last_quality?: number | null
+          next_review_at?: string
+          reviews_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_reviews_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "flashcards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flashcards: {
+        Row: {
+          back: string
+          created_at: string
+          created_by: string
+          deck: string | null
+          front: string
+          id: string
+          published: boolean
+          specialty: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          back: string
+          created_at?: string
+          created_by: string
+          deck?: string | null
+          front: string
+          id?: string
+          published?: boolean
+          specialty: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          back?: string
+          created_at?: string
+          created_by?: string
+          deck?: string | null
+          front?: string
+          id?: string
+          published?: boolean
+          specialty?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          features: Json
+          id: string
+          name: string
+          price_cents: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          name: string
+          price_cents?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          name?: string
+          price_cents?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -190,6 +312,116 @@ export type Database = {
           },
         ]
       }
+      summaries: {
+        Row: {
+          content_md: string
+          created_at: string
+          created_by: string
+          id: string
+          published: boolean
+          read_time_minutes: number
+          specialty: string
+          title: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          content_md: string
+          created_at?: string
+          created_by: string
+          id?: string
+          published?: boolean
+          read_time_minutes?: number
+          specialty: string
+          title: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          published?: boolean
+          read_time_minutes?: number
+          specialty?: string
+          title?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      training_room_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          role: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          role?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          role?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_room_participants_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "training_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_rooms: {
+        Row: {
+          code: string
+          created_at: string
+          finished_at: string | null
+          host_id: string
+          id: string
+          started_at: string | null
+          station_id: string
+          station_title: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          finished_at?: string | null
+          host_id: string
+          id?: string
+          started_at?: string | null
+          station_id: string
+          station_title: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          finished_at?: string | null
+          host_id?: string
+          id?: string
+          started_at?: string | null
+          station_id?: string
+          station_title?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -210,6 +442,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          id: string
+          plan_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
