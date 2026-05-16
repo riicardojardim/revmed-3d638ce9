@@ -221,3 +221,196 @@ function TrainPage() {
     </div>
   );
 }
+
+// ===================== Ator view (Pense Revalida style) =====================
+
+const SPECIALTY_BADGE: Record<string, { code: string; cls: string }> = {
+  "Clínica Médica":           { code: "CM", cls: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-400/30" },
+  "Pediatria":                { code: "PE", cls: "bg-violet-500/15 text-violet-700 dark:text-violet-300 border-violet-400/30" },
+  "Ginecologia e Obstetrícia":{ code: "GO", cls: "bg-pink-500/15 text-pink-700 dark:text-pink-300 border-pink-400/30" },
+  "Cirurgia":                 { code: "CR", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-400/30" },
+  "Medicina da Família":      { code: "MF", cls: "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-400/30" },
+  "Urgência e Emergência":    { code: "UE", cls: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-400/30" },
+};
+
+function AtorTreinarView({
+  busy, createRoom, lastCode, copyLastCode,
+}: {
+  busy: boolean;
+  createRoom: (mode: "dupla" | "completa", autoRole?: "paciente" | "avaliador") => Promise<void>;
+  lastCode: string | null;
+  copyLastCode: () => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [specialty, setSpecialty] = useState<string>("all");
+  const [role, setRole] = useState<"avaliador" | "paciente">("avaliador");
+
+  const specialties = Array.from(new Set(STATIONS.map((s) => s.specialty)));
+  const filtered = STATIONS.filter((s) => {
+    const matchText = s.title.toLowerCase().includes(search.toLowerCase());
+    const matchSpec = specialty === "all" || s.specialty === specialty;
+    return matchText && matchSpec;
+  });
+
+  return (
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* Top header bar */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-mint/30 bg-gradient-to-r from-mint/10 to-medical/5 px-5 py-3">
+        <Theater className="h-5 w-5 text-mint" />
+        <span className="text-sm font-semibold text-foreground">Painel do Ator · Estações</span>
+        <span className="ml-auto rounded-full bg-mint/15 px-3 py-1 text-xs font-mono font-bold text-mint">
+          {filtered.length}/{STATIONS.length}
+        </span>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        {/* Left column — search + table */}
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-border bg-card p-5 shadow-card">
+            <h2 className="font-semibold">Buscar uma estação</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="relative">
+                <Sparkles className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar um tema..."
+                  className="w-full rounded-lg border border-border bg-background pl-9 pr-3 py-2.5 text-sm"
+                />
+              </div>
+              <div className="relative">
+                <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <select
+                  value={specialty}
+                  onChange={(e) => setSpecialty(e.target.value)}
+                  className="w-full appearance-none rounded-lg border border-border bg-background pl-9 pr-3 py-2.5 text-sm"
+                >
+                  <option value="all">Filtrar por especialidade</option>
+                  {specialties.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Role toggle */}
+            <div className="mt-4 inline-flex rounded-xl border border-border bg-muted/30 p-1 text-xs font-semibold">
+              <button
+                onClick={() => setRole("avaliador")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+                  role === "avaliador" ? "bg-mint text-night shadow-card" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <ClipboardCheck className="h-3.5 w-3.5" /> Entrar como Avaliador
+              </button>
+              <button
+                onClick={() => setRole("paciente")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+                  role === "paciente" ? "bg-mint text-night shadow-card" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <UserRound className="h-3.5 w-3.5" /> Entrar como Paciente
+              </button>
+            </div>
+          </div>
+
+          {/* Stations table */}
+          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+            <div className="hidden grid-cols-[1fr_110px_110px_140px] gap-3 border-b border-border bg-muted/30 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground md:grid">
+              <div>Estação</div>
+              <div className="text-center">Duração</div>
+              <div className="text-center">Nível</div>
+              <div className="text-right">Ação</div>
+            </div>
+            <ul className="divide-y divide-border">
+              {filtered.map((s) => {
+                const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
+                return (
+                  <li key={s.id} className="grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-muted/20 md:grid-cols-[1fr_110px_110px_140px] md:items-center">
+                    <div className="flex items-center gap-3">
+                      <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-1.5 font-mono text-xs font-bold ${b.cls}`}>
+                        {b.code}
+                      </span>
+                      <div>
+                        <div className="text-sm font-medium text-foreground">{s.title}</div>
+                        <div className="text-xs text-muted-foreground">{s.specialty}</div>
+                      </div>
+                    </div>
+                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.durationMinutes} min</div>
+                    <div className="text-center text-xs text-muted-foreground md:text-sm">{s.difficulty}</div>
+                    <div className="md:text-right">
+                      <Button
+                        size="sm"
+                        variant="hero"
+                        disabled={busy}
+                        onClick={() => createRoom("dupla", role)}
+                      >
+                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </li>
+                );
+              })}
+              {filtered.length === 0 && (
+                <li className="px-5 py-12 text-center text-sm text-muted-foreground">
+                  Nenhuma estação encontrada.
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* Right column — info card */}
+        <aside className="space-y-4">
+          <div className="rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant">
+            <div className="text-xs uppercase tracking-wider text-white/70">Disponíveis</div>
+            <div className="mt-1 font-display text-4xl font-bold">{STATIONS.length}</div>
+            <div className="text-xs text-white/70">estações atualizadas</div>
+
+            <div className="mt-5 space-y-2 text-xs text-white/80">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-mint" />
+                Código gerado automaticamente
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-mint" />
+                Impressos liberados sob demanda
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-mint" />
+                PEP só vai para o candidato ao encerrar
+              </div>
+            </div>
+          </div>
+
+          {lastCode ? (
+            <div className="rounded-3xl border border-mint/40 bg-mint/5 p-5">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Último código gerado
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <div className="rounded-lg bg-background px-3 py-1.5 font-mono text-lg font-bold tracking-widest">
+                  {lastCode}
+                </div>
+                <Button variant="outline" size="sm" onClick={copyLastCode}>
+                  <Copy className="mr-1 h-4 w-4" /> Copiar
+                </Button>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Envie este código ao candidato (WhatsApp, e-mail) para ele entrar na mesma sala.
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-dashed border-border bg-card p-5 text-sm text-muted-foreground">
+              <div className="font-semibold text-foreground">Como funciona</div>
+              <ol className="mt-3 space-y-2 text-xs">
+                <li>1. Escolha a estação e clique em <strong>Iniciar</strong>.</li>
+                <li>2. O código da sala é gerado e copiável.</li>
+                <li>3. Envie o código ao candidato.</li>
+                <li>4. Você entra direto como {role === "avaliador" ? "Avaliador" : "Paciente"}.</li>
+              </ol>
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  );
+}
