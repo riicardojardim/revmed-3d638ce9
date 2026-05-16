@@ -623,7 +623,7 @@ function Plans() {
               <div className="mt-1 text-sm text-muted-foreground">{p.desc}</div>
               <div className="mt-5 flex items-baseline gap-1">
                 <span className="font-display text-4xl font-bold">{p.price}</span>
-                <span className="text-sm text-muted-foreground">/ mês</span>
+                <span className="text-sm text-muted-foreground">{p.period}</span>
               </div>
               <ul className="mt-6 space-y-3 text-sm">
                 {p.features.map((f) => (
@@ -635,7 +635,7 @@ function Plans() {
               </ul>
               <Link to="/cadastro" className="mt-8">
                 <Button variant={p.highlight ? "hero" : "outline"} className="w-full">
-                  Quero esse plano
+                  {p.cta}
                 </Button>
               </Link>
             </div>
