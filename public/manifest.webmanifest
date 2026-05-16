@@ -1,6 +1,6 @@
 {
   "name": "Estação Revalida",
-  "short_name": "Revalida",
+  "short_name": "Estação Revalida",
   "description": "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro e feedback inteligente.",
   "start_url": "/app",
   "scope": "/",
