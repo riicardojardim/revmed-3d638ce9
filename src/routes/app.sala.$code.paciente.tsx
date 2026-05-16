@@ -560,7 +560,7 @@ function ActorView() {
                     const isSpider = /aranha/i.test(m.name);
                   return (
                     <div key={m.id} className={cn(
-                      "rounded-xl border p-3 transition-all self-start",
+                      "rounded-xl border p-3 transition-all flex flex-col h-full",
                       isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
                     )}>
                       <button
