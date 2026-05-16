@@ -1,0 +1,1 @@
+ALTER TABLE public.custom_stations ADD COLUMN IF NOT EXISTS case_description text;

@@ -52,6 +52,7 @@ interface Station {
   difficulty: string;
   duration_minutes: number;
   clinical_case: string;
+  case_description: string | null;
   candidate_task: string;
   patient_info: string | null;
   support_materials: string | null;
@@ -167,6 +168,7 @@ function StationEditor() {
       title: station.title,
       specialty: station.specialty,
       clinical_case: station.clinical_case,
+      case_description: station.case_description,
       candidate_task: station.candidate_task,
       patient_info: station.patient_info,
       support_materials: station.support_materials,
@@ -530,7 +532,12 @@ function SectionCaseCandidate({ station, up }: { station: Station; up: <K extend
       <div>
         <Label>Cenário de atuação</Label>
         <p className="mb-1 text-xs text-muted-foreground">{formattingHint}</p>
-        <Textarea rows={12} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} placeholder={"Ex.:\nVocê está atendendo no pronto-socorro...\n\nDESCRIÇÃO DO CASO:\nPaciente de 45 anos..."} />
+        <Textarea rows={12} value={station.clinical_case} onChange={(e) => up("clinical_case", e.target.value)} placeholder={"Ex.:\nVocê está atendendo no pronto-socorro..."} />
+      </div>
+      <div>
+        <Label>Descrição do caso</Label>
+        <p className="mb-1 text-xs text-muted-foreground">{formattingHint}</p>
+        <Textarea rows={12} value={station.case_description ?? ""} onChange={(e) => up("case_description", e.target.value)} placeholder={"Cole aqui a descrição completa do caso (como vem no PDF)."} />
       </div>
       <div>
         <Label>Tarefas do candidato (Nos X minutos de duração da estação, você deverá executar as seguintes tarefas)</Label>
@@ -980,6 +987,11 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               <PRBlock icon={MessageSquare} title="Cenário de atuação">
                 <ScriptText text={station.clinical_case || "—"} />
               </PRBlock>
+              {station.case_description && (
+                <PRBlock icon={MessageSquare} title="Descrição do caso">
+                  <ScriptText text={station.case_description} />
+                </PRBlock>
+              )}
               <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
                 <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
               </PRBlock>
@@ -1028,6 +1040,11 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
             <PRBlock icon={MessageSquare} title="Cenário clínico (contexto)">
               <ScriptText text={station.clinical_case || "—"} />
             </PRBlock>
+            {station.case_description && (
+              <PRBlock icon={MessageSquare} title="Descrição do caso">
+                <ScriptText text={station.case_description} />
+              </PRBlock>
+            )}
             <PRBlock icon={Inbox} title="Impressos para entregar" right={<Badge variant="outline">{(station.deliverable_materials ?? []).length}</Badge>}>
               {(station.deliverable_materials ?? []).length === 0 ? (
                 <p className="text-sm text-muted-foreground">Nenhum impresso cadastrado.</p>

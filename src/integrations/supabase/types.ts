@@ -78,6 +78,7 @@ export type Database = {
         Row: {
           bibliographic_references: Json
           candidate_task: string
+          case_description: string | null
           clinical_case: string
           common_mistakes: string | null
           competencies: string[]
@@ -104,6 +105,7 @@ export type Database = {
         Insert: {
           bibliographic_references?: Json
           candidate_task: string
+          case_description?: string | null
           clinical_case: string
           common_mistakes?: string | null
           competencies?: string[]
@@ -130,6 +132,7 @@ export type Database = {
         Update: {
           bibliographic_references?: Json
           candidate_task?: string
+          case_description?: string | null
           clinical_case?: string
           common_mistakes?: string | null
           competencies?: string[]
