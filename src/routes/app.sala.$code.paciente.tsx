@@ -278,7 +278,7 @@ function ActorView() {
     toast.success(`Tempo da estação: ${min} min`);
   }
 
-  const totals = useMemo(() => {
+  const totals = (() => {
     if (!station) return { total: 0, earned: 0, scored: 0, count: 0 };
     const total = station.checklist.reduce((s, i) => s + i.points, 0);
     let earned = 0;
@@ -288,7 +288,7 @@ function ActorView() {
       if (typeof v === "number") { earned += v; scored += 1; }
     }
     return { total, earned, scored, count: station.checklist.length };
-  }, [station, checks]);
+  })();
   const allScored = totals.scored === totals.count && totals.count > 0;
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
