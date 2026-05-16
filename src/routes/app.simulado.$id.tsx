@@ -137,7 +137,7 @@ function SimuladoRunner() {
               const m = getSpecialtyMeta(s.specialty);
               return (
                 <li key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-3">
-                  <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-1.5 font-mono text-xs font-bold ${m.badgeClass}`}>{m.code}</span>
+                  <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border px-1.5 font-mono text-xs font-bold ${m.badge}`}>{m.code}</span>
                   <div className="min-w-0">
                     <div className="truncate text-sm font-medium">{s.title}</div>
                     <div className="text-xs text-muted-foreground">{s.specialty}</div>
@@ -185,7 +185,7 @@ function SimuladoRunner() {
       {/* Station header */}
       <div className="rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant">
         <div className="flex items-center gap-3">
-          <span className={`inline-flex h-7 items-center justify-center rounded-md border px-2 font-mono text-xs font-bold ${meta.badgeClass}`}>{meta.code}</span>
+          <span className={`inline-flex h-7 items-center justify-center rounded-md border px-2 font-mono text-xs font-bold ${meta.badge}`}>{meta.code}</span>
           <span className="text-xs uppercase tracking-wider text-white/70">{station.specialty}</span>
         </div>
         <h1 className="mt-2 font-display text-2xl font-bold">{station.title}</h1>

@@ -25,6 +25,7 @@ import { Route as AppEstacoesRouteImport } from './routes/app.estacoes'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
+import { Route as AppSimuladoIdRouteImport } from './routes/app.simulado.$id'
 import { Route as AppSimulacaoIdRouteImport } from './routes/app.simulacao.$id'
 import { Route as AppResumosIdRouteImport } from './routes/app.resumos.$id'
 import { Route as AppResultadoIdRouteImport } from './routes/app.resultado.$id'
@@ -121,6 +122,11 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppAdminRoute,
+} as any)
+const AppSimuladoIdRoute = AppSimuladoIdRouteImport.update({
+  id: '/simulado/$id',
+  path: '/simulado/$id',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSimulacaoIdRoute = AppSimulacaoIdRouteImport.update({
   id: '/simulacao/$id',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -259,6 +266,7 @@ export interface FileRoutesByTo {
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/app/resultado/$id'
     | '/app/resumos/$id'
     | '/app/simulacao/$id'
+    | '/app/simulado/$id'
     | '/app/admin/'
     | '/app/professor/'
     | '/app/professor/correcoes/$id'
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/app/resultado/$id'
     | '/app/resumos/$id'
     | '/app/simulacao/$id'
+    | '/app/simulado/$id'
     | '/app/admin'
     | '/app/professor'
     | '/app/professor/correcoes/$id'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/app/resultado/$id'
     | '/app/resumos/$id'
     | '/app/simulacao/$id'
+    | '/app/simulado/$id'
     | '/app/admin/'
     | '/app/professor/'
     | '/app/professor/correcoes/$id'
@@ -526,6 +538,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/admin/'
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
+    }
+    '/app/simulado/$id': {
+      id: '/app/simulado/$id'
+      path: '/simulado/$id'
+      fullPath: '/app/simulado/$id'
+      preLoaderRoute: typeof AppSimuladoIdRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/simulacao/$id': {
       id: '/app/simulacao/$id'
@@ -727,6 +746,7 @@ interface AppRouteChildren {
   AppEntrarCodeRoute: typeof AppEntrarCodeRoute
   AppResultadoIdRoute: typeof AppResultadoIdRoute
   AppSimulacaoIdRoute: typeof AppSimulacaoIdRoute
+  AppSimuladoIdRoute: typeof AppSimuladoIdRoute
   AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
   AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
   AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
@@ -746,6 +766,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEntrarCodeRoute: AppEntrarCodeRoute,
   AppResultadoIdRoute: AppResultadoIdRoute,
   AppSimulacaoIdRoute: AppSimulacaoIdRoute,
+  AppSimuladoIdRoute: AppSimuladoIdRoute,
   AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
   AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
   AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
