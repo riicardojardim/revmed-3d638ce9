@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ScriptText } from "@/components/station/shared";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
   component: EvaluatorView,
@@ -422,7 +423,7 @@ function EvaluatorView() {
 
                         {isDelivered && m.content && (
                           <div className="mt-3 max-h-32 overflow-auto rounded-lg border border-emerald-300/30 bg-background/60 p-2.5 text-xs leading-relaxed">
-                            {m.content}
+                            <ScriptText text={m.content} />
                           </div>
                         )}
 

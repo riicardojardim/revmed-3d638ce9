@@ -14,6 +14,7 @@ import {
   Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ScriptText } from "@/components/station/shared";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
@@ -318,7 +319,9 @@ function CandidateView() {
                       <div className="mt-2 text-xs text-muted-foreground">{d.material_description}</div>
                     )}
                     {d.material_content && (
-                      <div className="mt-3 whitespace-pre-wrap rounded-lg bg-background/60 p-3 text-sm">{d.material_content}</div>
+                      <div className="mt-3 rounded-lg bg-background/60 p-3 text-sm">
+                        <ScriptText text={d.material_content} />
+                      </div>
                     )}
                   </div>
                 ))}
