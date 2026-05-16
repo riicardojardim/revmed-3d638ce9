@@ -296,19 +296,17 @@ function EvaluatorView() {
           {tab === "cenario" && (
             <div className="space-y-5">
               <PanelSection icon={ScrollText} title="Cenário de atuação" accent="indigo">
-                <div className="space-y-3 leading-relaxed">
-                  <p className="whitespace-pre-wrap">{station.clinicalCase}</p>
-                </div>
+                <ScriptText text={station.clinicalCase} />
               </PanelSection>
 
               {station.caseDescription && (
                 <PanelSection icon={ScrollText} title="Descrição do caso" accent="indigo">
-                  <p className="whitespace-pre-wrap leading-relaxed">{station.caseDescription}</p>
+                  <ScriptText text={station.caseDescription} />
                 </PanelSection>
               )}
 
               <PanelSection icon={Target} title={`Tarefas dos ${room?.duration_minutes ?? station.durationMinutes} minutos`} accent="mint">
-                <p className="whitespace-pre-wrap leading-relaxed">{station.candidateTask}</p>
+                <ScriptText text={station.candidateTask} />
               </PanelSection>
 
               {station.educationalGoal && (
