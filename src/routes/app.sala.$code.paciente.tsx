@@ -1058,6 +1058,32 @@ function ActorView() {
         </aside>
       </div>
 
+
+      {zoomImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out animate-in fade-in"
+          onClick={() => setZoomImage(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setZoomImage(null); }}
+            className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white h-10 w-10 flex items-center justify-center text-xl"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+          <img
+            src={zoomImage.src}
+            alt={zoomImage.alt}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-full max-w-full object-contain rounded-md shadow-2xl cursor-zoom-in"
+            style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
+          />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
+            Clique fora ou pressione × para fechar
+          </div>
+        </div>
+      )}
     </div>
   );
 }
