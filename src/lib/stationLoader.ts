@@ -13,6 +13,7 @@ export interface LoadedStation extends Station {
   scoringCriteria?: string;
   postMaterials?: string;
   references?: StationReference[];
+  caseDescription?: string;
 }
 
 function isUuid(s: string) {
