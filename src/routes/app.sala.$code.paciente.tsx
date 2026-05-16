@@ -529,54 +529,6 @@ function ActorView() {
             )}
           </PRBlock>
 
-          <PRBlock
-            icon={Inbox}
-            title="Materiais para entregar ao candidato"
-            tone="sky"
-            right={<Badge variant="outline" className="text-white border-white/30">{deliveries.length}/{materials.length}</Badge>}
-          >
-            {materials.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {materials.map((m) => {
-                  const isDelivered = delivered.has(m.id);
-                  return (
-                    <div key={m.id} className={cn(
-                      "rounded-xl border p-3 transition-all",
-                      isDelivered ? "border-mint/50 bg-mint/5" : "border-border bg-background/40 hover:border-mint/40",
-                    )}>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewMaterialId(m.id)}
-                        className="flex w-full items-start justify-between gap-2 text-left group"
-                        title="Clique para visualizar o conteúdo"
-                      >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
-                            <FileText className="h-4 w-4 text-mint" /> {m.name}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-muted-foreground">{m.type} · clique para ver</div>
-                          {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
-                        </div>
-                        {m.autoDeliver && <Badge variant="outline" className="shrink-0 text-[10px]">Auto</Badge>}
-                      </button>
-                      <Button
-                        size="sm"
-                        variant={isDelivered ? "outline" : "hero"}
-                        className="mt-3 w-full"
-                        disabled={isDelivered || !isRunning}
-                        onClick={() => deliver(m.id)}
-                      >
-                        {isDelivered ? <><PackageCheck className="mr-1 h-4 w-4" /> Entregue</> : <><Send className="mr-1 h-4 w-4" /> Entregar</>}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </PRBlock>
-
           {/* CHECKLIST (PEP) inline — só editável após encerrar */}
           <PRBlock
             icon={ClipboardCheck}
@@ -793,6 +745,50 @@ function ActorView() {
               <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
                 Estação encerrada — preencha o PEP abaixo.
               </div>
+            )}
+          </div>
+
+          {/* Impressos para entregar */}
+          <div className="rounded-2xl border border-border bg-card p-3">
+            <div className="flex items-center justify-between px-1 pb-2">
+              <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                <Inbox className="h-4 w-4 text-mint" />
+                {materials.length} Impresso{materials.length === 1 ? "" : "s"}
+              </div>
+              <Badge variant="outline" className="text-[10px]">{deliveries.length}/{materials.length}</Badge>
+            </div>
+            {materials.length === 0 ? (
+              <p className="px-1 py-2 text-xs text-muted-foreground">Sem materiais cadastrados.</p>
+            ) : (
+              <ul className="space-y-1.5">
+                {materials.map((m, idx) => {
+                  const isDelivered = delivered.has(m.id);
+                  return (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewMaterialId(m.id)}
+                        className={cn(
+                          "flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition",
+                          isDelivered
+                            ? "border-mint/50 bg-mint/10 text-foreground"
+                            : "border-border bg-background/40 text-foreground/90 hover:border-mint/40 hover:text-foreground",
+                        )}
+                        title="Clique para visualizar o impresso"
+                      >
+                        <span className="flex min-w-0 items-center gap-2">
+                          {isDelivered
+                            ? <PackageCheck className="h-3.5 w-3.5 shrink-0 text-mint" />
+                            : <Lock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+                          <span className="truncate">
+                            Impresso {idx + 1} <span className="text-muted-foreground">( {m.name} )</span>
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
           </div>
 
