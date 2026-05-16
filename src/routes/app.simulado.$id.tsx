@@ -27,9 +27,12 @@ export const Route = createFileRoute("/app/simulado/$id")({
   head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
 });
 
+type Candidate = { id: string; name: string };
+
 function SimuladoRunner() {
   const { id } = Route.useParams();
   const nav = useNavigate();
+  const { user } = useAuth();
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +51,11 @@ function SimuladoRunner() {
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const tickRef = useRef<number | null>(null);
+
+  // Room / participants state
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Load simulado
   useEffect(() => {
