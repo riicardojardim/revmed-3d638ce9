@@ -334,8 +334,7 @@ function ActorView() {
       .update({ status: "finished", finished_at: new Date().toISOString() })
       .eq("id", room.id);
     setFinished(true);
-    setShowPEP(true);
-    toast.success("Estação finalizada. Agora preencha o PEP.");
+    toast.success("Estação finalizada. Preencha o PEP abaixo.");
   }
 
   async function copyInviteLink() {
