@@ -76,7 +76,7 @@ function ProfilePage() {
           <div>
             <div className="font-display text-2xl font-bold">{planName}</div>
             <div className="mt-1 text-sm text-muted-foreground">{planDescription}</div>
-            {plan?.current_period_end && !isPrivileged && (
+            {plan?.current_period_end && (
               <div className="mt-1 text-xs text-muted-foreground">
                 Válido até {new Date(plan.current_period_end).toLocaleDateString("pt-BR")}
               </div>
