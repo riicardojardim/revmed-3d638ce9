@@ -434,25 +434,19 @@ function CandidateView() {
 }
 
 function PRBlock({
-  icon: Icon, title, tone, right, children,
+  icon: Icon, title, right, children,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  tone: "violet" | "emerald" | "amber" | "sky";
+  tone?: string;
   right?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const tones = {
-    violet: "bg-violet-500/15 text-violet-300 border-violet-500/20",
-    emerald: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
-    amber: "bg-amber-500/15 text-amber-300 border-amber-500/20",
-    sky: "bg-sky-500/15 text-sky-300 border-sky-500/20",
-  };
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <header className={cn("flex items-center justify-between gap-2 border-b px-4 py-2.5 text-sm font-medium", tones[tone])}>
+      <header className="flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-4 py-2.5 text-sm font-medium text-muted-foreground">
         <span className="inline-flex items-center gap-2">
-          <Icon className="h-4 w-4" /> {title}
+          <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
         {right}
       </header>
