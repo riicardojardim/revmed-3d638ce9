@@ -47,7 +47,7 @@ function CandidateView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, duration_minutes")
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
