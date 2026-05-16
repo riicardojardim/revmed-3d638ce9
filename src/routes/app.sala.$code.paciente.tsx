@@ -63,22 +63,15 @@ function parseSubItems(description: string): { lead: string; subs: string[] } {
 }
 
 function levelTone(index: number, total: number): { idle: string; active: string } {
+  // Idle = apenas o número, sem caixa. Selecionado = pill colorido (vermelho/âmbar/verde).
+  const base = "text-muted-foreground hover:text-foreground";
   if (index === 0) {
-    return {
-      idle: "border-rose-500/30 bg-rose-500/5 text-rose-300 hover:bg-rose-500/10",
-      active: "border-rose-500 bg-rose-500/80 text-white shadow-sm",
-    };
+    return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
   }
   if (index === total - 1) {
-    return {
-      idle: "border-emerald-500/30 bg-emerald-500/5 text-emerald-300 hover:bg-emerald-500/10",
-      active: "border-emerald-500 bg-emerald-500/80 text-white shadow-sm",
-    };
+    return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
   }
-  return {
-    idle: "border-amber-500/30 bg-amber-500/5 text-amber-300 hover:bg-amber-500/10",
-    active: "border-amber-500 bg-amber-500/80 text-white shadow-sm",
-  };
+  return { idle: base, active: "bg-amber-500/85 text-white shadow-sm ring-1 ring-amber-400/60" };
 }
 
 function ActorView() {
@@ -567,25 +560,29 @@ function ActorView() {
               </div>
             )}
 
-            <div className="grid grid-cols-[1fr_auto] gap-x-4 border-b border-border pb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <span>Item</span>
-              <span className="text-right">Avaliação</span>
-            </div>
 
-            <ol className="divide-y divide-border">
+
+            <ol className="space-y-3">
               {station.checklist.map((it, idx) => {
                 const levels = it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
                 const current = checks[it.id];
-                // Parse sub-items: split on ";" or by "(N)" markers so the ator can highlight each one
                 const parts = parseSubItems(it.description);
                 return (
-                  <li key={it.id} className="grid grid-cols-[1fr_auto] gap-x-4 py-4">
+                  <li
+                    key={it.id}
+                    className={cn(
+                      "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
+                      typeof current === "number"
+                        ? "border-mint/30 bg-mint/5"
+                        : "border-border bg-background/30",
+                    )}
+                  >
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-foreground">
                         {idx + 1}. {parts.lead}
                       </div>
                       {parts.subs.length > 0 && (
-                        <ul className="mt-2 space-y-1">
+                        <ul className="mt-2 space-y-0.5">
                           {parts.subs.map((sub, si) => {
                             const key = `${it.id}::${si}`;
                             const active = !!highlights[key];
@@ -597,8 +594,8 @@ function ActorView() {
                                   className={cn(
                                     "w-full rounded-md px-2 py-1 text-left text-sm transition-colors",
                                     active
-                                      ? "bg-amber-500/30 text-amber-100 ring-1 ring-amber-500/50"
-                                      : "text-foreground/80 hover:bg-white/5",
+                                      ? "bg-mint/25 text-white ring-1 ring-mint/60"
+                                      : "text-foreground/85 hover:bg-white/5",
                                   )}
                                 >
                                   {sub}
@@ -608,7 +605,7 @@ function ActorView() {
                           })}
                         </ul>
                       )}
-                      <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
+                      <div className="mt-3 space-y-0.5 text-xs text-muted-foreground">
                         {levels.map((lv) => (
                           <div key={lv.label}>
                             <span className="font-medium text-foreground">{lv.label}:</span>{" "}
@@ -630,7 +627,7 @@ function ActorView() {
                         disabled={!isFinished}
                       />
                     </div>
-                    <div className="flex flex-col items-end gap-1.5 tabular-nums">
+                    <div className="flex flex-col items-center gap-1 tabular-nums">
                       {levels.map((lv, li) => {
                         const selected = current === lv.points;
                         const tone = levelTone(li, levels.length);
@@ -643,9 +640,9 @@ function ActorView() {
                               setChecks((c) => ({ ...c, [it.id]: lv.points }))
                             }
                             className={cn(
-                              "min-w-[3rem] rounded-md border px-2.5 py-1 text-xs font-bold transition-colors",
+                              "flex h-7 w-9 items-center justify-center rounded-md text-sm font-bold transition-colors",
                               selected ? tone.active : tone.idle,
-                              !isFinished && "cursor-not-allowed opacity-50",
+                              !isFinished && "cursor-not-allowed opacity-40",
                             )}
                             title={lv.label}
                           >
@@ -675,8 +672,8 @@ function ActorView() {
             </div>
 
             {isFinished && !allScored && (
-              <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-                <span className="font-bold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados.
+              <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                <span className="font-bold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados ({totals.scored}/{totals.count}).
               </div>
             )}
 
@@ -709,12 +706,6 @@ function ActorView() {
                 </Button>
               </div>
             </div>
-
-            {isFinished && !allScored && (
-              <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                <span className="font-semibold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados ({totals.scored}/{totals.count}).
-              </div>
-            )}
           </PRBlock>
         </div>
 
