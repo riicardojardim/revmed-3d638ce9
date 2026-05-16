@@ -21,6 +21,10 @@ export type Database = {
           earned: number
           id: string
           notes: string | null
+          professor_feedback: string | null
+          professor_score: number | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           score: number
           specialty: string | null
           station_id: string
@@ -36,6 +40,10 @@ export type Database = {
           earned?: number
           id?: string
           notes?: string | null
+          professor_feedback?: string | null
+          professor_score?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           score?: number
           specialty?: string | null
           station_id: string
@@ -51,6 +59,10 @@ export type Database = {
           earned?: number
           id?: string
           notes?: string | null
+          professor_feedback?: string | null
+          professor_score?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           score?: number
           specialty?: string | null
           station_id?: string
@@ -59,6 +71,54 @@ export type Database = {
           total_points?: number
           used_seconds?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      custom_stations: {
+        Row: {
+          candidate_task: string
+          clinical_case: string
+          created_at: string
+          created_by: string
+          difficulty: string
+          duration_minutes: number
+          id: string
+          patient_info: string | null
+          published: boolean
+          specialty: string
+          support_materials: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_task: string
+          clinical_case: string
+          created_at?: string
+          created_by: string
+          difficulty?: string
+          duration_minutes?: number
+          id?: string
+          patient_info?: string | null
+          published?: boolean
+          specialty: string
+          support_materials?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_task?: string
+          clinical_case?: string
+          created_at?: string
+          created_by?: string
+          difficulty?: string
+          duration_minutes?: number
+          id?: string
+          patient_info?: string | null
+          published?: boolean
+          specialty?: string
+          support_materials?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -91,6 +151,44 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      station_checklist_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          order_index: number
+          points: number
+          station_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          order_index?: number
+          points?: number
+          station_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          order_index?: number
+          points?: number
+          station_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_checklist_items_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "custom_stations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
