@@ -600,7 +600,8 @@ function ActorView() {
                       <Button
                         size="sm"
                         variant={isDelivered ? "outline" : "hero"}
-                        className="mt-auto w-full"
+                        className="mt-auto w-full !mt-auto"
+                        style={{ marginTop: 'auto' }}
                         disabled={isDelivered || !isRunning}
                         onClick={() => deliver(m.id)}
                       >
