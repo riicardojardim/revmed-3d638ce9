@@ -72,6 +72,7 @@ export interface Station {
   educationalGoal?: string;
   expectedConduct?: string;
   commonMistakes?: string;
+  references?: { label: string; url?: string }[];
 }
 
 const cl = (items: Omit<ChecklistItem, "id">[]): ChecklistItem[] =>
