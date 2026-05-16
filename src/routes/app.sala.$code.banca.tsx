@@ -629,11 +629,21 @@ function EvaluatorView() {
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  {[
-                    { c: "bg-emerald-500", n: Object.values(levels).filter((v) => v === 1).length,   l: "Adq." },
-                    { c: "bg-amber-500",   n: Object.values(levels).filter((v) => v === 0.5).length, l: "Parc." },
-                    { c: "bg-rose-500",    n: Object.values(levels).filter((v) => v === 0).length,   l: "Inad." },
-                  ].map((x, i) => (
+                  {(() => {
+                    let adq = 0, parc = 0, inad = 0;
+                    station.checklist.forEach((it) => {
+                      const v = levels[it.id];
+                      if (v === undefined) return;
+                      if (v === 0) inad++;
+                      else if (v >= it.points) adq++;
+                      else parc++;
+                    });
+                    return [
+                      { c: "bg-emerald-500", n: adq,  l: "Adq." },
+                      { c: "bg-amber-500",   n: parc, l: "Parc." },
+                      { c: "bg-rose-500",    n: inad, l: "Inad." },
+                    ];
+                  })().map((x, i) => (
                     <div key={i} className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">
                       <div className={cn("mx-auto h-1.5 w-6 rounded-full", x.c)} />
                       <div className="mt-1 font-display text-xl font-bold tabular-nums">{x.n}</div>
