@@ -131,19 +131,29 @@ function cleanPepTitle(value: string): string {
 }
 
 /**
- * Preserve the pasted PEP text literally and use the item's own title as category.
- * The AI may still return generic labels like "Comunicação"/"Anamnese"; when the
- * description starts with the original title line, that title always wins.
+ * Use the numbered PEP title only as category, never inside description.
+ * Example: "2. Investiga os sintomas atuais da criança:" becomes category
+ * "Investiga os sintomas atuais da criança" and description starts at the subitems.
  */
 function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null): { description: string; category: string } {
   const desc = (rawDesc ?? "").trim();
-  const firstLine = desc.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? "";
-  const titleMatch = firstLine.match(/^(?:\d+\s*[.)\-–—]\s*)?(.{2,180}?):\s*(?:$|(?=\(?\d+\)?\s))/);
+  const lines = desc.split(/\r?\n/);
+  const firstContentIndex = lines.findIndex((line) => line.trim());
+  const firstLine = firstContentIndex >= 0 ? lines[firstContentIndex].trim() : "";
+  const titleMatch = firstLine.match(/^\s*\d+\s*[.)\-–—]\s*(.{2,180}?)\s*:\s*(.*)$/);
   const title = titleMatch ? cleanPepTitle(titleMatch[1]) : "";
+  const inlineRemainder = titleMatch?.[2]?.trim() ?? "";
+  const cleanedDescription = titleMatch
+    ? [
+        ...lines.slice(0, firstContentIndex),
+        ...(inlineRemainder ? [inlineRemainder] : []),
+        ...lines.slice(firstContentIndex + 1),
+      ].join("\n").trim()
+    : desc;
   const legacyPresentation = /identifica-se/i.test(desc) && /cumprimenta\s+o\s+paciente/i.test(desc) ? "Apresentação" : "";
   const explicit = cleanPepTitle(rawCategory ?? "");
   const chosen = title || legacyPresentation || explicit || "Sem categoria";
-  return { description: desc, category: chosen.charAt(0).toUpperCase() + chosen.slice(1) };
+  return { description: cleanedDescription, category: chosen.charAt(0).toUpperCase() + chosen.slice(1) };
 }
 
 function fileToDataUrl(file: File): Promise<string> {
