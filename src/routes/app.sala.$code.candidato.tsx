@@ -265,24 +265,48 @@ function CandidateView() {
         </div>
       </div>
 
+      {/* Banner gradient institucional (igual ao painel do ator) */}
+      <div className="relative overflow-hidden rounded-3xl border border-mint/20 bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              "linear-gradient(hsl(160 60% 60%) 1px, transparent 1px), linear-gradient(90deg, hsl(160 60% 60%) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mint">
+            <ShieldCheck className="h-3 w-3" /> Estação em andamento
+          </div>
+          <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
+            {room.station_title ?? station.title}
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/70">
+            {(() => {
+              const meta = getSpecialtyMeta(station.specialty);
+              return (
+                <span className={cn("inline-flex h-6 items-center rounded-md px-2 text-[11px] font-bold", meta.badge)}>
+                  {meta.code}
+                </span>
+              );
+            })()}
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-mint" /> {station.specialty}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" /> {room.duration_minutes ?? station.durationMinutes} min
+            </span>
+            <span className="ml-auto rounded-md border border-white/20 bg-white/5 px-2.5 py-1 font-mono text-[11px] tracking-wider">
+              {code}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
-            <div className="flex items-center gap-2 min-w-0">
-              {(() => {
-                const meta = getSpecialtyMeta(station.specialty);
-                return (
-                  <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
-                    {meta.code}
-                  </span>
-                );
-              })()}
-              <span className="truncate text-sm font-medium text-foreground">
-                {station.specialty}
-              </span>
-            </div>
-            <span className="rounded-md border border-border bg-background px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
               {code}
             </span>
           </div>
