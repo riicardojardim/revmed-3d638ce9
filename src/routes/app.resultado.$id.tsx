@@ -63,9 +63,7 @@ function ResultPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
-        <Badge variant="outline" className="border-medical/30 text-medical">
-          {station.specialty}
-        </Badge>
+        <SpecialtyBadge specialty={station.specialty} />
         <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
           Seu desempenho nesta estação
         </h1>
