@@ -106,7 +106,7 @@ function StationsPage() {
             <div key={s.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="border-medical/30 text-medical">{s.specialty}</Badge>
+                  <SpecialtyBadge specialty={s.specialty} />
                   <Badge variant="outline">{s.difficulty}</Badge>
                   <Badge variant="outline">{s.duration_minutes} min</Badge>
                   {s.published ? (
