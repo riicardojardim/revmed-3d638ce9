@@ -123,9 +123,7 @@ function SimulationPage() {
           {/* Header */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-card md:p-6">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="border-medical/30 text-medical">
-                {station.specialty}
-              </Badge>
+              <SpecialtyBadge specialty={station.specialty} />
               <Badge variant="outline">{station.difficulty}</Badge>
               <Badge variant="outline">{station.durationMinutes} min</Badge>
             </div>
