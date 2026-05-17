@@ -1,9 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Award,
-  BarChart3,
-  Flame,
   MessageCircle,
   Sparkles,
   Trophy,
@@ -18,8 +15,6 @@ import {
   BarChart,
   Bar,
   XAxis,
-  YAxis,
-  Tooltip,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
