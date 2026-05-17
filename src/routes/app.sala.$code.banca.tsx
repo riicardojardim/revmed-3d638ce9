@@ -497,12 +497,12 @@ function EvaluatorView() {
 
                               {/* Pontuação por nível (estilo Pense Revalida: níveis com pontos próprios) */}
                               {(() => {
-                                const itemLevels = (it.levels && it.levels.length > 0)
+                                const itemLevels = [...((it.levels && it.levels.length > 0)
                                   ? it.levels
                                   : [
                                       { label: "Inadequado", points: 0 },
                                       { label: "Adequado", points: it.points },
-                                    ];
+                                    ])].sort((a, b) => a.points - b.points);
                                 const cols = itemLevels.length === 2 ? "grid-cols-2" : "grid-cols-3";
                                 return (
                                   <div className={cn("mt-3 grid gap-2", cols)}>
