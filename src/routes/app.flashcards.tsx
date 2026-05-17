@@ -274,17 +274,40 @@ function FlashcardsPage() {
                 </FlashcardFace>
 
                 {revealed && user && (
-                  <div className="mt-4 rounded-2xl bg-card ring-1 ring-border p-4">
-                    <p className="text-center text-sm font-medium text-medical">Como foi sua resposta?</p>
-                    <div className="mt-3 flex justify-center gap-6">
-                      <button onClick={() => rate(0)} className="h-12 w-12 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-500 flex items-center justify-center transition" title="Errei">
-                        <Frown className="h-6 w-6" />
+                  <div className="mt-4 rounded-2xl bg-card ring-1 ring-border p-4 sm:p-5">
+                    <p className="text-center text-sm font-medium text-medical">
+                      Como foi sua resposta?
+                    </p>
+                    <p className="mt-1 text-center text-[11px] text-muted-foreground">
+                      Isso ajusta quando este card volta para você
+                    </p>
+                    <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+                      <button
+                        onClick={() => rate(0)}
+                        title="Errei — volta em ~10 min"
+                        className="group flex flex-col items-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 hover:border-rose-500/40 px-2 py-3 transition active:scale-[0.97]"
+                      >
+                        <Frown className="h-6 w-6 text-rose-500" />
+                        <span className="text-[13px] font-semibold text-rose-500">Errei</span>
+                        <span className="text-[10px] text-muted-foreground">~10 min</span>
                       </button>
-                      <button onClick={() => rate(3)} className="h-12 w-12 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 flex items-center justify-center transition" title="Difícil">
-                        <Meh className="h-6 w-6" />
+                      <button
+                        onClick={() => rate(3)}
+                        title="Difícil — em breve"
+                        className="group flex flex-col items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-500/40 px-2 py-3 transition active:scale-[0.97]"
+                      >
+                        <Meh className="h-6 w-6 text-amber-500" />
+                        <span className="text-[13px] font-semibold text-amber-500">Difícil</span>
+                        <span className="text-[10px] text-muted-foreground">curto prazo</span>
                       </button>
-                      <button onClick={() => rate(5)} className="h-12 w-12 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-500 flex items-center justify-center transition" title="Fácil">
-                        <Smile className="h-6 w-6" />
+                      <button
+                        onClick={() => rate(5)}
+                        title="Fácil — intervalo maior"
+                        className="group flex flex-col items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-500/40 px-2 py-3 transition active:scale-[0.97]"
+                      >
+                        <Smile className="h-6 w-6 text-emerald-500" />
+                        <span className="text-[13px] font-semibold text-emerald-500">Fácil</span>
+                        <span className="text-[10px] text-muted-foreground">longo prazo</span>
                       </button>
                     </div>
                   </div>
