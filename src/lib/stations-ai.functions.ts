@@ -339,7 +339,9 @@ function cleanPepTitle(value: string): string {
   return value.replace(/^\s*\d+\s*[.)\-–—]\s*/, "").replace(/\s*:\s*$/, "").trim();
 }
 
-function normalizeExtractedChecklistItem<T extends NonNullable<ParsedStation["checklist_items"]>[number]>(item: T): T {
+type ExtractedChecklistItem = NonNullable<ParsedStation["checklist_items"]>[number];
+
+function normalizeExtractedChecklistItem(item: ExtractedChecklistItem): ExtractedChecklistItem {
   const lines = (item.description ?? "").trim().split(/\r?\n/);
   const firstContentIndex = lines.findIndex((line) => line.trim());
   const firstLine = firstContentIndex >= 0 ? lines[firstContentIndex].trim() : "";
