@@ -168,6 +168,7 @@ export type Database = {
           position: number
           published: boolean
           specialty: string
+          station_id: string | null
           title: string
           topic: string | null
           updated_at: string
@@ -181,6 +182,7 @@ export type Database = {
           position?: number
           published?: boolean
           specialty: string
+          station_id?: string | null
           title: string
           topic?: string | null
           updated_at?: string
@@ -194,11 +196,20 @@ export type Database = {
           position?: number
           published?: boolean
           specialty?: string
+          station_id?: string | null
           title?: string
           topic?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_decks_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "custom_stations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       flashcard_reviews: {
         Row: {
