@@ -246,11 +246,31 @@ function FlashcardsPage() {
                   side={revealed ? "back" : "front"}
                   counter={`${index + 1} | ${cards.length}`}
                 >
-                  <div className="flex-1 flex items-center justify-center text-center whitespace-pre-wrap overflow-y-auto" style={{ padding: "6cqi" }}>
-                    <div className="font-medium" style={{ fontSize: "max(14px, 5cqi)", lineHeight: 1.35 }}>
-                      {revealed ? current.back : current.front}
-                    </div>
-                  </div>
+                  {(() => {
+                    const text = revealed ? current.back : current.front;
+                    const isShort = text.length <= 80;
+                    return (
+                      <div
+                        className="flex-1 flex items-center justify-center overflow-y-auto"
+                        style={{ padding: "clamp(16px, 5cqi, 32px)" }}
+                      >
+                        <p
+                          lang="pt-BR"
+                          className={cn(
+                            "font-medium whitespace-pre-wrap hyphens-auto [text-wrap:pretty] [overflow-wrap:anywhere]",
+                            isShort ? "text-center" : "text-left",
+                          )}
+                          style={{
+                            fontSize: "clamp(15px, 4.6cqi, 22px)",
+                            lineHeight: 1.45,
+                            letterSpacing: "-0.005em",
+                          }}
+                        >
+                          {text}
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </FlashcardFace>
 
                 {revealed && user && (
