@@ -149,7 +149,7 @@ function StationsPage() {
                 <Clock className="h-3.5 w-3.5" /> {s.durationMinutes} min
               </span>
               <span>· {s.difficulty}</span>
-              <span>· {s.checklist.length} itens</span>
+              <span>· {s.checklistCount} itens</span>
             </div>
             <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
               {s.clinicalCase}
