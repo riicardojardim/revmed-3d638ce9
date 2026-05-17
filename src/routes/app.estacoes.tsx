@@ -42,7 +42,6 @@ const SUGGESTED_TOPICS = [
 function StationsPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
-  const [origin, setOrigin] = useState<Origin>("revalida");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
 
