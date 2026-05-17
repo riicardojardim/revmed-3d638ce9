@@ -561,16 +561,6 @@ function SectionBasics({ station, up }: { station: Station; up: <K extends keyof
           </SelectContent>
         </Select>
       </div>
-      <div>
-        <Label>Objetivo educacional</Label>
-        <Textarea rows={3} value={station.educational_goal ?? ""} onChange={(e) => up("educational_goal", e.target.value)}
-          placeholder="O que o candidato deve aprender ao terminar esta estação?" />
-      </div>
-      <div>
-        <Label>Competências avaliadas (separadas por vírgula)</Label>
-        <Input value={(station.competencies ?? []).join(", ")}
-          onChange={(e) => up("competencies", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} />
-      </div>
     </Section>
   );
 }
