@@ -116,8 +116,9 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
 
 3) patient_script (INSTRUÇÕES DO ATOR — fala/atuação do paciente simulado)
    - COPIE INTEGRALMENTE E FIELMENTE a seção do PDF chamada "INSTRUÇÕES AO ATOR", "INSTRUÇÕES DO ATOR", "ATOR", "PACIENTE SIMULADO" ou "ROTEIRO DO ATOR".
+   - NÃO inclua o TÍTULO da seção (ex.: "INSTRUÇÕES AO ATOR/ATRIZ") — comece direto pelo conteúdo (DADOS PESSOAIS, etc.). O título já aparece no card do preview.
+   - Preserve subtítulos, quebras de linha, bullets e ordem do texto original. SEMPRE deixe UMA LINHA EM BRANCO entre cada cabeçalho de seção em CAIXA ALTA (ex.: depois do bloco de "DADOS PESSOAIS", uma linha vazia, depois "MOTIVO DA CONSULTA", etc.).
    - NÃO crie respostas, sintomas, tom, medicações, hábitos ou histórico que não estejam escritos no PDF.
-   - Preserve títulos, subtítulos, quebras de linha, bullets e ordem do texto original.
    - Se essa seção NÃO existir ou não estiver legível no PDF, deixe patient_script vazio e NÃO derive a partir da descrição do caso/PEP.
 
 4) patient_profile (estrutura espelha "Acidente por aranha")
@@ -130,7 +131,7 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - chiefComplaint: fala literal do paciente ("Estava limpando o quintal …").
 
 5) candidate_task
-   - Sempre no formato: "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:\\n\\n- Tarefa 1;\\n- Tarefa 2;\\n- …".
+   - SOMENTE a lista de tarefas, começando direto pelos itens (ex.: "- Realizar anamnese direcionada;\\n- Solicitar exame físico;\\n- ..."). NÃO inclua o preâmbulo "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:" — esse texto já aparece no banner do preview.
 
 6) specialty — VALORES PERMITIDOS (use EXATAMENTE um destes, mesmo que o PDF diga outra coisa):
    - "Clínica Médica"  (PDF: "Clínica Médica", "CM", "Medicina Interna")
@@ -141,10 +142,9 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - "Urgência e Emergência"  (PDF: "Urgência", "Emergência", "PS", "Pronto-Socorro")
 
 7) clinical_case  vs  case_description — SEPARE OS DOIS:
-   - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção (ex.: Secundária), Tipo de atendimento (ex.: UPA, Hospital), Infraestrutura disponível (consultórios, laboratórios, leitos…). NÃO inclua a narrativa do caso aqui.
-   - "case_description" = SEÇÃO "DESCRIÇÃO DO CASO" do PDF. Contém a narrativa ("Você atende um homem de 30 anos…") + bloco "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:" com a lista de tarefas. Transcreva na íntegra.
+   - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção, Tipo de atendimento, Infraestrutura disponível. NÃO inclua a narrativa do caso aqui.
+   - "case_description" = SOMENTE a narrativa da SEÇÃO "DESCRIÇÃO DO CASO" do PDF ("Você atende um homem de 30 anos…"). NÃO inclua o bloco "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:" nem a lista de tarefas — isso vai SOMENTE em candidate_task.
    - Se o PDF não tiver "CENÁRIO DE ATENDIMENTO" explícito, deixe "clinical_case" vazio.
-   - "candidate_task" = somente o bloco de tarefas dentro da descrição do caso, começando em "Nos X minutos...". Não copie o cenário aqui.
 
 ================================================================
 REGRAS GERAIS
