@@ -121,6 +121,7 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - Se essa seção NÃO existir ou não estiver legível no PDF, deixe patient_script vazio e NÃO derive a partir da descrição do caso/PEP.
 
 4) patient_profile (estrutura espelha "Acidente por aranha")
+   - Preencha estes campos SOMENTE a partir da seção de ator/paciente simulado. Se o PDF não tiver essa seção, deixe patient_profile vazio ({}).
    - hpi: "Tempo de evolução: …\\nLocal: …\\nDor: …\\nIntensidade: …\\nIrradiação: …\\nTipo de dor: …"
    - symptoms: "Vômitos: …\\nAlterações visuais: …\\nSialorreia: …\\nPriapismo: …\\nAstenia: …"
    - habits: "Álcool: …\\nCigarro: …\\nDrogas: …"
