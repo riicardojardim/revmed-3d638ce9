@@ -460,10 +460,7 @@ async function callGatewayText(
   try {
     res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: gatewayHeaders(apiKey),
       body: JSON.stringify({
         model,
         messages: [
@@ -485,9 +482,7 @@ async function callGatewayText(
     const txt = await res.text();
     if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
-    const err = new Error([408,502,503,504,524].includes(res.status) ? "A IA demorou demais para responder. Tente novamente em alguns instantes." : `AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
-    (err as Error & { status?: number }).status = res.status;
-    throw err;
+    throw gatewayError(res.status, txt);
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
