@@ -330,7 +330,7 @@ function EditorBody({
           // 2) Persist merged station to DB FIRST (before any load())
           setStation(merged);
           const { error: upErr } = await supabase
-            .from("stations")
+            .from("custom_stations")
             .update({
               title: merged.title,
               specialty: merged.specialty,
