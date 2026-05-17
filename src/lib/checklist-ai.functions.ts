@@ -126,7 +126,7 @@ export const parseChecklistBulk = createServerFn({ method: "POST" })
       type: "text",
       text:
         "Organize um Checklist PEP a partir das fontes abaixo (texto colado, PDFs e/ou imagens). " +
-        "Retorne SOMENTE o JSON conforme o schema, com itens numerados, categorias variadas e níveis com regra explícita após os dois pontos.",
+        "Retorne SOMENTE o JSON conforme o schema: category deve ser o título literal sem número, e description deve conter só os sub-itens/ações, sem a linha numerada da categoria.",
     });
     if (data.text && data.text.trim()) {
       parts.push({ type: "text", text: `FONTE (texto colado):\n${data.text.trim()}` });
