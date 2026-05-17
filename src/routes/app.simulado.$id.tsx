@@ -58,6 +58,8 @@ function SimuladoRunner() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
+  const { profile } = useAuth();
 
   // Load simulado
   useEffect(() => {
