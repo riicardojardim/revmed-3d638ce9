@@ -184,7 +184,7 @@ function FlashcardsPage() {
     return (
       <FlashcardModalShell title={`FlashCards | ${activeDeck.title}`} onClose={close}>
         <div className="flex-1 flex items-center justify-center px-4">
-          <div className="w-full max-w-md">
+          <div className="w-[min(100%,70svh)] max-w-md">
             <DeckCover
               title={activeDeck.title}
               specialty={activeDeck.specialty}
@@ -232,7 +232,7 @@ function FlashcardsPage() {
             <ChevronRight className="h-8 w-8" />
           </button>
 
-          <div className="mx-auto w-full max-w-md">
+          <div className="mx-auto w-[min(100%,65svh)] max-w-md">
             {done ? (
               <div className="rounded-2xl border border-border bg-card p-10 text-center">
                 <Smile className="mx-auto h-10 w-10 text-mint" />
