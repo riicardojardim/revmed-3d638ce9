@@ -276,22 +276,34 @@ export function GrammarReviewButton({ station, items, setStation, setItems }: Pr
                             <div className="text-muted-foreground"><span className="font-mono text-foreground">"{iss.excerpt}"</span></div>
                             <div className="mt-1">{iss.explanation}</div>
                             {iss.suggestion && (
-                              <div className="mt-1 text-mint">→ {iss.suggestion}</div>
+                              <div className="mt-1 flex items-center justify-between gap-2">
+                                <span className="text-mint">→ {iss.suggestion}</span>
+                                {!isApplied && iss.excerpt && meta.text.includes(iss.excerpt) && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-6 gap-1 px-2 text-[10px]"
+                                    onClick={() => applyToField(fr.field_id, meta.text.split(iss.excerpt).join(iss.suggestion ?? ""))}
+                                  >
+                                    <Check className="h-3 w-3" /> Aplicar
+                                  </Button>
+                                )}
+                              </div>
                             )}
                           </li>
                         ))}
                       </ul>
                     )}
 
-                    {showCorrected && (
+                    {(showCorrected || (fr.issues.length > 0 && fr.corrected_text)) && (
                       <div className="mt-2 rounded border bg-muted/30 p-2 text-xs">
                         <div className="mb-1 font-semibold text-mint">
-                          {isApplied ? "Texto aplicado no formulário:" : "Texto corrigido:"}
+                          {isApplied ? "Texto aplicado no formulário:" : "Texto corrigido (aplicar tudo):"}
                         </div>
-                        <div className="whitespace-pre-wrap">{fr.corrected_text}</div>
+                        <div className="whitespace-pre-wrap">{fr.corrected_text || meta.text}</div>
                         {!isApplied && (
                           <div className="mt-2 flex justify-end">
-                            <Button size="sm" variant="hero" className="gap-1" onClick={() => applyToField(fr.field_id, fr.corrected_text)}>
+                            <Button size="sm" variant="hero" className="gap-1" onClick={() => applyToField(fr.field_id, fr.corrected_text || meta.text)}>
                               <Check className="h-3.5 w-3.5" /> Aplicar correção
                             </Button>
                           </div>
