@@ -93,24 +93,14 @@ function AppLayout() {
         label: "Checklist & Flashcard",
         items: [
           { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
+          { to: "/app/treinar", label: "Criar Simulado", icon: Dumbbell },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
           ]},
           { to: "/app/resumos", label: "Pense Resumos", icon: BookOpen, badge: "New" },
-          { to: "/app/cronograma", label: "Cronograma", icon: Calendar, badge: "New" },
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
-          { to: "/app/live", label: "Live - Parceiros", icon: Video },
-          { to: "/app/novidades", label: "Novidades", icon: Sparkles },
         ],
-      },
-      {
-        label: "Sala de treino",
-        items: [{ to: "/app/treinar", label: "Salas", icon: Dumbbell }],
-      },
-      {
-        label: "Pense Curso",
-        items: [{ to: "/app/aulas", label: "Aulas", icon: GraduationCap }],
       },
       {
         label: "Desempenho",
