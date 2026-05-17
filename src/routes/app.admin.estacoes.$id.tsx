@@ -321,7 +321,7 @@ function EditorBody({
             patient_info: r.patient_info ?? station.patient_info,
             patient_script: r.patient_script ?? station.patient_script,
             support_materials: r.support_materials ?? station.support_materials,
-            patient_profile: { ...station.patient_profile, ...(r.patient_profile ?? {}) },
+            patient_profile: r.patient_profile ?? station.patient_profile,
             deliverable_materials: mergedDeliverables,
             expected_conduct: r.expected_conduct ?? station.expected_conduct,
             common_mistakes: r.common_mistakes ?? station.common_mistakes,

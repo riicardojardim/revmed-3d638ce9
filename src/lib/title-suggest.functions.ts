@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const truncateString = (max: number) =>
+  z.preprocess((value) => (typeof value === "string" ? value.slice(0, max) : value), z.string().max(max));
+
 const InputSchema = z.object({
   currentTitle: z.string().max(300).optional().default(""),
   specialty: z.string().max(100).optional().default(""),
@@ -10,7 +13,7 @@ const InputSchema = z.object({
   candidate_task: z.string().max(20_000).optional().default(""),
   patient_script: z.string().max(20_000).optional().default(""),
   pep_items: z
-    .array(z.string().max(500))
+    .array(truncateString(500))
     .max(60)
     .optional()
     .default([]),

@@ -87,6 +87,8 @@ const ResultSchema = z.object({
 
 const SYSTEM_PROMPT = `Você extrai estações clínicas estilo OSCE/Revalida de PDFs em português e devolve SOMENTE JSON válido (sem markdown, sem comentários).
 
+REGRA MÁXIMA DE FIDELIDADE: transcreva apenas o texto que aparece no PDF. NÃO invente, NÃO complete lacunas, NÃO transforme tópicos em narrativa nova. Se uma seção não estiver legível/visível, deixe o campo vazio.
+
 ================================================================
 PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por aranha" é o gold standard):
 ================================================================
@@ -113,10 +115,13 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - Se um impresso só contém imagem (foto, RX, TC) sem dados textuais, ainda assim CRIE o item com name e type corretos e content descrevendo brevemente a imagem.
 
 3) patient_script (INSTRUÇÕES DO ATOR — fala/atuação do paciente simulado)
-   - Texto corrido com o que o ator DEVE dizer e como deve agir. Inclua tom emocional, postura, fala espontânea inicial, respostas a perguntas, e o que NÃO revelar a menos que perguntado.
-   - Se o PDF tiver seções tipo "Instruções ao ator", "Paciente simulado", "Roteiro do ator" — copie integralmente nesse campo.
+   - COPIE INTEGRALMENTE E FIELMENTE a seção do PDF chamada "INSTRUÇÕES AO ATOR", "INSTRUÇÕES DO ATOR", "ATOR", "PACIENTE SIMULADO" ou "ROTEIRO DO ATOR".
+   - NÃO crie respostas, sintomas, tom, medicações, hábitos ou histórico que não estejam escritos no PDF.
+   - Preserve títulos, subtítulos, quebras de linha, bullets e ordem do texto original.
+   - Se essa seção NÃO existir ou não estiver legível no PDF, deixe patient_script vazio e NÃO derive a partir da descrição do caso/PEP.
 
 4) patient_profile (estrutura espelha "Acidente por aranha")
+   - Preencha estes campos SOMENTE a partir da seção de ator/paciente simulado. Se o PDF não tiver essa seção, deixe patient_profile vazio ({}).
    - hpi: "Tempo de evolução: …\\nLocal: …\\nDor: …\\nIntensidade: …\\nIrradiação: …\\nTipo de dor: …"
    - symptoms: "Vômitos: …\\nAlterações visuais: …\\nSialorreia: …\\nPriapismo: …\\nAstenia: …"
    - habits: "Álcool: …\\nCigarro: …\\nDrogas: …"
@@ -139,12 +144,13 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção (ex.: Secundária), Tipo de atendimento (ex.: UPA, Hospital), Infraestrutura disponível (consultórios, laboratórios, leitos…). NÃO inclua a narrativa do caso aqui.
    - "case_description" = SEÇÃO "DESCRIÇÃO DO CASO" do PDF. Contém a narrativa ("Você atende um homem de 30 anos…") + bloco "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:" com a lista de tarefas. Transcreva na íntegra.
    - Se o PDF não tiver "CENÁRIO DE ATENDIMENTO" explícito, deixe "clinical_case" vazio.
+   - "candidate_task" = somente o bloco de tarefas dentro da descrição do caso, começando em "Nos X minutos...". Não copie o cenário aqui.
 
 ================================================================
 REGRAS GERAIS
 ================================================================
 - Se houver vários PDFs, COMBINE em uma única estação.
-- NUNCA invente dados clínicos. Se um campo não existe no PDF, deixe vazio ("" ou []).
+- NUNCA invente dados clínicos. Se um campo não existe no PDF, deixe vazio ("" ou []). Principalmente patient_script: só pode conter texto de seção de ator/paciente simulado.
 - Preserve unidades, frações e números EXATAMENTE como aparecem (use ponto decimal: 0.25, 1.75).
 - Não use markdown nem cercas \`\`\`. Devolva APENAS o objeto JSON.
 
@@ -155,6 +161,7 @@ Schema do JSON:
   "educational_goal": string,
   "competencies": string[],
   "clinical_case": string,
+  "case_description": string,
   "candidate_task": string,
   "patient_info": string,
   "patient_script": string,
@@ -199,7 +206,7 @@ async function callGateway(
             content: [
               {
                 type: "text",
-                text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Não deixe de extrair: instruções do ator (patient_script), TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
+              text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Antes do JSON, localize mentalmente os cabeçalhos "CENÁRIO DE ATENDIMENTO", "DESCRIÇÃO DO CASO" e "INSTRUÇÕES AO ATOR" e copie cada seção para seu campo correto. Não derive nem invente orientações do ator; se não conseguir transcrever fielmente a seção do ator, deixe patient_script vazio. Não deixe de extrair TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
               },
               { type: "image_url", image_url: { url: pdfDataUrl } },
             ],
@@ -235,19 +242,18 @@ async function callGateway(
     const m = content.match(/\{[\s\S]*\}/);
     parsed = m ? JSON.parse(m[0]) : {};
   }
-  return ResultSchema.parse(parsed);
+  return cleanExtractedStation(ResultSchema.parse(parsed));
 }
 
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // Try flash first (fast); fallback to pro on timeout/upstream errors
+  // Use the stronger model first because this flow needs faithful PDF transcription.
   try {
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
     if (!isTimeout) throw err;
-    // retry once with pro and longer budget
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
   }
 }
 
@@ -257,6 +263,31 @@ function pickLonger(a?: string, b?: string): string | undefined {
   if (!av) return bv || undefined;
   if (!bv) return av || undefined;
   return bv.length > av.length ? bv : av;
+}
+
+function cleanExtractedStation(raw: ParsedStation): ParsedStation {
+  const r = { ...raw };
+  r.patient_script = (r.patient_script ?? "").trim();
+  if (r.patient_script.length === 0) r.patient_profile = {};
+  const clinical = (r.clinical_case ?? "").trim();
+  const description = (r.case_description ?? "").trim();
+  if (!description && /descri[cç][aã]o do caso/i.test(clinical)) {
+    const [before, after] = clinical.split(/descri[cç][aã]o do caso:?/i);
+    r.clinical_case = before.trim();
+    r.case_description = after?.trim() || undefined;
+  }
+  if (description && /cen[aá]rio de atendimento/i.test(description)) {
+    const parts = description.split(/descri[cç][aã]o do caso:?/i);
+    const scenario = parts[0]?.replace(/cen[aá]rio de atendimento:?/i, "").trim();
+    const caseText = parts.slice(1).join("Descrição do caso:").trim();
+    if (scenario && !clinical) r.clinical_case = scenario;
+    if (caseText) r.case_description = caseText;
+  }
+  const taskMatch = (r.case_description ?? "").match(/Nos\s+\d+\s+minutos[\s\S]*$/i);
+  if (taskMatch && !(r.candidate_task ?? "").trim()) r.candidate_task = taskMatch[0].trim();
+  const norm = normalizeSpecialty(r.specialty);
+  if (norm) r.specialty = norm;
+  return r;
 }
 
 const SPECIALTY_ENUM = [
