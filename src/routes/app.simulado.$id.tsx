@@ -131,6 +131,30 @@ function SimuladoRunner() {
     return () => { cancelled = true; };
   }, [sim?.id, sim?.currentIndex, sim?.finished, user?.id, station?.id]);
 
+  // Expose the active simulado as the sidebar "Sala" sub-item (mirrors actor's flow)
+  useEffect(() => {
+    if (!sim || sim.finished || !sim.roomCode) return;
+    try {
+      localStorage.setItem("ator:activeRoom", JSON.stringify({
+        code: sim.roomCode,
+        title: sim.name,
+        path: `/app/simulado/${sim.id}`,
+      }));
+      window.dispatchEvent(new Event("ator:activeRoom"));
+    } catch {}
+    return () => {
+      // Only clear if this simulado is the one currently stored
+      try {
+        const raw = localStorage.getItem("ator:activeRoom");
+        const cur = raw ? JSON.parse(raw) : null;
+        if (cur?.code === sim.roomCode) {
+          localStorage.removeItem("ator:activeRoom");
+          window.dispatchEvent(new Event("ator:activeRoom"));
+        }
+      } catch {}
+    };
+  }, [sim?.id, sim?.roomCode, sim?.name, sim?.finished]);
+
   async function refreshCandidates(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
       .select("user_id, role").eq("room_id", roomId);
