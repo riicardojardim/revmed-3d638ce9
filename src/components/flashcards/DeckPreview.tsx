@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, X, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Eye, Frown, Meh, Smile } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeckCover } from "./DeckCover";
 import { FlashcardFace } from "./FlashcardFace";
