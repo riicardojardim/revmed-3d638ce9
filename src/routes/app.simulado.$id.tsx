@@ -59,10 +59,11 @@ function SimuladoRunner() {
 
   // Load simulado
   useEffect(() => {
-    const s = getSimulado(id);
+    if (!user) return;
+    const s = getSimulado(user.id, id);
     if (!s) { toast.error("Simulado não encontrado."); nav({ to: "/app/treinar" }); return; }
     setSim(s);
-  }, [id, nav]);
+  }, [id, nav, user]);
 
   // Load current station, reset per-station state
   useEffect(() => {
@@ -123,7 +124,7 @@ function SimuladoRunner() {
       setSim((prev) => {
         if (!prev) return prev;
         const next = { ...prev, roomId: created.id as string, roomCode: created.code as string };
-        saveSimulado(next);
+        saveSimulado(user!.id, next);
         return next;
       });
     })();
@@ -244,7 +245,7 @@ function SimuladoRunner() {
       if (!prev) return prev;
       const stations = prev.stations.map((s, i) => (i === prev.currentIndex ? updater(s) : s));
       const next = { ...prev, stations };
-      saveSimulado(next);
+      saveSimulado(user!.id, next);
       return next;
     });
   }
@@ -277,7 +278,7 @@ function SimuladoRunner() {
     if (!sim || !allScored) return;
     if (sim.currentIndex < sim.stations.length - 1) {
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
-      saveSimulado(next);
+      saveSimulado(user!.id, next);
       setSim(next);
       setStation(null);
       // Reset timer + per-station UI immediately (load effect also resets after fetch)
@@ -296,7 +297,7 @@ function SimuladoRunner() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       const next = { ...sim, finished: true };
-      saveSimulado(next);
+      saveSimulado(user!.id, next);
       setSim(next);
     }
   }

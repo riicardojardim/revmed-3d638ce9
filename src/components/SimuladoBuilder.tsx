@@ -8,6 +8,7 @@ import { Search, GraduationCap, ChevronUp, ChevronDown, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { createSimulado } from "@/lib/simulado";
+import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ type StationOption = { id: string; title: string; specialty: string };
 
 export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const nav = useNavigate();
+  const { user } = useAuth();
   const [stations, setStations] = useState<StationOption[]>([]);
   const [name, setName] = useState("");
   const [search, setSearch] = useState("");
@@ -61,11 +63,12 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
   }
 
   function start() {
+    if (!user) { toast.error("Faça login para criar um simulado."); return; }
     if (selected.length === 0) {
       toast.error("Selecione pelo menos uma estação.");
       return;
     }
-    const sim = createSimulado(name || `Simulado com ${selected.length} estação(ões)`, selected);
+    const sim = createSimulado(user.id, name || `Simulado com ${selected.length} estação(ões)`, selected);
     onOpenChange(false);
     nav({ to: "/app/simulado/$id", params: { id: sim.id } });
   }
