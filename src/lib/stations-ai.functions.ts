@@ -267,6 +267,8 @@ function pickLonger(a?: string, b?: string): string | undefined {
 
 function cleanExtractedStation(raw: ParsedStation): ParsedStation {
   const r = { ...raw };
+  r.patient_script = (r.patient_script ?? "").trim();
+  if (r.patient_script.length === 0) r.patient_profile = {};
   const clinical = (r.clinical_case ?? "").trim();
   const description = (r.case_description ?? "").trim();
   if (!description && /descri[cç][aã]o do caso/i.test(clinical)) {
