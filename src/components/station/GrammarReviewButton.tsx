@@ -198,6 +198,11 @@ export function GrammarReviewButton({ station, items, setStation, setItems }: Pr
         }),
       );
     }
+    setApplied((prev) => {
+      const next = new Set(prev);
+      next.add(fieldId);
+      return next;
+    });
     toast.success("Correção aplicada — lembre de salvar.");
   }
 
