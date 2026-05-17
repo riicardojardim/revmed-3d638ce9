@@ -133,23 +133,25 @@ function FilterChip({
   /** Cor de destaque quando ativo (ex.: "bg-sky-500"). Se omitido, usa mint. */
   accentClass?: string;
 }) {
-  const activeCls = accentClass
-    ? `border-transparent text-foreground ring-2 ring-offset-2 ring-offset-background`
-    : "border-mint bg-mint/10 text-foreground";
-  const activeStyle = accentClass && active
-    ? { backgroundColor: "transparent" }
-    : undefined;
+  const base = `inline-flex items-center gap-1.5 rounded-full border px-3.5 ${small ? "py-1 text-xs" : "py-1.5 text-sm"} font-medium transition-all`;
+  if (active && accentClass) {
+    return (
+      <button onClick={onClick} className={`${base} border-foreground/20 bg-card text-foreground shadow-sm`}>
+        {children}
+      </button>
+    );
+  }
   return (
     <button
       onClick={onClick}
-      style={activeStyle}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 ${small ? "py-1 text-xs" : "py-1.5 text-sm"} font-medium transition-all ${
+      className={`${base} ${
         active
-          ? activeCls + (accentClass ? ` ${accentClass.replace("bg-", "ring-")}/60 bg-${accentClass.replace("bg-", "")}/10` : "")
+          ? "border-mint bg-mint/10 text-foreground"
           : "border-border bg-background text-muted-foreground hover:border-mint/40"
       }`}
     >
       {children}
     </button>
   );
+}
 }
