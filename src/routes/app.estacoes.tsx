@@ -42,7 +42,6 @@ const SUGGESTED_TOPICS = [
 function StationsPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
-  const [origin, setOrigin] = useState<Origin>("revalida");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -97,7 +96,6 @@ function StationsPage() {
 
   const filtered = dbStations.filter(
     (s) =>
-      s.origin === origin &&
       (spec === "Todas" || s.specialty === spec) &&
       s.title.toLowerCase().includes(q.toLowerCase()),
   );
@@ -141,21 +139,6 @@ function StationsPage() {
             </div>
           </div>
 
-          {/* Origin sub-tabs */}
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-card p-1 shadow-sm">
-            <OriginTab
-              active={origin === "revalida"}
-              onClick={() => setOrigin("revalida")}
-              label="Estação Revalida"
-              count={countsByOrigin.revalida}
-            />
-            <OriginTab
-              active={origin === "parceiros"}
-              onClick={() => setOrigin("parceiros")}
-              label="Parceiros"
-              count={countsByOrigin.parceiros}
-            />
-          </div>
 
           {/* Specialty filters */}
           <div className="flex flex-wrap gap-2">
