@@ -66,8 +66,8 @@ function cleanCategoryTitle(value: string): string {
 function parsePointsLine(line: string): number[] {
   const matches = line.match(/\d+(?:[,.]\d+)?/g) ?? [];
   if (!matches.length) return [];
-  const onlyNumbers = line.replace(/\d+(?:[,.]\d+)?/g, "").trim();
-  if (onlyNumbers) return [];
+  const separators = line.replace(/\d+(?:[,.]\d+)?/g, "");
+  if (!/^[\s;|/–—-]*$/.test(separators)) return [];
   return matches.map((value) => Number(value.replace(",", "."))).filter((value) => Number.isFinite(value));
 }
 
