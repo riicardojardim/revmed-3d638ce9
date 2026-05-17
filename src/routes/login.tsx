@@ -16,11 +16,17 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const nav = useNavigate();
   const { user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms)),
+    ]);
+  }
 
   async function resolveDestination(uid: string): Promise<string> {
     try {
@@ -44,21 +50,44 @@ function LoginPage() {
     if (!loading && user && !submitting) {
       resolveDestination(user.id).then(goTo);
     }
-  }, [user, loading, submitting, nav]);
+  }, [user, loading, submitting]);
+
+  async function submitLogin() {
+    if (submitting) return;
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail || !password) return;
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+    let destination = "/app";
+
+    try {
+      setSubmitting(true);
+      fallbackTimer = setTimeout(() => goTo(destination), 3500);
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({ email: normalizedEmail, password }),
+        10000,
+      );
+      if (error) {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        setSubmitting(false);
+        toast.error("Não foi possível entrar", { description: error.message });
+        return;
+      }
+
+      toast.success("Bem-vindo de volta!");
+      const uid = data.user?.id;
+      destination = uid ? await resolveDestination(uid) : "/app";
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      goTo(destination);
+    } catch {
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      setSubmitting(false);
+      toast.error("Não foi possível entrar", { description: "Tente novamente em alguns segundos." });
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setSubmitting(false);
-      toast.error("Não foi possível entrar", { description: error.message });
-      return;
-    }
-    toast.success("Bem-vindo de volta!");
-    const uid = data.user?.id;
-    const to = uid ? await resolveDestination(uid) : "/app";
-    goTo(to);
+    await submitLogin();
   }
 
   async function handleGoogle() {
@@ -107,7 +136,7 @@ function LoginPage() {
               <Label htmlFor="password">Senha</Label>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
-            <Button variant="hero" size="lg" className="w-full" disabled={submitting}>
+            <Button type="button" variant="hero" size="lg" className="w-full" disabled={submitting} onClick={submitLogin}>
               {submitting ? "Entrando..." : (<>Entrar <ArrowRight className="h-4 w-4" /></>)}
             </Button>
           </form>
