@@ -155,10 +155,22 @@ function AdminStationsPage() {
           <h2 className="font-display text-xl font-bold">Estações da plataforma</h2>
           <p className="text-sm text-muted-foreground">Crie, edite e publique estações para todos os assinantes.</p>
         </div>
-        <Button variant="hero" onClick={createNew} disabled={creating}>
-          <Plus className="h-4 w-4" /> {creating ? "Criando..." : "Nova estação"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setBatchOpen(true)} disabled={loading || filtered.length === 0} title="Gera um deck de flashcards para cada estação do filtro atual">
+            <Sparkles className="h-4 w-4" /> Flashcards em lote
+          </Button>
+          <Button variant="hero" onClick={createNew} disabled={creating}>
+            <Plus className="h-4 w-4" /> {creating ? "Criando..." : "Nova estação"}
+          </Button>
+        </div>
       </div>
+
+      <BatchGenerateFlashcardsDialog
+        open={batchOpen}
+        onOpenChange={setBatchOpen}
+        stationIds={filtered.map((s) => s.id)}
+        onDone={() => void load()}
+      />
 
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
         <div className="relative flex-1 min-w-[180px]">
