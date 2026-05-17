@@ -1362,6 +1362,85 @@ function SectionPublish({
   );
 }
 
+function SectionGenerateFlashcards({ station }: { station: Station }) {
+  const nav = useNavigate();
+  const generate = useServerFn(generateDeckFromStation);
+  const [count, setCount] = useState(14);
+  const [loading, setLoading] = useState(false);
+
+  async function run() {
+    if (!station.title?.trim() || !station.specialty?.trim()) {
+      toast.error("Preencha pelo menos o título e a área da estação.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await generate({
+        data: {
+          title: station.title,
+          specialty: station.specialty,
+          topic: null,
+          clinical_case: station.clinical_case ?? null,
+          candidate_task: station.candidate_task ?? null,
+          educational_goal: station.educational_goal ?? null,
+          expected_conduct: station.expected_conduct ?? null,
+          common_mistakes: station.common_mistakes ?? null,
+          scoring_criteria: station.scoring_criteria ?? null,
+          references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+          count,
+        },
+      });
+      toast.success(`Deck criado com ${res.count} cards!`);
+      nav({ to: "/app/admin/flashcards/$id", params: { id: res.deck_id } });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error("Falha ao gerar flashcards", { description: msg });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Section
+      title="Gerar Flashcards desta estação"
+      hint="A IA cria um deck baseado no tema da estação, usando diretrizes brasileiras (MS, SBC, SBP, FEBRASGO), ANVISA e guidelines internacionais. Você revisa e publica depois."
+    >
+      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-mint/20 p-2 text-mint">
+            <Brain className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="font-semibold">Deck automático baseado em evidências</div>
+            <div className="text-xs text-muted-foreground">
+              Pergunta/resposta com doses, critérios diagnósticos, condutas e red flags.
+            </div>
+          </div>
+        </div>
+        <div className="ml-auto flex items-end gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Quantidade de cards</Label>
+            <Select value={String(count)} onValueChange={(v) => setCount(Number(v))}>
+              <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[8, 10, 12, 14, 16, 20, 24, 30].map((n) => (
+                  <SelectItem key={n} value={String(n)}>{n} cards</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button variant="hero" onClick={run} disabled={loading}>
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar Flashcards</>}
+          </Button>
+        </div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        A IA é um ponto de partida — revise sempre doses, contraindicações e critérios antes de publicar para os alunos.
+      </p>
+    </Section>
+  );
+}
+
 // ============================================================
 // Live preview — mirrors the actual Avaliado / Ator panels
 // ============================================================
