@@ -1131,15 +1131,32 @@ function SectionPublish({
 }
 
 // ============================================================
-// Live preview — mirrors the actual Avaliado / Ator / Avaliador panels
+// Live preview — mirrors the actual Avaliado / Ator panels
 // ============================================================
-type PreviewMode = "candidato" | "ator" | "pep";
+type PreviewMode = "candidato" | "ator";
 
-function previewLevelStyle(label: string) {
-  const k = (label || "").toLowerCase();
-  if (k.startsWith("adequado")) return { dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]", short: "ADQ" };
-  if (k.startsWith("parc"))     return { dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",         activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]", short: "PAR" };
-  return                          { dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",             activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]", short: "INA" };
+function parsePreviewSubItems(description: string): { lead: string; subs: string[] } {
+  const numbered = description.match(/\(\d+\)\s*[^()]+/g);
+  if (numbered && numbered.length >= 2) {
+    const firstIdx = description.indexOf(numbered[0]);
+    const lead = description.slice(0, firstIdx).trim().replace(/[:;]\s*$/, "") || description.split(/[(:]/)[0].trim();
+    return { lead, subs: numbered.map((s) => s.trim().replace(/[;.]$/, "")) };
+  }
+  const paren = description.match(/^(.*?)\(([^()]+,[^()]+)\)\s*$/);
+  if (paren) {
+    const subs = paren[2].split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    if (subs.length >= 2) return { lead: paren[1].trim(), subs };
+  }
+  const parts = description.split(";").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 2) return { lead: parts[0], subs: parts.slice(1) };
+  return { lead: description, subs: [] };
+}
+
+function previewLevelTone(index: number, total: number): { idle: string; active: string } {
+  const base = "text-muted-foreground hover:text-foreground";
+  if (index === 0) return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
+  if (index === total - 1) return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
+  return { idle: base, active: "bg-amber-500/85 text-white shadow-sm ring-1 ring-amber-400/60" };
 }
 
 function StationLivePreview({ station, items }: { station: Station; items: Item[] }) {
