@@ -397,11 +397,11 @@ function CandidateView() {
             />
           </PRBlock>
 
-          {/* PEP — só aparece quando ator finalizar correção */}
+          {/* PEP — só aparece quando ator liberar a correção */}
           {isFinished && (
-            <PRBlock icon={ClipboardCheck} title="PEP — Resultado da estação" tone="emerald">
+            <PRBlock icon={ClipboardCheck} title="CHECKLIST ( PEP )" tone="emerald">
               {correctionReady ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="rounded-xl bg-background/60 p-4 text-center">
                     <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sua nota</div>
                     <div className="mt-1 font-display text-3xl font-bold text-mint tabular-nums">
@@ -411,9 +411,83 @@ function CandidateView() {
                       {evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : "Pedir repetição"}
                     </Badge>
                   </div>
+
+                  <ol className="space-y-3">
+                    {station.checklist.map((it, idx) => {
+                      const levels = [...(it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }])].sort((a, b) => a.points - b.points);
+                      const current = evaluation!.checks[it.id];
+                      const parts = parseSubItems(it.description);
+                      const comment = evaluation!.item_comments[it.id];
+                      return (
+                        <li
+                          key={it.id}
+                          className={cn(
+                            "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3",
+                            typeof current === "number" ? "border-mint/30 bg-mint/5" : "border-border bg-background/30",
+                          )}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
+                              <span>{formatPepHeading(idx, it.category, it.description)}</span>
+                            </div>
+                            {parts.subs.length > 0 && (
+                              <ul className="mt-2 space-y-0.5">
+                                {parts.subs.map((sub, si) => (
+                                  <li key={si} className="rounded-md px-2 py-1 text-sm text-foreground/85">{sub}</li>
+                                ))}
+                              </ul>
+                            )}
+                            <div className="mt-3 space-y-0.5 text-xs text-muted-foreground">
+                              {levels.map((lv) => {
+                                const m = lv.label.match(/^([^:]+):\s*(.*)$/);
+                                const head = m ? m[1] : lv.label;
+                                const rest = m ? m[2] : "";
+                                return (
+                                  <div key={lv.label}>
+                                    <span className="font-bold text-foreground">{head}</span>
+                                    {(rest || lv.description) && <span>: </span>}
+                                    {rest && <span>{rest}</span>}
+                                    {lv.description && <span>{rest ? " " : ""}{lv.description}</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {comment && (
+                              <div className="mt-3 rounded-md border border-border bg-background/40 px-3 py-2 text-xs">
+                                <span className="font-semibold text-muted-foreground">Comentário do ator:</span> {comment}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-center gap-1 tabular-nums">
+                            {(() => {
+                              const sorted = [...levels].sort((a, b) => a.points - b.points);
+                              const maxPts = Math.max(...sorted.map((l) => l.points));
+                              return sorted.map((lv) => {
+                                const selected = current === lv.points;
+                                const tone = levelTone(lv.points, maxPts);
+                                return (
+                                  <div
+                                    key={lv.label}
+                                    className={cn(
+                                      "flex h-7 w-9 items-center justify-center rounded-md text-sm font-bold",
+                                      selected ? tone.active : tone.idle,
+                                      !selected && "opacity-40",
+                                    )}
+                                  >
+                                    {lv.points}
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+
                   {evaluation!.final_feedback && (
                     <div className="rounded-xl border border-border bg-background/40 p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Feedback do ator</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Comentário final do ator</div>
                       <p className="mt-1 whitespace-pre-wrap text-sm">{evaluation!.final_feedback}</p>
                     </div>
                   )}
