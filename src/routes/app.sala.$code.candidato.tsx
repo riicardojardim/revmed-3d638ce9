@@ -14,7 +14,7 @@ import {
   Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
-import { ScriptText } from "@/components/station/shared";
+import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
 import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
