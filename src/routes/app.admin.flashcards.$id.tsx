@@ -260,23 +260,29 @@ function AdminFlashcardEditor() {
                   <Button size="icon" variant="ghost" onClick={() => removeCard(c)}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
                 </div>
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FlashcardFace side="front" counter={`${i + 1} | ${cards.length}`}>
-                  <Textarea
-                    placeholder="Escreva a pergunta..."
-                    value={c.front}
-                    onChange={(e) => patchCard(c.id, { front: e.target.value })}
-                    className="h-full w-full resize-none border-0 bg-transparent text-base font-medium text-foreground placeholder:text-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none p-4"
-                  />
-                </FlashcardFace>
-                <FlashcardFace side="back" counter={`${i + 1} | ${cards.length}`}>
-                  <Textarea
-                    placeholder="Escreva a resposta..."
-                    value={c.back}
-                    onChange={(e) => patchCard(c.id, { back: e.target.value })}
-                    className="h-full w-full resize-none border-0 bg-transparent text-base font-medium text-amber-900 placeholder:text-amber-900/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none p-4"
-                  />
-                </FlashcardFace>
+              <div className="grid gap-4 sm:grid-cols-2 justify-items-center">
+                <div className="w-full max-w-[min(100%,60svh)]">
+                  <FlashcardFace side="front" counter={`${i + 1} | ${cards.length}`}>
+                    <Textarea
+                      placeholder="Escreva a pergunta..."
+                      value={c.front}
+                      onChange={(e) => patchCard(c.id, { front: e.target.value })}
+                      className="h-full w-full resize-none border-0 bg-transparent font-medium text-foreground placeholder:text-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
+                      style={{ padding: "5cqi", fontSize: "max(13px, 4.2cqi)", lineHeight: 1.35 }}
+                    />
+                  </FlashcardFace>
+                </div>
+                <div className="w-full max-w-[min(100%,60svh)]">
+                  <FlashcardFace side="back" counter={`${i + 1} | ${cards.length}`}>
+                    <Textarea
+                      placeholder="Escreva a resposta..."
+                      value={c.back}
+                      onChange={(e) => patchCard(c.id, { back: e.target.value })}
+                      className="h-full w-full resize-none border-0 bg-transparent font-medium text-amber-900 placeholder:text-amber-900/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
+                      style={{ padding: "5cqi", fontSize: "max(13px, 4.2cqi)", lineHeight: 1.35 }}
+                    />
+                  </FlashcardFace>
+                </div>
               </div>
             </div>
           ))}
