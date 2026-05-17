@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { createSimulado, listSimulados, deleteSimulado, type Simulado } from "@/lib/simulado";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/treinar")({
   component: TrainPage,
