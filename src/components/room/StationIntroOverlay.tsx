@@ -146,8 +146,12 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
         )}
       </AnimatePresence>
 
-      {/* Portas */}
-      <SlidingDoors open={phase === "doors" || phase === "countdown" || phase === "done"} />
+      {/* Portas: aparecem fechadas em "doors", abrem no countdown */}
+      <AnimatePresence>
+        {(phase === "doors" || phase === "countdown" || phase === "done") && (
+          <SlidingDoors open={phase === "countdown" || phase === "done"} />
+        )}
+      </AnimatePresence>
 
       {/* Countdown */}
       <AnimatePresence>
