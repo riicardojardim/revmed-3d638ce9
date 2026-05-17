@@ -1,14 +1,14 @@
 // Simulado state — multiple stations run in sequence, persisted in localStorage.
-// Next station unlocks only when current PEP is fully scored.
+// Storage is keyed per user so simulados from one account don't leak to another.
 
 export type SimuladoStationState = {
-  id: string;            // station id (uuid or mock id)
+  id: string;
   title: string;
   specialty: string;
-  checks: Record<string, number>; // checklist item id -> chosen level points
-  score: number;         // sum of selected points
-  maxScore: number;      // sum of max points
-  completed: boolean;    // all items scored
+  checks: Record<string, number>;
+  score: number;
+  maxScore: number;
+  completed: boolean;
 };
 
 export type Simulado = {
@@ -22,43 +22,52 @@ export type Simulado = {
   roomCode?: string;
 };
 
-const KEY = "estacao:simulados";
+const BASE_KEY = "estacao:simulados";
+function keyFor(userId: string | null | undefined) {
+  return userId ? `${BASE_KEY}:${userId}` : BASE_KEY;
+}
 
-function readAll(): Record<string, Simulado> {
-  if (typeof window === "undefined") return {};
+function readAll(userId: string | null | undefined): Record<string, Simulado> {
+  if (typeof window === "undefined" || !userId) return {};
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "{}") as Record<string, Simulado>;
+    return JSON.parse(localStorage.getItem(keyFor(userId)) ?? "{}") as Record<string, Simulado>;
   } catch {
     return {};
   }
 }
 
-function writeAll(map: Record<string, Simulado>) {
-  localStorage.setItem(KEY, JSON.stringify(map));
+function writeAll(userId: string, map: Record<string, Simulado>) {
+  localStorage.setItem(keyFor(userId), JSON.stringify(map));
   window.dispatchEvent(new Event("estacao:simulados"));
 }
 
-export function listSimulados(): Simulado[] {
-  return Object.values(readAll()).sort((a, b) => b.createdAt - a.createdAt);
+export function listSimulados(userId: string | null | undefined): Simulado[] {
+  if (!userId) return [];
+  return Object.values(readAll(userId)).sort((a, b) => b.createdAt - a.createdAt);
 }
 
-export function getSimulado(id: string): Simulado | null {
-  return readAll()[id] ?? null;
+export function getSimulado(userId: string | null | undefined, id: string): Simulado | null {
+  if (!userId) return null;
+  return readAll(userId)[id] ?? null;
 }
 
-export function saveSimulado(sim: Simulado) {
-  const all = readAll();
+export function saveSimulado(userId: string, sim: Simulado) {
+  const all = readAll(userId);
   all[sim.id] = sim;
-  writeAll(all);
+  writeAll(userId, all);
 }
 
-export function deleteSimulado(id: string) {
-  const all = readAll();
+export function deleteSimulado(userId: string, id: string) {
+  const all = readAll(userId);
   delete all[id];
-  writeAll(all);
+  writeAll(userId, all);
 }
 
-export function createSimulado(name: string, stations: { id: string; title: string; specialty: string }[]): Simulado {
+export function createSimulado(
+  userId: string,
+  name: string,
+  stations: { id: string; title: string; specialty: string }[],
+): Simulado {
   const sim: Simulado = {
     id: Math.random().toString(36).slice(2, 10),
     name: name.trim() || "Simulado",
@@ -75,6 +84,6 @@ export function createSimulado(name: string, stations: { id: string; title: stri
       completed: false,
     })),
   };
-  saveSimulado(sim);
+  saveSimulado(userId, sim);
   return sim;
 }
