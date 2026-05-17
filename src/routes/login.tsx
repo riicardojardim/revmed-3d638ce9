@@ -22,32 +22,43 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  async function resolveDestination(): Promise<string> {
-    const { data } = await supabase.auth.getUser();
-    const uid = data.user?.id;
-    if (!uid) return "/app";
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-    return roles?.some((r) => r.role === "admin") ? "/app/admin" : "/app";
+  async function resolveDestination(uid: string): Promise<string> {
+    try {
+      const rolesPromise = supabase.from("user_roles").select("role").eq("user_id", uid);
+      const timeout = new Promise<{ data: null }>((resolve) =>
+        setTimeout(() => resolve({ data: null }), 1500),
+      );
+      const result = (await Promise.race([rolesPromise, timeout])) as { data: { role: string }[] | null };
+      return result.data?.some((r) => r.role === "admin") ? "/app/admin" : "/app";
+    } catch {
+      return "/app";
+    }
+  }
+
+  function goTo(to: string) {
+    // Hard navigation evita corridas com o estado do AuthProvider/loader.
+    window.location.assign(to);
   }
 
   useEffect(() => {
-    if (!loading && user) {
-      resolveDestination().then((to) => nav({ to }));
+    if (!loading && user && !submitting) {
+      resolveDestination(user.id).then(goTo);
     }
-  }, [user, loading, nav]);
+  }, [user, loading, submitting, nav]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
+      setSubmitting(false);
       toast.error("Não foi possível entrar", { description: error.message });
       return;
     }
     toast.success("Bem-vindo de volta!");
-    const to = await resolveDestination();
-    nav({ to });
+    const uid = data.user?.id;
+    const to = uid ? await resolveDestination(uid) : "/app";
+    goTo(to);
   }
 
   async function handleGoogle() {
