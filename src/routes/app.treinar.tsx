@@ -287,7 +287,7 @@ function TrainPage() {
           </div>
 
           <div className="flex justify-end gap-2 border-t border-border px-6 py-3">
-            <Button variant="outline" onClick={() => { setAllOpen(false); setSelectMode(false); }}>Cancelar</Button>
+            <Button variant="outline" onClick={() => { setAllOpen(false); }}>Cancelar</Button>
             {selectMode && (
               <Button
                 variant="hero"
