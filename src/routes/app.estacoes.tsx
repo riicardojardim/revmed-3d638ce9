@@ -108,13 +108,6 @@ function StationsPage() {
             );
           })}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {difficulties.map((d) => (
-            <FilterChip key={d} active={diff === d} onClick={() => setDiff(d)} small>
-              {d}
-            </FilterChip>
-          ))}
-        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
