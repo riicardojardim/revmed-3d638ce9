@@ -267,8 +267,14 @@ function AdminFlashcardEditor() {
                       placeholder="Escreva a pergunta..."
                       value={c.front}
                       onChange={(e) => patchCard(c.id, { front: e.target.value })}
-                      className="h-full w-full resize-none border-0 bg-transparent font-medium text-foreground placeholder:text-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
-                      style={{ padding: "5cqi", fontSize: "max(13px, 4.2cqi)", lineHeight: 1.35 }}
+                      lang="pt-BR"
+                      className="h-full w-full resize-none border-0 bg-transparent font-medium text-foreground placeholder:text-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none hyphens-auto [overflow-wrap:anywhere]"
+                      style={{
+                        padding: "clamp(14px, 4.5cqi, 28px)",
+                        fontSize: "clamp(14px, 4.2cqi, 20px)",
+                        lineHeight: 1.45,
+                        letterSpacing: "-0.005em",
+                      }}
                     />
                   </FlashcardFace>
                 </div>
@@ -278,8 +284,14 @@ function AdminFlashcardEditor() {
                       placeholder="Escreva a resposta..."
                       value={c.back}
                       onChange={(e) => patchCard(c.id, { back: e.target.value })}
-                      className="h-full w-full resize-none border-0 bg-transparent font-medium text-amber-900 placeholder:text-amber-900/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
-                      style={{ padding: "5cqi", fontSize: "max(13px, 4.2cqi)", lineHeight: 1.35 }}
+                      lang="pt-BR"
+                      className="h-full w-full resize-none border-0 bg-transparent font-medium text-amber-900 placeholder:text-amber-900/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none hyphens-auto [overflow-wrap:anywhere]"
+                      style={{
+                        padding: "clamp(14px, 4.5cqi, 28px)",
+                        fontSize: "clamp(14px, 4.2cqi, 20px)",
+                        lineHeight: 1.45,
+                        letterSpacing: "-0.005em",
+                      }}
                     />
                   </FlashcardFace>
                 </div>
