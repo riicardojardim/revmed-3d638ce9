@@ -14,6 +14,7 @@ interface PlanBucket { plan: string; count: number }
 interface TopStation { station_id: string; station_title: string; count: number }
 
 function AdminOverview() {
+  const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     users: 0,
