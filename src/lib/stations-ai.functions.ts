@@ -148,6 +148,8 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - NÃO inclua o TÍTULO da seção (ex.: "INSTRUÇÕES AO ATOR/ATRIZ") — comece direto pelo conteúdo (DADOS PESSOAIS, etc.). O título já aparece no card do preview.
    - Preserve subtítulos, quebras de linha, bullets e ordem do texto original. SEMPRE deixe UMA LINHA EM BRANCO entre cada cabeçalho de seção em CAIXA ALTA (ex.: depois do bloco de "DADOS PESSOAIS", uma linha vazia, depois "MOTIVO DA CONSULTA", etc.).
    - NÃO crie respostas, sintomas, tom, medicações, hábitos ou histórico que não estejam escritos no PDF.
+   - PROIBIDO usar markdown: NÃO envolva labels/palavras com "**" (ex.: ESCREVA "- Febre: Sim", NUNCA "- **Febre:** Sim"). NÃO use "*", "**", "__", "###", "•" nem qualquer marcação. Use apenas texto puro com "-" como bullet, exatamente como no PDF.
+   - PROIBIDO DUPLICAR seções: copie cada bloco UMA ÚNICA VEZ. Se o PDF termina em "HÁBITOS", o patient_script TERMINA ali. NÃO repita "CARACTERÍSTICAS", "SINTOMAS" nem qualquer outro bloco com palavras diferentes ou reformatado. NÃO gere uma "segunda versão" do mesmo conteúdo abaixo do original.
    - Se essa seção NÃO existir ou não estiver legível no PDF, deixe patient_script vazio e NÃO derive a partir da descrição do caso/PEP.
 
 4) patient_profile (estrutura espelha "Acidente por aranha")
@@ -376,6 +378,29 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
         "",
       )
       .trim();
+    // remove markdown bold/itálico que a IA às vezes injeta (ex.: "**Febre:**" -> "Febre:")
+    ps = ps.replace(/\*\*(.+?)\*\*/g, "$1").replace(/(^|\s)\*(?!\s)([^*\n]+?)\*(?=\s|$|[.,;:!?])/g, "$1$2");
+    // remove blocos duplicados: se um cabeçalho em CAIXA ALTA seguido de conteúdo se repete depois, mantém só a 1ª ocorrência
+    const lines = ps.split("\n");
+    const sections: { header: string; start: number; end: number }[] = [];
+    const headerRe = /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?$/;
+    for (let i = 0; i < lines.length; i++) {
+      if (headerRe.test(lines[i].trim())) {
+        if (sections.length) sections[sections.length - 1].end = i;
+        sections.push({ header: lines[i].trim().replace(/:$/, "").toUpperCase(), start: i, end: lines.length });
+      }
+    }
+    const seen = new Set<string>();
+    const drop = new Set<number>();
+    for (const s of sections) {
+      const key = s.header;
+      if (seen.has(key)) {
+        for (let i = s.start; i < s.end; i++) drop.add(i);
+      } else {
+        seen.add(key);
+      }
+    }
+    ps = lines.filter((_, i) => !drop.has(i)).join("\n").trim();
     // adiciona linha em branco antes de cabeçalhos em CAIXA ALTA (ex.: "DADOS PESSOAIS", "MOTIVO DA CONSULTA")
     ps = ps.replace(/([^\n])\n([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?)\s*\n/g, "$1\n\n$2\n");
     r.patient_script = ps;
