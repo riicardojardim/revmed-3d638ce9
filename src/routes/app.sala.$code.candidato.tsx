@@ -471,22 +471,10 @@ function CandidateView() {
                   {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
                 </div>
               ) : (
-                <div className="font-display text-xl font-bold tabular-nums text-muted-foreground">
-                  0.00 / 0%
+                <div className="font-display text-base font-semibold text-muted-foreground">
+                  Aguardando...
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Avaliado */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Avaliado
-            </div>
-            <div className="mt-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-center text-sm">
-              {correctionReady
-                ? (evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : "Pedir repetição")
-                : "Aguardando..."}
             </div>
           </div>
 
