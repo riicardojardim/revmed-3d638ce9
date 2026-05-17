@@ -124,8 +124,9 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
             <CredentialCard
               role={role}
               displayName={displayName}
-              stationTitle={stationTitle}
-              specialty={specialty}
+              stationTitle={isCandidate ? "Sigiloso até a abertura" : stationTitle}
+              specialty={isCandidate ? null : specialty}
+              hideStation={isCandidate}
               Icon={Icon}
             />
           </motion.div>
@@ -144,7 +145,7 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
             style={{ transformStyle: "preserve-3d", perspective: 1200 }}
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           >
-            <ClinicalRecord isCandidate={isCandidate} stationTitle={stationTitle} />
+            <ClinicalRecord isCandidate={isCandidate} stationTitle={stationTitle} displayName={displayName} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -177,8 +178,14 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
               </div>
             )}
             <div className="mt-6 flex flex-col items-center gap-1 text-center text-white/60">
-              <div className="text-sm font-medium text-white/80">{stationTitle}</div>
-              {specialty && <div className="text-xs uppercase tracking-wider">{specialty}</div>}
+              {isCandidate ? (
+                <div className="text-sm font-medium text-white/80">Boa prova, {displayName.split(" ")[0]}.</div>
+              ) : (
+                <>
+                  <div className="text-sm font-medium text-white/80">{stationTitle}</div>
+                  {specialty && <div className="text-xs uppercase tracking-wider">{specialty}</div>}
+                </>
+              )}
               <div className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[11px]">
                 <Icon className="h-3 w-3 text-mint" /> {ROLE_META[role].label}
               </div>
@@ -190,19 +197,80 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
   );
 }
 
+/** Hash determinístico simples → pseudo-código alfanumérico estável por título. */
+function pseudoCode(seed: string, len = 8) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < len; i++) {
+    out += alphabet[h % alphabet.length];
+    h = Math.floor(h / alphabet.length) + 7 * (i + 1);
+  }
+  return out;
+}
+
+/** QR "fake" — padrão visual gerado a partir do seed (não escaneável). Garante 3 finder patterns. */
+function FakeQR({ seed, size = 80 }: { seed: string; size?: number }) {
+  const N = 17; // grid
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 131 + seed.charCodeAt(i)) >>> 0;
+  const rand = () => {
+    h = (h * 1664525 + 1013904223) >>> 0;
+    return h / 0xffffffff;
+  };
+  const cells: boolean[][] = Array.from({ length: N }, () =>
+    Array.from({ length: N }, () => rand() > 0.55),
+  );
+  // Finder patterns (cantos)
+  const stampFinder = (cx: number, cy: number) => {
+    for (let y = 0; y < 7; y++)
+      for (let x = 0; x < 7; x++) {
+        const onBorder = x === 0 || y === 0 || x === 6 || y === 6;
+        const onInner = x >= 2 && x <= 4 && y >= 2 && y <= 4;
+        cells[cy + y][cx + x] = onBorder || onInner;
+      }
+    // gap branco ao redor
+    for (let y = -1; y <= 7; y++)
+      for (let x = -1; x <= 7; x++) {
+        if (x === -1 || y === -1 || x === 7 || y === 7) {
+          const yy = cy + y, xx = cx + x;
+          if (yy >= 0 && yy < N && xx >= 0 && xx < N) cells[yy][xx] = false;
+        }
+      }
+  };
+  stampFinder(0, 0);
+  stampFinder(N - 7, 0);
+  stampFinder(0, N - 7);
+
+  const cell = size / N;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rounded-sm bg-white">
+      {cells.map((row, y) =>
+        row.map((on, x) =>
+          on ? <rect key={`${x}-${y}`} x={x * cell} y={y * cell} width={cell} height={cell} fill="#0a0a0a" /> : null,
+        ),
+      )}
+    </svg>
+  );
+}
+
 function CredentialCard({
   role,
   displayName,
   stationTitle,
   specialty,
+  hideStation,
   Icon,
 }: {
   role: IntroRole;
   displayName: string;
   stationTitle: string;
   specialty?: string | null;
+  hideStation?: boolean;
   Icon: typeof Stethoscope;
 }) {
+  const protocol = pseudoCode(stationTitle + displayName, 8);
   return (
     <div
       className="relative w-[clamp(240px,28vw,320px)] overflow-hidden rounded-2xl border border-white/15 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
@@ -228,22 +296,52 @@ function CredentialCard({
             <div className="text-[11px] uppercase tracking-wider text-white/60">{ROLE_META[role].label}</div>
           </div>
         </div>
-        <div className="mt-5 space-y-1 border-t border-white/10 pt-3">
-          <div className="text-[10px] uppercase tracking-wider text-white/40">Estação</div>
-          <div className="line-clamp-2 text-xs font-medium text-white/90">{stationTitle}</div>
-          {specialty && (
-            <>
-              <div className="mt-2 text-[10px] uppercase tracking-wider text-white/40">Especialidade</div>
-              <div className="text-xs text-white/80">{specialty}</div>
-            </>
-          )}
+        <div className="mt-5 flex items-stretch gap-3 border-t border-white/10 pt-3">
+          <div className="flex-1 space-y-1">
+            {hideStation ? (
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-white/40">Protocolo</div>
+                <div className="font-mono text-xs font-semibold tracking-wider text-white/90">{protocol}</div>
+                <div className="mt-2 text-[10px] uppercase tracking-wider text-white/40">Estação</div>
+                <div className="text-xs italic text-white/60">Sigiloso até a abertura</div>
+              </>
+            ) : (
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-white/40">Estação</div>
+                <div className="line-clamp-2 text-xs font-medium text-white/90">{stationTitle}</div>
+                {specialty && (
+                  <>
+                    <div className="mt-2 text-[10px] uppercase tracking-wider text-white/40">Especialidade</div>
+                    <div className="text-xs text-white/80">{specialty}</div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+          <div className="flex flex-col items-center justify-center">
+            <div className="rounded-md bg-white p-1">
+              <FakeQR seed={protocol} size={64} />
+            </div>
+            <div className="mt-1 text-[8px] uppercase tracking-wider text-white/40">Acesso</div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function ClinicalRecord({ isCandidate, stationTitle }: { isCandidate: boolean; stationTitle: string }) {
+function ClinicalRecord({
+  isCandidate,
+  stationTitle,
+  displayName,
+}: {
+  isCandidate: boolean;
+  stationTitle: string;
+  displayName: string;
+}) {
+  const protocol = pseudoCode(stationTitle + displayName, 6);
+  // Sala randômica determinística
+  const room = (pseudoCode(stationTitle, 2).charCodeAt(0) % 9) + 1;
   return (
     <div
       className="w-[clamp(220px,26vw,300px)] rounded-xl border border-white/20 bg-[hsl(0_0%_97%)] p-4 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)]"
@@ -251,23 +349,54 @@ function ClinicalRecord({ isCandidate, stationTitle }: { isCandidate: boolean; s
       <div className="flex items-center justify-between border-b border-night/10 pb-2">
         <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-medical">
           <ClipboardList className="h-3.5 w-3.5" />
-          {isCandidate ? "Prontuário" : "Roteiro do Ator"}
+          {isCandidate ? "Ficha de Acesso" : "Roteiro do Ator"}
         </div>
-        <div className="text-[9px] text-night/40">Nº 2026/{Math.floor(Math.random() * 9000) + 1000}</div>
+        <div className="text-[9px] text-night/40">Nº {protocol}</div>
       </div>
-      <div className="mt-3 space-y-1.5">
-        <div className="text-[10px] uppercase tracking-wider text-night/50">Estação</div>
-        <div className="line-clamp-2 text-xs font-semibold text-night/90">{stationTitle}</div>
-      </div>
-      <div className="mt-3 space-y-1">
-        {[90, 75, 85, 60].map((w, i) => (
-          <div key={i} className="h-1.5 rounded-full bg-night/10" style={{ width: `${w}%` }} />
-        ))}
-      </div>
-      <div className="mt-3 flex items-center justify-between border-t border-night/10 pt-2">
-        <div className="text-[9px] uppercase tracking-wider text-night/40">Confidencial</div>
-        <div className="h-6 w-6 rounded-full bg-mint/30 ring-2 ring-mint/50" />
-      </div>
+
+      {isCandidate ? (
+        <>
+          <div className="mt-3 flex items-start gap-3">
+            <div className="flex-1 space-y-1.5">
+              <div>
+                <div className="text-[9px] uppercase tracking-wider text-night/50">Candidato</div>
+                <div className="truncate text-xs font-semibold text-night/90">{displayName}</div>
+              </div>
+              <div>
+                <div className="text-[9px] uppercase tracking-wider text-night/50">Sala</div>
+                <div className="text-xs font-semibold text-night/90">Estação {String(room).padStart(2, "0")}</div>
+              </div>
+              <div>
+                <div className="text-[9px] uppercase tracking-wider text-night/50">Caso</div>
+                <div className="text-xs italic text-night/50">Lacrado — abertura ao iniciar</div>
+              </div>
+            </div>
+            <div className="rounded-sm bg-white p-0.5 ring-1 ring-night/10">
+              <FakeQR seed={protocol + "-rec"} size={72} />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-night/10 pt-2">
+            <div className="text-[9px] uppercase tracking-wider text-medical">Sigiloso</div>
+            <div className="text-[9px] font-mono text-night/40">{protocol}</div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="mt-3 space-y-1.5">
+            <div className="text-[10px] uppercase tracking-wider text-night/50">Estação</div>
+            <div className="line-clamp-2 text-xs font-semibold text-night/90">{stationTitle}</div>
+          </div>
+          <div className="mt-3 space-y-1">
+            {[90, 75, 85, 60].map((w, i) => (
+              <div key={i} className="h-1.5 rounded-full bg-night/10" style={{ width: `${w}%` }} />
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-night/10 pt-2">
+            <div className="text-[9px] uppercase tracking-wider text-night/40">Confidencial</div>
+            <div className="h-6 w-6 rounded-full bg-mint/30 ring-2 ring-mint/50" />
+          </div>
+        </>
+      )}
     </div>
   );
 }
