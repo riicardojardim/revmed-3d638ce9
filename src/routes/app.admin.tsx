@@ -50,6 +50,24 @@ function AdminLayout() {
         </div>
         <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">Gestão da plataforma</h1>
       </div>
+      <nav className="flex flex-wrap gap-1 rounded-2xl border border-border bg-card p-1">
+        {tabs.map((t) => {
+          const active = isActive(t.to, t.exact);
+          return (
+            <Link
+              key={t.to}
+              to={t.to}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition",
+                active ? "bg-mint/15 text-mint" : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+              )}
+            >
+              <t.icon className="h-4 w-4" />
+              {t.label}
+            </Link>
+          );
+        })}
+      </nav>
       <Outlet />
     </div>
   );
