@@ -24,7 +24,7 @@ const CardSchema = z.object({
 
 const ResultSchema = z.object({
   deck_title: z.string().min(1).max(200).optional(),
-  deck_topic: z.string().max(200).optional(),
+  deck_topic: z.string().max(200).optional(), // ignorado — mantido para compatibilidade
   cards: z.array(CardSchema).min(3).max(40),
 });
 
