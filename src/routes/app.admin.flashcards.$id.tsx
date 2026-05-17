@@ -186,7 +186,10 @@ function AdminFlashcardEditor() {
         <Link to="/app/admin/flashcards" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar para decks
         </Link>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setPreviewOpen(true)}>
+            <PlaySquare className="h-4 w-4" /> Pré-visualizar
+          </Button>
           <Button variant="outline" onClick={togglePublish}>
             {deck.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
@@ -306,6 +309,15 @@ function AdminFlashcardEditor() {
           )}
         </div>
       </div>
+
+      <DeckPreview
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={deck.title}
+        specialty={deck.specialty}
+        topic={deck.topic}
+        cards={cards.map((c) => ({ id: c.id, front: c.front, back: c.back }))}
+      />
     </div>
   );
 }
