@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { STATIONS } from "@/data/stations";
 import { z } from "zod";
+import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 
 export const Route = createFileRoute("/app/professor/correcoes/$id")({
   component: ReviewPage,
