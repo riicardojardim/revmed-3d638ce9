@@ -277,8 +277,29 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
     if (scenario && !clinical) r.clinical_case = scenario;
     if (caseText) r.case_description = caseText;
   }
-  const taskMatch = (r.case_description ?? "").match(/Nos\s+\d+\s+minutos[\s\S]*$/i);
-  if (taskMatch && !(r.candidate_task ?? "").trim()) r.candidate_task = taskMatch[0].trim();
+  // Extrai bloco "Nos X minutos..." do case_description -> candidate_task
+  const desc = r.case_description ?? "";
+  const taskMatch = desc.match(/Nos\s+\d+\s+minutos[\s\S]*$/i);
+  if (taskMatch) {
+    if (!(r.candidate_task ?? "").trim()) r.candidate_task = taskMatch[0].trim();
+    // remove o bloco da descrição do caso (já aparece no banner/tarefa)
+    r.case_description = desc.slice(0, taskMatch.index).trim();
+  }
+  // candidate_task: remove o preâmbulo "Nos X minutos... tarefas:" deixando só os itens
+  if (r.candidate_task) {
+    r.candidate_task = r.candidate_task
+      .replace(/^\s*Nos\s+\d+\s+minutos[^\n:]*(de dura[cç][aã]o[^\n:]*)?(da esta[cç][aã]o)?[^\n:]*tarefas\s*:?\s*\n*/i, "")
+      .trim();
+  }
+  // patient_script: remove o título "ORIENTAÇÕES AO ATOR/ATRIZ" do início
+  if (r.patient_script) {
+    let ps = r.patient_script
+      .replace(/^\s*(instru[cç][oõ]es?|orienta[cç][oõ]es?)\s+(ao|do|da|a|à)s?\s+(ator(?:\s*\/?\s*atriz)?|atriz|paciente\s+simulado)\s*:?\s*\n*/i, "")
+      .trim();
+    // adiciona linha em branco antes de cabeçalhos em CAIXA ALTA (ex.: "DADOS PESSOAIS", "MOTIVO DA CONSULTA")
+    ps = ps.replace(/([^\n])\n([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?)\s*\n/g, "$1\n\n$2\n");
+    r.patient_script = ps;
+  }
   const norm = normalizeSpecialty(r.specialty);
   if (norm) r.specialty = norm;
   return r;
