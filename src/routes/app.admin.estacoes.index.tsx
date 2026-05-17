@@ -190,45 +190,63 @@ function AdminStationsPage() {
         </div>
       ) : (
         <div className="grid gap-3">
-          {filtered.map((s) => {
-            const meta = getSpecialtyMeta(s.specialty);
-            return (
-            <div key={s.id} className={`relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl border bg-card p-5 shadow-card ${meta.card}`}>
-              <div className={`absolute inset-y-0 left-0 w-1 ${meta.solid}`} aria-hidden />
-              <div className="flex-1 min-w-[200px]">
-                <div className="flex flex-wrap items-center gap-2">
-                  <SpecialtyBadge specialty={s.specialty} />
-                  <Badge variant="outline">{s.checklist_count} itens</Badge>
-                  {s.published ? (
-                    <Badge className="bg-success/15 text-success hover:bg-success/15">Publicada</Badge>
-                  ) : (
-                    <Badge variant="outline" className="border-warning/30 text-warning">Rascunho</Badge>
-                  )}
-                </div>
-                <div className="mt-2 font-display text-lg font-semibold">{s.title}</div>
-                <div className="text-xs text-muted-foreground">
-                  Criada em {new Date(s.created_at).toLocaleDateString("pt-BR")}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Link to="/app/admin/estacoes/$id" params={{ id: s.id }}>
-                  <Button variant="outline" size="sm"><Pencil className="h-4 w-4" /> Editar</Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={() => togglePublish(s)}>
-                  {s.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => duplicate(s)} title="Duplicar">
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => remove(s)} title="Excluir">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            );
-          })}
+          {filtered.map((s) => (
+            <AdminStationRow
+              key={s.id}
+              station={s}
+              onTogglePublish={togglePublish}
+              onDuplicate={duplicate}
+              onRemove={remove}
+            />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+interface AdminStationRowProps {
+  station: Station;
+  onTogglePublish: (station: Station) => void;
+  onDuplicate: (station: Station) => void;
+  onRemove: (station: Station) => void;
+}
+
+function AdminStationRow({ station, onTogglePublish, onDuplicate, onRemove }: AdminStationRowProps) {
+  const meta = getSpecialtyMeta(station.specialty);
+
+  return (
+    <div className={`relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl border bg-card p-5 shadow-card ${meta.card}`}>
+      <div className={`absolute inset-y-0 left-0 w-1 ${meta.solid}`} aria-hidden />
+      <div className="flex-1 min-w-[200px]">
+        <div className="flex flex-wrap items-center gap-2">
+          <SpecialtyBadge specialty={station.specialty} />
+          <Badge variant="outline">{station.checklist_count} itens</Badge>
+          {station.published ? (
+            <Badge className="bg-success/15 text-success hover:bg-success/15">Publicada</Badge>
+          ) : (
+            <Badge variant="outline" className="border-warning/30 text-warning">Rascunho</Badge>
+          )}
+        </div>
+        <div className="mt-2 font-display text-lg font-semibold">{station.title}</div>
+        <div className="text-xs text-muted-foreground">
+          Criada em {new Date(station.created_at).toLocaleDateString("pt-BR")}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Link to="/app/admin/estacoes/$id" params={{ id: station.id }}>
+          <Button variant="outline" size="sm"><Pencil className="h-4 w-4" /> Editar</Button>
+        </Link>
+        <Button variant="outline" size="sm" onClick={() => onTogglePublish(station)}>
+          {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => onDuplicate(station)} title="Duplicar">
+          <Copy className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => onRemove(station)} title="Excluir">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }
