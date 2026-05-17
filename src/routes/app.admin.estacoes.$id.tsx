@@ -372,7 +372,32 @@ function EditorBody({
             const { error } = await supabase.from("station_checklist_items").insert(rows as never);
             if (error) toast.error("Falha ao importar checklist", { description: error.message });
           }
-          // 4) Reload from DB (now contains everything)
+          // 4) Auto-suggest title (preserves siglas already typed)
+          try {
+            const pepDescriptions = (r.checklist_items ?? [])
+              .map((it) => (it.description ?? "").trim())
+              .filter((s) => s.length > 0);
+            const sugg = await suggestStationTitle({
+              data: {
+                currentTitle: merged.title ?? "",
+                specialty: merged.specialty ?? "",
+                clinical_case: merged.clinical_case ?? "",
+                case_description: "",
+                candidate_task: merged.candidate_task ?? "",
+                patient_script: merged.patient_script ?? "",
+                pep_items: pepDescriptions,
+              },
+            });
+            if (sugg?.title && sugg.title.trim() && sugg.title.trim() !== merged.title?.trim()) {
+              await supabase
+                .from("custom_stations")
+                .update({ title: sugg.title.trim() } as never)
+                .eq("id", id);
+            }
+          } catch (e) {
+            console.warn("Falha ao sugerir título automaticamente", e);
+          }
+          // 5) Reload from DB (now contains everything)
           await load();
           toast.success("PDF importado e campos preenchidos");
         }}
