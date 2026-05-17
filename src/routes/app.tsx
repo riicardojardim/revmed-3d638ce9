@@ -198,17 +198,21 @@ function AppLayout() {
   const initial = (profile?.full_name || user.email || "?").charAt(0).toUpperCase();
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
-        <div className="px-6 py-5">
+    <div className="flex min-h-screen w-full bg-paper">
+      {/* Desktop sidebar — editorial rail */}
+      <aside className="hidden w-[260px] shrink-0 border-r hairline bg-sidebar lg:flex lg:flex-col">
+        <div className="px-6 pt-6 pb-4">
           <Logo />
+          <div className="mt-4 flex items-center gap-2 text-eyebrow-serif">
+            <span className="h-px w-6 bg-mint/60" />
+            <span>Edição 2026.1</span>
+          </div>
         </div>
-        <nav className="flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 space-y-5 overflow-y-auto px-4 pb-4">
           {sections.map((section, si) => (
             <div key={si}>
               {section.label && (
-                <div className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                <div className="px-2 pb-2 pt-1 text-eyebrow-serif">
                   {section.label}
                 </div>
               )}
@@ -218,37 +222,43 @@ function AppLayout() {
                   const isSalas = n.to === "/app/treinar";
                   const hasChildren = !!n.children?.length;
                   const childActive = hasChildren && n.children!.some((c) => isActive(c.to, true));
+                  const isOn = active || childActive;
                   return (
                     <div key={n.to}>
                       <Link
                         to={n.to}
-                        className={`group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
-                          active || childActive
-                            ? "bg-mint/10 text-foreground"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        className={`group relative flex items-center gap-3 rounded-lg pl-4 pr-3 py-2 text-[13.5px] transition-all ${
+                          isOn
+                            ? "bg-mint/[0.08] text-foreground font-semibold"
+                            : "text-muted-foreground hover:bg-foreground/[0.03] hover:text-foreground"
                         }`}
                       >
-                        <n.icon className={`h-[18px] w-[18px] ${active || childActive ? "text-mint" : ""}`} />
+                        <span
+                          className={`absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[2px] rounded-r-full transition-all ${
+                            isOn ? "bg-mint" : "bg-transparent group-hover:bg-foreground/15"
+                          }`}
+                        />
+                        <n.icon className={`h-[17px] w-[17px] transition-colors ${isOn ? "text-mint" : ""}`} strokeWidth={isOn ? 2.2 : 1.7} />
                         <span className="flex-1 truncate">{n.label}</span>
                         {n.badge && (
-                          <span className="rounded-md bg-mint/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-medical">
+                          <span className="chip-editorial !py-0.5 !text-[9px]">
                             {n.badge}
                           </span>
                         )}
                         {hasChildren && (childActive
-                          ? <ChevronDown className="h-3.5 w-3.5" />
-                          : <ChevronRight className="h-3.5 w-3.5" />)}
+                          ? <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                          : <ChevronRight className="h-3.5 w-3.5 opacity-60" />)}
                       </Link>
                       {hasChildren && childActive && (
-                        <div className="ml-7 mt-0.5 space-y-0.5 border-l border-border pl-3">
+                        <div className="ml-7 mt-1 space-y-0.5 border-l hairline pl-3">
                           {n.children!.map((c) => {
                             const cActive = isActive(c.to, true);
                             return (
                               <Link
                                 key={c.to}
                                 to={c.to}
-                                className={`block rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                                  cActive ? "text-mint" : "text-muted-foreground hover:text-foreground"
+                                className={`block rounded-md px-2.5 py-1.5 text-xs transition-colors ${
+                                  cActive ? "text-mint font-semibold" : "text-muted-foreground hover:text-foreground"
                                 }`}
                               >
                                 {c.label}
@@ -262,7 +272,7 @@ function AppLayout() {
                           <Link
                             to="/app/sala/$code/paciente"
                             params={{ code: activeRoom.code }}
-                            className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
+                            className={`flex items-center gap-2 rounded-md px-2.5 py-2 text-xs font-medium transition-all ${
                               pathname.startsWith(`/app/sala/${activeRoom.code}`)
                                 ? "bg-mint/15 text-foreground"
                                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -271,7 +281,7 @@ function AppLayout() {
                             <Activity className="h-3.5 w-3.5 text-mint" />
                             <span className="flex-1 truncate">Treinamento</span>
                           </Link>
-                          <div className="px-2.5 pb-1 pt-0.5 text-[10px] font-mono uppercase tracking-wider text-mint/80">
+                          <div className="px-2.5 pb-1 pt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-mint/80">
                             {activeRoom.code}
                           </div>
                         </div>
@@ -283,52 +293,56 @@ function AppLayout() {
             </div>
           ))}
         </nav>
-        <div className="border-t border-border p-3">
+        <div className="border-t hairline p-3">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted-foreground hover:bg-muted"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] font-medium text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground transition-colors"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4" strokeWidth={1.8} />
             Sair
           </button>
         </div>
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8">
+        {/* Topbar — editorial */}
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b hairline glass-panel px-4 lg:px-8">
           <div className="flex items-center gap-2 lg:hidden">
             <Logo />
           </div>
-          <div className="flex flex-1 items-center gap-2 overflow-hidden">
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-elegant">
-              <Activity className="h-3.5 w-3.5" /> Revalida 2026.1
+          <div className="flex flex-1 items-center gap-3 overflow-hidden">
+            <span className="chip-editorial shrink-0">
+              <span className="live-dot" />
+              <span>Revalida · 2026.1</span>
             </span>
             <a
               href="https://chat.whatsapp.com/"
               target="_blank"
               rel="noreferrer"
-              className="hidden truncate rounded-full border border-rose-500/30 bg-rose-500/5 px-3 py-1 text-xs font-medium text-rose-300 transition-colors hover:bg-rose-500/10 sm:inline-block"
+              className="hidden truncate text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors story-link sm:inline-block"
             >
-              Faça parte do Grupo Premium 2026.1 — WhatsApp (Grupo 6)
+              Grupo Premium 2026.1 · WhatsApp
             </a>
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <Button variant="ghost" size="icon" aria-label="Notificações">
-              <Bell className="h-5 w-5" />
+              <Bell className="h-[18px] w-[18px]" strokeWidth={1.7} />
             </Button>
-            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-gradient-mint text-sm font-bold text-night sm:flex">
+            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-gradient-mint font-display text-[15px] font-semibold text-night ring-1 ring-mint/40 sm:flex">
               {initial}
             </div>
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-24 pt-6 lg:px-8 lg:pb-10">
-          <Outlet />
+        <main className="relative flex-1 px-4 pb-24 pt-8 lg:px-10 lg:pb-12">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-dot-grid opacity-[0.35]" />
+          <div className="relative">
+            <Outlet />
+          </div>
         </main>
 
         {/* Mobile bottom nav */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t hairline glass-panel lg:hidden">
           <div className="flex overflow-x-auto no-scrollbar">
             {flatNav.slice(0, 6).map((n) => {
               const active = isActive(n.to, n.exact);
@@ -336,11 +350,11 @@ function AppLayout() {
                 <Link
                   key={n.to}
                   to={n.to}
-                  className={`flex min-w-[68px] flex-1 flex-col items-center justify-center gap-1 px-2 py-2.5 text-[10px] font-medium ${
+                  className={`flex min-w-[68px] flex-1 flex-col items-center justify-center gap-1 px-2 py-2.5 text-[10px] font-medium transition-colors ${
                     active ? "text-mint" : "text-muted-foreground"
                   }`}
                 >
-                  <n.icon className="h-5 w-5" />
+                  <n.icon className="h-5 w-5" strokeWidth={active ? 2.2 : 1.7} />
                   {n.label}
                 </Link>
               );
