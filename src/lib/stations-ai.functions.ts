@@ -257,11 +257,41 @@ function pickLonger(a?: string, b?: string): string | undefined {
   return bv.length > av.length ? bv : av;
 }
 
+const SPECIALTY_ENUM = [
+  "Clínica Médica", "Pediatria", "Ginecologia e Obstetrícia",
+  "Cirurgia", "Medicina da Família", "Urgência e Emergência",
+] as const;
+
+function normalizeSpecialty(raw?: string): string | undefined {
+  if (!raw) return undefined;
+  const s = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+  if (!s) return undefined;
+  // direct contains checks
+  if (/(pediatr)/.test(s)) return "Pediatria";
+  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.)/.test(s)) return "Ginecologia e Obstetrícia";
+  if (/(cirurg|\bcc\b)/.test(s)) return "Cirurgia";
+  if (/(familia|mfc|atencao primaria|saude da familia)/.test(s)) return "Medicina da Família";
+  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|pronto socorro)/.test(s)) return "Urgência e Emergência";
+  if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
+  // exact enum match
+  const match = SPECIALTY_ENUM.find((e) => e.toLowerCase() === raw.trim().toLowerCase());
+  return match;
+}
+
 function mergeResults(parts: ParsedStation[]): ParsedStation {
-  if (parts.length === 1) return parts[0];
+  if (parts.length === 1) {
+    const r = { ...parts[0] };
+    const norm = normalizeSpecialty(r.specialty);
+    if (norm) r.specialty = norm;
+    return r;
+  }
   const out: ParsedStation = {};
   const stringKeys: (keyof ParsedStation)[] = [
-    "title", "specialty", "educational_goal", "clinical_case", "candidate_task",
+    "title", "specialty", "educational_goal", "clinical_case", "case_description", "candidate_task",
     "patient_info", "patient_script", "support_materials", "expected_conduct",
     "common_mistakes", "evaluator_notes", "scoring_criteria",
   ];
