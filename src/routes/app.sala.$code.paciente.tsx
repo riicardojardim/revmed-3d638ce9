@@ -44,6 +44,16 @@ function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]
   return out;
 }
 
+function formatPepHeading(index: number, category: string | null | undefined, description: string): string {
+  const cleanCategory = (category ?? "").replace(/^\s*\d+\s*[.)\-–—]\s*/, "").trim();
+  if (cleanCategory) {
+    const needsPunctuation = !/[:.;!?]$/.test(cleanCategory);
+    const punctuation = needsPunctuation ? (/\(\d+\)\s*/.test(description) ? ":" : ".") : "";
+    return `${index + 1}. ${cleanCategory}${punctuation}`;
+  }
+  return `${index + 1}. ${description.replace(/^\s*\d+\s*[.)\-–—]\s*/, "").trim()}`;
+}
+
 function parseSubItems(description: string): { lead: string; subs: string[] } {
   // Detect "(1) ... (2) ..." numbered sub-items inside the description
   const numbered = description.match(/\(\d+\)\s*[^()]+/g);
@@ -693,7 +703,7 @@ function ActorView() {
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                        <span>{idx + 1}. {it.category ? `${it.category}. ` : ""}{parts.lead.replace(/^\s*\d+\.\s*/, "")}</span>
+                        <span>{formatPepHeading(idx, it.category, it.description)}</span>
                       </div>
                       {parts.subs.length > 0 && (
                         <ul className="mt-2 space-y-0.5">
