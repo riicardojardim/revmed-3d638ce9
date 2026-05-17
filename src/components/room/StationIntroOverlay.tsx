@@ -5,7 +5,7 @@ import { ClipboardList, Stethoscope, UserRound, ShieldCheck } from "lucide-react
 export type IntroRole = "candidato" | "paciente" | "avaliador";
 
 /** Duração total da animação de entrada (precisa bater com a timeline interna). */
-export const INTRO_DURATION_MS = 5200;
+export const INTRO_DURATION_MS = 9000;
 
 interface Props {
   role: IntroRole;
@@ -37,10 +37,10 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
       return () => clearTimeout(t1);
     }
     const timers = [
-      setTimeout(() => setPhase("credential"), 600),
-      setTimeout(() => setPhase("record"), 1700),
-      setTimeout(() => setPhase("doors"), 2900),
-      setTimeout(() => setPhase("countdown"), 3500),
+      setTimeout(() => setPhase("credential"), 700),
+      setTimeout(() => setPhase("record"), 2500),
+      setTimeout(() => setPhase("doors"), 5500),
+      setTimeout(() => setPhase("countdown"), 6300),
     ];
     return () => timers.forEach(clearTimeout);
   }, [reduce]);
