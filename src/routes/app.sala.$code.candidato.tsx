@@ -411,13 +411,26 @@ function CandidateView() {
         {/* RIGHT */}
         <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
           {/* Timer */}
-          <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando"}
+              </div>
+              <button
+                type="button"
+                onClick={() => setHideTimer((v) => !v)}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/20 bg-white/10 text-white/80 hover:text-white"
+                title={hideTimer ? "Mostrar cronômetro" : "Ocultar cronômetro"}
+              >
+                {hideTimer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              </button>
+            </div>
             <div className={cn(
-              "rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-mint/15" : "bg-muted/40",
+              "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
+              isRunning ? "bg-mint/15" : "bg-white/5",
             )}>
-              <div className="font-display text-5xl font-bold tabular-nums text-foreground">
-                {mm}:{ss}
+              <div className="font-display text-5xl font-bold tabular-nums text-white">
+                {hideTimer ? "— —" : `${mm}:${ss}`}
               </div>
             </div>
 
