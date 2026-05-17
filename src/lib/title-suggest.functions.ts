@@ -3,7 +3,14 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const truncateString = (max: number) =>
-  z.preprocess((value) => (typeof value === "string" ? value.slice(0, max) : value), z.string().max(max));
+  z.preprocess(
+    (value) => {
+      if (value == null) return "";
+      const str = typeof value === "string" ? value : String(value);
+      return str.slice(0, max);
+    },
+    z.string(),
+  );
 
 const InputSchema = z.object({
   currentTitle: z.string().max(300).optional().default(""),
