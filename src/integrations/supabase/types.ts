@@ -499,22 +499,31 @@ export type Database = {
       }
       training_room_participants: {
         Row: {
+          display_name: string | null
           id: string
+          is_ready: boolean
           joined_at: string
+          last_seen_at: string
           role: string
           room_id: string
           user_id: string
         }
         Insert: {
+          display_name?: string | null
           id?: string
+          is_ready?: boolean
           joined_at?: string
+          last_seen_at?: string
           role?: string
           room_id: string
           user_id: string
         }
         Update: {
+          display_name?: string | null
           id?: string
+          is_ready?: boolean
           joined_at?: string
+          last_seen_at?: string
           role?: string
           room_id?: string
           user_id?: string
@@ -531,6 +540,8 @@ export type Database = {
       }
       training_rooms: {
         Row: {
+          actor_ready: boolean
+          candidate_ready: boolean
           code: string
           created_at: string
           duration_minutes: number | null
@@ -540,12 +551,15 @@ export type Database = {
           id: string
           mode: string
           started_at: string | null
+          starting_at: string | null
           station_id: string
           station_title: string
           status: string
           updated_at: string
         }
         Insert: {
+          actor_ready?: boolean
+          candidate_ready?: boolean
           code: string
           created_at?: string
           duration_minutes?: number | null
@@ -555,12 +569,15 @@ export type Database = {
           id?: string
           mode?: string
           started_at?: string | null
+          starting_at?: string | null
           station_id: string
           station_title: string
           status?: string
           updated_at?: string
         }
         Update: {
+          actor_ready?: boolean
+          candidate_ready?: boolean
           code?: string
           created_at?: string
           duration_minutes?: number | null
@@ -570,6 +587,7 @@ export type Database = {
           id?: string
           mode?: string
           started_at?: string | null
+          starting_at?: string | null
           station_id?: string
           station_title?: string
           status?: string
