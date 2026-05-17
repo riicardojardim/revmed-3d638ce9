@@ -1362,11 +1362,19 @@ function SectionPublish({
   );
 }
 
+type GeneratedCard = { id: string; front: string; back: string };
+type GeneratedDeck = {
+  deck_id: string;
+  title: string;
+  specialty: string;
+  topic: string | null;
+  cards: GeneratedCard[];
+};
+
 function SectionGenerateFlashcards({ station }: { station: Station }) {
-  const nav = useNavigate();
   const generate = useServerFn(generateDeckFromStation);
-  const [count, setCount] = useState(14);
   const [loading, setLoading] = useState(false);
+  const [deck, setDeck] = useState<GeneratedDeck | null>(null);
 
   async function run() {
     if (!station.title?.trim() || !station.specialty?.trim()) {
@@ -1374,7 +1382,10 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
       return;
     }
     setLoading(true);
+    setDeck(null);
     try {
+      // A IA decide entre 10 e 15 cards (escolha aleatória dentro da faixa)
+      const count = 10 + Math.floor(Math.random() * 6);
       const res = await generate({
         data: {
           title: station.title,
@@ -1390,8 +1401,19 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
           count,
         },
       });
-      toast.success(`Deck criado com ${res.count} cards!`);
-      nav({ to: "/app/admin/flashcards/$id", params: { id: res.deck_id } });
+      // Busca os cards gerados para mostrar a pré-visualização inline
+      const [{ data: d }, { data: cs }] = await Promise.all([
+        supabase.from("flashcard_decks").select("title,specialty,topic").eq("id", res.deck_id).maybeSingle(),
+        supabase.from("flashcards").select("id,front,back,position").eq("deck_id", res.deck_id).order("position"),
+      ]);
+      setDeck({
+        deck_id: res.deck_id,
+        title: (d?.title ?? station.title) as string,
+        specialty: (d?.specialty ?? station.specialty) as string,
+        topic: (d?.topic ?? null) as string | null,
+        cards: ((cs ?? []) as GeneratedCard[]).map((c) => ({ id: c.id, front: c.front, back: c.back })),
+      });
+      toast.success(`Deck pronto com ${res.count} cards!`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error("Falha ao gerar flashcards", { description: msg });
@@ -1403,9 +1425,9 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
   return (
     <Section
       title="Gerar Flashcards desta estação"
-      hint="A IA cria um deck baseado no tema da estação, usando diretrizes brasileiras (MS, SBC, SBP, FEBRASGO), ANVISA e guidelines internacionais. Você revisa e publica depois."
+      hint="A IA escolhe entre 10 e 15 cards baseados no tema da estação, usando diretrizes brasileiras (MS, SBC, SBP, FEBRASGO), ANVISA e guidelines internacionais. Você revisa e publica depois."
     >
-      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-mint/20 p-2 text-mint">
             <Brain className="h-5 w-5" />
@@ -1413,22 +1435,11 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
           <div>
             <div className="font-semibold">Deck automático baseado em evidências</div>
             <div className="text-xs text-muted-foreground">
-              Pergunta/resposta com doses, critérios diagnósticos, condutas e red flags.
+              A IA decide a quantidade ideal (10–15 cards) e mostra a pré-visualização aqui embaixo.
             </div>
           </div>
         </div>
-        <div className="ml-auto flex items-end gap-3">
-          <div>
-            <Label className="text-xs text-muted-foreground">Quantidade de cards</Label>
-            <Select value={String(count)} onValueChange={(v) => setCount(Number(v))}>
-              <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {[8, 10, 12, 14, 16, 20, 24, 30].map((n) => (
-                  <SelectItem key={n} value={String(n)}>{n} cards</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="ml-auto">
           <Button variant="hero" onClick={run} disabled={loading}>
             {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar Flashcards</>}
           </Button>
@@ -1437,7 +1448,79 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
       <p className="text-[11px] text-muted-foreground">
         A IA é um ponto de partida — revise sempre doses, contraindicações e critérios antes de publicar para os alunos.
       </p>
+
+      {deck && <InlineDeckPreview deck={deck} />}
     </Section>
+  );
+}
+
+function InlineDeckPreview({ deck }: { deck: GeneratedDeck }) {
+  const [index, setIndex] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const total = deck.cards.length;
+  const current = deck.cards[index];
+
+  function go(delta: number) {
+    setRevealed(false);
+    setIndex((i) => Math.min(Math.max(i + delta, 0), Math.max(total - 1, 0)));
+  }
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex items-center gap-2 text-sm">
+          <Eye className="h-4 w-4 text-mint" />
+          <span className="font-display font-bold">Pré-visualização do aluno</span>
+          <span className="text-muted-foreground">· {total} cards</span>
+        </div>
+        <Link
+          to="/app/admin/flashcards/$id"
+          params={{ id: deck.deck_id }}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+        >
+          Abrir no editor de flashcards →
+        </Link>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
+        <div className="mx-auto w-full max-w-[320px]">
+          <DeckCover title={deck.title} specialty={deck.specialty} topic={deck.topic} />
+        </div>
+
+        {current ? (
+          <div className="space-y-3">
+            <div className="mx-auto w-full max-w-[440px]">
+              <FlashcardFace
+                side={revealed ? "back" : "front"}
+                counter={`${index + 1} / ${total}`}
+              >
+                <div
+                  className="w-full flex items-center justify-center text-center font-medium leading-relaxed"
+                  style={{ padding: "6cqi", fontSize: "max(13px, 4.2cqi)" }}
+                >
+                  <p className="whitespace-pre-wrap break-words">
+                    {revealed ? current.back : current.front}
+                  </p>
+                </div>
+              </FlashcardFace>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => go(-1)} disabled={index === 0}>
+                <ChevronUp className="h-4 w-4 rotate-[-90deg]" /> Anterior
+              </Button>
+              <Button variant="hero" size="sm" onClick={() => setRevealed((r) => !r)}>
+                {revealed ? "Ver pergunta" : "Ver resposta"}
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => go(1)} disabled={index >= total - 1}>
+                Próximo <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">Nenhum card gerado.</div>
+        )}
+      </div>
+    </div>
   );
 }
 
