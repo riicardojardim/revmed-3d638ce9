@@ -289,11 +289,24 @@ function AppLayout() {
 
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8">
-          <div className="lg:hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8">
+          <div className="flex items-center gap-2 lg:hidden">
             <Logo />
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex flex-1 items-center gap-2 overflow-hidden">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-elegant">
+              <Activity className="h-3.5 w-3.5" /> Revalida 2026.1
+            </span>
+            <a
+              href="https://chat.whatsapp.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden truncate rounded-full border border-rose-500/30 bg-rose-500/5 px-3 py-1 text-xs font-medium text-rose-300 transition-colors hover:bg-rose-500/10 sm:inline-block"
+            >
+              Faça parte do Grupo Premium 2026.1 — WhatsApp (Grupo 6)
+            </a>
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             <Button variant="ghost" size="icon" aria-label="Notificações">
               <Bell className="h-5 w-5" />
             </Button>
