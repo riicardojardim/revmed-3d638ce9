@@ -253,12 +253,14 @@ function RoomPage() {
 
   async function onIntroComplete() {
     if (!room || !user) return;
-    // Só o host promove para "running" (evita corrida)
-    if (isHost && room.status !== "running") {
+    // started_at já foi setado no startStation (projetado para este instante).
+    // Só o host promove status -> running (idempotente via .eq('status','starting')).
+    if (isHost && room.status === "starting") {
       await supabase
         .from("training_rooms")
-        .update({ status: "running", started_at: new Date().toISOString() })
-        .eq("id", room.id);
+        .update({ status: "running" })
+        .eq("id", room.id)
+        .eq("status", "starting");
     }
     const myRole = parts.find((p) => p.user_id === user.id)?.role;
     if (myRole) redirectByRole(myRole);
