@@ -25,7 +25,7 @@ function ProfilePage() {
       ? `Plano ${plan.name}`
       : "Plano Free";
   const planDescription = isAtorPlan
-    ? "Você atua como ator/avaliador em salas de treino."
+    ? "Você atua como ator em salas de treino."
     : plan?.slug === "completo"
       ? "Acesso completo a estações, flashcards, resumos e correções."
       : "Atualize para desbloquear todas as estações e correção do professor.";
@@ -39,7 +39,7 @@ function ProfilePage() {
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "—";
   const initial = displayName.charAt(0).toUpperCase();
   const roleLabel = isAtorPlan
-    ? "Ator/Avaliador"
+    ? "Ator"
     : roles.includes("professor")
       ? "Professor"
       : "Aluno";

@@ -53,14 +53,14 @@ export function AtorDashboard() {
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-mint/30 blur-3xl" />
         <div className="relative space-y-4">
           <Badge className="border-mint/40 bg-mint/15 text-mint hover:bg-mint/15">
-            <Sparkles className="mr-1 h-3 w-3" /> Banca avaliadora
+            <Sparkles className="mr-1 h-3 w-3" /> Banca
           </Badge>
           <h2 className="font-display text-2xl font-bold leading-tight md:text-3xl">
             Escolha uma estação e abra sua sala
           </h2>
           <p className="max-w-2xl text-sm leading-relaxed text-white/80">
             Ao selecionar a estação, o sistema gera automaticamente um <strong>código de sala</strong>.
-            Esse mesmo código é usado pelo candidato para entrar — e por você, como Ator/Avaliador.
+            Esse mesmo código é usado pelo candidato para entrar — e por você, como Ator.
           </p>
           <Link to="/app/treinar" className="inline-block">
             <Button variant="hero" size="lg">

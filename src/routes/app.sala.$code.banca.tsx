@@ -18,7 +18,7 @@ import { ScriptText } from "@/components/station/shared";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
   component: EvaluatorView,
-  head: () => ({ meta: [{ title: "Painel do Avaliador — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Painel do Ator — Estação Revalida" }] }),
 });
 
 type Room = { id: string; code: string; station_id: string; station_title: string; duration_minutes: number | null };
@@ -206,7 +206,7 @@ function EvaluatorView() {
   if (!station || !room) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <div className="animate-pulse text-sm text-muted-foreground">Carregando painel do avaliador...</div>
+        <div className="animate-pulse text-sm text-muted-foreground">Carregando painel do ator...</div>
       </div>
     );
   }
@@ -228,7 +228,7 @@ function EvaluatorView() {
         <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-md">
-              <ClipboardCheck className="h-3.5 w-3.5 text-mint" /> Painel da Banca / Ator-Avaliador
+              <ClipboardCheck className="h-3.5 w-3.5 text-mint" /> Painel da Banca / Ator
             </div>
             <h1 className="font-display text-3xl font-bold leading-tight md:text-4xl">{room.station_title}</h1>
             <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -694,7 +694,7 @@ function EvaluatorView() {
                 <div className="flex items-center gap-2.5 rounded-lg border border-border/40 bg-muted/30 px-3 py-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-xs font-bold text-white">A</div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold">Você (Ator-Avaliador)</div>
+                    <div className="text-xs font-semibold">Você (Ator)</div>
                     <div className="text-[10px] text-emerald-600">● Conectado</div>
                   </div>
                 </div>

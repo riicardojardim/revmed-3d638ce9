@@ -1276,7 +1276,7 @@ function SectionPedagogical({
   up: <K extends keyof Station>(k: K, v: Station[K]) => void;
 }) {
   return (
-    <Section title="Notas pedagógicas (para o ator/avaliador)" hint="Conteúdo que o ator usa para conduzir e avaliar, e que aparece no feedback final.">
+    <Section title="Notas pedagógicas (para o ator)" hint="Conteúdo que o ator usa para conduzir e avaliar, e que aparece no feedback final.">
       <div>
         <Label>Conduta esperada</Label>
         <Textarea rows={4} value={station.expected_conduct ?? ""} onChange={(e) => up("expected_conduct", e.target.value)} />
