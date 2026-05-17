@@ -378,6 +378,29 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
         "",
       )
       .trim();
+    // remove markdown bold/itálico que a IA às vezes injeta (ex.: "**Febre:**" -> "Febre:")
+    ps = ps.replace(/\*\*(.+?)\*\*/g, "$1").replace(/(^|\s)\*(?!\s)([^*\n]+?)\*(?=\s|$|[.,;:!?])/g, "$1$2");
+    // remove blocos duplicados: se um cabeçalho em CAIXA ALTA seguido de conteúdo se repete depois, mantém só a 1ª ocorrência
+    const lines = ps.split("\n");
+    const sections: { header: string; start: number; end: number }[] = [];
+    const headerRe = /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?$/;
+    for (let i = 0; i < lines.length; i++) {
+      if (headerRe.test(lines[i].trim())) {
+        if (sections.length) sections[sections.length - 1].end = i;
+        sections.push({ header: lines[i].trim().replace(/:$/, "").toUpperCase(), start: i, end: lines.length });
+      }
+    }
+    const seen = new Set<string>();
+    const drop = new Set<number>();
+    for (const s of sections) {
+      const key = s.header;
+      if (seen.has(key)) {
+        for (let i = s.start; i < s.end; i++) drop.add(i);
+      } else {
+        seen.add(key);
+      }
+    }
+    ps = lines.filter((_, i) => !drop.has(i)).join("\n").trim();
     // adiciona linha em branco antes de cabeçalhos em CAIXA ALTA (ex.: "DADOS PESSOAIS", "MOTIVO DA CONSULTA")
     ps = ps.replace(/([^\n])\n([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?)\s*\n/g, "$1\n\n$2\n");
     r.patient_script = ps;
