@@ -70,9 +70,7 @@ function StationsPage() {
             className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant"
           >
             <div className="flex items-start justify-between gap-3">
-              <Badge variant="outline" className="border-medical/30 text-medical">
-                {s.specialty}
-              </Badge>
+              <SpecialtyBadge specialty={s.specialty} />
               {s.tag && (
                 <Badge className="bg-mint/15 text-foreground hover:bg-mint/15">{s.tag}</Badge>
               )}
