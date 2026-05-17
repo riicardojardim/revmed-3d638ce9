@@ -39,6 +39,8 @@ type DBStation = {
 
 function TrainPage() {
   const { user } = useAuth();
+  const { plan, isPrivileged } = useSubscription();
+  const canSaveSimulado = isPrivileged || (!!plan && !plan.expired && plan.slug === "completo");
   const nav = useNavigate();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState<string>("all");
