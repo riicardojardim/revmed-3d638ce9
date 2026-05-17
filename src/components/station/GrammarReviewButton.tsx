@@ -146,6 +146,7 @@ export function GrammarReviewButton({ station, items, setStation, setItems }: Pr
     }
     setLoading(true);
     setResults(null);
+    setApplied(new Set());
     try {
       const data = await reviewFn({ data: { fields } });
       setResults(data.fields);
