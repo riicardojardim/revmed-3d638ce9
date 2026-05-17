@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Clock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { STATIONS, SPECIALTIES, type Specialty } from "@/data/stations";
+import { STATIONS, SPECIALTIES, type Specialty, type Station } from "@/data/stations";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app/estacoes")({
   component: StationsPage,
@@ -15,17 +16,70 @@ export const Route = createFileRoute("/app/estacoes")({
 
 const difficulties = ["Todas", "Fácil", "Médio", "Difícil"] as const;
 
+function normalizeDifficulty(d: string): Station["difficulty"] {
+  if (d === "Intermediário") return "Médio";
+  if (d === "Avançado") return "Difícil";
+  if (d === "Fácil" || d === "Médio" || d === "Difícil") return d;
+  return "Médio";
+}
+
+type ListStation = Pick<Station, "id" | "title" | "specialty" | "difficulty" | "durationMinutes" | "clinicalCase" | "tag"> & { checklistCount: number };
+
 function StationsPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
   const [diff, setDiff] = useState<(typeof difficulties)[number]>("Todas");
+  const [dbStations, setDbStations] = useState<ListStation[]>([]);
 
-  const filtered = STATIONS.filter(
+  useEffect(() => {
+    (async () => {
+      const { data: rows } = await supabase
+        .from("custom_stations")
+        .select("id, title, specialty, difficulty, duration_minutes, clinical_case, published")
+        .eq("published", true)
+        .order("updated_at", { ascending: false });
+      if (!rows) return;
+      const ids = rows.map((r) => r.id);
+      const counts: Record<string, number> = {};
+      if (ids.length) {
+        const { data: items } = await supabase
+          .from("station_checklist_items")
+          .select("station_id")
+          .in("station_id", ids);
+        (items ?? []).forEach((it) => { counts[it.station_id] = (counts[it.station_id] ?? 0) + 1; });
+      }
+      setDbStations(rows.map((r) => ({
+        id: r.id,
+        title: r.title,
+        specialty: r.specialty as Specialty,
+        difficulty: normalizeDifficulty(r.difficulty),
+        durationMinutes: r.duration_minutes ?? 10,
+        clinicalCase: r.clinical_case ?? "",
+        checklistCount: counts[r.id] ?? 0,
+      })));
+    })();
+  }, []);
+
+  const staticList: ListStation[] = STATIONS.map((s) => ({
+    id: s.id, title: s.title, specialty: s.specialty, difficulty: s.difficulty,
+    durationMinutes: s.durationMinutes, clinicalCase: s.clinicalCase, tag: s.tag,
+    checklistCount: s.checklist.length,
+  }));
+
+  // DB stations first, then any static demos not duplicated by title
+  const dbTitles = new Set(dbStations.map((s) => s.title.toLowerCase().trim()));
+  const all: ListStation[] = [
+    ...dbStations,
+    ...staticList.filter((s) => !dbTitles.has(s.title.toLowerCase().trim())),
+  ];
+
+  const filtered = all.filter(
     (s) =>
       (spec === "Todas" || s.specialty === spec) &&
       (diff === "Todas" || s.difficulty === diff) &&
       s.title.toLowerCase().includes(q.toLowerCase()),
   );
+
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
