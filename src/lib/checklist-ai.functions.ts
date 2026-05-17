@@ -59,6 +59,104 @@ Schema:
   }]
 }`;
 
+function cleanCategoryTitle(value: string): string {
+  return value.replace(/^\s*\d+\s*[.)\-–—]\s*/, "").replace(/\s*:\s*$/, "").trim();
+}
+
+function parsePointsLine(line: string): number[] {
+  const matches = line.match(/\d+(?:[,.]\d+)?/g) ?? [];
+  if (!matches.length) return [];
+  const onlyNumbers = line.replace(/\d+(?:[,.]\d+)?/g, "").trim();
+  if (onlyNumbers) return [];
+  return matches.map((value) => Number(value.replace(",", "."))).filter((value) => Number.isFinite(value));
+}
+
+function parseChecklistTextLiterally(text: string): z.infer<typeof ResultSchema>["checklist_items"] {
+  const sourceLines = text
+    .replace(/```[\s\S]*?```/g, (block) => block.replace(/```/g, ""))
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const blocks: Array<{ header: string; lines: string[] }> = [];
+  let current: { header: string; lines: string[] } | null = null;
+
+  for (const line of sourceLines) {
+    const start = line.match(/^\s*\d+\s*[.)]\s+(.+)$/);
+    if (start) {
+      if (current) blocks.push(current);
+      current = { header: start[1].trim(), lines: [] };
+    } else if (current) {
+      current.lines.push(line);
+    }
+  }
+  if (current) blocks.push(current);
+
+  return blocks.flatMap((block) => {
+    const lines = [...block.lines];
+    let header = block.header;
+    while (!header.includes(":") && lines.length) {
+      const next = lines[0];
+      if (/^\(\d+\)\s*/.test(next) || /^(inadequado|parcialmente\s+adequado|adequado)\s*:/i.test(next) || parsePointsLine(next).length) break;
+      header += ` ${lines.shift()}`;
+    }
+
+    const colonIndex = header.indexOf(":");
+    const category = cleanCategoryTitle(colonIndex >= 0 ? header.slice(0, colonIndex) : header);
+    const inlineDescription = colonIndex >= 0 ? header.slice(colonIndex + 1).trim() : "";
+    if (inlineDescription) lines.unshift(inlineDescription);
+
+    const descriptionLines: string[] = [];
+    const levels: z.infer<typeof LevelSchema>[] = [];
+    let activeLevel: z.infer<typeof LevelSchema> | null = null;
+    let activeLevelLines: string[] = [];
+    let scoreValues: number[] = [];
+
+    const flushLevel = () => {
+      if (!activeLevel) return;
+      levels.push({ ...activeLevel, description: activeLevelLines.join("\n").trim() });
+      activeLevel = null;
+      activeLevelLines = [];
+    };
+
+    for (const line of lines) {
+      const parsedPoints = parsePointsLine(line);
+      if (parsedPoints.length >= 2) {
+        flushLevel();
+        scoreValues = parsedPoints;
+        continue;
+      }
+      const levelMatch = line.match(/^\s*(Inadequado|Parcialmente\s+adequado|Adequado)\s*:\s*(.*)$/i);
+      if (levelMatch) {
+        flushLevel();
+        activeLevel = { label: levelMatch[1], points: 0, description: "" };
+        if (levelMatch[2]?.trim()) activeLevelLines.push(levelMatch[2].trim());
+        continue;
+      }
+      if (activeLevel) activeLevelLines.push(line);
+      else descriptionLines.push(line);
+    }
+    flushLevel();
+
+    const sortedScores = [...scoreValues].sort((a, b) => a - b);
+    const maxPoints = sortedScores.at(-1) ?? 0;
+    const withPoints = levels.map((level) => {
+      const label = level.label.toLowerCase();
+      const points = label.includes("inadequado")
+        ? sortedScores[0] ?? 0
+        : label.includes("parcial")
+          ? sortedScores[Math.floor(sortedScores.length / 2)] ?? maxPoints
+          : label.includes("adequado")
+            ? maxPoints
+            : level.points;
+      return { ...level, points };
+    });
+
+    return category
+      ? [{ category, description: descriptionLines.join("\n").trim(), points: maxPoints, levels: withPoints }]
+      : [];
+  });
+}
+
 type UserContent =
   | { type: "text"; text: string }
   | { type: "image_url"; image_url: { url: string } };
