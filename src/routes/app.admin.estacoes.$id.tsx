@@ -548,16 +548,6 @@ function SectionCaseCandidate({ station, up }: { station: Station; up: <K extend
         <p className="mb-1 text-xs text-muted-foreground">{formattingHint} A quantidade de minutos no título do preview é preenchida automaticamente.</p>
         <Textarea rows={10} value={station.candidate_task} onChange={(e) => up("candidate_task", e.target.value)} placeholder={"Ex.:\n- Realizar anamnese dirigida\n- Solicitar **exames complementares**\n- Comunicar a hipótese diagnóstica"} />
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <Label>Dados rápidos do paciente (mostrados ao avaliado)</Label>
-          <Textarea rows={4} value={station.patient_info ?? ""} onChange={(e) => up("patient_info", e.target.value)} />
-        </div>
-        <div>
-          <Label>Materiais disponíveis durante a estação</Label>
-          <Textarea rows={4} value={station.support_materials ?? ""} onChange={(e) => up("support_materials", e.target.value)} />
-        </div>
-      </div>
     </Section>
   );
 }
