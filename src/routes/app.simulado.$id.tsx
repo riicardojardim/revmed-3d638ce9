@@ -530,7 +530,7 @@ function SimuladoRunner() {
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {idx + 1}. {parts.lead.replace(/^\s*\d+\.\s*/, "")}
+                        {formatPepHeading(idx, (it as { category?: string | null }).category, it.description)}
                       </div>
                       {parts.subs.length > 0 && (
                         <ul className="mt-2 space-y-0.5">
