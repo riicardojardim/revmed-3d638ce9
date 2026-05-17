@@ -181,6 +181,22 @@ Schema do JSON:
 
 type ParsedStation = z.infer<typeof ResultSchema>;
 
+function gatewayHeaders(apiKey: string): HeadersInit {
+  return {
+    "Lovable-API-Key": apiKey,
+    "X-Lovable-AIG-SDK": "vercel-ai-sdk",
+    "Content-Type": "application/json",
+  };
+}
+
+function gatewayError(status: number, body: string): Error {
+  const isTimeout = [408, 500, 502, 503, 504, 524].includes(status) && /timeout|timed out|upstream/i.test(body);
+  const err = new Error(isTimeout ? "A IA demorou demais para responder. Vou tentar novamente automaticamente." : `AI Gateway ${status}: ${body.slice(0, 200)}`);
+  (err as Error & { status?: number; retryable?: boolean }).status = status;
+  (err as Error & { status?: number; retryable?: boolean }).retryable = isTimeout;
+  return err;
+}
+
 async function callGateway(
   apiKey: string,
   pdfDataUrl: string,
@@ -194,10 +210,7 @@ async function callGateway(
   try {
     res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: gatewayHeaders(apiKey),
       body: JSON.stringify({
         model,
         messages: [
@@ -225,9 +238,7 @@ async function callGateway(
     const txt = await res.text();
     if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
-    const err = new Error([408,502,503,504,524].includes(res.status) ? "A IA demorou demais para responder. Tente novamente em alguns instantes." : `AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
-    (err as Error & { status?: number }).status = res.status;
-    throw err;
+    throw gatewayError(res.status, txt);
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
@@ -248,13 +259,15 @@ async function callGateway(
 
 function isRetryable(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
+  const retryable = (err as Error & { retryable?: boolean }).retryable;
+  if (retryable) return true;
   const status = (err as Error & { status?: number }).status;
-  if (status && [408, 502, 503, 504, 524].includes(status)) return true;
+  if (status && [408, 500, 502, 503, 504, 524].includes(status)) return true;
   const msg = err.message.toLowerCase();
   return /timeout|timed out|upstream|aborted|network|fetch failed|econn|socket/.test(msg);
 }
 
-async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> {
   let lastErr: unknown;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -262,8 +275,8 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
     } catch (e) {
       lastErr = e;
       if (i === attempts - 1 || !isRetryable(e)) throw e;
-      // backoff: 2s, 5s
-      await new Promise((r) => setTimeout(r, i === 0 ? 2000 : 5000));
+      const delays = [2_000, 6_000, 12_000];
+      await new Promise((r) => setTimeout(r, delays[i] ?? 12_000));
     }
   }
   throw lastErr;
@@ -447,10 +460,7 @@ async function callGatewayText(
   try {
     res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: gatewayHeaders(apiKey),
       body: JSON.stringify({
         model,
         messages: [
@@ -472,9 +482,7 @@ async function callGatewayText(
     const txt = await res.text();
     if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
-    const err = new Error([408,502,503,504,524].includes(res.status) ? "A IA demorou demais para responder. Tente novamente em alguns instantes." : `AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
-    (err as Error & { status?: number }).status = res.status;
-    throw err;
+    throw gatewayError(res.status, txt);
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
