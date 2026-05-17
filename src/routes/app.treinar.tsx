@@ -265,24 +265,13 @@ function TrainPage() {
                     <div className="text-center text-xs text-muted-foreground md:text-sm">—</div>
                     <div className="text-center text-xs text-muted-foreground md:text-sm">—</div>
                     <div className="md:text-right">
-                      {selectMode ? (
-                        isSel ? (
-                          <Button size="sm" variant="outline" disabled className="opacity-60">
-                            Adicionado
-                          </Button>
-                        ) : (
-                          <Button size="sm" variant="hero" onClick={() => toggleSelected(s)}>
-                            Adicionar
-                          </Button>
-                        )
+                      {isSel ? (
+                        <Button size="sm" variant="outline" disabled className="opacity-60">
+                          Adicionado
+                        </Button>
                       ) : (
-                        <Button
-                          size="sm"
-                          variant="hero"
-                          disabled={busy}
-                          onClick={() => { setAllOpen(false); startStation(s.id); }}
-                        >
-                          Iniciar
+                        <Button size="sm" variant="hero" onClick={() => toggleSelected(s)}>
+                          Adicionar
                         </Button>
                       )}
                     </div>
