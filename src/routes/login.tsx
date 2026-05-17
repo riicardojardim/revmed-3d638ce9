@@ -76,7 +76,6 @@ function LoginPage() {
         return;
       }
 
-      toast.success("Bem-vindo de volta!");
       const uid = data.user?.id;
       const destination = uid ? await resolveDestination(uid) : "/app";
       goTo(destination);
