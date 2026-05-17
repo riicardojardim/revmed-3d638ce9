@@ -28,7 +28,6 @@ type ListStation = Pick<Station, "id" | "title" | "specialty" | "difficulty" | "
 function StationsPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
-  const [diff, setDiff] = useState<(typeof difficulties)[number]>("Todas");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
 
   useEffect(() => {
