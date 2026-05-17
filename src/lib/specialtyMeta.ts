@@ -1,11 +1,11 @@
-// Specialty color tokens — cada especialidade tem uma cor com significado:
-//   Clínica Médica            → azul   (clássico hospitalar, estetoscópio)
-//   Cirurgia                  → teal   (campo/avental cirúrgico verde-petróleo)
-//   Pediatria                 → âmbar  (alegria, infância)
-//   Ginecologia e Obstetrícia → rosa   (feminino, maternidade)
-//   Medicina da Família       → verde  (atenção primária, ESF/SUS)
-//   Urgência e Emergência     → vermelho (urgência, SAMU)
-//   Saúde Coletiva/Preventiva → roxo   (saúde pública)
+// Specialty color tokens — alinhado ao padrão Pense Revalida:
+//   CM  Clínica Médica            → azul claro
+//   CR  Cirurgia                  → roxo / lilás
+//   GO  Ginecologia e Obstetrícia → coral / vermelho
+//   PE  Pediatria                 → verde
+//   PR  Preventiva                → laranja
+//   MF  Medicina da Família       → esmeralda (fora do Pense, mantido)
+//   UE  Urgência e Emergência     → vermelho escuro (fora do Pense, mantido)
 
 export type SpecialtyMeta = {
   code: string;
