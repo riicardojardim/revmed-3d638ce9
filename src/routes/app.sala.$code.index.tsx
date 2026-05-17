@@ -272,13 +272,12 @@ function RoomPage() {
 
   const introRole: IntroRole = useMemo(() => {
     if (me?.role === "paciente") return "paciente";
-    if (me?.role === "avaliador") return "avaliador";
     return "candidato";
   }, [me?.role]);
 
   const allReady = parts.length >= 2 && parts.every((p) => p.is_ready);
   const hasCandidate = parts.some((p) => p.role === "candidato");
-  const hasActor = parts.some((p) => p.role === "paciente" || p.role === "avaliador");
+  const hasActor = parts.some((p) => p.role === "paciente");
 
   if (!room)
     return <div className="text-sm text-muted-foreground">Sala não encontrada ou carregando...</div>;
