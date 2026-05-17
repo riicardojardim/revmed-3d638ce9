@@ -106,6 +106,40 @@ function AdminOverview() {
 
   return (
     <div className="space-y-6">
+      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-display font-semibold flex items-center gap-2">
+              <Play className="h-4 w-4 text-mint" /> Testar animação de entrada
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Pré-visualize a sequência "Prontuário + Crachá" (~5.2s) sem precisar criar uma estação.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>
+              Ver como Candidato
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setTestRole("paciente")}>
+              Ver como Ator/Paciente
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setTestRole("avaliador")}>
+              Ver como Avaliador
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {testRole && (
+        <StationIntroOverlay
+          role={testRole}
+          stationTitle="Estação de Teste — Dor Torácica Aguda"
+          specialty="Clínica Médica"
+          displayName="Dr. Teste"
+          onComplete={() => setTestRole(null)}
+        />
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
