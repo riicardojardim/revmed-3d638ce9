@@ -134,11 +134,7 @@ function StationsPage() {
             </div>
             <h3 className="mt-4 font-display text-lg font-bold leading-tight">{s.title}</h3>
             <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" /> {s.durationMinutes} min
-              </span>
-              <span>· {s.difficulty}</span>
-              <span>· {s.checklistCount} itens</span>
+              <span>{s.checklistCount} itens</span>
             </div>
             <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
               {s.clinicalCase}
