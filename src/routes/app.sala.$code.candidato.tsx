@@ -173,22 +173,7 @@ function CandidateView() {
     } catch (e) { console.error(e); }
   }
 
-  const visibleDeliveries = useMemo(() => {
-    const autos = (station?.deliverableMaterials ?? [])
-      .filter((m) => m.autoDeliver)
-      .map((m): Delivery => ({
-        id: `auto-${m.id}`,
-        material_id: m.id,
-        material_name: m.name,
-        material_type: m.type,
-        material_description: m.description ?? null,
-        material_content: m.content,
-        material_image_url: m.imageUrl ?? null,
-        delivered_at: "",
-      }));
-    const seen = new Set(deliveries.map((d) => d.material_id));
-    return [...autos.filter((a) => !seen.has(a.material_id)), ...deliveries];
-  }, [deliveries, station]);
+  const visibleDeliveries = useMemo(() => deliveries, [deliveries]);
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
