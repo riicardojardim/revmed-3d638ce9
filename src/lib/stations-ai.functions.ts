@@ -134,6 +134,7 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
        * Os "points" de cada nível devem ser IDÊNTICOS aos do PDF (Ex.: 0 / 0.75 / 1.5).
    - NUNCA invente, complete ou reformule a regra de um nível. Se o PDF só escreve "Adequado" sem regra, copie só "Adequado".
    - PROIBIDO colocar "1. Apresentação:", "2. Investiga...:", "3. Investiga...:" ou qualquer linha numerada de categoria dentro de "description"; isso vai SOMENTE em "category".
+   - PROIBIDO colocar linhas de níveis ("Inadequado: ...", "Parcialmente adequado: ...", "Adequado: ...") dentro de "description"; isso vai SOMENTE em "levels".
 
 REGRA GERAL DE FIDELIDADE LITERAL (vale para TODOS os campos — category, description, levels, content, patient_script, deliverable_materials, case_description, etc.):
    - Transcreva PALAVRA POR PALAVRA o que está no PDF. Não parafraseie, não resuma, não "melhore" o texto, não corrija typos, não troque sinônimos, não mude pontuação, não traduza, não adicione nada que não esteja escrito.
