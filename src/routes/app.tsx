@@ -81,7 +81,7 @@ function AppLayout() {
       {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
-          { to: "/app/treinar", label: "Salas", icon: Dumbbell },
+          { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
       },
