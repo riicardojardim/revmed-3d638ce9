@@ -12,9 +12,10 @@ function Cronograma() {
   const monthLabel = today.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const firstDow = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
-  const cells = Array.from({ length: firstDow }, () => null).concat(
-    Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  );
+  const cells: (number | null)[] = [
+    ...Array.from({ length: firstDow }, () => null as number | null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
