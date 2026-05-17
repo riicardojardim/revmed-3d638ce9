@@ -98,7 +98,7 @@ function AppLayout() {
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
           ]},
-          { to: "/app/resumos", label: "Pense Resumos", icon: BookOpen, badge: "New" },
+          
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
@@ -133,7 +133,7 @@ function AppLayout() {
           { to: "/app/estacoes", label: "Estações", icon: ClipboardList },
           { to: "/app/treinar", label: "Treinar", icon: Dumbbell },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
-          { to: "/app/resumos", label: "Resumos", icon: BookOpen },
+          
           { to: "/app/progresso", label: "Progresso", icon: TrendingUp },
           ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
           { to: "/app/perfil", label: "Perfil", icon: User },
