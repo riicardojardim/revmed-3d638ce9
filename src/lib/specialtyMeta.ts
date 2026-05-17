@@ -76,6 +76,7 @@ const META: Record<string, SpecialtyMeta> = {
     solid: "bg-orange-500",
     text: "text-orange-400",
   },
+};
 
 const FALLBACK: SpecialtyMeta = {
   code: "ES",
