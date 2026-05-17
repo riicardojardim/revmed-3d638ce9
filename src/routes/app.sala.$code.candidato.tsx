@@ -36,7 +36,7 @@ type Delivery = {
 
 function CandidateView() {
   const { code } = Route.useParams();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
@@ -44,6 +44,8 @@ function CandidateView() {
   const [notes, setNotes] = useState("");
   const [remaining, setRemaining] = useState(600);
   const [finished, setFinished] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
   const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
