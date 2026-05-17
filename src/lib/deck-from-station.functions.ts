@@ -158,6 +158,7 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
         topic: deckTopic,
         description: `Gerado automaticamente a partir da estação "${data.title}".`,
         published: false,
+        station_id: data.station_id ?? null,
       })
       .select("id")
       .single();
