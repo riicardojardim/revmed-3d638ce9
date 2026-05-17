@@ -855,7 +855,7 @@ function ActorView() {
                   Salvar rascunho
                 </Button>
                 {(() => {
-                  const released = evalStatus !== "em_andamento" && !!evaluationId;
+                  const released = evalStatus !== "em_andamento";
                   const canRelease = isFinished && allScored && evalStatus !== "em_andamento";
                   return (
                     <Button
