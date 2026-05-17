@@ -528,13 +528,13 @@ function CandidateView() {
             </div>
 
             {isWaiting && (
-              <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
+              <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-medium text-white/90">
                 Aguardando o ator iniciar a estação...
               </div>
             )}
             {isRunning && null}
             {isFinished && (
-              <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
+              <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-semibold text-white">
                 Estação encerrada.
               </div>
             )}
