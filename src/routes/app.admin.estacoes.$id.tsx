@@ -882,11 +882,11 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
     e.preventDefault();
     if (!draft.description.trim()) return toast.error("Descrição obrigatória");
     const pts = Number(draft.points) || 1;
-    const titleSource = (draft.category || draft.description).trim();
+    const category = (draft.category || "Anamnese").replace(/^\s*\d+\.\s*/, "").trim() || "Anamnese";
     const payload = {
       station_id: stationId,
       description: draft.description.trim(),
-      category: numberedCategory(items.length, titleSource),
+      category,
       points: pts,
       order_index: items.length,
       levels: defaultLevels(pts),
