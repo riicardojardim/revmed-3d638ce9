@@ -19,6 +19,8 @@ import { toast } from "sonner";
 import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading } from "@/components/station/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
@@ -32,7 +34,7 @@ type Candidate = { id: string; name: string };
 function SimuladoRunner() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,6 +58,7 @@ function SimuladoRunner() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
 
   // Load simulado
   useEffect(() => {
@@ -164,7 +167,20 @@ function SimuladoRunner() {
     const { data: profs } = await supabase.from("profiles")
       .select("id, full_name").in("id", ids);
     const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
-    setCandidates(ids.map((uid: string) => ({ id: uid, name: map.get(uid) ?? "Candidato" })));
+    const list = ids.map((uid: string) => {
+      const raw = (map.get(uid) ?? "").trim();
+      const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
+      return { id: uid, name };
+    });
+    setCandidates(list);
+    // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
+    const { data: r } = await supabase.from("training_rooms")
+      .select("evaluated_candidate_id").eq("id", roomId).maybeSingle();
+    if (!r?.evaluated_candidate_id && list.length > 0) {
+      await supabase.from("training_rooms")
+        .update({ evaluated_candidate_id: list[0].id }).eq("id", roomId);
+      setEvaluatedCandidateId(list[0].id);
+    }
   }
 
   // Realtime: participants + room updates
@@ -286,13 +302,39 @@ function SimuladoRunner() {
     });
   }
 
-  function startTimer() {
-    setRunning(true);
+  async function startTimer() {
+    // Mostra a animação institucional no ator e dispara no candidato via room.status
+    setShowIntro(true);
     setFinishedStation(false);
+    if (sim?.roomId) {
+      try {
+        await getServerOffset(true);
+        const startsAtIso = new Date(serverNow() + INTRO_DURATION_MS).toISOString();
+        await supabase.from("training_rooms").update({
+          status: "starting",
+          starting_at: new Date(serverNow()).toISOString(),
+          started_at: startsAtIso,
+          duration_minutes: duration,
+        }).eq("id", sim.roomId);
+      } catch (e) { console.error(e); }
+    }
+  }
+  async function onIntroComplete() {
+    setShowIntro(false);
+    setRunning(true);
+    if (sim?.roomId) {
+      await supabase.from("training_rooms")
+        .update({ status: "running" })
+        .eq("id", sim.roomId)
+        .eq("status", "starting");
+    }
   }
   function finishTimer() {
     setRunning(false);
     setFinishedStation(true);
+    if (sim?.roomId) {
+      supabase.from("training_rooms").update({ status: "finished" }).eq("id", sim.roomId).then(() => {});
+    }
   }
   function deliverMat(matId: string) {
     setDelivered((d) => { const n = new Set(d); n.add(matId); return n; });
@@ -388,6 +430,16 @@ function SimuladoRunner() {
   const progress = ((sim.currentIndex + (allScored ? 1 : 0)) / sim.stations.length) * 100;
 
   return (
+    <>
+      {showIntro && (
+        <StationIntroOverlay
+          role={"paciente" as IntroRole}
+          stationTitle={station?.title ?? sim.name}
+          specialty={station?.specialty ?? null}
+          displayName={profile?.full_name ?? "Ator"}
+          onComplete={onIntroComplete}
+        />
+      )}
     <div className="mx-auto max-w-7xl space-y-4">
       {/* Progress header */}
       <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
@@ -898,5 +950,6 @@ function SimuladoRunner() {
         </div>
       )}
     </div>
+    </>
   );
 }
