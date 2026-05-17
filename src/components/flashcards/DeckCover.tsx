@@ -24,14 +24,17 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
     <div
       className={cn(
         "@container relative aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10 text-white",
-        "bg-[radial-gradient(120%_120%_at_0%_0%,#1e6fb8_0%,#0f4c81_38%,#0a2a4a_72%,#07111f_100%)]",
+        // Gradiente azul-noite mais profundo — contraste alto com o logo mint/branco
+        "bg-[radial-gradient(135%_135%_at_15%_110%,#15406a_0%,#0c2c4d_35%,#071a32_65%,#040c1a_100%)]",
         "shadow-elegant",
         className,
       )}
     >
-      {/* Glow accent na cor da especialidade */}
-      <div className={cn("pointer-events-none absolute -top-1/3 -right-1/3 h-2/3 w-2/3 rounded-full blur-3xl opacity-50", meta.solid)} />
-      <div className="pointer-events-none absolute -bottom-1/4 -left-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-30 bg-mint" />
+      {/* Glows decorativos — posicionados longe do logo (canto superior direito) */}
+      <div className={cn("pointer-events-none absolute -bottom-1/3 -left-1/3 h-2/3 w-2/3 rounded-full blur-3xl opacity-45", meta.solid)} />
+      <div className="pointer-events-none absolute top-[55%] -right-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-18 bg-mint" />
+      {/* Vinheta escura no canto do logo para garantir contraste em qualquer especialidade */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_100%_0%,rgba(4,12,26,0.55)_0%,transparent_70%)]" />
 
       {/* Grid sutil — densidade proporcional ao container */}
       <div
