@@ -246,8 +246,8 @@ function FlashcardsPage() {
                   side={revealed ? "back" : "front"}
                   counter={`${index + 1} | ${cards.length}`}
                 >
-                  <div className="flex-1 flex items-center justify-center p-6 text-center whitespace-pre-wrap overflow-y-auto">
-                    <div className="text-base md:text-lg font-medium">
+                  <div className="flex-1 flex items-center justify-center text-center whitespace-pre-wrap overflow-y-auto" style={{ padding: "6cqi" }}>
+                    <div className="font-medium" style={{ fontSize: "max(14px, 5cqi)", lineHeight: 1.35 }}>
                       {revealed ? current.back : current.front}
                     </div>
                   </div>
