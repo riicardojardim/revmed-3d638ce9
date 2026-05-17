@@ -6,7 +6,8 @@ import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
   Upload, Sparkles, FileText, MessageSquare, ListChecks, Inbox, StickyNote,
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
-  Image as ImageIcon, X, Theater, Send,
+  Image as ImageIcon, X, Theater, Send, Play, Square, Lock,
+  UserPlus, Link2, BarChart3, MessageCircle, MessageSquareWarning, Check,
 } from "lucide-react";
 import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
@@ -1130,42 +1131,63 @@ function SectionPublish({
 }
 
 // ============================================================
-// Live preview — mirrors the actual Avaliado / Ator / Avaliador panels
+// Live preview — mirrors the actual Avaliado / Ator panels
 // ============================================================
-type PreviewMode = "candidato" | "ator" | "pep";
+type PreviewMode = "candidato" | "ator";
 
-function previewLevelStyle(label: string) {
-  const k = (label || "").toLowerCase();
-  if (k.startsWith("adequado")) return { dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]", short: "ADQ" };
-  if (k.startsWith("parc"))     return { dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",         activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]", short: "PAR" };
-  return                          { dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",             activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]", short: "INA" };
+function parsePreviewSubItems(description: string): { lead: string; subs: string[] } {
+  const numbered = description.match(/\(\d+\)\s*[^()]+/g);
+  if (numbered && numbered.length >= 2) {
+    const firstIdx = description.indexOf(numbered[0]);
+    const lead = description.slice(0, firstIdx).trim().replace(/[:;]\s*$/, "") || description.split(/[(:]/)[0].trim();
+    return { lead, subs: numbered.map((s) => s.trim().replace(/[;.]$/, "")) };
+  }
+  const paren = description.match(/^(.*?)\(([^()]+,[^()]+)\)\s*$/);
+  if (paren) {
+    const subs = paren[2].split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    if (subs.length >= 2) return { lead: paren[1].trim(), subs };
+  }
+  const parts = description.split(";").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 2) return { lead: parts[0], subs: parts.slice(1) };
+  return { lead: description, subs: [] };
+}
+
+function previewLevelTone(index: number, total: number): { idle: string; active: string } {
+  const base = "text-muted-foreground hover:text-foreground";
+  if (index === 0) return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
+  if (index === total - 1) return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
+  return { idle: base, active: "bg-amber-500/85 text-white shadow-sm ring-1 ring-amber-400/60" };
 }
 
 function StationLivePreview({ station, items }: { station: Station; items: Item[] }) {
   const [mode, setMode] = useState<PreviewMode>("candidato");
+  const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [pepLevels, setPepLevels] = useState<Record<string, number>>({});
+  const [comments, setComments] = useState<Record<string, string>>({});
+  const [feedback, setFeedback] = useState("");
+  const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const [highlights, setHighlights] = useState<Record<string, boolean>>({});
+  const [copied, setCopied] = useState(false);
   const meta = getSpecialtyMeta(station.specialty);
-  const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
-
-  const tabs: { id: PreviewMode; label: string; icon: ComponentType<{ className?: string }> }[] = [
-    { id: "candidato", label: "Avaliado (candidato)", icon: User },
-    { id: "ator",      label: "Ator / Paciente",      icon: Stethoscope },
-    { id: "pep",       label: "Avaliador (PEP)",      icon: ClipboardCheck },
-  ];
-
-  const groupedPep = (() => {
-    const map = new Map<string, Item[]>();
-    items.forEach((it) => {
-      const arr = map.get(it.category) ?? [];
-      arr.push(it);
-      map.set(it.category, arr);
-    });
-    return Array.from(map.entries());
-  })();
-
+  const materials = station.deliverable_materials ?? [];
   const p = station.patient_profile ?? {};
   const hasProfile = Object.values(p).some((v) => typeof v === "string" && v.trim().length > 0);
   const patientFormatted = hasProfile ? formatPatientProfile(p as never) : "";
+  const scored = Object.keys(pepLevels).length;
+  const earned = Object.values(pepLevels).reduce((sum, n) => sum + Number(n || 0), 0);
+  const allScored = items.length > 0 && scored === items.length;
+  const mm = String(station.duration_minutes || 10).padStart(2, "0");
+
+  const tabs: { id: PreviewMode; label: string; icon: ComponentType<{ className?: string }> }[] = [
+    { id: "candidato", label: "Avaliado (candidato)", icon: User },
+    { id: "ator", label: "Ator / Paciente", icon: Stethoscope },
+  ];
+
+  const copyPreviewCode = () => {
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1200);
+  };
 
   return (
     <div className="space-y-4">
@@ -1190,24 +1212,6 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
       </div>
 
       <div className="rounded-2xl border border-border bg-background/60 p-4 md:p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
-              {meta.code}
-            </span>
-            <h3 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
-              {station.title || "(sem título)"}
-            </h3>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">
-              {mode === "candidato" ? "Candidato" : mode === "ator" ? "Ator/Paciente" : "Avaliador (PEP)"}
-            </span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">{station.specialty}</span>
-          </div>
-        </div>
-
         {mode === "candidato" && (
           <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
             <div className="space-y-4">
@@ -1226,9 +1230,9 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                 <p className="text-sm text-muted-foreground">
                   Os impressos cadastrados serão entregues pelo avaliador durante a estação.
                 </p>
-                {(station.deliverable_materials ?? []).length > 0 && (
+                {materials.length > 0 && (
                   <div className="mt-3 space-y-2 opacity-70">
-                    {(station.deliverable_materials ?? []).map((m, i) => (
+                    {materials.map((m, i) => (
                       <div key={i} className="rounded-lg border border-dashed border-border p-2 text-xs">
                         <span className="font-semibold">{m.name || `Impresso ${i + 1}`}</span>
                         {m.type && <span className="ml-2 text-muted-foreground">· {m.type}</span>}
@@ -1246,7 +1250,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" /> Tempo
                 </div>
-                <div className="mt-2 font-mono text-3xl font-bold">{String(station.duration_minutes).padStart(2, "0")}:00</div>
+                <div className="mt-2 font-mono text-3xl font-bold">{mm}:00</div>
                 <div className="text-xs text-muted-foreground">Definido pelo ator/banca na sala.</div>
               </div>
             </div>
@@ -1254,208 +1258,439 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
         )}
 
         {mode === "ator" && (
-          <div className="space-y-4">
-            <PRBlock icon={MessageSquare} title="Cenário de atuação">
-              <ScriptText text={station.clinical_case || "—"} />
-            </PRBlock>
-
-            {station.case_description && (
-              <PRBlock icon={MessageSquare} title="Descrição do caso">
-                <ScriptText text={station.case_description} />
-              </PRBlock>
-            )}
-
-            <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
-              <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
-            </PRBlock>
-
-            <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
-              <p className="mb-3 text-[11px] text-muted-foreground italic">
-                Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.
-              </p>
-              {station.patient_script ? (
-                <ScriptText text={station.patient_script} />
-              ) : hasProfile ? (
-                <ScriptText text={patientFormatted} />
-              ) : (
-                <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
-              )}
-              {(p as { spontaneous?: string }).spontaneous && (
-                <SubBlock label="O que falar espontaneamente">
-                  <ScriptText text={(p as { spontaneous?: string }).spontaneous ?? ""} />
-                </SubBlock>
-              )}
-              {(p as { doNotReveal?: string }).doNotReveal && (
-                <SubBlock label="Nunca revelar" tone="rose">
-                  <ScriptText text={(p as { doNotReveal?: string }).doNotReveal ?? ""} />
-                </SubBlock>
-              )}
-              {((p as { emotionalTone?: string; actingTips?: string }).emotionalTone || (p as { emotionalTone?: string; actingTips?: string }).actingTips) && (
-                <SubBlock label="Tom emocional e atuação">
-                  {(p as { emotionalTone?: string }).emotionalTone && <p><span className="font-medium">Tom:</span> {(p as { emotionalTone?: string }).emotionalTone}</p>}
-                  {(p as { actingTips?: string }).actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {(p as { actingTips?: string }).actingTips}</p>}
-                </SubBlock>
-              )}
-            </PRBlock>
-
-            <PRBlock
-              icon={Inbox}
-              title="Materiais para entregar ao candidato"
-              right={<Badge variant="outline" className="text-white border-white/30">0/{(station.deliverable_materials ?? []).length}</Badge>}
-            >
-              {(station.deliverable_materials ?? []).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {(station.deliverable_materials ?? []).map((m, idx) => {
-                    const cleanName = (() => {
-                      const clean = (m.name || "").replace(/^\s*impresso\s*\d+\s*[:\-–—()]*\s*/i, "").replace(/^\(\s*|\s*\)$/g, "").trim();
-                      if (!clean) return "";
-                      const sentence = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
-                      return `( ${sentence} )`;
-                    })();
-                    return (
-                      <div key={idx} className="rounded-xl border border-border bg-background/40 p-3 flex flex-col h-full">
-                        <div className="flex w-full items-start justify-between gap-2 text-left">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5 text-sm font-semibold">
-                              <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1}{" "}
-                              <span className="text-muted-foreground font-normal">{cleanName}</span>
-                            </div>
-                            {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
-                          </div>
-                        </div>
-                        <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
-                          {m.imageUrl && (
-                            <img
-                              src={m.imageUrl}
-                              alt={m.name || "Material"}
-                              className="mb-3 block w-full h-auto rounded-md border border-border"
-                            />
-                          )}
-                          {m.content
-                            ? <ScriptText text={m.content} />
-                            : (!m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
-                        </div>
-                        <div className="mt-auto pt-3">
-                          <Button size="sm" variant="hero" className="w-full" disabled>
-                            <Send className="mr-1 h-4 w-4" /> Entregar
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </PRBlock>
-          </div>
-        )}
-
-        {mode === "pep" && (
-          <div className="space-y-5">
-            <div className="rounded-2xl border border-indigo-300/30 bg-gradient-to-r from-indigo-50/60 to-mint/5 px-5 py-3 text-xs dark:from-indigo-950/20">
-              <div className="flex items-center gap-2 font-semibold text-indigo-700 dark:text-indigo-300">
-                <ClipboardCheck className="h-3.5 w-3.5" /> Checklist (PEP)
+          <div className="mx-auto max-w-7xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">
+                  <Theater className="h-3 w-3" /> Painel do Ator
+                </span>
+                <span>•</span>
+                <span>{station.specialty}</span>
               </div>
-              <p className="mt-1 text-muted-foreground">
-                Avalie cada item em <b className="text-emerald-700 dark:text-emerald-300">Adequado</b>,
-                {" "}<b className="text-amber-700 dark:text-amber-300">Parcialmente adequado</b> ou
-                {" "}<b className="text-rose-700 dark:text-rose-300">Inadequado</b>. A pontuação é calculada automaticamente.
-                <span className="ml-1 italic">(prévia · {items.length} itens · {totalPts.toFixed(2)} pts)</span>
-              </p>
             </div>
 
-            {items.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                Nenhum item de checklist cadastrado.
-              </p>
-            ) : groupedPep.map(([cat, catItems]) => (
-              <div key={cat} className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-                <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-indigo-50/60 to-transparent px-5 py-3 dark:from-indigo-950/30">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-[11px] font-bold text-indigo-600 dark:text-indigo-300">
-                      {catItems.length}
+            <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+              <div className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
+                      {meta.code}
                     </span>
-                    <h3 className="text-sm font-semibold tracking-wide">{cat}</h3>
+                    <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
+                      {station.title || "(sem título)"}
+                    </h1>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {catItems.reduce((s, i) => s + Number(i.points || 0), 0).toFixed(2)} pts
-                  </span>
+                  <button
+                    type="button"
+                    onClick={copyPreviewCode}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 font-mono text-[11px] text-muted-foreground hover:border-mint/40 hover:text-foreground"
+                    title="Copiar link de convite"
+                  >
+                    <span className="truncate max-w-[160px]">PRÉVIA</span>
+                    {copied ? <Check className="h-3 w-3 text-mint" /> : <Copy className="h-3 w-3" />}
+                  </button>
                 </div>
-                <ul className="divide-y divide-border/50">
-                  {catItems.map((it, idx) => {
-                    const lvl = pepLevels[it.id];
-                    const maxPts = Number(it.points) || 0;
-                    const itemLevels = (it.levels && it.levels.length > 0)
-                      ? it.levels
-                      : [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: maxPts }];
-                    const cols = itemLevels.length === 2 ? "grid-cols-2" : "grid-cols-3";
-                    return (
-                      <li key={it.id} className={cn(
-                        "p-5 transition",
-                        lvl !== undefined && lvl === maxPts && maxPts > 0 && "bg-emerald-50/30 dark:bg-emerald-950/10",
-                        lvl !== undefined && lvl > 0 && lvl < maxPts && "bg-amber-50/30 dark:bg-amber-950/10",
-                        lvl === 0 && "bg-rose-50/30 dark:bg-rose-950/10",
-                        lvl === undefined && "hover:bg-muted/30",
-                      )}>
-                        <div className="flex items-start gap-3">
-                          <div className={cn(
-                            "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                            lvl === undefined ? "bg-muted text-muted-foreground" : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md",
-                          )}>
-                            {idx + 1}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold leading-relaxed whitespace-pre-wrap">{it.description}</p>
-                            <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-                              <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
-                              <span>Vale <b className="text-foreground tabular-nums">{maxPts.toFixed(2)}</b> pts</span>
-                            </div>
 
-                            <div className={cn("mt-3 grid gap-2", cols)}>
-                              {itemLevels.map((L, li) => {
-                                const active = lvl === L.points;
-                                const lmeta = previewLevelStyle(L.label);
+                <PRBlock icon={MessageSquare} title="Cenário de atuação">
+                  <ScriptText text={station.clinical_case || "—"} />
+                </PRBlock>
+
+                {station.case_description && (
+                  <PRBlock icon={MessageSquare} title="Descrição do caso">
+                    <ScriptText text={station.case_description} />
+                  </PRBlock>
+                )}
+
+                <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
+                  <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
+                </PRBlock>
+
+                <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
+                  <p className="mb-3 text-[11px] text-muted-foreground italic">
+                    Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.
+                  </p>
+                  {station.patient_script ? (
+                    <ScriptText text={station.patient_script} />
+                  ) : hasProfile ? (
+                    <ScriptText text={patientFormatted} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
+                  )}
+                  {(p as { spontaneous?: string }).spontaneous && (
+                    <SubBlock label="O que falar espontaneamente">
+                      <ScriptText text={(p as { spontaneous?: string }).spontaneous ?? ""} />
+                    </SubBlock>
+                  )}
+                  {(p as { doNotReveal?: string }).doNotReveal && (
+                    <SubBlock label="Nunca revelar" tone="rose">
+                      <ScriptText text={(p as { doNotReveal?: string }).doNotReveal ?? ""} />
+                    </SubBlock>
+                  )}
+                  {((p as { emotionalTone?: string; actingTips?: string }).emotionalTone || (p as { emotionalTone?: string; actingTips?: string }).actingTips) && (
+                    <SubBlock label="Tom emocional e atuação">
+                      {(p as { emotionalTone?: string }).emotionalTone && <p><span className="font-medium">Tom:</span> {(p as { emotionalTone?: string }).emotionalTone}</p>}
+                      {(p as { actingTips?: string }).actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {(p as { actingTips?: string }).actingTips}</p>}
+                    </SubBlock>
+                  )}
+                </PRBlock>
+
+                <PRBlock
+                  icon={Inbox}
+                  title="Materiais para entregar ao candidato"
+                  right={<Badge variant="outline" className="text-white border-white/30">0/{materials.length}</Badge>}
+                >
+                  {materials.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Esta estação não possui materiais cadastrados.</p>
+                  ) : (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {materials.map((m, idx) => {
+                        const isOpen = previewMaterialId === m.id;
+                        const cleanName = (() => {
+                          const clean = (m.name || "").replace(/^\s*impresso\s*\d+\s*[:\-–—()]*\s*/i, "").replace(/^\(\s*|\s*\)$/g, "").trim();
+                          if (!clean) return "";
+                          const sentence = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+                          return `( ${sentence} )`;
+                        })();
+                        return (
+                          <div key={m.id || idx} className="flex h-full flex-col rounded-xl border border-border bg-background/40 p-3 transition-all hover:border-mint/40">
+                            <button
+                              type="button"
+                              onClick={() => setPreviewMaterialId(isOpen ? null : m.id)}
+                              className="group flex w-full items-start justify-between gap-2 text-left"
+                              title="Clique para expandir / recolher"
+                            >
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-mint">
+                                  <FileText className="h-4 w-4 text-mint" /> Impresso {idx + 1}{" "}
+                                  <span className="font-normal text-muted-foreground">{cleanName}</span>
+                                </div>
+                                <div className="mt-0.5 text-[11px] text-muted-foreground">{isOpen ? "clique para recolher" : "clique para ver o conteúdo"}</div>
+                                {m.description && <div className="mt-2 text-xs text-muted-foreground">{m.description}</div>}
+                              </div>
+                              <ChevronDown className={cn("mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
+                            </button>
+                            {isOpen && (
+                              <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
+                                {m.imageUrl && (
+                                  <img
+                                    src={m.imageUrl}
+                                    alt={m.name || "Material"}
+                                    className="mb-3 block h-auto w-full rounded-md border border-border"
+                                  />
+                                )}
+                                {m.content
+                                  ? <ScriptText text={m.content} />
+                                  : (!m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                              </div>
+                            )}
+                            <div className="mt-auto pt-3">
+                              <Button size="sm" variant="hero" className="w-full" disabled>
+                                <Send className="mr-1 h-4 w-4" /> Entregar
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </PRBlock>
+
+                <PRBlock
+                  icon={ClipboardCheck}
+                  title="CHECKLIST ( PEP )"
+                  right={<Badge variant="outline" className="text-white border-white/30">{scored}/{items.length}</Badge>}
+                >
+                  <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
+                    <Lock className="mr-1 inline h-3.5 w-3.5" />
+                    Você pode pontuar durante a estação, mas 1 item será liberado apenas após encerrar.
+                  </div>
+
+                  {items.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Nenhum item de checklist cadastrado.</p>
+                  ) : (
+                    <ol className="space-y-3">
+                      {items.map((it, idx) => {
+                        const levels = it.levels?.length ? it.levels : [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
+                        const current = pepLevels[it.id];
+                        const parts = parsePreviewSubItems(it.description);
+                        return (
+                          <li
+                            key={it.id}
+                            className={cn(
+                              "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
+                              typeof current === "number" ? "border-mint/30 bg-mint/5" : "border-border bg-background/30",
+                            )}
+                          >
+                            <div className="min-w-0">
+                              <div className="text-sm font-semibold text-foreground">
+                                {idx + 1}. {parts.lead.replace(/^\s*\d+\.\s*/, "")}
+                              </div>
+                              {parts.subs.length > 0 && (
+                                <ul className="mt-2 space-y-0.5">
+                                  {parts.subs.map((sub, si) => {
+                                    const key = `${it.id}::${si}`;
+                                    const active = !!highlights[key];
+                                    return (
+                                      <li key={key}>
+                                        <button
+                                          type="button"
+                                          onClick={() => setHighlights((h) => ({ ...h, [key]: !h[key] }))}
+                                          className={cn(
+                                            "w-full rounded-md px-2 py-1 text-left text-sm transition-colors",
+                                            active ? "bg-mint/40 text-night ring-1 ring-mint/60" : "text-foreground/85 hover:bg-white/5",
+                                          )}
+                                        >
+                                          {sub}
+                                        </button>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                              <div className="mt-3 space-y-0.5 text-xs text-muted-foreground">
+                                {levels.map((lv) => {
+                                  const m = lv.label.match(/^([^:]+):\s*(.*)$/);
+                                  const head = m ? m[1] : lv.label;
+                                  const rest = m ? m[2] : "";
+                                  return (
+                                    <div key={lv.label}>
+                                      <span className="font-bold text-foreground">{head}</span>
+                                      {(rest || lv.description) && <span>: </span>}
+                                      {rest && <span>{rest}</span>}
+                                      {lv.description && <span>{rest ? " " : ""}{lv.description}</span>}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <Textarea
+                                value={comments[it.id] ?? ""}
+                                onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
+                                placeholder="Comentário (opcional)"
+                                rows={2}
+                                className="mt-3"
+                                disabled
+                              />
+                            </div>
+                            <div className="flex flex-col items-center gap-1 tabular-nums">
+                              {levels.map((lv, li) => {
+                                const selected = current === lv.points;
+                                const tone = previewLevelTone(li, levels.length);
                                 return (
-                                  <button key={`${L.label}-${li}`} type="button"
-                                    onClick={() => setPepLevels((s) => ({ ...s, [it.id]: L.points }))}
+                                  <button
+                                    key={lv.label}
+                                    type="button"
+                                    onClick={() => setPepLevels((c) => {
+                                      if (c[it.id] === lv.points) {
+                                        const { [it.id]: _discard, ...rest } = c;
+                                        return rest;
+                                      }
+                                      return { ...c, [it.id]: lv.points };
+                                    })}
                                     className={cn(
-                                      "group relative rounded-xl border-2 px-2.5 py-2 text-left transition-all",
-                                      active ? lmeta.activeCls : `bg-card ${lmeta.cls}`,
-                                    )}>
-                                    <div className="flex items-center gap-1.5">
-                                      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", active ? "bg-white" : lmeta.dot)} />
-                                      <span className="text-[11px] font-semibold leading-tight">
-                                        <span className="hidden md:inline">{L.label}</span>
-                                        <span className="md:hidden">{lmeta.short}</span>
-                                      </span>
-                                    </div>
-                                    <div className={cn("mt-1 font-display text-base font-bold tabular-nums", active ? "text-white" : "")}>
-                                      {L.points === 0 ? "0" : L.points % 1 === 0 ? L.points.toFixed(0) : L.points.toFixed(2)}
-                                    </div>
-                                    {L.description && (
-                                      <div className={cn("mt-1 text-[10px] leading-snug", active ? "text-white/90" : "text-muted-foreground")}>
-                                        {L.description}
-                                      </div>
+                                      "flex h-7 w-9 items-center justify-center rounded-md text-sm font-bold transition-colors",
+                                      selected ? tone.active : tone.idle,
                                     )}
+                                    title={lv.label}
+                                  >
+                                    {lv.points}
                                   </button>
                                 );
                               })}
                             </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
 
-                            <Textarea rows={2} placeholder="Observação para este item (opcional)" disabled
-                              className="mt-3 resize-none bg-background/50 text-sm" />
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                  <div className="mt-5 rounded-xl border border-border bg-background/40 p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Comentário final ao candidato
+                    </div>
+                    <Textarea
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      rows={4}
+                      placeholder="Pontos fortes, pontos a melhorar..."
+                      className="mt-2"
+                      disabled
+                    />
+                  </div>
+
+                  {!allScored && items.length > 0 && (
+                    <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                      <span className="font-bold">Atenção:</span> este checklist ainda não foi salvo. Só será salvo uma vez que todos os itens do PEP forem selecionados ({scored}/{items.length}).
+                    </div>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Nota parcial:</span>{" "}
+                      <span className="font-bold text-mint">{earned.toFixed(2)}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)} disabled>
+                        <SelectTrigger className="h-9 w-[180px]">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="em_andamento">Em andamento</SelectItem>
+                          <SelectItem value="aprovado">Aprovado</SelectItem>
+                          <SelectItem value="reprovado">Reprovado</SelectItem>
+                          <SelectItem value="repetir">Pedir repetição</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline" disabled>Salvar rascunho</Button>
+                      <Button variant="hero" disabled>
+                        <Send className="mr-1 h-4 w-4" /> Enviar correção
+                      </Button>
+                    </div>
+                  </div>
+                </PRBlock>
+
+                {(station.educational_goal || station.expected_conduct || station.common_mistakes) && (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAnalysis((v) => !v)}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-gradient-hero px-4 py-3 text-sm font-medium text-white shadow-elegant transition-opacity hover:opacity-90"
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      Análise de resultados
+                      <ChevronDown className={cn("h-4 w-4 transition-transform", showAnalysis && "rotate-180")} />
+                    </button>
+                    {showAnalysis && (
+                      <div className="mt-3 space-y-3">
+                        {station.educational_goal && <SubBlock label="Objetivo educacional">{station.educational_goal}</SubBlock>}
+                        {station.expected_conduct && <SubBlock label="Conduta esperada">{station.expected_conduct}</SubBlock>}
+                        {station.common_mistakes && <SubBlock label="Erros comuns" tone="rose">{station.common_mistakes}</SubBlock>}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {station.bibliographic_references?.length > 0 && (
+                  <PRBlock icon={BookOpen} title="Referências bibliográficas">
+                    <ul className="space-y-2">
+                      {station.bibliographic_references.map((r, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <Link2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-mint" />
+                          {r.url ? (
+                            <a href={r.url} target="_blank" rel="noreferrer" className="break-all text-mint underline-offset-2 hover:underline">
+                              {r.label || r.url}
+                            </a>
+                          ) : (
+                            <span className="text-foreground/90">{r.label}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </PRBlock>
+                )}
+
+                <PRBlock icon={MessageSquareWarning} title="Feedback | Erro, Dúvida ou Sugestão">
+                  <p className="text-sm text-muted-foreground">
+                    Encontrou algum problema ou tem sugestões sobre esta estação? Envie um feedback para a equipe.
+                  </p>
+                  <Button variant="hero" className="mt-3" disabled>
+                    <MessageCircle className="mr-1 h-4 w-4" /> Enviar feedback
+                  </Button>
+                </PRBlock>
               </div>
-            ))}
+
+              <aside className="space-y-3 lg:sticky lg:top-20 lg:self-start">
+                <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+                  <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                    Aguardando início
+                  </div>
+                  <div className="mt-2 rounded-xl bg-white/5 px-5 py-6 text-center transition-colors">
+                    <div className="font-display text-5xl font-bold tabular-nums text-white">
+                      {mm}:00
+                    </div>
+                    <div className="mt-3">
+                      <Select value={String(station.duration_minutes || 10)} disabled>
+                        <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[5, 6, 7, 8, 9, 10].map((m) => (
+                            <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
+                    </div>
+                  </div>
+                  <Button variant="hero" className="mt-3 w-full" disabled>
+                    <Play className="mr-1 h-4 w-4" /> Aguardando candidato...
+                  </Button>
+                  <Button variant="outline" className="mt-2 w-full" disabled>
+                    <Square className="mr-1 h-4 w-4" /> Encerrar estação
+                  </Button>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-4">
+                  <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Resultado
+                  </div>
+                  <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+                    <div className="font-display text-xl font-bold tabular-nums text-mint">
+                      {earned.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-4">
+                  <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Status da avaliação
+                  </div>
+                  <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="em_andamento">Aguardando...</SelectItem>
+                      <SelectItem value="aprovado">Aprovado</SelectItem>
+                      <SelectItem value="reprovado">Reprovado</SelectItem>
+                      <SelectItem value="repetir">Pedir repetição</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Participantes (0)
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                    <UserPlus className="h-4 w-4" />
+                    Aguardando participantes.
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-mint/20 bg-mint/5 p-4">
+                  <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-mint">
+                    <span>Convite do candidato</span>
+                    <Badge variant="outline" className="border-mint/30 text-mint">PRÉVIA</Badge>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs">
+                    <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+                    <span className="truncate">estacaorevalida.com.br/e/PRÉVIA</span>
+                    <Copy className="ml-auto h-3.5 w-3.5 text-muted-foreground" />
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <Button size="sm" variant="outline" disabled>WhatsApp</Button>
+                    <Button size="sm" variant="outline" disabled>E-mail</Button>
+                    <Button size="sm" variant="outline" disabled>Reenviar</Button>
+                  </div>
+                </div>
+              </aside>
+            </div>
           </div>
         )}
-
       </div>
     </div>
   );
