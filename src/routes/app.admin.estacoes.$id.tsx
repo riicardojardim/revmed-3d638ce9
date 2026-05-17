@@ -1201,7 +1201,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">
-              {mode === "candidato" ? "Candidato" : "Ator/Paciente"}
+              {mode === "candidato" ? "Candidato" : mode === "ator" ? "Ator/Paciente" : "Avaliador (PEP)"}
             </span>
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground">{station.specialty}</span>
