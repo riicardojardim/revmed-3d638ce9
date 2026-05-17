@@ -22,7 +22,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/use-subscription";
-import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { serverNow, getServerOffset } from "@/lib/serverClock";
 
 export const Route = createFileRoute("/app/sala/$code/")({
   component: RoomPage,
