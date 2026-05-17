@@ -31,21 +31,29 @@ const ResultSchema = z.object({
   alternatives: z.array(z.string().min(3).max(160)).max(4).default([]),
 });
 
-const SYSTEM_PROMPT = `Você sugere TÍTULOS para estações clínicas (medicina, Revalida/INEP). Português do Brasil.
+const SYSTEM_PROMPT = `Você sugere TÍTULOS para estações clínicas no padrão INEP/Revalida. Português do Brasil.
 
-FORMATO OBRIGATÓRIO:
-"SIGLAS - Texto descritivo curto"
+PADRÃO INEP — siga FIELMENTE estes exemplos reais:
+- "DPOC EXACERBADA - Manejo na Emergência"
+- "IAM COM SUPRA - Diagnóstico e Conduta Inicial"
+- "PRÉ-ECLÂMPSIA GRAVE - Abordagem na Gestação"
+- "ACIDENTE POR ARANHA - Atendimento na Emergência"
+- "TUBERCULOSE PULMONAR - Diagnóstico e Notificação"
+- "COMUNICAÇÃO DE MÁS NOTÍCIAS - Óbito Materno"
+- "INFECÇÃO URINÁRIA NA GESTAÇÃO - Diagnóstico e Conduta"
+
+FORMATO OBRIGATÓRIO: "PARTE EM CAIXA ALTA - Frase descritiva em Title Case"
+- ANTES do hífen: o DIAGNÓSTICO/TEMA central em CAIXA ALTA (ex.: "DPOC EXACERBADA", "IAM COM SUPRA", "SEPSE", "ECLÂMPSIA", "ACIDENTE POR ARANHA"). Pode ser sigla médica consagrada (DPOC, IAM, AVC, HDA, TEP, ITU, HAS, DM2) OU o nome da doença/condição por extenso, sempre em MAIÚSCULAS.
+- DEPOIS do hífen: a AÇÃO PRINCIPAL que o candidato precisa executar, em Title Case (ex.: "Manejo na Emergência", "Diagnóstico e Conduta Inicial", "Abordagem Ambulatorial", "Atendimento ao Politrauma", "Comunicação de Más Notícias").
 
 REGRAS:
-- Mantenha EXATAMENTE as siglas/acrônimos que o usuário já digitou no início do título. Não invente novas siglas, não traduza, não expanda.
-- Se o usuário digitou "JAHSID", o título DEVE começar com "JAHSID - ...".
-- BASE PRIMÁRIA para a descrição: a TAREFA DO CANDIDATO ("candidate_task") e os ITENS DO PEP ("pep_items"). Eles mostram o que de fato será avaliado.
-- BASE SECUNDÁRIA: caso clínico e roteiro do ator (apenas para identificar o diagnóstico/contexto).
-- A descrição deve refletir a AÇÃO PRINCIPAL que o candidato precisa executar (ex.: "manejo inicial", "diagnóstico e conduta", "comunicação de más notícias", "intubação orotraqueal", "punção lombar", "atendimento ao politrauma") + o DIAGNÓSTICO/TEMA quando claro (ex.: "DPOC exacerbada", "IAM com supra", "sepse").
-- Formato da descrição: 3 a 8 palavras, Title Case em português. Ex.: "Manejo da DPOC Exacerbada", "Diagnóstico e Conduta no IAM".
-- NÃO invente dados clínicos. Use só o que está no conteúdo fornecido.
-- Se NÃO houver siglas no título atual, gere apenas o texto descritivo (sem hífen no início).
-- Retorne 1 título principal + até 3 alternativas curtas (variando a ação chave).
+- Se o usuário JÁ digitou siglas/letras maiúsculas no início do título atual, PRESERVE EXATAMENTE essas siglas antes do hífen. Não invente, não traduza, não expanda.
+- Se NÃO houver título atual ou siglas, IDENTIFIQUE o diagnóstico/tema principal a partir do conteúdo e use-o em CAIXA ALTA antes do hífen.
+- BASE PRIMÁRIA: candidate_task + pep_items (mostram o que de fato é avaliado → define a AÇÃO depois do hífen).
+- BASE SECUNDÁRIA: clinical_case + patient_script (identificam o DIAGNÓSTICO antes do hífen).
+- A frase depois do hífen deve ter 2 a 6 palavras em Title Case português.
+- NUNCA invente diagnóstico. Se o tema não estiver claro, use a queixa/situação principal em CAIXA ALTA (ex.: "DOR ABDOMINAL AGUDA - Investigação Inicial").
+- Retorne 1 título principal + até 3 alternativas (variando a ação OU o nome do diagnóstico — ex.: alternar entre sigla e nome por extenso).
 
 Retorne SOMENTE JSON: {"title": "...", "alternatives": ["...", "..."]}`;
 
