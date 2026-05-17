@@ -148,6 +148,8 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - NÃO inclua o TÍTULO da seção (ex.: "INSTRUÇÕES AO ATOR/ATRIZ") — comece direto pelo conteúdo (DADOS PESSOAIS, etc.). O título já aparece no card do preview.
    - Preserve subtítulos, quebras de linha, bullets e ordem do texto original. SEMPRE deixe UMA LINHA EM BRANCO entre cada cabeçalho de seção em CAIXA ALTA (ex.: depois do bloco de "DADOS PESSOAIS", uma linha vazia, depois "MOTIVO DA CONSULTA", etc.).
    - NÃO crie respostas, sintomas, tom, medicações, hábitos ou histórico que não estejam escritos no PDF.
+   - PROIBIDO usar markdown: NÃO envolva labels/palavras com "**" (ex.: ESCREVA "- Febre: Sim", NUNCA "- **Febre:** Sim"). NÃO use "*", "**", "__", "###", "•" nem qualquer marcação. Use apenas texto puro com "-" como bullet, exatamente como no PDF.
+   - PROIBIDO DUPLICAR seções: copie cada bloco UMA ÚNICA VEZ. Se o PDF termina em "HÁBITOS", o patient_script TERMINA ali. NÃO repita "CARACTERÍSTICAS", "SINTOMAS" nem qualquer outro bloco com palavras diferentes ou reformatado. NÃO gere uma "segunda versão" do mesmo conteúdo abaixo do original.
    - Se essa seção NÃO existir ou não estiver legível no PDF, deixe patient_script vazio e NÃO derive a partir da descrição do caso/PEP.
 
 4) patient_profile (estrutura espelha "Acidente por aranha")
