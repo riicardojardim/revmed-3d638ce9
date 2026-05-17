@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Clock, ArrowRight } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/app/estacoes")({
   head: () => ({ meta: [{ title: "Estações — Estação Revalida" }] }),
 });
 
-const difficulties = ["Todas", "Fácil", "Médio", "Difícil"] as const;
+
 
 function normalizeDifficulty(d: string): Station["difficulty"] {
   if (d === "Intermediário") return "Médio";
@@ -28,7 +28,6 @@ type ListStation = Pick<Station, "id" | "title" | "specialty" | "difficulty" | "
 function StationsPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
-  const [diff, setDiff] = useState<(typeof difficulties)[number]>("Todas");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
 
   useEffect(() => {
@@ -65,7 +64,6 @@ function StationsPage() {
   const filtered = all.filter(
     (s) =>
       (spec === "Todas" || s.specialty === spec) &&
-      (diff === "Todas" || s.difficulty === diff) &&
       s.title.toLowerCase().includes(q.toLowerCase()),
   );
 
@@ -108,13 +106,6 @@ function StationsPage() {
             );
           })}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {difficulties.map((d) => (
-            <FilterChip key={d} active={diff === d} onClick={() => setDiff(d)} small>
-              {d}
-            </FilterChip>
-          ))}
-        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -134,11 +125,7 @@ function StationsPage() {
             </div>
             <h3 className="mt-4 font-display text-lg font-bold leading-tight">{s.title}</h3>
             <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" /> {s.durationMinutes} min
-              </span>
-              <span>· {s.difficulty}</span>
-              <span>· {s.checklistCount} itens</span>
+              <span>{s.checklistCount} itens</span>
             </div>
             <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
               {s.clinicalCase}
