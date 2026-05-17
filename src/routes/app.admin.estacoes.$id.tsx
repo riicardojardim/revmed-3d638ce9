@@ -300,7 +300,7 @@ function EditorBody({
           const mergedDeliverables = r.deliverable_materials?.length
             ? r.deliverable_materials.map((m, i) => ({
                 id: `imp${i + 1}`,
-                name: m.name,
+                name: (m.name ?? "").replace(/^\s*impresso\s*\d+\s*[-—–:.)]*\s*/i, "").trim() || (m.type ?? ""),
                 type: m.type || "Impresso",
                 description: m.description ?? "",
                 content: m.content ?? "",
