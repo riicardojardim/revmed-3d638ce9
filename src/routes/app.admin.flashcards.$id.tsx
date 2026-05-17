@@ -215,33 +215,16 @@ function AdminFlashcardEditor() {
         <aside className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
             <h3 className="font-display font-bold">Capa do deck</h3>
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-primary/10 ring-1 ring-border flex items-center justify-center">
-              {deck.cover_image_url ? (
-                <img src={deck.cover_image_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="text-center text-muted-foreground p-4">
-                  <ImageIcon className="h-8 w-8 mx-auto" />
-                  <p className="text-xs mt-2">Sem capa</p>
-                </div>
-              )}
-            </div>
-            <label className="block">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                disabled={uploading}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) void uploadCover(f);
-                  e.target.value = "";
-                }}
-              />
-              <Button variant="outline" className="w-full" disabled={uploading} asChild>
-                <span><Upload className="h-4 w-4" /> {uploading ? "Enviando..." : "Trocar capa"}</span>
-              </Button>
-            </label>
-            <p className="text-[11px] text-muted-foreground">Recomendado: imagem quadrada, mínimo 600×600.</p>
+            <DeckCover
+              title={deck.title || "Título do deck"}
+              specialty={deck.specialty}
+              topic={deck.topic}
+              size="md"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              A capa é gerada automaticamente a partir do título, da área e do tópico.
+              Você só edita os textos — o layout é padrão para todos os decks.
+            </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
