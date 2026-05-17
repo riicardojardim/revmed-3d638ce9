@@ -302,13 +302,39 @@ function SimuladoRunner() {
     });
   }
 
-  function startTimer() {
-    setRunning(true);
+  async function startTimer() {
+    // Mostra a animação institucional no ator e dispara no candidato via room.status
+    setShowIntro(true);
     setFinishedStation(false);
+    if (sim?.roomId) {
+      try {
+        await getServerOffset(true);
+        const startsAtIso = new Date(serverNow() + INTRO_DURATION_MS).toISOString();
+        await supabase.from("training_rooms").update({
+          status: "starting",
+          starting_at: new Date(serverNow()).toISOString(),
+          started_at: startsAtIso,
+          duration_minutes: duration,
+        }).eq("id", sim.roomId);
+      } catch (e) { console.error(e); }
+    }
+  }
+  async function onIntroComplete() {
+    setShowIntro(false);
+    setRunning(true);
+    if (sim?.roomId) {
+      await supabase.from("training_rooms")
+        .update({ status: "running" })
+        .eq("id", sim.roomId)
+        .eq("status", "starting");
+    }
   }
   function finishTimer() {
     setRunning(false);
     setFinishedStation(true);
+    if (sim?.roomId) {
+      supabase.from("training_rooms").update({ status: "finished" }).eq("id", sim.roomId).then(() => {});
+    }
   }
   function deliverMat(matId: string) {
     setDelivered((d) => { const n = new Set(d); n.add(matId); return n; });
