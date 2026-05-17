@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading } from "@/components/station/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
