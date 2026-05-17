@@ -123,29 +123,27 @@ function numberedCategory(index: number, title: string): string {
   return `${index + 1}. ${clean}`;
 }
 
+function cleanPepTitle(value: string): string {
+  return value
+    .replace(/^\s*\d+\s*[.)\-–—]\s*/, "")
+    .replace(/\s*:\s*$/, "")
+    .trim();
+}
+
 /**
- * Clean checklist item description + category coming from AI / PDF import.
- * Removes leading "N." numbering and a leading "Categoria:" prefix from the
- * description. If the explicit category is missing or the generic default
- * ("Anamnese"), infer it from that leading prefix.
+ * Preserve the pasted PEP text literally and use the item's own title as category.
+ * The AI may still return generic labels like "Comunicação"/"Anamnese"; when the
+ * description starts with the original title line, that title always wins.
  */
 function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null): { description: string; category: string } {
-  let desc = (rawDesc ?? "").trim();
-  desc = desc.replace(/^\s*\d+\s*[.)\-–—]\s*/, "");
-  let inferred: string | null = null;
-  const m = desc.match(/^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s/-]{0,40}?):\s*/);
-  if (m) {
-    const candidate = m[1].trim();
-    if (candidate.split(/\s+/).length <= 4) {
-      inferred = candidate;
-      desc = desc.slice(m[0].length).trim();
-    }
-  }
-  const explicit = (rawCategory ?? "").replace(/^\s*\d+\.\s*/, "").trim();
-  const isGeneric = !explicit || /^anamnese$/i.test(explicit);
-  const chosen = (!isGeneric ? explicit : (inferred ?? explicit)) || "Anamnese";
-  const niceCategory = chosen.charAt(0).toUpperCase() + chosen.slice(1);
-  return { description: desc, category: niceCategory };
+  const desc = (rawDesc ?? "").trim();
+  const firstLine = desc.split(/\r?\n/).map((line) => line.trim()).find(Boolean) ?? "";
+  const titleMatch = firstLine.match(/^(?:\d+\s*[.)\-–—]\s*)?(.{2,180}?):\s*(?:$|(?=\(?\d+\)?\s))/);
+  const title = titleMatch ? cleanPepTitle(titleMatch[1]) : "";
+  const legacyPresentation = /identifica-se/i.test(desc) && /cumprimenta\s+o\s+paciente/i.test(desc) ? "Apresentação" : "";
+  const explicit = cleanPepTitle(rawCategory ?? "");
+  const chosen = title || legacyPresentation || explicit || "Sem categoria";
+  return { description: desc, category: chosen.charAt(0).toUpperCase() + chosen.slice(1) };
 }
 
 function fileToDataUrl(file: File): Promise<string> {
