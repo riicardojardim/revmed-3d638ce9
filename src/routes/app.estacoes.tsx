@@ -4,7 +4,7 @@ import { Search, Clock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { STATIONS, SPECIALTIES, type Specialty, type Station } from "@/data/stations";
+import { SPECIALTIES, type Specialty, type Station } from "@/data/stations";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
