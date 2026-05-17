@@ -42,20 +42,18 @@ function TrainPage() {
   const { plan, isPrivileged } = useSubscription();
   const canSaveSimulado = isPrivileged || (!!plan && !plan.expired && plan.slug === "completo");
   const nav = useNavigate();
-  const [search, setSearch] = useState("");
-  const [specialty, setSpecialty] = useState<string>("all");
-  const [busy, setBusy] = useState(false);
-  const [lastCode, setLastCode] = useState<string | null>(null);
   const [stations, setStations] = useState<DBStation[]>([]);
   const [, setLoading] = useState(true);
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpecialty, setAllSpecialty] = useState<string>("all");
-  const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<DBStation[]>([]);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [simName, setSimName] = useState("");
   const [simulados, setSimulados] = useState<Simulado[]>([]);
+
+  // Always in select-mode: this page only creates simulados, no individual "Iniciar"
+  const selectMode = true;
 
   function toggleSelected(s: DBStation) {
     setSelected((prev) => prev.find((x) => x.id === s.id)
@@ -72,23 +70,23 @@ function TrainPage() {
     });
   }
   function openSelectMode() {
-    setSelectMode(true);
     setSelected([]);
     setAllOpen(true);
   }
   function startSimulado() {
+    if (!user) { toast.error("Faça login para criar um simulado."); return; }
     if (selected.length === 0) {
       toast.error("Adicione pelo menos um checklist.");
       return;
     }
     const today = new Date().toLocaleDateString("pt-BR");
     const sim = createSimulado(
+      user.id,
       simName.trim() || `Simulado ${today}`,
       selected.map((s) => ({ id: s.id, title: s.title, specialty: s.specialty })),
     );
     setReviewOpen(false);
     setAllOpen(false);
-    setSelectMode(false);
     setSelected([]);
     setSimName("");
     nav({ to: "/app/simulado/$id", params: { id: sim.id } });
@@ -105,7 +103,8 @@ function TrainPage() {
   }, [stations, allSearch, allSpecialty]);
 
   useEffect(() => {
-    const refresh = () => setSimulados(listSimulados());
+    if (!user) { setSimulados([]); return; }
+    const refresh = () => setSimulados(listSimulados(user.id));
     refresh();
     window.addEventListener("estacao:simulados", refresh);
     window.addEventListener("storage", refresh);
@@ -113,7 +112,7 @@ function TrainPage() {
       window.removeEventListener("estacao:simulados", refresh);
       window.removeEventListener("storage", refresh);
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     (async () => {
@@ -128,38 +127,6 @@ function TrainPage() {
   }, []);
 
   const specialties = Array.from(new Set(stations.map((s) => s.specialty)));
-  const filtered = stations.filter((s) => {
-    const matchText = s.title.toLowerCase().includes(search.toLowerCase());
-    const matchSpec = specialty === "all" || s.specialty === specialty;
-    return matchText && matchSpec;
-  });
-
-  async function startStation(stationId: string) {
-    if (!user) return toast.error("Faça login para criar uma sala.");
-    const st = stations.find((s) => s.id === stationId);
-    if (!st) return toast.error("Estação não encontrada.");
-    setBusy(true);
-    const code = genCode();
-    const { data, error } = await supabase.from("training_rooms")
-      .insert({ code, host_id: user.id, station_id: st.id, station_title: st.title, mode: "dupla" })
-      .select("id, code").single();
-    if (error || !data) {
-      setBusy(false);
-      return toast.error(error?.message ?? "Falha ao criar sala.");
-    }
-    // Ator entra automaticamente como paciente/ator — sem escolha de papel
-    await supabase.from("training_room_participants")
-      .insert({ room_id: data.id, user_id: user.id, role: "paciente" });
-    setBusy(false);
-    setLastCode(data.code);
-    nav({ to: "/app/sala/$code/paciente", params: { code: data.code } });
-  }
-
-  function copyLastCode() {
-    if (!lastCode) return;
-    navigator.clipboard.writeText(lastCode);
-    toast.success("Código copiado");
-  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
