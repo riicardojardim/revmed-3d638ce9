@@ -1552,6 +1552,38 @@ function InlineDeckPreview({ deck }: { deck: GeneratedDeck }) {
                 Próximo <ChevronDown className="h-4 w-4 rotate-[-90deg]" />
               </Button>
             </div>
+
+            {revealed && (
+              <div className="mt-1 flex flex-col items-center gap-2">
+                <p className="text-xs text-muted-foreground">Como o aluno autoavalia (apenas demonstração)</p>
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => index < total - 1 && go(1)}
+                    title="Errei / De novo"
+                    className="h-12 w-12 rounded-full bg-rose-500/15 hover:bg-rose-500/25 text-rose-500 text-xl flex items-center justify-center transition"
+                  >
+                    😕
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => index < total - 1 && go(1)}
+                    title="Difícil"
+                    className="h-12 w-12 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-xl flex items-center justify-center transition"
+                  >
+                    😐
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => index < total - 1 && go(1)}
+                    title="Fácil"
+                    className="h-12 w-12 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-500 text-xl flex items-center justify-center transition"
+                  >
+                    😄
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-sm text-muted-foreground">Nenhum card gerado.</div>
