@@ -336,8 +336,27 @@ function SimuladoRunner() {
       supabase.from("training_rooms").update({ status: "finished" }).eq("id", sim.roomId).then(() => {});
     }
   }
-  function deliverMat(matId: string) {
+  async function deliverMat(matId: string) {
+    if (!station || !user) return;
+    const m = (station.deliverableMaterials ?? []).find((x) => x.id === matId);
+    if (!m) return;
+    if (!sim?.roomId) {
+      toast.error("Sala ainda não está pronta. Tente novamente em instantes.");
+      return;
+    }
+    const { error } = await supabase.from("room_material_deliveries").insert({
+      room_id: sim.roomId,
+      material_id: m.id,
+      material_name: m.name,
+      material_type: m.type,
+      material_description: m.description ?? null,
+      material_content: m.content,
+      material_image_url: m.imageUrl ?? null,
+      delivered_by: user.id,
+    });
+    if (error) { toast.error(error.message); return; }
     setDelivered((d) => { const n = new Set(d); n.add(matId); return n; });
+    toast.success(`Entregue: ${m.name}`);
   }
 
   function goNext() {
