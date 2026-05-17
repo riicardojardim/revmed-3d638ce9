@@ -15,10 +15,22 @@ const InputSchema = z.object({
     .max(5),
 });
 
-const stringOrUndefined = z.string().nullish().transform((value) => value ?? undefined);
-const stringOrEmpty = z.string().nullish().transform((value) => value ?? "");
-const numberOrUndefined = z.number().nullish().transform((value) => value ?? undefined);
-const numberOrZero = z.number().nullish().transform((value) => value ?? 0);
+const stringOrUndefined = z
+  .string()
+  .nullish()
+  .transform((value) => value ?? undefined);
+const stringOrEmpty = z
+  .string()
+  .nullish()
+  .transform((value) => value ?? "");
+const numberOrUndefined = z
+  .number()
+  .nullish()
+  .transform((value) => value ?? undefined);
+const numberOrZero = z
+  .number()
+  .nullish()
+  .transform((value) => value ?? 0);
 const stringArrayOrUndefined = z
   .array(stringOrUndefined)
   .nullish()
