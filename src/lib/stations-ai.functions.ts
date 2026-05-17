@@ -206,7 +206,7 @@ async function callGateway(
             content: [
               {
                 type: "text",
-                text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Não deixe de extrair: instruções do ator (patient_script), TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
+              text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Antes do JSON, localize mentalmente os cabeçalhos "CENÁRIO DE ATENDIMENTO", "DESCRIÇÃO DO CASO" e "INSTRUÇÕES AO ATOR" e copie cada seção para seu campo correto. Não derive nem invente orientações do ator; se não conseguir transcrever fielmente a seção do ator, deixe patient_script vazio. Não deixe de extrair TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
               },
               { type: "image_url", image_url: { url: pdfDataUrl } },
             ],
@@ -246,15 +246,14 @@ async function callGateway(
 }
 
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // Try flash first (fast); fallback to pro on timeout/upstream errors
+  // Use the stronger model first because this flow needs faithful PDF transcription.
   try {
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
     if (!isTimeout) throw err;
-    // retry once with pro and longer budget
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
   }
 }
 
