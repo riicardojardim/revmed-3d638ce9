@@ -13,14 +13,21 @@ import {
   GraduationCap,
   Brain,
   BookOpen,
-  ShieldCheck,
   Activity,
-  X,
   LayoutDashboard,
   Users,
   CreditCard,
   Stethoscope,
   FileStack,
+  Calendar,
+  DoorOpen,
+  Video,
+  Sparkles,
+  Clock,
+  MessageSquare,
+  Headphones,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,53 +37,123 @@ export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
 
-const baseNavItems = [
-  { to: "/app", label: "Início", icon: Home, exact: true },
-  { to: "/app/estacoes", label: "Estações", icon: ClipboardList, exact: false },
-  { to: "/app/treinar", label: "Treinar", icon: Dumbbell, exact: false },
-  { to: "/app/flashcards", label: "Flashcards", icon: Brain, exact: false },
-  { to: "/app/resumos", label: "Resumos", icon: BookOpen, exact: false },
-  { to: "/app/progresso", label: "Progresso", icon: TrendingUp, exact: false },
-  { to: "/app/perfil", label: "Perfil", icon: User, exact: false },
-] as const;
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof Home;
+  exact?: boolean;
+  badge?: string;
+  children?: { to: string; label: string }[];
+};
 
-type NavItem = { to: string; label: string; icon: typeof Home; exact: boolean };
+type NavSection = { label?: string; items: NavItem[] };
 
 function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const { user, loading, profile, roles, signOut } = useAuth();
-  const { plan } = useSubscription();
+  const { plan, isPrivileged } = useSubscription();
 
-  const isTeacher = roles.includes("professor") || roles.includes("admin");
   const isAdmin = roles.includes("admin");
+  const isTeacher = roles.includes("professor") || isAdmin;
   const isAtorOnly = plan?.slug === "ator" && !plan.expired;
+  const isCompleto = isPrivileged || (!!plan && !plan.expired && plan.slug === "completo");
 
-  const candidateItems = baseNavItems.slice(0, baseNavItems.length - 1);
-  const profileItem = baseNavItems[baseNavItems.length - 1];
+  // Build sidebar sections based on plan
+  let sections: NavSection[] = [];
 
-  const adminNavItems: NavItem[] = [
-    { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
-    { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope, exact: false },
-    { to: "/app/admin/usuarios", label: "Usuários", icon: Users, exact: false },
-    { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack, exact: false },
-    { to: "/app/admin/planos", label: "Planos", icon: CreditCard, exact: false },
-    { to: "/app/perfil", label: "Perfil", icon: User, exact: false },
-  ];
+  if (isAdmin && pathname.startsWith("/app/admin")) {
+    sections = [
+      {
+        items: [
+          { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
+          { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope },
+          { to: "/app/admin/usuarios", label: "Usuários", icon: Users },
+          { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
+          { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
+          { to: "/app/perfil", label: "Perfil", icon: User },
+        ],
+      },
+    ];
+  } else if (isAtorOnly) {
+    sections = [
+      {
+        items: [
+          { to: "/app", label: "Início", icon: Home, exact: true },
+          { to: "/app/treinar", label: "Salas", icon: Dumbbell },
+          { to: "/app/perfil", label: "Perfil", icon: User },
+        ],
+      },
+    ];
+  } else if (isCompleto) {
+    // Pense-style sectioned sidebar for Completo / privileged
+    sections = [
+      { items: [{ to: "/app", label: "Dashboard", icon: Home, exact: true }] },
+      {
+        label: "Checklist & Flashcard",
+        items: [
+          { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
+          { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
+            { to: "/app/flashcards", label: "Flashcards" },
+            { to: "/app/flashcards/revisao", label: "Revisão" },
+          ]},
+          { to: "/app/resumos", label: "Pense Resumos", icon: BookOpen, badge: "New" },
+          { to: "/app/cronograma", label: "Cronograma", icon: Calendar, badge: "New" },
+          { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
+          { to: "/app/live", label: "Live - Parceiros", icon: Video },
+          { to: "/app/novidades", label: "Novidades", icon: Sparkles },
+        ],
+      },
+      {
+        label: "Sala de treino",
+        items: [{ to: "/app/treinar", label: "Salas", icon: Dumbbell }],
+      },
+      {
+        label: "Pense Curso",
+        items: [{ to: "/app/aulas", label: "Aulas", icon: GraduationCap }],
+      },
+      {
+        label: "Desempenho",
+        items: [
+          { to: "/app/progresso", label: "Meus Desempenhos", icon: TrendingUp },
+          { to: "/app/historico", label: "Histórico", icon: Clock },
+        ],
+      },
+      ...(isTeacher
+        ? [{
+            label: "Área da mentoria",
+            items: [{ to: "/app/professor", label: "Painel do Professor", icon: GraduationCap } as NavItem],
+          }]
+        : []),
+      {
+        label: "Contato",
+        items: [
+          { to: "/app/feedback", label: "Feedback", icon: MessageSquare },
+          { to: "/app/suporte", label: "Suporte", icon: Headphones },
+        ],
+      },
+      { items: [{ to: "/app/perfil", label: "Perfil", icon: User }] },
+    ];
+  } else {
+    // Free / default candidato
+    sections = [
+      {
+        items: [
+          { to: "/app", label: "Início", icon: Home, exact: true },
+          { to: "/app/estacoes", label: "Estações", icon: ClipboardList },
+          { to: "/app/treinar", label: "Treinar", icon: Dumbbell },
+          { to: "/app/flashcards", label: "Flashcards", icon: Brain },
+          { to: "/app/resumos", label: "Resumos", icon: BookOpen },
+          { to: "/app/progresso", label: "Progresso", icon: TrendingUp },
+          ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
+          { to: "/app/perfil", label: "Perfil", icon: User },
+        ],
+      },
+    ];
+  }
 
-  const navItems: NavItem[] = isAdmin
-    ? adminNavItems
-    : isAtorOnly
-    ? [
-        { to: "/app", label: "Início", icon: Home, exact: true },
-        { to: "/app/treinar", label: "Salas", icon: Dumbbell, exact: false },
-        profileItem,
-      ]
-    : [
-        ...candidateItems,
-        ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap, exact: false }] : []),
-        profileItem,
-      ];
+  // Mobile bottom nav: flatten top-level
+  const flatNav: NavItem[] = sections.flatMap((s) => s.items);
 
   const [activeRoom, setActiveRoom] = useState<{ code: string; title: string } | null>(null);
   useEffect(() => {
@@ -94,14 +171,6 @@ function AppLayout() {
       window.removeEventListener("storage", read);
     };
   }, []);
-  function clearActiveRoom(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      localStorage.removeItem("ator:activeRoom");
-      window.dispatchEvent(new Event("ator:activeRoom"));
-    } catch {}
-  }
 
   useEffect(() => {
     if (!loading && !user) nav({ to: "/login" });
@@ -113,7 +182,7 @@ function AppLayout() {
     }
   }, [loading, user, isAdmin, pathname, nav]);
 
-  const isActive = (to: string, exact: boolean) =>
+  const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
   async function handleLogout() {
@@ -138,45 +207,84 @@ function AppLayout() {
         <div className="px-6 py-5">
           <Logo />
         </div>
-        <nav className="flex-1 space-y-1 px-3">
-          {navItems.map((n) => {
-            const active = isActive(n.to, n.exact);
-            const isSalas = n.to === "/app/treinar";
-            return (
-              <div key={n.to}>
-                <Link
-                  to={n.to}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                    active
-                      ? "bg-mint/10 text-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  <n.icon className={`h-5 w-5 ${active ? "text-mint" : ""}`} />
-                  {n.label}
-                </Link>
-                {isSalas && activeRoom && (
-                  <div className="ml-3 mt-1 border-l border-mint/30 pl-3">
-                    <Link
-                      to="/app/sala/$code/paciente"
-                      params={{ code: activeRoom.code }}
-                      className={`group flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
-                        pathname.startsWith(`/app/sala/${activeRoom.code}`)
-                          ? "bg-mint/15 text-foreground"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
-                    >
-                      <Activity className="h-3.5 w-3.5 text-mint" />
-                      <span className="flex-1 truncate">Treinamento</span>
-                    </Link>
-                    <div className="px-2.5 pb-1 pt-0.5 text-[10px] font-mono uppercase tracking-wider text-mint/80">
-                      {activeRoom.code}
+        <nav className="flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+          {sections.map((section, si) => (
+            <div key={si}>
+              {section.label && (
+                <div className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  {section.label}
+                </div>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((n) => {
+                  const active = isActive(n.to, n.exact);
+                  const isSalas = n.to === "/app/treinar";
+                  const hasChildren = !!n.children?.length;
+                  const childActive = hasChildren && n.children!.some((c) => isActive(c.to, true));
+                  return (
+                    <div key={n.to}>
+                      <Link
+                        to={n.to}
+                        className={`group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all ${
+                          active || childActive
+                            ? "bg-mint/10 text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <n.icon className={`h-[18px] w-[18px] ${active || childActive ? "text-mint" : ""}`} />
+                        <span className="flex-1 truncate">{n.label}</span>
+                        {n.badge && (
+                          <span className="rounded-md bg-mint/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-medical">
+                            {n.badge}
+                          </span>
+                        )}
+                        {hasChildren && (childActive
+                          ? <ChevronDown className="h-3.5 w-3.5" />
+                          : <ChevronRight className="h-3.5 w-3.5" />)}
+                      </Link>
+                      {hasChildren && childActive && (
+                        <div className="ml-7 mt-0.5 space-y-0.5 border-l border-border pl-3">
+                          {n.children!.map((c) => {
+                            const cActive = isActive(c.to, true);
+                            return (
+                              <Link
+                                key={c.to}
+                                to={c.to}
+                                className={`block rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                                  cActive ? "text-mint" : "text-muted-foreground hover:text-foreground"
+                                }`}
+                              >
+                                {c.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {isSalas && activeRoom && (
+                        <div className="ml-7 mt-1 border-l border-mint/30 pl-3">
+                          <Link
+                            to="/app/sala/$code/paciente"
+                            params={{ code: activeRoom.code }}
+                            className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
+                              pathname.startsWith(`/app/sala/${activeRoom.code}`)
+                                ? "bg-mint/15 text-foreground"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            }`}
+                          >
+                            <Activity className="h-3.5 w-3.5 text-mint" />
+                            <span className="flex-1 truncate">Treinamento</span>
+                          </Link>
+                          <div className="px-2.5 pb-1 pt-0.5 text-[10px] font-mono uppercase tracking-wider text-mint/80">
+                            {activeRoom.code}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </nav>
         <div className="border-t border-border p-3">
           <button
@@ -212,7 +320,7 @@ function AppLayout() {
         {/* Mobile bottom nav */}
         <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
           <div className="flex overflow-x-auto no-scrollbar">
-            {navItems.map((n) => {
+            {flatNav.slice(0, 6).map((n) => {
               const active = isActive(n.to, n.exact);
               return (
                 <Link
