@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText } from "@/components/station/shared";
@@ -48,6 +48,7 @@ function CandidateView() {
   const [introDone, setIntroDone] = useState(false);
   const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null } | null>(null);
   const [hideTimer, setHideTimer] = useState(false);
+  const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
 
@@ -336,34 +337,46 @@ function CandidateView() {
               </p>
             ) : (
               <div className="space-y-3">
-                {visibleDeliveries.map((d) => (
-                  <div key={d.id} className="rounded-xl border border-mint/40 bg-mint/5 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5 text-sm font-semibold">
-                          <FileText className="h-4 w-4 text-mint" /> {(() => { const n = (d.material_name || "").trim(); return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : n; })()}
+                {visibleDeliveries.map((d) => {
+                  const isOpen = openDeliveries[d.id] ?? false;
+                  return (
+                    <div key={d.id} className="rounded-xl border border-mint/40 bg-mint/5">
+                      <button
+                        type="button"
+                        onClick={() => setOpenDeliveries((s) => ({ ...s, [d.id]: !isOpen }))}
+                        className="flex w-full items-start justify-between gap-2 p-4 text-left"
+                      >
+                        <div>
+                          <div className="flex items-center gap-1.5 text-sm font-semibold">
+                            <FileText className="h-4 w-4 text-mint" /> {(() => { const n = (d.material_name || "").trim(); return n ? n.charAt(0).toUpperCase() + n.slice(1).toLowerCase() : n; })()}
+                          </div>
+                          {d.material_type && <div className="text-xs text-muted-foreground">{d.material_type}</div>}
+                          {!isOpen && <div className="mt-1 text-[11px] text-muted-foreground">clique para ver o conteúdo</div>}
                         </div>
-                        {d.material_type && <div className="text-xs text-muted-foreground">{d.material_type}</div>}
-                      </div>
-                      <Sparkles className="h-4 w-4 text-mint" />
+                        {isOpen ? <ChevronUp className="h-4 w-4 text-mint" /> : <ChevronDown className="h-4 w-4 text-mint" />}
+                      </button>
+                      {isOpen && (
+                        <div className="px-4 pb-4">
+                          {d.material_description && (
+                            <div className="text-xs text-muted-foreground">{d.material_description}</div>
+                          )}
+                          {d.material_content && (
+                            <div className="mt-3 rounded-lg bg-background/60 p-3 text-sm">
+                              <ScriptText text={d.material_content} />
+                            </div>
+                          )}
+                          {d.material_image_url && (
+                            <img
+                              src={d.material_image_url}
+                              alt={d.material_name || "Material"}
+                              className="mt-3 w-full rounded-lg border border-border object-contain"
+                            />
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {d.material_description && (
-                      <div className="mt-2 text-xs text-muted-foreground">{d.material_description}</div>
-                    )}
-                    {d.material_content && (
-                      <div className="mt-3 rounded-lg bg-background/60 p-3 text-sm">
-                        <ScriptText text={d.material_content} />
-                      </div>
-                    )}
-                    {d.material_image_url && (
-                      <img
-                        src={d.material_image_url}
-                        alt={d.material_name || "Material"}
-                        className="mt-3 w-full rounded-lg border border-border object-contain"
-                      />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </PRBlock>
