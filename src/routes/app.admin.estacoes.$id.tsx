@@ -1437,6 +1437,7 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
         cards: ((cs ?? []) as GeneratedCard[]).map((c) => ({ id: c.id, front: c.front, back: c.back })),
       });
       toast.success(`Deck pronto com ${res.count} cards!`);
+      void loadLinked();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error("Falha ao gerar flashcards", { description: msg });
