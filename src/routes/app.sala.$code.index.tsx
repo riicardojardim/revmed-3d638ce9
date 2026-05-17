@@ -11,7 +11,6 @@ import {
   Crown,
   Stethoscope,
   UserRound,
-  ClipboardCheck,
   Lock,
   CheckCircle2,
   Circle,
