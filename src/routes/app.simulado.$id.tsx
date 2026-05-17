@@ -478,7 +478,7 @@ function SimuladoRunner() {
                         <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform mt-1", isOpen && "rotate-180")} />
                       </button>
                       {isOpen && (
-                        <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
+                        <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed">
                           {isRhythm && (
                             <button type="button" onClick={() => setZoomImage({ src: ecgRitmoSinusal, alt: "Traçado de ECG" })} className="mb-3 block w-full group relative">
                               <img src={ecgRitmoSinusal} alt="Traçado de ECG" className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90" />
@@ -491,7 +491,20 @@ function SimuladoRunner() {
                               <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
                             </button>
                           )}
-                          {m.content || (!isRhythm && !isSpider && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
+                          {m.imageUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: m.imageUrl!, alt: m.name || "Material" })}
+                              className="mb-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img src={m.imageUrl} alt={m.name || "Material"} className="block w-full h-auto rounded-md border border-border transition-opacity group-hover:opacity-90" />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
+                          )}
+                          {m.content
+                            ? <ScriptText text={m.content} />
+                            : (!isRhythm && !isSpider && !m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
                         </div>
                       )}
                       <div className="mt-auto pt-3">
