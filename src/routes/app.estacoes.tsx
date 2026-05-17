@@ -50,11 +50,20 @@ function StationsPage() {
           <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")}>
             Todas as áreas
           </FilterChip>
-          {SPECIALTIES.map((s) => (
-            <FilterChip key={s} active={spec === s} onClick={() => setSpec(s)}>
-              {s}
-            </FilterChip>
-          ))}
+          {SPECIALTIES.map((s) => {
+            const meta = getSpecialtyMeta(s);
+            return (
+              <FilterChip
+                key={s}
+                active={spec === s}
+                onClick={() => setSpec(s)}
+                accentClass={meta.solid}
+              >
+                <span className={`inline-block h-2 w-2 rounded-full ${meta.solid}`} />
+                {s}
+              </FilterChip>
+            );
+          })}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {difficulties.map((d) => (
