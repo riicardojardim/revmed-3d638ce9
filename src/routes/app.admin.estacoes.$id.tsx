@@ -296,8 +296,8 @@ function EditorBody({
         </Link>
         <div className="flex flex-wrap gap-2">
           <GrammarReviewButton
-            station={station}
-            items={items}
+            station={station as never}
+            items={items as never}
             setStation={setStation as never}
             setItems={setItems as never}
           />
