@@ -123,6 +123,16 @@ function numberedCategory(index: number, title: string): string {
   return `${index + 1}. ${clean}`;
 }
 
+function formatPepHeading(index: number, category: string | null | undefined, description: string): string {
+  const cleanCategory = (category ?? "").replace(/^\s*\d+\s*[.)\-–—]\s*/, "").trim();
+  if (cleanCategory) {
+    const needsPunctuation = !/[:.;!?]$/.test(cleanCategory);
+    const punctuation = needsPunctuation ? (/\(\d+\)\s*/.test(description) ? ":" : ".") : "";
+    return `${index + 1}. ${cleanCategory}${punctuation}`;
+  }
+  return numberedCategory(index, description.replace(/^\s*\d+\s*[.)\-–—]\s*/, "").trim());
+}
+
 function cleanPepTitle(value: string): string {
   return value
     .replace(/^\s*\d+\s*[.)\-–—]\s*/, "")
@@ -161,7 +171,7 @@ function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null):
   const legacyPresentation = /identifica-se/i.test(desc) && /cumprimenta\s+o\s+paciente/i.test(desc) ? "Apresentação" : "";
   const explicit = cleanPepTitle(rawCategory ?? "");
   const chosen = title || legacyPresentation || explicit || "Sem categoria";
-  return { description: cleanedDescription, category: chosen.charAt(0).toUpperCase() + chosen.slice(1) };
+  return { description: cleanedDescription, category: chosen };
 }
 
 function fileToDataUrl(file: File): Promise<string> {
