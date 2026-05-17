@@ -75,7 +75,7 @@ function AdminContent() {
                 <div key={f.id} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="border-medical/30 text-medical">{f.specialty}</Badge>
+                      <SpecialtyBadge specialty={f.specialty} />
                       {f.published ? <Badge className="bg-success/15 text-success hover:bg-success/15">Publicado</Badge> : <Badge variant="outline" className="border-warning/30 text-warning">Rascunho</Badge>}
                     </div>
                     <div className="mt-1 truncate text-sm">{f.front}</div>
