@@ -6,50 +6,56 @@ type Props = {
   title: string;
   specialty: string;
   topic?: string | null;
+  /** Mantido por compatibilidade — o layout é fluido via container query. */
   size?: "sm" | "md" | "lg";
   className?: string;
 };
 
 /**
  * Capa padrão dos decks de Flashcard.
- * Layout fixo — admin só edita os textos. Fundo azul gradiente da marca
- * + logo Estação Revalida.
+ * Layout fixo e 100% fluido: tudo escala com o tamanho do container
+ * (container queries + unidades cqi). Funciona perfeito em qualquer
+ * tamanho — do thumbnail (64px) até a tela cheia.
  */
-export function DeckCover({ title, specialty, topic, size = "lg", className }: Props) {
+export function DeckCover({ title, specialty, topic, className }: Props) {
   const meta = getSpecialtyMeta(specialty);
-  const isSm = size === "sm";
 
   return (
     <div
       className={cn(
-        "relative aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10 text-white",
+        "@container relative aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10 text-white",
         "bg-[radial-gradient(120%_120%_at_0%_0%,#1e6fb8_0%,#0f4c81_38%,#0a2a4a_72%,#07111f_100%)]",
         "shadow-elegant",
         className,
       )}
     >
       {/* Glow accent na cor da especialidade */}
-      <div className={cn("absolute -top-1/3 -right-1/3 h-2/3 w-2/3 rounded-full blur-3xl opacity-50", meta.solid)} />
-      <div className="absolute -bottom-1/4 -left-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-30 bg-mint" />
+      <div className={cn("pointer-events-none absolute -top-1/3 -right-1/3 h-2/3 w-2/3 rounded-full blur-3xl opacity-50", meta.solid)} />
+      <div className="pointer-events-none absolute -bottom-1/4 -left-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-30 bg-mint" />
 
-      {/* Grid sutil */}
+      {/* Grid sutil — densidade proporcional ao container */}
       <div
-        className="absolute inset-0 opacity-[0.07]"
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage:
             "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
+          backgroundSize: "10cqi 10cqi",
         }}
       />
 
-      <div className={cn("relative flex h-full flex-col", isSm ? "p-2" : "p-5")}>
+      <div
+        className="relative flex h-full flex-col"
+        style={{ padding: "6cqi" }}
+      >
         {/* Top: badge especialidade + logo */}
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-[2cqi]">
           <span
-            className={cn(
-              "inline-flex items-center justify-center rounded-md font-bold tracking-wider bg-white/15 ring-1 ring-white/25 text-white backdrop-blur-sm",
-              isSm ? "px-1 py-0.5 text-[8px]" : "px-2 py-1 text-xs",
-            )}
+            className="inline-flex items-center justify-center rounded-md font-bold tracking-wider bg-white/15 ring-1 ring-white/25 text-white backdrop-blur-sm"
+            style={{
+              padding: "1.2cqi 2.2cqi",
+              fontSize: "max(8px, 4.2cqi)",
+              lineHeight: 1,
+            }}
           >
             {meta.code}
           </span>
@@ -57,40 +63,42 @@ export function DeckCover({ title, specialty, topic, size = "lg", className }: P
             src={logoStackedUrl}
             alt=""
             draggable={false}
-            className={cn(
-              "select-none object-contain opacity-95 drop-shadow",
-              isSm ? "h-5" : size === "md" ? "h-10" : "h-14",
-            )}
+            className="select-none object-contain opacity-95 drop-shadow"
+            style={{ height: "18cqi", maxHeight: "72px" }}
           />
         </div>
 
         {/* Centro: título grande */}
-        <div className="flex flex-1 flex-col justify-center">
+        <div className="flex flex-1 flex-col justify-center min-h-0">
           <h3
-            className={cn(
-              "font-display font-black leading-[1.05] text-white",
-              isSm ? "text-[11px]" : size === "md" ? "text-xl" : "text-3xl md:text-4xl",
-            )}
+            className="font-display font-black leading-[1.05] text-white break-words"
+            style={{ fontSize: "max(11px, 9cqi)" }}
           >
             {title}
           </h3>
-          {!isSm && (
-            <div className={cn("mt-2 h-1 rounded-full bg-mint", size === "md" ? "w-10" : "w-14")} />
-          )}
+          {/* Divider mint — fica oculto em containers muito pequenos */}
+          <div
+            className="mt-[2cqi] hidden @[140px]:block rounded-full bg-mint"
+            style={{ height: "1.2cqi", width: "14cqi" }}
+          />
         </div>
 
-        {/* Rodapé: especialidade · tópico */}
-        {!isSm && (
-          <div className="space-y-1">
-            <div className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] text-white/90">
-              {specialty}
-              {topic ? <span className="font-normal text-white/60"> · {topic}</span> : null}
-            </div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-              Flashcards · Estação Revalida
-            </div>
+        {/* Rodapé: especialidade · tópico (oculto em containers minúsculos) */}
+        <div className="hidden @[120px]:block space-y-[1cqi]">
+          <div
+            className="font-semibold uppercase tracking-[0.18em] text-white/90"
+            style={{ fontSize: "max(9px, 3.6cqi)" }}
+          >
+            {specialty}
+            {topic ? <span className="font-normal text-white/60"> · {topic}</span> : null}
           </div>
-        )}
+          <div
+            className="hidden @[200px]:block uppercase tracking-[0.22em] text-white/50"
+            style={{ fontSize: "max(8px, 2.6cqi)" }}
+          >
+            Flashcards · Estação Revalida
+          </div>
+        </div>
       </div>
     </div>
   );
