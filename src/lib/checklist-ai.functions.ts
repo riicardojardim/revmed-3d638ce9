@@ -218,6 +218,11 @@ export const parseChecklistBulk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data }) => {
+    const literalItems = data.text ? parseChecklistTextLiterally(data.text.trim()) : [];
+    if (literalItems.length > 0 && !(data.files?.length)) {
+      return { checklist_items: literalItems };
+    }
+
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
