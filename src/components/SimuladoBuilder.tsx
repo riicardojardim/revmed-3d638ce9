@@ -17,6 +17,7 @@ type StationOption = { id: string; title: string; specialty: string };
 
 export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const nav = useNavigate();
+  const { user } = useAuth();
   const [stations, setStations] = useState<StationOption[]>([]);
   const [name, setName] = useState("");
   const [search, setSearch] = useState("");
