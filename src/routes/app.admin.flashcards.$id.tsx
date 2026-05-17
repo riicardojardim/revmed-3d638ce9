@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, ChevronUp, ChevronDown, PlaySquare } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
+import { DeckPreview } from "@/components/flashcards/DeckPreview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +53,7 @@ function AdminFlashcardEditor() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   
 
   async function load() {
@@ -184,7 +186,10 @@ function AdminFlashcardEditor() {
         <Link to="/app/admin/flashcards" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar para decks
         </Link>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setPreviewOpen(true)}>
+            <PlaySquare className="h-4 w-4" /> Pré-visualizar
+          </Button>
           <Button variant="outline" onClick={togglePublish}>
             {deck.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
@@ -304,6 +309,15 @@ function AdminFlashcardEditor() {
           )}
         </div>
       </div>
+
+      <DeckPreview
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={deck.title}
+        specialty={deck.specialty}
+        topic={deck.topic}
+        cards={cards.map((c) => ({ id: c.id, front: c.front, back: c.back }))}
+      />
     </div>
   );
 }
