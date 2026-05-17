@@ -439,11 +439,7 @@ function CandidateView() {
                 Aguardando o ator iniciar a estação...
               </div>
             )}
-            {isRunning && (
-              <Button variant="outline" className="mt-3 w-full" onClick={finish}>
-                <Square className="mr-1 h-4 w-4" /> Finalizar estação
-              </Button>
-            )}
+            {isRunning && null}
             {isFinished && (
               <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
                 Estação encerrada.
