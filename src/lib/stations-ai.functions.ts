@@ -125,8 +125,18 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
 5) candidate_task
    - Sempre no formato: "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:\\n\\n- Tarefa 1;\\n- Tarefa 2;\\n- …".
 
-6) specialty
-   - Um dos: "Clínica Médica" | "Pediatria" | "Ginecologia e Obstetrícia" | "Cirurgia" | "Medicina da Família" | "Urgência e Emergência".
+6) specialty — VALORES PERMITIDOS (use EXATAMENTE um destes, mesmo que o PDF diga outra coisa):
+   - "Clínica Médica"  (PDF: "Clínica Médica", "CM", "Medicina Interna")
+   - "Pediatria"  (PDF: "Pediatria", "PED")
+   - "Ginecologia e Obstetrícia"  (PDF: "GO", "G.O.", "Ginecologia", "Obstetrícia", "Tocoginecologia")
+   - "Cirurgia"  (PDF: "Clínica Cirúrgica", "CC", "Cirurgia Geral", "CIRURGIA")
+   - "Medicina da Família"  (PDF: "Medicina de Família e Comunidade", "MFC", "Saúde da Família", "Atenção Primária")
+   - "Urgência e Emergência"  (PDF: "Urgência", "Emergência", "PS", "Pronto-Socorro")
+
+7) clinical_case  vs  case_description — SEPARE OS DOIS:
+   - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção (ex.: Secundária), Tipo de atendimento (ex.: UPA, Hospital), Infraestrutura disponível (consultórios, laboratórios, leitos…). NÃO inclua a narrativa do caso aqui.
+   - "case_description" = SEÇÃO "DESCRIÇÃO DO CASO" do PDF. Contém a narrativa ("Você atende um homem de 30 anos…") + bloco "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:" com a lista de tarefas. Transcreva na íntegra.
+   - Se o PDF não tiver "CENÁRIO DE ATENDIMENTO" explícito, deixe "clinical_case" vazio.
 
 ================================================================
 REGRAS GERAIS
