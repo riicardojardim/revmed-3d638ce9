@@ -5,7 +5,7 @@ import { ClipboardList, Stethoscope, UserRound, ShieldCheck } from "lucide-react
 export type IntroRole = "candidato" | "paciente" | "avaliador";
 
 /** Duração total da animação de entrada (precisa bater com a timeline interna). */
-export const INTRO_DURATION_MS = 5200;
+export const INTRO_DURATION_MS = 9000;
 
 interface Props {
   role: IntroRole;
