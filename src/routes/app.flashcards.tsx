@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Frown, Meh, Smile, List, X } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
+import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
@@ -241,18 +242,16 @@ function FlashcardsPage() {
               </div>
             ) : (
               <>
-                <div className="rounded-2xl overflow-hidden ring-1 ring-border aspect-square flex flex-col">
-                  <div className={cn("flex items-center justify-between px-4 py-2 font-display font-bold text-white shrink-0", revealed ? "bg-amber-500" : "bg-primary")}>
-                    <span>{revealed ? "Resposta" : "Pergunta"}</span>
-                    <span>{index + 1} | {cards.length}</span>
-                  </div>
-                  <div className={cn("flex-1 flex items-center justify-center p-6 text-center whitespace-pre-wrap overflow-y-auto",
-                    revealed ? "bg-amber-100 text-amber-900" : "bg-primary/10 text-foreground")}>
+                <FlashcardFace
+                  side={revealed ? "back" : "front"}
+                  counter={`${index + 1} | ${cards.length}`}
+                >
+                  <div className="flex-1 flex items-center justify-center p-6 text-center whitespace-pre-wrap overflow-y-auto">
                     <div className="text-base md:text-lg font-medium">
                       {revealed ? current.back : current.front}
                     </div>
                   </div>
-                </div>
+                </FlashcardFace>
 
                 {revealed && user && (
                   <div className="mt-4 rounded-2xl bg-card ring-1 ring-border p-4">
