@@ -98,7 +98,7 @@ function AppLayout() {
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
           ]},
-          { to: "/app/resumos", label: "Pense Resumos", icon: BookOpen, badge: "New" },
+          
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
