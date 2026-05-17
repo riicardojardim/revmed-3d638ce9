@@ -161,6 +161,34 @@ function RoomPage() {
     // eslint-disable-next-line
   }, [room?.status, parts, user?.id]);
 
+  // Auto-start: quando o ator (host) está aguardando e o candidato entra pelo link,
+  // dispara o início da estação automaticamente (sem precisar clicar em "Iniciar").
+  useEffect(() => {
+    if (!room || !user) return;
+    const isHostUser = user.id === room.host_id;
+    if (!isHostUser) return;
+    if (room.status !== "open" && room.status !== "waiting" && room.status !== "lobby") return;
+    const hasCand = parts.some((p) => p.role === "candidato");
+    if (!hasCand) return;
+    // dispara apenas uma vez
+    startStation();
+    // eslint-disable-next-line
+  }, [room?.id, room?.status, parts.length, user?.id]);
+
+  // Auto-ready do candidato que entra pelo link
+  useEffect(() => {
+    if (!room || !user) return;
+    const me = parts.find((p) => p.user_id === user.id);
+    if (!me || me.is_ready) return;
+    if (me.role !== "candidato") return;
+    supabase
+      .from("training_room_participants")
+      .update({ is_ready: true })
+      .eq("id", me.id)
+      .then(() => {});
+    // eslint-disable-next-line
+  }, [room?.id, parts.map((p) => p.id + p.is_ready).join(","), user?.id]);
+
   function redirectByRole(role: string) {
     if (role === "paciente") {
       nav({ to: "/app/sala/$code/paciente", params: { code }, replace: true });
