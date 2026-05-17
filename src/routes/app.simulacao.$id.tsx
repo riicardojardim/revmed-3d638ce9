@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/simulacao/$id")({
   component: SimulationPage,
-  head: () => ({ meta: [{ title: "Simulação — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Estação — Estação Revalida" }] }),
 });
 
 function SimulationPage() {

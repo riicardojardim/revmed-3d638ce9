@@ -98,8 +98,8 @@ function AdminOverview() {
     { label: "Tentativas (total)", value: stats.attempts, icon: ClipboardList, color: "text-mint" },
     { label: "Tentativas — 7 dias", value: stats.attempts7, icon: ClipboardList, color: "text-mint" },
     { label: "Tentativas — 30 dias", value: stats.attempts30, icon: ClipboardList, color: "text-mint" },
-    { label: "Estações publicadas", value: stats.stationsPublished, icon: CheckCircle2, color: "text-success" },
-    { label: "Estações rascunho", value: stats.stationsDraft, icon: Layers, color: "text-warning" },
+    { label: "Checklists publicados", value: stats.stationsPublished, icon: CheckCircle2, color: "text-success" },
+    { label: "Checklists rascunho", value: stats.stationsDraft, icon: Layers, color: "text-warning" },
     { label: "Flashcards", value: stats.flashcards, icon: BookOpen, color: "text-mint" },
     { label: "Resumos", value: stats.summaries, icon: FileText, color: "text-mint" },
   ];
@@ -113,7 +113,7 @@ function AdminOverview() {
               <Play className="h-4 w-4 text-mint" /> Testar animação de entrada
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Pré-visualize a sequência "Prontuário + Crachá" (~9s) sem precisar criar uma estação.
+              Pré-visualize a sequência "Prontuário + Crachá" (~9s) sem precisar criar um checklist.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -180,7 +180,7 @@ function AdminOverview() {
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
           <h3 className="font-display font-semibold flex items-center gap-2">
-            <Stethoscope className="h-4 w-4 text-mint" /> Top 5 estações (30 dias)
+            <Stethoscope className="h-4 w-4 text-mint" /> Top 5 checklists (30 dias)
           </h3>
           {loading ? (
             <p className="mt-3 text-sm text-muted-foreground">Carregando...</p>

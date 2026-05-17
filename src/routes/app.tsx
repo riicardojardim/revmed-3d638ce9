@@ -68,7 +68,7 @@ function AppLayout() {
       {
         items: [
           { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
-          { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope },
+          { to: "/app/admin/estacoes", label: "Checklists", icon: Stethoscope },
           { to: "/app/admin/usuarios", label: "Usuários", icon: Users },
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
@@ -131,7 +131,7 @@ function AppLayout() {
       {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
-          { to: "/app/estacoes", label: "Estações", icon: ClipboardList },
+          { to: "/app/estacoes", label: "Checklists", icon: ClipboardList },
           { to: "/app/treinar", label: "Treinar", icon: Dumbbell },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           
