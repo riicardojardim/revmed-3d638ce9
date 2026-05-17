@@ -151,7 +151,6 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
 
     const { supabase, userId } = context;
     const deckTitle = (result.deck_title?.trim() || data.title).slice(0, 200);
-    const deckTopic = (result.deck_topic?.trim() || data.topic || null) as string | null;
 
     const { data: deck, error: deckErr } = await supabase
       .from("flashcard_decks")
@@ -159,8 +158,8 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
         created_by: userId,
         title: deckTitle,
         specialty: data.specialty,
-        topic: deckTopic,
-        description: `Gerado automaticamente a partir da estação "${data.title}".`,
+        topic: null,
+        description: null,
         published: false,
         station_id: data.station_id ?? null,
       })
@@ -172,7 +171,7 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
       deck_id: deck.id,
       created_by: userId,
       specialty: data.specialty,
-      topic: deckTopic,
+      topic: null,
       front: c.front.trim(),
       back: c.back.trim(),
       position: i,
