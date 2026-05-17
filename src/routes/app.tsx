@@ -32,6 +32,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -171,6 +172,12 @@ function AppLayout() {
       nav({ to: "/app/admin" });
     }
   }, [loading, user, isAdmin, pathname, nav]);
+
+  useEffect(() => {
+    if (loading || !user || sessionStorage.getItem("auth:welcome") !== "1") return;
+    sessionStorage.removeItem("auth:welcome");
+    toast.success("Bem-vindo de volta!");
+  }, [loading, user]);
 
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
