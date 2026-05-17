@@ -576,7 +576,7 @@ function SimuladoRunner() {
                       />
                     </div>
                     <div className="flex flex-col items-center gap-1 tabular-nums">
-                      {(() => { const maxPts = Math.max(...levels.map((l) => l.points)); return levels.map((lv) => {
+                      {(() => { const sorted = [...levels].sort((a, b) => a.points - b.points); const maxPts = Math.max(...sorted.map((l) => l.points)); return sorted.map((lv) => {
                         const sel = cur === lv.points;
                         const tone = levelTone(lv.points, maxPts);
                         return (
