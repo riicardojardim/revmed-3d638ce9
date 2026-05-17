@@ -246,24 +246,8 @@ async function callGateway(
 }
 
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // GPT-5 first: most disciplined at literal transcription without inventing fields.
-  try {
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 180_000);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    const isRecoverable = /abort|timeout|504|502|upstream|429|rate/i.test(msg);
-    if (!isRecoverable) throw err;
-    // Fallback 1: Gemini 2.5 Pro (long context, multimodal).
-    try {
-      return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
-    } catch (err2) {
-      const msg2 = err2 instanceof Error ? err2.message : String(err2);
-      const isTimeout = /abort|timeout|504|502|upstream/i.test(msg2);
-      if (!isTimeout) throw err2;
-      // Fallback 2: Gemini Flash (fast).
-      return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
-    }
-  }
+  // Apenas GPT-5, com timeout longo (5 min) para transcrição fiel sem fallback.
+  return await callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 300_000);
 }
 
 
@@ -466,20 +450,7 @@ export const parseStationText = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    try {
-      return await callGatewayText(apiKey, data.text, "openai/gpt-5", 180_000);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      const isRecoverable = /abort|timeout|504|502|upstream|429|rate/i.test(msg);
-      if (!isRecoverable) throw err;
-      try {
-        return await callGatewayText(apiKey, data.text, "google/gemini-2.5-pro", 150_000);
-      } catch (err2) {
-        const msg2 = err2 instanceof Error ? err2.message : String(err2);
-        const isTimeout = /abort|timeout|504|502|upstream/i.test(msg2);
-        if (!isTimeout) throw err2;
-        return await callGatewayText(apiKey, data.text, "google/gemini-2.5-flash", 90_000);
-      }
-    }
+    return await callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000);
   });
+
 
