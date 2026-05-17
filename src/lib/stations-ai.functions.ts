@@ -78,21 +78,25 @@ const ResultSchema = z.object({
   checklist_items: z
     .array(
       z.object({
-        description: z.string(),
-        category: z.string().optional(),
+        description: stringOrEmpty,
+        category: stringOrUndefined,
         points: z.number().optional(),
-        helper_text: z.string().optional(),
+        helper_text: stringOrUndefined,
         levels: z
           .array(
             z.object({
-              label: z.string(),
+              label: stringOrEmpty,
               points: z.number(),
-              description: z.string().optional(),
+              description: stringOrUndefined,
             }),
           )
+          .nullish()
+          .transform((value) => value ?? undefined)
           .optional(),
       }),
     )
+    .nullish()
+    .transform((value) => value ?? undefined)
     .optional(),
 });
 
