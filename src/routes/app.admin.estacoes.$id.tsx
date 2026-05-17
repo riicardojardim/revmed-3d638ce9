@@ -383,7 +383,7 @@ function EditorBody({
         }}
       />
 
-      <SectionBasics station={station} up={up} />
+      <SectionBasics station={station} up={up} items={items} />
 
       {/* Tabs: Ator / Avaliado */}
       <div className="inline-flex rounded-xl border border-border bg-background/40 p-1">
