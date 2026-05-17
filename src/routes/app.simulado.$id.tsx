@@ -950,5 +950,6 @@ function SimuladoRunner() {
         </div>
       )}
     </div>
+    </>
   );
 }
