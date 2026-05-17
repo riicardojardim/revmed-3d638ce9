@@ -154,13 +154,9 @@ function AdminFlashcardsPage() {
             return (
               <div key={d.id} className={`relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl border bg-card p-4 shadow-card ${meta.card}`}>
                 <div className={`absolute inset-y-0 left-0 w-1 ${meta.solid}`} aria-hidden />
-                {d.cover_image_url ? (
-                  <img src={d.cover_image_url} alt="" className="h-16 w-16 rounded-xl object-cover" />
-                ) : (
-                  <div className="h-16 w-16 rounded-xl bg-muted/40 flex items-center justify-center">
-                    <Brain className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                )}
+                <div className="h-16 w-16 shrink-0">
+                  <DeckCover title={d.title} specialty={d.specialty} topic={d.topic} size="sm" />
+                </div>
                 <div className="flex-1 min-w-[200px]">
                   <div className="flex flex-wrap items-center gap-2">
                     <SpecialtyBadge specialty={d.specialty} />
