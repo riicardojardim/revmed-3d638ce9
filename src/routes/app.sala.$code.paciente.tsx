@@ -74,15 +74,13 @@ function parseSubItems(description: string): { lead: string; subs: string[] } {
   return { lead: description, subs: [] };
 }
 
-function levelTone(index: number, total: number): { idle: string; active: string } {
-  // Idle = apenas o número, sem caixa. Selecionado = pill colorido (vermelho/âmbar/verde).
+function levelTone(points: number, maxPoints: number): { idle: string; active: string } {
+  // Idle = apenas o número, sem caixa. Selecionado = pill colorido por magnitude:
+  // 0 = vermelho, máximo = verde, intermediário = âmbar.
   const base = "text-muted-foreground hover:text-foreground";
-  if (index === 0) {
-    return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
-  }
-  if (index === total - 1) {
-    return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
-  }
+  const ratio = maxPoints > 0 ? points / maxPoints : 0;
+  if (ratio <= 0) return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
+  if (ratio >= 1) return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
   return { idle: base, active: "bg-amber-500/85 text-white shadow-sm ring-1 ring-amber-400/60" };
 }
 
@@ -760,10 +758,9 @@ function ActorView() {
                       />
                     </div>
                     <div className="flex flex-col items-center gap-1 tabular-nums">
-                      {levels.map((lv, li) => {
+                      {(() => { const maxPts = Math.max(...levels.map((l) => l.points)); return levels.map((lv) => {
                         const selected = current === lv.points;
-                        const tone = levelTone(li, levels.length);
-                        
+                        const tone = levelTone(lv.points, maxPts);
                         return (
                           <button
                             key={lv.label}
@@ -791,7 +788,7 @@ function ActorView() {
                             {lv.points}
                           </button>
                         );
-                      })}
+                      }); })()}
                     </div>
                   </li>
                 );
