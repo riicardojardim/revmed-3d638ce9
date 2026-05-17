@@ -14,7 +14,7 @@ export const Route = createFileRoute("/app/estacoes")({
   head: () => ({ meta: [{ title: "Estações — Estação Revalida" }] }),
 });
 
-const difficulties = ["Todas", "Fácil", "Médio", "Difícil"] as const;
+
 
 function normalizeDifficulty(d: string): Station["difficulty"] {
   if (d === "Intermediário") return "Médio";
