@@ -335,8 +335,31 @@ function pickLonger(a?: string, b?: string): string | undefined {
   return bv.length > av.length ? bv : av;
 }
 
+function cleanPepTitle(value: string): string {
+  return value.replace(/^\s*\d+\s*[.)\-–—]\s*/, "").replace(/\s*:\s*$/, "").trim();
+}
+
+function normalizeExtractedChecklistItem<T extends NonNullable<ParsedStation["checklist_items"]>[number]>(item: T): T {
+  const lines = (item.description ?? "").trim().split(/\r?\n/);
+  const firstContentIndex = lines.findIndex((line) => line.trim());
+  const firstLine = firstContentIndex >= 0 ? lines[firstContentIndex].trim() : "";
+  const titleMatch = firstLine.match(/^\s*\d+\s*[.)\-–—]\s*(.{2,180}?)\s*:\s*(.*)$/);
+  if (!titleMatch) return item;
+  const inlineRemainder = titleMatch[2]?.trim() ?? "";
+  return {
+    ...item,
+    category: cleanPepTitle(titleMatch[1]) || item.category,
+    description: [
+      ...lines.slice(0, firstContentIndex),
+      ...(inlineRemainder ? [inlineRemainder] : []),
+      ...lines.slice(firstContentIndex + 1),
+    ].join("\n").trim(),
+  };
+}
+
 function cleanExtractedStation(raw: ParsedStation): ParsedStation {
   const r = { ...raw };
+  if (r.checklist_items?.length) r.checklist_items = r.checklist_items.map(normalizeExtractedChecklistItem);
   r.patient_script = (r.patient_script ?? "").trim();
   if (r.patient_script.length === 0) r.patient_profile = {};
   const clinical = (r.clinical_case ?? "").trim();
