@@ -178,10 +178,28 @@ function StationEditor() {
       deliverable_materials: (raw.deliverable_materials as DeliverableMaterial[]) ?? [],
       patient_profile: (raw.patient_profile as PatientProfile) ?? {},
     });
-    setItems(((it as unknown as Item[]) ?? []).map((i) => ({
+    const loaded = ((it as unknown as Item[]) ?? []).map((i) => ({
       ...i,
       levels: Array.isArray(i.levels) && i.levels.length ? i.levels : defaultLevels(Number(i.points) || 1),
-    })));
+    }));
+    // one-time cleanup: strip leading "N. Category:" from descriptions and fix wrong default categories
+    const fixes: { id: string; description: string; category: string }[] = [];
+    const normalized = loaded.map((it) => {
+      const { description, category } = normalizeChecklistFields(it.description, it.category);
+      if (description !== it.description || category !== it.category) {
+        fixes.push({ id: it.id, description, category });
+        return { ...it, description, category };
+      }
+      return it;
+    });
+    setItems(normalized);
+    if (fixes.length) {
+      void Promise.all(
+        fixes.map((f) =>
+          supabase.from("station_checklist_items").update({ description: f.description, category: f.category }).eq("id", f.id)
+        )
+      );
+    }
   }
 
   useEffect(() => { void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
