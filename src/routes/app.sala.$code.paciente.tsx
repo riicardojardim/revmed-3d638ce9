@@ -668,12 +668,6 @@ function ActorView() {
             title="CHECKLIST ( PEP )"
             right={<Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>}
           >
-            {!isFinished && (
-              <div className="mb-4 rounded-lg border border-mint/30 bg-mint/5 px-3 py-2 text-xs text-mint">
-                <Lock className="mr-1 inline h-3.5 w-3.5" />
-                Você pode pontuar durante a estação, mas 1 item será liberado apenas após encerrar.
-              </div>
-            )}
 
 
             <ol className="space-y-3">
