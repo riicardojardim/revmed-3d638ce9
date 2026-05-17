@@ -54,7 +54,7 @@ function JoinRoom() {
       }
 
       nav({
-        to: targetRole === "candidato" ? "/app/sala/$code/candidato" : "/app/sala/$code/paciente",
+        to: "/app/sala/$code",
         params: { code },
         replace: true,
       });

@@ -1,117 +1,75 @@
-## Visão geral
+# Plano: Entrada Premium da Estação ("Prontuário + Crachá")
 
-Construir o painel administrativo em **/app/admin**, restrito ao role `admin`, reaproveitando a estrutura já existente (`app.admin.tsx`, `usuarios`, `planos`). O foco principal é o **editor de estação em wizard passo a passo**, capaz de gerar checklists no mesmo formato rico que as estações nativas (impressos + PEP com Adequado / Parcialmente adequado / Inadequado).
+Vou entregar uma primeira versão completa, navegável e responsiva, em 4 frentes: **banco**, **realtime/lobby**, **animação** e **roteamento por papel**.
 
-O painel terá 5 abas:
+## 1. Banco de dados (migration)
 
-```text
-/app/admin
-├── Visão geral        → métricas (KPIs)
-├── Estações           → lista + wizard de criação/edição
-├── Usuários           → já existe (papéis + assinaturas)
-├── Conteúdo extra     → flashcards, resumos, feedbacks
-└── Planos             → já existe
-```
+Ajustes mínimos em `training_rooms` e `training_room_participants` (mantendo o que já existe):
 
----
+- `training_rooms`: adicionar `actor_ready boolean default false`, `candidate_ready boolean default false`, `starting_at timestamptz`. Status passa a aceitar: `waiting | candidate_joined | actor_ready | candidate_ready | starting | in_progress | finished`.
+- `training_room_participants`: adicionar `is_ready boolean default false`, `display_name text`, `last_seen_at timestamptz default now()`.
+- Habilitar Realtime (`REPLICA IDENTITY FULL` + `ALTER PUBLICATION supabase_realtime ADD TABLE ...`) para ambas as tabelas.
 
-## 1. Layout e navegação
+RLS já existente é mantida (host/admin editam sala; participante edita o próprio registro).
 
-- Atualizar `src/routes/app.admin.tsx` para incluir as novas abas (Estações, Conteúdo) mantendo o guard de role admin já existente.
-- Manter `/app/professor/*` funcionando como está; o admin terá rota própria com permissões totais.
+## 2. Pré-sala (Lobby)
 
----
+Nova rota `/app/sala/$code/lobby` (e redirect a partir de `/app/entrar/$code` para o lobby, em vez de ir direto para candidato/paciente).
 
-## 2. Visão geral (KPIs)
+Componentes novos em `src/components/room/`:
+- `RoomLobby` — orquestra tudo.
+- `ParticipantStatusCard` — mostra cada participante com avatar, papel, "Pronto/Aguardando".
+- `InviteLinkBox` — código grande + botão "Copiar link".
+- `ReadyButton` — alterna `is_ready` do participante atual.
+- `StartStationButton` — só host/ator/avaliador; seta `status = 'starting'` + `starting_at = now()`.
 
-Nova `src/routes/app.admin.index.tsx` mostrando cards com:
-- Total de usuários (`profiles`)
-- Assinantes ativos por plano (`user_subscriptions` + `plans`)
-- Total de estações publicadas vs. rascunhos
-- Tentativas nos últimos 7/30 dias
-- Top 5 estações mais usadas
-- Tentativas aguardando correção do professor
+Realtime: subscribe em `training_rooms:id=eq.<id>` e `training_room_participants:room_id=eq.<id>`. Quando `status` vira `starting`, mostra o overlay.
 
-Consultas via `supabase.from(...).select(..., { count: 'exact' })`.
+Cabeçalho com: nome da estação, especialidade, duração, código, aviso de privacidade por papel.
 
----
+## 3. Animação "Prontuário + Crachá" (4–6s)
 
-## 3. Estações — **parte principal** (wizard passo a passo)
+Bundle em `src/components/room/intro/`:
+- `StationIntroOverlay` — fullscreen, gradient azul-noite + vinheta, decide qual sequência rodar com base no papel.
+- `AnimatedCredentialCard` — crachá vertical institucional (nome, papel, estação, especialidade), entra de baixo com `slide-up` + leve `scale-in`.
+- `AnimatedClinicalRecord` — cartão/pasta clínica horizontal com rotação 3D suave (`rotateY` + `perspective`).
+- `SlidingMedicalDoor` — dois painéis verticais translúcidos verde-menta/azul que abrem do centro para os lados.
+- `CountdownOverlay` — "3 → 2 → 1 → Estação iniciada" com scale+blur.
+- `CandidateEntrySequence` / `ActorEntrySequence` — orquestram a timeline com Framer Motion (`motion` + `AnimatePresence`). Para o ator, inclui mini-ficha do roteiro deslizando ao lado do crachá.
 
-### 3.1 Lista — `src/routes/app.admin.estacoes.tsx`
-- Tabela com título, especialidade, dificuldade, status (publicado/rascunho), nº de itens de checklist, ações (editar / duplicar / publicar / excluir).
-- Filtros por especialidade, status, busca.
-- Botão **"Nova estação"** → cria registro vazio em `custom_stations` e redireciona ao wizard.
+Timing alvo (≈5,2s): fade-in fundo (0.4s) → títulos (0.6s) → crachá (1.0s) → prontuário 3D (1.0s) → portas abrem (0.8s) + countdown (1.2s) → "Estação iniciada" (0.2s) → redirect.
 
-### 3.2 Wizard — `src/routes/app.admin.estacoes.$id.tsx`
+Identidade: tokens existentes (`night`, `mint`, `medical`), tipografia display, sombras suaves, **sem neon/gamer**. Tudo via classes Tailwind + tokens em `src/styles.css` (sem cores hardcoded).
 
-Layout em **5 passos** com barra de progresso no topo e botões "Voltar / Próximo / Salvar e publicar":
+## 4. Sincronização + redirecionamento
 
-**Passo 1 — Informações básicas**
-- Título, especialidade, dificuldade, duração, tag (Nova/Popular/Recomendada), objetivo educacional.
+- Host clica "Iniciar estação" → update `status='starting', starting_at=now()`.
+- Ambos os clientes recebem evento Realtime → montam `StationIntroOverlay`.
+- Quando a sequência termina localmente:
+  - Host (só ele, para evitar corrida) faz update `status='in_progress'`.
+  - Cada cliente redireciona pelo seu papel:
+    - `candidato` → `/app/sala/$code/candidato`
+    - `ator` / `paciente` / `avaliador` → `/app/sala/$code/paciente` (tela do ator já existente)
+  - (Mantenho as rotas atuais `sala.$code.candidato` / `sala.$code.paciente` em vez de criar `/app/simulacao/:id/...` para não quebrar o fluxo já implementado.)
 
-**Passo 2 — Caso clínico**
-- Caso clínico, tarefa do candidato, dados rápidos do paciente, materiais de apoio, perfil completo do paciente (`patient_profile` jsonb) com campos: nome, idade, queixa principal, HMA, antecedentes, medicações, alergias, hábitos, sinais vitais, espontâneo, só se perguntado, não revelar, tom emocional, dicas de atuação.
+Se um participante chega depois de `status='starting'`/`in_progress`, vai direto para a tela do papel (sem animação re-rodando).
 
-**Passo 3 — Impressos (materiais entregáveis)**
-- Editor de lista de `deliverable_materials` (jsonb). Cada item: nome, tipo (Impresso/Exame/Imagem), descrição (gatilho), conteúdo, auto-entregar.
-- Botão "Adicionar impresso", reordenar (drag handle simples ↑↓), remover.
+## 5. Responsividade & acessibilidade
 
-**Passo 4 — Checklist PEP graduado** *(o coração)*
-- Lista de itens em `station_checklist_items`.
-- Cada item: categoria (Anamnese/Exame físico/Diagnóstico/Conduta/Comunicação/Procedimento), descrição, texto auxiliar, **3 níveis** padrão pré-preenchidos:
-  - Adequado (pontos cheios)
-  - Parcialmente adequado (metade)
-  - Inadequado (0)
-- Cada nível tem label, pontos e descrição editáveis (`levels` jsonb).
-- Helper visual: total de pontos da estação calculado ao vivo.
-- Reordenar via ↑↓ (atualiza `order_index`), duplicar item.
+- Layout em `grid` adaptativo; crachá/prontuário escalam por `clamp()`.
+- Countdown central com `text-[clamp(6rem,18vw,12rem)]`.
+- Respeita `prefers-reduced-motion`: animações encurtadas para fade simples + countdown.
+- Sem vazar informação entre papéis: candidato nunca recebe `patient_script`/checklist na pré-sala nem na intro.
 
-**Passo 5 — Revisão e publicar**
-- Preview com tudo formatado igual a estação real.
-- Conduta esperada, erros comuns, referências bibliográficas, observações para banca, material pós-estação.
-- Toggle "Publicar para assinantes" (atualiza `custom_stations.published = true`).
+## Detalhes técnicos
 
-### 3.3 Componentes reutilizáveis
-- `src/components/admin/StationWizard.tsx` (orquestra passos e estado).
-- `src/components/admin/steps/Step1Basics.tsx` … `Step5Review.tsx`.
-- `src/components/admin/ChecklistItemEditor.tsx` (item com níveis PEP).
-- `src/components/admin/DeliverableEditor.tsx` (impressos).
+- Framer Motion já é compatível; instalar se ainda não houver (`bun add framer-motion`).
+- Tudo client-side; sem novas server functions (operações via `supabase` browser client com RLS existente).
+- Migration roda **antes** das edições de código (regra do projeto).
+- Não toco em `src/integrations/supabase/*` nem em `routeTree.gen.ts`.
 
-### 3.4 Persistência
-- Salvar com debounce em `custom_stations` (campos escalares + jsonb).
-- Itens de checklist gravados individualmente em `station_checklist_items` com upsert.
-- Não exige migração — as colunas e RLS já existem.
+## Entrega
 
-### 3.5 Disponibilidade
-- Toggle único de **publicar** (flag `published`). Estações publicadas aparecem automaticamente para todos os assinantes via a policy já existente.
+Ao fim você terá: lobby premium funcional com Realtime, animação institucional de 4–6s sincronizada, redirect por papel, e um fluxo testável abrindo dois navegadores (host + convidado pelo link/código).
 
----
-
-## 4. Conteúdo extra — `src/routes/app.admin.conteudo.tsx`
-
-Três sub-abas:
-- **Flashcards**: tabela com CRUD reaproveitando lógica de `app.professor.flashcards.tsx`, com filtro por especialidade e botão publicar.
-- **Resumos**: tabela com CRUD reaproveitando lógica de `app.professor.resumos.tsx`.
-- **Feedbacks**: leitura simples (se houver tabela; caso contrário, placeholder com aviso).
-
----
-
-## 5. Detalhes técnicos
-
-- Todas as queries usam o cliente do browser (`@/integrations/supabase/client`) — RLS já protege.
-- Validação com `zod` em todos os formulários (limites de tamanho, tipos, mínimos).
-- Toasts via `sonner` para feedback.
-- Sem migração de banco — tabelas e policies já cobrem o caso de uso.
-- Wizard mantém estado local; salva ao avançar de passo e ao clicar "Salvar".
-
----
-
-## Ordem de entrega
-
-1. Atualizar layout `app.admin.tsx` com novas abas.
-2. **Construir wizard de Estações completo** (lista + 5 passos) — prioridade do usuário.
-3. Visão geral com KPIs.
-4. Conteúdo extra (flashcards/resumos/feedback).
-
-Quando aprovar, começo direto pelo item 2 (o que você quer mexer logo) e entrego o resto na sequência.
+Posso seguir?
