@@ -178,6 +178,11 @@ function CandidateView() {
 
   const visibleDeliveries = useMemo(() => deliveries, [deliveries]);
 
+  // Dispara o overlay institucional quando o ator inicia a estação
+  useEffect(() => {
+    if (room?.status === "starting" && !introDone) setShowIntro(true);
+  }, [room?.status, introDone]);
+
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
   const isWaiting = room.status !== "running" && !finished;
