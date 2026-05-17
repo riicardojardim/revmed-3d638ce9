@@ -225,7 +225,7 @@ async function callGateway(
     const txt = await res.text();
     if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
-    const err = new Error(`AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
+    const err = new Error([408,502,503,504,524].includes(res.status) ? "A IA demorou demais para responder. Tente novamente em alguns instantes." : `AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
     (err as Error & { status?: number }).status = res.status;
     throw err;
   }
@@ -246,9 +246,32 @@ async function callGateway(
   return cleanExtractedStation(ResultSchema.parse(parsed));
 }
 
+function isRetryable(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const status = (err as Error & { status?: number }).status;
+  if (status && [408, 502, 503, 504, 524].includes(status)) return true;
+  const msg = err.message.toLowerCase();
+  return /timeout|timed out|upstream|aborted|network|fetch failed|econn|socket/.test(msg);
+}
+
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      if (i === attempts - 1 || !isRetryable(e)) throw e;
+      // backoff: 2s, 5s
+      await new Promise((r) => setTimeout(r, i === 0 ? 2000 : 5000));
+    }
+  }
+  throw lastErr;
+}
+
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // Apenas GPT-5, com timeout longo (5 min) para transcrição fiel sem fallback.
-  return await callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 300_000);
+  // GPT-5, timeout 5 min por tentativa, até 3 tentativas em caso de upstream timeout/5xx.
+  return await withRetry(() => callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 300_000));
 }
 
 
@@ -449,7 +472,7 @@ async function callGatewayText(
     const txt = await res.text();
     if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
-    const err = new Error(`AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
+    const err = new Error([408,502,503,504,524].includes(res.status) ? "A IA demorou demais para responder. Tente novamente em alguns instantes." : `AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
     (err as Error & { status?: number }).status = res.status;
     throw err;
   }
@@ -477,7 +500,7 @@ export const parseStationText = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    return await callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000);
+    return await withRetry(() => callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000));
   });
 
 
