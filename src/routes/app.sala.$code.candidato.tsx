@@ -146,7 +146,7 @@ function CandidateView() {
   async function finish() {
     if (!station || !user || !room) return;
     if (room.status !== "running") {
-      toast.error("A estação ainda não foi iniciada pelo avaliador.");
+      toast.error("A estação ainda não foi iniciada pelo ator.");
       return;
     }
     if (room.evaluated_candidate_id && room.evaluated_candidate_id !== user.id) {
@@ -169,7 +169,7 @@ function CandidateView() {
         notes: notes || null,
         status: "aguardando_correcao",
       });
-      toast.success("Estação finalizada. Aguarde a correção do avaliador.");
+      toast.success("Estação finalizada. Aguarde a correção do ator.");
     } catch (e) { console.error(e); }
   }
 
@@ -220,11 +220,11 @@ function CandidateView() {
         </div>
 
         <h1 className="mt-6 font-display text-3xl font-bold md:text-4xl">
-          Aguardando o avaliador iniciar...
+          Aguardando o ator iniciar...
         </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
           Você já está dentro da estação <span className="font-semibold text-foreground">{room.station_title ?? station.title}</span>.
-          Assim que o avaliador iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
+          Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
         </p>
 
         <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
@@ -240,7 +240,7 @@ function CandidateView() {
         </div>
 
         <div className="mt-10 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
-          💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o avaliador clicar em iniciar.
+          💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o ator clicar em iniciar.
         </div>
       </div>
     );
@@ -303,7 +303,7 @@ function CandidateView() {
           >
             {visibleDeliveries.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nenhum material ainda. Solicite exames e o avaliador entregará durante a estação.
+                Nenhum material ainda. Solicite exames e o ator entregará durante a estação.
               </p>
             ) : (
               <div className="space-y-3">
@@ -349,7 +349,7 @@ function CandidateView() {
             />
           </PRBlock>
 
-          {/* PEP — só aparece quando avaliador finalizar correção */}
+          {/* PEP — só aparece quando ator finalizar correção */}
           {isFinished && (
             <PRBlock icon={ClipboardCheck} title="PEP — Resultado da estação" tone="emerald">
               {correctionReady ? (
@@ -365,14 +365,14 @@ function CandidateView() {
                   </div>
                   {evaluation!.final_feedback && (
                     <div className="rounded-xl border border-border bg-background/40 p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Feedback do avaliador</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Feedback do ator</div>
                       <p className="mt-1 whitespace-pre-wrap text-sm">{evaluation!.final_feedback}</p>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-4 py-6 text-sm text-muted-foreground">
-                  <Lock className="h-4 w-4" /> Aguardando o avaliador finalizar a correção...
+                  <Lock className="h-4 w-4" /> Aguardando o ator finalizar a correção...
                 </div>
               )}
             </PRBlock>
@@ -394,7 +394,7 @@ function CandidateView() {
 
             {isWaiting && (
               <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
-                Aguardando o avaliador iniciar a estação...
+                Aguardando o ator iniciar a estação...
               </div>
             )}
             {isRunning && (

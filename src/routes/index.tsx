@@ -297,7 +297,7 @@ const diffs = [
   { icon: Clock, t: "Cronômetro integrado", d: "Treine no tempo real de cada estação." },
   { icon: Brain, t: "Feedback inteligente", d: "Texto educacional baseado no seu desempenho." },
   { icon: TrendingUp, t: "Evolução por competência", d: "Acompanhe seu progresso por área." },
-  { icon: Users, t: "Treino em dupla", d: "Avaliador e candidato em uma sala compartilhada." },
+  { icon: Users, t: "Treino em dupla", d: "Ator e candidato em uma sala compartilhada." },
   { icon: GraduationCap, t: "Área do professor", d: "Crie estações e corrija seus alunos." },
   { icon: Smartphone, t: "PWA instalável", d: "Treine pelo celular como em um app nativo." },
   { icon: Heart, t: "Conteúdo autoral", d: "Casos clínicos elaborados por médicos." },
@@ -343,7 +343,7 @@ function RolesSimulation() {
     },
     {
       icon: ClipboardCheck,
-      title: "Médico avaliador",
+      title: "Médico ator",
       desc: "Corrige o candidato pelo checklist oficial, pontua, comenta cada item e dá o feedback final.",
       accent: "from-indigo-200/30 to-mint/10",
     },
@@ -360,7 +360,7 @@ function RolesSimulation() {
             <span className="text-gradient">Sinta a pressão de uma estação real.</span>
           </h2>
           <p className="mt-5 text-muted-foreground">
-            O candidato vê o caso, o paciente segue o roteiro e o avaliador corrige pelo checklist.
+            O candidato vê o caso, o paciente segue o roteiro e o ator corrige pelo checklist.
             Crie uma sala, compartilhe o código e treine como se já estivesse na prova.
           </p>
           <ul className="mt-6 space-y-3 text-sm">
@@ -593,7 +593,7 @@ const plans = [
       "Atue como ator",
       "+600 checklists atualizados",
       "Treinamentos ilimitados",
-      "Use a plataforma como avaliador",
+      "Use a plataforma como ator",
     ],
     cta: "Quero ser Ator",
   },

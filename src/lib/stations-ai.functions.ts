@@ -140,7 +140,7 @@ REGRA GERAL DE FIDELIDADE LITERAL (vale para TODOS os campos — category, descr
    - Transcreva PALAVRA POR PALAVRA o que está no PDF. Não parafraseie, não resuma, não "melhore" o texto, não corrija typos, não troque sinônimos, não mude pontuação, não traduza, não adicione nada que não esteja escrito.
    - Se uma informação não está no PDF, deixe vazio. NÃO complete com conhecimento próprio.
 
-2) deliverable_materials (impressos / exames entregáveis pelo avaliador) — OBRIGATÓRIO
+2) deliverable_materials (impressos / exames entregáveis pelo ator) — OBRIGATÓRIO
    - Vasculhe TODO o PDF procurando seções como: "IMPRESSO 1", "IMPRESSO 2", "IMPRESSO N", "Material impresso", "Exame físico (resultado)", "Exames laboratoriais", "Exames complementares", "ECG", "Imagem", "Radiografia", "Tomografia", "USG", "Laudo", "Foto", "Prescrição em branco", "Receituário".
    - Extraia TODOS — não pule nenhum. Se o PDF tem "Impresso 1, 2, 3, 4", o array deve ter 4 itens, em ordem.
    - "name": use APENAS o título descritivo do impresso, SEM o prefixo "Impresso N" ou "Impresso N -". Ex.: do PDF "IMPRESSO 1 - Exame físico" → name = "Exame físico". De "Impresso 2 - Ectoscopia" → name = "Ectoscopia". De "IMPRESSO 3 — ECG" → name = "ECG". A numeração já é exibida automaticamente pela interface; NÃO duplique.
