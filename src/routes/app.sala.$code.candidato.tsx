@@ -505,7 +505,7 @@ function PRBlock({
 }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <header className="flex items-center justify-between gap-2 border-b border-border bg-muted/30 px-4 py-2.5 text-sm font-medium text-muted-foreground">
+      <header className="flex items-center justify-between gap-3 bg-gradient-hero px-4 py-3 text-sm font-medium text-white shadow-elegant">
         <span className="inline-flex items-center gap-2">
           <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
