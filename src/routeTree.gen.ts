@@ -45,6 +45,7 @@ import { Route as AppFlashcardsRevisaoRouteImport } from './routes/app.flashcard
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
+import { Route as AppAdminFlashcardsRouteImport } from './routes/app.admin.flashcards'
 import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoes'
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
 import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
@@ -236,6 +237,11 @@ const AppAdminPlanosRoute = AppAdminPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminFlashcardsRoute = AppAdminFlashcardsRouteImport.update({
+  id: '/flashcards',
+  path: '/flashcards',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminEstacoesRoute = AppAdminEstacoesRouteImport.update({
   id: '/estacoes',
   path: '/estacoes',
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
+  '/app/admin/flashcards': typeof AppAdminFlashcardsRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -355,6 +362,7 @@ export interface FileRoutesByTo {
   '/e/$code': typeof ECodeRoute
   '/app': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
+  '/app/admin/flashcards': typeof AppAdminFlashcardsRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -404,6 +412,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
+  '/app/admin/flashcards': typeof AppAdminFlashcardsRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -454,6 +463,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
+    | '/app/admin/flashcards'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -498,6 +508,7 @@ export interface FileRouteTypes {
     | '/e/$code'
     | '/app'
     | '/app/admin/conteudo'
+    | '/app/admin/flashcards'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -546,6 +557,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
+    | '/app/admin/flashcards'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -833,6 +845,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPlanosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/flashcards': {
+      id: '/app/admin/flashcards'
+      path: '/flashcards'
+      fullPath: '/app/admin/flashcards'
+      preLoaderRoute: typeof AppAdminFlashcardsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/estacoes': {
       id: '/app/admin/estacoes'
       path: '/estacoes'
@@ -922,6 +941,7 @@ const AppAdminEstacoesRouteWithChildren =
 interface AppAdminRouteChildren {
   AppAdminConteudoRoute: typeof AppAdminConteudoRoute
   AppAdminEstacoesRoute: typeof AppAdminEstacoesRouteWithChildren
+  AppAdminFlashcardsRoute: typeof AppAdminFlashcardsRoute
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
   AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
@@ -930,6 +950,7 @@ interface AppAdminRouteChildren {
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminConteudoRoute: AppAdminConteudoRoute,
   AppAdminEstacoesRoute: AppAdminEstacoesRouteWithChildren,
+  AppAdminFlashcardsRoute: AppAdminFlashcardsRoute,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
