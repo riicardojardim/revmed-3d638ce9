@@ -151,7 +151,6 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
                         >
                           <Frown className="h-6 w-6 text-rose-500" />
                           <span className="text-[13px] font-semibold text-rose-500">Errei</span>
-                          <span className="text-[10px] text-muted-foreground">~10 min</span>
                         </button>
                         <button
                           type="button"
@@ -160,7 +159,6 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
                         >
                           <Meh className="h-6 w-6 text-amber-500" />
                           <span className="text-[13px] font-semibold text-amber-500">Difícil</span>
-                          <span className="text-[10px] text-muted-foreground">curto prazo</span>
                         </button>
                         <button
                           type="button"
@@ -169,7 +167,6 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
                         >
                           <Smile className="h-6 w-6 text-emerald-500" />
                           <span className="text-[13px] font-semibold text-emerald-500">Fácil</span>
-                          <span className="text-[10px] text-muted-foreground">longo prazo</span>
                         </button>
                       </div>
                     </div>
