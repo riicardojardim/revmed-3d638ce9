@@ -1378,6 +1378,25 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
   const generate = useServerFn(generateDeckFromStation);
   const [loading, setLoading] = useState(false);
   const [deck, setDeck] = useState<GeneratedDeck | null>(null);
+  const [linkedDecks, setLinkedDecks] = useState<Array<{ id: string; title: string; published: boolean; created_at: string; cards: number }>>([]);
+
+  async function loadLinked() {
+    const { data } = await supabase
+      .from("flashcard_decks")
+      .select("id,title,published,created_at, flashcards(count)")
+      .eq("station_id", station.id)
+      .order("created_at", { ascending: false });
+    const rows = (data ?? []).map((d: { id: string; title: string; published: boolean; created_at: string; flashcards: { count: number }[] }) => ({
+      id: d.id,
+      title: d.title,
+      published: d.published,
+      created_at: d.created_at,
+      cards: d.flashcards?.[0]?.count ?? 0,
+    }));
+    setLinkedDecks(rows);
+  }
+
+  useEffect(() => { void loadLinked(); }, [station.id]);
 
   async function run() {
     if (!station.title?.trim() || !station.specialty?.trim()) {
