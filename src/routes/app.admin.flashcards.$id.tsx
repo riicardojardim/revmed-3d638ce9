@@ -260,25 +260,23 @@ function AdminFlashcardEditor() {
                   <Button size="icon" variant="ghost" onClick={() => removeCard(c)}><Trash2 className="h-4 w-4 text-rose-500" /></Button>
                 </div>
               </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                <div>
-                  <label className="text-xs font-medium text-primary">Pergunta</label>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FlashcardFace side="front" counter={`${i + 1} | ${cards.length}`}>
                   <Textarea
-                    rows={5}
                     placeholder="Escreva a pergunta..."
                     value={c.front}
                     onChange={(e) => patchCard(c.id, { front: e.target.value })}
+                    className="h-full w-full resize-none border-0 bg-transparent text-base font-medium text-foreground placeholder:text-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none p-4"
                   />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-amber-500">Resposta</label>
+                </FlashcardFace>
+                <FlashcardFace side="back" counter={`${i + 1} | ${cards.length}`}>
                   <Textarea
-                    rows={5}
                     placeholder="Escreva a resposta..."
                     value={c.back}
                     onChange={(e) => patchCard(c.id, { back: e.target.value })}
+                    className="h-full w-full resize-none border-0 bg-transparent text-base font-medium text-amber-900 placeholder:text-amber-900/40 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none p-4"
                   />
-                </div>
+                </FlashcardFace>
               </div>
             </div>
           ))}
