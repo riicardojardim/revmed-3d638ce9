@@ -46,7 +46,7 @@ REGRA DE OURO — FIDELIDADE LITERAL ABSOLUTA:
 
 REGRAS:
 - "category": COPIE LITERALMENTE o título numerado do item da fonte, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → category = "Apresentação"; "2. Investiga os sintomas atuais da criança:" → category = "Investiga os sintomas atuais da criança". NUNCA substitua por sinônimo (NÃO troque por "Comunicação"/"Anamnese"), NUNCA reescreva.
-- "description": NÃO inclua a linha numerada/título da categoria. Comece direto nos sub-itens/ações avaliadas (ex.: "(1) Identifica-se;\\n(2) Cumprimenta o paciente simulado."). Copie sub-itens PALAVRA POR PALAVRA, preservando ; . : e quebras de linha.
+- "description": NÃO inclua a linha numerada/título da categoria. NÃO inclua linhas dos níveis ("Inadequado:", "Parcialmente adequado:", "Adequado:") — essas vão SOMENTE em "levels". Se o item só tem título + níveis (sem sub-itens), retorne "description": "". Quando houver sub-itens, copie-os PALAVRA POR PALAVRA (ex.: "(1) Identifica-se;\\n(2) Cumprimenta o paciente simulado."), preservando ; . : e quebras de linha.
 - "points": valor MÁXIMO do item, IDÊNTICO ao da fonte (0.25, 0.5, 0.75, 1.0, 1.5, 2.0…).
 - "levels": SÓ inclua se a fonte explicitamente listar níveis. Copie cada nível LITERALMENTE — mesmo rótulo da fonte ("Inadequado", "Parcialmente adequado", "Adequado" ou outros) e mesma regra após os dois pontos, sem reescrever ("Adequado: Pergunta seis ou sete itens." permanece assim; NÃO vire "Pergunta 6 ou 7 itens"). Use o MESMO número de níveis que a fonte (2 ou 3) e os MESMOS "points" da fonte.
 - Combine múltiplas fontes sem duplicar itens.

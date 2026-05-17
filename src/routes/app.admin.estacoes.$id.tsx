@@ -143,13 +143,19 @@ function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null):
   const titleMatch = firstLine.match(/^\s*\d+\s*[.)\-–—]\s*(.{2,180}?)\s*:\s*(.*)$/);
   const title = titleMatch ? cleanPepTitle(titleMatch[1]) : "";
   const inlineRemainder = titleMatch?.[2]?.trim() ?? "";
-  const cleanedDescription = titleMatch
+  const withoutTitle = titleMatch
     ? [
         ...lines.slice(0, firstContentIndex),
         ...(inlineRemainder ? [inlineRemainder] : []),
         ...lines.slice(firstContentIndex + 1),
       ].join("\n").trim()
     : desc;
+  // Remove level lines (Inadequado/Parcialmente adequado/Adequado: ...) — they live in `levels`
+  const cleanedDescription = withoutTitle
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*(inadequado|parcialmente\s+adequado|adequado)\s*:/i.test(line))
+    .join("\n")
+    .trim();
   const legacyPresentation = /identifica-se/i.test(desc) && /cumprimenta\s+o\s+paciente/i.test(desc) ? "Apresentação" : "";
   const explicit = cleanPepTitle(rawCategory ?? "");
   const chosen = title || legacyPresentation || explicit || "Sem categoria";
