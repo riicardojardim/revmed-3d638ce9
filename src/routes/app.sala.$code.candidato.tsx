@@ -108,9 +108,10 @@ function CandidateView() {
 
       const tick = () => {
         const elapsed = Math.floor((serverNow() - startedMs) / 1000);
-        const left = Math.max(0, totalSec - elapsed);
+        // Clamp: se started_at está no futuro (ex: aguardando intro terminar), mantém total.
+        const left = Math.max(0, Math.min(totalSec, totalSec - elapsed));
         setRemaining(left);
-        if (left <= 0) {
+        if (left <= 0 && elapsed >= 0) {
           setFinished(true);
           if (intervalRef.current) clearInterval(intervalRef.current);
         }

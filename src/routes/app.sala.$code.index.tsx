@@ -22,7 +22,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/use-subscription";
-import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { serverNow, getServerOffset } from "@/lib/serverClock";
 
 export const Route = createFileRoute("/app/sala/$code/")({
   component: RoomPage,
@@ -228,9 +229,17 @@ function RoomPage() {
     if (!parts.some((p) => p.role === "candidato")) {
       return toast.error("Nenhum candidato na sala ainda.");
     }
+    // Sincroniza o offset com o servidor e projeta started_at para o EXATO momento
+    // em que a animação termina nos dois lados. Assim o cronômetro começa em "Estação iniciada".
+    await getServerOffset(true);
+    const startsAtIso = new Date(serverNow() + INTRO_DURATION_MS).toISOString();
     const { error } = await supabase
       .from("training_rooms")
-      .update({ status: "starting", starting_at: new Date().toISOString() })
+      .update({
+        status: "starting",
+        starting_at: new Date(serverNow()).toISOString(),
+        started_at: startsAtIso,
+      })
       .eq("id", room.id);
     if (error) toast.error(error.message);
   }
@@ -244,12 +253,14 @@ function RoomPage() {
 
   async function onIntroComplete() {
     if (!room || !user) return;
-    // Só o host promove para "running" (evita corrida)
-    if (isHost && room.status !== "running") {
+    // started_at já foi setado no startStation (projetado para este instante).
+    // Só o host promove status -> running (idempotente via .eq('status','starting')).
+    if (isHost && room.status === "starting") {
       await supabase
         .from("training_rooms")
-        .update({ status: "running", started_at: new Date().toISOString() })
-        .eq("id", room.id);
+        .update({ status: "running" })
+        .eq("id", room.id)
+        .eq("status", "starting");
     }
     const myRole = parts.find((p) => p.user_id === user.id)?.role;
     if (myRole) redirectByRole(myRole);
