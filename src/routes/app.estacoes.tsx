@@ -75,11 +75,14 @@ function StationsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((s) => (
+        {filtered.map((s) => {
+          const meta = getSpecialtyMeta(s.specialty);
+          return (
           <div
             key={s.id}
-            className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant"
+            className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
           >
+            <div className={`absolute inset-x-0 top-0 h-1 ${meta.solid}`} aria-hidden />
             <div className="flex items-start justify-between gap-3">
               <SpecialtyBadge specialty={s.specialty} />
               {s.tag && (
