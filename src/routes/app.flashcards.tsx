@@ -231,7 +231,7 @@ function FlashcardsPage() {
             <ChevronRight className="h-8 w-8" />
           </button>
 
-          <div className="mx-auto w-full max-w-xl">
+          <div className="mx-auto w-full max-w-md">
             {done ? (
               <div className="rounded-2xl border border-border bg-card p-10 text-center">
                 <Smile className="mx-auto h-10 w-10 text-mint" />
@@ -241,13 +241,13 @@ function FlashcardsPage() {
               </div>
             ) : (
               <>
-                <div className="rounded-2xl overflow-hidden ring-1 ring-border">
-                  <div className={cn("flex items-center justify-between px-4 py-2 font-display font-bold text-white", revealed ? "bg-amber-500" : "bg-primary")}>
+                <div className="rounded-2xl overflow-hidden ring-1 ring-border aspect-square flex flex-col">
+                  <div className={cn("flex items-center justify-between px-4 py-2 font-display font-bold text-white shrink-0", revealed ? "bg-amber-500" : "bg-primary")}>
                     <span>{revealed ? "Resposta" : "Pergunta"}</span>
                     <span>{index + 1} | {cards.length}</span>
                   </div>
-                  <div className={cn("min-h-[260px] flex items-center justify-center p-8 text-center whitespace-pre-wrap",
-                    revealed ? "bg-amber-100 text-amber-900" : "bg-primary/30 text-foreground")}>
+                  <div className={cn("flex-1 flex items-center justify-center p-6 text-center whitespace-pre-wrap overflow-y-auto",
+                    revealed ? "bg-amber-100 text-amber-900" : "bg-primary/10 text-foreground")}>
                     <div className="text-base md:text-lg font-medium">
                       {revealed ? current.back : current.front}
                     </div>
