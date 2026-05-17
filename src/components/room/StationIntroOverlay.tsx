@@ -271,12 +271,18 @@ function ClinicalRecord({ isCandidate, stationTitle }: { isCandidate: boolean; s
 
 function SlidingDoors({ open }: { open: boolean }) {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Painel esquerdo */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      {/* Painel esquerdo: começa fechado (x:0 cobrindo metade esq.), abre p/ -100% */}
       <motion.div
         initial={{ x: "-100%" }}
-        animate={{ x: open ? "-100%" : "-50%" }}
-        transition={{ duration: 0.9, ease: [0.7, 0, 0.3, 1], delay: open ? 0 : 0.2 }}
+        animate={{ x: open ? "-100%" : "0%" }}
+        transition={{ duration: 0.9, ease: [0.7, 0, 0.3, 1] }}
         className="absolute inset-y-0 left-0 w-1/2 border-r border-mint/20"
         style={{
           background:
@@ -289,8 +295,8 @@ function SlidingDoors({ open }: { open: boolean }) {
       {/* Painel direito */}
       <motion.div
         initial={{ x: "100%" }}
-        animate={{ x: open ? "100%" : "50%" }}
-        transition={{ duration: 0.9, ease: [0.7, 0, 0.3, 1], delay: open ? 0 : 0.2 }}
+        animate={{ x: open ? "100%" : "0%" }}
+        transition={{ duration: 0.9, ease: [0.7, 0, 0.3, 1] }}
         className="absolute inset-y-0 right-0 w-1/2 border-l border-mint/20"
         style={{
           background:
@@ -300,6 +306,6 @@ function SlidingDoors({ open }: { open: boolean }) {
       >
         <div className="absolute left-2 top-1/2 h-24 w-1 -translate-y-1/2 rounded-full bg-mint/40" />
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
