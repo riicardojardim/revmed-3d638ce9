@@ -1132,17 +1132,36 @@ function SectionPublish({
 // ============================================================
 // Live preview — mirrors the actual Avaliado / Ator / Avaliador panels
 // ============================================================
-type PreviewMode = "candidato" | "ator";
+type PreviewMode = "candidato" | "ator" | "pep";
+
+function previewLevelStyle(label: string) {
+  const k = (label || "").toLowerCase();
+  if (k.startsWith("adequado")) return { dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]", short: "ADQ" };
+  if (k.startsWith("parc"))     return { dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",         activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]", short: "PAR" };
+  return                          { dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",             activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]", short: "INA" };
+}
 
 function StationLivePreview({ station, items }: { station: Station; items: Item[] }) {
   const [mode, setMode] = useState<PreviewMode>("candidato");
+  const [pepLevels, setPepLevels] = useState<Record<string, number>>({});
   const meta = getSpecialtyMeta(station.specialty);
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
 
   const tabs: { id: PreviewMode; label: string; icon: ComponentType<{ className?: string }> }[] = [
     { id: "candidato", label: "Avaliado (candidato)", icon: User },
     { id: "ator",      label: "Ator / Paciente",      icon: Stethoscope },
+    { id: "pep",       label: "Avaliador (PEP)",      icon: ClipboardCheck },
   ];
+
+  const groupedPep = (() => {
+    const map = new Map<string, Item[]>();
+    items.forEach((it) => {
+      const arr = map.get(it.category) ?? [];
+      arr.push(it);
+      map.set(it.category, arr);
+    });
+    return Array.from(map.entries());
+  })();
 
   const p = station.patient_profile ?? {};
   const hasProfile = Object.values(p).some((v) => typeof v === "string" && v.trim().length > 0);
@@ -1182,7 +1201,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">
-              {mode === "candidato" ? "Candidato" : "Ator/Paciente"}
+              {mode === "candidato" ? "Candidato" : mode === "ator" ? "Ator/Paciente" : "Avaliador (PEP)"}
             </span>
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground">{station.specialty}</span>
@@ -1329,6 +1348,111 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                 </div>
               )}
             </PRBlock>
+          </div>
+        )}
+
+        {mode === "pep" && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-indigo-300/30 bg-gradient-to-r from-indigo-50/60 to-mint/5 px-5 py-3 text-xs dark:from-indigo-950/20">
+              <div className="flex items-center gap-2 font-semibold text-indigo-700 dark:text-indigo-300">
+                <ClipboardCheck className="h-3.5 w-3.5" /> Checklist (PEP)
+              </div>
+              <p className="mt-1 text-muted-foreground">
+                Avalie cada item em <b className="text-emerald-700 dark:text-emerald-300">Adequado</b>,
+                {" "}<b className="text-amber-700 dark:text-amber-300">Parcialmente adequado</b> ou
+                {" "}<b className="text-rose-700 dark:text-rose-300">Inadequado</b>. A pontuação é calculada automaticamente.
+                <span className="ml-1 italic">(prévia · {items.length} itens · {totalPts.toFixed(2)} pts)</span>
+              </p>
+            </div>
+
+            {items.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Nenhum item de checklist cadastrado.
+              </p>
+            ) : groupedPep.map(([cat, catItems]) => (
+              <div key={cat} className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+                <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-indigo-50/60 to-transparent px-5 py-3 dark:from-indigo-950/30">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-[11px] font-bold text-indigo-600 dark:text-indigo-300">
+                      {catItems.length}
+                    </span>
+                    <h3 className="text-sm font-semibold tracking-wide">{cat}</h3>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {catItems.reduce((s, i) => s + Number(i.points || 0), 0).toFixed(2)} pts
+                  </span>
+                </div>
+                <ul className="divide-y divide-border/50">
+                  {catItems.map((it, idx) => {
+                    const lvl = pepLevels[it.id];
+                    const maxPts = Number(it.points) || 0;
+                    const itemLevels = (it.levels && it.levels.length > 0)
+                      ? it.levels
+                      : [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: maxPts }];
+                    const cols = itemLevels.length === 2 ? "grid-cols-2" : "grid-cols-3";
+                    return (
+                      <li key={it.id} className={cn(
+                        "p-5 transition",
+                        lvl !== undefined && lvl === maxPts && maxPts > 0 && "bg-emerald-50/30 dark:bg-emerald-950/10",
+                        lvl !== undefined && lvl > 0 && lvl < maxPts && "bg-amber-50/30 dark:bg-amber-950/10",
+                        lvl === 0 && "bg-rose-50/30 dark:bg-rose-950/10",
+                        lvl === undefined && "hover:bg-muted/30",
+                      )}>
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                            lvl === undefined ? "bg-muted text-muted-foreground" : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md",
+                          )}>
+                            {idx + 1}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold leading-relaxed whitespace-pre-wrap">{it.description}</p>
+                            <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                              <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
+                              <span>Vale <b className="text-foreground tabular-nums">{maxPts.toFixed(2)}</b> pts</span>
+                            </div>
+
+                            <div className={cn("mt-3 grid gap-2", cols)}>
+                              {itemLevels.map((L, li) => {
+                                const active = lvl === L.points;
+                                const lmeta = previewLevelStyle(L.label);
+                                return (
+                                  <button key={`${L.label}-${li}`} type="button"
+                                    onClick={() => setPepLevels((s) => ({ ...s, [it.id]: L.points }))}
+                                    className={cn(
+                                      "group relative rounded-xl border-2 px-2.5 py-2 text-left transition-all",
+                                      active ? lmeta.activeCls : `bg-card ${lmeta.cls}`,
+                                    )}>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", active ? "bg-white" : lmeta.dot)} />
+                                      <span className="text-[11px] font-semibold leading-tight">
+                                        <span className="hidden md:inline">{L.label}</span>
+                                        <span className="md:hidden">{lmeta.short}</span>
+                                      </span>
+                                    </div>
+                                    <div className={cn("mt-1 font-display text-base font-bold tabular-nums", active ? "text-white" : "")}>
+                                      {L.points === 0 ? "0" : L.points % 1 === 0 ? L.points.toFixed(0) : L.points.toFixed(2)}
+                                    </div>
+                                    {L.description && (
+                                      <div className={cn("mt-1 text-[10px] leading-snug", active ? "text-white/90" : "text-muted-foreground")}>
+                                        {L.description}
+                                      </div>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <Textarea rows={2} placeholder="Observação para este item (opcional)" disabled
+                              className="mt-3 resize-none bg-background/50 text-sm" />
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </div>
         )}
 
