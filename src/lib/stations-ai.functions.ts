@@ -103,12 +103,14 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - NUNCA use labels genéricos como "Inadequado" sozinho — sempre inclua a regra concreta após os dois pontos.
    - Numere os itens em ordem (1., 2., 3., …) na "description".
 
-2) deliverable_materials (impressos / exames entregáveis pelo avaliador)
-   - Extraia TODOS os impressos do PDF (Exame físico, exames laboratoriais, ECG, exames de imagem, foto, prescrição em branco, etc.).
-   - "name": ex. "Impresso 1 ( Exame físico )", "Impresso 2 ( Exames laboratoriais )".
-   - "type": "Exame físico" | "Exame laboratorial" | "Exame de imagem" | "ECG" | "Impresso" | "Outro" (use o texto natural do PDF).
-   - "description": gatilho de entrega, ex.: "Entregue após solicitação do exame físico.", "Entregue se solicitar exames laboratoriais.".
-   - "content": TRANSCREVA na íntegra (sinais vitais, valores de exames com unidades, laudo, imagem descrita, etc.). Não resuma.
+2) deliverable_materials (impressos / exames entregáveis pelo avaliador) — OBRIGATÓRIO
+   - Vasculhe TODO o PDF procurando seções como: "IMPRESSO 1", "IMPRESSO 2", "IMPRESSO N", "Material impresso", "Exame físico (resultado)", "Exames laboratoriais", "Exames complementares", "ECG", "Imagem", "Radiografia", "Tomografia", "USG", "Laudo", "Foto", "Prescrição em branco", "Receituário".
+   - Extraia TODOS — não pule nenhum. Se o PDF tem "Impresso 1, 2, 3, 4", o array deve ter 4 itens, em ordem.
+   - "name": use o TÍTULO LITERAL do impresso como aparece no PDF (ex.: "Impresso 1 - Exame físico", "Impresso 2 - Exames laboratoriais", "Impresso 3 - ECG").
+   - "type": "Exame físico" | "Exame laboratorial" | "Exame de imagem" | "ECG" | "Impresso" | "Outro".
+   - "description": gatilho de entrega quando o PDF indicar (ex.: "Entregue após solicitação do exame físico.", "Entregue se solicitar exames laboratoriais."). Se não houver gatilho explícito, deixe vazio.
+   - "content": TRANSCREVA NA ÍNTEGRA o texto do impresso (sinais vitais com valores e unidades, todos os exames laboratoriais linha a linha com valores e unidades, laudo completo, descrição da imagem/foto, etc.). NÃO RESUMA, NÃO PARAFRASEIE. Para imagens/fotos sem texto, coloque uma breve descrição do que se vê (ex.: "Foto de lesão eritematosa em membro inferior direito") — o usuário fará o upload da imagem manualmente depois.
+   - Se um impresso só contém imagem (foto, RX, TC) sem dados textuais, ainda assim CRIE o item com name e type corretos e content descrevendo brevemente a imagem.
 
 3) patient_script (INSTRUÇÕES DO ATOR — fala/atuação do paciente simulado)
    - Texto corrido com o que o ator DEVE dizer e como deve agir. Inclua tom emocional, postura, fala espontânea inicial, respostas a perguntas, e o que NÃO revelar a menos que perguntado.
