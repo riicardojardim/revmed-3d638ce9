@@ -292,37 +292,7 @@ function EditorBody({
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link to="/app/admin/estacoes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Voltar para a lista
-        </Link>
-        <div className="flex flex-wrap gap-2">
-          <GrammarReviewButton
-            station={station as never}
-            items={items as never}
-            setStation={setStation as never}
-            setItems={setItems as never}
-          />
-          <Button variant="outline" onClick={togglePublish}>
-            {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
-          </Button>
-          <Button variant="hero" onClick={() => saveStation()} disabled={saving}>
-            <Save className="h-4 w-4" /> {saving ? "Salvando..." : "Salvar"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between text-sm">
-        <div className="text-muted-foreground">
-          {items.length} itens · <span className="font-semibold text-foreground">{totalPts.toFixed(2)} pts</span> totais
-        </div>
-        <Badge variant="outline">
-          {station.published ? "Publicada" : "Rascunho"}
-        </Badge>
-      </div>
-
-      {/* PDF Import */}
+      {/* PDF Import — Passo 1: importe o PDF para preencher tudo automaticamente */}
       <PdfImportSection
         stationId={id}
         currentItemsCount={items.length}
@@ -382,6 +352,36 @@ function EditorBody({
           toast.success("PDF importado e campos preenchidos");
         }}
       />
+
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Link to="/app/admin/estacoes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Voltar para a lista
+        </Link>
+        <div className="flex flex-wrap gap-2">
+          <GrammarReviewButton
+            station={station as never}
+            items={items as never}
+            setStation={setStation as never}
+            setItems={setItems as never}
+          />
+          <Button variant="outline" onClick={togglePublish}>
+            {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
+          </Button>
+          <Button variant="hero" onClick={() => saveStation()} disabled={saving}>
+            <Save className="h-4 w-4" /> {saving ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-sm">
+        <div className="text-muted-foreground">
+          {items.length} itens · <span className="font-semibold text-foreground">{totalPts.toFixed(2)} pts</span> totais
+        </div>
+        <Badge variant="outline">
+          {station.published ? "Publicada" : "Rascunho"}
+        </Badge>
+      </div>
 
       <SectionBasics station={station} up={up} items={items} />
 
