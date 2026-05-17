@@ -241,7 +241,7 @@ async function callGateway(
     const m = content.match(/\{[\s\S]*\}/);
     parsed = m ? JSON.parse(m[0]) : {};
   }
-  return ResultSchema.parse(parsed);
+  return cleanExtractedStation(ResultSchema.parse(parsed));
 }
 
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
