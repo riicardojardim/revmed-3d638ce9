@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
+import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
