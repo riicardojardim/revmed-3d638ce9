@@ -231,14 +231,6 @@ function AdminFlashcardEditor() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Tópico (opcional)</label>
-              <Input value={deck.topic ?? ""} onChange={(e) => patchDeck({ topic: e.target.value })} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Descrição (opcional)</label>
-              <Textarea rows={3} value={deck.description ?? ""} onChange={(e) => patchDeck({ description: e.target.value })} />
-            </div>
           </div>
         </aside>
 
