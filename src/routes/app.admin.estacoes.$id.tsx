@@ -672,6 +672,11 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
     onChange(next);
   }
 
+  const [openIdx, setOpenIdx] = useState<Record<number, boolean>>({});
+  function toggle(i: number) {
+    setOpenIdx((s) => ({ ...s, [i]: !s[i] }));
+  }
+
   return (
     <Section title="Impressos e materiais entregáveis" hint="Materiais que o avaliador libera quando o candidato solicita ou cumpre um gatilho.">
       <div className="flex justify-end">
@@ -683,54 +688,49 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
         </p>
       ) : (
         <div className="space-y-3">
-          {materials.map((m, i) => (
+          {materials.map((m, i) => {
+            const isOpen = !!openIdx[i];
+            return (
             <div key={i} className="rounded-xl border border-border bg-background/40 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <Badge variant="outline" className="border-mint/30 text-mint">Impresso {i + 1}</Badge>
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggle(i)}
+                  className="flex items-center gap-2 flex-1 text-left"
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "" : "-rotate-90"}`} />
+                  <Badge variant="outline" className="border-mint/30 text-mint">Impresso {i + 1}</Badge>
+                  {m.name && <span className="text-sm text-muted-foreground truncate">{m.name}</span>}
+                </button>
                 <div className="flex gap-1">
                   <Button variant="ghost" size="icon" onClick={() => move(i, -1)} disabled={i === 0}><ChevronUp className="h-4 w-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => move(i, 1)} disabled={i === materials.length - 1}><ChevronDown className="h-4 w-4" /></Button>
                   <Button variant="ghost" size="icon" onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </div>
-              <div className="grid gap-3 md:grid-cols-[2fr,1fr]">
-                <div>
-                  <Label>Nome (curto, ex: "Pulso e respiração")</Label>
-                  <Input value={m.name} onChange={(e) => update(i, { name: e.target.value })} />
-                </div>
-                <div>
-                  <Label>Tipo</Label>
-                  <Select value={m.type} onValueChange={(v) => update(i, { type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {MATERIAL_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div>
-                <Label>Quando liberar (gatilho)</Label>
-                <Input value={m.description ?? ""} onChange={(e) => update(i, { description: e.target.value })}
-                  placeholder="Ex: Liberar se perguntado sobre pulso e respiração." />
-              </div>
-              <div>
-                <Label>Conteúdo entregue</Label>
-                <Textarea rows={4} value={m.content} onChange={(e) => update(i, { content: e.target.value })}
-                  placeholder="Texto/resultado que será mostrado ao candidato." />
-              </div>
-              <div>
-                <Label>Imagem (opcional) — ex: ECG, radiografia, foto de lesão</Label>
-                <MaterialImageUpload
-                  value={m.imageUrl}
-                  onChange={(url) => update(i, { imageUrl: url })}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={!!m.autoDeliver} onCheckedChange={(v) => update(i, { autoDeliver: v })} />
-                <span className="text-sm text-muted-foreground">Entregar automaticamente no início</span>
-              </div>
+              {isOpen && (
+                <>
+                  <div>
+                    <Label>Nome (curto, ex: "Pulso e respiração")</Label>
+                    <Input value={m.name} onChange={(e) => update(i, { name: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Conteúdo entregue</Label>
+                    <Textarea rows={4} value={m.content} onChange={(e) => update(i, { content: e.target.value })}
+                      placeholder="Texto/resultado que será mostrado ao candidato." />
+                  </div>
+                  <div>
+                    <Label>Imagem (opcional) — ex: ECG, radiografia, foto de lesão</Label>
+                    <MaterialImageUpload
+                      value={m.imageUrl}
+                      onChange={(url) => update(i, { imageUrl: url })}
+                    />
+                  </div>
+                </>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </Section>
