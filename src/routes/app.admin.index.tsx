@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, BookOpen, ClipboardList, Layers, CheckCircle2, FileText, AlertCircle, Stethoscope } from "lucide-react";
+import { Users, BookOpen, ClipboardList, Layers, CheckCircle2, FileText, AlertCircle, Stethoscope, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
 
 export const Route = createFileRoute("/app/admin/")({
   component: AdminOverview,
