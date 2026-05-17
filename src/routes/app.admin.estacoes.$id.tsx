@@ -119,6 +119,31 @@ function numberedCategory(index: number, title: string): string {
   return `${index + 1}. ${clean}`;
 }
 
+/**
+ * Clean checklist item description + category coming from AI / PDF import.
+ * Removes leading "N." numbering and a leading "Categoria:" prefix from the
+ * description. If the explicit category is missing or the generic default
+ * ("Anamnese"), infer it from that leading prefix.
+ */
+function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null): { description: string; category: string } {
+  let desc = (rawDesc ?? "").trim();
+  desc = desc.replace(/^\s*\d+\s*[.)\-–—]\s*/, "");
+  let inferred: string | null = null;
+  const m = desc.match(/^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s/-]{0,40}?):\s*/);
+  if (m) {
+    const candidate = m[1].trim();
+    if (candidate.split(/\s+/).length <= 4) {
+      inferred = candidate;
+      desc = desc.slice(m[0].length).trim();
+    }
+  }
+  const explicit = (rawCategory ?? "").replace(/^\s*\d+\.\s*/, "").trim();
+  const isGeneric = !explicit || /^anamnese$/i.test(explicit);
+  const chosen = (!isGeneric ? explicit : (inferred ?? explicit)) || "Anamnese";
+  const niceCategory = chosen.charAt(0).toUpperCase() + chosen.slice(1);
+  return { description: desc, category: niceCategory };
+}
+
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
