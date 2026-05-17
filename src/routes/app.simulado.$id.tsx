@@ -426,8 +426,13 @@ function SimuladoRunner() {
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
-            {station.patientScript && <ScriptText text={station.patientScript} />}
-            {p && <div className="mt-4"><ScriptText text={formatPatientProfile(p)} /></div>}
+            {station.patientScript ? (
+              <ScriptText text={station.patientScript} />
+            ) : p ? (
+              <ScriptText text={formatPatientProfile(p)} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
+            )}
             {p?.spontaneous && <SubBlock label="O que falar espontaneamente"><ScriptText text={p.spontaneous} /></SubBlock>}
             {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose"><ScriptText text={p.doNotReveal} /></SubBlock>}
             {(p?.emotionalTone || p?.actingTips) && (
