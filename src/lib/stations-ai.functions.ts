@@ -123,16 +123,16 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
 ================================================================
 
 1) checklist_items
-   - "category": nome curto da etapa SEM número. Use: "Comunicação", "Anamnese", "Exame físico", "Diagnóstico", "Conduta", "Orientação", "Procedimento", "Prescrição". NÃO coloque tudo como "Anamnese".
-   - "description": começa SEMPRE com o número do item seguido de ponto, e quando houver sub-itens, liste-os no formato "(1) X;\\n(2) Y;\\n(3) Z." Exemplo real:
-       "2. Realiza anamnese direcionada perguntando por:\\n(1) Tempo de evolução;\\n(2) Dor no local da picada;\\n(3) Salivação excessiva ou sialorreia;\\n(4) Vômitos;\\n(5) Priapismo;\\n(6) Sudorese;\\n(7) Limpeza da região afetada."
+   - "category": COPIE LITERALMENTE o título numerado do PEP, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → "Apresentação"; "2. Investiga os sintomas atuais da criança:" → "Investiga os sintomas atuais da criança"; "3. Investiga os hábitos alimentares:" → "Investiga os hábitos alimentares". NÃO normalize para nomes genéricos como "Comunicação" ou "Anamnese".
+   - "description": NÃO inclua a linha numerada/título da categoria. Comece direto nos sub-itens/ações avaliadas, no formato "(1) X;\\n(2) Y;\\n(3) Z." Exemplo real:
+        "(1) Tempo de evolução;\\n(2) Dor no local da picada;\\n(3) Salivação excessiva ou sialorreia;\\n(4) Vômitos;\\n(5) Priapismo;\\n(6) Sudorese;\\n(7) Limpeza da região afetada."
    - "points": pontuação MÁXIMA do item (0.25, 0.5, 0.75, 1.0, 1.5, 1.75, 2.0…). Use fracionário se for assim no PDF.
    - "levels": 2 ou 3 níveis com a regra de pontuação DENTRO do label:
        * 3 níveis quando há graduação parcial: "Inadequado: Pergunta por dois ou menos itens.", "Parcialmente adequado: Pergunta de três a cinco itens.", "Adequado: Pergunta seis ou sete itens."
        * 2 níveis para ações binárias: "Inadequado: Não solicita." / "Adequado: Solicita."
        * Os "points" de cada nível devem refletir o PEP do PDF (Ex.: 0 / 0.75 / 1.5).
    - NUNCA use labels genéricos como "Inadequado" sozinho — sempre inclua a regra concreta após os dois pontos.
-   - Numere os itens em ordem (1., 2., 3., …) na "description".
+   - PROIBIDO colocar "1. Apresentação:", "2. Investiga...:", "3. Investiga...:" ou qualquer linha numerada de categoria dentro de "description"; isso vai SOMENTE em "category".
 
 2) deliverable_materials (impressos / exames entregáveis pelo avaliador) — OBRIGATÓRIO
    - Vasculhe TODO o PDF procurando seções como: "IMPRESSO 1", "IMPRESSO 2", "IMPRESSO N", "Material impresso", "Exame físico (resultado)", "Exames laboratoriais", "Exames complementares", "ECG", "Imagem", "Radiografia", "Tomografia", "USG", "Laudo", "Foto", "Prescrição em branco", "Receituário".
