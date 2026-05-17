@@ -211,7 +211,7 @@ function AdminFlashcardEditor() {
               size="md"
             />
             <p className="text-[11px] text-muted-foreground">
-              A capa é gerada automaticamente a partir do título, da área e do tópico.
+              A capa é gerada automaticamente a partir do título e da área.
               Você só edita os textos — o layout é padrão para todos os decks.
             </p>
           </div>
