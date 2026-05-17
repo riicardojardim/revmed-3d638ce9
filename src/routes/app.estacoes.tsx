@@ -123,20 +123,6 @@ function StationsPage() {
                 className="h-11 pl-9 text-base"
               />
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                <Sparkles className="h-3.5 w-3.5" /> Sugestões:
-              </span>
-              {SUGGESTED_TOPICS.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setQ(t)}
-                  className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground transition-all hover:border-mint/50 hover:text-foreground"
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
           </div>
 
 
