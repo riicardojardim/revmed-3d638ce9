@@ -384,7 +384,7 @@ function EditorBody({
                 currentTitle: merged.title ?? "",
                 specialty: merged.specialty ?? "",
                 clinical_case: merged.clinical_case ?? "",
-                case_description: "",
+                case_description: merged.case_description ?? "",
                 candidate_task: merged.candidate_task ?? "",
                 patient_script: merged.patient_script ?? "",
                 pep_items: pepDescriptions,
