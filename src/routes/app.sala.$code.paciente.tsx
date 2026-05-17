@@ -695,8 +695,7 @@ function ActorView() {
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                        <span>{idx + 1}. {parts.lead.replace(/^\s*\d+\.\s*/, "")}</span>
-                        {it.category && <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>}
+                        <span>{idx + 1}. {it.category ? `${it.category}. ` : ""}{parts.lead.replace(/^\s*\d+\.\s*/, "")}</span>
                       </div>
                       {parts.subs.length > 0 && (
                         <ul className="mt-2 space-y-0.5">
