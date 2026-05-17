@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { parseStationPdfs } from "@/lib/stations-ai.functions";
+import { parseStationPdfs, parseStationText } from "@/lib/stations-ai.functions";
 import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
 import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 import { suggestStationTitle } from "@/lib/title-suggest.functions";
@@ -512,8 +512,11 @@ function PdfImportSection({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [text, setText] = useState("");
+  const [mode, setMode] = useState<"pdf" | "text">("pdf");
   const [loading, setLoading] = useState(false);
   const parseFn = useServerFn(parseStationPdfs);
+  const parseTextFn = useServerFn(parseStationText);
 
   function addFiles(list: FileList | null) {
     if (!list) return;
@@ -523,18 +526,23 @@ function PdfImportSection({
   }
 
   async function run() {
-    if (!files.length) return toast.error("Adicione ao menos 1 PDF");
+    if (mode === "pdf" && !files.length) return toast.error("Adicione ao menos 1 PDF");
+    if (mode === "text" && text.trim().length < 50) return toast.error("Cole o texto completo da estação (mínimo 50 caracteres)");
     setLoading(true);
     try {
-      const pdfs = await Promise.all(
-        files.map(async (f) => ({ name: f.name, dataUrl: await fileToDataUrl(f) })),
-      );
-      const result = await parseFn({ data: { pdfs } });
+      const result = mode === "pdf"
+        ? await parseFn({
+            data: {
+              pdfs: await Promise.all(files.map(async (f) => ({ name: f.name, dataUrl: await fileToDataUrl(f) }))),
+            },
+          })
+        : await parseTextFn({ data: { text: text.trim() } });
       await applyResult(result);
       setFiles([]);
+      setText("");
       if (inputRef.current) inputRef.current.value = "";
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Falha ao processar PDF";
+      const msg = err instanceof Error ? err.message : "Falha ao processar";
       toast.error("Falha na IA", { description: msg });
     } finally {
       setLoading(false);
@@ -543,59 +551,96 @@ function PdfImportSection({
 
   return (
     <Section
-      title="Importar checklist em PDF"
-      hint="Anexe um ou mais PDFs (checklist, caso, impressos) e a IA preenche os campos abaixo automaticamente."
+      title="Importar estação com IA"
+      hint="Anexe PDFs ou cole o texto completo da estação — a IA preenche todos os campos abaixo automaticamente."
     >
-      <div
-        className="rounded-xl border border-dashed border-border bg-background/40 p-4 text-sm"
-        onDragOver={(e) => { e.preventDefault(); }}
-        onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
-            <Upload className="h-4 w-4" /> Escolher PDFs
-          </Button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="application/pdf"
-            multiple
-            className="hidden"
-            onChange={(e) => addFiles(e.target.files)}
-          />
-          <span className="text-xs text-muted-foreground">
-            Ou arraste e solte aqui · até 5 arquivos
-          </span>
-        </div>
-        {files.length > 0 && (
-          <ul className="mt-3 space-y-1.5">
-            {files.map((f, i) => (
-              <li key={i} className="flex items-center justify-between rounded border border-border bg-card/60 px-3 py-1.5 text-xs">
-                <span className="flex items-center gap-2 truncate">
-                  <FileText className="h-3.5 w-3.5 text-mint" /> {f.name}
-                  <span className="text-muted-foreground">({Math.round(f.size / 1024)} KB)</span>
-                </span>
-                <button
-                  type="button"
-                  className="text-muted-foreground hover:text-destructive"
-                  onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-muted-foreground">
-            A IA NÃO sobrescreve impressos já cadastrados a menos que estejam vazios. Os itens de
-            checklist são adicionados ao final da lista.
-          </p>
-          <Button type="button" variant="hero" onClick={run} disabled={loading || !files.length}>
-            <Sparkles className="h-4 w-4" /> {loading ? "Processando com IA..." : "Preencher com IA"}
-          </Button>
-        </div>
+      <div className="mb-3 flex gap-1 rounded-lg border border-border bg-background/40 p-1 w-fit">
+        <button
+          type="button"
+          onClick={() => setMode("pdf")}
+          className={`px-3 py-1.5 text-xs rounded-md transition ${mode === "pdf" ? "bg-mint/20 text-mint" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <FileText className="inline h-3.5 w-3.5 mr-1" /> PDF
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("text")}
+          className={`px-3 py-1.5 text-xs rounded-md transition ${mode === "text" ? "bg-mint/20 text-mint" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Sparkles className="inline h-3.5 w-3.5 mr-1" /> Colar texto
+        </button>
       </div>
+
+      {mode === "pdf" ? (
+        <div
+          className="rounded-xl border border-dashed border-border bg-background/40 p-4 text-sm"
+          onDragOver={(e) => { e.preventDefault(); }}
+          onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
+              <Upload className="h-4 w-4" /> Escolher PDFs
+            </Button>
+            <input
+              ref={inputRef}
+              type="file"
+              accept="application/pdf"
+              multiple
+              className="hidden"
+              onChange={(e) => addFiles(e.target.files)}
+            />
+            <span className="text-xs text-muted-foreground">
+              Ou arraste e solte aqui · até 5 arquivos
+            </span>
+          </div>
+          {files.length > 0 && (
+            <ul className="mt-3 space-y-1.5">
+              {files.map((f, i) => (
+                <li key={i} className="flex items-center justify-between rounded border border-border bg-card/60 px-3 py-1.5 text-xs">
+                  <span className="flex items-center gap-2 truncate">
+                    <FileText className="h-3.5 w-3.5 text-mint" /> {f.name}
+                    <span className="text-muted-foreground">({Math.round(f.size / 1024)} KB)</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-destructive"
+                    onClick={() => setFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              A IA NÃO sobrescreve impressos já cadastrados a menos que estejam vazios. Os itens de
+              checklist são adicionados ao final da lista.
+            </p>
+            <Button type="button" variant="hero" onClick={run} disabled={loading || !files.length}>
+              <Sparkles className="h-4 w-4" /> {loading ? "Processando com IA..." : "Preencher com IA"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-border bg-background/40 p-4 text-sm space-y-3">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Cole aqui o texto completo da estação: cenário, descrição do caso, tarefa do candidato, instruções ao ator, impressos e checklist/PEP..."
+            className="w-full min-h-[280px] rounded-lg border border-border bg-background/60 p-3 text-xs font-mono leading-relaxed focus:outline-none focus:ring-1 focus:ring-mint"
+            maxLength={200_000}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              {text.length.toLocaleString("pt-BR")} caracteres · A IA preenche todos os campos a partir do texto colado.
+            </p>
+            <Button type="button" variant="hero" onClick={run} disabled={loading || text.trim().length < 50}>
+              <Sparkles className="h-4 w-4" /> {loading ? "Processando com IA..." : "Preencher com IA"}
+            </Button>
+          </div>
+        </div>
+      )}
     </Section>
   );
 }
