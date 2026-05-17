@@ -338,7 +338,7 @@ function deduceSpecialtyFromContent(r: ParsedStation): string | undefined {
 function mergeResults(parts: ParsedStation[]): ParsedStation {
   if (parts.length === 1) {
     const r = { ...parts[0] };
-    const norm = normalizeSpecialty(r.specialty);
+    const norm = normalizeSpecialty(r.specialty) ?? deduceSpecialtyFromContent(r);
     if (norm) r.specialty = norm;
     return r;
   }
