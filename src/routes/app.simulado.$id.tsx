@@ -430,6 +430,16 @@ function SimuladoRunner() {
   const progress = ((sim.currentIndex + (allScored ? 1 : 0)) / sim.stations.length) * 100;
 
   return (
+    <>
+      {showIntro && (
+        <StationIntroOverlay
+          role={"paciente" as IntroRole}
+          stationTitle={station?.title ?? sim.name}
+          specialty={station?.specialty ?? null}
+          displayName={profile?.full_name ?? "Ator"}
+          onComplete={onIntroComplete}
+        />
+      )}
     <div className="mx-auto max-w-7xl space-y-4">
       {/* Progress header */}
       <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
