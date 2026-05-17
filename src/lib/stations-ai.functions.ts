@@ -331,6 +331,8 @@ function mergeResults(parts: ParsedStation[]): ParsedStation {
   const items: NonNullable<ParsedStation["checklist_items"]> = [];
   for (const p of parts) for (const it of p.checklist_items ?? []) items.push(it);
   if (items.length) out.checklist_items = items;
+  const norm = normalizeSpecialty(out.specialty);
+  if (norm) out.specialty = norm;
   return out;
 }
 
