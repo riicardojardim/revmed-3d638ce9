@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import { DeckCover } from "@/components/flashcards/DeckCover";
 
 export const Route = createFileRoute("/app/admin/flashcards/")({
   component: AdminFlashcardsPage,
