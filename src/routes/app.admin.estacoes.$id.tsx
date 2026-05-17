@@ -23,6 +23,9 @@ import { cn } from "@/lib/utils";
 import { parseStationPdfs } from "@/lib/stations-ai.functions";
 import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
 import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
+import { suggestStationTitle } from "@/lib/title-suggest.functions";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, Wand2 } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
