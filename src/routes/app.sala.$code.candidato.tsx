@@ -103,11 +103,17 @@ function CandidateView() {
   async function loadEvaluation(roomId: string) {
     if (!user) return;
     const { data } = await supabase.from("room_evaluations")
-      .select("final_score, status, final_feedback")
+      .select("final_score, status, final_feedback, checks, item_comments")
       .eq("room_id", roomId)
       .eq("candidate_id", user.id)
       .maybeSingle();
-    if (data) setEvaluation(data);
+    if (data) setEvaluation({
+      final_score: data.final_score,
+      status: data.status,
+      final_feedback: data.final_feedback,
+      checks: (data.checks ?? {}) as Record<string, number>,
+      item_comments: (data.item_comments ?? {}) as Record<string, string>,
+    });
   }
 
   // Timer sync
