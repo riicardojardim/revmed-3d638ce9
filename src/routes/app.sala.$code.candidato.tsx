@@ -282,7 +282,7 @@ function CandidateView() {
             <ShieldCheck className="h-3 w-3" /> Estação em andamento
           </div>
           <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
-            {room.station_title ?? station.title}
+            Estação de {station.specialty}
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/70">
             {(() => {
