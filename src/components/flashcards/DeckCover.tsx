@@ -93,7 +93,6 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
             style={{ fontSize: "max(9px, 3.6cqi)" }}
           >
             {specialty}
-            {topic ? <span className="font-normal text-white/60"> · {topic}</span> : null}
           </div>
           <div
             className="hidden @[200px]:block uppercase tracking-[0.22em] text-white/50"
