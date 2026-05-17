@@ -72,11 +72,19 @@ function TrainPage() {
     });
   }
   function openSelectMode() {
+    if (!canSaveSimulado) {
+      toast.error("Simulados são exclusivos do plano Completo.");
+      return;
+    }
     setSelectMode(true);
     setSelected([]);
     setAllOpen(true);
   }
   function startSimulado() {
+    if (!canSaveSimulado) {
+      toast.error("Simulados são exclusivos do plano Completo.");
+      return;
+    }
     if (selected.length === 0) {
       toast.error("Adicione pelo menos um checklist.");
       return;
