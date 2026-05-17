@@ -5,6 +5,16 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import type { LoadedStation } from "@/lib/stationLoader";
 
+export function formatPepHeading(index: number, category: string | null | undefined, description: string): string {
+  const cleanCategory = (category ?? "").replace(/^\s*\d+\s*[.)\-–—]\s*/, "").trim();
+  if (cleanCategory) {
+    const needsPunctuation = !/[:.;!?]$/.test(cleanCategory);
+    const punctuation = needsPunctuation ? (/\(\d+\)\s*/.test(description) ? ":" : ".") : "";
+    return `${index + 1}. ${cleanCategory}${punctuation}`;
+  }
+  return `${index + 1}. ${(description ?? "").replace(/^\s*\d+\s*[.)\-–—]\s*/, "").trim()}`;
+}
+
 export function parseSubItems(description: string): { lead: string; subs: string[] } {
   const numbered = description.match(/\(\d+\)\s*[^()]+/g);
   if (numbered && numbered.length >= 2) {
