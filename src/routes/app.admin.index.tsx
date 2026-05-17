@@ -94,38 +94,42 @@ function AdminOverview() {
   }, []);
 
   const cards = [
-    { label: "Usuários", value: stats.users, icon: Users, color: "text-medical" },
-    { label: "Tentativas (total)", value: stats.attempts, icon: ClipboardList, color: "text-mint" },
-    { label: "Tentativas — 7 dias", value: stats.attempts7, icon: ClipboardList, color: "text-mint" },
-    { label: "Tentativas — 30 dias", value: stats.attempts30, icon: ClipboardList, color: "text-mint" },
-    { label: "Estações publicadas", value: stats.stationsPublished, icon: CheckCircle2, color: "text-success" },
-    { label: "Estações rascunho", value: stats.stationsDraft, icon: Layers, color: "text-warning" },
-    { label: "Flashcards", value: stats.flashcards, icon: BookOpen, color: "text-mint" },
-    { label: "Resumos", value: stats.summaries, icon: FileText, color: "text-mint" },
+    { label: "Usuários", value: stats.users, icon: Users },
+    { label: "Tentativas · total", value: stats.attempts, icon: ClipboardList },
+    { label: "Tentativas · 7d", value: stats.attempts7, icon: ClipboardList },
+    { label: "Tentativas · 30d", value: stats.attempts30, icon: ClipboardList },
+    { label: "Estações publicadas", value: stats.stationsPublished, icon: CheckCircle2 },
+    { label: "Estações rascunho", value: stats.stationsDraft, icon: Layers },
+    { label: "Flashcards", value: stats.flashcards, icon: BookOpen },
+    { label: "Resumos", value: stats.summaries, icon: FileText },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="font-display font-semibold flex items-center gap-2">
-              <Play className="h-4 w-4 text-mint" /> Testar animação de entrada
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Pré-visualize a sequência "Prontuário + Crachá" (~9s) sem precisar criar uma estação.
-            </p>
+    <div className="space-y-10">
+      {/* Editorial header */}
+      <header className="flex flex-col gap-4 border-b hairline pb-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div className="text-eyebrow flex items-center gap-2">
+            <span className="h-px w-8 bg-mint" />
+            Painel administrativo · Edição diária
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>
-              Ver como Candidato / Médico
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setTestRole("paciente")}>
-              Ver como Ator / Paciente
-            </Button>
-          </div>
+          <h1 className="mt-3 font-editorial text-[44px] leading-[0.95] tracking-[-0.03em] md:text-[56px]">
+            <span className="italic font-light">A operação,</span>{" "}
+            <span className="font-medium">em números.</span>
+          </h1>
+          <p className="mt-3 max-w-xl text-sm text-muted-foreground">
+            Uma visão calma da plataforma — usuários, conteúdo e ritmo de uso, lado a lado.
+          </p>
         </div>
-      </div>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>
+            <Play className="h-3.5 w-3.5" /> Ver como Candidato
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setTestRole("paciente")}>
+            <Play className="h-3.5 w-3.5" /> Ver como Ator
+          </Button>
+        </div>
+      </header>
 
       {testRole && (
         <StationIntroOverlay
@@ -137,70 +141,145 @@ function AdminOverview() {
         />
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <c.icon className={`h-5 w-5 ${c.color}`} />
-            <div className="mt-3 text-3xl font-bold font-display">{loading ? "—" : c.value}</div>
-            <div className="text-sm text-muted-foreground">{c.label}</div>
+      {/* Bento KPI grid */}
+      <section className="grid grid-cols-12 gap-4">
+        {/* Hero KPI — Usuários */}
+        <div className="col-span-12 card-premium hover:card-premium-hover p-7 md:col-span-6 lg:col-span-5">
+          <div className="flex items-start justify-between">
+            <div className="text-eyebrow">Comunidade</div>
+            <Users className="h-4 w-4 text-mint" strokeWidth={1.7} />
+          </div>
+          <div className="mt-6 flex items-end gap-4">
+            <span className="editorial-number text-[96px] md:text-[120px] text-foreground">
+              {loading ? "—" : stats.users}
+            </span>
+            <span className="mb-3 text-eyebrow-serif">Usuários totais</span>
+          </div>
+          <div className="mt-6 flex items-center gap-6 border-t hairline pt-4 text-[13px]">
+            <div>
+              <div className="text-muted-foreground text-xs">Ativos 7d</div>
+              <div className="font-editorial text-lg">{loading ? "—" : stats.attempts7}</div>
+            </div>
+            <div className="h-8 w-px bg-foreground/10" />
+            <div>
+              <div className="text-muted-foreground text-xs">Ativos 30d</div>
+              <div className="font-editorial text-lg">{loading ? "—" : stats.attempts30}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tentativas total */}
+        <div className="col-span-12 card-premium hover:card-premium-hover p-6 md:col-span-6 lg:col-span-4">
+          <div className="text-eyebrow">Atividade</div>
+          <div className="mt-4 editorial-number text-[72px] text-foreground">
+            {loading ? "—" : stats.attempts}
+          </div>
+          <div className="text-eyebrow-serif mt-1">Tentativas registradas</div>
+          <div className="mt-5 grid grid-cols-2 gap-3 border-t hairline pt-4">
+            {cards.slice(2, 4).map((c) => (
+              <div key={c.label}>
+                <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{c.label}</div>
+                <div className="mt-1 font-editorial text-2xl">{loading ? "—" : c.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Estações */}
+        <div className="col-span-12 card-premium hover:card-premium-hover p-6 md:col-span-6 lg:col-span-3">
+          <div className="text-eyebrow">Catálogo</div>
+          <div className="mt-4 editorial-number text-[64px] text-mint">
+            {loading ? "—" : stats.stationsPublished}
+          </div>
+          <div className="text-eyebrow-serif mt-1">Estações publicadas</div>
+          <div className="mt-5 border-t hairline pt-4 text-[13px] text-muted-foreground">
+            + <span className="font-editorial text-foreground text-base">{loading ? "—" : stats.stationsDraft}</span> em rascunho
+          </div>
+        </div>
+
+        {/* Flashcards & Resumos — banda inferior */}
+        {[
+          { label: "Flashcards", value: stats.flashcards, icon: BookOpen, accent: "text-mint" },
+          { label: "Resumos", value: stats.summaries, icon: FileText, accent: "text-medical" },
+          { label: "Estações rascunho", value: stats.stationsDraft, icon: Layers, accent: "text-foreground/60" },
+          { label: "Tentativas hoje", value: stats.attempts7, icon: ClipboardList, accent: "text-foreground/60" },
+        ].map((c) => (
+          <div key={c.label} className="col-span-6 card-premium hover:card-premium-hover p-5 md:col-span-3">
+            <div className="flex items-center justify-between">
+              <div className="text-eyebrow text-[10px]">{c.label}</div>
+              <c.icon className={`h-4 w-4 ${c.accent}`} strokeWidth={1.7} />
+            </div>
+            <div className="mt-3 editorial-number text-4xl">{loading ? "—" : c.value}</div>
           </div>
         ))}
-      </div>
+      </section>
 
       {stats.pendingReviews > 0 && (
         <Link to="/app/professor/correcoes" className="block">
-          <div className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/5 p-5">
+          <div className="flex items-center gap-4 card-premium border-l-4 border-l-warning p-5">
             <AlertCircle className="h-6 w-6 text-warning" />
             <div className="flex-1">
-              <div className="font-semibold">{stats.pendingReviews} tentativa(s) aguardando correção</div>
-              <div className="text-xs text-muted-foreground">Clique para abrir a fila de correções.</div>
+              <div className="text-eyebrow">Atenção</div>
+              <div className="mt-1 font-display text-lg">{stats.pendingReviews} tentativa(s) aguardando correção</div>
+              <div className="text-xs text-muted-foreground">Toque para abrir a fila.</div>
             </div>
+            <ChevronRightIcon />
           </div>
         </Link>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h3 className="font-display font-semibold">Assinantes ativos por plano</h3>
+      {/* Editorial pair: plans + top stations */}
+      <section className="grid gap-5 lg:grid-cols-12">
+        <div className="card-premium p-6 lg:col-span-5">
+          <div className="text-eyebrow">Distribuição</div>
+          <h3 className="mt-2 font-editorial text-2xl italic font-light">Assinantes por plano</h3>
           {loading ? (
-            <p className="mt-3 text-sm text-muted-foreground">Carregando...</p>
+            <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
           ) : planBuckets.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">Nenhum assinante ativo ainda.</p>
+            <p className="mt-4 text-sm text-muted-foreground">Nenhum assinante ativo ainda.</p>
           ) : (
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-5 divide-y hairline border-y hairline">
               {planBuckets.map((b) => (
-                <li key={b.plan} className="flex items-center justify-between rounded-lg border border-border bg-background/40 px-3 py-2">
+                <li key={b.plan} className="flex items-center justify-between py-3">
                   <span className="text-sm">{b.plan}</span>
-                  <Badge className="bg-mint/15 text-mint hover:bg-mint/15">{b.count}</Badge>
+                  <span className="font-editorial text-2xl">{b.count}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h3 className="font-display font-semibold flex items-center gap-2">
-            <Stethoscope className="h-4 w-4 text-mint" /> Top 5 estações (30 dias)
-          </h3>
+        <div className="card-premium p-6 lg:col-span-7">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-eyebrow">Mais treinadas · 30d</div>
+              <h3 className="mt-2 font-editorial text-2xl italic font-light">Top 5 estações</h3>
+            </div>
+            <Stethoscope className="h-5 w-5 text-mint" strokeWidth={1.7} />
+          </div>
           {loading ? (
-            <p className="mt-3 text-sm text-muted-foreground">Carregando...</p>
+            <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
           ) : topStations.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">Sem tentativas registradas no período.</p>
+            <p className="mt-4 text-sm text-muted-foreground">Sem tentativas registradas no período.</p>
           ) : (
-            <ul className="mt-3 space-y-2">
+            <ol className="mt-5 space-y-2">
               {topStations.map((s, i) => (
-                <li key={s.station_id} className="flex items-center justify-between rounded-lg border border-border bg-background/40 px-3 py-2">
-                  <span className="text-sm">
-                    <span className="mr-2 font-mono text-xs text-muted-foreground">#{i + 1}</span>
-                    {s.station_title}
+                <li key={s.station_id} className="flex items-center gap-4 rounded-lg px-2 py-3 hover:bg-foreground/[0.03] transition-colors">
+                  <span className="font-editorial text-3xl text-mint/70 tabular-nums w-10">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
-                  <Badge variant="outline">{s.count}</Badge>
+                  <span className="flex-1 text-sm font-medium">{s.station_title}</span>
+                  <Badge variant="outline" className="font-mono text-[11px]">{s.count}</Badge>
                 </li>
               ))}
-            </ul>
+            </ol>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
+}
+
+function ChevronRightIcon() {
+  return <span className="font-editorial text-2xl text-muted-foreground">→</span>;
 }
