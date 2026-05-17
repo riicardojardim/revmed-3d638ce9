@@ -1,8 +1,8 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ClipboardList, Stethoscope, UserRound, ShieldCheck } from "lucide-react";
+import { ClipboardList, Stethoscope, UserRound } from "lucide-react";
 
-export type IntroRole = "candidato" | "paciente" | "avaliador";
+export type IntroRole = "candidato" | "paciente";
 
 /** Duração total da animação de entrada (precisa bater com a timeline interna). */
 export const INTRO_DURATION_MS = 9000;
@@ -16,9 +16,8 @@ interface Props {
 }
 
 const ROLE_META: Record<IntroRole, { label: string; icon: typeof Stethoscope }> = {
-  candidato: { label: "Candidato", icon: Stethoscope },
+  candidato: { label: "Candidato / Médico", icon: Stethoscope },
   paciente: { label: "Ator / Paciente", icon: UserRound },
-  avaliador: { label: "Médico Avaliador", icon: ShieldCheck },
 };
 
 /**
