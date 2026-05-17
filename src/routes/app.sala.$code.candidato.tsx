@@ -48,6 +48,7 @@ function CandidateView() {
   const [introDone, setIntroDone] = useState(false);
   const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null } | null>(null);
   const [hideTimer, setHideTimer] = useState(false);
+  const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
 
