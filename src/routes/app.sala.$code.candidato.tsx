@@ -97,12 +97,6 @@ function CandidateView() {
     }, 2000);
     return () => { supabase.removeChannel(ch); clearInterval(pollId); };
   }, [room?.id]);
-      .on("postgres_changes", { event: "*", schema: "public", table: "room_evaluations", filter: `room_id=eq.${room.id}` }, async () => {
-        await loadEvaluation(room.id);
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [room?.id]);
 
   async function loadEvaluation(roomId: string) {
     if (!user) return;
