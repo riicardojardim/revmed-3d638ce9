@@ -223,7 +223,7 @@ function CandidateView() {
           Aguardando o ator iniciar...
         </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-          Você já está dentro da estação <span className="font-semibold text-foreground">{room.station_title ?? station.title}</span>.
+          Você já está dentro da estação de <span className="font-semibold text-foreground">{station.specialty}</span>.
           Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
         </p>
 
