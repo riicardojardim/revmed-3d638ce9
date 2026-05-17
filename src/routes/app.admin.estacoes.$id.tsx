@@ -996,32 +996,23 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-[2fr,140px,140px]">
+              <div className="grid gap-3 md:grid-cols-[2fr,160px,140px]">
                 <div>
                   <Label>Descrição</Label>
-                  <Textarea rows={2} defaultValue={item.description}
+                  <Textarea rows={8} className="min-h-[180px] font-mono text-sm leading-relaxed whitespace-pre-wrap"
+                    defaultValue={item.description}
                     onBlur={(e) => e.target.value !== item.description && patchItem(item, { description: e.target.value })} />
                 </div>
                 <div>
                   <Label>Categoria</Label>
-                  <Select value={item.category} onValueChange={(v) => patchItem(item, { category: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Input defaultValue={item.category}
+                    onBlur={(e) => e.target.value.trim() !== item.category && patchItem(item, { category: e.target.value.trim() || "Anamnese" })} />
                 </div>
                 <div>
                   <Label>Pontos máximos</Label>
                   <Input type="number" step="0.1" min={0} max={20} defaultValue={item.points}
                     onBlur={(e) => Number(e.target.value) !== Number(item.points) && patchItem(item, { points: Number(e.target.value) })} />
                 </div>
-              </div>
-
-              <div>
-                <Label>Texto auxiliar (opcional)</Label>
-                <Input defaultValue={item.helper_text ?? ""}
-                  onBlur={(e) => (e.target.value || null) !== item.helper_text && patchItem(item, { helper_text: e.target.value || null })} />
               </div>
 
               <div className="rounded-lg border border-border bg-card p-3">
