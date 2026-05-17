@@ -396,3 +396,90 @@ export const parseStationPdfs = createServerFn({ method: "POST" })
     }
     return mergeResults(ok);
   });
+
+const TextInputSchema = z.object({
+  text: z.string().min(50).max(200_000),
+});
+
+async function callGatewayText(
+  apiKey: string,
+  text: string,
+  model: string,
+  timeoutMs: number,
+): Promise<ParsedStation> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  try {
+    res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: `Extraia a estação clínica do TEXTO abaixo seguindo EXATAMENTE o padrão do gold standard. Antes do JSON, localize mentalmente os cabeçalhos "CENÁRIO DE ATENDIMENTO", "DESCRIÇÃO DO CASO" e "INSTRUÇÕES AO ATOR" e copie cada seção para seu campo correto. Não derive nem invente orientações do ator; se não conseguir transcrever fielmente a seção do ator, deixe patient_script vazio. Não deixe de extrair TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.\n\n=== TEXTO DA ESTAÇÃO ===\n${text}\n=== FIM DO TEXTO ===`,
+          },
+        ],
+        response_format: { type: "json_object" },
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  if (!res.ok) {
+    const txt = await res.text();
+    if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
+    if (res.status === 402) throw new Error("Créditos de IA esgotados.");
+    const err = new Error(`AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
+    (err as Error & { status?: number }).status = res.status;
+    throw err;
+  }
+  const json = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+  };
+  if (json.choices?.[0]?.finish_reason === "length") {
+    throw new Error("A resposta da IA foi cortada (limite de tokens).");
+  }
+  const content = json.choices?.[0]?.message?.content ?? "{}";
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(content);
+  } catch {
+    const m = content.match(/\{[\s\S]*\}/);
+    parsed = m ? JSON.parse(m[0]) : {};
+  }
+  return cleanExtractedStation(ResultSchema.parse(parsed));
+}
+
+export const parseStationText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => TextInputSchema.parse(input))
+  .handler(async ({ data }) => {
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
+
+    try {
+      return await callGatewayText(apiKey, data.text, "openai/gpt-5", 180_000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const isRecoverable = /abort|timeout|504|502|upstream|429|rate/i.test(msg);
+      if (!isRecoverable) throw err;
+      try {
+        return await callGatewayText(apiKey, data.text, "google/gemini-2.5-pro", 150_000);
+      } catch (err2) {
+        const msg2 = err2 instanceof Error ? err2.message : String(err2);
+        const isTimeout = /abort|timeout|504|502|upstream/i.test(msg2);
+        if (!isTimeout) throw err2;
+        return await callGatewayText(apiKey, data.text, "google/gemini-2.5-flash", 90_000);
+      }
+    }
+  });
+
