@@ -549,11 +549,88 @@ function PdfImportSection({
 }
 
 function SectionBasics({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+  const suggestFn = useServerFn(suggestStationTitle);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestions, setSuggestions] = useState<{ title: string; alternatives: string[] } | null>(null);
+  const [open, setOpen] = useState(false);
+
+  async function runSuggest() {
+    setSuggesting(true);
+    try {
+      const r = await suggestFn({
+        data: {
+          currentTitle: station.title ?? "",
+          specialty: station.specialty ?? "",
+          clinical_case: station.clinical_case ?? "",
+          case_description: station.case_description ?? "",
+          candidate_task: station.candidate_task ?? "",
+          patient_script: station.patient_script ?? "",
+        },
+      });
+      setSuggestions(r);
+      setOpen(true);
+    } catch (err) {
+      toast.error("Falha ao sugerir título", { description: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setSuggesting(false);
+    }
+  }
+
+  function apply(t: string) {
+    up("title", t);
+    setOpen(false);
+    toast.success("Título aplicado");
+  }
+
   return (
     <Section title="Informações básicas" hint="Como a estação aparece para o assinante.">
       <div>
         <Label>Título</Label>
-        <Input value={station.title} onChange={(e) => up("title", e.target.value)} />
+        <div className="flex gap-2">
+          <Input value={station.title} onChange={(e) => up("title", e.target.value)} />
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button type="button" variant="outline" onClick={runSuggest} disabled={suggesting} className="shrink-0 gap-1.5">
+                {suggesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                Sugerir título
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[420px] p-3" align="end">
+              {suggestions ? (
+                <div className="space-y-2">
+                  <div className="text-xs text-muted-foreground">Sugestão principal:</div>
+                  <button
+                    type="button"
+                    onClick={() => apply(suggestions.title)}
+                    className="w-full rounded border bg-card p-2 text-left text-sm hover:bg-accent"
+                  >
+                    {suggestions.title}
+                  </button>
+                  {suggestions.alternatives.length > 0 && (
+                    <>
+                      <div className="pt-1 text-xs text-muted-foreground">Alternativas:</div>
+                      {suggestions.alternatives.map((a, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => apply(a)}
+                          className="w-full rounded border bg-card p-2 text-left text-sm hover:bg-accent"
+                        >
+                          {a}
+                        </button>
+                      ))}
+                    </>
+                  )}
+                  <div className="pt-1 text-[11px] text-muted-foreground">
+                    Dica: digite as siglas no título antes de clicar — elas serão preservadas.
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">Gerando sugestões...</div>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
       <div>
         <Label>Especialidade</Label>
