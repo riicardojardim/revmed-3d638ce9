@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Upload, ImageIcon, Save, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Save, Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
+import { DeckCover } from "@/components/flashcards/DeckCover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
