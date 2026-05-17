@@ -150,10 +150,12 @@ function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null):
         ...lines.slice(firstContentIndex + 1),
       ].join("\n").trim()
     : desc;
-  // Remove level lines (Inadequado/Parcialmente adequado/Adequado: ...) — they live in `levels`
-  const cleanedDescription = withoutTitle
-    .split(/\r?\n/)
-    .filter((line) => !/^\s*(inadequado|parcialmente\s+adequado|adequado)\s*:/i.test(line))
+  // Cut everything from the first level marker line onwards
+  // (levels can span multiple lines — continuations would otherwise leak into description)
+  const lvlRe = /^\s*(inadequado|parcialmente\s+adequado|adequado)\s*:/i;
+  const descLines = withoutTitle.split(/\r?\n/);
+  const cutAt = descLines.findIndex((line) => lvlRe.test(line));
+  const cleanedDescription = (cutAt === -1 ? descLines : descLines.slice(0, cutAt))
     .join("\n")
     .trim();
   const legacyPresentation = /identifica-se/i.test(desc) && /cumprimenta\s+o\s+paciente/i.test(desc) ? "Apresentação" : "";
