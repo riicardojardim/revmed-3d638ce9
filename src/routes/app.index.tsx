@@ -172,25 +172,7 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      {/* Header chip row */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-elegant">
-          <Activity className="h-4 w-4" /> 2025.2
-          <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-0.5 text-xs">
-            <Target className="h-3 w-3" /> {cycleCount}
-          </span>
-        </div>
-      </div>
 
-      {/* Premium group banner */}
-      <a
-        href="https://wa.me/5500000000000?text=Quero+entrar+no+Grupo+Premium+2025.2"
-        target="_blank"
-        rel="noreferrer"
-        className="block rounded-2xl border border-rose-500/30 bg-rose-500/5 px-5 py-3 text-sm font-medium text-rose-300 transition-colors hover:bg-rose-500/10"
-      >
-        Faça parte do Grupo Premium 2025.2 — Telegram / WhatsApp (Grupo 6)
-      </a>
 
       {/* Top row: welcome + stats */}
       <div className="grid gap-4 lg:grid-cols-3">
