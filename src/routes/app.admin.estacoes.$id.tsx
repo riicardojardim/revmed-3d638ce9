@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { parseStationPdfs } from "@/lib/stations-ai.functions";
 import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
+import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
@@ -265,12 +266,13 @@ function StationEditor() {
       saveStation={saveStation}
       togglePublish={togglePublish}
       setStation={setStation}
+      setItems={setItems}
     />
   );
 }
 
 function EditorBody({
-  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation,
+  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation, setItems,
 }: {
   station: Station;
   items: Item[];
@@ -282,6 +284,7 @@ function EditorBody({
   saveStation: (opts?: { silent?: boolean }) => Promise<unknown>;
   togglePublish: () => Promise<unknown>;
   setStation: React.Dispatch<React.SetStateAction<Station | null>>;
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
   return (
@@ -292,6 +295,12 @@ function EditorBody({
           <ArrowLeft className="h-4 w-4" /> Voltar para a lista
         </Link>
         <div className="flex flex-wrap gap-2">
+          <GrammarReviewButton
+            station={station as never}
+            items={items as never}
+            setStation={setStation as never}
+            setItems={setItems as never}
+          />
           <Button variant="outline" onClick={togglePublish}>
             {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
