@@ -60,18 +60,7 @@ function StationsPage() {
     })();
   }, []);
 
-  const staticList: ListStation[] = STATIONS.map((s) => ({
-    id: s.id, title: s.title, specialty: s.specialty, difficulty: s.difficulty,
-    durationMinutes: s.durationMinutes, clinicalCase: s.clinicalCase, tag: s.tag,
-    checklistCount: s.checklist.length,
-  }));
-
-  // DB stations first, then any static demos not duplicated by title
-  const dbTitles = new Set(dbStations.map((s) => s.title.toLowerCase().trim()));
-  const all: ListStation[] = [
-    ...dbStations,
-    ...staticList.filter((s) => !dbTitles.has(s.title.toLowerCase().trim())),
-  ];
+  const all: ListStation[] = dbStations;
 
   const filtered = all.filter(
     (s) =>
