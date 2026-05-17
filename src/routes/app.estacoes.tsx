@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search, ArrowRight, ListChecks, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,9 @@ import { SPECIALTIES, type Specialty, type Station } from "@/data/stations";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { createSimulado } from "@/lib/simulado";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/estacoes")({
   component: StationsPage,
@@ -29,10 +32,18 @@ type ListStation = Pick<Station, "id" | "title" | "specialty" | "difficulty" | "
 };
 
 function StationsPage() {
+  const nav = useNavigate();
+  const { user } = useAuth();
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
+
+  function startStation(s: ListStation) {
+    if (!user) { toast.error("Faça login para iniciar."); return; }
+    const sim = createSimulado(user.id, s.title, [{ id: s.id, title: s.title, specialty: s.specialty }]);
+    nav({ to: "/app/simulado/$id", params: { id: sim.id } });
+  }
 
   useEffect(() => {
     (async () => {
@@ -168,11 +179,9 @@ function StationsPage() {
                     <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
                       {s.clinicalCase}
                     </p>
-                    <Link to="/app/simulacao/$id" params={{ id: s.id }} className="mt-5">
-                      <Button variant="hero" className="w-full">
-                        Iniciar estação <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                    <Button variant="hero" className="mt-5 w-full" onClick={() => startStation(s)}>
+                      Iniciar estação <ArrowRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 );
               })}
