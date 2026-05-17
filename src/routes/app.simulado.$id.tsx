@@ -59,10 +59,11 @@ function SimuladoRunner() {
 
   // Load simulado
   useEffect(() => {
-    const s = getSimulado(id);
+    if (!user) return;
+    const s = getSimulado(user.id, id);
     if (!s) { toast.error("Simulado não encontrado."); nav({ to: "/app/treinar" }); return; }
     setSim(s);
-  }, [id, nav]);
+  }, [id, nav, user]);
 
   // Load current station, reset per-station state
   useEffect(() => {
