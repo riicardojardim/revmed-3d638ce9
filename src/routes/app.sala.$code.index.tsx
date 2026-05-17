@@ -229,9 +229,17 @@ function RoomPage() {
     if (!parts.some((p) => p.role === "candidato")) {
       return toast.error("Nenhum candidato na sala ainda.");
     }
+    // Sincroniza o offset com o servidor e projeta started_at para o EXATO momento
+    // em que a animação termina nos dois lados. Assim o cronômetro começa em "Estação iniciada".
+    await getServerOffset(true);
+    const startsAtIso = new Date(serverNow() + INTRO_DURATION_MS).toISOString();
     const { error } = await supabase
       .from("training_rooms")
-      .update({ status: "starting", starting_at: new Date().toISOString() })
+      .update({
+        status: "starting",
+        starting_at: new Date(serverNow()).toISOString(),
+        started_at: startsAtIso,
+      })
       .eq("id", room.id);
     if (error) toast.error(error.message);
   }
