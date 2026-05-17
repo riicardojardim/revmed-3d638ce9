@@ -1292,21 +1292,21 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                   </button>
                 </div>
 
-                <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
+                <PRBlock icon={MessageSquare} title="Cenário de atuação">
                   <ScriptText text={station.clinical_case || "—"} />
                 </PRBlock>
 
                 {station.case_description && (
-                  <PRBlock icon={MessageSquare} title="Descrição do caso" tone="violet">
+                  <PRBlock icon={MessageSquare} title="Descrição do caso">
                     <ScriptText text={station.case_description} />
                   </PRBlock>
                 )}
 
-                <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`} tone="emerald">
+                <PRBlock icon={ListChecks} title={`Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
                   <ScriptText text={withDuration(station.candidate_task || "—", station.duration_minutes)} />
                 </PRBlock>
 
-                <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
+                <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
                   <p className="mb-3 text-[11px] text-muted-foreground italic">
                     Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.
                   </p>
