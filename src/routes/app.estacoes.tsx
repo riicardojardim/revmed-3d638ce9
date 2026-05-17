@@ -106,7 +106,8 @@ function StationsPage() {
               </Button>
             </Link>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (
