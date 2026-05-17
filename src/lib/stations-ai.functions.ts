@@ -190,8 +190,13 @@ function gatewayHeaders(apiKey: string): HeadersInit {
 }
 
 function gatewayError(status: number, body: string): Error {
-  const isTimeout = [408, 500, 502, 503, 504, 524].includes(status) && /timeout|timed out|upstream/i.test(body);
-  const err = new Error(isTimeout ? "A IA demorou demais para responder. Vou tentar novamente automaticamente." : `AI Gateway ${status}: ${body.slice(0, 200)}`);
+  const isTimeout =
+    [408, 500, 502, 503, 504, 524].includes(status) && /timeout|timed out|upstream/i.test(body);
+  const err = new Error(
+    isTimeout
+      ? "A IA demorou demais para responder. Vou tentar novamente automaticamente."
+      : `AI Gateway ${status}: ${body.slice(0, 200)}`,
+  );
   (err as Error & { status?: number; retryable?: boolean }).status = status;
   (err as Error & { status?: number; retryable?: boolean }).retryable = isTimeout;
   return err;
@@ -220,7 +225,7 @@ async function callGateway(
             content: [
               {
                 type: "text",
-              text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Antes do JSON, localize mentalmente os cabeçalhos "CENÁRIO DE ATENDIMENTO", "DESCRIÇÃO DO CASO" e "INSTRUÇÕES AO ATOR" e copie cada seção para seu campo correto. Não derive nem invente orientações do ator; se não conseguir transcrever fielmente a seção do ator, deixe patient_script vazio. Não deixe de extrair TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
+                text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Antes do JSON, localize mentalmente os cabeçalhos "CENÁRIO DE ATENDIMENTO", "DESCRIÇÃO DO CASO" e "INSTRUÇÕES AO ATOR" e copie cada seção para seu campo correto. Não derive nem invente orientações do ator; se não conseguir transcrever fielmente a seção do ator, deixe patient_script vazio. Não deixe de extrair TODOS os impressos com conteúdo na íntegra, e checklist com categorias variadas + sub-itens "(1)... (2)..." dentro da description.`,
               },
               { type: "image_url", image_url: { url: pdfDataUrl } },
             ],
@@ -236,7 +241,8 @@ async function callGateway(
 
   if (!res.ok) {
     const txt = await res.text();
-    if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
+    if (res.status === 429)
+      throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
     throw gatewayError(res.status, txt);
   }
@@ -282,11 +288,13 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> {
   throw lastErr;
 }
 
-async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // GPT-5, timeout 5 min por tentativa, até 3 tentativas em caso de upstream timeout/5xx.
+async function processPdf(
+  apiKey: string,
+  pdf: { name: string; dataUrl: string },
+): Promise<ParsedStation> {
+  // GPT-5 can be slow on full PDF extraction, so keep retries only around the PDF flow.
   return await withRetry(() => callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 300_000));
 }
-
 
 function pickLonger(a?: string, b?: string): string | undefined {
   const av = (a ?? "").trim();
@@ -325,13 +333,19 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
   // candidate_task: remove o preâmbulo "Nos X minutos... tarefas:" deixando só os itens
   if (r.candidate_task) {
     r.candidate_task = r.candidate_task
-      .replace(/^\s*Nos\s+\d+\s+minutos[^\n:]*(de dura[cç][aã]o[^\n:]*)?(da esta[cç][aã]o)?[^\n:]*tarefas\s*:?\s*\n*/i, "")
+      .replace(
+        /^\s*Nos\s+\d+\s+minutos[^\n:]*(de dura[cç][aã]o[^\n:]*)?(da esta[cç][aã]o)?[^\n:]*tarefas\s*:?\s*\n*/i,
+        "",
+      )
       .trim();
   }
   // patient_script: remove o título "ORIENTAÇÕES AO ATOR/ATRIZ" do início
   if (r.patient_script) {
     let ps = r.patient_script
-      .replace(/^\s*(instru[cç][oõ]es?|orienta[cç][oõ]es?)\s+(ao|do|da|a|à)s?\s+(ator(?:\s*\/?\s*atriz)?|atriz|paciente\s+simulado)\s*:?\s*\n*/i, "")
+      .replace(
+        /^\s*(instru[cç][oõ]es?|orienta[cç][oõ]es?)\s+(ao|do|da|a|à)s?\s+(ator(?:\s*\/?\s*atriz)?|atriz|paciente\s+simulado)\s*:?\s*\n*/i,
+        "",
+      )
       .trim();
     // adiciona linha em branco antes de cabeçalhos em CAIXA ALTA (ex.: "DADOS PESSOAIS", "MOTIVO DA CONSULTA")
     ps = ps.replace(/([^\n])\n([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?)\s*\n/g, "$1\n\n$2\n");
@@ -343,8 +357,12 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
 }
 
 const SPECIALTY_ENUM = [
-  "Clínica Médica", "Pediatria", "Ginecologia e Obstetrícia",
-  "Cirurgia", "Medicina da Família", "Urgência e Emergência",
+  "Clínica Médica",
+  "Pediatria",
+  "Ginecologia e Obstetrícia",
+  "Cirurgia",
+  "Medicina da Família",
+  "Urgência e Emergência",
 ] as const;
 
 function normalizeSpecialty(raw?: string): string | undefined {
@@ -356,18 +374,31 @@ function normalizeSpecialty(raw?: string): string | undefined {
     .trim();
   if (!s) return undefined;
   if (/(pediatr|crianc|lactente|neonat|reci?em.?nasc)/.test(s)) return "Pediatria";
-  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.|gestant|gravid|pre.?natal|puerper|parto)/.test(s)) return "Ginecologia e Obstetrícia";
+  if (
+    /(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.|gestant|gravid|pre.?natal|puerper|parto)/.test(s)
+  )
+    return "Ginecologia e Obstetrícia";
   if (/(cirurg|\bcc\b|pos.?operat|pre.?operat)/.test(s)) return "Cirurgia";
-  if (/(familia|mfc|atencao primaria|saude da familia|esf|ubs|unidade basica)/.test(s)) return "Medicina da Família";
-  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s)) return "Urgência e Emergência";
+  if (/(familia|mfc|atencao primaria|saude da familia|esf|ubs|unidade basica)/.test(s))
+    return "Medicina da Família";
+  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s))
+    return "Urgência e Emergência";
   if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
   const match = SPECIALTY_ENUM.find((e) => e.toLowerCase() === raw.trim().toLowerCase());
   return match;
 }
 
 function deduceSpecialtyFromContent(r: ParsedStation): string | undefined {
-  const blob = [r.title, r.clinical_case, r.case_description, r.candidate_task, r.educational_goal, r.patient_info]
-    .filter(Boolean).join(" \n ");
+  const blob = [
+    r.title,
+    r.clinical_case,
+    r.case_description,
+    r.candidate_task,
+    r.educational_goal,
+    r.patient_info,
+  ]
+    .filter(Boolean)
+    .join(" \n ");
   if (!blob.trim()) return undefined;
   return normalizeSpecialty(blob);
 }
@@ -381,9 +412,19 @@ function mergeResults(parts: ParsedStation[]): ParsedStation {
   }
   const out: ParsedStation = {};
   const stringKeys: (keyof ParsedStation)[] = [
-    "title", "specialty", "educational_goal", "clinical_case", "case_description", "candidate_task",
-    "patient_info", "patient_script", "support_materials", "expected_conduct",
-    "common_mistakes", "evaluator_notes", "scoring_criteria",
+    "title",
+    "specialty",
+    "educational_goal",
+    "clinical_case",
+    "case_description",
+    "candidate_task",
+    "patient_info",
+    "patient_script",
+    "support_materials",
+    "expected_conduct",
+    "common_mistakes",
+    "evaluator_notes",
+    "scoring_criteria",
   ];
   for (const k of stringKeys) {
     for (const p of parts) {
@@ -435,10 +476,17 @@ export const parseStationPdfs = createServerFn({ method: "POST" })
 
     // Process all PDFs in parallel — each one stays well under upstream timeout
     const settled = await Promise.allSettled(data.pdfs.map((p) => processPdf(apiKey, p)));
-    const ok = settled.filter((s): s is PromiseFulfilledResult<ParsedStation> => s.status === "fulfilled").map((s) => s.value);
+    const ok = settled
+      .filter((s): s is PromiseFulfilledResult<ParsedStation> => s.status === "fulfilled")
+      .map((s) => s.value);
     if (ok.length === 0) {
       const first = settled[0];
-      const msg = first.status === "rejected" ? (first.reason instanceof Error ? first.reason.message : String(first.reason)) : "Falha desconhecida";
+      const msg =
+        first.status === "rejected"
+          ? first.reason instanceof Error
+            ? first.reason.message
+            : String(first.reason)
+          : "Falha desconhecida";
       throw new Error(`Não foi possível ler os PDFs: ${msg}`);
     }
     return mergeResults(ok);
@@ -480,7 +528,8 @@ async function callGatewayText(
 
   if (!res.ok) {
     const txt = await res.text();
-    if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
+    if (res.status === 429)
+      throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
     throw gatewayError(res.status, txt);
   }
@@ -508,7 +557,10 @@ export const parseStationText = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    return await withRetry(() => callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000));
+    try {
+      return await callGatewayText(apiKey, data.text, "google/gemini-2.5-flash", 90_000);
+    } catch (err) {
+      if (!isRetryable(err)) throw err;
+      return await callGatewayText(apiKey, data.text, "google/gemini-2.5-pro", 150_000);
+    }
   });
-
-
