@@ -678,7 +678,7 @@ function ActorView() {
 
             <ol className="space-y-3">
               {station.checklist.map((it, idx) => {
-                const levels = it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
+                const levels = [...(it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }])].sort((a, b) => a.points - b.points);
                 const current = checks[it.id];
                 const parts = parseSubItems(it.description);
                 const isBlocked =
