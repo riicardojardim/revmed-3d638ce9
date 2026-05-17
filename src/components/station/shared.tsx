@@ -22,10 +22,14 @@ export function parseSubItems(description: string): { lead: string; subs: string
   return { lead: description, subs: [] };
 }
 
-export function levelTone(index: number, total: number): { idle: string; active: string } {
+export function levelTone(pointsOrIndex: number, maxOrTotal: number): { idle: string; active: string } {
+  // Color by score magnitude: highest = green, zero/lowest = red, middle = amber.
+  // Accepts either (points, maxPoints) or legacy (index, totalLevels) — both work
+  // because in legacy calls index 0 had the lowest "rank" and last index the highest.
   const base = "text-muted-foreground hover:text-foreground";
-  if (index === 0) return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
-  if (index === total - 1) return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
+  const ratio = maxOrTotal > 0 ? pointsOrIndex / maxOrTotal : 0;
+  if (ratio <= 0) return { idle: base, active: "bg-rose-500/85 text-white shadow-sm ring-1 ring-rose-400/60" };
+  if (ratio >= 1) return { idle: base, active: "bg-emerald-500/85 text-white shadow-sm ring-1 ring-emerald-400/60" };
   return { idle: base, active: "bg-amber-500/85 text-white shadow-sm ring-1 ring-amber-400/60" };
 }
 
