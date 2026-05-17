@@ -262,14 +262,16 @@ function TrainPage() {
             <Button variant="hero" className="mt-3 w-full" onClick={() => { setSelectMode(false); setAllOpen(true); }}>
               <ListOrdered className="mr-1 h-4 w-4" /> Todos os Checklists
             </Button>
-            <Button variant="hero" className="mt-2 w-full" onClick={openSelectMode}>
+            <Button variant="hero" className="mt-2 w-full" onClick={openSelectMode} disabled={!canSaveSimulado} title={!canSaveSimulado ? "Disponível apenas no plano Completo" : undefined}>
               <GraduationCap className="mr-1 h-4 w-4" /> Criar Simulado
             </Button>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Monte uma sequência de checklists. Só avança para o próximo quando o PEP atual estiver completo.
+              {canSaveSimulado
+                ? "Monte uma sequência de checklists. Só avança para o próximo quando o PEP atual estiver completo."
+                : "Simulados são exclusivos do plano Completo."}
             </p>
 
-            {simulados.length > 0 && (
+            {canSaveSimulado && simulados.length > 0 && (
               <div className="mt-4 space-y-2 border-t border-border pt-3">
                 <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   <ListChecks className="h-3.5 w-3.5" /> Meus simulados
