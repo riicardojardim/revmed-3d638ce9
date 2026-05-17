@@ -88,6 +88,19 @@ function CandidateView() {
         await loadEvaluation(room.id);
       })
       .subscribe();
+    // Fallback: polling a cada 2s para garantir sincronia mesmo se realtime atrasar
+    const pollId = setInterval(async () => {
+      const { data: r } = await supabase.from("training_rooms")
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
+        .eq("id", room.id).maybeSingle();
+      if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
+    }, 2000);
+    return () => { supabase.removeChannel(ch); clearInterval(pollId); };
+  }, [room?.id]);
+      .on("postgres_changes", { event: "*", schema: "public", table: "room_evaluations", filter: `room_id=eq.${room.id}` }, async () => {
+        await loadEvaluation(room.id);
+      })
+      .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [room?.id]);
 
