@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { STATIONS, SPECIALTIES, type Specialty } from "@/data/stations";
+import { SpecialtyBadge } from "@/components/SpecialtyBadge";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 export const Route = createFileRoute("/app/estacoes")({
   component: StationsPage,
@@ -48,11 +50,20 @@ function StationsPage() {
           <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")}>
             Todas as áreas
           </FilterChip>
-          {SPECIALTIES.map((s) => (
-            <FilterChip key={s} active={spec === s} onClick={() => setSpec(s)}>
-              {s}
-            </FilterChip>
-          ))}
+          {SPECIALTIES.map((s) => {
+            const meta = getSpecialtyMeta(s);
+            return (
+              <FilterChip
+                key={s}
+                active={spec === s}
+                onClick={() => setSpec(s)}
+                accentClass={meta.solid}
+              >
+                <span className={`inline-block h-2 w-2 rounded-full ${meta.solid}`} />
+                {s}
+              </FilterChip>
+            );
+          })}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {difficulties.map((d) => (
@@ -64,15 +75,16 @@ function StationsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((s) => (
+        {filtered.map((s) => {
+          const meta = getSpecialtyMeta(s.specialty);
+          return (
           <div
             key={s.id}
-            className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant"
+            className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
           >
+            <div className={`absolute inset-x-0 top-0 h-1 ${meta.solid}`} aria-hidden />
             <div className="flex items-start justify-between gap-3">
-              <Badge variant="outline" className="border-medical/30 text-medical">
-                {s.specialty}
-              </Badge>
+              <SpecialtyBadge specialty={s.specialty} />
               {s.tag && (
                 <Badge className="bg-mint/15 text-foreground hover:bg-mint/15">{s.tag}</Badge>
               )}
@@ -94,7 +106,8 @@ function StationsPage() {
               </Button>
             </Link>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (
@@ -111,16 +124,27 @@ function FilterChip({
   onClick,
   children,
   small,
+  accentClass,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
   small?: boolean;
+  /** Cor de destaque quando ativo (ex.: "bg-sky-500"). Se omitido, usa mint. */
+  accentClass?: string;
 }) {
+  const base = `inline-flex items-center gap-1.5 rounded-full border px-3.5 ${small ? "py-1 text-xs" : "py-1.5 text-sm"} font-medium transition-all`;
+  if (active && accentClass) {
+    return (
+      <button onClick={onClick} className={`${base} border-foreground/20 bg-card text-foreground shadow-sm`}>
+        {children}
+      </button>
+    );
+  }
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-3.5 ${small ? "py-1 text-xs" : "py-1.5 text-sm"} font-medium transition-all ${
+      className={`${base} ${
         active
           ? "border-mint bg-mint/10 text-foreground"
           : "border-border bg-background text-muted-foreground hover:border-mint/40"

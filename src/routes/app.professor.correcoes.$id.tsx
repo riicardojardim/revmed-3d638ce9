@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { STATIONS } from "@/data/stations";
 import { z } from "zod";
+import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 
 export const Route = createFileRoute("/app/professor/correcoes/$id")({
   component: ReviewPage,
@@ -99,7 +100,7 @@ function ReviewPage() {
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="border-medical/30 text-medical">{attempt.specialty ?? "—"}</Badge>
+          <SpecialtyBadge specialty={attempt.specialty} />
           {attempt.reviewed_at && <Badge className="bg-success/15 text-success">Corrigida</Badge>}
         </div>
         <h2 className="mt-2 font-display text-2xl font-bold">{attempt.station_title ?? "Estação"}</h2>

@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { SpecialtyBadge } from "@/components/SpecialtyBadge";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 export const Route = createFileRoute("/app/admin/estacoes/")({
   component: AdminStationsPage,
@@ -188,11 +190,14 @@ function AdminStationsPage() {
         </div>
       ) : (
         <div className="grid gap-3">
-          {filtered.map((s) => (
-            <div key={s.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
+          {filtered.map((s) => {
+            const meta = getSpecialtyMeta(s.specialty);
+            return (
+            <div key={s.id} className={`relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl border bg-card p-5 shadow-card ${meta.card}`}>
+              <div className={`absolute inset-y-0 left-0 w-1 ${meta.solid}`} aria-hidden />
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="border-medical/30 text-medical">{s.specialty}</Badge>
+                  <SpecialtyBadge specialty={s.specialty} />
                   <Badge variant="outline">{s.checklist_count} itens</Badge>
                   {s.published ? (
                     <Badge className="bg-success/15 text-success hover:bg-success/15">Publicada</Badge>
@@ -220,7 +225,8 @@ function AdminStationsPage() {
                 </Button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
