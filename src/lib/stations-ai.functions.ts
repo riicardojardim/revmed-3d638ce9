@@ -300,7 +300,7 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
     ps = ps.replace(/([^\n])\n([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?)\s*\n/g, "$1\n\n$2\n");
     r.patient_script = ps;
   }
-  const norm = normalizeSpecialty(r.specialty);
+  const norm = normalizeSpecialty(r.specialty) ?? deduceSpecialtyFromContent(r);
   if (norm) r.specialty = norm;
   return r;
 }
