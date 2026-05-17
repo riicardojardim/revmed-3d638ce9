@@ -500,7 +500,7 @@ export const parseStationText = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    return await callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000);
+    return await withRetry(() => callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000));
   });
 
 
