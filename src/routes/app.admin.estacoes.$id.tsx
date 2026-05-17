@@ -271,7 +271,7 @@ function StationEditor() {
 }
 
 function EditorBody({
-  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation,
+  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation, setItems,
 }: {
   station: Station;
   items: Item[];
@@ -283,6 +283,7 @@ function EditorBody({
   saveStation: (opts?: { silent?: boolean }) => Promise<unknown>;
   togglePublish: () => Promise<unknown>;
   setStation: React.Dispatch<React.SetStateAction<Station | null>>;
+  setItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
   return (
