@@ -17,6 +17,8 @@ const InputSchema = z.object({
 
 const stringOrUndefined = z.string().nullish().transform((value) => value ?? undefined);
 const stringOrEmpty = z.string().nullish().transform((value) => value ?? "");
+const numberOrUndefined = z.number().nullish().transform((value) => value ?? undefined);
+const numberOrZero = z.number().nullish().transform((value) => value ?? 0);
 const stringArrayOrUndefined = z
   .array(stringOrUndefined)
   .nullish()
@@ -80,13 +82,13 @@ const ResultSchema = z.object({
       z.object({
         description: stringOrEmpty,
         category: stringOrUndefined,
-        points: z.number().optional(),
+        points: numberOrUndefined,
         helper_text: stringOrUndefined,
         levels: z
           .array(
             z.object({
               label: stringOrEmpty,
-              points: z.number(),
+              points: numberOrZero,
               description: stringOrUndefined,
             }),
           )
