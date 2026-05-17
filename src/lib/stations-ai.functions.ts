@@ -126,13 +126,18 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - "category": COPIE LITERALMENTE o título numerado do PEP, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → "Apresentação"; "2. Investiga os sintomas atuais da criança:" → "Investiga os sintomas atuais da criança"; "3. Investiga os hábitos alimentares:" → "Investiga os hábitos alimentares". NÃO normalize para nomes genéricos como "Comunicação" ou "Anamnese".
    - "description": NÃO inclua a linha numerada/título da categoria. Comece direto nos sub-itens/ações avaliadas, no formato "(1) X;\\n(2) Y;\\n(3) Z." Exemplo real:
         "(1) Tempo de evolução;\\n(2) Dor no local da picada;\\n(3) Salivação excessiva ou sialorreia;\\n(4) Vômitos;\\n(5) Priapismo;\\n(6) Sudorese;\\n(7) Limpeza da região afetada."
-   - "points": pontuação MÁXIMA do item (0.25, 0.5, 0.75, 1.0, 1.5, 1.75, 2.0…). Use fracionário se for assim no PDF.
-   - "levels": 2 ou 3 níveis com a regra de pontuação DENTRO do label:
-       * 3 níveis quando há graduação parcial: "Inadequado: Pergunta por dois ou menos itens.", "Parcialmente adequado: Pergunta de três a cinco itens.", "Adequado: Pergunta seis ou sete itens."
-       * 2 níveis para ações binárias: "Inadequado: Não solicita." / "Adequado: Solicita."
-       * Os "points" de cada nível devem refletir o PEP do PDF (Ex.: 0 / 0.75 / 1.5).
-   - NUNCA use labels genéricos como "Inadequado" sozinho — sempre inclua a regra concreta após os dois pontos.
+   - "points": pontuação MÁXIMA do item EXATAMENTE como no PDF (0.25, 0.5, 0.75, 1.0, 1.5, 1.75, 2.0…). NÃO arredonde, NÃO altere.
+   - "levels": COPIE LITERALMENTE os níveis do PDF — palavra por palavra, sem reescrever, sem resumir, sem corrigir gramática, sem trocar sinônimos.
+       * Se o PDF diz "Adequado: Pergunta seis ou sete itens." → use EXATAMENTE essa frase. NÃO transforme em "Pergunta 6 ou 7 itens" nem em "Pergunta por todos os itens".
+       * Use o mesmo número de níveis que o PDF tem (2 ou 3). NÃO adicione um nível "Parcialmente adequado" se o PDF só tem dois.
+       * Use os MESMOS rótulos do PDF ("Inadequado", "Parcialmente adequado", "Adequado" — ou outros, se o PDF usar). NÃO renomeie.
+       * Os "points" de cada nível devem ser IDÊNTICOS aos do PDF (Ex.: 0 / 0.75 / 1.5).
+   - NUNCA invente, complete ou reformule a regra de um nível. Se o PDF só escreve "Adequado" sem regra, copie só "Adequado".
    - PROIBIDO colocar "1. Apresentação:", "2. Investiga...:", "3. Investiga...:" ou qualquer linha numerada de categoria dentro de "description"; isso vai SOMENTE em "category".
+
+REGRA GERAL DE FIDELIDADE LITERAL (vale para TODOS os campos — category, description, levels, content, patient_script, deliverable_materials, case_description, etc.):
+   - Transcreva PALAVRA POR PALAVRA o que está no PDF. Não parafraseie, não resuma, não "melhore" o texto, não corrija typos, não troque sinônimos, não mude pontuação, não traduza, não adicione nada que não esteja escrito.
+   - Se uma informação não está no PDF, deixe vazio. NÃO complete com conhecimento próprio.
 
 2) deliverable_materials (impressos / exames entregáveis pelo avaliador) — OBRIGATÓRIO
    - Vasculhe TODO o PDF procurando seções como: "IMPRESSO 1", "IMPRESSO 2", "IMPRESSO N", "Material impresso", "Exame físico (resultado)", "Exames laboratoriais", "Exames complementares", "ECG", "Imagem", "Radiografia", "Tomografia", "USG", "Laudo", "Foto", "Prescrição em branco", "Receituário".
