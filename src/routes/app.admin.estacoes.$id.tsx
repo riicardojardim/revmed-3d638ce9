@@ -1391,6 +1391,7 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
       const count = 10 + Math.floor(Math.random() * 6);
       const res = await generate({
         data: {
+          station_id: station.id,
           title: station.title,
           specialty: station.specialty,
           topic: null,
