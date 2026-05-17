@@ -33,27 +33,26 @@ const ResultSchema = z.object({
   checklist_items: z.array(ItemSchema).default([]),
 });
 
-const SYSTEM_PROMPT = `Você organiza um Checklist PEP de estação clínica (estilo OSCE/Revalida) em português a partir de TEXTO, PDF ou IMAGEM fornecidos pelo usuário. Devolva SOMENTE JSON válido (sem markdown).
+const SYSTEM_PROMPT = `Você EXTRAI um Checklist PEP de estação clínica (estilo OSCE/Revalida) a partir de TEXTO, PDF ou IMAGEM. Retorne SOMENTE JSON válido (sem markdown).
 
-REGRAS DO checklist_items:
-- "category": curta SEM número. Use: "Apresentação", "Anamnese", "Exame físico", "Hipótese diagnóstica", "Conduta", "Comunicação", "Procedimento", "Prescrição", "Orientações finais". NÃO coloque tudo como "Anamnese" — varie conforme o conteúdo.
-- "description": começa SEMPRE com o número do item seguido de ponto. Quando houver sub-itens, liste no formato "(1) X;\\n(2) Y;\\n(3) Z." Exemplo:
-    "2. Realiza anamnese direcionada perguntando por:\\n(1) Tempo de evolução;\\n(2) Dor no local da picada;\\n(3) Sialorreia;\\n(4) Vômitos."
-- "points": pontuação MÁXIMA do item (0.25, 0.5, 0.75, 1.0, 1.5, 2.0…). Use fracionário se o original usa.
-- "levels": 2 ou 3 níveis com a regra DENTRO do label, no formato "Inadequado: <regra>", "Parcialmente adequado: <regra>", "Adequado: <regra>":
-    * 3 níveis quando houver graduação parcial.
-    * 2 níveis para ações binárias.
-    * Os "points" de cada nível refletem o PEP (Ex.: 0 / 0.75 / 1.5).
-- NUNCA use labels genéricos como apenas "Inadequado" — sempre inclua a regra após os dois pontos.
-- Numere os itens em ordem (1., 2., 3., …) dentro da "description".
-- Se o usuário enviar várias fontes, COMBINE em um único checklist sem duplicar itens.
-- NUNCA invente itens que não estejam na fonte. Se a fonte for vaga, gere níveis coerentes.
-- Preserve unidades e frações EXATAMENTE.
+REGRA DE OURO — NÃO INVENTE NADA:
+- Use APENAS o conteúdo presente na fonte. Não adicione itens, níveis, regras, exemplos ou pontuações que não estejam ali.
+- NÃO gere "helper_text". Esse campo não deve existir na resposta.
+- Se a fonte não trouxer níveis (Inadequado/Parcial/Adequado) para um item, retorne "levels": [] — não invente níveis.
+- Se a fonte não trouxer pontuação, use 0.
+- Preserve a pontuação EXATAMENTE como vem na fonte: ponto-e-vírgula (;), ponto final (.), dois-pontos (:), parênteses, quebras de linha (\\n). NÃO troque ";" por "," nem remova ".".
 
-Schema do JSON:
+REGRAS:
+- "category": curta, SEM número, identificada AUTOMATICAMENTE a partir do conteúdo do item (não use sempre a mesma). Exemplos comuns: "Apresentação", "Anamnese", "Exame físico", "Hipótese diagnóstica", "Diagnóstico diferencial", "Conduta", "Comunicação", "Procedimento", "Prescrição", "Orientações finais". Use a que melhor descreve o item — pode ser outra se a fonte indicar.
+- "description": COPIE o texto do item da fonte, começando com o número e ponto ("1. ...", "2. ..."). Preserve sub-itens, ; e . exatamente como na fonte (ex.: "(1) X;\\n(2) Y;\\n(3) Z.").
+- "points": valor MÁXIMO do item, igual à fonte (0.25, 0.5, 0.75, 1.0, 1.5, 2.0…).
+- "levels": SÓ inclua se a fonte explicitamente listar níveis, no formato "Inadequado: <regra da fonte>", "Parcialmente adequado: <regra>", "Adequado: <regra>" com os "points" exatos da fonte.
+- Combine múltiplas fontes sem duplicar itens.
+
+Schema:
 {
   "checklist_items": [{
-    "description": string, "category": string, "points": number, "helper_text": string,
+    "description": string, "category": string, "points": number,
     "levels": [{ "label": string, "points": number, "description": string }]
   }]
 }`;
