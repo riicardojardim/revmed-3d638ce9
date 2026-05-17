@@ -145,7 +145,7 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
             style={{ transformStyle: "preserve-3d", perspective: 1200 }}
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           >
-            <ClinicalRecord isCandidate={isCandidate} stationTitle={stationTitle} />
+            <ClinicalRecord isCandidate={isCandidate} stationTitle={stationTitle} displayName={displayName} />
           </motion.div>
         )}
       </AnimatePresence>
