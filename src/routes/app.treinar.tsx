@@ -72,19 +72,11 @@ function TrainPage() {
     });
   }
   function openSelectMode() {
-    if (!canSaveSimulado) {
-      toast.error("Simulados são exclusivos do plano Completo.");
-      return;
-    }
     setSelectMode(true);
     setSelected([]);
     setAllOpen(true);
   }
   function startSimulado() {
-    if (!canSaveSimulado) {
-      toast.error("Simulados são exclusivos do plano Completo.");
-      return;
-    }
     if (selected.length === 0) {
       toast.error("Adicione pelo menos um checklist.");
       return;
@@ -262,13 +254,11 @@ function TrainPage() {
             <Button variant="hero" className="mt-3 w-full" onClick={() => { setSelectMode(false); setAllOpen(true); }}>
               <ListOrdered className="mr-1 h-4 w-4" /> Todos os Checklists
             </Button>
-            <Button variant="hero" className="mt-2 w-full" onClick={openSelectMode} disabled={!canSaveSimulado} title={!canSaveSimulado ? "Disponível apenas no plano Completo" : undefined}>
+            <Button variant="hero" className="mt-2 w-full" onClick={openSelectMode}>
               <GraduationCap className="mr-1 h-4 w-4" /> Criar Simulado
             </Button>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              {canSaveSimulado
-                ? "Monte uma sequência de checklists. Só avança para o próximo quando o PEP atual estiver completo."
-                : "Simulados são exclusivos do plano Completo."}
+              Monte uma sequência de checklists. Só avança para o próximo quando o PEP atual estiver completo.
             </p>
 
             {canSaveSimulado && simulados.length > 0 && (
