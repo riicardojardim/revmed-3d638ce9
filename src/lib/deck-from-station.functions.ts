@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
+  station_id: z.string().uuid().optional().nullable(),
   title: z.string().min(1).max(300),
   specialty: z.string().min(1).max(120),
   topic: z.string().max(200).optional().nullable(),
@@ -157,6 +158,7 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
         topic: deckTopic,
         description: `Gerado automaticamente a partir da estação "${data.title}".`,
         published: false,
+        station_id: data.station_id ?? null,
       })
       .select("id")
       .single();

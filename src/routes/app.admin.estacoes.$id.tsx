@@ -1378,6 +1378,25 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
   const generate = useServerFn(generateDeckFromStation);
   const [loading, setLoading] = useState(false);
   const [deck, setDeck] = useState<GeneratedDeck | null>(null);
+  const [linkedDecks, setLinkedDecks] = useState<Array<{ id: string; title: string; published: boolean; created_at: string; cards: number }>>([]);
+
+  async function loadLinked() {
+    const { data } = await supabase
+      .from("flashcard_decks")
+      .select("id,title,published,created_at, flashcards(count)")
+      .eq("station_id", station.id)
+      .order("created_at", { ascending: false });
+    const rows = (data ?? []).map((d: { id: string; title: string; published: boolean; created_at: string; flashcards: { count: number }[] }) => ({
+      id: d.id,
+      title: d.title,
+      published: d.published,
+      created_at: d.created_at,
+      cards: d.flashcards?.[0]?.count ?? 0,
+    }));
+    setLinkedDecks(rows);
+  }
+
+  useEffect(() => { void loadLinked(); }, [station.id]);
 
   async function run() {
     if (!station.title?.trim() || !station.specialty?.trim()) {
@@ -1391,6 +1410,7 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
       const count = 10 + Math.floor(Math.random() * 6);
       const res = await generate({
         data: {
+          station_id: station.id,
           title: station.title,
           specialty: station.specialty,
           topic: null,
@@ -1417,6 +1437,7 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
         cards: ((cs ?? []) as GeneratedCard[]).map((c) => ({ id: c.id, front: c.front, back: c.back })),
       });
       toast.success(`Deck pronto com ${res.count} cards!`);
+      void loadLinked();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       toast.error("Falha ao gerar flashcards", { description: msg });
@@ -1451,6 +1472,39 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
       <p className="text-[11px] text-muted-foreground">
         A IA é um ponto de partida — revise sempre doses, contraindicações e critérios antes de publicar para os alunos.
       </p>
+
+      {linkedDecks.length > 0 && (
+        <div className="mt-3 rounded-xl border border-border bg-card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-sm font-display font-bold">
+              Decks gerados desta estação
+            </div>
+            <Badge variant="outline">{linkedDecks.length}</Badge>
+          </div>
+          <div className="divide-y divide-border">
+            {linkedDecks.map((d) => (
+              <div key={d.id} className="flex flex-wrap items-center gap-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{d.title}</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    {d.cards} cards · {new Date(d.created_at).toLocaleDateString("pt-BR")}
+                  </div>
+                </div>
+                {d.published
+                  ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
+                  : <Badge variant="outline">Rascunho</Badge>}
+                <Link
+                  to="/app/admin/flashcards/$id"
+                  params={{ id: d.id }}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
+                >
+                  Abrir →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {deck && <InlineDeckPreview deck={deck} />}
     </Section>
