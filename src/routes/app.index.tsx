@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity,
   Award,
   BarChart3,
   Flame,
@@ -9,7 +8,6 @@ import {
   Sparkles,
   Trophy,
   TrendingUp,
-  Target,
 } from "lucide-react";
 import {
   ResponsiveContainer,
