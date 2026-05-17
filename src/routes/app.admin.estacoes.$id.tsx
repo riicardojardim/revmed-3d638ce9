@@ -338,6 +338,7 @@ function EditorBody({
               educational_goal: merged.educational_goal,
               competencies: merged.competencies,
               clinical_case: merged.clinical_case,
+              case_description: merged.case_description,
               candidate_task: merged.candidate_task,
               patient_info: merged.patient_info,
               patient_script: merged.patient_script,
