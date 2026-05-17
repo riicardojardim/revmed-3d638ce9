@@ -1649,7 +1649,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                           >
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                                <span>{idx + 1}. {it.category ? `${it.category}. ` : ""}{parts.lead.replace(/^\s*\d+\.\s*/, "")}</span>
+                                <span>{formatPepHeading(idx, it.category, it.description)}</span>
                               </div>
                               {parts.subs.length > 0 && (
                                 <ul className="mt-2 space-y-0.5">
