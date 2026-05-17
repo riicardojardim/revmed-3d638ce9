@@ -1132,17 +1132,36 @@ function SectionPublish({
 // ============================================================
 // Live preview — mirrors the actual Avaliado / Ator / Avaliador panels
 // ============================================================
-type PreviewMode = "candidato" | "ator";
+type PreviewMode = "candidato" | "ator" | "pep";
+
+function previewLevelStyle(label: string) {
+  const k = (label || "").toLowerCase();
+  if (k.startsWith("adequado")) return { dot: "bg-emerald-500", cls: "border-emerald-400/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10", activeCls: "border-emerald-500 bg-emerald-500 text-white shadow-[0_8px_24px_-8px_rgba(16,185,129,.6)]", short: "ADQ" };
+  if (k.startsWith("parc"))     return { dot: "bg-amber-500",   cls: "border-amber-400/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10",         activeCls: "border-amber-500 bg-amber-500 text-white shadow-[0_8px_24px_-8px_rgba(245,158,11,.6)]", short: "PAR" };
+  return                          { dot: "bg-rose-500",    cls: "border-rose-400/30 text-rose-700 dark:text-rose-300 hover:bg-rose-500/10",             activeCls: "border-rose-500 bg-rose-500 text-white shadow-[0_8px_24px_-8px_rgba(244,63,94,.6)]", short: "INA" };
+}
 
 function StationLivePreview({ station, items }: { station: Station; items: Item[] }) {
   const [mode, setMode] = useState<PreviewMode>("candidato");
+  const [pepLevels, setPepLevels] = useState<Record<string, number>>({});
   const meta = getSpecialtyMeta(station.specialty);
   const totalPts = items.reduce((s, i) => s + Number(i.points || 0), 0);
 
   const tabs: { id: PreviewMode; label: string; icon: ComponentType<{ className?: string }> }[] = [
     { id: "candidato", label: "Avaliado (candidato)", icon: User },
     { id: "ator",      label: "Ator / Paciente",      icon: Stethoscope },
+    { id: "pep",       label: "Avaliador (PEP)",      icon: ClipboardCheck },
   ];
+
+  const groupedPep = (() => {
+    const map = new Map<string, Item[]>();
+    items.forEach((it) => {
+      const arr = map.get(it.category) ?? [];
+      arr.push(it);
+      map.set(it.category, arr);
+    });
+    return Array.from(map.entries());
+  })();
 
   const p = station.patient_profile ?? {};
   const hasProfile = Object.values(p).some((v) => typeof v === "string" && v.trim().length > 0);
