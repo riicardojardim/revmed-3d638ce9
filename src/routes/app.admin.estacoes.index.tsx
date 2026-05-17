@@ -79,15 +79,15 @@ function AdminStationsPage() {
       .update({ published: !s.published })
       .eq("id", s.id);
     if (error) return toast.error("Falha ao atualizar", { description: error.message });
-    toast.success(s.published ? "Estação despublicada" : "Estação publicada para assinantes");
+    toast.success(s.published ? "Checklist despublicado" : "Checklist publicado para assinantes");
     void load();
   }
 
   async function remove(s: Station) {
-    if (!confirm(`Excluir a estação "${s.title}"? Esta ação não pode ser desfeita.`)) return;
+    if (!confirm(`Excluir o checklist "${s.title}"? Esta ação não pode ser desfeita.`)) return;
     const { error } = await supabase.from("custom_stations").delete().eq("id", s.id);
     if (error) return toast.error("Falha ao excluir", { description: error.message });
-    toast.success("Estação excluída");
+    toast.success("Checklist excluído");
     void load();
   }
 
@@ -112,7 +112,7 @@ function AdminStationsPage() {
         items.map((it) => ({ ...it, station_id: created.id })),
       );
     }
-    toast.success("Estação duplicada");
+    toast.success("Checklist duplicado");
     void load();
   }
 
@@ -123,7 +123,7 @@ function AdminStationsPage() {
       .from("custom_stations")
       .insert({
         created_by: user.id,
-        title: "Nova estação sem título",
+        title: "Novo checklist sem título",
         specialty: "Clínica Médica",
         difficulty: "Intermediário",
         duration_minutes: 10,
@@ -152,11 +152,11 @@ function AdminStationsPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-xl font-bold">Estações da plataforma</h2>
-          <p className="text-sm text-muted-foreground">Crie, edite e publique estações para todos os assinantes.</p>
+          <h2 className="font-display text-xl font-bold">Checklists da plataforma</h2>
+          <p className="text-sm text-muted-foreground">Crie, edite e publique checklists para todos os assinantes.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => setBatchOpen(true)} disabled={loading || filtered.length === 0} title="Gera um deck de flashcards para cada estação do filtro atual">
+          <Button variant="outline" onClick={() => setBatchOpen(true)} disabled={loading || filtered.length === 0} title="Gera um deck de flashcards para cada checklist do filtro atual">
             <Sparkles className="h-4 w-4" /> Flashcards em lote
           </Button>
           <Button variant="hero" onClick={createNew} disabled={creating}>

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/app/professor")({
 
 const tabs = [
   { to: "/app/professor", label: "Visão geral", icon: LayoutDashboard, exact: true },
-  { to: "/app/professor/estacoes", label: "Estações", icon: BookPlus, exact: false },
+  { to: "/app/professor/estacoes", label: "Checklists", icon: BookPlus, exact: false },
   { to: "/app/professor/flashcards", label: "Flashcards", icon: Brain, exact: false },
   { to: "/app/professor/resumos", label: "Resumos", icon: BookOpen, exact: false },
   { to: "/app/professor/correcoes", label: "Correções", icon: ClipboardEdit, exact: false },
@@ -54,7 +54,7 @@ function ProfessorLayout() {
             <GraduationCap className="h-3.5 w-3.5" /> Painel do Professor
           </div>
           <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
-            Construa estações e corrija seus alunos
+            Construa checklists e corrija seus alunos
           </h1>
         </div>
       </div>

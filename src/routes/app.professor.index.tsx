@@ -34,8 +34,8 @@ function ProfessorDashboard() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-4">
-        <Stat icon={BookPlus} label="Estações criadas" value={stats.stations} />
-        <Stat icon={ClipboardList} label="Publicadas" value={stats.published} accent />
+        <Stat icon={BookPlus} label="Checklists criados" value={stats.stations} />
+        <Stat icon={ClipboardList} label="Publicados" value={stats.published} accent />
         <Stat icon={Users} label="Aguardando correção" value={stats.pending} />
         <Stat icon={ClipboardEdit} label="Corrigidas por você" value={stats.reviewed} />
       </div>
@@ -43,7 +43,7 @@ function ProfessorDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Action
           to="/app/professor/estacoes"
-          title="Criar nova estação"
+          title="Criar novo checklist"
           desc="Monte um caso clínico com checklist avaliativo personalizado."
           cta="Abrir editor"
         />

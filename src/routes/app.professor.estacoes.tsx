@@ -64,26 +64,26 @@ function StationsPage() {
       .update({ published: !s.published })
       .eq("id", s.id);
     if (error) return toast.error("Falha ao atualizar", { description: error.message });
-    toast.success(s.published ? "Estação despublicada" : "Estação publicada");
+    toast.success(s.published ? "Checklist despublicado" : "Checklist publicado");
     void load();
   }
 
   async function remove(s: Station) {
-    if (!confirm(`Excluir a estação "${s.title}"?`)) return;
+    if (!confirm(`Excluir o checklist "${s.title}"?`)) return;
     const { error } = await supabase.from("custom_stations").delete().eq("id", s.id);
     if (error) return toast.error("Falha ao excluir", { description: error.message });
-    toast.success("Estação excluída");
+    toast.success("Checklist excluído");
     void load();
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-xl font-bold">Minhas estações</h2>
+        <h2 className="font-display text-xl font-bold">Meus checklists</h2>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="hero">
-              <Plus className="h-4 w-4" /> Nova estação
+              <Plus className="h-4 w-4" /> Novo checklist
             </Button>
           </DialogTrigger>
           <NewStationDialog onCreated={() => { setOpen(false); void load(); }} />
@@ -95,9 +95,9 @@ function StationsPage() {
       ) : stations.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
           <BookOpen className="mx-auto h-10 w-10 text-mint" />
-          <h3 className="mt-3 font-display text-lg font-semibold">Você ainda não criou estações</h3>
+          <h3 className="mt-3 font-display text-lg font-semibold">Você ainda não criou checklists</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Comece criando seu primeiro caso clínico com checklist.
+            Comece criando seu primeiro caso clínico com checklist avaliativo.
           </p>
         </div>
       ) : (
@@ -110,14 +110,14 @@ function StationsPage() {
                   <Badge variant="outline">{s.difficulty}</Badge>
                   <Badge variant="outline">{s.duration_minutes} min</Badge>
                   {s.published ? (
-                    <Badge className="bg-success/15 text-success hover:bg-success/15">Publicada</Badge>
+                    <Badge className="bg-success/15 text-success hover:bg-success/15">Publicado</Badge>
                   ) : (
                     <Badge variant="outline" className="border-warning/30 text-warning">Rascunho</Badge>
                   )}
                 </div>
                 <div className="mt-2 font-display text-lg font-semibold">{s.title}</div>
                 <div className="text-xs text-muted-foreground">
-                  Criada em {new Date(s.created_at).toLocaleDateString("pt-BR")}
+                  Criado em {new Date(s.created_at).toLocaleDateString("pt-BR")}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -173,7 +173,7 @@ function NewStationDialog({ onCreated }: { onCreated: () => void }) {
     });
     setSaving(false);
     if (error) return toast.error("Erro ao criar", { description: error.message });
-    toast.success("Estação criada", { description: "Adicione itens ao checklist em seguida." });
+    toast.success("Checklist criado", { description: "Adicione itens ao checklist avaliativo em seguida." });
     onCreated();
   }
 

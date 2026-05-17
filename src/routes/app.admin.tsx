@@ -11,7 +11,7 @@ export const Route = createFileRoute("/app/admin")({
 
 const tabs = [
   { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
-  { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope, exact: false },
+  { to: "/app/admin/estacoes", label: "Checklists", icon: Stethoscope, exact: false },
   { to: "/app/admin/flashcards", label: "Flashcards", icon: Brain, exact: false },
   { to: "/app/admin/usuarios", label: "Usuários", icon: Users, exact: false },
   { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack, exact: false },

@@ -164,11 +164,11 @@ function StationsPage() {
           {/* Cards */}
           {loading ? (
             <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-              Carregando estações...
+              Carregando checklists...
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-              Nenhuma estação encontrada{q ? ` para "${q}"` : ""}.
+              Nenhum checklist encontrado{q ? ` para "${q}"` : ""}.
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -213,11 +213,11 @@ function StationsPage() {
             </div>
             <h3 className="mt-3 font-display text-lg font-bold">Todos os Checklists</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Explore o catálogo completo de estações disponíveis.
+              Explore o catálogo completo de checklists disponíveis.
             </p>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display text-3xl font-bold">{dbStations.length}</span>
-              <span className="text-xs text-muted-foreground">estações publicadas</span>
+              <span className="text-xs text-muted-foreground">checklists publicados</span>
             </div>
             <Button
               variant="outline"
@@ -234,7 +234,7 @@ function StationsPage() {
             </div>
             <h3 className="mt-3 font-display text-lg font-bold">Criar Simulado</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Monte um simulado com várias estações e cronômetro oficial.
+              Monte um simulado com 2 ou mais checklists e cronômetro oficial.
             </p>
             <Link to="/app/treinar" className="mt-4 block">
               <Button variant="hero" className="w-full">
