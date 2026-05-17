@@ -88,7 +88,14 @@ function CandidateView() {
         await loadEvaluation(room.id);
       })
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    // Fallback: polling a cada 2s para garantir sincronia mesmo se realtime atrasar
+    const pollId = setInterval(async () => {
+      const { data: r } = await supabase.from("training_rooms")
+        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
+        .eq("id", room.id).maybeSingle();
+      if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
+    }, 2000);
+    return () => { supabase.removeChannel(ch); clearInterval(pollId); };
   }, [room?.id]);
 
   async function loadEvaluation(roomId: string) {
@@ -241,7 +248,6 @@ function CandidateView() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
           <Badge variant="outline">{station.specialty}</Badge>
-          <Badge variant="outline">{station.durationMinutes} min</Badge>
         </div>
 
         <div className="mt-10 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
