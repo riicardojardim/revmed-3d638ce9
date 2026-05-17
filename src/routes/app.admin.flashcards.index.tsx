@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
-export const Route = createFileRoute("/app/admin/flashcards")({
+export const Route = createFileRoute("/app/admin/flashcards/")({
   component: AdminFlashcardsPage,
 });
 
