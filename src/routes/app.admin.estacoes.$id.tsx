@@ -332,13 +332,7 @@ function EditorBody({
             const startIdx = items.length;
             const rows = r.checklist_items.map((ci, idx) => {
               const pts = Number(ci.points) > 0 ? Number(ci.points) : 1;
-              const number = startIdx + idx + 1;
-              const rawDesc = ci.description.trim();
-              // gold-standard: description starts with "N. ..."
-              const description = /^\d+\.\s/.test(rawDesc) ? rawDesc : `${number}. ${rawDesc}`;
-              // keep AI's clean category name; strip accidental leading number
-              const category =
-                (ci.category ?? "Anamnese").replace(/^\s*\d+\.\s*/, "").trim() || "Anamnese";
+              const { description, category } = normalizeChecklistFields(ci.description, ci.category);
               return {
                 station_id: id,
                 description,
