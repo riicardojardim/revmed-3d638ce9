@@ -25,6 +25,7 @@ import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
 import { generateDeckFromStation } from "@/lib/deck-from-station.functions";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
+import { DeckPreview } from "@/components/flashcards/DeckPreview";
 import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 import { suggestStationTitle } from "@/lib/title-suggest.functions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -1459,12 +1460,31 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
 function InlineDeckPreview({ deck }: { deck: GeneratedDeck }) {
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  const [published, setPublished] = useState(false);
+  const [pubLoading, setPubLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const total = deck.cards.length;
   const current = deck.cards[index];
 
   function go(delta: number) {
     setRevealed(false);
     setIndex((i) => Math.min(Math.max(i + delta, 0), Math.max(total - 1, 0)));
+  }
+
+  async function togglePublish() {
+    setPubLoading(true);
+    const next = !published;
+    const [{ error: deckErr }, { error: cardsErr }] = await Promise.all([
+      supabase.from("flashcard_decks").update({ published: next }).eq("id", deck.deck_id),
+      supabase.from("flashcards").update({ published: next }).eq("deck_id", deck.deck_id),
+    ]);
+    setPubLoading(false);
+    if (deckErr || cardsErr) {
+      toast.error("Falha ao atualizar publicação", { description: (deckErr ?? cardsErr)?.message });
+      return;
+    }
+    setPublished(next);
+    toast.success(next ? "Deck publicado para os alunos" : "Deck despublicado");
   }
 
   return (
@@ -1474,14 +1494,29 @@ function InlineDeckPreview({ deck }: { deck: GeneratedDeck }) {
           <Eye className="h-4 w-4 text-mint" />
           <span className="font-display font-bold">Pré-visualização do aluno</span>
           <span className="text-muted-foreground">· {total} cards</span>
+          {published && (
+            <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
+          )}
         </div>
-        <Link
-          to="/app/admin/flashcards/$id"
-          params={{ id: deck.deck_id }}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-        >
-          Abrir no editor de flashcards →
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)}>
+            <Play className="h-4 w-4" /> Pré-visualizar
+          </Button>
+          <Button variant="outline" size="sm" onClick={togglePublish} disabled={pubLoading}>
+            {pubLoading
+              ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</>
+              : published
+                ? <><EyeOff className="h-4 w-4" /> Despublicar</>
+                : <><Eye className="h-4 w-4" /> Publicar</>}
+          </Button>
+          <Link
+            to="/app/admin/flashcards/$id"
+            params={{ id: deck.deck_id }}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+          >
+            Abrir no editor →
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
@@ -1522,6 +1557,15 @@ function InlineDeckPreview({ deck }: { deck: GeneratedDeck }) {
           <div className="text-sm text-muted-foreground">Nenhum card gerado.</div>
         )}
       </div>
+
+      <DeckPreview
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={deck.title}
+        specialty={deck.specialty}
+        topic={deck.topic}
+        cards={deck.cards}
+      />
     </div>
   );
 }
