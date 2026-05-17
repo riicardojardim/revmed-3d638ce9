@@ -167,7 +167,20 @@ function SimuladoRunner() {
     const { data: profs } = await supabase.from("profiles")
       .select("id, full_name").in("id", ids);
     const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
-    setCandidates(ids.map((uid: string) => ({ id: uid, name: map.get(uid) ?? "Candidato" })));
+    const list = ids.map((uid: string) => {
+      const raw = (map.get(uid) ?? "").trim();
+      const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
+      return { id: uid, name };
+    });
+    setCandidates(list);
+    // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
+    const { data: r } = await supabase.from("training_rooms")
+      .select("evaluated_candidate_id").eq("id", roomId).maybeSingle();
+    if (!r?.evaluated_candidate_id && list.length > 0) {
+      await supabase.from("training_rooms")
+        .update({ evaluated_candidate_id: list[0].id }).eq("id", roomId);
+      setEvaluatedCandidateId(list[0].id);
+    }
   }
 
   // Realtime: participants + room updates
