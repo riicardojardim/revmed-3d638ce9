@@ -244,13 +244,18 @@ export function GrammarReviewButton({ station, items, setStation, setItems }: Pr
               {results.map((fr) => {
                 const meta = fieldMap.get(fr.field_id);
                 if (!meta) return null;
-                const original = meta.text;
-                const changed = fr.corrected_text.trim() !== original.trim();
+                const isApplied = applied.has(fr.field_id);
+                const hasCorrection = fr.corrected_text.trim() !== "" && fr.corrected_text.trim() !== meta.text.trim();
+                const showCorrected = hasCorrection || isApplied;
                 return (
                   <div key={fr.field_id} className="rounded-lg border bg-card p-3">
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <div className="text-sm font-semibold">{meta.label}</div>
-                      {fr.issues.length === 0 ? (
+                      {isApplied ? (
+                        <Badge variant="outline" className="gap-1 text-mint border-mint/60 bg-mint/10">
+                          <Check className="h-3 w-3" /> Aplicado
+                        </Badge>
+                      ) : fr.issues.length === 0 ? (
                         <Badge variant="outline" className="gap-1 text-mint border-mint/40">
                           <CheckCircle2 className="h-3 w-3" /> OK
                         </Badge>
@@ -278,15 +283,24 @@ export function GrammarReviewButton({ station, items, setStation, setItems }: Pr
                       </ul>
                     )}
 
-                    {changed && (
+                    {showCorrected && (
                       <div className="mt-2 rounded border bg-muted/30 p-2 text-xs">
-                        <div className="mb-1 font-semibold text-mint">Texto corrigido:</div>
-                        <div className="whitespace-pre-wrap">{fr.corrected_text}</div>
-                        <div className="mt-2 flex justify-end">
-                          <Button size="sm" variant="hero" className="gap-1" onClick={() => applyToField(fr.field_id, fr.corrected_text)}>
-                            <Check className="h-3.5 w-3.5" /> Aplicar correção
-                          </Button>
+                        <div className="mb-1 font-semibold text-mint">
+                          {isApplied ? "Texto aplicado no formulário:" : "Texto corrigido:"}
                         </div>
+                        <div className="whitespace-pre-wrap">{fr.corrected_text}</div>
+                        {!isApplied && (
+                          <div className="mt-2 flex justify-end">
+                            <Button size="sm" variant="hero" className="gap-1" onClick={() => applyToField(fr.field_id, fr.corrected_text)}>
+                              <Check className="h-3.5 w-3.5" /> Aplicar correção
+                            </Button>
+                          </div>
+                        )}
+                        {isApplied && (
+                          <div className="mt-2 text-[11px] text-mint">
+                            ✓ Substituído no campo "{meta.label}". Clique em "Salvar" no topo para gravar.
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
