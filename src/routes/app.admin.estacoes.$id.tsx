@@ -383,7 +383,7 @@ function EditorBody({
         }}
       />
 
-      <SectionBasics station={station} up={up} />
+      <SectionBasics station={station} up={up} items={items} />
 
       {/* Tabs: Ator / Avaliado */}
       <div className="inline-flex rounded-xl border border-border bg-background/40 p-1">
@@ -548,7 +548,7 @@ function PdfImportSection({
   );
 }
 
-function SectionBasics({ station, up }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void }) {
+function SectionBasics({ station, up, items }: { station: Station; up: <K extends keyof Station>(k: K, v: Station[K]) => void; items: Item[] }) {
   const suggestFn = useServerFn(suggestStationTitle);
   const [suggesting, setSuggesting] = useState(false);
   const [suggestions, setSuggestions] = useState<{ title: string; alternatives: string[] } | null>(null);
@@ -557,6 +557,9 @@ function SectionBasics({ station, up }: { station: Station; up: <K extends keyof
   async function runSuggest() {
     setSuggesting(true);
     try {
+      const pep_items = items
+        .map((it) => (it.description ?? "").trim())
+        .filter((s) => s.length > 0);
       const r = await suggestFn({
         data: {
           currentTitle: station.title ?? "",
@@ -565,6 +568,7 @@ function SectionBasics({ station, up }: { station: Station; up: <K extends keyof
           case_description: station.case_description ?? "",
           candidate_task: station.candidate_task ?? "",
           patient_script: station.patient_script ?? "",
+          pep_items,
         },
       });
       setSuggestions(r);
