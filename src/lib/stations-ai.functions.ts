@@ -246,16 +246,26 @@ async function callGateway(
 }
 
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // Use the stronger model first because this flow needs faithful PDF transcription.
+  // GPT-5 first: most disciplined at literal transcription without inventing fields.
   try {
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
+    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 180_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
-    if (!isTimeout) throw err;
-    return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
+    const isRecoverable = /abort|timeout|504|502|upstream|429|rate/i.test(msg);
+    if (!isRecoverable) throw err;
+    // Fallback 1: Gemini 2.5 Pro (long context, multimodal).
+    try {
+      return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-pro", 150_000);
+    } catch (err2) {
+      const msg2 = err2 instanceof Error ? err2.message : String(err2);
+      const isTimeout = /abort|timeout|504|502|upstream/i.test(msg2);
+      if (!isTimeout) throw err2;
+      // Fallback 2: Gemini Flash (fast).
+      return await callGateway(apiKey, pdf.dataUrl, pdf.name, "google/gemini-2.5-flash", 90_000);
+    }
   }
 }
+
 
 function pickLonger(a?: string, b?: string): string | undefined {
   const av = (a ?? "").trim();
