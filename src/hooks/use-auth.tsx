@@ -24,6 +24,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T | null> {
+  return Promise.race([
+    promise,
+    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), ms)),
+  ]);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -33,10 +40,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadExtras(uid: string) {
     try {
-      const [{ data: prof }, { data: rs }] = await Promise.all([
+      const result = await withTimeout(Promise.all([
         supabase.from("profiles").select("id, full_name, whatsapp, exam_year, avatar_url").eq("id", uid).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", uid),
-      ]);
+      ]), 2000);
+      if (!result) return;
+      const [{ data: prof }, { data: rs }] = result;
       setProfile((prof as Profile | null) ?? null);
       setRoles(((rs ?? []) as { role: AppRole }[]).map((r) => r.role));
     } catch {
@@ -51,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(s?.user ?? null);
       if (s?.user) {
         setTimeout(() => {
-          void loadExtras(s.user.id);
+          void loadExtras(s.user.id).finally(() => setLoading(false));
         }, 0);
       } else {
         setProfile(null);
@@ -64,6 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) await loadExtras(s.user.id);
+      setLoading(false);
+    }).catch(() => {
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      setRoles([]);
       setLoading(false);
     });
 

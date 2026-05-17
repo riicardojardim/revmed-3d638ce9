@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +16,19 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const nav = useNavigate();
   const { user, loading } = useAuth();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms)),
+    ]);
+  }
 
   async function resolveDestination(uid: string): Promise<string> {
     try {
@@ -37,6 +45,7 @@ function LoginPage() {
 
   function goTo(to: string) {
     // Hard navigation evita corridas com o estado do AuthProvider/loader.
+    sessionStorage.setItem("auth:welcome", "1");
     window.location.assign(to);
   }
 
@@ -44,21 +53,41 @@ function LoginPage() {
     if (!loading && user && !submitting) {
       resolveDestination(user.id).then(goTo);
     }
-  }, [user, loading, submitting, nav]);
+  }, [user, loading, submitting]);
+
+  async function submitLogin() {
+    if (submitting) return;
+    const normalizedEmail = (emailRef.current?.value || email).trim();
+    const currentPassword = passwordRef.current?.value || password;
+    if (!normalizedEmail || !currentPassword) {
+      toast.error("Preencha e-mail e senha para entrar.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({ email: normalizedEmail, password: currentPassword }),
+        10000,
+      );
+      if (error) {
+        setSubmitting(false);
+        toast.error("Não foi possível entrar", { description: error.message });
+        return;
+      }
+
+      const uid = data.user?.id;
+      const destination = uid ? await resolveDestination(uid) : "/app";
+      goTo(destination);
+    } catch {
+      setSubmitting(false);
+      toast.error("Não foi possível entrar", { description: "Tente novamente em alguns segundos." });
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setSubmitting(false);
-      toast.error("Não foi possível entrar", { description: error.message });
-      return;
-    }
-    toast.success("Bem-vindo de volta!");
-    const uid = data.user?.id;
-    const to = uid ? await resolveDestination(uid) : "/app";
-    goTo(to);
+    await submitLogin();
   }
 
   async function handleGoogle() {
@@ -101,13 +130,13 @@ function LoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required />
+              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required />
             </div>
             <div>
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input ref={passwordRef} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
-            <Button variant="hero" size="lg" className="w-full" disabled={submitting}>
+            <Button type="button" variant="hero" size="lg" className="w-full" disabled={submitting} onClick={submitLogin}>
               {submitting ? "Entrando..." : (<>Entrar <ArrowRight className="h-4 w-4" /></>)}
             </Button>
           </form>
