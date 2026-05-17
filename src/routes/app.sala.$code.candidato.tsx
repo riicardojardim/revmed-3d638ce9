@@ -246,10 +246,6 @@ function CandidateView() {
           <LobbyStep icon={Play} label="Estação inicia" />
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
-          <Badge variant="outline">{station.specialty}</Badge>
-        </div>
-
         <div className="mt-10 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
           💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o ator clicar em iniciar.
         </div>
