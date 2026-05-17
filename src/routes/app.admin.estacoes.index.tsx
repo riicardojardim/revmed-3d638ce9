@@ -46,6 +46,7 @@ function AdminStationsPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  const [batchOpen, setBatchOpen] = useState(false);
 
   async function load() {
     setLoading(true);
