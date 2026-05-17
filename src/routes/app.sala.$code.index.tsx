@@ -163,7 +163,7 @@ function RoomPage() {
   }, [room?.status, parts, user?.id]);
 
   function redirectByRole(role: string) {
-    if (role === "paciente" || role === "avaliador") {
+    if (role === "paciente") {
       nav({ to: "/app/sala/$code/paciente", params: { code }, replace: true });
     } else if (role === "candidato") {
       nav({ to: "/app/sala/$code/candidato", params: { code }, replace: true });
