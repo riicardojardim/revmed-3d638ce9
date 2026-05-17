@@ -1,75 +1,52 @@
-# Plano: Entrada Premium da Estação ("Prontuário + Crachá")
 
-Vou entregar uma primeira versão completa, navegável e responsiva, em 4 frentes: **banco**, **realtime/lobby**, **animação** e **roteamento por papel**.
+# Plano: Flashcards estilo Pense Revalida (Admin + UX do aluno)
 
-## 1. Banco de dados (migration)
+Vou implementar a criação/gestão de flashcards no painel **Admin** seguindo o layout que você mostrou (lista de decks → cover image roxa + título → cards internos com **Pergunta / Resposta** e botões "Errei / Difícil / Fácil"). Também vou ajustar a página do aluno (`/app/flashcards`) para usar esse mesmo visual.
 
-Ajustes mínimos em `training_rooms` e `training_room_participants` (mantendo o que já existe):
+## 1. Banco (migration)
 
-- `training_rooms`: adicionar `actor_ready boolean default false`, `candidate_ready boolean default false`, `starting_at timestamptz`. Status passa a aceitar: `waiting | candidate_joined | actor_ready | candidate_ready | starting | in_progress | finished`.
-- `training_room_participants`: adicionar `is_ready boolean default false`, `display_name text`, `last_seen_at timestamptz default now()`.
-- Habilitar Realtime (`REPLICA IDENTITY FULL` + `ALTER PUBLICATION supabase_realtime ADD TABLE ...`) para ambas as tabelas.
+Hoje a tabela `flashcards` é "card solto". Vou adicionar a noção de **deck** como entidade com capa, e os cards passam a pertencer a um deck.
 
-RLS já existente é mantida (host/admin editam sala; participante edita o próprio registro).
+- Nova tabela `flashcard_decks`:
+  - `id`, `created_by`, `title` (ex.: "AVC Isquêmico"), `specialty` (CM, CR, GO, PR, PS, etc. — usa as siglas que já aparecem no badge colorido), `topic` (opcional), `cover_image_url` (capa roxa), `description`, `published`, `position` (ordenação), `created_at`, `updated_at`.
+  - RLS: `select` para qualquer autenticado quando `published=true`; admin/professor podem CRUD.
+- Em `flashcards`:
+  - adicionar `deck_id uuid references flashcard_decks(id) on delete cascade` (nullable para retrocompatibilidade) + `position int default 0`.
+  - migrar os flashcards existentes que tenham `deck text` para um deck novo agrupado por `(created_by, specialty, deck)`.
+- Storage bucket `flashcard-covers` (público para leitura) para as capas. RLS de upload: só admin/professor.
 
-## 2. Pré-sala (Lobby)
+## 2. Admin → nova aba "Flashcards"
 
-Nova rota `/app/sala/$code/lobby` (e redirect a partir de `/app/entrar/$code` para o lobby, em vez de ir direto para candidato/paciente).
+- Adicionar item `Flashcards` em `app.admin.tsx` (ao lado de Estações/Conteúdo).
+- Nova rota `src/routes/app.admin.flashcards.tsx`:
+  - **Lista de decks** (como a primeira screenshot): badge de especialidade colorido (CM azul, CR azul, GO rosa, PR laranja, PS rosa…), título, contagem de cards, "média/nota" placeholder, botão **Editar** e **Publicar/Despublicar**.
+  - Filtro "Todas as Áreas" + busca.
+  - Botão **+ Novo Deck**.
+- Nova rota `src/routes/app.admin.flashcards.$id.tsx` (editor do deck):
+  - Topo: upload da capa (preview roxa estilo Pense Revalida), título, especialidade (select), tópico, publicado.
+  - Lista de cards do deck (drag-to-reorder simples por botões ↑↓), cada card com **Pergunta** + **Resposta** (textarea) + remover.
+  - Botão **+ Adicionar card**.
+  - Salvamento por card (debounced) + botão "Salvar tudo".
 
-Componentes novos em `src/components/room/`:
-- `RoomLobby` — orquestra tudo.
-- `ParticipantStatusCard` — mostra cada participante com avatar, papel, "Pronto/Aguardando".
-- `InviteLinkBox` — código grande + botão "Copiar link".
-- `ReadyButton` — alterna `is_ready` do participante atual.
-- `StartStationButton` — só host/ator/avaliador; seta `status = 'starting'` + `starting_at = now()`.
+## 3. Página do aluno (`/app/flashcards`)
 
-Realtime: subscribe em `training_rooms:id=eq.<id>` e `training_room_participants:room_id=eq.<id>`. Quando `status` vira `starting`, mostra o overlay.
+Refazer no estilo das suas screenshots:
 
-Cabeçalho com: nome da estação, especialidade, duração, código, aviso de privacidade por papel.
+1. **Tela 1 — lista de decks** (`425 Flashcards`): tabela com badge de sigla, nome, média, nota, botão **Iniciar**. Filtro "Todas as Áreas".
+2. **Tela 2 — capa do deck**: card centralizado com `cover_image_url`, título em caixa alta, botão **Iniciar Flashcard**.
+3. **Tela 3 — pergunta**: card roxo "Pergunta — 1 | N" + texto centralizado + botão **Ver Resposta** + setas ‹ ›.
+4. **Tela 4 — resposta**: card amarelo claro com a resposta + "Como foi sua resposta?" com 3 botões redondos (vermelho/amarelo/verde) que alimentam o algoritmo de revisão espaçada já existente (`flashcard_reviews`: 0/3/5).
+5. Botão **Fechar** volta para a lista.
 
-## 3. Animação "Prontuário + Crachá" (4–6s)
+Tokens: tudo via `src/styles.css` (sem cores hardcoded). Roxo/violeta = `--primary` ou novo `--flashcard` se necessário.
 
-Bundle em `src/components/room/intro/`:
-- `StationIntroOverlay` — fullscreen, gradient azul-noite + vinheta, decide qual sequência rodar com base no papel.
-- `AnimatedCredentialCard` — crachá vertical institucional (nome, papel, estação, especialidade), entra de baixo com `slide-up` + leve `scale-in`.
-- `AnimatedClinicalRecord` — cartão/pasta clínica horizontal com rotação 3D suave (`rotateY` + `perspective`).
-- `SlidingMedicalDoor` — dois painéis verticais translúcidos verde-menta/azul que abrem do centro para os lados.
-- `CountdownOverlay` — "3 → 2 → 1 → Estação iniciada" com scale+blur.
-- `CandidateEntrySequence` / `ActorEntrySequence` — orquestram a timeline com Framer Motion (`motion` + `AnimatePresence`). Para o ator, inclui mini-ficha do roteiro deslizando ao lado do crachá.
+## 4. Mantém compatibilidade
 
-Timing alvo (≈5,2s): fade-in fundo (0.4s) → títulos (0.6s) → crachá (1.0s) → prontuário 3D (1.0s) → portas abrem (0.8s) + countdown (1.2s) → "Estação iniciada" (0.2s) → redirect.
-
-Identidade: tokens existentes (`night`, `mint`, `medical`), tipografia display, sombras suaves, **sem neon/gamer**. Tudo via classes Tailwind + tokens em `src/styles.css` (sem cores hardcoded).
-
-## 4. Sincronização + redirecionamento
-
-- Host clica "Iniciar estação" → update `status='starting', starting_at=now()`.
-- Ambos os clientes recebem evento Realtime → montam `StationIntroOverlay`.
-- Quando a sequência termina localmente:
-  - Host (só ele, para evitar corrida) faz update `status='in_progress'`.
-  - Cada cliente redireciona pelo seu papel:
-    - `candidato` → `/app/sala/$code/candidato`
-    - `ator` / `paciente` / `avaliador` → `/app/sala/$code/paciente` (tela do ator já existente)
-  - (Mantenho as rotas atuais `sala.$code.candidato` / `sala.$code.paciente` em vez de criar `/app/simulacao/:id/...` para não quebrar o fluxo já implementado.)
-
-Se um participante chega depois de `status='starting'`/`in_progress`, vai direto para a tela do papel (sem animação re-rodando).
-
-## 5. Responsividade & acessibilidade
-
-- Layout em `grid` adaptativo; crachá/prontuário escalam por `clamp()`.
-- Countdown central com `text-[clamp(6rem,18vw,12rem)]`.
-- Respeita `prefers-reduced-motion`: animações encurtadas para fade simples + countdown.
-- Sem vazar informação entre papéis: candidato nunca recebe `patient_script`/checklist na pré-sala nem na intro.
-
-## Detalhes técnicos
-
-- Framer Motion já é compatível; instalar se ainda não houver (`bun add framer-motion`).
-- Tudo client-side; sem novas server functions (operações via `supabase` browser client com RLS existente).
-- Migration roda **antes** das edições de código (regra do projeto).
-- Não toco em `src/integrations/supabase/*` nem em `routeTree.gen.ts`.
+- A lógica de revisão espaçada (`flashcard_reviews`) continua igual; só muda a navegação.
+- A página do professor (`/app/professor/flashcards`) continua funcionando para cards "soltos" (sem deck) por enquanto, mas ganha um aviso "Use o admin de decks para o novo layout".
 
 ## Entrega
 
-Ao fim você terá: lobby premium funcional com Realtime, animação institucional de 4–6s sincronizada, redirect por papel, e um fluxo testável abrindo dois navegadores (host + convidado pelo link/código).
+Você vai ter, no admin: aba **Flashcards** → lista de decks → editor de deck com upload de capa e cards Pergunta/Resposta. E o aluno vai ver exatamente o fluxo das screenshots (lista → capa → pergunta → resposta com feedback).
 
 Posso seguir?
