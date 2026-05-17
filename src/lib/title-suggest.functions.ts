@@ -48,13 +48,14 @@ export const suggestStationTitle = createServerFn({ method: "POST" })
 
     const userPayload = {
       instruction:
-        "Sugira um título no formato 'SIGLAS - Descrição curta' preservando as siglas que o usuário já digitou. Retorne SOMENTE JSON.",
+        "Sugira um título no formato 'SIGLAS - Descrição curta' preservando siglas. Baseie a descrição PRINCIPALMENTE em candidate_task + pep_items. Retorne SOMENTE JSON.",
       currentTitle: data.currentTitle,
       specialty: data.specialty,
-      clinical_case: data.clinical_case.slice(0, 4000),
-      case_description: data.case_description.slice(0, 4000),
-      candidate_task: data.candidate_task.slice(0, 2000),
-      patient_script: data.patient_script.slice(0, 4000),
+      candidate_task: data.candidate_task.slice(0, 3000),
+      pep_items: data.pep_items.slice(0, 60),
+      clinical_case: data.clinical_case.slice(0, 2500),
+      case_description: data.case_description.slice(0, 2500),
+      patient_script: data.patient_script.slice(0, 2500),
     };
 
     const controller = new AbortController();
