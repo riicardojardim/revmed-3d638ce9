@@ -139,7 +139,8 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
    - "Ginecologia e Obstetrícia"  (PDF: "GO", "G.O.", "Ginecologia", "Obstetrícia", "Tocoginecologia")
    - "Cirurgia"  (PDF: "Clínica Cirúrgica", "CC", "Cirurgia Geral", "CIRURGIA")
    - "Medicina da Família"  (PDF: "Medicina de Família e Comunidade", "MFC", "Saúde da Família", "Atenção Primária")
-   - "Urgência e Emergência"  (PDF: "Urgência", "Emergência", "PS", "Pronto-Socorro")
+   - "Urgência e Emergência"  (PDF: "Urgência", "Emergência", "PS", "Pronto-Socorro", "UPA", "SAMU", "Trauma")
+   - REGRA: PRIMEIRO procure a especialidade EXPLÍCITA no PDF (cabeçalho, área, "Especialidade:", banner). Se encontrar, mapeie para o enum acima e use. Se NÃO houver especialidade explícita, DEDUZA a partir do cenário+caso: paciente criança/lactente/RN → Pediatria; gestante/parto/puerpério/ginecológico → Ginecologia e Obstetrícia; UPA/PS/SAMU/trauma/emergência → Urgência e Emergência; UBS/ESF/atenção primária/saúde da família → Medicina da Família; pré/pós-operatório/abdome agudo cirúrgico/trauma cirúrgico → Cirurgia; demais quadros clínicos em ambulatório/hospital → Clínica Médica. NUNCA deixe specialty vazio se houver caso clínico — sempre escolha o valor mais provável do enum.
 
 7) clinical_case  vs  case_description — SEPARE OS DOIS:
    - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção, Tipo de atendimento, Infraestrutura disponível. NÃO inclua a narrativa do caso aqui.
@@ -300,7 +301,7 @@ function cleanExtractedStation(raw: ParsedStation): ParsedStation {
     ps = ps.replace(/([^\n])\n([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ \-/]{3,}:?)\s*\n/g, "$1\n\n$2\n");
     r.patient_script = ps;
   }
-  const norm = normalizeSpecialty(r.specialty);
+  const norm = normalizeSpecialty(r.specialty) ?? deduceSpecialtyFromContent(r);
   if (norm) r.specialty = norm;
   return r;
 }
@@ -318,22 +319,27 @@ function normalizeSpecialty(raw?: string): string | undefined {
     .toLowerCase()
     .trim();
   if (!s) return undefined;
-  // direct contains checks
-  if (/(pediatr)/.test(s)) return "Pediatria";
-  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.)/.test(s)) return "Ginecologia e Obstetrícia";
-  if (/(cirurg|\bcc\b)/.test(s)) return "Cirurgia";
-  if (/(familia|mfc|atencao primaria|saude da familia)/.test(s)) return "Medicina da Família";
-  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|pronto socorro)/.test(s)) return "Urgência e Emergência";
+  if (/(pediatr|crianc|lactente|neonat|reci?em.?nasc)/.test(s)) return "Pediatria";
+  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.|gestant|gravid|pre.?natal|puerper|parto)/.test(s)) return "Ginecologia e Obstetrícia";
+  if (/(cirurg|\bcc\b|pos.?operat|pre.?operat)/.test(s)) return "Cirurgia";
+  if (/(familia|mfc|atencao primaria|saude da familia|esf|ubs|unidade basica)/.test(s)) return "Medicina da Família";
+  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s)) return "Urgência e Emergência";
   if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
-  // exact enum match
   const match = SPECIALTY_ENUM.find((e) => e.toLowerCase() === raw.trim().toLowerCase());
   return match;
+}
+
+function deduceSpecialtyFromContent(r: ParsedStation): string | undefined {
+  const blob = [r.title, r.clinical_case, r.case_description, r.candidate_task, r.educational_goal, r.patient_info]
+    .filter(Boolean).join(" \n ");
+  if (!blob.trim()) return undefined;
+  return normalizeSpecialty(blob);
 }
 
 function mergeResults(parts: ParsedStation[]): ParsedStation {
   if (parts.length === 1) {
     const r = { ...parts[0] };
-    const norm = normalizeSpecialty(r.specialty);
+    const norm = normalizeSpecialty(r.specialty) ?? deduceSpecialtyFromContent(r);
     if (norm) r.specialty = norm;
     return r;
   }
@@ -379,7 +385,7 @@ function mergeResults(parts: ParsedStation[]): ParsedStation {
   const items: NonNullable<ParsedStation["checklist_items"]> = [];
   for (const p of parts) for (const it of p.checklist_items ?? []) items.push(it);
   if (items.length) out.checklist_items = items;
-  const norm = normalizeSpecialty(out.specialty);
+  const norm = normalizeSpecialty(out.specialty) ?? deduceSpecialtyFromContent(out);
   if (norm) out.specialty = norm;
   return out;
 }
