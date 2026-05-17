@@ -259,13 +259,15 @@ async function callGateway(
 
 function isRetryable(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
+  const retryable = (err as Error & { retryable?: boolean }).retryable;
+  if (retryable) return true;
   const status = (err as Error & { status?: number }).status;
-  if (status && [408, 502, 503, 504, 524].includes(status)) return true;
+  if (status && [408, 500, 502, 503, 504, 524].includes(status)) return true;
   const msg = err.message.toLowerCase();
   return /timeout|timed out|upstream|aborted|network|fetch failed|econn|socket/.test(msg);
 }
 
-async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> {
   let lastErr: unknown;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -273,8 +275,8 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
     } catch (e) {
       lastErr = e;
       if (i === attempts - 1 || !isRetryable(e)) throw e;
-      // backoff: 2s, 5s
-      await new Promise((r) => setTimeout(r, i === 0 ? 2000 : 5000));
+      const delays = [2_000, 6_000, 12_000];
+      await new Promise((r) => setTimeout(r, delays[i] ?? 12_000));
     }
   }
   throw lastErr;
