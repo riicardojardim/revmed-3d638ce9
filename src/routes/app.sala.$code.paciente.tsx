@@ -24,7 +24,7 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
-  head: () => ({ meta: [{ title: "Estação — Ator/Avaliador" }] }),
+  head: () => ({ meta: [{ title: "Estação — Ator" }] }),
 });
 
 type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };

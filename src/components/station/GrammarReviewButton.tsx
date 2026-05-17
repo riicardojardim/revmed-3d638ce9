@@ -51,7 +51,7 @@ const STATION_TEXT_KEYS: Array<{ key: keyof AnyStation; label: string }> = [
   { key: "patient_info", label: "Info do paciente" },
   { key: "support_materials", label: "Materiais de apoio" },
   { key: "patient_script", label: "Roteiro do ator" },
-  { key: "evaluator_notes", label: "Notas do avaliador" },
+  { key: "evaluator_notes", label: "Notas do ator" },
   { key: "scoring_criteria", label: "Critérios de pontuação" },
   { key: "post_materials", label: "Materiais entregues" },
   { key: "educational_goal", label: "Objetivo educacional" },

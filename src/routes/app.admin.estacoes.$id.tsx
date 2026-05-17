@@ -921,7 +921,7 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
   }
 
   return (
-    <Section title="Impressos e materiais entregáveis" hint="Materiais que o avaliador libera quando o candidato solicita ou cumpre um gatilho.">
+    <Section title="Impressos e materiais entregáveis" hint="Materiais que o ator libera quando o candidato solicita ou cumpre um gatilho.">
       <div className="flex justify-end">
         <Button variant="outline" size="sm" onClick={add}><Plus className="h-4 w-4" /> Adicionar impresso</Button>
       </div>
@@ -1276,7 +1276,7 @@ function SectionPedagogical({
   up: <K extends keyof Station>(k: K, v: Station[K]) => void;
 }) {
   return (
-    <Section title="Notas pedagógicas (para o ator/avaliador)" hint="Conteúdo que o ator usa para conduzir e avaliar, e que aparece no feedback final.">
+    <Section title="Notas pedagógicas (para o ator)" hint="Conteúdo que o ator usa para conduzir e avaliar, e que aparece no feedback final.">
       <div>
         <Label>Conduta esperada</Label>
         <Textarea rows={4} value={station.expected_conduct ?? ""} onChange={(e) => up("expected_conduct", e.target.value)} />
@@ -1458,7 +1458,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               </PRBlock>
               <PRBlock icon={Inbox} title="Materiais recebidos" right={<Badge variant="outline">0</Badge>}>
                 <p className="text-sm text-muted-foreground">
-                  Os impressos cadastrados serão entregues pelo avaliador durante a estação.
+                  Os impressos cadastrados serão entregues pelo ator durante a estação.
                 </p>
                 {materials.length > 0 && (
                   <div className="mt-3 space-y-2 opacity-70">

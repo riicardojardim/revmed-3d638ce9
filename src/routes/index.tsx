@@ -297,7 +297,7 @@ const diffs = [
   { icon: Clock, t: "Cronômetro integrado", d: "Treine no tempo real de cada estação." },
   { icon: Brain, t: "Feedback inteligente", d: "Texto educacional baseado no seu desempenho." },
   { icon: TrendingUp, t: "Evolução por competência", d: "Acompanhe seu progresso por área." },
-  { icon: Users, t: "Treino em dupla", d: "Avaliador e candidato em uma sala compartilhada." },
+  { icon: Users, t: "Treino em dupla", d: "Ator e candidato em uma sala compartilhada." },
   { icon: GraduationCap, t: "Área do professor", d: "Crie estações e corrija seus alunos." },
   { icon: Smartphone, t: "PWA instalável", d: "Treine pelo celular como em um app nativo." },
   { icon: Heart, t: "Conteúdo autoral", d: "Casos clínicos elaborados por médicos." },
@@ -343,7 +343,7 @@ function RolesSimulation() {
     },
     {
       icon: ClipboardCheck,
-      title: "Médico avaliador",
+      title: "Médico ator",
       desc: "Corrige o candidato pelo checklist oficial, pontua, comenta cada item e dá o feedback final.",
       accent: "from-indigo-200/30 to-mint/10",
     },
@@ -356,16 +356,16 @@ function RolesSimulation() {
             <Theater className="mr-1.5 h-3.5 w-3.5 text-mint" /> Simulação com papéis reais
           </Badge>
           <h2 className="mt-4 font-display text-3xl font-bold leading-tight md:text-4xl">
-            Simulação com paciente e médico avaliador.{" "}
+            Simulação com paciente e ator.{" "}
             <span className="text-gradient">Sinta a pressão de uma estação real.</span>
           </h2>
           <p className="mt-5 text-muted-foreground">
-            O candidato vê o caso, o paciente segue o roteiro e o avaliador corrige pelo checklist.
+            O candidato vê o caso, o paciente segue o roteiro e o ator corrige pelo checklist.
             Crie uma sala, compartilhe o código e treine como se já estivesse na prova.
           </p>
           <ul className="mt-6 space-y-3 text-sm">
             {[
-              "Treine com paciente simulado e médico avaliador.",
+              "Treine com paciente simulado e ator.",
               "Cada papel vê apenas o conteúdo do seu perfil.",
               "Ideal para professores, mentorias, turmas e cursos preparatórios.",
               "Funciona no celular — chame seu colega por chamada de vídeo e abra a sala aqui.",
@@ -570,10 +570,10 @@ const plans = [
     name: "Completo",
     price: "R$ 800",
     period: "até o dia da prova",
-    desc: "Treine como médico/candidato OU como ator/avaliador.",
+    desc: "Treine como médico/candidato OU como ator.",
     features: [
       "Acesso até o dia da prova",
-      "Treine como médico OU ator/avaliador",
+      "Treine como médico OU ator",
       "+600 checklists e +450 flashcards",
       "Treinamentos ilimitados",
       "Grupo de WhatsApp e CHAT",
@@ -590,10 +590,10 @@ const plans = [
     desc: "Exclusivo para quem vai avaliar e atuar como paciente.",
     features: [
       "Acesso até o dia da prova",
-      "Atue como ator/avaliador",
+      "Atue como ator",
       "+600 checklists atualizados",
       "Treinamentos ilimitados",
-      "Use a plataforma como avaliador",
+      "Use a plataforma como ator",
     ],
     cta: "Quero ser Ator",
   },

@@ -11,7 +11,6 @@ import {
   Crown,
   Stethoscope,
   UserRound,
-  ClipboardCheck,
   Lock,
   CheckCircle2,
   Circle,
@@ -60,16 +59,9 @@ const ROLE_CARDS = [
   {
     role: "paciente",
     requires: "ator" as const,
-    title: "Sou paciente / ator",
-    desc: "Vou interpretar o paciente seguindo o roteiro entregue pela banca.",
+    title: "Sou ator / paciente",
+    desc: "Vou interpretar o paciente e avaliar o candidato pelo checklist, pontuar e dar feedback.",
     icon: UserRound,
-  },
-  {
-    role: "avaliador",
-    requires: "ator" as const,
-    title: "Sou médico avaliador",
-    desc: "Vou corrigir o candidato pelo checklist, pontuar e dar feedback.",
-    icon: ClipboardCheck,
   },
 ] as const;
 
@@ -170,7 +162,7 @@ function RoomPage() {
   }, [room?.status, parts, user?.id]);
 
   function redirectByRole(role: string) {
-    if (role === "paciente" || role === "avaliador") {
+    if (role === "paciente") {
       nav({ to: "/app/sala/$code/paciente", params: { code }, replace: true });
     } else if (role === "candidato") {
       nav({ to: "/app/sala/$code/candidato", params: { code }, replace: true });
@@ -191,7 +183,7 @@ function RoomPage() {
       toast.error(
         requires === "candidato"
           ? "Seu plano não permite entrar como candidato."
-          : "Seu plano não permite atuar como ator/avaliador.",
+          : "Seu plano não permite atuar como ator.",
       );
       return;
     }
@@ -279,13 +271,12 @@ function RoomPage() {
 
   const introRole: IntroRole = useMemo(() => {
     if (me?.role === "paciente") return "paciente";
-    if (me?.role === "avaliador") return "avaliador";
     return "candidato";
   }, [me?.role]);
 
   const allReady = parts.length >= 2 && parts.every((p) => p.is_ready);
   const hasCandidate = parts.some((p) => p.role === "candidato");
-  const hasActor = parts.some((p) => p.role === "paciente" || p.role === "avaliador");
+  const hasActor = parts.some((p) => p.role === "paciente");
 
   if (!room)
     return <div className="text-sm text-muted-foreground">Sala não encontrada ou carregando...</div>;

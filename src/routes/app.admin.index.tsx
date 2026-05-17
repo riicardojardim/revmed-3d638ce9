@@ -113,18 +113,15 @@ function AdminOverview() {
               <Play className="h-4 w-4 text-mint" /> Testar animação de entrada
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Pré-visualize a sequência "Prontuário + Crachá" (~5.2s) sem precisar criar uma estação.
+              Pré-visualize a sequência "Prontuário + Crachá" (~9s) sem precisar criar uma estação.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>
-              Ver como Candidato
+              Ver como Candidato / Médico
             </Button>
             <Button size="sm" variant="outline" onClick={() => setTestRole("paciente")}>
-              Ver como Ator/Paciente
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setTestRole("avaliador")}>
-              Ver como Avaliador
+              Ver como Ator / Paciente
             </Button>
           </div>
         </div>
