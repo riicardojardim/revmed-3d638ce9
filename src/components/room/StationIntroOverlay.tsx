@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ClipboardList, Stethoscope, UserRound } from "lucide-react";
+import { ClipboardList, Stethoscope, UserRound, ShieldCheck } from "lucide-react";
 
 export type IntroRole = "candidato" | "paciente";
 
