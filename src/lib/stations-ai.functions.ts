@@ -21,6 +21,7 @@ const ResultSchema = z.object({
   educational_goal: z.string().optional(),
   competencies: z.array(z.string()).optional(),
   clinical_case: z.string().optional(),
+  case_description: z.string().optional(),
   candidate_task: z.string().optional(),
   patient_info: z.string().optional(),
   patient_script: z.string().optional(),
@@ -124,8 +125,18 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
 5) candidate_task
    - Sempre no formato: "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:\\n\\n- Tarefa 1;\\n- Tarefa 2;\\n- …".
 
-6) specialty
-   - Um dos: "Clínica Médica" | "Pediatria" | "Ginecologia e Obstetrícia" | "Cirurgia" | "Medicina da Família" | "Urgência e Emergência".
+6) specialty — VALORES PERMITIDOS (use EXATAMENTE um destes, mesmo que o PDF diga outra coisa):
+   - "Clínica Médica"  (PDF: "Clínica Médica", "CM", "Medicina Interna")
+   - "Pediatria"  (PDF: "Pediatria", "PED")
+   - "Ginecologia e Obstetrícia"  (PDF: "GO", "G.O.", "Ginecologia", "Obstetrícia", "Tocoginecologia")
+   - "Cirurgia"  (PDF: "Clínica Cirúrgica", "CC", "Cirurgia Geral", "CIRURGIA")
+   - "Medicina da Família"  (PDF: "Medicina de Família e Comunidade", "MFC", "Saúde da Família", "Atenção Primária")
+   - "Urgência e Emergência"  (PDF: "Urgência", "Emergência", "PS", "Pronto-Socorro")
+
+7) clinical_case  vs  case_description — SEPARE OS DOIS:
+   - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção (ex.: Secundária), Tipo de atendimento (ex.: UPA, Hospital), Infraestrutura disponível (consultórios, laboratórios, leitos…). NÃO inclua a narrativa do caso aqui.
+   - "case_description" = SEÇÃO "DESCRIÇÃO DO CASO" do PDF. Contém a narrativa ("Você atende um homem de 30 anos…") + bloco "Nos X minutos de duração da estação, você deverá executar as seguintes tarefas:" com a lista de tarefas. Transcreva na íntegra.
+   - Se o PDF não tiver "CENÁRIO DE ATENDIMENTO" explícito, deixe "clinical_case" vazio.
 
 ================================================================
 REGRAS GERAIS
@@ -246,11 +257,41 @@ function pickLonger(a?: string, b?: string): string | undefined {
   return bv.length > av.length ? bv : av;
 }
 
+const SPECIALTY_ENUM = [
+  "Clínica Médica", "Pediatria", "Ginecologia e Obstetrícia",
+  "Cirurgia", "Medicina da Família", "Urgência e Emergência",
+] as const;
+
+function normalizeSpecialty(raw?: string): string | undefined {
+  if (!raw) return undefined;
+  const s = raw
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+  if (!s) return undefined;
+  // direct contains checks
+  if (/(pediatr)/.test(s)) return "Pediatria";
+  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.)/.test(s)) return "Ginecologia e Obstetrícia";
+  if (/(cirurg|\bcc\b)/.test(s)) return "Cirurgia";
+  if (/(familia|mfc|atencao primaria|saude da familia)/.test(s)) return "Medicina da Família";
+  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|pronto socorro)/.test(s)) return "Urgência e Emergência";
+  if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
+  // exact enum match
+  const match = SPECIALTY_ENUM.find((e) => e.toLowerCase() === raw.trim().toLowerCase());
+  return match;
+}
+
 function mergeResults(parts: ParsedStation[]): ParsedStation {
-  if (parts.length === 1) return parts[0];
+  if (parts.length === 1) {
+    const r = { ...parts[0] };
+    const norm = normalizeSpecialty(r.specialty);
+    if (norm) r.specialty = norm;
+    return r;
+  }
   const out: ParsedStation = {};
   const stringKeys: (keyof ParsedStation)[] = [
-    "title", "specialty", "educational_goal", "clinical_case", "candidate_task",
+    "title", "specialty", "educational_goal", "clinical_case", "case_description", "candidate_task",
     "patient_info", "patient_script", "support_materials", "expected_conduct",
     "common_mistakes", "evaluator_notes", "scoring_criteria",
   ];
@@ -290,6 +331,8 @@ function mergeResults(parts: ParsedStation[]): ParsedStation {
   const items: NonNullable<ParsedStation["checklist_items"]> = [];
   for (const p of parts) for (const it of p.checklist_items ?? []) items.push(it);
   if (items.length) out.checklist_items = items;
+  const norm = normalizeSpecialty(out.specialty);
+  if (norm) out.specialty = norm;
   return out;
 }
 
