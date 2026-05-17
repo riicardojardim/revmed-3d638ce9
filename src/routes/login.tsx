@@ -45,6 +45,7 @@ function LoginPage() {
 
   function goTo(to: string) {
     // Hard navigation evita corridas com o estado do AuthProvider/loader.
+    sessionStorage.setItem("auth:welcome", "1");
     window.location.assign(to);
   }
 
