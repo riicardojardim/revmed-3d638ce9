@@ -160,6 +160,7 @@ Schema do JSON:
   "educational_goal": string,
   "competencies": string[],
   "clinical_case": string,
+  "case_description": string,
   "candidate_task": string,
   "patient_info": string,
   "patient_script": string,
