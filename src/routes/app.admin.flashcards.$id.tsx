@@ -51,7 +51,7 @@ function AdminFlashcardEditor() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  
 
   async function load() {
     setLoading(true);
