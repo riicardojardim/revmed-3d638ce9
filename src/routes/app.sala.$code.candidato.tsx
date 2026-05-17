@@ -307,9 +307,6 @@ function CandidateView() {
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
-              {code}
-            </span>
-          </div>
 
           <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
             <ScriptText text={station.clinicalCase} />
