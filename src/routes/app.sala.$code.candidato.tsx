@@ -11,10 +11,11 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText } from "@/components/station/shared";
+import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
