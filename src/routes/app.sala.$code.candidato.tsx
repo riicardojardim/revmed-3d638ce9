@@ -241,7 +241,6 @@ function CandidateView() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
           <Badge variant="outline">{station.specialty}</Badge>
-          <Badge variant="outline">{station.difficulty}</Badge>
           <Badge variant="outline">{station.durationMinutes} min</Badge>
         </div>
 
