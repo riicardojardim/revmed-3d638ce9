@@ -190,8 +190,11 @@ function AdminStationsPage() {
         </div>
       ) : (
         <div className="grid gap-3">
-          {filtered.map((s) => (
-            <div key={s.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-card">
+          {filtered.map((s) => {
+            const meta = getSpecialtyMeta(s.specialty);
+            return (
+            <div key={s.id} className={`relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl border bg-card p-5 shadow-card ${meta.card}`}>
+              <div className={`absolute inset-y-0 left-0 w-1 ${meta.solid}`} aria-hidden />
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
                   <SpecialtyBadge specialty={s.specialty} />
