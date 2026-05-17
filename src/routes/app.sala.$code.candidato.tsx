@@ -272,9 +272,9 @@ function CandidateView() {
                   </span>
                 );
               })()}
-              <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">
-                {room.station_title ?? station.title}
-              </h1>
+              <span className="truncate text-sm font-medium text-foreground">
+                {station.specialty}
+              </span>
             </div>
             <span className="rounded-md border border-border bg-background px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
               {code}
