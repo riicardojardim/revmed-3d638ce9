@@ -1,11 +1,11 @@
-// Specialty color tokens — cada especialidade tem uma cor com significado:
-//   Clínica Médica            → azul   (clássico hospitalar, estetoscópio)
-//   Cirurgia                  → teal   (campo/avental cirúrgico verde-petróleo)
-//   Pediatria                 → âmbar  (alegria, infância)
-//   Ginecologia e Obstetrícia → rosa   (feminino, maternidade)
-//   Medicina da Família       → verde  (atenção primária, ESF/SUS)
-//   Urgência e Emergência     → vermelho (urgência, SAMU)
-//   Saúde Coletiva/Preventiva → roxo   (saúde pública)
+// Specialty color tokens — alinhado ao padrão Pense Revalida:
+//   CM  Clínica Médica            → azul claro
+//   CR  Cirurgia                  → roxo / lilás
+//   GO  Ginecologia e Obstetrícia → coral / vermelho
+//   PE  Pediatria                 → verde
+//   PR  Preventiva                → laranja
+//   MF  Medicina da Família       → esmeralda (fora do Pense, mantido)
+//   UE  Urgência e Emergência     → vermelho escuro (fora do Pense, mantido)
 
 export type SpecialtyMeta = {
   code: string;
@@ -29,31 +29,31 @@ const META: Record<string, SpecialtyMeta> = {
   },
   "Cirurgia": {
     code: "CR",
-    badge: "bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/30",
-    card: "border-teal-500/40 bg-teal-500/5",
-    solid: "bg-teal-500",
-    text: "text-teal-400",
+    badge: "bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/30",
+    card: "border-violet-500/40 bg-violet-500/5",
+    solid: "bg-violet-500",
+    text: "text-violet-400",
   },
   "Pediatria": {
     code: "PE",
-    badge: "bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/30",
-    card: "border-amber-500/40 bg-amber-500/5",
-    solid: "bg-amber-500",
-    text: "text-amber-400",
-  },
-  "Ginecologia e Obstetrícia": {
-    code: "GO",
-    badge: "bg-pink-500/15 text-pink-300 ring-1 ring-pink-500/30",
-    card: "border-pink-500/40 bg-pink-500/5",
-    solid: "bg-pink-500",
-    text: "text-pink-400",
-  },
-  "Medicina da Família": {
-    code: "MF",
     badge: "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30",
     card: "border-emerald-500/40 bg-emerald-500/5",
     solid: "bg-emerald-500",
     text: "text-emerald-400",
+  },
+  "Ginecologia e Obstetrícia": {
+    code: "GO",
+    badge: "bg-rose-500/15 text-rose-300 ring-1 ring-rose-500/30",
+    card: "border-rose-500/40 bg-rose-500/5",
+    solid: "bg-rose-500",
+    text: "text-rose-400",
+  },
+  "Medicina da Família": {
+    code: "MF",
+    badge: "bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/30",
+    card: "border-teal-500/40 bg-teal-500/5",
+    solid: "bg-teal-500",
+    text: "text-teal-400",
   },
   "Urgência e Emergência": {
     code: "UE",
@@ -64,17 +64,17 @@ const META: Record<string, SpecialtyMeta> = {
   },
   "Saúde Coletiva": {
     code: "SC",
-    badge: "bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/30",
-    card: "border-violet-500/40 bg-violet-500/5",
-    solid: "bg-violet-500",
-    text: "text-violet-400",
+    badge: "bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30",
+    card: "border-orange-500/40 bg-orange-500/5",
+    solid: "bg-orange-500",
+    text: "text-orange-400",
   },
   "Preventiva": {
     code: "PR",
-    badge: "bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/30",
-    card: "border-violet-500/40 bg-violet-500/5",
-    solid: "bg-violet-500",
-    text: "text-violet-400",
+    badge: "bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30",
+    card: "border-orange-500/40 bg-orange-500/5",
+    solid: "bg-orange-500",
+    text: "text-orange-400",
   },
 };
 
