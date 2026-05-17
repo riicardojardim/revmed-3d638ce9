@@ -283,7 +283,7 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> {
 }
 
 async function processPdf(apiKey: string, pdf: { name: string; dataUrl: string }): Promise<ParsedStation> {
-  // GPT-5, timeout 5 min por tentativa, até 3 tentativas em caso de upstream timeout/5xx.
+  // GPT-5 can be slow on full PDF extraction, so keep retries only around the PDF flow.
   return await withRetry(() => callGateway(apiKey, pdf.dataUrl, pdf.name, "openai/gpt-5", 300_000));
 }
 
@@ -508,7 +508,12 @@ export const parseStationText = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    return await withRetry(() => callGatewayText(apiKey, data.text, "openai/gpt-5", 300_000));
+    try {
+      return await callGatewayText(apiKey, data.text, "google/gemini-2.5-flash", 90_000);
+    } catch (err) {
+      if (!isRetryable(err)) throw err;
+      return await callGatewayText(apiKey, data.text, "google/gemini-2.5-pro", 150_000);
+    }
   });
 
 
