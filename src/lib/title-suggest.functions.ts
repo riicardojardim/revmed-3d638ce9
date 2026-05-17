@@ -9,6 +9,11 @@ const InputSchema = z.object({
   case_description: z.string().max(20_000).optional().default(""),
   candidate_task: z.string().max(20_000).optional().default(""),
   patient_script: z.string().max(20_000).optional().default(""),
+  pep_items: z
+    .array(z.string().max(500))
+    .max(60)
+    .optional()
+    .default([]),
 });
 
 const ResultSchema = z.object({
