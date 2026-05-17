@@ -124,8 +124,9 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
             <CredentialCard
               role={role}
               displayName={displayName}
-              stationTitle={stationTitle}
-              specialty={specialty}
+              stationTitle={isCandidate ? "Sigiloso até a abertura" : stationTitle}
+              specialty={isCandidate ? null : specialty}
+              hideStation={isCandidate}
               Icon={Icon}
             />
           </motion.div>
