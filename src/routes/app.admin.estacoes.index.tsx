@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { SpecialtyBadge } from "@/components/SpecialtyBadge";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 export const Route = createFileRoute("/app/admin/estacoes/")({
   component: AdminStationsPage,
