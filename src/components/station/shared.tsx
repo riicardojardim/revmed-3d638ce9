@@ -65,10 +65,25 @@ export function SubBlock({ label, children }: { label: string; tone?: "rose"; ch
 
 export function ScriptText({ text, className }: { text: unknown; className?: string }) {
   const safe = typeof text === "string" ? text : text == null ? "" : String(text);
-  const Bold = ({ children }: { children: React.ReactNode }) => (
-    <strong className="font-semibold text-foreground">{children}</strong>
-  );
-  const renderLine = (ln: string) => {
+  // Render inline markdown: **bold** segments become <strong>; surrounding text is kept.
+  const renderInline = (s: string, keyPrefix: string): React.ReactNode[] => {
+    const out: React.ReactNode[] = [];
+    const re = /\*\*([^*]+)\*\*/g;
+    let last = 0;
+    let m: RegExpExecArray | null;
+    let i = 0;
+    while ((m = re.exec(s)) !== null) {
+      if (m.index > last) out.push(<span key={`${keyPrefix}-t${i}`}>{s.slice(last, m.index)}</span>);
+      out.push(<strong key={`${keyPrefix}-b${i}`} className="font-semibold text-foreground">{m[1]}</strong>);
+      last = m.index + m[0].length;
+      i++;
+    }
+    if (last < s.length) out.push(<span key={`${keyPrefix}-t${i}`}>{s.slice(last)}</span>);
+    return out;
+  };
+  const renderLine = (ln: string, key: string) => {
+    // If the line already contains explicit **bold** markdown, trust it.
+    if (ln.includes("**")) return <span>{renderInline(ln, key)}</span>;
     const idx = ln.indexOf(":");
     if (idx < 0) return <span>{ln}</span>;
     const before = ln.slice(0, idx + 1);
@@ -79,7 +94,7 @@ export function ScriptText({ text, className }: { text: unknown; className?: str
     return (
       <span>
         {marker}
-        <Bold>{boldText}</Bold>
+        <strong className="font-semibold text-foreground">{boldText}</strong>
         {after}
       </span>
     );
@@ -89,7 +104,7 @@ export function ScriptText({ text, className }: { text: unknown; className?: str
     <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
       {lines.map((ln, i) => {
         if (ln.trim() === "") return <div key={i} className="h-4" aria-hidden />;
-        return <div key={i}>{renderLine(ln)}</div>;
+        return <div key={i}>{renderLine(ln, `l${i}`)}</div>;
       })}
     </div>
   );
