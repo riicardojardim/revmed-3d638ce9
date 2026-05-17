@@ -225,7 +225,8 @@ function AdminStationsPage() {
                 </Button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
