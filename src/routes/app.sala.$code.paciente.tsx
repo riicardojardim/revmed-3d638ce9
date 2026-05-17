@@ -758,10 +758,9 @@ function ActorView() {
                       />
                     </div>
                     <div className="flex flex-col items-center gap-1 tabular-nums">
-                      {levels.map((lv, li) => {
+                      {(() => { const maxPts = Math.max(...levels.map((l) => l.points)); return levels.map((lv) => {
                         const selected = current === lv.points;
-                        const tone = levelTone(li, levels.length);
-                        
+                        const tone = levelTone(lv.points, maxPts);
                         return (
                           <button
                             key={lv.label}
@@ -789,7 +788,7 @@ function ActorView() {
                             {lv.points}
                           </button>
                         );
-                      })}
+                      }); })()}
                     </div>
                   </li>
                 );
