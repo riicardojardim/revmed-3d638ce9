@@ -185,7 +185,20 @@ function CandidateView() {
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
-  const isWaiting = room.status !== "running" && !finished;
+  // Overlay institucional de entrada (3..2..1). Bloqueia toda a tela.
+  if (showIntro && user) {
+    return (
+      <StationIntroOverlay
+        role={"candidato" as IntroRole}
+        stationTitle={room.station_title ?? station.title}
+        specialty={station.specialty}
+        displayName={profile?.full_name ?? "Candidato"}
+        onComplete={() => { setShowIntro(false); setIntroDone(true); }}
+      />
+    );
+  }
+
+  const isWaiting = room.status !== "running" && room.status !== "starting" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
   const correctionReady = !!evaluation && evaluation.status !== "em_andamento";
