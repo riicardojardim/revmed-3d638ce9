@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading } from "@/components/station/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
@@ -426,8 +426,13 @@ function SimuladoRunner() {
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
-            {station.patientScript && <ScriptText text={station.patientScript} />}
-            {p && <div className="mt-4"><ScriptText text={formatPatientProfile(p)} /></div>}
+            {station.patientScript ? (
+              <ScriptText text={station.patientScript} />
+            ) : p ? (
+              <ScriptText text={formatPatientProfile(p)} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
+            )}
             {p?.spontaneous && <SubBlock label="O que falar espontaneamente"><ScriptText text={p.spontaneous} /></SubBlock>}
             {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose"><ScriptText text={p.doNotReveal} /></SubBlock>}
             {(p?.emotionalTone || p?.actingTips) && (
@@ -525,7 +530,7 @@ function SimuladoRunner() {
                   >
                     <div className="min-w-0">
                       <div className="text-sm font-semibold text-foreground">
-                        {idx + 1}. {parts.lead.replace(/^\s*\d+\.\s*/, "")}
+                        {formatPepHeading(idx, (it as { category?: string | null }).category, it.description)}
                       </div>
                       {parts.subs.length > 0 && (
                         <ul className="mt-2 space-y-0.5">
