@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { parseStationPdfs } from "@/lib/stations-ai.functions";
 import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
+import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
@@ -294,6 +295,12 @@ function EditorBody({
           <ArrowLeft className="h-4 w-4" /> Voltar para a lista
         </Link>
         <div className="flex flex-wrap gap-2">
+          <GrammarReviewButton
+            station={station}
+            items={items}
+            setStation={setStation as never}
+            setItems={setItems as never}
+          />
           <Button variant="outline" onClick={togglePublish}>
             {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
