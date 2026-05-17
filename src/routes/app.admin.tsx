@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { ShieldCheck, Users, CreditCard, LayoutDashboard, Stethoscope, FileStack } from "lucide-react";
+import { ShieldCheck, Users, CreditCard, LayoutDashboard, Stethoscope, FileStack, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/admin")({
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/app/admin")({
 const tabs = [
   { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
   { to: "/app/admin/estacoes", label: "Estações", icon: Stethoscope, exact: false },
+  { to: "/app/admin/flashcards", label: "Flashcards", icon: Brain, exact: false },
   { to: "/app/admin/usuarios", label: "Usuários", icon: Users, exact: false },
   { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack, exact: false },
   { to: "/app/admin/planos", label: "Planos", icon: CreditCard, exact: false },
@@ -49,6 +50,24 @@ function AdminLayout() {
         </div>
         <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">Gestão da plataforma</h1>
       </div>
+      <nav className="flex flex-wrap gap-1 rounded-2xl border border-border bg-card p-1">
+        {tabs.map((t) => {
+          const active = isActive(t.to, t.exact);
+          return (
+            <Link
+              key={t.to}
+              to={t.to}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition",
+                active ? "bg-mint/15 text-mint" : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+              )}
+            >
+              <t.icon className="h-4 w-4" />
+              {t.label}
+            </Link>
+          );
+        })}
+      </nav>
       <Outlet />
     </div>
   );

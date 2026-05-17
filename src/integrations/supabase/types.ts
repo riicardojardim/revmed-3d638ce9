@@ -158,6 +158,48 @@ export type Database = {
         }
         Relationships: []
       }
+      flashcard_decks: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          position: number
+          published: boolean
+          specialty: string
+          title: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          position?: number
+          published?: boolean
+          specialty: string
+          title: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          position?: number
+          published?: boolean
+          specialty?: string
+          title?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       flashcard_reviews: {
         Row: {
           card_id: string
@@ -211,8 +253,10 @@ export type Database = {
           created_at: string
           created_by: string
           deck: string | null
+          deck_id: string | null
           front: string
           id: string
+          position: number
           published: boolean
           specialty: string
           topic: string | null
@@ -223,8 +267,10 @@ export type Database = {
           created_at?: string
           created_by: string
           deck?: string | null
+          deck_id?: string | null
           front: string
           id?: string
+          position?: number
           published?: boolean
           specialty: string
           topic?: string | null
@@ -235,14 +281,24 @@ export type Database = {
           created_at?: string
           created_by?: string
           deck?: string | null
+          deck_id?: string | null
           front?: string
           id?: string
+          position?: number
           published?: boolean
           specialty?: string
           topic?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "flashcard_decks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plans: {
         Row: {
