@@ -209,7 +209,7 @@ function TrainPage() {
             </div>
             <ul className="divide-y divide-border">
               {filtered.map((s) => {
-                const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
+                const b = specialtyBadge(s.specialty);
                 return (
                   <li key={s.id} className="grid grid-cols-1 gap-3 px-5 py-4 transition-colors hover:bg-muted/20 md:grid-cols-[1fr_140px] md:items-center">
                     <div className="flex items-center gap-3">
@@ -395,7 +395,7 @@ function TrainPage() {
             </div>
             <ul className="divide-y divide-border">
               {allFiltered.map((s) => {
-                const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
+                const b = specialtyBadge(s.specialty);
                 const isSel = !!selected.find((x) => x.id === s.id);
                 return (
                   <li key={s.id} className="grid grid-cols-1 gap-2 px-6 py-3 transition-colors hover:bg-muted/20 md:grid-cols-[1fr_90px_90px_120px] md:items-center">
@@ -487,7 +487,7 @@ function TrainPage() {
               </div>
               <ul className="space-y-2 max-h-[40vh] overflow-y-auto">
                 {selected.map((s, idx) => {
-                  const b = SPECIALTY_BADGE[s.specialty] ?? { code: "ES", cls: "bg-muted text-foreground border-border" };
+                  const b = specialtyBadge(s.specialty);
                   return (
                     <li key={s.id} className="flex items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-2.5">
                       <div className="flex flex-col">
