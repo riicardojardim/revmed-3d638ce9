@@ -60,16 +60,9 @@ const ROLE_CARDS = [
   {
     role: "paciente",
     requires: "ator" as const,
-    title: "Sou paciente / ator",
-    desc: "Vou interpretar o paciente seguindo o roteiro entregue pela banca.",
+    title: "Sou ator / paciente",
+    desc: "Vou interpretar o paciente e avaliar o candidato pelo checklist, pontuar e dar feedback.",
     icon: UserRound,
-  },
-  {
-    role: "avaliador",
-    requires: "ator" as const,
-    title: "Sou médico avaliador",
-    desc: "Vou corrigir o candidato pelo checklist, pontuar e dar feedback.",
-    icon: ClipboardCheck,
   },
 ] as const;
 
