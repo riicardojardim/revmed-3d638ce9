@@ -64,7 +64,6 @@ function StationsPage() {
   const filtered = all.filter(
     (s) =>
       (spec === "Todas" || s.specialty === spec) &&
-      (diff === "Todas" || s.difficulty === diff) &&
       s.title.toLowerCase().includes(q.toLowerCase()),
   );
 
