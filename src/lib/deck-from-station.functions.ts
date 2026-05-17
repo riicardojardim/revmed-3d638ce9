@@ -24,7 +24,7 @@ const CardSchema = z.object({
 
 const ResultSchema = z.object({
   deck_title: z.string().min(1).max(200).optional(),
-  deck_topic: z.string().max(200).optional(),
+  deck_topic: z.string().max(200).optional(), // ignorado — mantido para compatibilidade
   cards: z.array(CardSchema).min(3).max(40),
 });
 
@@ -52,10 +52,14 @@ REGRAS DE FORMATO DOS CARDS:
 - Diversifique os tipos: epidemiologia, fisiopatologia (1-2), diagnóstico/critérios, exames complementares, tratamento farmacológico (com dose), conduta não-farmacológica, complicações, red flags, prevenção, particularidades pediátricas/gestantes quando pertinente, comunicação/quebra de más notícias quando pertinente à estação.
 - Sem duplicatas: cada card cobre um aspecto diferente.
 
+REGRAS DO TÍTULO DO DECK:
+- "deck_title" deve ser um nome CURTO (3 a 7 palavras), conceitual e didático, descrevendo o TEMA CLÍNICO coberto (a condição/conduta), NÃO o nome da estação.
+- NÃO copie literalmente o título da estação. NÃO repita a especialidade. NÃO use prefixos como "Estação", "Caso clínico", "OSCE".
+- Bons exemplos: "Ameaça de abortamento — manejo", "IAM com supra de ST", "Crise hipertensiva na gestante", "Bronquiolite no lactente".
+
 Schema de saída:
 {
-  "deck_title": "<título curto e claro, ex.: 'IAM com supra de ST'>",
-  "deck_topic": "<subtema opcional, ex.: 'Manejo na sala de emergência'>",
+  "deck_title": "<título curto e didático, distinto do título da estação>",
   "cards": [
     { "front": "...", "back": "..." }
   ]
@@ -147,7 +151,6 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
 
     const { supabase, userId } = context;
     const deckTitle = (result.deck_title?.trim() || data.title).slice(0, 200);
-    const deckTopic = (result.deck_topic?.trim() || data.topic || null) as string | null;
 
     const { data: deck, error: deckErr } = await supabase
       .from("flashcard_decks")
@@ -155,8 +158,8 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
         created_by: userId,
         title: deckTitle,
         specialty: data.specialty,
-        topic: deckTopic,
-        description: `Gerado automaticamente a partir da estação "${data.title}".`,
+        topic: null,
+        description: null,
         published: false,
         station_id: data.station_id ?? null,
       })
@@ -168,7 +171,7 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
       deck_id: deck.id,
       created_by: userId,
       specialty: data.specialty,
-      topic: deckTopic,
+      topic: null,
       front: c.front.trim(),
       back: c.back.trim(),
       position: i,
