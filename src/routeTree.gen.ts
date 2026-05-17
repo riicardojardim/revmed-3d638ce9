@@ -31,6 +31,7 @@ import { Route as AppCronogramaRouteImport } from './routes/app.cronograma'
 import { Route as AppAulasRouteImport } from './routes/app.aulas'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
+import { Route as AppEntrarIndexRouteImport } from './routes/app.entrar.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as AppSimuladoIdRouteImport } from './routes/app.simulado.$id'
 import { Route as AppSimulacaoIdRouteImport } from './routes/app.simulacao.$id'
@@ -164,6 +165,11 @@ const AppProfessorIndexRoute = AppProfessorIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppProfessorRoute,
+} as any)
+const AppEntrarIndexRoute = AppEntrarIndexRouteImport.update({
+  id: '/entrar/',
+  path: '/entrar/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
@@ -318,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
   '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -361,6 +368,7 @@ export interface FileRoutesByTo {
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
   '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin': typeof AppAdminIndexRoute
+  '/app/entrar': typeof AppEntrarIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -409,6 +417,7 @@ export interface FileRoutesById {
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
   '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
+  '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -458,6 +467,7 @@ export interface FileRouteTypes {
     | '/app/simulacao/$id'
     | '/app/simulado/$id'
     | '/app/admin/'
+    | '/app/entrar/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/professor/correcoes/$id'
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/app/simulacao/$id'
     | '/app/simulado/$id'
     | '/app/admin'
+    | '/app/entrar'
     | '/app/professor'
     | '/app/admin/estacoes/$id'
     | '/app/professor/correcoes/$id'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/app/simulacao/$id'
     | '/app/simulado/$id'
     | '/app/admin/'
+    | '/app/entrar/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/professor/correcoes/$id'
@@ -722,6 +734,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/professor/'
       preLoaderRoute: typeof AppProfessorIndexRouteImport
       parentRoute: typeof AppProfessorRoute
+    }
+    '/app/entrar/': {
+      id: '/app/entrar/'
+      path: '/entrar'
+      fullPath: '/app/entrar/'
+      preLoaderRoute: typeof AppEntrarIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/admin/': {
       id: '/app/admin/'
@@ -1009,6 +1028,7 @@ interface AppRouteChildren {
   AppResultadoIdRoute: typeof AppResultadoIdRoute
   AppSimulacaoIdRoute: typeof AppSimulacaoIdRoute
   AppSimuladoIdRoute: typeof AppSimuladoIdRoute
+  AppEntrarIndexRoute: typeof AppEntrarIndexRoute
   AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
   AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
   AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
@@ -1036,6 +1056,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppResultadoIdRoute: AppResultadoIdRoute,
   AppSimulacaoIdRoute: AppSimulacaoIdRoute,
   AppSimuladoIdRoute: AppSimuladoIdRoute,
+  AppEntrarIndexRoute: AppEntrarIndexRoute,
   AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
   AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
   AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
