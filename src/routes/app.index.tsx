@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Award,
+  BarChart3,
+  Flame,
   MessageCircle,
   Sparkles,
   Trophy,
@@ -15,6 +18,8 @@ import {
   BarChart,
   Bar,
   XAxis,
+  YAxis,
+  Tooltip,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -163,107 +168,81 @@ function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10">
-      {/* Magazine cover hero */}
-      <header className="grid grid-cols-12 gap-6 border-b hairline pb-10">
-        <div className="col-span-12 lg:col-span-8">
-          <div className="text-eyebrow flex items-center gap-2">
-            <span className="h-px w-8 bg-mint" />
-            Edição diária · Revalida 2026.1
+    <div className="mx-auto max-w-7xl space-y-6">
+
+
+      {/* Top row: welcome + stats */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-6 shadow-card">
+          <div className="flex items-start gap-4">
+            <div className="flex gap-0.5 text-mint">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Award key={i} className="h-6 w-6 opacity-60" />
+              ))}
+            </div>
           </div>
-          <h1 className="mt-4 font-editorial text-[44px] leading-[0.92] tracking-[-0.03em] md:text-[68px]">
-            <span className="italic font-light text-muted-foreground">Bem-vindo,</span>{" "}
-            <span className="font-medium">Dr(a). {displayName}.</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-            Constância vence talento. Vamos manter sua média{" "}
-            <span className="text-foreground font-medium">sempre acima da nota de corte</span> com
-            treinamento dirigido e feedback inteligente.
+          <h2 className="mt-4 font-display text-xl font-bold md:text-2xl">
+            <span className="text-mint">Dr(a). {displayName}</span>{" "}
+            <span className="text-foreground">sua média geral está em </span>
+            <span className="text-mint">{stats.avg.toFixed(1)}</span>
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Com nossos treinamentos vamos trabalhar para manter sua média sempre acima
+            da última nota de corte do Revalida.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <Link to="/app/estacoes"><Button variant="hero" size="sm">Treinar agora</Button></Link>
-            <Link to="/app/flashcards"><Button variant="outline" size="sm">Flashcards do dia</Button></Link>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-mint" />
+            <h3 className="font-display font-bold">Minhas Estatísticas Gerais</h3>
+          </div>
+          <div className="mt-2 flex items-baseline justify-between border-b border-border pb-3 text-xs text-muted-foreground">
+            <span>Tempo de treinamento: {Math.round(stats.total * 10)} min</span>
+          </div>
+          <div className="mt-3 flex items-center justify-between border-b border-border pb-3">
+            <div className="font-display text-4xl font-bold text-foreground">{stats.total}</div>
+            <div className="text-xs text-muted-foreground">Estações</div>
+          </div>
+          <ul className="mt-3 space-y-2.5 text-sm">
+            {SPECIALTIES.map((s) => {
+              const d = stats.bySpec.get(s.key);
+              const avg = d ? d.sum / d.n : 0;
+              return (
+                <li key={s.key} className="space-y-0.5">
+                  <div className={`font-semibold ${s.color}`}>{s.label}</div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Média: {avg.toFixed(1)}</span>
+                    <span>Est.: {d?.n ?? 0}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+
+      {/* Middle row */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="flex items-center gap-2">
+            <Flame className="h-5 w-5 text-mint" />
+            <h3 className="font-display font-bold">Podemos melhorar</h3>
+            <span className="ml-1 rounded-md bg-mint/20 px-1.5 py-0.5 text-xs font-bold text-medical">0</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Dar uma atenção especial.</p>
+          <div className="mt-4 rounded-xl border border-dashed border-border bg-background/50 p-4 text-center text-sm text-muted-foreground">
+            Nenhum tema na zona de risco.
           </div>
         </div>
 
-        {/* Giant numeral — média */}
-        <div className="col-span-12 lg:col-span-4">
-          <div className="card-premium relative h-full overflow-hidden p-6">
-            <div aria-hidden className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-mint/10 blur-2xl" />
-            <div className="relative">
-              <div className="text-eyebrow-serif">Sua média geral</div>
-              <div className="mt-2 flex items-end gap-2">
-                <span className="editorial-number text-[140px] text-foreground">
-                  {stats.avg.toFixed(1).split(".")[0]}
-                </span>
-                <span className="editorial-number text-5xl text-mint pb-3">
-                  .{stats.avg.toFixed(1).split(".")[1] ?? "0"}
-                </span>
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t hairline pt-3 text-xs text-muted-foreground">
-                <span>{stats.total} estações treinadas</span>
-                <span className="font-mono text-mint">↗</span>
-              </div>
-            </div>
+        <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-mint" />
+            <h3 className="font-display font-bold">Desempenho por categorias</h3>
           </div>
-        </div>
-      </header>
-
-      {/* Specialty roll */}
-      <section>
-        <div className="flex items-end justify-between mb-4">
-          <div>
-            <div className="text-eyebrow">Por especialidade</div>
-            <h2 className="mt-1 font-editorial text-2xl italic font-light">Onde você está pisando firme</h2>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          {SPECIALTIES.map((s) => {
-            const d = stats.bySpec.get(s.key);
-            const avg = d ? d.sum / d.n : 0;
-            return (
-              <div key={s.key} className="card-premium hover:card-premium-hover p-4">
-                <div className={`text-eyebrow text-[10px] ${s.color}`}>{s.label}</div>
-                <div className="mt-3 editorial-number text-3xl">{avg.toFixed(1)}</div>
-                <div className="mt-1 text-[11px] text-muted-foreground">{d?.n ?? 0} est.</div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Ritmo + motivação */}
-      <section className="grid gap-5 lg:grid-cols-3">
-        <RitmoCard title="Ritmo de Treinamento" value={String(last7.reduce((s, d) => s + d.count, 0))} data={last7} dataKey="count" />
-        <RitmoCard title="Ritmo de Notas" value={`${stats.avg ? Math.round((stats.avg / 10) * 100) : 0}%`} data={last7} dataKey="avg" />
-
-        <div className="card-premium relative overflow-hidden p-6">
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-mint/10 via-transparent to-transparent" />
-          <div className="relative">
-            <div className="text-eyebrow-serif">Editorial</div>
-            <p className="mt-3 font-editorial text-xl italic leading-snug">
-              "A aprovação é construída com{" "}
-              <span className="not-italic font-medium text-mint">constância</span>,
-              não com perfeição."
-            </p>
-            <div className="mt-4 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-              Estação Revalida
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Radar + ranking */}
-      <section className="grid gap-5 lg:grid-cols-12">
-        <div className="card-premium p-6 lg:col-span-7">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-eyebrow">Diagnóstico</div>
-              <h3 className="mt-1 font-editorial text-2xl italic font-light">Desempenho por categorias</h3>
-            </div>
-            <TrendingUp className="h-5 w-5 text-mint" strokeWidth={1.7} />
-          </div>
-          <div className="mt-4 h-64">
+          <p className="mt-1 text-xs text-muted-foreground">Estude com mais foco.</p>
+          <div className="mt-3 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={categoryRadar}>
                 <PolarGrid stroke="hsl(var(--border))" />
@@ -277,36 +256,82 @@ function Dashboard() {
               </RadarChart>
             </ResponsiveContainer>
           </div>
+          <div className="mt-2 flex justify-center gap-6 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-mint" /> Checklists</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Ritmo row */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <RitmoCard title="Ritmo de Treinamento" value={String(last7.reduce((s, d) => s + d.count, 0))} suffix="" data={last7} dataKey="count" />
+        <RitmoCard title="Ritmo de Notas" value={`${stats.avg ? Math.round((stats.avg / 10) * 100) : 0}%`} suffix="%" data={last7} dataKey="avg" />
+
+        <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
+          <h3 className="font-display font-bold text-mint">Motivação Estação Revalida</h3>
+          <p className="mt-3 text-sm font-medium text-foreground">
+            Seu esforço vai te levar além do que você imagina. Constância vence talento.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Lembre-se: a aprovação é construída com constância, não com perfeição.
+          </p>
+        </div>
+      </div>
+
+      {/* Ranking row */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-mint" />
+            <h3 className="font-display font-bold">Ranking - Top 5</h3>
+          </div>
+          <div className="mt-4 overflow-hidden rounded-xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2">Nome</th>
+                  <th className="px-3 py-2 text-right">Pontos</th>
+                  <th className="px-3 py-2 text-right">Medalha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={3} className="px-3 py-6 text-center text-muted-foreground">Carregando...</td></tr>
+                ) : ranking.length === 0 ? (
+                  <tr><td colSpan={3} className="px-3 py-6 text-center text-muted-foreground">Sem dados.</td></tr>
+                ) : ranking.map((r, i) => (
+                  <tr key={i} className="border-t border-border">
+                    <td className="px-3 py-2 font-medium">{i + 1}º {r.name}</td>
+                    <td className="px-3 py-2 text-right font-display font-bold">{r.score}</td>
+                    <td className="px-3 py-2 text-right">
+                      {i === 0 && <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-400">OURO</span>}
+                      {i === 1 && <span className="rounded-md bg-slate-400/20 px-2 py-0.5 text-xs font-bold text-slate-300">PRATA</span>}
+                      {i === 2 && <span className="rounded-md bg-orange-500/20 px-2 py-0.5 text-xs font-bold text-orange-400">BRONZE</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div className="card-premium p-6 lg:col-span-5">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
           <div className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-mint" strokeWidth={1.7} />
-            <div>
-              <div className="text-eyebrow">Liderança</div>
-              <h3 className="mt-1 font-editorial text-2xl italic font-light">Top 5</h3>
-            </div>
+            <BarChart3 className="h-5 w-5 text-mint" />
+            <h3 className="font-display font-bold">Desempenho Geral por Mês</h3>
           </div>
-          <ol className="mt-5 divide-y hairline border-y hairline">
-            {loading ? (
-              <li className="py-6 text-center text-sm text-muted-foreground">Carregando...</li>
-            ) : ranking.length === 0 ? (
-              <li className="py-6 text-center text-sm text-muted-foreground">Sem dados ainda.</li>
-            ) : ranking.map((r, i) => (
-              <li key={i} className="flex items-center gap-4 py-3">
-                <span className="font-editorial text-2xl text-mint/70 tabular-nums w-8">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="flex-1 text-sm font-medium truncate">{r.name}</span>
-                <span className="font-editorial text-lg">{r.score}</span>
-                {i === 0 && <span className="text-[9px] uppercase tracking-[0.18em] text-amber-500 font-semibold">Ouro</span>}
-                {i === 1 && <span className="text-[9px] uppercase tracking-[0.18em] text-slate-400 font-semibold">Prata</span>}
-                {i === 2 && <span className="text-[9px] uppercase tracking-[0.18em] text-orange-500 font-semibold">Bronze</span>}
-              </li>
-            ))}
-          </ol>
+          <div className="mt-3 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={last7}>
+                <XAxis dataKey="day" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                <YAxis hide />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                <Bar dataKey="avg" fill="hsl(var(--mint, 160 80% 50%))" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </section>
+      </div>
 
       <a
         href="https://wa.me/5500000000000"
@@ -334,16 +359,16 @@ function RitmoCard({
   dataKey: "count" | "avg";
 }) {
   return (
-    <div className="card-premium hover:card-premium-hover p-6">
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center justify-between">
-        <div className="text-eyebrow">{title}</div>
-        <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-muted-foreground">7d</span>
+        <h3 className="font-display font-bold text-mint">{title}</h3>
+        <span className="text-xs text-muted-foreground">Últimos 7 dias</span>
       </div>
-      <div className="mt-3 flex items-baseline gap-3">
-        <span className="editorial-number text-5xl">{value}</span>
-        <span className="text-xs text-mint">Méd: {data.length ? (data.reduce((s, d) => s + d[dataKey], 0) / data.length).toFixed(1) : 0}</span>
+      <div className="mt-2 flex items-baseline gap-2">
+        <span className="font-display text-4xl font-bold">{value}</span>
+        <span className="text-xs text-emerald-400">Média: {data.length ? (data.reduce((s, d) => s + d[dataKey], 0) / data.length).toFixed(1) : 0}</span>
       </div>
-      <div className="mt-3 h-14">
+      <div className="mt-2 h-16">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <XAxis dataKey="day" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} axisLine={false} tickLine={false} />
