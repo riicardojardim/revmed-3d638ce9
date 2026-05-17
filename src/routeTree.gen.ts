@@ -45,6 +45,7 @@ import { Route as AppFlashcardsRevisaoRouteImport } from './routes/app.flashcard
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
+import { Route as AppAdminFlashcardsRouteImport } from './routes/app.admin.flashcards'
 import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoes'
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
 import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
@@ -55,6 +56,7 @@ import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$cod
 import { Route as AppSalaCodeBancaRouteImport } from './routes/app.sala.$code.banca'
 import { Route as AppProfessorEstacoesIdRouteImport } from './routes/app.professor.estacoes.$id'
 import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.professor.correcoes.$id'
+import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -237,6 +239,11 @@ const AppAdminPlanosRoute = AppAdminPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminFlashcardsRoute = AppAdminFlashcardsRouteImport.update({
+  id: '/flashcards',
+  path: '/flashcards',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminEstacoesRoute = AppAdminEstacoesRouteImport.update({
   id: '/estacoes',
   path: '/estacoes',
@@ -253,9 +260,9 @@ const AppSalaCodeIndexRoute = AppSalaCodeIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminFlashcardsIndexRoute = AppAdminFlashcardsIndexRouteImport.update({
-  id: '/flashcards/',
-  path: '/flashcards/',
-  getParentRoute: () => AppAdminRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminFlashcardsRoute,
 } as any)
 const AppAdminEstacoesIndexRoute = AppAdminEstacoesIndexRouteImport.update({
   id: '/',
@@ -287,6 +294,11 @@ const AppProfessorCorrecoesIdRoute = AppProfessorCorrecoesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppProfessorCorrecoesRoute,
 } as any)
+const AppAdminFlashcardsIdRoute = AppAdminFlashcardsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdminFlashcardsRoute,
+} as any)
 const AppAdminEstacoesIdRoute = AppAdminEstacoesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -317,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
+  '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -333,6 +346,7 @@ export interface FileRoutesByFullPath {
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -378,6 +392,7 @@ export interface FileRoutesByTo {
   '/app/entrar': typeof AppEntrarIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -412,6 +427,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
+  '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -428,6 +444,7 @@ export interface FileRoutesById {
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -463,6 +480,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
+    | '/app/admin/flashcards'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -479,6 +497,7 @@ export interface FileRouteTypes {
     | '/app/entrar/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/flashcards/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -524,6 +543,7 @@ export interface FileRouteTypes {
     | '/app/entrar'
     | '/app/professor'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/flashcards/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -557,6 +577,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
+    | '/app/admin/flashcards'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
@@ -573,6 +594,7 @@ export interface FileRouteTypes {
     | '/app/entrar/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/flashcards/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -845,6 +867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPlanosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/flashcards': {
+      id: '/app/admin/flashcards'
+      path: '/flashcards'
+      fullPath: '/app/admin/flashcards'
+      preLoaderRoute: typeof AppAdminFlashcardsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/estacoes': {
       id: '/app/admin/estacoes'
       path: '/estacoes'
@@ -868,10 +897,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/admin/flashcards/': {
       id: '/app/admin/flashcards/'
-      path: '/flashcards'
+      path: '/'
       fullPath: '/app/admin/flashcards/'
       preLoaderRoute: typeof AppAdminFlashcardsIndexRouteImport
-      parentRoute: typeof AppAdminRoute
+      parentRoute: typeof AppAdminFlashcardsRoute
     }
     '/app/admin/estacoes/': {
       id: '/app/admin/estacoes/'
@@ -915,6 +944,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfessorCorrecoesIdRouteImport
       parentRoute: typeof AppProfessorCorrecoesRoute
     }
+    '/app/admin/flashcards/$id': {
+      id: '/app/admin/flashcards/$id'
+      path: '/$id'
+      fullPath: '/app/admin/flashcards/$id'
+      preLoaderRoute: typeof AppAdminFlashcardsIdRouteImport
+      parentRoute: typeof AppAdminFlashcardsRoute
+    }
     '/app/admin/estacoes/$id': {
       id: '/app/admin/estacoes/$id'
       path: '/$id'
@@ -938,22 +974,35 @@ const AppAdminEstacoesRouteChildren: AppAdminEstacoesRouteChildren = {
 const AppAdminEstacoesRouteWithChildren =
   AppAdminEstacoesRoute._addFileChildren(AppAdminEstacoesRouteChildren)
 
+interface AppAdminFlashcardsRouteChildren {
+  AppAdminFlashcardsIdRoute: typeof AppAdminFlashcardsIdRoute
+  AppAdminFlashcardsIndexRoute: typeof AppAdminFlashcardsIndexRoute
+}
+
+const AppAdminFlashcardsRouteChildren: AppAdminFlashcardsRouteChildren = {
+  AppAdminFlashcardsIdRoute: AppAdminFlashcardsIdRoute,
+  AppAdminFlashcardsIndexRoute: AppAdminFlashcardsIndexRoute,
+}
+
+const AppAdminFlashcardsRouteWithChildren =
+  AppAdminFlashcardsRoute._addFileChildren(AppAdminFlashcardsRouteChildren)
+
 interface AppAdminRouteChildren {
   AppAdminConteudoRoute: typeof AppAdminConteudoRoute
   AppAdminEstacoesRoute: typeof AppAdminEstacoesRouteWithChildren
+  AppAdminFlashcardsRoute: typeof AppAdminFlashcardsRouteWithChildren
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
   AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
-  AppAdminFlashcardsIndexRoute: typeof AppAdminFlashcardsIndexRoute
 }
 
 const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminConteudoRoute: AppAdminConteudoRoute,
   AppAdminEstacoesRoute: AppAdminEstacoesRouteWithChildren,
+  AppAdminFlashcardsRoute: AppAdminFlashcardsRouteWithChildren,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
-  AppAdminFlashcardsIndexRoute: AppAdminFlashcardsIndexRoute,
 }
 
 const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
