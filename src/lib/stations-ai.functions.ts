@@ -15,73 +15,102 @@ const InputSchema = z.object({
     .max(5),
 });
 
+const stringOrUndefined = z
+  .string()
+  .nullish()
+  .transform((value) => value ?? undefined);
+const stringOrEmpty = z
+  .string()
+  .nullish()
+  .transform((value) => value ?? "");
+const numberOrUndefined = z
+  .number()
+  .nullish()
+  .transform((value) => value ?? undefined);
+const numberOrZero = z
+  .number()
+  .nullish()
+  .transform((value) => value ?? 0);
+const stringArrayOrUndefined = z
+  .array(stringOrUndefined)
+  .nullish()
+  .transform((values) => values?.filter((value): value is string => Boolean(value?.trim())));
+
 const ResultSchema = z.object({
-  title: z.string().optional(),
-  specialty: z.string().optional(),
-  educational_goal: z.string().optional(),
-  competencies: z.array(z.string()).optional(),
-  clinical_case: z.string().optional(),
-  case_description: z.string().optional(),
-  candidate_task: z.string().optional(),
-  patient_info: z.string().optional(),
-  patient_script: z.string().optional(),
-  support_materials: z.string().optional(),
+  title: stringOrUndefined,
+  specialty: stringOrUndefined,
+  educational_goal: stringOrUndefined,
+  competencies: stringArrayOrUndefined,
+  clinical_case: stringOrUndefined,
+  case_description: stringOrUndefined,
+  candidate_task: stringOrUndefined,
+  patient_info: stringOrUndefined,
+  patient_script: stringOrUndefined,
+  support_materials: stringOrUndefined,
   patient_profile: z
     .object({
-      name: z.string().optional(),
-      age: z.string().optional(),
-      sex: z.string().optional(),
-      city: z.string().optional(),
-      profession: z.string().optional(),
-      chiefComplaint: z.string().optional(),
-      hpi: z.string().optional(),
-      personalHistory: z.string().optional(),
-      medications: z.string().optional(),
-      allergies: z.string().optional(),
-      familyHistory: z.string().optional(),
-      habits: z.string().optional(),
-      symptoms: z.string().optional(),
-      vitals: z.string().optional(),
-      previousExams: z.string().optional(),
-      spontaneous: z.string().optional(),
-      onlyIfAsked: z.string().optional(),
-      doNotReveal: z.string().optional(),
-      emotionalTone: z.string().optional(),
-      actingTips: z.string().optional(),
+      name: stringOrUndefined,
+      age: stringOrUndefined,
+      sex: stringOrUndefined,
+      city: stringOrUndefined,
+      profession: stringOrUndefined,
+      chiefComplaint: stringOrUndefined,
+      hpi: stringOrUndefined,
+      personalHistory: stringOrUndefined,
+      medications: stringOrUndefined,
+      allergies: stringOrUndefined,
+      familyHistory: stringOrUndefined,
+      habits: stringOrUndefined,
+      symptoms: stringOrUndefined,
+      vitals: stringOrUndefined,
+      previousExams: stringOrUndefined,
+      spontaneous: stringOrUndefined,
+      onlyIfAsked: stringOrUndefined,
+      doNotReveal: stringOrUndefined,
+      emotionalTone: stringOrUndefined,
+      actingTips: stringOrUndefined,
     })
+    .nullish()
+    .transform((value) => value ?? undefined)
     .optional(),
   deliverable_materials: z
     .array(
       z.object({
-        name: z.string(),
-        type: z.string().optional(),
-        description: z.string().optional(),
-        content: z.string().optional(),
+        name: stringOrEmpty,
+        type: stringOrUndefined,
+        description: stringOrUndefined,
+        content: stringOrUndefined,
       }),
     )
+    .nullish()
+    .transform((value) => value ?? undefined)
     .optional(),
-  expected_conduct: z.string().optional(),
-  common_mistakes: z.string().optional(),
-  evaluator_notes: z.string().optional(),
-  scoring_criteria: z.string().optional(),
+  expected_conduct: stringOrUndefined,
+  common_mistakes: stringOrUndefined,
+  evaluator_notes: stringOrUndefined,
+  scoring_criteria: stringOrUndefined,
   checklist_items: z
     .array(
       z.object({
-        description: z.string(),
-        category: z.string().optional(),
-        points: z.number().optional(),
-        helper_text: z.string().optional(),
+        description: stringOrEmpty,
+        category: stringOrUndefined,
+        points: numberOrUndefined,
+        helper_text: stringOrUndefined,
         levels: z
           .array(
             z.object({
-              label: z.string(),
-              points: z.number(),
-              description: z.string().optional(),
+              label: stringOrEmpty,
+              points: numberOrZero,
+              description: stringOrUndefined,
             }),
           )
+          .nullish()
+          .transform((value) => value ?? undefined)
           .optional(),
       }),
     )
+    .nullish()
+    .transform((value) => value ?? undefined)
     .optional(),
 });
 
