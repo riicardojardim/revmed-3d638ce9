@@ -14,7 +14,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle, Lock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck,
+  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -854,13 +854,34 @@ function ActorView() {
                 <Button variant="outline" onClick={() => save(false)} disabled={saving || !isFinished}>
                   Salvar rascunho
                 </Button>
-                <Button
-                  variant="hero"
-                  onClick={() => save(true)}
-                  disabled={saving || !isFinished || !allScored || evalStatus === "em_andamento"}
-                >
-                  <Send className="mr-1 h-4 w-4" /> Enviar correção
-                </Button>
+                {(() => {
+                  const released = evalStatus !== "em_andamento";
+                  const canRelease = isFinished && allScored && evalStatus !== "em_andamento";
+                  return (
+                    <Button
+                      variant="hero"
+                      onClick={() => save(true)}
+                      disabled={saving || !canRelease}
+                      title={
+                        released
+                          ? "PEP já liberado para o candidato"
+                          : !isFinished
+                          ? "Aguarde a estação terminar"
+                          : !allScored
+                          ? "Preencha todas as questões do PEP"
+                          : evalStatus === "em_andamento"
+                          ? "Defina o status (Aprovado/Reprovado/Repetir)"
+                          : "Liberar PEP para o candidato"
+                      }
+                    >
+                      {released ? (
+                        <><Unlock className="mr-1 h-4 w-4" /> PEP liberado</>
+                      ) : (
+                        <><Lock className="mr-1 h-4 w-4" /> Liberar PEP para o candidato</>
+                      )}
+                    </Button>
+                  );
+                })()}
               </div>
             </div>
           </PRBlock>
