@@ -184,7 +184,7 @@ function RoomPage() {
       toast.error(
         requires === "candidato"
           ? "Seu plano não permite entrar como candidato."
-          : "Seu plano não permite atuar como ator/avaliador.",
+          : "Seu plano não permite atuar como ator.",
       );
       return;
     }
