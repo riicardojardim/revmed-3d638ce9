@@ -316,6 +316,7 @@ function EditorBody({
             educational_goal: r.educational_goal ?? station.educational_goal,
             competencies: r.competencies?.length ? r.competencies : station.competencies,
             clinical_case: r.clinical_case ?? station.clinical_case,
+            case_description: r.case_description ?? station.case_description,
             candidate_task: r.candidate_task ?? station.candidate_task,
             patient_info: r.patient_info ?? station.patient_info,
             patient_script: r.patient_script ?? station.patient_script,
