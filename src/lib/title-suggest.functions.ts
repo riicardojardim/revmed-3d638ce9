@@ -27,14 +27,15 @@ FORMATO OBRIGATÓRIO:
 "SIGLAS - Texto descritivo curto"
 
 REGRAS:
-- Mantenha EXATAMENTE as siglas/acrônimos que o usuário já digitou no início do título (antes do hífen ou no texto). Não invente novas siglas, não traduza, não expanda elas.
+- Mantenha EXATAMENTE as siglas/acrônimos que o usuário já digitou no início do título. Não invente novas siglas, não traduza, não expanda.
 - Se o usuário digitou "JAHSID", o título DEVE começar com "JAHSID - ...".
-- Se houver várias siglas separadas por espaço/hífen, preserve a ordem.
-- Após o hífen ( - ), gere uma descrição CURTA (3 a 8 palavras) baseada no conteúdo da estação (caso clínico, tarefa, ator). Use o diagnóstico/tema principal e a ação chave (ex.: "manejo inicial", "diagnóstico", "conduta", "comunicação de notícia difícil").
-- Use Title Case em português (Primeira Letra Maiúscula nas palavras principais).
-- NÃO invente dados clínicos. Use só o que está no conteúdo.
+- BASE PRIMÁRIA para a descrição: a TAREFA DO CANDIDATO ("candidate_task") e os ITENS DO PEP ("pep_items"). Eles mostram o que de fato será avaliado.
+- BASE SECUNDÁRIA: caso clínico e roteiro do ator (apenas para identificar o diagnóstico/contexto).
+- A descrição deve refletir a AÇÃO PRINCIPAL que o candidato precisa executar (ex.: "manejo inicial", "diagnóstico e conduta", "comunicação de más notícias", "intubação orotraqueal", "punção lombar", "atendimento ao politrauma") + o DIAGNÓSTICO/TEMA quando claro (ex.: "DPOC exacerbada", "IAM com supra", "sepse").
+- Formato da descrição: 3 a 8 palavras, Title Case em português. Ex.: "Manejo da DPOC Exacerbada", "Diagnóstico e Conduta no IAM".
+- NÃO invente dados clínicos. Use só o que está no conteúdo fornecido.
 - Se NÃO houver siglas no título atual, gere apenas o texto descritivo (sem hífen no início).
-- Retorne 1 título principal + até 3 alternativas curtas.
+- Retorne 1 título principal + até 3 alternativas curtas (variando a ação chave).
 
 Retorne SOMENTE JSON: {"title": "...", "alternatives": ["...", "..."]}`;
 
