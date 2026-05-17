@@ -22,10 +22,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { parseStationPdfs, parseStationText } from "@/lib/stations-ai.functions";
 import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
+import { generateDeckFromStation } from "@/lib/deck-from-station.functions";
 import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 import { suggestStationTitle } from "@/lib/title-suggest.functions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Loader2, Wand2 } from "lucide-react";
+import { Loader2, Wand2, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
