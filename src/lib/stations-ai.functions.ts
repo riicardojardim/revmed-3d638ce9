@@ -21,6 +21,7 @@ const ResultSchema = z.object({
   educational_goal: z.string().optional(),
   competencies: z.array(z.string()).optional(),
   clinical_case: z.string().optional(),
+  case_description: z.string().optional(),
   candidate_task: z.string().optional(),
   patient_info: z.string().optional(),
   patient_script: z.string().optional(),
