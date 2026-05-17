@@ -11,10 +11,11 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText } from "@/components/station/shared";
+import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
@@ -35,7 +36,7 @@ type Delivery = {
 
 function CandidateView() {
   const { code } = Route.useParams();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
@@ -43,6 +44,8 @@ function CandidateView() {
   const [notes, setNotes] = useState("");
   const [remaining, setRemaining] = useState(600);
   const [finished, setFinished] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
   const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
@@ -175,9 +178,27 @@ function CandidateView() {
 
   const visibleDeliveries = useMemo(() => deliveries, [deliveries]);
 
+  // Dispara o overlay institucional quando o ator inicia a estação
+  useEffect(() => {
+    if (room?.status === "starting" && !introDone) setShowIntro(true);
+  }, [room?.status, introDone]);
+
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
-  const isWaiting = room.status !== "running" && !finished;
+  // Overlay institucional de entrada (3..2..1). Bloqueia toda a tela.
+  if (showIntro && user) {
+    return (
+      <StationIntroOverlay
+        role={"candidato" as IntroRole}
+        stationTitle={room.station_title ?? station.title}
+        specialty={station.specialty}
+        displayName={profile?.full_name ?? "Candidato"}
+        onComplete={() => { setShowIntro(false); setIntroDone(true); }}
+      />
+    );
+  }
+
+  const isWaiting = room.status !== "running" && room.status !== "starting" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
   const correctionReady = !!evaluation && evaluation.status !== "em_andamento";
@@ -244,27 +265,48 @@ function CandidateView() {
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-        {/* LEFT */}
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
-            <div className="flex items-center gap-2 min-w-0">
-              {(() => {
-                const meta = getSpecialtyMeta(station.specialty);
-                return (
-                  <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>
-                    {meta.code}
-                  </span>
-                );
-              })()}
-              <span className="truncate text-sm font-medium text-foreground">
-                {station.specialty}
-              </span>
-            </div>
-            <span className="rounded-md border border-border bg-background px-3 py-1.5 font-mono text-[11px] text-muted-foreground">
+      {/* Banner gradient institucional (igual ao painel do ator) */}
+      <div className="relative overflow-hidden rounded-3xl border border-mint/20 bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              "linear-gradient(hsl(160 60% 60%) 1px, transparent 1px), linear-gradient(90deg, hsl(160 60% 60%) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mint">
+            <ShieldCheck className="h-3 w-3" /> Estação em andamento
+          </div>
+          <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
+            {room.station_title ?? station.title}
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/70">
+            {(() => {
+              const meta = getSpecialtyMeta(station.specialty);
+              return (
+                <span className={cn("inline-flex h-6 items-center rounded-md px-2 text-[11px] font-bold", meta.badge)}>
+                  {meta.code}
+                </span>
+              );
+            })()}
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-mint" /> {station.specialty}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" /> {room.duration_minutes ?? station.durationMinutes} min
+            </span>
+            <span className="ml-auto rounded-md border border-white/20 bg-white/5 px-2.5 py-1 font-mono text-[11px] tracking-wider">
               {code}
             </span>
           </div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+        {/* LEFT */}
+        <div className="space-y-4">
 
           <PRBlock icon={MessageSquare} title="Cenário de atuação" tone="violet">
             <ScriptText text={station.clinicalCase} />

@@ -53,11 +53,13 @@ function JoinRoom() {
         }
       }
 
-      nav({
-        to: "/app/sala/$code",
-        params: { code },
-        replace: true,
-      });
+      // Candidato vai direto para a sua sala (sem passar pela tela "Escolha seu papel").
+      // Host/ator continua indo para a página da sala para iniciar/gerenciar.
+      if (targetRole === "candidato") {
+        nav({ to: "/app/sala/$code/candidato", params: { code }, replace: true });
+      } else {
+        nav({ to: "/app/sala/$code", params: { code }, replace: true });
+      }
     })();
   }, [loading, user?.id, code]);
 
