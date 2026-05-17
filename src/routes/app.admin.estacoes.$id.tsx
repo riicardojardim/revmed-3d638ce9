@@ -119,6 +119,31 @@ function numberedCategory(index: number, title: string): string {
   return `${index + 1}. ${clean}`;
 }
 
+/**
+ * Clean checklist item description + category coming from AI / PDF import.
+ * Removes leading "N." numbering and a leading "Categoria:" prefix from the
+ * description. If the explicit category is missing or the generic default
+ * ("Anamnese"), infer it from that leading prefix.
+ */
+function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null): { description: string; category: string } {
+  let desc = (rawDesc ?? "").trim();
+  desc = desc.replace(/^\s*\d+\s*[.)\-–—]\s*/, "");
+  let inferred: string | null = null;
+  const m = desc.match(/^([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s/-]{0,40}?):\s*/);
+  if (m) {
+    const candidate = m[1].trim();
+    if (candidate.split(/\s+/).length <= 4) {
+      inferred = candidate;
+      desc = desc.slice(m[0].length).trim();
+    }
+  }
+  const explicit = (rawCategory ?? "").replace(/^\s*\d+\.\s*/, "").trim();
+  const isGeneric = !explicit || /^anamnese$/i.test(explicit);
+  const chosen = (!isGeneric ? explicit : (inferred ?? explicit)) || "Anamnese";
+  const niceCategory = chosen.charAt(0).toUpperCase() + chosen.slice(1);
+  return { description: desc, category: niceCategory };
+}
+
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -153,10 +178,28 @@ function StationEditor() {
       deliverable_materials: (raw.deliverable_materials as DeliverableMaterial[]) ?? [],
       patient_profile: (raw.patient_profile as PatientProfile) ?? {},
     });
-    setItems(((it as unknown as Item[]) ?? []).map((i) => ({
+    const loaded = ((it as unknown as Item[]) ?? []).map((i) => ({
       ...i,
       levels: Array.isArray(i.levels) && i.levels.length ? i.levels : defaultLevels(Number(i.points) || 1),
-    })));
+    }));
+    // one-time cleanup: strip leading "N. Category:" from descriptions and fix wrong default categories
+    const fixes: { id: string; description: string; category: string }[] = [];
+    const normalized = loaded.map((it) => {
+      const { description, category } = normalizeChecklistFields(it.description, it.category);
+      if (description !== it.description || category !== it.category) {
+        fixes.push({ id: it.id, description, category });
+        return { ...it, description, category };
+      }
+      return it;
+    });
+    setItems(normalized);
+    if (fixes.length) {
+      void Promise.all(
+        fixes.map((f) =>
+          supabase.from("station_checklist_items").update({ description: f.description, category: f.category }).eq("id", f.id)
+        )
+      );
+    }
   }
 
   useEffect(() => { void load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
@@ -307,13 +350,7 @@ function EditorBody({
             const startIdx = items.length;
             const rows = r.checklist_items.map((ci, idx) => {
               const pts = Number(ci.points) > 0 ? Number(ci.points) : 1;
-              const number = startIdx + idx + 1;
-              const rawDesc = ci.description.trim();
-              // gold-standard: description starts with "N. ..."
-              const description = /^\d+\.\s/.test(rawDesc) ? rawDesc : `${number}. ${rawDesc}`;
-              // keep AI's clean category name; strip accidental leading number
-              const category =
-                (ci.category ?? "Anamnese").replace(/^\s*\d+\.\s*/, "").trim() || "Anamnese";
+              const { description, category } = normalizeChecklistFields(ci.description, ci.category);
               return {
                 station_id: id,
                 description,
@@ -775,10 +812,7 @@ function ChecklistBulkImport({
       }
       const rows = list.map((ci, idx) => {
         const pts = Number(ci.points) > 0 ? Number(ci.points) : 1;
-        const number = currentCount + idx + 1;
-        const rawDesc = ci.description.trim();
-        const description = /^\d+\.\s/.test(rawDesc) ? rawDesc : `${number}. ${rawDesc}`;
-        const category = (ci.category ?? "Anamnese").replace(/^\s*\d+\.\s*/, "").trim() || "Anamnese";
+        const { description, category } = normalizeChecklistFields(ci.description, ci.category);
         return {
           station_id: stationId,
           description,
