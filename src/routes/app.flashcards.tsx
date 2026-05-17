@@ -184,13 +184,12 @@ function FlashcardsPage() {
       <FlashcardModalShell title={`FlashCards | ${activeDeck.title}`} onClose={close}>
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="w-full max-w-md">
-            <div className="aspect-square rounded-2xl overflow-hidden bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
-              {activeDeck.cover_image_url ? (
-                <img src={activeDeck.cover_image_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <ImageIcon className="h-16 w-16 text-primary/40" />
-              )}
-            </div>
+            <DeckCover
+              title={activeDeck.title}
+              specialty={activeDeck.specialty}
+              topic={activeDeck.topic}
+              size="lg"
+            />
             <div className="mt-4 rounded-2xl bg-primary/15 ring-1 ring-primary/30 py-4 text-center">
               <div className="font-display font-bold text-lg uppercase tracking-wide">{activeDeck.title}</div>
             </div>
