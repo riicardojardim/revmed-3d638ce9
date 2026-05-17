@@ -1411,7 +1411,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                   ) : (
                     <ol className="space-y-3">
                       {items.map((it, idx) => {
-                        const levels = it.levels?.length ? it.levels : [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }];
+                        const levels = [...(it.levels?.length ? it.levels : [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }])].sort((a, b) => a.points - b.points);
                         const current = pepLevels[it.id];
                         const parts = parsePreviewSubItems(it.description);
                         return (
