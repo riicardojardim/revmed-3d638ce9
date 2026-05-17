@@ -43,8 +43,8 @@ REGRA DE OURO — NÃO INVENTE NADA:
 - Preserve a pontuação EXATAMENTE como vem na fonte: ponto-e-vírgula (;), ponto final (.), dois-pontos (:), parênteses, quebras de linha (\\n). NÃO troque ";" por "," nem remova ".".
 
 REGRAS:
-- "category": COPIE LITERALMENTE o título do item da fonte (a frase logo após o número, antes dos sub-itens). Ex.: se a fonte diz "1. Apresentação:" → category = "Apresentação". Se diz "2. Realiza anamnese direcionada perguntando por:" → category = "Realiza anamnese direcionada perguntando por". NUNCA substitua por um sinônimo (ex.: NÃO troque "Apresentação" por "Comunicação"). NÃO normalize, NÃO traduza, NÃO unifique. Remova apenas o número/ponto inicial e o ":" final.
-- "description": COPIE o texto do item da fonte EXATAMENTE como está, INCLUINDO a linha do título com o número (ex.: "1. Apresentação:\\n(1) Identifica-se;\\n(2) Cumprimenta o paciente simulado."). NÃO remova a linha do título. Preserve sub-itens, ; e . exatamente como na fonte.
+- "category": COPIE LITERALMENTE o título numerado do item da fonte, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → category = "Apresentação"; "2. Investiga os sintomas atuais da criança:" → category = "Investiga os sintomas atuais da criança"; "3. Investiga os hábitos alimentares:" → category = "Investiga os hábitos alimentares". NUNCA substitua por sinônimo (NÃO troque por "Comunicação"/"Anamnese").
+- "description": NÃO inclua a linha numerada/título da categoria. A descrição deve começar diretamente nos sub-itens/ações avaliadas (ex.: "(1) Identifica-se;\\n(2) Cumprimenta o paciente simulado."). Preserve sub-itens, ; e . exatamente como na fonte.
 - "points": valor MÁXIMO do item, igual à fonte (0.25, 0.5, 0.75, 1.0, 1.5, 2.0…).
 - "levels": SÓ inclua se a fonte explicitamente listar níveis, no formato "Inadequado: <regra da fonte>", "Parcialmente adequado: <regra>", "Adequado: <regra>" com os "points" exatos da fonte.
 - Combine múltiplas fontes sem duplicar itens.
