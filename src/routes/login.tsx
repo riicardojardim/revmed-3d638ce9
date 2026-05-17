@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -56,18 +56,14 @@ function LoginPage() {
     if (submitting) return;
     const normalizedEmail = email.trim();
     if (!normalizedEmail || !password) return;
-    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
-    let destination = "/app";
 
     try {
       setSubmitting(true);
-      fallbackTimer = setTimeout(() => goTo(destination), 3500);
       const { data, error } = await withTimeout(
         supabase.auth.signInWithPassword({ email: normalizedEmail, password }),
         10000,
       );
       if (error) {
-        if (fallbackTimer) clearTimeout(fallbackTimer);
         setSubmitting(false);
         toast.error("Não foi possível entrar", { description: error.message });
         return;
@@ -75,11 +71,9 @@ function LoginPage() {
 
       toast.success("Bem-vindo de volta!");
       const uid = data.user?.id;
-      destination = uid ? await resolveDestination(uid) : "/app";
-      if (fallbackTimer) clearTimeout(fallbackTimer);
+      const destination = uid ? await resolveDestination(uid) : "/app";
       goTo(destination);
     } catch {
-      if (fallbackTimer) clearTimeout(fallbackTimer);
       setSubmitting(false);
       toast.error("Não foi possível entrar", { description: "Tente novamente em alguns segundos." });
     }
