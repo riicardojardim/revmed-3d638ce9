@@ -124,7 +124,7 @@ PADRÃO OBRIGATÓRIO — siga EXATAMENTE este formato (estação "Acidente por a
 
 1) checklist_items
    - "category": COPIE LITERALMENTE o título numerado do PEP, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → "Apresentação"; "2. Investiga os sintomas atuais da criança:" → "Investiga os sintomas atuais da criança"; "3. Investiga os hábitos alimentares:" → "Investiga os hábitos alimentares". NÃO normalize para nomes genéricos como "Comunicação" ou "Anamnese".
-   - "description": NÃO inclua a linha numerada/título da categoria. Comece direto nos sub-itens/ações avaliadas, no formato "(1) X;\\n(2) Y;\\n(3) Z." Exemplo real:
+   - "description": NÃO inclua a linha numerada/título da categoria. NÃO inclua linhas dos níveis ("Inadequado:", "Parcialmente adequado:", "Adequado:") — essas vão SOMENTE em "levels". Se o item só tem título + níveis (sem sub-itens), retorne "description": "". Quando houver sub-itens, copie no formato "(1) X;\\n(2) Y;\\n(3) Z." Exemplo real:
         "(1) Tempo de evolução;\\n(2) Dor no local da picada;\\n(3) Salivação excessiva ou sialorreia;\\n(4) Vômitos;\\n(5) Priapismo;\\n(6) Sudorese;\\n(7) Limpeza da região afetada."
    - "points": pontuação MÁXIMA do item EXATAMENTE como no PDF (0.25, 0.5, 0.75, 1.0, 1.5, 1.75, 2.0…). NÃO arredonde, NÃO altere.
    - "levels": COPIE LITERALMENTE os níveis do PDF — palavra por palavra, sem reescrever, sem resumir, sem corrigir gramática, sem trocar sinônimos.
