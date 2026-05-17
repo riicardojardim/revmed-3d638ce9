@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Search, ArrowRight, ListChecks, Sparkles, Wand2 } from "lucide-react";
+import { Search, ArrowRight, ListChecks, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,17 +27,6 @@ type ListStation = Pick<Station, "id" | "title" | "specialty" | "difficulty" | "
   checklistCount: number;
   origin: Origin;
 };
-
-const SUGGESTED_TOPICS = [
-  "Dor torácica",
-  "Pré-natal",
-  "Comunicação de más notícias",
-  "Sepse",
-  "AVC",
-  "Asma",
-  "Hipertensão",
-  "Aleitamento",
-];
 
 function StationsPage() {
   const [q, setQ] = useState("");
