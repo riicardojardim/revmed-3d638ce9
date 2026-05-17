@@ -509,6 +509,7 @@ function EditorBody({
         <StationLivePreview station={station} items={items} />
       </Section>
 
+      <SectionGenerateFlashcards station={station} />
       <SectionPublish station={station} togglePublish={togglePublish} />
     </div>
   );
