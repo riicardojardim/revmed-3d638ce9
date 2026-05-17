@@ -265,6 +265,29 @@ function pickLonger(a?: string, b?: string): string | undefined {
   return bv.length > av.length ? bv : av;
 }
 
+function cleanExtractedStation(raw: ParsedStation): ParsedStation {
+  const r = { ...raw };
+  const clinical = (r.clinical_case ?? "").trim();
+  const description = (r.case_description ?? "").trim();
+  if (!description && /descri[cç][aã]o do caso/i.test(clinical)) {
+    const [before, after] = clinical.split(/descri[cç][aã]o do caso:?/i);
+    r.clinical_case = before.trim();
+    r.case_description = after?.trim() || undefined;
+  }
+  if (description && /cen[aá]rio de atendimento/i.test(description)) {
+    const parts = description.split(/descri[cç][aã]o do caso:?/i);
+    const scenario = parts[0]?.replace(/cen[aá]rio de atendimento:?/i, "").trim();
+    const caseText = parts.slice(1).join("Descrição do caso:").trim();
+    if (scenario && !clinical) r.clinical_case = scenario;
+    if (caseText) r.case_description = caseText;
+  }
+  const taskMatch = (r.case_description ?? "").match(/Nos\s+\d+\s+minutos[\s\S]*$/i);
+  if (taskMatch && !(r.candidate_task ?? "").trim()) r.candidate_task = taskMatch[0].trim();
+  const norm = normalizeSpecialty(r.specialty);
+  if (norm) r.specialty = norm;
+  return r;
+}
+
 const SPECIALTY_ENUM = [
   "Clínica Médica", "Pediatria", "Ginecologia e Obstetrícia",
   "Cirurgia", "Medicina da Família", "Urgência e Emergência",
