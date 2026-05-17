@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { STATIONS } from "@/data/stations";
 
 interface ResultSearch {
