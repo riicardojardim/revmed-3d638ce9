@@ -460,6 +460,9 @@ function ActorView() {
   const delivered = new Set(deliveries.map((d) => d.material_id));
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
+  const savedActorScript = station.patientScript?.trim() ?? "";
+  const actorScriptText = savedActorScript || (p ? formatPatientProfile(p) : "");
+  const shouldShowProfileExtras = !savedActorScript && !!p;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
   const isWaiting = !isRunning && !isFinished;
@@ -530,25 +533,20 @@ function ActorView() {
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz" tone="amber">
             <p className="mb-3 text-[11px] text-muted-foreground italic">Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.</p>
             <Highlightable>
-              {station.patientScript && (
-                <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
+              {actorScriptText && (
+                <ScriptText text={actorScriptText} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
               )}
-              {p && (
-                <div className="mt-4">
-                  <ScriptText text={formatPatientProfile(p)} strikeable prefix="pp" struck={struckWords} toggle={toggleStruck} />
-                </div>
-              )}
-              {p?.spontaneous && (
+              {shouldShowProfileExtras && p?.spontaneous && (
                 <SubBlock label="O que falar espontaneamente">
                   <ScriptText text={p.spontaneous} strikeable prefix="sp" struck={struckWords} toggle={toggleStruck} />
                 </SubBlock>
               )}
-              {p?.doNotReveal && (
+              {shouldShowProfileExtras && p?.doNotReveal && (
                 <SubBlock label="Nunca revelar" tone="rose">
                   <ScriptText text={p.doNotReveal} strikeable prefix="dnr" struck={struckWords} toggle={toggleStruck} />
                 </SubBlock>
               )}
-              {(p?.emotionalTone || p?.actingTips) && (
+              {shouldShowProfileExtras && (p?.emotionalTone || p?.actingTips) && (
                 <SubBlock label="Tom emocional e atuação">
                   {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
                   {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
