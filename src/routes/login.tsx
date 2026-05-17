@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const { user, loading } = useAuth();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -54,13 +56,17 @@ function LoginPage() {
 
   async function submitLogin() {
     if (submitting) return;
-    const normalizedEmail = email.trim();
-    if (!normalizedEmail || !password) return;
+    const normalizedEmail = (emailRef.current?.value || email).trim();
+    const currentPassword = passwordRef.current?.value || password;
+    if (!normalizedEmail || !currentPassword) {
+      toast.error("Preencha e-mail e senha para entrar.");
+      return;
+    }
 
     try {
       setSubmitting(true);
       const { data, error } = await withTimeout(
-        supabase.auth.signInWithPassword({ email: normalizedEmail, password }),
+        supabase.auth.signInWithPassword({ email: normalizedEmail, password: currentPassword }),
         10000,
       );
       if (error) {
@@ -124,11 +130,11 @@ function LoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required />
+              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required />
             </div>
             <div>
               <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input ref={passwordRef} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
             </div>
             <Button type="button" variant="hero" size="lg" className="w-full" disabled={submitting} onClick={submitLogin}>
               {submitting ? "Entrando..." : (<>Entrar <ArrowRight className="h-4 w-4" /></>)}
