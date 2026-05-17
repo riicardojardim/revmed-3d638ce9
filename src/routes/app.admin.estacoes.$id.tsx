@@ -265,6 +265,7 @@ function StationEditor() {
       saveStation={saveStation}
       togglePublish={togglePublish}
       setStation={setStation}
+      setItems={setItems}
     />
   );
 }
