@@ -128,6 +128,7 @@ export function GrammarReviewButton({ station, items, setStation, setItems }: Pr
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<GrammarFieldResult[] | null>(null);
+  const [applied, setApplied] = useState<Set<string>>(new Set());
   const reviewFn = useServerFn(reviewGrammar);
 
   const fields = useMemo(() => collectFields(station, items), [station, items]);
