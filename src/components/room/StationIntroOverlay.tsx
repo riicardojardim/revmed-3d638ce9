@@ -178,8 +178,14 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
               </div>
             )}
             <div className="mt-6 flex flex-col items-center gap-1 text-center text-white/60">
-              <div className="text-sm font-medium text-white/80">{stationTitle}</div>
-              {specialty && <div className="text-xs uppercase tracking-wider">{specialty}</div>}
+              {isCandidate ? (
+                <div className="text-sm font-medium text-white/80">Boa prova, {displayName.split(" ")[0]}.</div>
+              ) : (
+                <>
+                  <div className="text-sm font-medium text-white/80">{stationTitle}</div>
+                  {specialty && <div className="text-xs uppercase tracking-wider">{specialty}</div>}
+                </>
+              )}
               <div className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[11px]">
                 <Icon className="h-3 w-3 text-mint" /> {ROLE_META[role].label}
               </div>
