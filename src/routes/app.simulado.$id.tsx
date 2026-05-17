@@ -576,9 +576,9 @@ function SimuladoRunner() {
                       />
                     </div>
                     <div className="flex flex-col items-center gap-1 tabular-nums">
-                      {levels.map((lv, li) => {
+                      {(() => { const maxPts = Math.max(...levels.map((l) => l.points)); return levels.map((lv) => {
                         const sel = cur === lv.points;
-                        const tone = levelTone(li, levels.length);
+                        const tone = levelTone(lv.points, maxPts);
                         return (
                           <button
                             key={lv.label}
@@ -597,7 +597,7 @@ function SimuladoRunner() {
                             {lv.points}
                           </button>
                         );
-                      })}
+                      }); })()}
                     </div>
                   </li>
                 );
