@@ -421,7 +421,7 @@ function SimuladoRunner() {
             <ScriptText text={station.clinicalCase} />
           </PRBlock>
 
-          <PRBlock icon={ListChecks} title={`Nos ${station.durationMinutes} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
+          <PRBlock icon={ListChecks} title={`Nos ${duration} minutos de duração da estação, você deverá executar as seguintes tarefas`}>
             <ScriptText text={station.candidateTask} />
           </PRBlock>
 
