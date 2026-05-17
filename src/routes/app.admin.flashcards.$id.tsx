@@ -142,24 +142,7 @@ function AdminFlashcardEditor() {
     toast.success(next ? "Deck publicado" : "Deck despublicado");
   }
 
-  async function uploadCover(file: File) {
-    if (!deck) return;
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${deck.id}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("flashcard-covers").upload(path, file, { upsert: true });
-      if (error) throw error;
-      const { data } = supabase.storage.from("flashcard-covers").getPublicUrl(path);
-      patchDeck({ cover_image_url: data.publicUrl });
-      await supabase.from("flashcard_decks").update({ cover_image_url: data.publicUrl }).eq("id", deck.id);
-      toast.success("Capa atualizada");
-    } catch (e: any) {
-      toast.error("Erro no upload", { description: e?.message });
-    } finally {
-      setUploading(false);
-    }
-  }
+
 
   function addCard() {
     const pos = cards.length ? Math.max(...cards.map((c) => c.position)) + 1 : 0;
