@@ -4,7 +4,7 @@ import { Search, Clock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { STATIONS, SPECIALTIES, type Specialty, type Station } from "@/data/stations";
+import { SPECIALTIES, type Specialty, type Station } from "@/data/stations";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,18 +60,7 @@ function StationsPage() {
     })();
   }, []);
 
-  const staticList: ListStation[] = STATIONS.map((s) => ({
-    id: s.id, title: s.title, specialty: s.specialty, difficulty: s.difficulty,
-    durationMinutes: s.durationMinutes, clinicalCase: s.clinicalCase, tag: s.tag,
-    checklistCount: s.checklist.length,
-  }));
-
-  // DB stations first, then any static demos not duplicated by title
-  const dbTitles = new Set(dbStations.map((s) => s.title.toLowerCase().trim()));
-  const all: ListStation[] = [
-    ...dbStations,
-    ...staticList.filter((s) => !dbTitles.has(s.title.toLowerCase().trim())),
-  ];
+  const all: ListStation[] = dbStations;
 
   const filtered = all.filter(
     (s) =>
