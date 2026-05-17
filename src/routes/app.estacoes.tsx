@@ -96,7 +96,6 @@ function StationsPage() {
 
   const filtered = dbStations.filter(
     (s) =>
-      s.origin === origin &&
       (spec === "Todas" || s.specialty === spec) &&
       s.title.toLowerCase().includes(q.toLowerCase()),
   );
