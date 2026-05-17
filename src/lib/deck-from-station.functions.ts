@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
+  station_id: z.string().uuid().optional().nullable(),
   title: z.string().min(1).max(300),
   specialty: z.string().min(1).max(120),
   topic: z.string().max(200).optional().nullable(),
