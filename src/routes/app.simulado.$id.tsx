@@ -34,7 +34,7 @@ type Candidate = { id: string; name: string };
 function SimuladoRunner() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
