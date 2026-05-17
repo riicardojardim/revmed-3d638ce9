@@ -318,16 +318,21 @@ function normalizeSpecialty(raw?: string): string | undefined {
     .toLowerCase()
     .trim();
   if (!s) return undefined;
-  // direct contains checks
-  if (/(pediatr)/.test(s)) return "Pediatria";
-  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.)/.test(s)) return "Ginecologia e Obstetrícia";
-  if (/(cirurg|\bcc\b)/.test(s)) return "Cirurgia";
-  if (/(familia|mfc|atencao primaria|saude da familia)/.test(s)) return "Medicina da Família";
-  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|pronto socorro)/.test(s)) return "Urgência e Emergência";
+  if (/(pediatr|crianc|lactente|neonat|reci?em.?nasc)/.test(s)) return "Pediatria";
+  if (/(ginecolog|obstetr|tocoginec|\bgo\b|\bg\.o\.|gestant|gravid|pre.?natal|puerper|parto)/.test(s)) return "Ginecologia e Obstetrícia";
+  if (/(cirurg|\bcc\b|pos.?operat|pre.?operat)/.test(s)) return "Cirurgia";
+  if (/(familia|mfc|atencao primaria|saude da familia|esf|ubs|unidade basica)/.test(s)) return "Medicina da Família";
+  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s)) return "Urgência e Emergência";
   if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
-  // exact enum match
   const match = SPECIALTY_ENUM.find((e) => e.toLowerCase() === raw.trim().toLowerCase());
   return match;
+}
+
+function deduceSpecialtyFromContent(r: ParsedStation): string | undefined {
+  const blob = [r.title, r.clinical_case, r.case_description, r.candidate_task, r.educational_goal, r.patient_info]
+    .filter(Boolean).join(" \n ");
+  if (!blob.trim()) return undefined;
+  return normalizeSpecialty(blob);
 }
 
 function mergeResults(parts: ParsedStation[]): ParsedStation {
