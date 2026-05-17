@@ -8,6 +8,7 @@ import { Search, GraduationCap, ChevronUp, ChevronDown, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { createSimulado } from "@/lib/simulado";
+import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
