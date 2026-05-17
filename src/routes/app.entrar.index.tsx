@@ -39,7 +39,7 @@ function EntrarCodigo() {
               nav({ to: "/app/entrar/$code", params: { code: c } });
             }}
           >
-            <Search className="h-4 w-4" /> Buscar
+            <Search className="h-4 w-4" /> Entrar na estação
           </Button>
         </div>
       </div>
