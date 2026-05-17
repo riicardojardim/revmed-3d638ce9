@@ -297,37 +297,63 @@ function EditorBody({
         stationId={id}
         currentItemsCount={items.length}
         applyResult={async (r) => {
-          setStation((s) => {
-            if (!s) return s;
-            return {
-              ...s,
-              title: r.title || s.title,
-              specialty: r.specialty || s.specialty,
-              educational_goal: r.educational_goal ?? s.educational_goal,
-              competencies: r.competencies?.length ? r.competencies : s.competencies,
-              clinical_case: r.clinical_case ?? s.clinical_case,
-              candidate_task: r.candidate_task ?? s.candidate_task,
-              patient_info: r.patient_info ?? s.patient_info,
-              patient_script: r.patient_script ?? s.patient_script,
-              support_materials: r.support_materials ?? s.support_materials,
-              patient_profile: { ...s.patient_profile, ...(r.patient_profile ?? {}) },
-              deliverable_materials: r.deliverable_materials?.length
-                ? r.deliverable_materials.map((m, i) => ({
-                    id: `imp${i + 1}`,
-                    name: m.name,
-                    type: m.type || "Impresso",
-                    description: m.description ?? "",
-                    content: m.content ?? "",
-                    autoDeliver: false,
-                  }))
-                : s.deliverable_materials,
-              expected_conduct: r.expected_conduct ?? s.expected_conduct,
-              common_mistakes: r.common_mistakes ?? s.common_mistakes,
-              evaluator_notes: r.evaluator_notes ?? s.evaluator_notes,
-              scoring_criteria: r.scoring_criteria ?? s.scoring_criteria,
-            };
-          });
-          // checklist items go directly into the DB so they show up
+          if (!station) return;
+          // 1) Build merged station object
+          const mergedDeliverables = r.deliverable_materials?.length
+            ? r.deliverable_materials.map((m, i) => ({
+                id: `imp${i + 1}`,
+                name: m.name,
+                type: m.type || "Impresso",
+                description: m.description ?? "",
+                content: m.content ?? "",
+                autoDeliver: false,
+              }))
+            : station.deliverable_materials;
+          const merged: Station = {
+            ...station,
+            title: r.title || station.title,
+            specialty: r.specialty || station.specialty,
+            educational_goal: r.educational_goal ?? station.educational_goal,
+            competencies: r.competencies?.length ? r.competencies : station.competencies,
+            clinical_case: r.clinical_case ?? station.clinical_case,
+            candidate_task: r.candidate_task ?? station.candidate_task,
+            patient_info: r.patient_info ?? station.patient_info,
+            patient_script: r.patient_script ?? station.patient_script,
+            support_materials: r.support_materials ?? station.support_materials,
+            patient_profile: { ...station.patient_profile, ...(r.patient_profile ?? {}) },
+            deliverable_materials: mergedDeliverables,
+            expected_conduct: r.expected_conduct ?? station.expected_conduct,
+            common_mistakes: r.common_mistakes ?? station.common_mistakes,
+            evaluator_notes: r.evaluator_notes ?? station.evaluator_notes,
+            scoring_criteria: r.scoring_criteria ?? station.scoring_criteria,
+          };
+          // 2) Persist merged station to DB FIRST (before any load())
+          setStation(merged);
+          const { error: upErr } = await supabase
+            .from("stations")
+            .update({
+              title: merged.title,
+              specialty: merged.specialty,
+              educational_goal: merged.educational_goal,
+              competencies: merged.competencies,
+              clinical_case: merged.clinical_case,
+              candidate_task: merged.candidate_task,
+              patient_info: merged.patient_info,
+              patient_script: merged.patient_script,
+              support_materials: merged.support_materials,
+              patient_profile: merged.patient_profile as never,
+              deliverable_materials: merged.deliverable_materials as never,
+              expected_conduct: merged.expected_conduct,
+              common_mistakes: merged.common_mistakes,
+              evaluator_notes: merged.evaluator_notes,
+              scoring_criteria: merged.scoring_criteria,
+            } as never)
+            .eq("id", id);
+          if (upErr) {
+            toast.error("Falha ao salvar campos importados", { description: upErr.message });
+            return;
+          }
+          // 3) Insert checklist items
           if (r.checklist_items?.length) {
             const startIdx = items.length;
             const rows = r.checklist_items.map((ci, idx) => {
@@ -345,10 +371,9 @@ function EditorBody({
             });
             const { error } = await supabase.from("station_checklist_items").insert(rows as never);
             if (error) toast.error("Falha ao importar checklist", { description: error.message });
-            await load();
           }
-
-          await saveStation({ silent: true });
+          // 4) Reload from DB (now contains everything)
+          await load();
           toast.success("PDF importado e campos preenchidos");
         }}
       />
