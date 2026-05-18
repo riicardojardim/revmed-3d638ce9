@@ -47,15 +47,15 @@ export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
         <h3 className="font-display font-bold">Medalhas por especialidade</h3>
         <span className="text-xs text-muted-foreground">
           Conquiste ≥ {MIN_STATIONS_PER_SPECIALTY} estações com média ≥{" "}
-          <span className="font-semibold text-foreground">{NOTA_DE_CORTE.toFixed(1)}</span>{" "}
-          (nota de corte INEP)
+          <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span>{" "}
+          (nota de corte INEP — {NOTA_DE_CORTE.toFixed(3)} pts / {NOTA_DE_CORTE_EDICAO})
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {MEDAL_SPECIALTIES.map((s) => {
           const meta = getSpecialtyMeta(s.key);
           const { avg, n } = getSpecAvg(stats, s.key);
-          const unlocked = n >= MIN_STATIONS_PER_SPECIALTY && avg >= NOTA_DE_CORTE;
+          const unlocked = n >= MIN_STATIONS_PER_SPECIALTY && avg >= NOTA_DE_CORTE_ESCALA10;
           return (
             <div
               key={s.key}
