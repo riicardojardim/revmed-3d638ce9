@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10, MEDAL_SPECIALTIES, getSpecAvg } from "@/components/SpecialtyMedals";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import { ResetStatsButton } from "@/components/ResetStatsButton";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
