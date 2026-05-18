@@ -13,7 +13,7 @@ import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/app/estacoes")({
+export const Route = createFileRoute("/app/checklists")({
   component: StationsPage,
   head: () => ({ meta: [{ title: "Banco de Checklists — Estação Revalida" }] }),
 });

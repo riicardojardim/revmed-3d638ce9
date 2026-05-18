@@ -25,8 +25,8 @@ import { Route as AppLiveRouteImport } from './routes/app.live'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppFlashcardsRouteImport } from './routes/app.flashcards'
 import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
-import { Route as AppEstacoesRouteImport } from './routes/app.estacoes'
 import { Route as AppCronogramaRouteImport } from './routes/app.cronograma'
+import { Route as AppChecklistsRouteImport } from './routes/app.checklists'
 import { Route as AppAulasRouteImport } from './routes/app.aulas'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
@@ -139,14 +139,14 @@ const AppFeedbackRoute = AppFeedbackRouteImport.update({
   path: '/feedback',
   getParentRoute: () => AppRoute,
 } as any)
-const AppEstacoesRoute = AppEstacoesRouteImport.update({
-  id: '/estacoes',
-  path: '/estacoes',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppCronogramaRoute = AppCronogramaRouteImport.update({
   id: '/cronograma',
   path: '/cronograma',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppChecklistsRoute = AppChecklistsRouteImport.update({
+  id: '/checklists',
+  path: '/checklists',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAulasRoute = AppAulasRouteImport.update({
@@ -312,8 +312,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
+  '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
-  '/app/estacoes': typeof AppEstacoesRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/flashcards': typeof AppFlashcardsRouteWithChildren
   '/app/historico': typeof AppHistoricoRouteWithChildren
@@ -361,8 +361,8 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/app/aulas': typeof AppAulasRoute
+  '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
-  '/app/estacoes': typeof AppEstacoesRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/flashcards': typeof AppFlashcardsRouteWithChildren
   '/app/historico': typeof AppHistoricoRouteWithChildren
@@ -410,8 +410,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
+  '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
-  '/app/estacoes': typeof AppEstacoesRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/flashcards': typeof AppFlashcardsRouteWithChildren
   '/app/historico': typeof AppHistoricoRouteWithChildren
@@ -463,8 +463,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/admin'
     | '/app/aulas'
+    | '/app/checklists'
     | '/app/cronograma'
-    | '/app/estacoes'
     | '/app/feedback'
     | '/app/flashcards'
     | '/app/historico'
@@ -512,8 +512,8 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/app/aulas'
+    | '/app/checklists'
     | '/app/cronograma'
-    | '/app/estacoes'
     | '/app/feedback'
     | '/app/flashcards'
     | '/app/historico'
@@ -560,8 +560,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/admin'
     | '/app/aulas'
+    | '/app/checklists'
     | '/app/cronograma'
-    | '/app/estacoes'
     | '/app/feedback'
     | '/app/flashcards'
     | '/app/historico'
@@ -727,18 +727,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeedbackRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/estacoes': {
-      id: '/app/estacoes'
-      path: '/estacoes'
-      fullPath: '/app/estacoes'
-      preLoaderRoute: typeof AppEstacoesRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/cronograma': {
       id: '/app/cronograma'
       path: '/cronograma'
       fullPath: '/app/cronograma'
       preLoaderRoute: typeof AppCronogramaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/checklists': {
+      id: '/app/checklists'
+      path: '/checklists'
+      fullPath: '/app/checklists'
+      preLoaderRoute: typeof AppChecklistsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/aulas': {
@@ -1092,8 +1092,8 @@ const AppResumosRouteWithChildren = AppResumosRoute._addFileChildren(
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppAulasRoute: typeof AppAulasRoute
+  AppChecklistsRoute: typeof AppChecklistsRoute
   AppCronogramaRoute: typeof AppCronogramaRoute
-  AppEstacoesRoute: typeof AppEstacoesRoute
   AppFeedbackRoute: typeof AppFeedbackRoute
   AppFlashcardsRoute: typeof AppFlashcardsRouteWithChildren
   AppHistoricoRoute: typeof AppHistoricoRouteWithChildren
@@ -1119,8 +1119,8 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRouteWithChildren,
   AppAulasRoute: AppAulasRoute,
+  AppChecklistsRoute: AppChecklistsRoute,
   AppCronogramaRoute: AppCronogramaRoute,
-  AppEstacoesRoute: AppEstacoesRoute,
   AppFeedbackRoute: AppFeedbackRoute,
   AppFlashcardsRoute: AppFlashcardsRouteWithChildren,
   AppHistoricoRoute: AppHistoricoRouteWithChildren,
@@ -1155,13 +1155,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -112,7 +112,7 @@ function SimulationPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <Link
-        to="/app/estacoes"
+        to="/app/checklists"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" /> Voltar à biblioteca

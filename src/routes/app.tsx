@@ -81,7 +81,7 @@ function AppLayout() {
       {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
-          { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
+          { to: "/app/checklists", label: "Banco de checklists", icon: ClipboardList },
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
       },
@@ -93,7 +93,7 @@ function AppLayout() {
       {
         label: "Checklist & Flashcard",
         items: [
-          { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
+          { to: "/app/checklists", label: "Banco de checklists", icon: ClipboardList },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
@@ -130,7 +130,7 @@ function AppLayout() {
       {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
-          { to: "/app/estacoes", label: "Checklists", icon: ClipboardList },
+          { to: "/app/checklists", label: "Checklists", icon: ClipboardList },
           
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           
@@ -215,7 +215,7 @@ function AppLayout() {
                 {section.items.map((n) => {
                   const active = isActive(n.to, n.exact);
                   const parentSlot = activeRoom?.parent ?? "estacoes";
-                  const isSalas = n.to === "/app/estacoes" && (parentSlot === "estacoes" || parentSlot === "treinar" || isAtorOnly);
+                  const isSalas = n.to === "/app/checklists" && (parentSlot === "estacoes" || parentSlot === "treinar" || isAtorOnly);
                   const hasChildren = !!n.children?.length;
                   const childActive = hasChildren && n.children!.some((c) => isActive(c.to, true));
                   return (
