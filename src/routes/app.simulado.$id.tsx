@@ -740,17 +740,15 @@ function SimuladoRunner() {
                 <span className="font-bold text-mint">{totals.earned.toFixed(2)}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="hero"
-                  disabled={!allScored}
-                  onClick={goNext}
-                >
-                  {sim.currentIndex < sim.stations.length - 1 ? (
-                    <>Próxima estação <ArrowRight className="ml-1 h-4 w-4" /></>
-                  ) : (
-                    <>Concluir simulado <CheckCircle2 className="ml-1 h-4 w-4" /></>
-                  )}
-                </Button>
+                {sim.currentIndex < sim.stations.length - 1 && (
+                  <Button
+                    variant="hero"
+                    disabled={!allScored}
+                    onClick={goNext}
+                  >
+                    Próxima estação <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </PRBlock>
