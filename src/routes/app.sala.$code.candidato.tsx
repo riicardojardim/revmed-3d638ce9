@@ -434,16 +434,6 @@ function CandidateView() {
             <PRBlock icon={ClipboardCheck} title="CHECKLIST ( PEP )" tone="emerald">
               {correctionReady ? (
                 <div className="space-y-4">
-                  <div className="rounded-xl bg-background/60 p-4 text-center">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sua nota</div>
-                    <div className="mt-1 font-display text-3xl font-bold text-mint tabular-nums">
-                      {evaluation!.final_score?.toFixed(2) ?? "—"} / {pct.toFixed(0)}%
-                    </div>
-                    <Badge className="mt-2" variant="outline">
-                      {evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : evaluation!.status === "repetir" ? "Pedir repetição" : "Correção em andamento"}
-                    </Badge>
-                  </div>
-
                   <ol className="space-y-3">
                     {station.checklist.map((it, idx) => {
                       const levels = [...(it.levels ?? [{ label: "Inadequado", points: 0 }, { label: "Adequado", points: it.points }])].sort((a, b) => a.points - b.points);
