@@ -202,7 +202,7 @@ function AppLayout() {
     <OnlinePresenceProvider>
     <div className="flex min-h-screen w-full bg-background">
       {/* Desktop sidebar — fixa */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar">
 
         <div className="px-6 py-5">
           <Logo />
@@ -300,7 +300,7 @@ function AppLayout() {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8">
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2">
             <Logo />
           </div>
           <div className="flex flex-1 items-center gap-2 overflow-hidden font-sans">
@@ -333,13 +333,13 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-24 pt-6 lg:px-8 lg:pb-10">
+        <main className="flex-1 px-4 pb-32 pt-6 lg:px-8">
           <Outlet />
         </main>
 
-        {/* Mobile bottom dock — estilo app nativo (flutuante) */}
+        {/* Bottom dock — em todas as larguras */}
         <nav
-          className="fixed bottom-3 left-1/2 z-40 w-[min(94vw,440px)] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/80 shadow-elegant backdrop-blur-xl lg:hidden"
+          className="fixed bottom-3 left-1/2 z-40 w-[min(94vw,440px)] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/80 shadow-elegant backdrop-blur-xl"
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
         >
           <div className="flex items-stretch justify-around gap-1 px-2 py-1.5">
