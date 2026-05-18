@@ -381,12 +381,16 @@ function CandidateView() {
     );
   }
 
-  // Se há um avaliado selecionado e NÃO sou eu, sou espectador: fico no lobby até a próxima estação.
+  // Espectador: outro candidato foi selecionado para ser avaliado.
+  // Ele acompanha a estação (vê cenário, tarefa, materiais) mas não recebe PEP nem resultado,
+  // e futuramente não poderá falar no áudio/vídeo (só escutar).
   const isSpectator = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id !== user.id);
-  const isWaiting = isSpectator || (room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished);
-  const isRunning = !isSpectator && room.status === "running" && !finished;
+  // Lobby só quando a sala ainda não começou (ou está entre estações). Espectador NÃO fica no lobby
+  // durante uma estação rodando — ele acompanha junto.
+  const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
+  const isRunning = room.status === "running" && !finished;
   const isFinished = !isSpectator && (finished || room.status === "finished");
-  const correctionReady = !!evaluation && (isFinished || evaluation.preview_for_candidate);
+  const correctionReady = !isSpectator && !!evaluation && (isFinished || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
   const allScored = !!evaluation && station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
   const resultSaved = !!evaluation && (evaluation.status === "aprovado" || evaluation.status === "reprovado");
