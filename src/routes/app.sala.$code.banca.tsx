@@ -757,6 +757,7 @@ function EvaluatorView() {
           </div>
         </aside>
       </div>
+      <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
     </div>
   );
 }
