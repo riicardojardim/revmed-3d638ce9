@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, ChevronRight, ChevronDown, ListOrdered } from "lucide-react";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
+import { ResetStatsButton } from "@/components/ResetStatsButton";
 
 export const Route = createFileRoute("/app/historico")({
   component: Historico,
@@ -32,20 +33,19 @@ function Historico() {
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
   const [detailId, setDetailId] = useState<string | null>(null);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
     setLoading(true);
-    supabase
+    const { data } = await supabase
       .from("attempts")
       .select("id, station_title, specialty, score, created_at, used_seconds, simulado_id, simulado_name, simulado_station_index, simulado_total_stations")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(200)
-      .then(({ data }) => {
-        setItems((data ?? []) as Attempt[]);
-        setLoading(false);
-      });
-  }, [user]);
+      .limit(200);
+    setItems((data ?? []) as Attempt[]);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
 
   // Pense (estação única): tentativas SEM simulado OU simulados com apenas 1 estação
   const penseItems = useMemo(
@@ -79,9 +79,12 @@ function Historico() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">Histórico</h1>
-        <p className="text-sm text-muted-foreground">Seus treinos anteriores.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Histórico</h1>
+          <p className="text-sm text-muted-foreground">Seus treinos anteriores.</p>
+        </div>
+        <ResetStatsButton scope="attempts" label="Resetar histórico" onDone={load} />
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">

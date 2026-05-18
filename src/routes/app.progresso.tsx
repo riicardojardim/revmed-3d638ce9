@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10, MEDAL_SPECIALTIES, getSpecAvg } from "@/components/SpecialtyMedals";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import { ResetStatsButton } from "@/components/ResetStatsButton";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
@@ -30,19 +31,19 @@ function ProgressPage() {
   const [attempts, setAttempts] = useState<DbAttempt[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
-    supabase
+    setLoading(true);
+    const { data } = await supabase
       .from("attempts")
       .select("id, station_id, station_title, specialty, score, status, created_at, professor_score, reviewed_at, professor_feedback")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(500)
-      .then(({ data }) => {
-        setAttempts((data ?? []) as DbAttempt[]);
-        setLoading(false);
-      });
-  }, [user]);
+      .limit(500);
+    setAttempts((data ?? []) as DbAttempt[]);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
 
   const specStats = useMemo(() => {
     const m = new Map<string, { sum: number; n: number }>();
@@ -63,11 +64,14 @@ function ProgressPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">Sua evolução</h1>
-        <p className="mt-1 text-muted-foreground">
-          Acompanhe seu desempenho por competência e histórico de estações.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Sua evolução</h1>
+          <p className="mt-1 text-muted-foreground">
+            Acompanhe seu desempenho por competência e histórico de estações.
+          </p>
+        </div>
+        <ResetStatsButton scope="attempts" onDone={load} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

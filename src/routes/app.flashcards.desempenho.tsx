@@ -4,6 +4,7 @@ import { ArrowLeft, Trophy, Clock, Target, Brain, TrendingUp, Award } from "luci
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { ResetStatsButton } from "@/components/ResetStatsButton";
 
 export const Route = createFileRoute("/app/flashcards/desempenho")({
   component: Desempenho,
@@ -33,18 +34,17 @@ function Desempenho() {
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("flashcard_reviews")
-        .select("card_id, reviews_count, last_quality, last_time_seconds, total_time_seconds, ease, flashcards!inner(id, specialty, front, deck)")
-        .eq("user_id", user.id);
-      setRows((data as any) ?? []);
-      setLoading(false);
-    })();
-  }, [user]);
+    setLoading(true);
+    const { data } = await supabase
+      .from("flashcard_reviews")
+      .select("card_id, reviews_count, last_quality, last_time_seconds, total_time_seconds, ease, flashcards!inner(id, specialty, front, deck)")
+      .eq("user_id", user.id);
+    setRows((data as any) ?? []);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
 
   const stats = useMemo(() => {
     const totalCards = rows.length;
@@ -88,9 +88,12 @@ function Desempenho() {
         <ArrowLeft className="h-4 w-4" /> Flashcards
       </Link>
 
-      <div>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">Meu Desempenho</h1>
-        <p className="text-sm text-muted-foreground">Acompanhe sua evolução nos flashcards.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Meu Desempenho</h1>
+          <p className="text-sm text-muted-foreground">Acompanhe sua evolução nos flashcards.</p>
+        </div>
+        <ResetStatsButton scope="flashcards" onDone={load} />
       </div>
 
       {stats.totalCards === 0 ? (
