@@ -119,7 +119,7 @@ function CandidateView() {
   async function loadEvaluation(roomId: string) {
     if (!user) return;
     const { data } = await supabase.from("room_evaluations")
-      .select("final_score, status, final_feedback, checks, item_comments")
+      .select("final_score, status, final_feedback, checks, item_comments, preview_for_candidate")
       .eq("room_id", roomId)
       .eq("candidate_id", user.id)
       .maybeSingle();
@@ -129,6 +129,7 @@ function CandidateView() {
       final_feedback: data.final_feedback,
       checks: (data.checks ?? {}) as Record<string, number>,
       item_comments: (data.item_comments ?? {}) as Record<string, string>,
+      preview_for_candidate: !!(data as { preview_for_candidate?: boolean }).preview_for_candidate,
     });
   }
 
