@@ -357,6 +357,34 @@ function CandidateView() {
         </div>
       </div>
 
+      {showSavingBanner && (
+        <div
+          className={cn(
+            "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm shadow-elegant",
+            resultSaved ? "border-mint/30 bg-mint/10" : "border-mint/30 bg-mint/5",
+          )}
+        >
+          {resultSaved ? (
+            <CheckCheck className="h-5 w-5 shrink-0 text-mint" />
+          ) : (
+            <span className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-mint border-t-transparent" />
+          )}
+          <div className="leading-tight">
+            {resultSaved ? (
+              <>
+                <span className="font-semibold text-foreground">Resultado salvo!</span>{" "}
+                <span className="text-muted-foreground">Disponível em <span className="font-medium text-foreground">Desempenho</span> e a estação no <span className="font-medium text-foreground">Histórico</span>.</span>
+              </>
+            ) : (
+              <>
+                <span className="font-semibold text-foreground">Salvando seu resultado...</span>{" "}
+                <span className="text-muted-foreground">Em instantes ficará disponível em <span className="font-medium text-foreground">Desempenho</span> e a estação no <span className="font-medium text-foreground">Histórico</span>.</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
