@@ -259,7 +259,7 @@ function AppLayout() {
                           })}
                         </div>
                       )}
-                      {isSalas && activeRoom && (
+                      {isSalas && activeRoom && (pathname.startsWith(`/app/sala/${activeRoom.code}`) || (!!activeRoom.path && pathname.startsWith(activeRoom.path))) && (
                         <div className="ml-7 mt-1 border-l border-mint/30 pl-3">
                           <Link
                             to={activeRoom.path ?? `/app/sala/${activeRoom.code}/paciente`}
