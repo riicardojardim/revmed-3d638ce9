@@ -35,7 +35,14 @@ const GENDER_OPTIONS = [
   { value: "prefiro_nao_dizer", label: "Prefiro não dizer" },
 ];
 
-const EXAM_YEARS = ["2026.1", "2026.2", "2027.1", "2027.2", "Ainda não decidi"];
+function deduceExamYear(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  if (m <= 3) return `${y}.1`;
+  if (m <= 8) return `${y}.2`;
+  return `${y + 1}.1`;
+}
 
 function ProfilePage() {
   const { user, profile, roles, signOut, refresh } = useAuth();
