@@ -4,6 +4,7 @@ import { ArrowLeft, Trophy, Clock, Target, Brain, TrendingUp, Award } from "luci
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { ResetStatsButton } from "@/components/ResetStatsButton";
 
 export const Route = createFileRoute("/app/flashcards/desempenho")({
   component: Desempenho,
