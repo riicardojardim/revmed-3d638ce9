@@ -46,7 +46,7 @@ function CandidateView() {
   const [finished, setFinished] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [introDone, setIntroDone] = useState(false);
-  const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null; checks: Record<string, number>; item_comments: Record<string, string> } | null>(null);
+  const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null; checks: Record<string, number>; item_comments: Record<string, string>; preview_for_candidate: boolean } | null>(null);
   const [hideTimer, setHideTimer] = useState(false);
   const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
