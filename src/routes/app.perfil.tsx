@@ -83,7 +83,16 @@ function ProfilePage() {
         : "Aluno";
 
   // -------- Personal info form --------
-  const [fullName, setFullName] = useState(profile?.full_name ?? "");
+  const splitName = (full: string | null | undefined): [string, string] => {
+    const trimmed = (full ?? "").trim();
+    if (!trimmed) return ["", ""];
+    const parts = trimmed.split(/\s+/);
+    const first = parts.shift() ?? "";
+    return [first, parts.join(" ")];
+  };
+  const [initialFirst, initialLast] = splitName(profile?.full_name);
+  const [firstName, setFirstName] = useState(initialFirst);
+  const [lastName, setLastName] = useState(initialLast);
   const [title, setTitle] = useState<string>(profile?.title ?? "");
   const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
@@ -91,7 +100,9 @@ function ProfilePage() {
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
-    setFullName(profile?.full_name ?? "");
+    const [f, l] = splitName(profile?.full_name);
+    setFirstName(f);
+    setLastName(l);
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
