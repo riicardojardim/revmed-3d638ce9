@@ -427,6 +427,30 @@ function ActorView() {
     }
   }
 
+  async function togglePreview() {
+    if (!room || !user) return;
+    if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
+    const next = !previewEnabled;
+    setPreviewEnabled(next);
+    const { error } = await supabase.from("room_evaluations").upsert({
+      room_id: room.id,
+      evaluator_id: user.id,
+      candidate_id: room.evaluated_candidate_id,
+      station_id: room.station_id,
+      checks,
+      item_comments: comments,
+      final_feedback: feedback,
+      final_score: Number(score.toFixed(2)),
+      status: "em_andamento",
+      preview_for_candidate: next,
+    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    if (error) {
+      setPreviewEnabled(!next);
+      return toast.error(error.message);
+    }
+    toast.success(next ? "PEP visível para o candidato em tempo real." : "Prévia do PEP ocultada.");
+  }
+
   async function setEvaluatedCandidate(id: string) {
     if (!room) return;
     if (room.status === "running") return toast.error("Encerre a estação atual antes de trocar o avaliado.");
