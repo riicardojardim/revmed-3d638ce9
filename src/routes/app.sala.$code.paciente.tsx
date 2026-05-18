@@ -404,10 +404,10 @@ function ActorView() {
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
   latestReviewRef.current = { checks, comments, feedback, evalStatus, allScored, pct, score };
 
-  // Auto-preencher status: >=61.17% aprovado, <61.17% reprovado (apenas quando o checklist está completo)
+  // Auto-preencher status com base na nota de corte oficial do INEP (NOTA_DE_CORTE)
   useEffect(() => {
     if (!allScored) return;
-    const auto = pct >= 61.17 ? "aprovado" : "reprovado";
+    const auto = pct >= NOTA_DE_CORTE ? "aprovado" : "reprovado";
     setEvalStatus((prev) => (prev === auto ? prev : auto));
   }, [allScored, pct]);
 
