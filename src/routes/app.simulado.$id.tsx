@@ -10,7 +10,7 @@ import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
-  ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy,
+  ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy, Eye, EyeOff,
   MessageSquare, ListChecks, Theater, Inbox, FileText, PackageCheck, Send,
   Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail,
 } from "lucide-react";
