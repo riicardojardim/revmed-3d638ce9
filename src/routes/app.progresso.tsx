@@ -168,12 +168,10 @@ function ProgressPage() {
                       <div className="font-medium">{title}</div>
                       <div className="text-xs text-muted-foreground">{specialty} · {date}</div>
                     </div>
-                    {a.reviewed_at ? (
+                    {a.reviewed_at && (
                       <Badge className="bg-success/15 text-success hover:bg-success/15">
                         Prof: {a.professor_score?.toFixed(1) ?? "—"}
                       </Badge>
-                    ) : (
-                      <Badge variant="outline">{a.status}</Badge>
                     )}
                   </div>
                   {a.professor_feedback && (
