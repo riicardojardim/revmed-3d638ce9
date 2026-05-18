@@ -298,7 +298,7 @@ function Dashboard() {
                 <tr>
                   <th className="px-3 py-2">Nome</th>
                   <th className="px-3 py-2 text-right">Pontos</th>
-                  <th className="px-3 py-2 text-right">Medalha</th>
+                  <th className="px-3 py-2 text-right">Troféu</th>
                 </tr>
               </thead>
               <tbody>

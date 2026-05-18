@@ -1,4 +1,4 @@
-import { Medal, Lock } from "lucide-react";
+import { Trophy, Lock } from "lucide-react";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 // Nota de corte oficial do INEP — Revalida, prova de habilidades clínicas (2ª etapa).
@@ -44,7 +44,7 @@ export function getSpecAvg(stats: SpecStats, key: string): { avg: number; n: num
 export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
   return (
     <div className="space-y-3">
-      <h3 className="font-display font-bold">Medalhas por especialidade</h3>
+      <h3 className="font-display font-bold">Troféus por especialidade</h3>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {MEDAL_SPECIALTIES.map((s) => {
           const meta = getSpecialtyMeta(s.key);
@@ -66,7 +66,7 @@ export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
                   (unlocked ? `${meta.solid} text-white shadow-elegant` : "bg-muted text-muted-foreground")
                 }
               >
-                {unlocked ? <Medal className="h-7 w-7" /> : <Lock className="h-5 w-5" />}
+                {unlocked ? <Trophy className="h-7 w-7" /> : <Lock className="h-5 w-5" />}
               </div>
               <div className={"mt-2 text-xs font-bold tracking-wider " + (unlocked ? meta.text : "text-muted-foreground")}>
                 {s.short}
