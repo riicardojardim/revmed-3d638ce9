@@ -20,6 +20,7 @@ import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientP
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
@@ -62,6 +63,7 @@ function SimuladoRunner() {
   const [remaining, setRemaining] = useState(0);
   const [duration, setDuration] = useState(10);
   const [delivered, setDelivered] = useState<Set<string>>(new Set());
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   const [highlights, setHighlights] = useState<Record<string, boolean>>({});
@@ -1058,7 +1060,13 @@ function SimuladoRunner() {
               <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Participantes ({candidates.length})
               </div>
-              <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
+              <button
+                type="button"
+                onClick={() => setInviteOpen(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-mint/40 bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint transition hover:bg-mint/20"
+              >
+                <UserPlus className="h-3 w-3" /> Convidar amigo
+              </button>
             </div>
             {candidates.length === 0 ? (
               <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
@@ -1169,6 +1177,14 @@ function SimuladoRunner() {
             Clique fora ou pressione × para fechar
           </div>
         </div>
+      )}
+      {sim?.roomId && current?.id && (
+        <InviteUserDialog
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+          roomId={sim.roomId}
+          stationId={current.id}
+        />
       )}
     </div>
     </>
