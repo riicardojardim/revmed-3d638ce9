@@ -12,30 +12,30 @@ export const Route = createFileRoute("/app/perfil")({
 
 function ProfilePage() {
   const { user, profile, roles, signOut } = useAuth();
-  const { plan, daysLeft, loading: subLoading } = useSubscription();
+  const { plan, daysLeft, loading: subLoading, isCompletoLike, isAtorOnly } = useSubscription();
   const nav = useNavigate();
-  const isAtorPlan = plan?.slug === "ator" && !plan.expired;
-  // Note: institutional access (admin/professor) is intentionally hidden from
-  // the public profile. Privileged users keep their bypass in app logic but
-  // see the same plan UI as a regular candidato. The internal institutional
-  // panel lives under a hidden admin-only route.
+  const isAtorPlan = isAtorOnly;
+  const isMonthly = plan?.slug === "completo_mensal" && !plan.expired;
+  const isCompletoPlan = plan?.slug === "completo" && !plan.expired;
   const planName = isAtorPlan
     ? "Plano Ator"
-    : plan && !plan.expired
-      ? `Plano ${plan.name}`
-      : "Plano Free";
+    : isMonthly
+      ? "Plano Completo Mensal"
+      : isCompletoPlan
+        ? "Plano Completo"
+        : plan && !plan.expired
+          ? `Plano ${plan.name}`
+          : "Plano Free";
   const planDescription = isAtorPlan
     ? "Você atua como ator em salas de treino."
-    : plan?.slug === "completo"
+    : isCompletoLike
       ? "Acesso completo a estações, flashcards, resumos e correções."
       : "Atualize para desbloquear todas as estações e correção do professor.";
-  const planStatus = isAtorPlan
-    ? "Ativo"
-    : plan && !plan.expired
-      ? plan.status === "trialing"
-        ? `Teste · ${daysLeft ?? 0} dias`
-        : "Ativo"
-      : "Inativo";
+  const planStatus = isAtorPlan || isCompletoLike
+    ? plan?.status === "trialing"
+      ? `Teste · ${daysLeft ?? 0} dias`
+      : "Ativo"
+    : "Inativo";
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "—";
   const initial = displayName.charAt(0).toUpperCase();
   const roleLabel = isAtorPlan
