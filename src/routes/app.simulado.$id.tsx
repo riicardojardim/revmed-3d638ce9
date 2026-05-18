@@ -67,6 +67,7 @@ function SimuladoRunner() {
   const [copied, setCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [roomStatus, setRoomStatus] = useState("waiting");
 
   // Load simulado
   useEffect(() => {
@@ -99,6 +100,7 @@ function SimuladoRunner() {
         setEvalStatus("em_andamento");
         setShowAnalysis(false);
         setPreviewEnabled(false);
+        setRoomStatus("waiting");
       }
     });
   }, [sim?.currentIndex, sim?.id, sim?.finished]);
@@ -111,11 +113,23 @@ function SimuladoRunner() {
       // If we already have a room, just sync its station to the current one.
       if (sim.roomId) {
         const cur = sim.stations[sim.currentIndex];
-        await supabase.from("training_rooms")
-          .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
-          .eq("id", sim.roomId);
         const { data: r } = await supabase.from("training_rooms")
-          .select("evaluated_candidate_id").eq("id", sim.roomId).maybeSingle();
+          .select("station_id, status, evaluated_candidate_id, duration_minutes").eq("id", sim.roomId).maybeSingle();
+        if (r?.station_id === cur.id && r.status === "finished") {
+          if (!cancelled) {
+            setRoomStatus("finished");
+            setFinishedStation(true);
+            setPreviewEnabled(true);
+            setRunning(false);
+            setRemaining(0);
+            setDuration((r.duration_minutes as number | null) ?? station.durationMinutes ?? 10);
+          }
+        } else {
+          await supabase.from("training_rooms")
+            .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
+            .eq("id", sim.roomId);
+          if (!cancelled) setRoomStatus("waiting");
+        }
         if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
         await refreshCandidates(sim.roomId);
         return;
@@ -133,6 +147,7 @@ function SimuladoRunner() {
         duration_minutes: station.durationMinutes ?? 10,
       }).select("id, code").single();
       if (error || !created) { console.error(error); return; }
+      if (!cancelled) setRoomStatus("waiting");
       setSim((prev) => {
         if (!prev) return prev;
         const next = { ...prev, roomId: created.id as string, roomCode: created.code as string };
@@ -210,8 +225,9 @@ function SimuladoRunner() {
         }
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${roomId}` }, (payload) => {
-        const row = payload.new as { evaluated_candidate_id: string | null };
+        const row = payload.new as { evaluated_candidate_id: string | null; status?: string | null };
         setEvaluatedCandidateId(row.evaluated_candidate_id ?? null);
+        if (row.status) setRoomStatus(row.status);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -288,33 +304,60 @@ function SimuladoRunner() {
   }, [station, checks]);
 
   const allScored = totals.count > 0 && totals.scored === totals.count;
+  const isStationFinished = finishedStation || roomStatus === "finished";
+
+  function computeEvaluationTotals(sourceChecks: Record<string, number>) {
+    if (!station) return { count: 0, scored: 0, earned: 0, total: 0 };
+    let scored = 0, earned = 0, total = 0;
+    for (const it of station.checklist) {
+      total += it.points;
+      const value = sourceChecks[it.id];
+      if (typeof value === "number") {
+        scored++;
+        earned += value;
+      }
+    }
+    return { count: station.checklist.length, scored, earned, total };
+  }
+
+  async function syncEvaluationToCandidate(
+    sourceChecks = checks,
+    sourceComments = comments,
+    sourceFeedback = feedback,
+  ) {
+    if (!(previewEnabled || isStationFinished) || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    const stationId = sim.stations[sim.currentIndex]?.id;
+    if (!stationId) return;
+    const nextTotals = computeEvaluationTotals(sourceChecks);
+    const nextAllScored = nextTotals.count > 0 && nextTotals.scored === nextTotals.count;
+    const pct = nextTotals.total > 0 ? (nextTotals.earned / nextTotals.total) * 100 : 0;
+    const resolvedStatus = isStationFinished && nextAllScored
+      ? (pct >= 61.17 ? "aprovado" : "reprovado")
+      : "em_andamento";
+
+    const { error } = await supabase.from("room_evaluations").upsert({
+      room_id: sim.roomId,
+      evaluator_id: user.id,
+      candidate_id: evaluatedCandidateId,
+      station_id: stationId,
+      checks: sourceChecks,
+      item_comments: sourceComments,
+      final_feedback: sourceFeedback,
+      final_score: Number(nextTotals.earned.toFixed(2)),
+      status: resolvedStatus,
+      preview_for_candidate: true,
+    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    if (error) console.error(error);
+  }
 
   // Auto-sincroniza a prévia do PEP enquanto estiver habilitada OU após o encerramento
   useEffect(() => {
-    if (!(previewEnabled || finishedStation) || !sim?.roomId || !user || !evaluatedCandidateId) return;
-    const roomId = sim.roomId;
-    const stationId = sim.stations[sim.currentIndex]?.id;
-    if (!stationId) return;
+    if (!(previewEnabled || isStationFinished) || !sim?.roomId || !user || !evaluatedCandidateId) return;
     const t = setTimeout(() => {
-      const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
-      const resolvedStatus = finishedStation && allScored
-        ? (pct >= 61.17 ? "aprovado" : "reprovado")
-        : "em_andamento";
-      void supabase.from("room_evaluations").upsert({
-        room_id: roomId,
-        evaluator_id: user.id,
-        candidate_id: evaluatedCandidateId,
-        station_id: stationId,
-        checks,
-        item_comments: comments,
-        final_feedback: feedback,
-        final_score: Number(totals.earned.toFixed(2)),
-        status: resolvedStatus,
-        preview_for_candidate: true,
-      }, { onConflict: "room_id,evaluator_id,candidate_id" });
+      void syncEvaluationToCandidate(checks, comments, feedback);
     }, 400);
     return () => clearTimeout(t);
-  }, [previewEnabled, finishedStation, allScored, checks, comments, feedback, totals.earned, totals.total, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
+  }, [previewEnabled, isStationFinished, checks, comments, feedback, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
 
   async function togglePreview() {
     if (!sim?.roomId || !user) return;
@@ -357,15 +400,16 @@ function SimuladoRunner() {
   }
 
   function pickLevel(itemId: string, points: number) {
+    const nextChecks = { ...checks };
+    if (nextChecks[itemId] === points) delete nextChecks[itemId];
+    else nextChecks[itemId] = points;
     updateCurrent((s) => {
-      const c = { ...s.checks };
-      if (c[itemId] === points) delete c[itemId];
-      else c[itemId] = points;
-      const earned = Object.values(c).reduce((a, b) => a + b, 0);
+      const earned = Object.values(nextChecks).reduce((a, b) => a + b, 0);
       const maxScore = station ? station.checklist.reduce((a, it) => a + it.points, 0) : s.maxScore;
-      const completed = station ? Object.keys(c).length === station.checklist.length : false;
-      return { ...s, checks: c, score: earned, maxScore, completed };
+      const completed = station ? Object.keys(nextChecks).length === station.checklist.length : false;
+      return { ...s, checks: nextChecks, score: earned, maxScore, completed };
     });
+    void syncEvaluationToCandidate(nextChecks, comments, feedback);
   }
 
   async function startTimer() {
@@ -382,6 +426,7 @@ function SimuladoRunner() {
           started_at: startsAtIso,
           duration_minutes: duration,
         }).eq("id", sim.roomId);
+        setRoomStatus("starting");
       } catch (e) { console.error(e); }
     }
   }
@@ -393,6 +438,7 @@ function SimuladoRunner() {
         .update({ status: "running" })
         .eq("id", sim.roomId)
         .eq("status", "starting");
+      setRoomStatus("running");
     }
   }
   async function finishTimer(auto = false) {
@@ -435,6 +481,7 @@ function SimuladoRunner() {
         toast.error(roomError.message);
         return;
       }
+      setRoomStatus("finished");
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
@@ -773,7 +820,11 @@ function SimuladoRunner() {
                       )}
                       <Textarea
                         value={comments[it.id] ?? ""}
-                        onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
+                        onChange={(e) => {
+                          const nextComments = { ...comments, [it.id]: e.target.value };
+                          setComments(nextComments);
+                          void syncEvaluationToCandidate(checks, nextComments, feedback);
+                        }}
                         placeholder="Comentário (opcional)"
                         rows={2}
                         className="mt-3"
@@ -815,7 +866,11 @@ function SimuladoRunner() {
               </div>
               <Textarea
                 value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
+                onChange={(e) => {
+                  const nextFeedback = e.target.value;
+                  setFeedback(nextFeedback);
+                  void syncEvaluationToCandidate(checks, comments, nextFeedback);
+                }}
                 rows={4}
                 placeholder="Pontos fortes, pontos a melhorar..."
                 className="mt-2"
