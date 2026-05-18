@@ -87,9 +87,12 @@ function Desempenho() {
         <ArrowLeft className="h-4 w-4" /> Flashcards
       </Link>
 
-      <div>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">Meu Desempenho</h1>
-        <p className="text-sm text-muted-foreground">Acompanhe sua evolução nos flashcards.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Meu Desempenho</h1>
+          <p className="text-sm text-muted-foreground">Acompanhe sua evolução nos flashcards.</p>
+        </div>
+        <ResetStatsButton scope="flashcards" onDone={load} />
       </div>
 
       {stats.totalCards === 0 ? (
