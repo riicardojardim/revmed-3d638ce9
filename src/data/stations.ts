@@ -604,9 +604,9 @@ export const STATIONS: Station[] = [
 
 export const SPECIALTIES: Specialty[] = [
   "Clínica Médica",
-  "Pediatria",
-  "Ginecologia e Obstetrícia",
   "Cirurgia",
+  "Ginecologia e Obstetrícia",
+  "Pediatria",
   "Medicina da Família",
   "Urgência e Emergência",
 ];
