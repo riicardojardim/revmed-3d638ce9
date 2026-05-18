@@ -75,8 +75,8 @@ function TrainPage() {
   }
   function startSimulado() {
     if (!user) { toast.error("Faça login para criar um simulado."); return; }
-    if (selected.length === 0) {
-      toast.error("Adicione pelo menos um checklist.");
+    if (selected.length < 2) {
+      toast.error("Um simulado precisa de pelo menos 2 checklists.");
       return;
     }
     const today = new Date().toLocaleDateString("pt-BR");
