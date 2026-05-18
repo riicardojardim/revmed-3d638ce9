@@ -83,18 +83,12 @@ export function NotificationBell() {
   function labelFor(n: NotificationRow): { title: string; href?: string } {
     const p = n.payload ?? {};
     const name = (p.from_name as string) || (p.name as string) || "Alguém";
-    if (n.type === "friend_request_received") {
-      return { title: `${name} quer ser seu amigo`, href: "/app/amigos" };
-    }
-    if (n.type === "friend_request_accepted") {
-      return { title: `${name} aceitou seu pedido de amizade`, href: "/app/amigos" };
-    }
     if (n.type === "room_invite_received") {
       const code = p.room_code as string | undefined;
       const spec = p.specialty as string | undefined;
       return {
         title: `${name} te convidou pra uma estação${spec ? ` de ${spec}` : ""}`,
-        href: code ? `/app/entrar/${code}` : "/app/amigos",
+        href: code ? `/app/entrar/${code}` : undefined,
       };
     }
     return { title: n.type };
@@ -115,15 +109,6 @@ export function NotificationBell() {
       <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <span className="text-sm font-semibold">Notificações</span>
-          {items.length > 0 && (
-            <Link
-              to="/app/amigos"
-              onClick={() => setOpen(false)}
-              className="text-xs text-mint hover:underline"
-            >
-              Ver amigos
-            </Link>
-          )}
         </div>
         <div className="max-h-96 overflow-y-auto">
           {items.length === 0 ? (
