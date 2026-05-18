@@ -19,6 +19,7 @@ import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/compon
 import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
+import { ImageZoomOverlay, useImageZoom } from "@/components/ImageZoomOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
