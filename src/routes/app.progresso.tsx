@@ -4,7 +4,8 @@ import { STATIONS } from "@/data/stations";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10 } from "@/components/SpecialtyMedals";
+import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10, MEDAL_SPECIALTIES, getSpecAvg } from "@/components/SpecialtyMedals";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
@@ -36,7 +37,7 @@ function ProgressPage() {
       .select("id, station_id, station_title, specialty, score, status, created_at, professor_score, reviewed_at, professor_feedback")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(20)
+      .limit(500)
       .then(({ data }) => {
         setAttempts((data ?? []) as DbAttempt[]);
         setLoading(false);
@@ -89,6 +90,53 @@ function ProgressPage() {
             {NOTA_DE_CORTE_EDICAO} · equivale a {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
           </div>
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-display font-bold">Média por especialidade</h3>
+          <span className="text-xs text-muted-foreground">
+            Meta: ≥ <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span> (nota de corte INEP)
+          </span>
+        </div>
+        <ul className="mt-4 space-y-3">
+          {MEDAL_SPECIALTIES.map((s) => {
+            const meta = getSpecialtyMeta(s.key);
+            const { avg, n } = getSpecAvg(specStats, s.key);
+            const pct = Math.max(0, Math.min(100, (avg / 10) * 100));
+            const target = NOTA_DE_CORTE; // 0–100 scale
+            const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
+            return (
+              <li key={s.key} className="space-y-1.5">
+                <div className="flex items-baseline justify-between gap-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
+                      {s.short}
+                    </span>
+                    <span className="font-medium">{s.label}</span>
+                  </div>
+                  <div className="flex items-baseline gap-2 text-xs text-muted-foreground">
+                    <span>{n} est.</span>
+                    <span className={`font-display text-base font-bold ${hit ? meta.text : "text-foreground"}`}>
+                      {avg.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+                <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full ${meta.solid} transition-all`}
+                    style={{ width: `${pct}%` }}
+                  />
+                  <div
+                    className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-foreground/60"
+                    style={{ left: `${target}%` }}
+                    title={`Nota de corte INEP — ${NOTA_DE_CORTE.toFixed(3)} pts`}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
