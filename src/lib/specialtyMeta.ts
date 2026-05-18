@@ -55,13 +55,6 @@ const META: Record<string, SpecialtyMeta> = {
     solid: "bg-teal-500",
     text: "text-teal-400",
   },
-  "Urgência e Emergência": {
-    code: "UE",
-    badge: "bg-red-500/15 text-red-300 ring-1 ring-red-500/30",
-    card: "border-red-500/40 bg-red-500/5",
-    solid: "bg-red-500",
-    text: "text-red-400",
-  },
   "Saúde Coletiva": {
     code: "SC",
     badge: "bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30",
