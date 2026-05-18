@@ -1081,13 +1081,14 @@ function SimuladoRunner() {
                           running && !isEvaluated && "opacity-50 cursor-not-allowed",
                         )}
                       >
+                        <UserAvatar avatarUrl={c.avatarUrl} name={c.name} className="h-7 w-7 text-xs" />
+                        <span className="flex-1 truncate font-medium">{c.name}</span>
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                           isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
                         )}>
                           {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
                         </span>
-                        <span className="flex-1 truncate font-medium">{c.name}</span>
                         {isEvaluated && <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />}
                       </button>
                     </li>
