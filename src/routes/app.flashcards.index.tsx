@@ -431,7 +431,6 @@ function FlashcardsPage() {
                         className="rounded-xl border-2 border-rose-500/40 bg-card px-2 py-3 text-center font-display font-bold text-rose-500 transition hover:bg-rose-500/10 active:scale-[0.97]"
                       >
                         <div className="text-[15px]">Não sei</div>
-                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">volta em breve</div>
                       </button>
                       <button
                         onClick={() => rate(3)}
@@ -439,7 +438,6 @@ function FlashcardsPage() {
                         className="rounded-xl border-2 border-amber-500/40 bg-card px-2 py-3 text-center font-display font-bold text-amber-500 transition hover:bg-amber-500/10 active:scale-[0.97]"
                       >
                         <div className="text-[15px]">Quase</div>
-                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">curto prazo</div>
                       </button>
                       <button
                         onClick={() => rate(5)}
@@ -447,7 +445,6 @@ function FlashcardsPage() {
                         className="rounded-xl border-2 border-medical bg-card px-2 py-3 text-center font-display font-bold text-medical transition hover:bg-medical/10 active:scale-[0.97]"
                       >
                         <div className="text-[15px]">Acertei</div>
-                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">longo prazo</div>
                       </button>
                     </div>
                   </div>
