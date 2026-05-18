@@ -7,7 +7,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
-import { getSimulado, getSimuladoByRoomCode, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
+import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy, Eye, EyeOff,
@@ -38,12 +38,8 @@ function SalaDispatcher() {
   if (loading) {
     return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
   }
-  // Aceita tanto o ID do simulado (URL do ator) quanto o código da sala (link de convite),
-  // para que ator e candidato fiquem sempre na mesma sala mesmo se o ator compartilhar a URL.
-  const sim = user
-    ? (getSimulado(user.id, code) ?? getSimuladoByRoomCode(user.id, code))
-    : null;
-  if (sim) return <SimuladoRunner id={sim.id} />;
+  const sim = user ? getSimulado(user.id, code) : null;
+  if (sim) return <SimuladoRunner id={code} />;
   // Não é simulado do usuário atual → fluxo normal de sala (lobby/candidato/paciente/banca)
   return <Outlet />;
 }
@@ -164,11 +160,11 @@ function SimuladoRunner({ id }: { id: string }) {
         await refreshCandidates(sim.roomId);
         return;
       }
-      // Create the room with a short, friendly code.
-      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      // Usa o próprio ID do simulado como código da sala, para que a URL do ator e o link de
+      // convite tenham exatamente o mesmo código. Se já existir uma sala com esse código
+      // (de outro host, conflito raro), gera um código aleatório como fallback.
       const cur = sim.stations[sim.currentIndex];
-      const { data: created, error } = await supabase.from("training_rooms").insert({
-        code,
+      const baseRow = {
         host_id: user.id,
         station_id: cur.id,
         station_title: cur.title,
@@ -179,7 +175,16 @@ function SimuladoRunner({ id }: { id: string }) {
         simulado_name: sim.name,
         simulado_index: sim.currentIndex,
         simulado_total: sim.stations.length,
-      }).select("id, code").single();
+      };
+      let { data: created, error } = await supabase.from("training_rooms")
+        .insert({ ...baseRow, code: sim.id })
+        .select("id, code").single();
+      if (error && (error.code === "23505" || /duplicate|unique/i.test(error.message))) {
+        const fallbackCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+        ({ data: created, error } = await supabase.from("training_rooms")
+          .insert({ ...baseRow, code: fallbackCode })
+          .select("id, code").single());
+      }
       if (error || !created) { console.error(error); return; }
       if (!cancelled) setRoomStatus("waiting");
       setSim((prev) => {
@@ -199,7 +204,7 @@ function SimuladoRunner({ id }: { id: string }) {
       localStorage.setItem("ator:activeRoom", JSON.stringify({
         code: sim.roomCode,
         title: sim.name,
-        path: `/app/sala/${sim.roomCode}`,
+        path: `/app/sala/${sim.id}`,
         parent: (sim.stations?.length ?? 0) >= 2 ? "treinar" : "estacoes",
       }));
       window.dispatchEvent(new Event("ator:activeRoom"));
@@ -216,14 +221,6 @@ function SimuladoRunner({ id }: { id: string }) {
       } catch {}
     };
   }, [sim?.id, sim?.roomCode, sim?.name, sim?.finished]);
-
-  // Garante que a URL do ator seja o mesmo código da sala compartilhada no link de convite,
-  // para que ator e candidato sempre estejam no mesmo "endereço" da sala.
-  useEffect(() => {
-    if (!sim?.roomCode) return;
-    if (id === sim.roomCode) return;
-    nav({ to: "/app/sala/$code", params: { code: sim.roomCode }, replace: true });
-  }, [id, sim?.roomCode, nav]);
 
   async function refreshCandidates(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
