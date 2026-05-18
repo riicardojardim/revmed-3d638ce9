@@ -479,13 +479,25 @@ function SimuladoRunner() {
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
-          {/* Title bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>{meta.code}</span>
-              <h1 className="truncate font-display text-lg font-bold text-foreground md:text-xl">{station.title}</h1>
+          {/* Title bar — gradient institucional (igual ao painel do candidato) */}
+          <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-hero px-5 py-4 text-white shadow-elegant">
+            <div
+              className="pointer-events-none absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "linear-gradient(hsl(160 60% 60%) 1px, transparent 1px), linear-gradient(90deg, hsl(160 60% 60%) 1px, transparent 1px)",
+                backgroundSize: "32px 32px",
+              }}
+            />
+            <div className="relative flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>{meta.code}</span>
+                <h1 className="truncate font-display text-lg font-bold text-white md:text-xl">{station.title}</h1>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-xs text-white/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-mint" /> {station.specialty}
+              </span>
             </div>
-            <span className="text-xs text-muted-foreground">{station.specialty}</span>
           </div>
 
           <PRBlock icon={MessageSquare} title="Cenário de atuação">
