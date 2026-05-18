@@ -255,7 +255,6 @@ function ActorView() {
 
   // React to room cancellation (e.g. candidate left mid-session)
   const actorCancelledHandledRef = useRef(false);
-  const navActor = useNavigate();
   useEffect(() => {
     if (room?.status === "cancelled" && !actorCancelledHandledRef.current) {
       actorCancelledHandledRef.current = true;
@@ -264,9 +263,9 @@ function ActorView() {
         window.dispatchEvent(new Event("ator:activeRoom"));
       } catch {}
       toast.error("A sessão foi encerrada — o candidato saiu da sala. Estação cancelada.");
-      navActor({ to: "/app" });
+      nav({ to: "/app" });
     }
-  }, [room?.status, navActor]);
+  }, [room?.status, nav]);
 
   // When the evaluated candidate changes, reload draft for that candidate (or reset)
   useEffect(() => {
