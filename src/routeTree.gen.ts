@@ -15,6 +15,7 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as ECodeRouteImport } from './routes/e.$code'
+import { Route as ConviteCodeRouteImport } from './routes/convite.$code'
 import { Route as AppSuporteRouteImport } from './routes/app.suporte'
 import { Route as AppResumosRouteImport } from './routes/app.resumos'
 import { Route as AppProgressoRouteImport } from './routes/app.progresso'
@@ -87,6 +88,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const ECodeRoute = ECodeRouteImport.update({
   id: '/e/$code',
   path: '/e/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConviteCodeRoute = ConviteCodeRouteImport.update({
+  id: '/convite/$code',
+  path: '/convite/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppSuporteRoute = AppSuporteRouteImport.update({
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByTo {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -420,6 +428,7 @@ export interface FileRoutesById {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -473,6 +482,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/convite/$code'
     | '/e/$code'
     | '/app/'
     | '/app/admin/conteudo'
@@ -521,6 +531,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/convite/$code'
     | '/e/$code'
     | '/app'
     | '/app/admin/conteudo'
@@ -569,6 +580,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/convite/$code'
     | '/e/$code'
     | '/app/'
     | '/app/admin/conteudo'
@@ -608,6 +620,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   CadastroRoute: typeof CadastroRoute
   LoginRoute: typeof LoginRoute
+  ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
 }
 
@@ -653,6 +666,13 @@ declare module '@tanstack/react-router' {
       path: '/e/$code'
       fullPath: '/e/$code'
       preLoaderRoute: typeof ECodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convite/$code': {
+      id: '/convite/$code'
+      path: '/convite/$code'
+      fullPath: '/convite/$code'
+      preLoaderRoute: typeof ConviteCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/suporte': {
@@ -1148,6 +1168,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   CadastroRoute: CadastroRoute,
   LoginRoute: LoginRoute,
+  ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
 }
 export const routeTree = rootRouteImport
