@@ -98,6 +98,7 @@ function SimuladoRunner() {
         setFeedback("");
         setEvalStatus("em_andamento");
         setShowAnalysis(false);
+        setPreviewEnabled(false);
       }
     });
   }, [sim?.currentIndex, sim?.id, sim?.finished]);
