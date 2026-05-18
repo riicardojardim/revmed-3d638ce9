@@ -66,6 +66,7 @@ function SimuladoRunner() {
   const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
+  const [previewEnabled, setPreviewEnabled] = useState(false);
 
   // Load simulado
   useEffect(() => {
