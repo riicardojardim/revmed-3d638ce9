@@ -451,6 +451,10 @@ function ActorView() {
     if (!room || !user) return;
     if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
     const next = !previewEnabled;
+    if (next) {
+      const ok = window.confirm("Deseja realmente liberar o PEP para o candidato? Ele verá o preenchimento em tempo real.");
+      if (!ok) return;
+    }
     setPreviewEnabled(next);
     const { error } = await supabase.from("room_evaluations").upsert({
       room_id: room.id,
@@ -468,7 +472,7 @@ function ActorView() {
       setPreviewEnabled(!next);
       return toast.error(error.message);
     }
-    toast.success(next ? "PEP visível para o candidato em tempo real." : "Prévia do PEP ocultada.");
+    toast.success(next ? "PEP liberado para o candidato em tempo real." : "Prévia do PEP ocultada.");
   }
 
   async function setEvaluatedCandidate(id: string) {
