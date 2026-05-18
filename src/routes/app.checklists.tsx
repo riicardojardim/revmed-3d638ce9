@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
+import { InviteFriendToRoomDialog } from "@/components/InviteFriendToRoomDialog";
+import { Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/checklists")({
@@ -45,6 +47,7 @@ function StationsPage() {
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpec, setAllSpec] = useState<Specialty | "Todas">("Todas");
+  const [inviteStation, setInviteStation] = useState<ListStation | null>(null);
 
   function startStation(s: ListStation) {
     if (!user) { toast.error("Faça login para iniciar."); return; }
@@ -189,6 +192,9 @@ function StationsPage() {
                     <Button variant="hero" className="mt-5 w-full" onClick={() => startStation(s)}>
                       Iniciar estação <ArrowRight className="h-4 w-4" />
                     </Button>
+                    <Button variant="outline" className="mt-2 w-full" onClick={() => setInviteStation(s)}>
+                      <Users className="h-4 w-4" /> Convidar amigo
+                    </Button>
                   </div>
                 );
               })}
@@ -234,6 +240,11 @@ function StationsPage() {
         </aside>
       </div>
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
+      <InviteFriendToRoomDialog
+        open={!!inviteStation}
+        onOpenChange={(v) => { if (!v) setInviteStation(null); }}
+        preselectedStation={inviteStation ? { id: inviteStation.id, title: inviteStation.title, specialty: inviteStation.specialty } : null}
+      />
 
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
         <DialogContent className="max-w-3xl overflow-hidden">

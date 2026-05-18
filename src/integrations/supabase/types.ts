@@ -326,6 +326,81 @@ export type Database = {
           },
         ]
       }
+      friend_requests: {
+        Row: {
+          created_at: string
+          from_user: string
+          id: string
+          responded_at: string | null
+          status: string
+          to_user: string
+        }
+        Insert: {
+          created_at?: string
+          from_user: string
+          id?: string
+          responded_at?: string | null
+          status?: string
+          to_user: string
+        }
+        Update: {
+          created_at?: string
+          from_user?: string
+          id?: string
+          responded_at?: string | null
+          status?: string
+          to_user?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          id: string
+          user_a: string
+          user_b: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_a: string
+          user_b: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_a?: string
+          user_b?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          read_at: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          read_at?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          read_at?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           active: boolean
@@ -381,6 +456,7 @@ export type Database = {
           id: string
           title: string | null
           updated_at: string
+          username: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -392,6 +468,7 @@ export type Database = {
           id: string
           title?: string | null
           updated_at?: string
+          username?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -403,6 +480,7 @@ export type Database = {
           id?: string
           title?: string | null
           updated_at?: string
+          username?: string | null
           whatsapp?: string | null
         }
         Relationships: []
@@ -459,6 +537,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "room_evaluations_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "training_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_invites: {
+        Row: {
+          created_at: string
+          from_user: string
+          id: string
+          responded_at: string | null
+          room_id: string
+          station_id: string
+          status: string
+          to_user: string
+        }
+        Insert: {
+          created_at?: string
+          from_user: string
+          id?: string
+          responded_at?: string | null
+          room_id: string
+          station_id: string
+          status?: string
+          to_user: string
+        }
+        Update: {
+          created_at?: string
+          from_user?: string
+          id?: string
+          responded_at?: string | null
+          room_id?: string
+          station_id?: string
+          status?: string
+          to_user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_invites_room_id_fkey"
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "training_rooms"
@@ -762,12 +881,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_friend_request: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      send_friend_request: { Args: { _to_user: string }; Returns: string }
+      send_room_invite: {
+        Args: { _room_id: string; _station_id: string; _to_user: string }
+        Returns: string
       }
     }
     Enums: {

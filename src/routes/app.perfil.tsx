@@ -96,6 +96,8 @@ function ProfilePage() {
   const [title, setTitle] = useState<string>(profile?.title ?? "");
   const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
+  const [username, setUsername] = useState<string>(profile?.username ?? "");
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const examYear = profile?.exam_year || deduceExamYear();
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -106,8 +108,16 @@ function ProfilePage() {
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
-    
+    setUsername(profile?.username ?? "");
   }, [profile]);
+
+  function validateUsername(v: string): string | null {
+    if (!v) return null; // opcional
+    if (!/^[a-z0-9._]{3,20}$/.test(v)) {
+      return "Use 3–20 caracteres: letras minúsculas, números, ponto ou _";
+    }
+    return null;
+  }
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
@@ -117,6 +127,10 @@ function ProfilePage() {
       toast.error("WhatsApp inválido. Use o formato (XX) 9XXXX-XXXX.");
       return;
     }
+    const uname = username.trim().toLowerCase();
+    const uErr = validateUsername(uname);
+    if (uErr) { setUsernameError(uErr); toast.error(uErr); return; }
+    setUsernameError(null);
     setSavingProfile(true);
     const composedName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
     const { error } = await supabase
@@ -127,11 +141,16 @@ function ProfilePage() {
         gender: gender || null,
         whatsapp: digits || null,
         exam_year: examYear || null,
+        username: uname || null,
       })
       .eq("id", user.id);
     setSavingProfile(false);
     if (error) {
-      toast.error("Não foi possível salvar: " + error.message);
+      if (error.code === "23505") {
+        toast.error("Esse @username já está em uso.");
+      } else {
+        toast.error("Não foi possível salvar: " + error.message);
+      }
       return;
     }
     toast.success("Perfil atualizado!");
@@ -297,7 +316,24 @@ function ProfilePage() {
                 ))}
               </SelectContent>
             </Select>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="username">@username</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">@</span>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => { setUsername(e.target.value.toLowerCase()); setUsernameError(null); }}
+                placeholder="seunome"
+                maxLength={20}
+                autoComplete="off"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {usernameError ?? "Como seus amigos vão te encontrar. 3–20 caracteres, letras minúsculas, números, ponto ou _."}
+            </p>
           </div>
+        </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="whatsapp">WhatsApp</Label>

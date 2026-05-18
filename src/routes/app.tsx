@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { UserAvatar } from "@/components/UserAvatar";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   Home,
   ClipboardList,
@@ -99,6 +100,7 @@ function AppLayout() {
             { to: "/app/flashcards/revisao", label: "Revisão" },
           ]},
           
+          { to: "/app/amigos", label: "Amigos", icon: Users },
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
@@ -313,9 +315,7 @@ function AppLayout() {
             </a>
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Notificações">
-              <Bell className="h-5 w-5" />
-            </Button>
+            <NotificationBell />
             <UserAvatar
               avatarUrl={profile?.avatar_url}
               name={profile?.full_name ?? user.email}
