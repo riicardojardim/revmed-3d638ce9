@@ -250,13 +250,24 @@ function ProfilePage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2 space-y-1.5">
-            <Label htmlFor="fullName">Nome completo</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="firstName">Nome</Label>
             <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Como aparece no seu diploma"
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Seu nome"
+              autoComplete="given-name"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lastName">Sobrenome</Label>
+            <Input
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Seu sobrenome"
+              autoComplete="family-name"
             />
           </div>
 
