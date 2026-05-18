@@ -277,7 +277,7 @@ function SimuladoRunner({ id }: { id: string }) {
   }
 
   async function copyInviteLink() {
-    const link = `https://estacaorevalida.com.br/app/sala/${sim?.roomCode ?? ""}`;
+    const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
@@ -286,15 +286,15 @@ function SimuladoRunner({ id }: { id: string }) {
     } catch { toast.error("Não foi possível copiar."); }
   }
   function shareWhatsApp() {
-    const link = `https://estacaorevalida.com.br/app/sala/${sim?.roomCode ?? ""}`;
+    const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(`Vamos treinar um simulado no Estação Revalida 🩺\nEntre: ${link}`)}`, "_blank", "noopener,noreferrer");
   }
   function shareEmail() {
-    const link = `https://estacaorevalida.com.br/app/sala/${sim?.roomCode ?? ""}`;
+    const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
     window.location.href = `mailto:?subject=${encodeURIComponent("Convite — Simulado Estação Revalida")}&body=${encodeURIComponent(`Entre pelo link: ${link}\n\nCódigo: ${sim?.roomCode ?? ""}`)}`;
   }
   async function shareNative() {
-    const link = `https://estacaorevalida.com.br/app/sala/${sim?.roomCode ?? ""}`;
+    const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try { await navigator.share({ title: "Estação Revalida", text: "Entre no simulado:", url: link }); return; } catch {}
     }
@@ -1129,7 +1129,7 @@ function SimuladoRunner({ id }: { id: string }) {
                 className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
               >
                 <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
-                <span className="flex-1 truncate font-mono text-[11px] text-foreground">estacaorevalida.com.br/app/sala/{sim.roomCode}</span>
+                <span className="flex-1 truncate font-mono text-[11px] text-foreground">estacaorevalida.com.br/convite/{sim.roomCode}</span>
                 {copied ? (
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
                     <Check className="h-3 w-3" /> Copiado

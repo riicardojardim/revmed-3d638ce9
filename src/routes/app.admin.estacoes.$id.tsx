@@ -2199,7 +2199,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                   </div>
                   <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-xs">
                     <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
-                    <span className="truncate">estacaorevalida.com.br/app/sala/PRÉVIA</span>
+                    <span className="truncate">estacaorevalida.com.br/convite/PRÉVIA</span>
                     <Copy className="ml-auto h-3.5 w-3.5 text-muted-foreground" />
                   </div>
                   <div className="mt-3 grid grid-cols-3 gap-2">
