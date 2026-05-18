@@ -18,7 +18,7 @@ export const MEDAL_SPECIALTIES: { key: string; label: string; short: string }[] 
   { key: "Cirurgia", label: "Cirurgia", short: "CR" },
   { key: "Pediatria", label: "Pediatria", short: "PE" },
   { key: "Ginecologia e Obstetrícia", label: "Ginecologia e Obstetrícia", short: "GO" },
-  { key: "Medicina de Família e Comunidade", label: "MFC / Preventiva", short: "MFC" },
+  { key: "Medicina de Família e Comunidade", label: "Medicina de Família e Comunidade", short: "MFC" },
 ];
 
 export type SpecStats = Map<string, { sum: number; n: number }>;

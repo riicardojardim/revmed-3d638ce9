@@ -47,7 +47,7 @@ const SPECIALTIES: { key: string; label: string; color: string; aliases?: string
   { key: "Ginecologia e Obstetrícia", label: "GO", color: "text-pink-400" },
   {
     key: "Medicina de Família e Comunidade",
-    label: "MFC / Preventiva",
+    label: "MFC",
     color: "text-emerald-400",
     aliases: ["Preventiva", "Medicina Preventiva", "Saúde Coletiva"],
   },
