@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Frown, Meh, Smile, List, X } from "lucide-re
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
-import { getSpecialtyMeta } from "@/lib/specialtyMeta";
+import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/flashcards")({
@@ -62,7 +62,7 @@ function FlashcardsPage() {
   }, []);
 
   const specialties = useMemo(
-    () => ["Todas", ...Array.from(new Set(decks.map((d) => d.specialty)))],
+    () => ["Todas", ...sortSpecialties(Array.from(new Set(decks.map((d) => d.specialty))))],
     [decks],
   );
 

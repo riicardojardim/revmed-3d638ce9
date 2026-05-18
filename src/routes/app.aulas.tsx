@@ -7,11 +7,11 @@ export const Route = createFileRoute("/app/aulas")({
 });
 
 const areas = [
-  { name: "MFC", color: "from-orange-500/80 to-orange-600" },
-  { name: "Cirurgia", color: "from-violet-500/80 to-violet-600" },
-  { name: "Pediatria", color: "from-emerald-500/80 to-emerald-600" },
   { name: "Clínica", color: "from-sky-500/80 to-sky-600" },
+  { name: "Cirurgia", color: "from-violet-500/80 to-violet-600" },
   { name: "G.O.", color: "from-pink-500/80 to-pink-600" },
+  { name: "Pediatria", color: "from-emerald-500/80 to-emerald-600" },
+  { name: "MFC", color: "from-orange-500/80 to-orange-600" },
   { name: "Preventiva", color: "from-amber-500/80 to-amber-600" },
 ];
 

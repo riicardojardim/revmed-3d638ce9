@@ -30,10 +30,10 @@ type Deck = {
 const SPECIALTIES = [
   "Clínica Médica",
   "Cirurgia",
-  "Pediatria",
   "Ginecologia e Obstetrícia",
-  "Preventiva",
+  "Pediatria",
   "Medicina da Família",
+  "Preventiva",
   "Urgência e Emergência",
 ];
 

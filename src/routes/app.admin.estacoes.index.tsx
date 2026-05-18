@@ -30,9 +30,9 @@ interface Station {
 
 const SPECIALTIES = [
   "Clínica Médica",
-  "Pediatria",
-  "Ginecologia e Obstetrícia",
   "Cirurgia",
+  "Ginecologia e Obstetrícia",
+  "Pediatria",
   "Medicina da Família",
   "Urgência e Emergência",
 ];

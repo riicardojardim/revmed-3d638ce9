@@ -95,3 +95,50 @@ export function getSpecialtyMeta(specialty?: string | null): SpecialtyMeta {
     }
   );
 }
+
+/**
+ * Ordem canônica oficial das especialidades do Revalida (INEP).
+ * Use SEMPRE essa ordem em listas, filtros, dashboards, etc.
+ *   1. Clínica Médica
+ *   2. Cirurgia
+ *   3. Ginecologia e Obstetrícia
+ *   4. Pediatria
+ *   5. Medicina da Família e Comunidade / Preventiva
+ * Extras (fora da prova oficial) ficam no final.
+ */
+export const SPECIALTY_ORDER: string[] = [
+  "Clínica Médica",
+  "Cirurgia",
+  "Ginecologia e Obstetrícia",
+  "Pediatria",
+  "Medicina da Família",
+  "Preventiva",
+  "Saúde Coletiva",
+  "Urgência e Emergência",
+];
+
+/** Lista padrão das 5 especialidades oficiais do Revalida, na ordem certa. */
+export const REVALIDA_SPECIALTIES: string[] = [
+  "Clínica Médica",
+  "Cirurgia",
+  "Ginecologia e Obstetrícia",
+  "Pediatria",
+  "Medicina da Família",
+];
+
+/** Índice (rank) de uma especialidade segundo a ordem oficial. Desconhecidas vão pro fim. */
+export function specialtyRank(specialty?: string | null): number {
+  if (!specialty) return Number.MAX_SAFE_INTEGER;
+  const i = SPECIALTY_ORDER.indexOf(specialty);
+  return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+}
+
+/** Ordena uma lista de strings de especialidade na ordem canônica. */
+export function sortSpecialties<T extends string>(list: readonly T[]): T[] {
+  return [...list].sort((a, b) => specialtyRank(a) - specialtyRank(b));
+}
+
+/** Ordena objetos por uma chave de especialidade. */
+export function sortBySpecialty<T>(list: readonly T[], getSpec: (item: T) => string | null | undefined): T[] {
+  return [...list].sort((a, b) => specialtyRank(getSpec(a)) - specialtyRank(getSpec(b)));
+}
