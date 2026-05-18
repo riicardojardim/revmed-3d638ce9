@@ -892,6 +892,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      recent_invited_users: {
+        Args: { _limit?: number }
+        Returns: {
+          allows_candidato: boolean
+          avatar_url: string
+          email: string
+          full_name: string
+          id: string
+          last_invited_at: string
+          username: string
+        }[]
+      }
       respond_room_invite: {
         Args: { _accept: boolean; _invite_id: string }
         Returns: {
