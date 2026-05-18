@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Bell, Check, UserPlus, DoorOpen, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Bell, Check, UserPlus, DoorOpen, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type NotificationRow = {
   id: string;
@@ -31,8 +32,11 @@ function timeAgo(iso: string): string {
 
 export function NotificationBell() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const [items, setItems] = useState<NotificationRow[]>([]);
   const [open, setOpen] = useState(false);
+  const [responding, setRespondingId] = useState<string | null>(null);
+  const [responded, setResponded] = useState<Record<string, "accepted" | "declined">>({});
 
   useEffect(() => {
     if (!user) return;
@@ -53,7 +57,16 @@ export function NotificationBell() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         (payload) => {
-          setItems((prev) => [payload.new as NotificationRow, ...prev].slice(0, 20));
+          const row = payload.new as NotificationRow;
+          setItems((prev) => [row, ...prev].slice(0, 20));
+          const name = (row.payload?.from_name as string) || "Alguém";
+          if (row.type === "room_invite_accepted") {
+            toast.success(`${name} aceitou seu convite e entrou na sala`);
+          } else if (row.type === "room_invite_declined") {
+            toast.info(`${name} recusou seu convite`);
+          } else if (row.type === "room_invite_received") {
+            toast(`${name} te convidou pra uma estação`);
+          }
         },
       )
       .subscribe();
@@ -77,6 +90,8 @@ export function NotificationBell() {
     if (type === "friend_request_received") return UserPlus;
     if (type === "friend_request_accepted") return Check;
     if (type === "room_invite_received") return DoorOpen;
+    if (type === "room_invite_accepted") return Check;
+    if (type === "room_invite_declined") return X;
     return Sparkles;
   }
 
@@ -84,14 +99,45 @@ export function NotificationBell() {
     const p = n.payload ?? {};
     const name = (p.from_name as string) || (p.name as string) || "Alguém";
     if (n.type === "room_invite_received") {
-      const code = p.room_code as string | undefined;
       const spec = p.specialty as string | undefined;
-      return {
-        title: `${name} te convidou pra uma estação${spec ? ` de ${spec}` : ""}`,
-        href: code ? `/app/entrar/${code}` : undefined,
-      };
+      return { title: `${name} te convidou pra uma estação${spec ? ` de ${spec}` : ""}` };
+    }
+    if (n.type === "room_invite_accepted") {
+      return { title: `${name} aceitou seu convite e entrou na sala` };
+    }
+    if (n.type === "room_invite_declined") {
+      return { title: `${name} recusou seu convite` };
     }
     return { title: n.type };
+  }
+
+  async function respondInvite(n: NotificationRow, accept: boolean) {
+    const inviteId = n.payload?.invite_id as string | undefined;
+    if (!inviteId) return;
+    setRespondingId(n.id);
+    try {
+      const { data, error } = await supabase.rpc("respond_room_invite", {
+        _invite_id: inviteId,
+        _accept: accept,
+      });
+      if (error) throw error;
+      setResponded((s) => ({ ...s, [n.id]: accept ? "accepted" : "declined" }));
+      if (accept) {
+        const code = (data?.[0] as { room_code?: string } | undefined)?.room_code
+          ?? (n.payload?.room_code as string | undefined);
+        toast.success("Convite aceito! Entrando na sala…");
+        setOpen(false);
+        if (code) nav({ to: "/app/entrar/$code", params: { code } });
+      } else {
+        toast.info("Convite recusado.");
+      }
+    } catch (e) {
+      console.error(e);
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error(msg.includes("not pending") ? "Convite já respondido." : "Não foi possível responder ao convite.");
+    } finally {
+      setRespondingId(null);
+    }
   }
 
   return (
@@ -106,7 +152,7 @@ export function NotificationBell() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0">
+      <DropdownMenuContent align="end" className="w-96 p-0">
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <span className="text-sm font-semibold">Notificações</span>
         </div>
@@ -119,29 +165,67 @@ export function NotificationBell() {
             items.map((n) => {
               const Icon = iconFor(n.type);
               const { title, href } = labelFor(n);
+              const isRoomInvite = n.type === "room_invite_received";
+              const localState = responded[n.id];
+              const inviteResolved = isRoomInvite && !!localState;
+
+              const body = (
+                <div className="min-w-0 flex-1">
+                  <div className="line-clamp-2 text-foreground">{title}</div>
+                  <div className="text-[10px] text-muted-foreground">{timeAgo(n.created_at)}</div>
+                  {isRoomInvite && !inviteResolved && (
+                    <div className="mt-2 flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="hero"
+                        className="h-7 px-3 text-xs"
+                        disabled={responding === n.id}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); void respondInvite(n, true); }}
+                      >
+                        <Check className="h-3 w-3" /> Aceitar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-3 text-xs"
+                        disabled={responding === n.id}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); void respondInvite(n, false); }}
+                      >
+                        <X className="h-3 w-3" /> Recusar
+                      </Button>
+                    </div>
+                  )}
+                  {inviteResolved && (
+                    <div className="mt-1 text-[11px] text-muted-foreground">
+                      {localState === "accepted" ? "Convite aceito" : "Convite recusado"}
+                    </div>
+                  )}
+                </div>
+              );
+
               const content = (
                 <div
                   className={cn(
-                    "flex items-start gap-3 px-3 py-2.5 text-sm hover:bg-muted/50 cursor-pointer",
+                    "flex items-start gap-3 px-3 py-2.5 text-sm",
+                    !isRoomInvite && href && "hover:bg-muted/50 cursor-pointer",
                     !n.read_at && "bg-mint/5",
                   )}
                 >
                   <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mint/15 text-mint">
                     <Icon className="h-3.5 w-3.5" />
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-foreground">{title}</div>
-                    <div className="text-[10px] text-muted-foreground">{timeAgo(n.created_at)}</div>
-                  </div>
+                  {body}
                 </div>
               );
-              return href ? (
-                <Link key={n.id} to={href} onClick={() => setOpen(false)}>
-                  {content}
-                </Link>
-              ) : (
-                <div key={n.id}>{content}</div>
-              );
+
+              if (href && !isRoomInvite) {
+                return (
+                  <Link key={n.id} to={href} onClick={() => setOpen(false)}>
+                    {content}
+                  </Link>
+                );
+              }
+              return <div key={n.id}>{content}</div>;
             })
           )}
         </div>
