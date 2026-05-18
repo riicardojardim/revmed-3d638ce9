@@ -418,11 +418,14 @@ function CandidateView() {
         </div>
 
         <h1 className="mt-6 font-display text-3xl font-bold md:text-4xl">
-          Aguardando o ator iniciar...
+          {isSpectator ? "Aguarde sua vez..." : "Aguardando o ator iniciar..."}
         </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-          Você já está dentro da estação de <span className="font-semibold text-foreground">{station.specialty}</span>.
-          Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
+          {isSpectator ? (
+            <>Outro candidato está sendo avaliado nesta estação. Quando chegar a sua vez, o ator vai te selecionar e a próxima estação abrirá automaticamente — não precisa atualizar a página.</>
+          ) : (
+            <>Você já está dentro da estação de <span className="font-semibold text-foreground">{station.specialty}</span>. Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.</>
+          )}
         </p>
 
         <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
