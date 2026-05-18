@@ -39,6 +39,7 @@ function StationsPage() {
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [builderOpen, setBuilderOpen] = useState(false);
 
   function startStation(s: ListStation) {
     if (!user) { toast.error("Faça login para iniciar."); return; }
