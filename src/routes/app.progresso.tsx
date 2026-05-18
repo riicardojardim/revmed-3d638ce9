@@ -43,6 +43,18 @@ function ProgressPage() {
       });
   }, [user]);
 
+  const specStats = useMemo(() => {
+    const m = new Map<string, { sum: number; n: number }>();
+    attempts.forEach((a) => {
+      const k = a.specialty ?? "Outras";
+      const cur = m.get(k) ?? { sum: 0, n: 0 };
+      cur.sum += Number(a.score) || 0;
+      cur.n += 1;
+      m.set(k, cur);
+    });
+    return m;
+  }, [attempts]);
+
   const avg =
     attempts.length > 0
       ? attempts.reduce((s, a) => s + Number(a.score), 0) / attempts.length
