@@ -78,20 +78,23 @@ function ProgressPage() {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <h3 className="font-semibold">Competências</h3>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {COMPETENCIES.map((c) => (
-            <div key={c.name}>
-              <div className="flex justify-between text-sm">
-                <span>{c.name}</span>
-                <span className="font-medium text-medical">{c.value}%</span>
+          {COMPETENCIES.map((c) => {
+            const value = attempts.length > 0 ? Math.round(avg * 10) : 0;
+            return (
+              <div key={c.name}>
+                <div className="flex justify-between text-sm">
+                  <span>{c.name}</span>
+                  <span className="font-medium text-medical">{value}%</span>
+                </div>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-gradient-mint transition-all"
+                    style={{ width: `${value}%` }}
+                  />
+                </div>
               </div>
-              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-gradient-mint"
-                  style={{ width: `${c.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
