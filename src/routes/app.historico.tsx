@@ -89,8 +89,13 @@ function Historico() {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">Nenhum treinamento.</td></tr>
               ) : filtered.map((a) => (
-                <tr key={a.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">{a.station_title ?? "—"}</td>
+                <tr key={a.id} className="group border-t border-border transition-colors hover:bg-muted/30">
+                  <td className="px-4 py-3 font-medium">
+                    <Link to="/app/historico/$id" params={{ id: a.id }} className="flex items-center gap-2 hover:text-mint">
+                      {a.station_title ?? "—"}
+                      <ChevronRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{new Date(a.created_at).toLocaleDateString("pt-BR")}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> {Math.round(a.used_seconds / 60)} min</span>
