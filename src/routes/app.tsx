@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
   Home,
   ClipboardList,
@@ -99,8 +100,6 @@ function AppLayout() {
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
           ]},
-          
-          { to: "/app/amigos", label: "Amigos", icon: Users },
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
@@ -199,6 +198,7 @@ function AppLayout() {
   const initial = (profile?.full_name || user.email || "?").charAt(0).toUpperCase();
 
   return (
+    <OnlinePresenceProvider>
     <div className="flex min-h-screen w-full bg-background">
       {/* Desktop sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
@@ -351,5 +351,6 @@ function AppLayout() {
         </nav>
       </div>
     </div>
+    </OnlinePresenceProvider>
   );
 }
