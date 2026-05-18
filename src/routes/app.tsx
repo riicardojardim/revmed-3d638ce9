@@ -339,11 +339,11 @@ function AppLayout() {
 
         {/* Bottom dock — em todas as larguras */}
         <nav
-          className="fixed bottom-3 left-1/2 z-40 w-[min(94vw,440px)] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/80 shadow-elegant backdrop-blur-xl"
+          className="fixed bottom-3 left-1/2 z-40 w-[min(96vw,720px)] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/80 shadow-elegant backdrop-blur-xl"
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
         >
           <div className="flex items-stretch justify-around gap-1 px-2 py-1.5">
-            {flatNav.slice(0, 5).map((n) => {
+            {flatNav.map((n) => {
               const active = isActive(n.to, n.exact);
               return (
                 <Link
@@ -365,6 +365,7 @@ function AppLayout() {
             })}
           </div>
         </nav>
+
 
       </div>
     </div>
