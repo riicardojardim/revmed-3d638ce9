@@ -94,28 +94,27 @@ export function getSpecialtyMeta(specialty?: string | null): SpecialtyMeta {
  * Use SEMPRE essa ordem em listas, filtros, dashboards, etc.
  *   1. Clínica Médica
  *   2. Cirurgia
- *   3. Ginecologia e Obstetrícia
- *   4. Pediatria
+ *   3. Pediatria
+ *   4. Ginecologia e Obstetrícia
  *   5. Medicina de Família e Comunidade / Preventiva
  * Extras (fora da prova oficial) ficam no final.
  */
 export const SPECIALTY_ORDER: string[] = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
   "Preventiva",
   "Saúde Coletiva",
-  "Urgência e Emergência",
 ];
 
 /** Lista padrão das 5 especialidades oficiais do Revalida, na ordem certa. */
 export const REVALIDA_SPECIALTIES: string[] = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
 ];
 
