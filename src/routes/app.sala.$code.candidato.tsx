@@ -410,6 +410,7 @@ function CandidateView() {
 
   // Overlay institucional de entrada (3..2..1). Bloqueia toda a tela.
   if (showIntro && user) {
+    const startAtMs = room.starting_at ? new Date(room.starting_at).getTime() : undefined;
     return (
       <StationIntroOverlay
         role={"candidato" as IntroRole}
@@ -417,6 +418,8 @@ function CandidateView() {
         specialty={station.specialty}
         displayName={formatDoctorName(profile?.full_name, profile?.title, "Candidato")}
         avatarUrl={profile?.avatar_url}
+        startAtMs={startAtMs}
+        nowMs={serverNow}
         onComplete={() => { setShowIntro(false); setIntroDone(true); }}
       />
     );
