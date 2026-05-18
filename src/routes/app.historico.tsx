@@ -32,20 +32,19 @@ function Historico() {
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
   const [detailId, setDetailId] = useState<string | null>(null);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
     setLoading(true);
-    supabase
+    const { data } = await supabase
       .from("attempts")
       .select("id, station_title, specialty, score, created_at, used_seconds, simulado_id, simulado_name, simulado_station_index, simulado_total_stations")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(200)
-      .then(({ data }) => {
-        setItems((data ?? []) as Attempt[]);
-        setLoading(false);
-      });
-  }, [user]);
+      .limit(200);
+    setItems((data ?? []) as Attempt[]);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
 
   // Pense (estação única): tentativas SEM simulado OU simulados com apenas 1 estação
   const penseItems = useMemo(
