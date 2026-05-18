@@ -317,7 +317,11 @@ function CandidateView() {
   useEffect(() => {
     if (!room || !user) return;
     const isSelected = room.evaluated_candidate_id === user.id;
-    if (room.status === "starting" && !introDone && isSelected) setShowIntro(true);
+    if (room.status === "starting" && !introDone && isSelected) {
+      // Sincroniza relógio com o servidor antes de mostrar, para que o cálculo
+      // de fase pulada (catch-up) bata com o ator.
+      void getServerOffset(true).then(() => setShowIntro(true));
+    }
   }, [room?.status, room?.evaluated_candidate_id, user?.id, introDone]);
 
   // Reset entre estações: quando a sala volta para "waiting" (próxima estação),
