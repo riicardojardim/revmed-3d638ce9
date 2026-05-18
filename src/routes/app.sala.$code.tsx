@@ -548,8 +548,10 @@ function SimuladoRunner({ id }: { id: string }) {
       // pode ter outro "candidato da vez". Se restar só 1 participante, será re-selecionado automaticamente.
       if (sim.roomId) {
         await supabase.from("training_rooms")
-          .update({ evaluated_candidate_id: null }).eq("id", sim.roomId);
+          .update({ evaluated_candidate_id: null, status: "waiting", started_at: null, starting_at: null, finished_at: null })
+          .eq("id", sim.roomId);
         setEvaluatedCandidateId(null);
+        setRoomStatus("waiting");
       }
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
       saveSimulado(user!.id, next);
