@@ -55,6 +55,8 @@ function SimuladoRunner() {
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   const [highlights, setHighlights] = useState<Record<string, boolean>>({});
+  const [struckWords, setStruckWords] = useState<Set<string>>(new Set());
+  const toggleStruck = (id: string) => setStruckWords((prev) => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
   const [comments, setComments] = useState<Record<string, string>>({});
   const [feedback, setFeedback] = useState("");
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
