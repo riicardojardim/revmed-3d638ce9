@@ -291,13 +291,7 @@ function CredentialCard({
           <span className="text-white/40">CRED · {role.slice(0, 3).toUpperCase()}</span>
         </div>
         <div className="mt-5 flex items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-mint/15 ring-1 ring-mint/30">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
-            ) : (
-              <Icon className="h-7 w-7 text-mint" />
-            )}
-          </div>
+          <UserAvatar avatarUrl={avatarUrl} name={displayName} size="xl" />
           <div className="min-w-0">
             <div className="truncate font-display text-base font-bold text-white">{displayName}</div>
             <div className="text-[11px] uppercase tracking-wider text-white/60">{ROLE_META[role].label}</div>
