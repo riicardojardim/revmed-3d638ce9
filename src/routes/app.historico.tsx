@@ -79,7 +79,7 @@ function Historico() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-        <h3 className="font-display text-lg font-bold text-medical">Histórico de Checklist | Estação Revalida</h3>
+        <h3 className="font-display text-lg font-bold text-medical">Histórico de Checklist</h3>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
