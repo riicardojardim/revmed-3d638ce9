@@ -102,17 +102,7 @@ function TrainPage() {
       .sort((a, b) => a.title.localeCompare(b.title, "pt-BR"));
   }, [stations, allSearch, allSpecialty]);
 
-  useEffect(() => {
-    if (!user) { setSimulados([]); return; }
-    const refresh = () => setSimulados(listSimulados(user.id));
-    refresh();
-    window.addEventListener("estacao:simulados", refresh);
-    window.addEventListener("storage", refresh);
-    return () => {
-      window.removeEventListener("estacao:simulados", refresh);
-      window.removeEventListener("storage", refresh);
-    };
-  }, [user]);
+  // efeito de "Meus simulados" removido — histórico cuida disso agora
 
   useEffect(() => {
     (async () => {
