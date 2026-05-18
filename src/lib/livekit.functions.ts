@@ -57,6 +57,8 @@ export const getLivekitToken = createServerFn({ method: "POST" })
       url,
       token,
       role: isHost ? "host" : isEvaluated ? "evaluated" : "spectator",
+      hostId: room?.host_id ?? null,
+      evaluatedId: room?.evaluated_candidate_id ?? null,
     };
   });
 
