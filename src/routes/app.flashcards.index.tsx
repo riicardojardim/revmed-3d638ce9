@@ -445,7 +445,6 @@ function FlashcardsPage() {
                         className="rounded-xl border-2 border-medical bg-card px-2 py-3 text-center font-display font-bold text-medical transition hover:bg-medical/10 active:scale-[0.97]"
                       >
                         <div className="text-[15px]">Acertei</div>
-                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">longo prazo</div>
                       </button>
                     </div>
                   </div>
