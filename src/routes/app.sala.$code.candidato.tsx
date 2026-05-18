@@ -180,6 +180,46 @@ function CandidateView() {
     }
   }, [room?.status, room?.started_at, room?.duration_minutes, station?.id, finished]);
 
+  // React to room cancellation (actor left, tab closed, etc.)
+  const cancelledHandledRef = useRef(false);
+  useEffect(() => {
+    if (room?.status === "cancelled" && !cancelledHandledRef.current) {
+      cancelledHandledRef.current = true;
+      toast.error("A sessão foi encerrada — o ator saiu da sala. Estação cancelada.");
+      nav({ to: "/app" });
+    }
+  }, [room?.status, nav]);
+
+  // Auto-cancel the session if the candidate leaves while the room is still active.
+  const candCancelRef = useRef<{ roomId: string | null; status: string; finished: boolean; token: string | null }>({ roomId: null, status: "", finished: false, token: null });
+  useEffect(() => {
+    candCancelRef.current.roomId = room?.id ?? null;
+    candCancelRef.current.status = room?.status ?? "";
+    candCancelRef.current.finished = finished;
+  }, [room?.id, room?.status, finished]);
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) candCancelRef.current.token = data.session?.access_token ?? null;
+    });
+    const onBeforeUnload = () => {
+      const s = candCancelRef.current;
+      if (!s.roomId) return;
+      if (s.status === "finished" || s.status === "cancelled" || s.finished) return;
+      cancelRoomBeacon(s.roomId, s.token);
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      mounted = false;
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      const s = candCancelRef.current;
+      if (s.roomId && s.status !== "finished" && s.status !== "cancelled" && !s.finished) {
+        void cancelRoom(s.roomId);
+      }
+    };
+  }, []);
+
+
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
   const total = ((room?.duration_minutes ?? station?.durationMinutes ?? 10)) * 60;
