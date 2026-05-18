@@ -34,6 +34,11 @@ function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const wppDigits = normalizeWhatsapp(form.whatsapp);
+    if (wppDigits && !isValidWhatsapp(wppDigits)) {
+      toast.error("WhatsApp inválido. Use o formato (XX) 9XXXX-XXXX.");
+      return;
+    }
     setSubmitting(true);
     const now = new Date();
     const y = now.getFullYear();
