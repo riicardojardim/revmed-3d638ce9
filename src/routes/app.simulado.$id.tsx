@@ -241,6 +241,7 @@ function SimuladoRunner() {
           if (row.role === "candidato") {
             const { data: prof } = await supabase.from("profiles").select("full_name, title").eq("id", row.user_id).maybeSingle();
             toast.success(`${formatCandidateName(prof?.full_name ?? row.display_name, prof?.title, row.user_id)} entrou no simulado`);
+            setInviteOpen(false);
           }
         }
       })
