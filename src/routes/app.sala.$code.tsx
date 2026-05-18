@@ -538,7 +538,7 @@ function SimuladoRunner({ id }: { id: string }) {
     if (sim?.roomId) {
       const finishedAt = new Date().toISOString();
       const resolvedStatus = allScored
-        ? (evalStatus === "em_andamento" ? ((totals.total > 0 ? (totals.earned / totals.total) * 100 : 0) >= 61.17 ? "aprovado" : "reprovado") : evalStatus)
+        ? (evalStatus === "em_andamento" ? ((totals.total > 0 ? (totals.earned / totals.total) * 100 : 0) >= NOTA_DE_CORTE ? "aprovado" : "reprovado") : evalStatus)
         : "em_andamento";
 
       if (user && evaluatedCandidateId) {
