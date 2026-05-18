@@ -300,7 +300,7 @@ function AppLayout() {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8">
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2">
             <Logo />
           </div>
           <div className="flex flex-1 items-center gap-2 overflow-hidden font-sans">
