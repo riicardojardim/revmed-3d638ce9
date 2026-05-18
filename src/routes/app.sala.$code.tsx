@@ -503,8 +503,9 @@ function SimuladoRunner({ id }: { id: string }) {
   }
 
   async function startTimer() {
-    // Mostra a animação institucional no ator e dispara no candidato via room.status
-    setShowIntro(true);
+    // Sincroniza ator e candidato: grava primeiro no servidor (starting_at é o
+    // âncora compartilhado) e só então liga a animação local — assim ambos os
+    // lados disparam o overlay no mesmo instante, independente da latência.
     setFinishedStation(false);
     if (sim?.roomId) {
       try {
@@ -517,7 +518,14 @@ function SimuladoRunner({ id }: { id: string }) {
           duration_minutes: duration,
         }).eq("id", sim.roomId);
         setRoomStatus("starting");
-      } catch (e) { console.error(e); }
+        setShowIntro(true);
+      } catch (e) {
+        console.error(e);
+        // Fallback: se a gravação falhar, ainda exibe a animação localmente
+        setShowIntro(true);
+      }
+    } else {
+      setShowIntro(true);
     }
   }
   async function onIntroComplete() {
