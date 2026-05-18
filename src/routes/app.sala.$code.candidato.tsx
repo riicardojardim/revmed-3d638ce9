@@ -254,7 +254,7 @@ function CandidateView() {
   const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
-  const correctionReady = !!evaluation && isFinished;
+  const correctionReady = !!evaluation && (isFinished || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
 
   // Lobby de espera — tela cheia, transita sozinha quando room.status virar "running"
