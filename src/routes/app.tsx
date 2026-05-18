@@ -53,12 +53,11 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const { user, loading, profile, roles, signOut } = useAuth();
-  const { plan, isPrivileged } = useSubscription();
+  const { plan, isPrivileged, isCompletoLike, isAtorOnly } = useSubscription();
 
   const isAdmin = roles.includes("admin");
   const isTeacher = roles.includes("professor") || isAdmin;
-  const isAtorOnly = plan?.slug === "ator" && !plan.expired;
-  const isCompleto = isPrivileged || (!!plan && !plan.expired && plan.slug === "completo");
+  const isCompleto = isCompletoLike;
 
   // Build sidebar sections based on plan
   let sections: NavSection[] = [];
