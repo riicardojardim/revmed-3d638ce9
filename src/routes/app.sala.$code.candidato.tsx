@@ -427,7 +427,7 @@ function CandidateView() {
 
 
           {/* PEP — só aparece quando ator liberar a correção */}
-          {isFinished && (
+          {correctionReady && (
             <PRBlock icon={ClipboardCheck} title="CHECKLIST ( PEP )" tone="emerald">
               {correctionReady ? (
                 <div className="space-y-4">
