@@ -58,7 +58,7 @@ function Stage({ isHost, roomCode, selfIdentity }: { isHost: boolean; roomCode: 
           const identity = trackRef?.participant?.identity;
           const isSelf = identity === selfIdentity;
           const p = participants.find((pp) => pp.identity === identity);
-          const audioPub = p ? Array.from(p.audioTrackPublications.values())[0] : undefined;
+          const audioPub = p ? [...p.audioTrackPublications.values()][0] : undefined;
           const audioMuted = audioPub?.isMuted ?? true;
           return (
             <div className="relative h-full w-full">
