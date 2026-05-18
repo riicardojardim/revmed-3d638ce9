@@ -23,6 +23,7 @@ import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
+import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -222,6 +223,49 @@ function ActorView() {
       } catch {}
     };
   }, [code, user?.id]);
+
+  // Auto-cancel the session if the actor leaves (unmount / tab close / reload)
+  // while the room is still active. This kicks both sides out cleanly.
+  const cancelStateRef = useRef<{ roomId: string | null; status: string; token: string | null }>({ roomId: null, status: "", token: null });
+  useEffect(() => {
+    cancelStateRef.current.roomId = room?.id ?? null;
+    cancelStateRef.current.status = room?.status ?? "";
+  }, [room?.id, room?.status]);
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) cancelStateRef.current.token = data.session?.access_token ?? null;
+    });
+    const onBeforeUnload = () => {
+      const s = cancelStateRef.current;
+      if (!s.roomId) return;
+      if (s.status === "finished" || s.status === "cancelled") return;
+      cancelRoomBeacon(s.roomId, s.token);
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      mounted = false;
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      const s = cancelStateRef.current;
+      if (s.roomId && s.status !== "finished" && s.status !== "cancelled") {
+        void cancelRoom(s.roomId);
+      }
+    };
+  }, []);
+
+  // React to room cancellation (e.g. candidate left mid-session)
+  const actorCancelledHandledRef = useRef(false);
+  useEffect(() => {
+    if (room?.status === "cancelled" && !actorCancelledHandledRef.current) {
+      actorCancelledHandledRef.current = true;
+      try {
+        localStorage.removeItem("ator:activeRoom");
+        window.dispatchEvent(new Event("ator:activeRoom"));
+      } catch {}
+      toast.error("A sessão foi encerrada — o candidato saiu da sala. Estação cancelada.");
+      nav({ to: "/app" });
+    }
+  }, [room?.status, nav]);
 
   // When the evaluated candidate changes, reload draft for that candidate (or reset)
   useEffect(() => {
