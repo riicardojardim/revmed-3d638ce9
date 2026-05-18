@@ -456,6 +456,7 @@ function ActorView() {
     if (finishingRef.current) return;
     finishingRef.current = true;
     const finishedAt = new Date().toISOString();
+    const review = latestReviewRef.current;
     const { error } = await supabase.from("training_rooms")
       .update({ status: "finished", finished_at: finishedAt })
       .eq("id", room.id);
@@ -466,8 +467,8 @@ function ActorView() {
     setRoom((prev) => prev ? { ...prev, status: "finished" } : prev);
     setFinished(true);
     if (user && room.evaluated_candidate_id) {
-      const resolvedStatus = allScored
-        ? (evalStatus === "em_andamento" ? (pct >= 61.17 ? "aprovado" : "reprovado") : evalStatus)
+      const resolvedStatus = review.allScored
+        ? (review.evalStatus === "em_andamento" ? (review.pct >= 61.17 ? "aprovado" : "reprovado") : review.evalStatus)
         : "em_andamento";
       const { error: evalError } = await supabase.from("room_evaluations")
         .upsert({
@@ -475,10 +476,10 @@ function ActorView() {
           evaluator_id: user.id,
           candidate_id: room.evaluated_candidate_id,
           station_id: room.station_id,
-          checks,
-          item_comments: comments,
-          final_feedback: feedback,
-          final_score: Number(score.toFixed(2)),
+          checks: review.checks,
+          item_comments: review.comments,
+          final_feedback: review.feedback,
+          final_score: Number(review.score.toFixed(2)),
           status: resolvedStatus,
           submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
         }, { onConflict: "room_id,evaluator_id,candidate_id" });
