@@ -25,6 +25,7 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
+import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
