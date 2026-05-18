@@ -25,6 +25,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
+import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
@@ -652,6 +653,12 @@ function SimuladoRunner({ id }: { id: string }) {
         />
       )}
     <div className="mx-auto max-w-7xl space-y-4">
+      {sim.roomCode && (
+        <FloatingVideoCall
+          roomCode={sim.roomCode}
+          displayName={(profile?.full_name?.trim()) || user?.email?.split("@")[0] || "Ator"}
+        />
+      )}
       {/* Progress header */}
       {sim.stations.length >= 2 && (
         <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">

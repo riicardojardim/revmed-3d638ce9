@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
 import { Button } from "@/components/ui/button";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -657,6 +658,7 @@ function ActorView() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-4">
+      <FloatingVideoCall roomCode={code} displayName={user?.email?.split("@")[0] || "Ator"} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link to="/app/checklists" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar
