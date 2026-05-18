@@ -118,6 +118,7 @@ function ActorView() {
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
@@ -1281,6 +1282,15 @@ function ActorView() {
                   </div>
         </aside>
       </div>
+
+      {room && (
+        <InviteUserDialog
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+          roomId={room.id}
+          stationId={room.station_id}
+        />
+      )}
 
 
       {zoomImage && (
