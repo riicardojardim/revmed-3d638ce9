@@ -604,14 +604,14 @@ function Plans() {
     <section id="planos" className="bg-card/30 py-20 lg:py-28">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <div className="mt-12 grid items-stretch gap-6 lg:grid-cols-3">
           {plans.map((p) => (
             <div
               key={p.name}
-              className={`relative flex flex-col rounded-3xl border p-7 transition-all ${
+              className={`relative flex flex-col rounded-3xl border transition-all ${
                 p.highlight
-                  ? "border-mint/50 bg-card shadow-elegant lg:-translate-y-2"
-                  : "border-border bg-card shadow-card"
+                  ? "border-mint/50 bg-card shadow-elegant p-8 lg:-translate-y-4 lg:scale-105"
+                  : "border-border bg-card shadow-card p-7"
               }`}
             >
               {p.highlight && (
@@ -636,7 +636,7 @@ function Plans() {
                   </li>
                 ))}
               </ul>
-              <Link to="/cadastro" className="mt-8">
+              <Link to="/cadastro" className="mt-auto pt-8">
                 <Button variant={p.highlight ? "hero" : "outline"} className="w-full">
                   {p.cta}
                 </Button>
