@@ -256,9 +256,10 @@ function ActorView() {
         const row = payload.new as { user_id: string; role: string; display_name: string | null };
         if (row.role === "candidato") {
           const { data: prof } = await supabase.from("profiles")
-            .select("full_name, title").eq("id", row.user_id).maybeSingle();
+            .select("full_name, title, avatar_url").eq("id", row.user_id).maybeSingle();
           const name = formatCandidateName(prof?.full_name ?? row.display_name, prof?.title, row.user_id);
-          setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
+          const avatarUrl = prof?.avatar_url ?? null;
+          setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name, avatarUrl }]);
           toast.success(`${name} entrou na sala`);
           if (!room.evaluated_candidate_id) {
             await supabase.from("training_rooms").update({ evaluated_candidate_id: row.user_id }).eq("id", room.id);
