@@ -4,7 +4,7 @@
 //   GO  Ginecologia e Obstetrícia → coral / vermelho
 //   PE  Pediatria                 → verde
 //   PR  Preventiva                → laranja
-//   MF  Medicina de Família e Comunidade       → esmeralda (fora do Pense, mantido)
+//   MFC Medicina de Família e Comunidade → esmeralda
 //   UE  Urgência e Emergência     → vermelho escuro (fora do Pense, mantido)
 
 export type SpecialtyMeta = {
