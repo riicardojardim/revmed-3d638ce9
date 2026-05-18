@@ -12,6 +12,7 @@ interface Props {
   stationTitle: string;
   specialty?: string | null;
   displayName: string;
+  avatarUrl?: string | null;
   onComplete: () => void;
 }
 
@@ -24,7 +25,7 @@ const ROLE_META: Record<IntroRole, { label: string; icon: typeof Stethoscope }> 
  * StationIntroOverlay — sequência institucional "Prontuário + Crachá".
  * Duração ~5.2s. Sincronizada externamente via Supabase Realtime.
  */
-export function StationIntroOverlay({ role, stationTitle, specialty, displayName, onComplete }: Props) {
+export function StationIntroOverlay({ role, stationTitle, specialty, displayName, avatarUrl, onComplete }: Props) {
   const reduce = useReducedMotion();
   const [phase, setPhase] = useState<"intro" | "credential" | "record" | "doors" | "countdown" | "done">("intro");
   const [count, setCount] = useState<3 | 2 | 1 | 0>(3);
@@ -123,6 +124,7 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
             <CredentialCard
               role={role}
               displayName={displayName}
+              avatarUrl={avatarUrl}
               stationTitle={isCandidate ? "Sigiloso até a abertura" : stationTitle}
               specialty={isCandidate ? null : specialty}
               hideStation={isCandidate}
@@ -257,6 +259,7 @@ function FakeQR({ seed, size = 80 }: { seed: string; size?: number }) {
 function CredentialCard({
   role,
   displayName,
+  avatarUrl,
   stationTitle,
   specialty,
   hideStation,
@@ -264,6 +267,7 @@ function CredentialCard({
 }: {
   role: IntroRole;
   displayName: string;
+  avatarUrl?: string | null;
   stationTitle: string;
   specialty?: string | null;
   hideStation?: boolean;
@@ -287,8 +291,12 @@ function CredentialCard({
           <span className="text-white/40">CRED · {role.slice(0, 3).toUpperCase()}</span>
         </div>
         <div className="mt-5 flex items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-mint/15 ring-1 ring-mint/30">
-            <Icon className="h-7 w-7 text-mint" />
+          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-mint/15 ring-1 ring-mint/30">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+            ) : (
+              <Icon className="h-7 w-7 text-mint" />
+            )}
           </div>
           <div className="min-w-0">
             <div className="truncate font-display text-base font-bold text-white">{displayName}</div>

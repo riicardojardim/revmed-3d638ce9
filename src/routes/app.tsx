@@ -2,6 +2,7 @@ import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-route
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import { UserAvatar } from "@/components/UserAvatar";
 import {
   Home,
   ClipboardList,
@@ -315,9 +316,11 @@ function AppLayout() {
             <Button variant="ghost" size="icon" aria-label="Notificações">
               <Bell className="h-5 w-5" />
             </Button>
-            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-gradient-mint text-sm font-bold text-night sm:flex">
-              {initial}
-            </div>
+            <UserAvatar
+              avatarUrl={profile?.avatar_url}
+              name={profile?.full_name ?? user.email}
+              className="hidden h-9 w-9 sm:inline-flex"
+            />
           </div>
         </header>
 

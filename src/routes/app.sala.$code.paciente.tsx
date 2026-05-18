@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
 
 type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
 type Delivery = { id: string; material_id: string; material_name: string };
-type Candidate = { id: string; name: string };
+type Candidate = { id: string; name: string; avatarUrl: string | null };
 
 function formatCandidateName(
   rawName: string | null | undefined,
@@ -160,13 +161,13 @@ function ActorView() {
     }
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     const { data: profs } = await supabase.from("profiles")
-      .select("id, full_name, title").in("id", ids);
-    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null }) => [p.id, p]));
+      .select("id, full_name, title, avatar_url").in("id", ids);
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null; avatar_url: string | null }) => [p.id, p]));
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list: Candidate[] = ids.map((id: string) => {
       const prof = profMap.get(id);
       const raw = (prof?.full_name ?? dispMap.get(id)) as string | null | undefined;
-      return { id, name: formatCandidateName(raw, prof?.title, id) };
+      return { id, name: formatCandidateName(raw, prof?.title, id), avatarUrl: prof?.avatar_url ?? null };
     });
     setCandidates(list);
     return list;
@@ -255,9 +256,10 @@ function ActorView() {
         const row = payload.new as { user_id: string; role: string; display_name: string | null };
         if (row.role === "candidato") {
           const { data: prof } = await supabase.from("profiles")
-            .select("full_name, title").eq("id", row.user_id).maybeSingle();
+            .select("full_name, title, avatar_url").eq("id", row.user_id).maybeSingle();
           const name = formatCandidateName(prof?.full_name ?? row.display_name, prof?.title, row.user_id);
-          setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
+          const avatarUrl = prof?.avatar_url ?? null;
+          setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name, avatarUrl }]);
           toast.success(`${name} entrou na sala`);
           if (!room.evaluated_candidate_id) {
             await supabase.from("training_rooms").update({ evaluated_candidate_id: row.user_id }).eq("id", room.id);
@@ -1215,13 +1217,14 @@ function ActorView() {
                                   isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
                                 )}
                               >
+                                <UserAvatar avatarUrl={c.avatarUrl} name={c.name} className="h-7 w-7 text-xs" />
+                                <span className="flex-1 truncate font-medium">{c.name}</span>
                                 <span className={cn(
                                   "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                                   isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
                                 )}>
                                   {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
                                 </span>
-                                <span className="flex-1 truncate font-medium">{c.name}</span>
                                 {isEvaluated && (
                                   <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
                                 )}

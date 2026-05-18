@@ -20,6 +20,7 @@ import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientP
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { UserAvatar } from "@/components/UserAvatar";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/app/simulado/$id")({
   head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
 });
 
-type Candidate = { id: string; name: string };
+type Candidate = { id: string; name: string; avatarUrl: string | null };
 
 function formatCandidateName(
   rawName: string | null | undefined,
@@ -206,14 +207,14 @@ function SimuladoRunner() {
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     // Tenta enriquecer com profiles (caso o usuário logado consiga ler — owner/admin).
     const { data: profs } = await supabase.from("profiles")
-      .select("id, full_name, title").in("id", ids);
-    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null }) => [p.id, p]));
+      .select("id, full_name, title, avatar_url").in("id", ids);
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null; avatar_url: string | null }) => [p.id, p]));
     // Fallback de nome via display_name salvo no participante (visível para todos).
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
-    const list = ids.map((uid: string) => {
+    const list: Candidate[] = ids.map((uid: string) => {
       const prof = profMap.get(uid);
       const raw = (prof?.full_name ?? dispMap.get(uid)) as string | null | undefined;
-      return { id: uid, name: formatCandidateName(raw, prof?.title, uid) };
+      return { id: uid, name: formatCandidateName(raw, prof?.title, uid), avatarUrl: prof?.avatar_url ?? null };
     });
     setCandidates(list);
     // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
@@ -622,6 +623,7 @@ function SimuladoRunner() {
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}
           displayName={formatCandidateName(profile?.full_name, profile?.title, profile?.id ?? user?.id) || "Ator"}
+          avatarUrl={profile?.avatar_url}
           onComplete={onIntroComplete}
         />
       )}
@@ -1081,13 +1083,14 @@ function SimuladoRunner() {
                           running && !isEvaluated && "opacity-50 cursor-not-allowed",
                         )}
                       >
+                        <UserAvatar avatarUrl={c.avatarUrl} name={c.name} className="h-7 w-7 text-xs" />
+                        <span className="flex-1 truncate font-medium">{c.name}</span>
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                           isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
                         )}>
                           {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
                         </span>
-                        <span className="flex-1 truncate font-medium">{c.name}</span>
                         {isEvaluated && <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />}
                       </button>
                     </li>

@@ -319,6 +319,7 @@ function RoomPage() {
           stationTitle={room.station_title}
           specialty={specialty}
           displayName={formatDoctorName(profile?.full_name, profile?.title, "Participante")}
+          avatarUrl={profile?.avatar_url}
           onComplete={onIntroComplete}
         />
       )}
