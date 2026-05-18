@@ -83,9 +83,11 @@ function ProgressPage() {
         <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota de corte INEP</div>
           <div className="mt-2 font-display text-3xl font-bold text-mint">
-            {NOTA_DE_CORTE.toFixed(1)}
+            {NOTA_DE_CORTE.toFixed(3)}
           </div>
-          <div className="mt-1 text-[11px] text-muted-foreground">Revalida — prática</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">
+            {NOTA_DE_CORTE_EDICAO} · equivale a {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
+          </div>
         </div>
       </div>
 
