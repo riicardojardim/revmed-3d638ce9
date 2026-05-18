@@ -825,13 +825,6 @@ function CandidateView() {
             </div>
           )}
 
-          {/* PEP locked card — só para o candidato avaliado */}
-          {!isSpectator && correctionReady && (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
-              <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
-              <div className="mt-2 text-[11px] text-muted-foreground">PEP disponível abaixo</div>
-            </div>
-          )}
         </aside>
       </div>
       <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
