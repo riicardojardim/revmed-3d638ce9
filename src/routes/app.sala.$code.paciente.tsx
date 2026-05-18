@@ -526,7 +526,10 @@ function ActorView() {
           submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
           preview_for_candidate: true,
         }, { onConflict: "room_id,evaluator_id,candidate_id" });
-      if (evalError) toast.error(evalError.message);
+      if (evalError) {
+        finishingRef.current = false;
+        return toast.error(evalError.message);
+      }
     }
     const { error } = await supabase.from("training_rooms")
       .update({ status: "finished", finished_at: finishedAt })
