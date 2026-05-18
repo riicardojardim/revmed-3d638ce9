@@ -95,11 +95,26 @@ function FlashcardsPage() {
     setCards([]);
     setIndex(0);
     setRevealed(false);
+    setOutcomes([]);
+    setPerCardSeconds([]);
+  }
+
+  function startSession() {
+    setStep("play");
+    setIndex(0);
+    setRevealed(false);
+    setOutcomes([]);
+    setPerCardSeconds([]);
+    setCardStartedAt(Date.now());
   }
 
   async function rate(quality: 0 | 3 | 5) {
     const current = cards[index];
     if (!current || !user) return;
+    const elapsed = Math.max(0, Math.round((Date.now() - cardStartedAt) / 1000));
+    setOutcomes((arr) => [...arr, quality]);
+    setPerCardSeconds((arr) => [...arr, elapsed]);
+
     const { data: prevRow } = await supabase
       .from("flashcard_reviews")
       .select("ease, interval_days, reviews_count")
@@ -122,7 +137,8 @@ function FlashcardsPage() {
     }, { onConflict: "user_id,card_id" });
     if (error) toast.error(error.message);
     setRevealed(false);
-    setIndex((i) => Math.min(i + 1, cards.length - 1));
+    setCardStartedAt(Date.now());
+    setIndex((i) => i + 1);
   }
 
   // ===== LIST =====
