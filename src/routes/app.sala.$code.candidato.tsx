@@ -433,7 +433,7 @@ function CandidateView() {
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
   const allScored = !!evaluation && station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
   const resultSaved = !!evaluation && (evaluation.status === "aprovado" || evaluation.status === "reprovado");
-  const showSavingBanner = correctionReady && allScored;
+  const showSavingBanner = !isSpectator && correctionReady && allScored;
 
   // Lobby de espera — tela cheia, transita sozinha quando room.status virar "running"
   if (isWaiting) {
