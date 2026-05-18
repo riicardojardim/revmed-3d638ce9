@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,10 +26,22 @@ import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
-export const Route = createFileRoute("/app/simulado/$id")({
-  component: SimuladoRunner,
-  head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
+export const Route = createFileRoute("/app/sala/$code")({
+  component: SalaDispatcher,
+  head: () => ({ meta: [{ title: "Sala — Estação Revalida" }] }),
 });
+
+function SalaDispatcher() {
+  const { code } = Route.useParams();
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
+  }
+  const sim = user ? getSimulado(user.id, code) : null;
+  if (sim) return <SimuladoRunner id={code} />;
+  // Não é simulado do usuário atual → fluxo normal de sala (lobby/candidato/paciente/banca)
+  return <Outlet />;
+}
 
 type Candidate = { id: string; name: string; avatarUrl: string | null };
 
@@ -49,8 +61,7 @@ function formatCandidateName(
 }
 
 
-function SimuladoRunner() {
-  const { id } = Route.useParams();
+function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
   const [sim, setSim] = useState<Simulado | null>(null);
@@ -183,7 +194,7 @@ function SimuladoRunner() {
       localStorage.setItem("ator:activeRoom", JSON.stringify({
         code: sim.roomCode,
         title: sim.name,
-        path: `/app/simulado/${sim.id}`,
+        path: `/app/sala/${sim.id}`,
         parent: (sim.stations?.length ?? 0) >= 2 ? "treinar" : "estacoes",
       }));
       window.dispatchEvent(new Event("ator:activeRoom"));

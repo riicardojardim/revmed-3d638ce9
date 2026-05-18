@@ -70,7 +70,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
     }
     const sim = createSimulado(user.id, name || `Simulado com ${selected.length} estações`, selected);
     onOpenChange(false);
-    nav({ to: "/app/simulado/$id", params: { id: sim.id } });
+    nav({ to: "/app/sala/$code", params: { code: sim.id } });
   }
 
   return (
