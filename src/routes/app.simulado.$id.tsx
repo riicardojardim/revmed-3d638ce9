@@ -289,32 +289,58 @@ function SimuladoRunner() {
 
   const allScored = totals.count > 0 && totals.scored === totals.count;
 
+  function computeEvaluationTotals(sourceChecks: Record<string, number>) {
+    if (!station) return { count: 0, scored: 0, earned: 0, total: 0 };
+    let scored = 0, earned = 0, total = 0;
+    for (const it of station.checklist) {
+      total += it.points;
+      const value = sourceChecks[it.id];
+      if (typeof value === "number") {
+        scored++;
+        earned += value;
+      }
+    }
+    return { count: station.checklist.length, scored, earned, total };
+  }
+
+  async function syncEvaluationToCandidate(
+    sourceChecks = checks,
+    sourceComments = comments,
+    sourceFeedback = feedback,
+  ) {
+    if (!(previewEnabled || finishedStation) || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    const stationId = sim.stations[sim.currentIndex]?.id;
+    if (!stationId) return;
+    const nextTotals = computeEvaluationTotals(sourceChecks);
+    const nextAllScored = nextTotals.count > 0 && nextTotals.scored === nextTotals.count;
+    const pct = nextTotals.total > 0 ? (nextTotals.earned / nextTotals.total) * 100 : 0;
+    const resolvedStatus = finishedStation && nextAllScored
+      ? (pct >= 61.17 ? "aprovado" : "reprovado")
+      : "em_andamento";
+
+    const { error } = await supabase.from("room_evaluations").upsert({
+      room_id: sim.roomId,
+      evaluator_id: user.id,
+      candidate_id: evaluatedCandidateId,
+      station_id: stationId,
+      checks: sourceChecks,
+      item_comments: sourceComments,
+      final_feedback: sourceFeedback,
+      final_score: Number(nextTotals.earned.toFixed(2)),
+      status: resolvedStatus,
+      preview_for_candidate: true,
+    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    if (error) console.error(error);
+  }
+
   // Auto-sincroniza a prévia do PEP enquanto estiver habilitada OU após o encerramento
   useEffect(() => {
     if (!(previewEnabled || finishedStation) || !sim?.roomId || !user || !evaluatedCandidateId) return;
-    const roomId = sim.roomId;
-    const stationId = sim.stations[sim.currentIndex]?.id;
-    if (!stationId) return;
     const t = setTimeout(() => {
-      const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
-      const resolvedStatus = finishedStation && allScored
-        ? (pct >= 61.17 ? "aprovado" : "reprovado")
-        : "em_andamento";
-      void supabase.from("room_evaluations").upsert({
-        room_id: roomId,
-        evaluator_id: user.id,
-        candidate_id: evaluatedCandidateId,
-        station_id: stationId,
-        checks,
-        item_comments: comments,
-        final_feedback: feedback,
-        final_score: Number(totals.earned.toFixed(2)),
-        status: resolvedStatus,
-        preview_for_candidate: true,
-      }, { onConflict: "room_id,evaluator_id,candidate_id" });
+      void syncEvaluationToCandidate(checks, comments, feedback);
     }, 400);
     return () => clearTimeout(t);
-  }, [previewEnabled, finishedStation, allScored, checks, comments, feedback, totals.earned, totals.total, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
+  }, [previewEnabled, finishedStation, checks, comments, feedback, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
 
   async function togglePreview() {
     if (!sim?.roomId || !user) return;
@@ -357,15 +383,16 @@ function SimuladoRunner() {
   }
 
   function pickLevel(itemId: string, points: number) {
+    const nextChecks = { ...checks };
+    if (nextChecks[itemId] === points) delete nextChecks[itemId];
+    else nextChecks[itemId] = points;
     updateCurrent((s) => {
-      const c = { ...s.checks };
-      if (c[itemId] === points) delete c[itemId];
-      else c[itemId] = points;
-      const earned = Object.values(c).reduce((a, b) => a + b, 0);
+      const earned = Object.values(nextChecks).reduce((a, b) => a + b, 0);
       const maxScore = station ? station.checklist.reduce((a, it) => a + it.points, 0) : s.maxScore;
-      const completed = station ? Object.keys(c).length === station.checklist.length : false;
-      return { ...s, checks: c, score: earned, maxScore, completed };
+      const completed = station ? Object.keys(nextChecks).length === station.checklist.length : false;
+      return { ...s, checks: nextChecks, score: earned, maxScore, completed };
     });
+    void syncEvaluationToCandidate(nextChecks, comments, feedback);
   }
 
   async function startTimer() {
