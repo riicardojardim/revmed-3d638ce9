@@ -262,9 +262,7 @@ function SimuladoRunner() {
         if (r <= 1) {
           if (tickRef.current) clearInterval(tickRef.current);
           tickRef.current = null;
-          setRunning(false);
-          setFinishedStation(true);
-          toast.success("Tempo encerrado — preencha o PEP.");
+          void finishTimer(true);
           return 0;
         }
         return r - 1;
@@ -393,12 +391,45 @@ function SimuladoRunner() {
         .eq("status", "starting");
     }
   }
-  function finishTimer() {
+  async function finishTimer(auto = false) {
     setRunning(false);
     setFinishedStation(true);
+    setPreviewEnabled(true);
     if (sim?.roomId) {
-      supabase.from("training_rooms").update({ status: "finished" }).eq("id", sim.roomId).then(() => {});
+      const finishedAt = new Date().toISOString();
+      const resolvedStatus = allScored
+        ? (evalStatus === "em_andamento" ? ((totals.total > 0 ? (totals.earned / totals.total) * 100 : 0) >= 61.17 ? "aprovado" : "reprovado") : evalStatus)
+        : "em_andamento";
+
+      const { error: roomError } = await supabase.from("training_rooms")
+        .update({ status: "finished", finished_at: finishedAt })
+        .eq("id", sim.roomId);
+      if (roomError) {
+        toast.error(roomError.message);
+        return;
+      }
+
+      if (user && evaluatedCandidateId) {
+        const stationId = sim.stations[sim.currentIndex]?.id;
+        if (stationId) {
+          const { error: evalError } = await supabase.from("room_evaluations").upsert({
+            room_id: sim.roomId,
+            evaluator_id: user.id,
+            candidate_id: evaluatedCandidateId,
+            station_id: stationId,
+            checks,
+            item_comments: comments,
+            final_feedback: feedback,
+            final_score: Number(totals.earned.toFixed(2)),
+            status: resolvedStatus,
+            submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
+            preview_for_candidate: true,
+          }, { onConflict: "room_id,evaluator_id,candidate_id" });
+          if (evalError) toast.error(evalError.message);
+        }
+      }
     }
+    toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
   async function deliverMat(matId: string) {
     if (!station || !user) return;
@@ -924,7 +955,7 @@ function SimuladoRunner() {
             {running && (
               <button
                 type="button"
-                onClick={finishTimer}
+                  onClick={() => void finishTimer()}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 active:scale-[0.98]"
               >
                 <Square className="h-4 w-4" /> Encerrar estação
