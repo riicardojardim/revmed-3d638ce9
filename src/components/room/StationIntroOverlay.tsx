@@ -12,6 +12,7 @@ interface Props {
   stationTitle: string;
   specialty?: string | null;
   displayName: string;
+  avatarUrl?: string | null;
   onComplete: () => void;
 }
 
