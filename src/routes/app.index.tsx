@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Award,
   BarChart3,
   Flame,
   MessageCircle,
@@ -9,6 +8,7 @@ import {
   Trophy,
   TrendingUp,
 } from "lucide-react";
+import { SpecialtyMedals, NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import {
   ResponsiveContainer,
   RadarChart,
