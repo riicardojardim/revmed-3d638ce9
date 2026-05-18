@@ -1,11 +1,10 @@
 // Mock data for demo. TODO: replace with Supabase backend.
 export type Specialty =
   | "Clínica Médica"
+  | "Cirurgia"
   | "Pediatria"
   | "Ginecologia e Obstetrícia"
-  | "Cirurgia"
-  | "Medicina de Família e Comunidade"
-  | "Urgência e Emergência";
+  | "Medicina de Família e Comunidade";
 
 export type Difficulty = "Fácil" | "Médio" | "Difícil";
 
