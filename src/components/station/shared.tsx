@@ -174,8 +174,27 @@ export function SubBlock({ label, children }: { label: string; tone?: "rose"; ch
   );
 }
 
-export function ScriptText({ text, className }: { text: unknown; className?: string }) {
+export function ScriptText({ text, className, strikeable, prefix, struck, toggle }: { text: unknown; className?: string; strikeable?: boolean; prefix?: string; struck?: Set<string>; toggle?: (id: string) => void }) {
   const safe = typeof text === "string" ? text : text == null ? "" : String(text);
+
+  const Bold = ({ id, children }: { id: string; children: React.ReactNode }) => {
+    if (!strikeable || !struck || !toggle) {
+      return <strong className="font-semibold text-foreground">{children}</strong>;
+    }
+    const isStruck = struck.has(id);
+    return (
+      <strong
+        onClick={(e) => { e.stopPropagation(); toggle(id); }}
+        className={cn(
+          "font-semibold text-foreground cursor-pointer rounded px-0.5 transition-colors select-none",
+          isStruck ? "line-through opacity-50 hover:opacity-70" : "hover:bg-amber-500/20"
+        )}
+      >
+        {children}
+      </strong>
+    );
+  };
+
   // Render inline markdown: **bold** segments become <strong>; surrounding text is kept.
   const renderInline = (s: string, keyPrefix: string): React.ReactNode[] => {
     const out: React.ReactNode[] = [];
@@ -185,7 +204,7 @@ export function ScriptText({ text, className }: { text: unknown; className?: str
     let i = 0;
     while ((m = re.exec(s)) !== null) {
       if (m.index > last) out.push(<span key={`${keyPrefix}-t${i}`}>{s.slice(last, m.index)}</span>);
-      out.push(<strong key={`${keyPrefix}-b${i}`} className="font-semibold text-foreground">{m[1]}</strong>);
+      out.push(<Bold key={`${keyPrefix}-b${i}`} id={`${prefix ?? "st"}-${keyPrefix}-b${i}`}>{m[1]}</Bold>);
       last = m.index + m[0].length;
       i++;
     }
@@ -205,7 +224,7 @@ export function ScriptText({ text, className }: { text: unknown; className?: str
     return (
       <span>
         {marker}
-        <strong className="font-semibold text-foreground">{boldText}</strong>
+        <Bold id={`${prefix ?? "st"}-${key}-h`}>{boldText}</Bold>
         {after}
       </span>
     );
