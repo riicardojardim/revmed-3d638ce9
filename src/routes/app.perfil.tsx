@@ -189,9 +189,14 @@ function ProfilePage() {
       {/* Header card */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-mint text-xl font-bold text-night">
-            {initial}
-          </div>
+          {user && (
+            <AvatarUploader
+              userId={user.id}
+              avatarUrl={profile?.avatar_url ?? null}
+              initial={initial}
+              onUpdated={() => refresh()}
+            />
+          )}
           <div className="min-w-0 flex-1">
             <div className="font-display text-xl font-bold truncate">{greetingTitle}</div>
             <div className="text-sm text-muted-foreground truncate">
