@@ -622,14 +622,20 @@ function SimuladoRunner() {
           <Link to={sim.stations.length >= 2 ? "/app/treinar" : "/app/estacoes"} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-3.5 w-3.5" /> Sair
           </Link>
-          <div className="text-sm font-semibold">{sim.name}</div>
-          <Badge variant="outline" className="ml-auto">
-            Estação {sim.currentIndex + 1} de {sim.stations.length}
-          </Badge>
+          {sim.stations.length >= 2 && (
+            <>
+              <div className="text-sm font-semibold">{sim.name}</div>
+              <Badge variant="outline" className="ml-auto">
+                Estação {sim.currentIndex + 1} de {sim.stations.length}
+              </Badge>
+            </>
+          )}
         </div>
-        <div className="mx-auto mt-2 h-1.5 max-w-7xl overflow-hidden rounded-full bg-muted">
-          <div className="h-full bg-gradient-mint transition-all" style={{ width: `${progress}%` }} />
-        </div>
+        {sim.stations.length >= 2 && (
+          <div className="mx-auto mt-2 h-1.5 max-w-7xl overflow-hidden rounded-full bg-muted">
+            <div className="h-full bg-gradient-mint transition-all" style={{ width: `${progress}%` }} />
+          </div>
+        )}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
