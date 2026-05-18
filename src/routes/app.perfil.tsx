@@ -145,21 +145,44 @@ function ProfilePage() {
   }
 
   // -------- Password change --------
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
 
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
+    if (!user?.email) {
+      toast.error("Não foi possível identificar seu e-mail.");
+      return;
+    }
+    if (!currentPassword) {
+      toast.error("Informe a senha atual.");
+      return;
+    }
     if (newPassword.length < 6) {
-      toast.error("A senha precisa de no mínimo 6 caracteres.");
+      toast.error("A nova senha precisa de no mínimo 6 caracteres.");
       return;
     }
     if (newPassword !== confirmPassword) {
       toast.error("As senhas não coincidem.");
       return;
     }
+    if (newPassword === currentPassword) {
+      toast.error("A nova senha deve ser diferente da atual.");
+      return;
+    }
     setSavingPassword(true);
+    // Reautentica para validar a senha atual antes de atualizar.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+    if (signInError) {
+      setSavingPassword(false);
+      toast.error("Senha atual incorreta.");
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSavingPassword(false);
     if (error) {
@@ -167,6 +190,7 @@ function ProfilePage() {
       return;
     }
     toast.success("Senha atualizada com sucesso!");
+    setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
   }
