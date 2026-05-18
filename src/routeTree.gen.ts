@@ -41,7 +41,6 @@ import { Route as AppProfessorFlashcardsRouteImport } from './routes/app.profess
 import { Route as AppProfessorEstacoesRouteImport } from './routes/app.professor.estacoes'
 import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professor.correcoes'
 import { Route as AppHistoricoIdRouteImport } from './routes/app.historico.$id'
-import { Route as AppFlashcardsRevisaoRouteImport } from './routes/app.flashcards.revisao'
 import { Route as AppFlashcardsDesempenhoRouteImport } from './routes/app.flashcards.desempenho'
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
@@ -220,11 +219,6 @@ const AppHistoricoIdRoute = AppHistoricoIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppHistoricoRoute,
 } as any)
-const AppFlashcardsRevisaoRoute = AppFlashcardsRevisaoRouteImport.update({
-  id: '/revisao',
-  path: '/revisao',
-  getParentRoute: () => AppFlashcardsRoute,
-} as any)
 const AppFlashcardsDesempenhoRoute = AppFlashcardsDesempenhoRouteImport.update({
   id: '/desempenho',
   path: '/desempenho',
@@ -339,7 +333,6 @@ export interface FileRoutesByFullPath {
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
-  '/app/flashcards/revisao': typeof AppFlashcardsRevisaoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
@@ -386,7 +379,6 @@ export interface FileRoutesByTo {
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
-  '/app/flashcards/revisao': typeof AppFlashcardsRevisaoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
@@ -439,7 +431,6 @@ export interface FileRoutesById {
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
-  '/app/flashcards/revisao': typeof AppFlashcardsRevisaoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
@@ -493,7 +484,6 @@ export interface FileRouteTypes {
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
-    | '/app/flashcards/revisao'
     | '/app/historico/$id'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
@@ -540,7 +530,6 @@ export interface FileRouteTypes {
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
-    | '/app/flashcards/revisao'
     | '/app/historico/$id'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
@@ -592,7 +581,6 @@ export interface FileRouteTypes {
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
-    | '/app/flashcards/revisao'
     | '/app/historico/$id'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
@@ -851,13 +839,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistoricoIdRouteImport
       parentRoute: typeof AppHistoricoRoute
     }
-    '/app/flashcards/revisao': {
-      id: '/app/flashcards/revisao'
-      path: '/revisao'
-      fullPath: '/app/flashcards/revisao'
-      preLoaderRoute: typeof AppFlashcardsRevisaoRouteImport
-      parentRoute: typeof AppFlashcardsRoute
-    }
     '/app/flashcards/desempenho': {
       id: '/app/flashcards/desempenho'
       path: '/desempenho'
@@ -1030,12 +1011,10 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 
 interface AppFlashcardsRouteChildren {
   AppFlashcardsDesempenhoRoute: typeof AppFlashcardsDesempenhoRoute
-  AppFlashcardsRevisaoRoute: typeof AppFlashcardsRevisaoRoute
 }
 
 const AppFlashcardsRouteChildren: AppFlashcardsRouteChildren = {
   AppFlashcardsDesempenhoRoute: AppFlashcardsDesempenhoRoute,
-  AppFlashcardsRevisaoRoute: AppFlashcardsRevisaoRoute,
 }
 
 const AppFlashcardsRouteWithChildren = AppFlashcardsRoute._addFileChildren(
@@ -1176,3 +1155,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
