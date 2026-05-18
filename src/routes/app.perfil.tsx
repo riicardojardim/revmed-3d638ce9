@@ -250,9 +250,13 @@ function ProfilePage() {
             <Label htmlFor="whatsapp">WhatsApp</Label>
             <Input
               id="whatsapp"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
               value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
+              onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
               placeholder="(11) 99999-9999"
+              maxLength={16}
             />
           </div>
 
