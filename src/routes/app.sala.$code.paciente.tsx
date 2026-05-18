@@ -226,8 +226,9 @@ function ActorView() {
         setComments((ev.item_comments ?? {}) as Record<string, string>);
         setFeedback(ev.final_feedback ?? "");
         setEvalStatus(ev.status as typeof evalStatus);
+        setPreviewEnabled(!!(ev as { preview_for_candidate?: boolean }).preview_for_candidate);
       } else {
-        setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
+        setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento"); setPreviewEnabled(false);
       }
     })();
   }, [room?.evaluated_candidate_id, room?.id, user?.id]);
