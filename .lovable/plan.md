@@ -1,52 +1,126 @@
+## Visão geral
 
-# Plano: Flashcards estilo Pense Revalida (Admin + UX do aluno)
+Adicionar um sistema social leve estilo Instagram, integrado ao fluxo de Sala de Treino que já existe. O anfitrião escolhe um checklist do banco, convida um amigo, e a sala abre com ele como **ator** e o amigo como **candidato** — respeitando a regra de que o candidato só vê a **especialidade**, nunca o título do checklist.
 
-Vou implementar a criação/gestão de flashcards no painel **Admin** seguindo o layout que você mostrou (lista de decks → cover image roxa + título → cards internos com **Pergunta / Resposta** e botões "Errei / Difícil / Fácil"). Também vou ajustar a página do aluno (`/app/flashcards`) para usar esse mesmo visual.
+## 1. Username público (@handle)
 
-## 1. Banco (migration)
+- Cada perfil ganha um `username` único (ex: `fernandojardim`), exibido como `@fernandojardim`.
+- Campo editável em **Perfil** (com validação: 3–20 chars, `a-z0-9._`, único, case-insensitive).
+- Em todo lugar onde aparece o nome do usuário (avatar, lista de participantes da sala, crachá), passa a aparecer também o `@username` discreto.
 
-Hoje a tabela `flashcards` é "card solto". Vou adicionar a noção de **deck** como entidade com capa, e os cards passam a pertencer a um deck.
+## 2. Adicionar amigos
 
-- Nova tabela `flashcard_decks`:
-  - `id`, `created_by`, `title` (ex.: "AVC Isquêmico"), `specialty` (CM, CR, GO, PR, PS, etc. — usa as siglas que já aparecem no badge colorido), `topic` (opcional), `cover_image_url` (capa roxa), `description`, `published`, `position` (ordenação), `created_at`, `updated_at`.
-  - RLS: `select` para qualquer autenticado quando `published=true`; admin/professor podem CRUD.
-- Em `flashcards`:
-  - adicionar `deck_id uuid references flashcard_decks(id) on delete cascade` (nullable para retrocompatibilidade) + `position int default 0`.
-  - migrar os flashcards existentes que tenham `deck text` para um deck novo agrupado por `(created_by, specialty, deck)`.
-- Storage bucket `flashcard-covers` (público para leitura) para as capas. RLS de upload: só admin/professor.
+Nova página **`/app/amigos`** (com item no menu lateral) com 3 abas:
 
-## 2. Admin → nova aba "Flashcards"
+- **Meus amigos** — lista com avatar, nome, @username, botão "Convidar pra sala" e menu (remover).
+- **Solicitações** — pendentes recebidas (aceitar / recusar) e enviadas (cancelar).
+- **Buscar** — campo único que casa por nome, e-mail ou @username; botão "Adicionar" envia pedido.
 
-- Adicionar item `Flashcards` em `app.admin.tsx` (ao lado de Estações/Conteúdo).
-- Nova rota `src/routes/app.admin.flashcards.tsx`:
-  - **Lista de decks** (como a primeira screenshot): badge de especialidade colorido (CM azul, CR azul, GO rosa, PR laranja, PS rosa…), título, contagem de cards, "média/nota" placeholder, botão **Editar** e **Publicar/Despublicar**.
-  - Filtro "Todas as Áreas" + busca.
-  - Botão **+ Novo Deck**.
-- Nova rota `src/routes/app.admin.flashcards.$id.tsx` (editor do deck):
-  - Topo: upload da capa (preview roxa estilo Pense Revalida), título, especialidade (select), tópico, publicado.
-  - Lista de cards do deck (drag-to-reorder simples por botões ↑↓), cada card com **Pergunta** + **Resposta** (textarea) + remover.
-  - Botão **+ Adicionar card**.
-  - Salvamento por card (debounced) + botão "Salvar tudo".
+Toda relação começa como **pedido** → o outro lado precisa **aceitar** pra virar amizade.
 
-## 3. Página do aluno (`/app/flashcards`)
+## 3. Convite pra sala (fluxo top)
 
-Refazer no estilo das suas screenshots:
+A partir de **Meus amigos** ou do **Banco de Checklists**:
 
-1. **Tela 1 — lista de decks** (`425 Flashcards`): tabela com badge de sigla, nome, média, nota, botão **Iniciar**. Filtro "Todas as Áreas".
-2. **Tela 2 — capa do deck**: card centralizado com `cover_image_url`, título em caixa alta, botão **Iniciar Flashcard**.
-3. **Tela 3 — pergunta**: card roxo "Pergunta — 1 | N" + texto centralizado + botão **Ver Resposta** + setas ‹ ›.
-4. **Tela 4 — resposta**: card amarelo claro com a resposta + "Como foi sua resposta?" com 3 botões redondos (vermelho/amarelo/verde) que alimentam o algoritmo de revisão espaçada já existente (`flashcard_reviews`: 0/3/5).
-5. Botão **Fechar** volta para a lista.
+1. Anfitrião clica "Convidar amigo" → modal escolhe **checklist** (busca + filtro por especialidade, reaproveitando o modal "Todos os checklists" que acabamos de fazer) e **amigo**.
+2. Sistema cria a `training_room` em modo `dupla`, com o anfitrião como **ator** (host) e gera convite pendente pro amigo.
+3. Amigo recebe notificação **dentro do app** (sino no topo + badge + página `/app/amigos` → aba **Convites**).
+4. Amigo clica "Entrar" → cai direto na sala como **candidato**.
+5. Na tela do candidato, ele vê **apenas a especialidade** (chip colorido) — exatamente como o fluxo atual de `/app/sala/$code/candidato`. O ator vê tudo.
 
-Tokens: tudo via `src/styles.css` (sem cores hardcoded). Roxo/violeta = `--primary` ou novo `--flashcard` se necessário.
+## 4. Notificações in-app
 
-## 4. Mantém compatibilidade
+- Componente **sino** no header do app (`src/routes/app.tsx`) com badge de não-lidos.
+- Tabela `notifications` simples; eventos: `friend_request_received`, `friend_request_accepted`, `room_invite_received`, `room_invite_cancelled`.
+- Realtime via Supabase Channels — chega na hora.
 
-- A lógica de revisão espaçada (`flashcard_reviews`) continua igual; só muda a navegação.
-- A página do professor (`/app/professor/flashcards`) continua funcionando para cards "soltos" (sem deck) por enquanto, mas ganha um aviso "Use o admin de decks para o novo layout".
+## Detalhes técnicos
+
+### Banco (migration)
+
+```sql
+-- 1. Username em profiles
+ALTER TABLE profiles ADD COLUMN username citext UNIQUE;
+ALTER TABLE profiles ADD CONSTRAINT username_format
+  CHECK (username IS NULL OR username ~ '^[a-z0-9._]{3,20}$');
+
+-- 2. Amizades (par único, qualquer ordem)
+CREATE TABLE friendships (
+  id uuid PK,
+  user_a uuid NOT NULL,  -- sempre o menor uuid
+  user_b uuid NOT NULL,  -- sempre o maior uuid
+  created_at timestamptz,
+  UNIQUE(user_a, user_b),
+  CHECK (user_a < user_b)
+);
+
+-- 3. Solicitações de amizade
+CREATE TABLE friend_requests (
+  id uuid PK,
+  from_user uuid NOT NULL,
+  to_user uuid NOT NULL,
+  status text DEFAULT 'pending',  -- pending|accepted|declined|cancelled
+  created_at timestamptz,
+  responded_at timestamptz,
+  UNIQUE(from_user, to_user)
+);
+
+-- 4. Convites pra sala
+CREATE TABLE room_invites (
+  id uuid PK,
+  room_id uuid NOT NULL REFERENCES training_rooms,
+  from_user uuid NOT NULL,
+  to_user uuid NOT NULL,
+  station_id uuid NOT NULL,
+  status text DEFAULT 'pending',  -- pending|accepted|declined|cancelled|expired
+  created_at timestamptz,
+  responded_at timestamptz
+);
+
+-- 5. Notificações
+CREATE TABLE notifications (
+  id uuid PK,
+  user_id uuid NOT NULL,
+  type text NOT NULL,
+  payload jsonb,
+  read_at timestamptz,
+  created_at timestamptz
+);
+```
+
+Mais: RLS estrito (cada usuário só vê o que lhe diz respeito), realtime habilitado em `notifications`, `room_invites` e `friend_requests`, e índices nas FKs.
+
+### Frontend
+
+- **Nova rota:** `src/routes/app.amigos.tsx` (3 abas).
+- **Edição em:** `src/routes/app.perfil.tsx` (campo @username com validação ao vivo).
+- **Componentes novos:**
+  - `NotificationBell.tsx` (sino + dropdown) — montado em `src/routes/app.tsx`.
+  - `InviteFriendToRoomDialog.tsx` (passo checklist → passo amigo → envia).
+  - `FriendSearchInput.tsx`.
+- **Banco de Checklists:** botão extra "Convidar amigo" nos cards e no modal "Ver todas".
+- **Sala do candidato:** já oculta o título; só garantir que a especialidade aparece com o chip colorido (e nada além disso).
+
+### Sincronização
+
+- Sino: subscription em `notifications` (filtro `user_id=eq.{me}`).
+- Lista de convites: subscription em `room_invites`.
+- Quando o convidado aceita, ele é navegado pra `/app/sala/$code/candidato`, e a sala (já com realtime existente) atualiza pro ator automaticamente.
+
+## Fora de escopo (deixado pra depois)
+
+- Notificações por WhatsApp / e-mail (você escolheu "só in-app").
+- Convite com agendamento futuro.
+- Convite em massa / grupos de estudo.
+- Bloquear usuário.
 
 ## Entrega
 
-Você vai ter, no admin: aba **Flashcards** → lista de decks → editor de deck com upload de capa e cards Pergunta/Resposta. E o aluno vai ver exatamente o fluxo das screenshots (lista → capa → pergunta → resposta com feedback).
+1. Migration (tabelas + RLS + realtime).
+2. Username em perfil.
+3. Página `/app/amigos` (3 abas + ações).
+4. Sino de notificações no header.
+5. Botão "Convidar amigo" no Banco de Checklists + diálogo do fluxo.
+6. Rota de aceite → sala como candidato (com checklist invisível, só especialidade).
 
 Posso seguir?
