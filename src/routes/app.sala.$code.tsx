@@ -96,6 +96,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
+  const [introStartAt, setIntroStartAt] = useState<number | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
@@ -510,21 +511,25 @@ function SimuladoRunner({ id }: { id: string }) {
     if (sim?.roomId) {
       try {
         await getServerOffset(true);
-        const startsAtIso = new Date(serverNow() + INTRO_DURATION_MS).toISOString();
+        const anchorMs = serverNow();
+        const startsAtIso = new Date(anchorMs + INTRO_DURATION_MS).toISOString();
         await supabase.from("training_rooms").update({
           status: "starting",
-          starting_at: new Date(serverNow()).toISOString(),
+          starting_at: new Date(anchorMs).toISOString(),
           started_at: startsAtIso,
           duration_minutes: duration,
         }).eq("id", sim.roomId);
         setRoomStatus("starting");
+        setIntroStartAt(anchorMs);
         setShowIntro(true);
       } catch (e) {
         console.error(e);
         // Fallback: se a gravação falhar, ainda exibe a animação localmente
+        setIntroStartAt(serverNow());
         setShowIntro(true);
       }
     } else {
+      setIntroStartAt(serverNow());
       setShowIntro(true);
     }
   }
@@ -723,6 +728,8 @@ function SimuladoRunner({ id }: { id: string }) {
           specialty={station?.specialty ?? null}
           displayName={(profile?.full_name?.trim()) || "Ator"}
           avatarUrl={profile?.avatar_url}
+          startAtMs={introStartAt ?? undefined}
+          nowMs={serverNow}
           onComplete={onIntroComplete}
         />
       )}

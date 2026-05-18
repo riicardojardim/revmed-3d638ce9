@@ -26,7 +26,7 @@ export const Route = createFileRoute("/app/sala/$code/candidato")({
   head: () => ({ meta: [{ title: "Estação — Candidato" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; starting_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
 type Delivery = {
   id: string;
   material_id: string;
@@ -68,7 +68,7 @@ function CandidateView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
+        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id")
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
@@ -133,7 +133,7 @@ function CandidateView() {
     // Fallback: polling para garantir sincronia mesmo se realtime atrasar
     const pollId = setInterval(async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
+        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id")
         .eq("id", room.id).maybeSingle();
       if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
       await loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
@@ -317,7 +317,11 @@ function CandidateView() {
   useEffect(() => {
     if (!room || !user) return;
     const isSelected = room.evaluated_candidate_id === user.id;
-    if (room.status === "starting" && !introDone && isSelected) setShowIntro(true);
+    if (room.status === "starting" && !introDone && isSelected) {
+      // Sincroniza relógio com o servidor antes de mostrar, para que o cálculo
+      // de fase pulada (catch-up) bata com o ator.
+      void getServerOffset(true).then(() => setShowIntro(true));
+    }
   }, [room?.status, room?.evaluated_candidate_id, user?.id, introDone]);
 
   // Reset entre estações: quando a sala volta para "waiting" (próxima estação),
@@ -406,6 +410,7 @@ function CandidateView() {
 
   // Overlay institucional de entrada (3..2..1). Bloqueia toda a tela.
   if (showIntro && user) {
+    const startAtMs = room.starting_at ? new Date(room.starting_at).getTime() : undefined;
     return (
       <StationIntroOverlay
         role={"candidato" as IntroRole}
@@ -413,6 +418,8 @@ function CandidateView() {
         specialty={station.specialty}
         displayName={formatDoctorName(profile?.full_name, profile?.title, "Candidato")}
         avatarUrl={profile?.avatar_url}
+        startAtMs={startAtMs}
+        nowMs={serverNow}
         onComplete={() => { setShowIntro(false); setIntroDone(true); }}
       />
     );
