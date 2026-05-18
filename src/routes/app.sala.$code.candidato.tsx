@@ -209,19 +209,26 @@ function CandidateView() {
   }
 
   const visibleDeliveries = useMemo(() => {
-    // Ordena por número do impresso (Impresso 1, 2, 3...) extraído do nome.
-    // Itens sem número vão para o fim, mantendo a ordem de entrega como desempate.
+    // Ordena pelo número do impresso (posição em station.deliverableMaterials).
+    // Fallback: número extraído do nome. Itens desconhecidos vão para o fim.
+    const mats = station?.deliverableMaterials ?? [];
+    const indexById = new Map(mats.map((m, i) => [m.id, i]));
     const extractNum = (name: string): number => {
       const m = (name || "").match(/\d+/);
       return m ? parseInt(m[0], 10) : Number.POSITIVE_INFINITY;
     };
+    const orderOf = (d: Delivery): number => {
+      const i = indexById.get(d.material_id);
+      if (i !== undefined) return i;
+      return extractNum(d.material_name);
+    };
     return [...deliveries].sort((a, b) => {
-      const na = extractNum(a.material_name);
-      const nb = extractNum(b.material_name);
+      const na = orderOf(a);
+      const nb = orderOf(b);
       if (na !== nb) return na - nb;
       return (a.delivered_at || "").localeCompare(b.delivered_at || "");
     });
-  }, [deliveries]);
+  }, [deliveries, station]);
 
   // Dispara o overlay institucional quando o ator inicia a estação
   useEffect(() => {
