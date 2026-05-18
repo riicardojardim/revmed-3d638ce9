@@ -326,7 +326,7 @@ function SimuladoRunner() {
     }
     setPreviewEnabled(next);
     const { error } = await supabase.from("room_evaluations").upsert({
-      room_id: sim.roomId,
+      room_id: sim.roomId!,
       evaluator_id: user.id,
       candidate_id: evaluatedCandidateId,
       station_id: stationId,
