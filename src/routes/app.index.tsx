@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   Flame,
-  MessageCircle,
+  
   Sparkles,
   Trophy,
   TrendingUp,
@@ -340,15 +340,6 @@ function Dashboard() {
         </div>
       </div>
 
-      <a
-        href="https://wa.me/5500000000000"
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-24 right-6 z-40 hidden h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white shadow-elegant transition-transform hover:scale-110 lg:flex"
-        aria-label="Suporte WhatsApp"
-      >
-        <MessageCircle className="h-5 w-5" />
-      </a>
     </div>
   );
 }
