@@ -92,7 +92,7 @@ export function AvatarUploader({ userId, avatarUrl, initial, onUpdated }: Props)
       const path = `${userId}/avatar-${Date.now()}.jpg`;
       const { error: upErr } = await supabase.storage
         .from("avatars")
-        .upload(path, blob, { contentType: "image/jpeg", upsert: true });
+        .upload(path, blob, { contentType: "image/jpeg", upsert: false });
       if (upErr) {
         toast.error("Falha no upload: " + upErr.message);
         return;
