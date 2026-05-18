@@ -641,11 +641,19 @@ function CandidateView() {
                             </div>
                           )}
                           {d.material_image_url && (
-                            <img
-                              src={d.material_image_url}
-                              alt={d.material_name || "Material"}
-                              className="mt-3 w-full rounded-lg border border-border object-contain"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setZoomImage({ src: d.material_image_url!, alt: d.material_name || "Material" })}
+                              className="mt-3 block w-full group relative"
+                              title="Clique para ampliar"
+                            >
+                              <img
+                                src={d.material_image_url}
+                                alt={d.material_name || "Material"}
+                                className="w-full rounded-lg border border-border object-contain transition-opacity group-hover:opacity-90"
+                              />
+                              <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                            </button>
                           )}
                         </div>
                       )}
