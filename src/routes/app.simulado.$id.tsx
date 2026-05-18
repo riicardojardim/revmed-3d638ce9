@@ -289,13 +289,17 @@ function SimuladoRunner() {
 
   const allScored = totals.count > 0 && totals.scored === totals.count;
 
-  // Auto-sincroniza a prévia do PEP enquanto estiver habilitada
+  // Auto-sincroniza a prévia do PEP enquanto estiver habilitada OU após o encerramento
   useEffect(() => {
-    if (!previewEnabled || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    if (!(previewEnabled || finishedStation) || !sim?.roomId || !user || !evaluatedCandidateId) return;
     const roomId = sim.roomId;
     const stationId = sim.stations[sim.currentIndex]?.id;
     if (!stationId) return;
     const t = setTimeout(() => {
+      const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
+      const resolvedStatus = finishedStation && allScored
+        ? (pct >= 61.17 ? "aprovado" : "reprovado")
+        : "em_andamento";
       void supabase.from("room_evaluations").upsert({
         room_id: roomId,
         evaluator_id: user.id,
@@ -305,12 +309,12 @@ function SimuladoRunner() {
         item_comments: comments,
         final_feedback: feedback,
         final_score: Number(totals.earned.toFixed(2)),
-        status: "em_andamento",
+        status: resolvedStatus,
         preview_for_candidate: true,
       }, { onConflict: "room_id,evaluator_id,candidate_id" });
     }, 400);
     return () => clearTimeout(t);
-  }, [previewEnabled, checks, comments, feedback, totals.earned, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
+  }, [previewEnabled, finishedStation, allScored, checks, comments, feedback, totals.earned, totals.total, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
 
   async function togglePreview() {
     if (!sim?.roomId || !user) return;
