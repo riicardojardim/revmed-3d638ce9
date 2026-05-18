@@ -85,7 +85,7 @@ function ProfilePage() {
   const [title, setTitle] = useState<string>(profile?.title ?? "");
   const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(profile?.whatsapp ?? "");
-  const [examYear, setExamYear] = useState(profile?.exam_year ?? "");
+  const examYear = profile?.exam_year || deduceExamYear();
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
