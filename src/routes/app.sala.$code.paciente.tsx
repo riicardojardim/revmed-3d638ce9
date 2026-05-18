@@ -122,6 +122,7 @@ function ActorView() {
   const [remaining, setRemaining] = useState(0);
   const [finished, setFinished] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const finishingRef = useRef(false);
 
   async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
@@ -261,8 +262,8 @@ function ActorView() {
         const left = Math.max(0, Math.min(totalSec, totalSec - elapsed));
         setRemaining(left);
         if (left <= 0 && elapsed >= 0) {
-          setFinished(true);
           if (intervalRef.current) clearInterval(intervalRef.current);
+          void finishStation(true);
         }
       };
 
@@ -432,13 +433,40 @@ function ActorView() {
     toast.success("Cronômetro iniciado para o candidato.");
   }
 
-  async function finishStation() {
+  async function finishStation(auto = false) {
     if (!room) return;
-    await supabase.from("training_rooms")
+    if (finishingRef.current) return;
+    finishingRef.current = true;
+    const finishedAt = new Date().toISOString();
+    const { error } = await supabase.from("training_rooms")
       .update({ status: "finished", finished_at: new Date().toISOString() })
       .eq("id", room.id);
+    if (error) {
+      finishingRef.current = false;
+      return toast.error(error.message);
+    }
+    setRoom((prev) => prev ? { ...prev, status: "finished" } : prev);
     setFinished(true);
-    toast.success("Estação finalizada. Preencha o PEP abaixo.");
+    if (user && room.evaluated_candidate_id) {
+      const resolvedStatus = allScored
+        ? (evalStatus === "em_andamento" ? (pct >= 61.17 ? "aprovado" : "reprovado") : evalStatus)
+        : "em_andamento";
+      const { error: evalError } = await supabase.from("room_evaluations")
+        .upsert({
+          room_id: room.id,
+          evaluator_id: user.id,
+          candidate_id: room.evaluated_candidate_id,
+          station_id: room.station_id,
+          checks,
+          item_comments: comments,
+          final_feedback: feedback,
+          final_score: Number(score.toFixed(2)),
+          status: resolvedStatus,
+          submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
+        }, { onConflict: "room_id,evaluator_id,candidate_id" });
+      if (evalError) toast.error(evalError.message);
+    }
+    toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação finalizada. PEP liberado para o candidato.");
   }
 
   async function copyInviteLink() {
