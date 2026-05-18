@@ -93,15 +93,32 @@ export function deleteSimulado(userId: string, id: string) {
   writeSingleStations(userId, temporary);
 }
 
+// Gera código curto tipo AB12CD (6 chars, alfabeto sem 0/O/1/I para evitar confusão)
+const SHORT_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function generateShortCode(length = 6): string {
+  let out = "";
+  for (let i = 0; i < length; i++) {
+    out += SHORT_CODE_ALPHABET[Math.floor(Math.random() * SHORT_CODE_ALPHABET.length)];
+  }
+  return out;
+}
+
 export function createSimulado(
   userId: string,
   name: string,
   stations: { id: string; title: string; specialty: string }[],
 ): Simulado {
+  // Garante código curto único dentro do escopo do usuário (localStorage)
+  const existing = readAll(userId);
+  const existingSingle = readSingleStations(userId);
+  let id = generateShortCode();
+  let tries = 0;
+  while ((existing[id] || existingSingle[id]) && tries < 50) {
+    id = generateShortCode();
+    tries++;
+  }
   const sim: Simulado = {
-    id: (typeof crypto !== "undefined" && "randomUUID" in crypto)
-      ? crypto.randomUUID()
-      : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}-4${Math.random().toString(16).slice(2, 5)}-${Math.random().toString(16).slice(2, 6)}-${Math.random().toString(16).slice(2, 14)}`,
+    id,
     name: name.trim() || (stations.length >= 2 ? "Simulado" : "Estação"),
     createdAt: Date.now(),
     currentIndex: 0,
@@ -119,3 +136,4 @@ export function createSimulado(
   saveSimulado(userId, sim);
   return sim;
 }
+
