@@ -25,7 +25,7 @@ const ROLE_META: Record<IntroRole, { label: string; icon: typeof Stethoscope }> 
  * StationIntroOverlay — sequência institucional "Prontuário + Crachá".
  * Duração ~5.2s. Sincronizada externamente via Supabase Realtime.
  */
-export function StationIntroOverlay({ role, stationTitle, specialty, displayName, onComplete }: Props) {
+export function StationIntroOverlay({ role, stationTitle, specialty, displayName, avatarUrl, onComplete }: Props) {
   const reduce = useReducedMotion();
   const [phase, setPhase] = useState<"intro" | "credential" | "record" | "doors" | "countdown" | "done">("intro");
   const [count, setCount] = useState<3 | 2 | 1 | 0>(3);
