@@ -240,6 +240,68 @@ function CandidateView() {
     if (room?.status === "starting" && !introDone) setShowIntro(true);
   }, [room?.status, introDone]);
 
+  // Persiste a tentativa em Desempenho/Histórico assim que o ator finalizar a correção
+  // (status = aprovado/reprovado e todos os itens pontuados). Atualiza se já existir.
+  useEffect(() => {
+    if (!station || !user || !room) return;
+    if (!evaluation) return;
+    const isFinalized = evaluation.status === "aprovado" || evaluation.status === "reprovado";
+    if (!isFinalized) return;
+    const allItemsScored = station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
+    if (!allItemsScored) return;
+    const fingerprint = `${room.id}:${evaluation.final_score ?? 0}:${evaluation.status}`;
+    if (savedAttemptRef.current === fingerprint) return;
+    savedAttemptRef.current = fingerprint;
+
+    (async () => {
+      try {
+        const totalPoints = station.checklist.reduce((s, it) => s + Number(it.points || 0), 0);
+        const earned = station.checklist.reduce((s, it) => {
+          const v = evaluation.checks[it.id];
+          return s + (typeof v === "number" ? v : 0);
+        }, 0);
+        const checkedItems = station.checklist
+          .filter((it) => typeof evaluation.checks[it.id] === "number" && evaluation.checks[it.id] > 0)
+          .map((it) => it.id);
+        const score = Number(evaluation.final_score ?? earned);
+        const used = Math.max(0, ((room.duration_minutes ?? station.durationMinutes) * 60) - remaining);
+
+        const { data: existing } = await supabase
+          .from("attempts")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("room_id", room.id)
+          .maybeSingle();
+
+        const payload = {
+          score,
+          earned: Math.round(earned),
+          total_points: Math.round(totalPoints),
+          checked_items: checkedItems,
+          notes: notes || evaluation.final_feedback || null,
+          status: evaluation.status,
+        };
+
+        if (existing?.id) {
+          await supabase.from("attempts").update(payload).eq("id", existing.id);
+        } else {
+          await supabase.from("attempts").insert({
+            user_id: user.id,
+            station_id: station.id,
+            station_title: station.title,
+            specialty: station.specialty,
+            used_seconds: used,
+            room_id: room.id,
+            ...payload,
+          } as never);
+        }
+      } catch (e) {
+        console.error("Falha ao salvar tentativa:", e);
+        savedAttemptRef.current = null; // permite nova tentativa
+      }
+    })();
+  }, [evaluation, station, user, room, remaining, notes]);
+
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
   // Overlay institucional de entrada (3..2..1). Bloqueia toda a tela.
