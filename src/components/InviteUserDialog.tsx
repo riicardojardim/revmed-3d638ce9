@@ -65,6 +65,10 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
   }, [q]);
 
   async function invite(u: UserResult) {
+    if (u.allows_candidato === false) {
+      toast.error(`${u.full_name ?? "Esse usuário"} tem plano de Ator e não pode ser candidato.`);
+      return;
+    }
     setSendingId(u.id);
     try {
       const { error } = await supabase.rpc("send_room_invite", {
@@ -77,7 +81,12 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
       toast.success(`Convite enviado para ${u.full_name ?? u.username ?? "usuário"}`);
     } catch (e) {
       console.error(e);
-      toast.error("Não foi possível enviar o convite.");
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("recipient plan does not allow candidato")) {
+        toast.error(`${u.full_name ?? "Esse usuário"} tem plano de Ator e não pode ser candidato.`);
+      } else {
+        toast.error("Não foi possível enviar o convite.");
+      }
     } finally {
       setSendingId(null);
     }
