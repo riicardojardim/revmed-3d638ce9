@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search, GraduationCap, ListOrdered, ChevronUp, ChevronDown, X, GripVertical } from "lucide-react";
 import { createSimulado } from "@/lib/simulado";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/treinar")({
   component: TrainPage,
