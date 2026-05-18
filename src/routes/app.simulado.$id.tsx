@@ -10,7 +10,7 @@ import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
-  ArrowLeft, ArrowRight, CheckCircle2, ClipboardCheck, Lock, Trophy,
+  ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy,
   MessageSquare, ListChecks, Theater, Inbox, FileText, PackageCheck, Send,
   Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail,
 } from "lucide-react";
@@ -740,17 +740,15 @@ function SimuladoRunner() {
                 <span className="font-bold text-mint">{totals.earned.toFixed(2)}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="hero"
-                  disabled={!allScored}
-                  onClick={goNext}
-                >
-                  {sim.currentIndex < sim.stations.length - 1 ? (
-                    <>Próxima estação <ArrowRight className="ml-1 h-4 w-4" /></>
-                  ) : (
-                    <>Concluir simulado <CheckCircle2 className="ml-1 h-4 w-4" /></>
-                  )}
-                </Button>
+                {sim.currentIndex < sim.stations.length - 1 && (
+                  <Button
+                    variant="hero"
+                    disabled={!allScored}
+                    onClick={goNext}
+                  >
+                    Próxima estação <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </PRBlock>

@@ -14,7 +14,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck,
+  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck, Eye, EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -108,6 +108,7 @@ function ActorView() {
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [previewEnabled, setPreviewEnabled] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   const [struckWords, setStruckWords] = useState<Set<string>>(new Set());
@@ -198,6 +199,7 @@ function ActorView() {
           setComments((ev.item_comments ?? {}) as Record<string, string>);
           setFeedback(ev.final_feedback ?? "");
           setEvalStatus(ev.status as typeof evalStatus);
+          setPreviewEnabled(!!(ev as { preview_for_candidate?: boolean }).preview_for_candidate);
         }
       }
     })();
@@ -224,8 +226,9 @@ function ActorView() {
         setComments((ev.item_comments ?? {}) as Record<string, string>);
         setFeedback(ev.final_feedback ?? "");
         setEvalStatus(ev.status as typeof evalStatus);
+        setPreviewEnabled(!!(ev as { preview_for_candidate?: boolean }).preview_for_candidate);
       } else {
-        setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
+        setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento"); setPreviewEnabled(false);
       }
     })();
   }, [room?.evaluated_candidate_id, room?.id, user?.id]);
@@ -369,6 +372,26 @@ function ActorView() {
     toast.success(`Entregue: ${m.name}`);
   }
 
+  // Auto-sincroniza a prévia do PEP enquanto estiver habilitada
+  useEffect(() => {
+    if (!previewEnabled || !room || !user || !room.evaluated_candidate_id) return;
+    const t = setTimeout(() => {
+      void supabase.from("room_evaluations").upsert({
+        room_id: room.id,
+        evaluator_id: user.id,
+        candidate_id: room.evaluated_candidate_id,
+        station_id: room.station_id,
+        checks,
+        item_comments: comments,
+        final_feedback: feedback,
+        final_score: Number(score.toFixed(2)),
+        status: "em_andamento",
+        preview_for_candidate: true,
+      }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [previewEnabled, checks, comments, feedback, score, room?.id, room?.evaluated_candidate_id, user?.id, room?.station_id]);
+
   async function save(submit = false) {
     if (!room || !user) return;
     if (!room.evaluated_candidate_id) return toast.error("Selecione um candidato avaliado antes de salvar.");
@@ -422,6 +445,30 @@ function ActorView() {
       } catch {}
       nav({ to: "/app/sala/$code", params: { code } });
     }
+  }
+
+  async function togglePreview() {
+    if (!room || !user) return;
+    if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
+    const next = !previewEnabled;
+    setPreviewEnabled(next);
+    const { error } = await supabase.from("room_evaluations").upsert({
+      room_id: room.id,
+      evaluator_id: user.id,
+      candidate_id: room.evaluated_candidate_id,
+      station_id: room.station_id,
+      checks,
+      item_comments: comments,
+      final_feedback: feedback,
+      final_score: Number(score.toFixed(2)),
+      status: "em_andamento",
+      preview_for_candidate: next,
+    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    if (error) {
+      setPreviewEnabled(!next);
+      return toast.error(error.message);
+    }
+    toast.success(next ? "PEP visível para o candidato em tempo real." : "Prévia do PEP ocultada.");
   }
 
   async function setEvaluatedCandidate(id: string) {
@@ -752,7 +799,25 @@ function ActorView() {
           <PRBlock
             icon={ClipboardCheck}
             title="CHECKLIST ( PEP )"
-            right={<Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>}
+            right={
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>
+                <button
+                  type="button"
+                  onClick={togglePreview}
+                  title={previewEnabled ? "Ocultar PEP do candidato" : "Mostrar PEP para o candidato em tempo real"}
+                  className={cn(
+                    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors",
+                    previewEnabled
+                      ? "border-mint/60 bg-mint/20 text-mint hover:bg-mint/30"
+                      : "border-white/30 text-white/80 hover:bg-white/10",
+                  )}
+                  aria-label={previewEnabled ? "Ocultar PEP do candidato" : "Mostrar PEP ao candidato"}
+                >
+                  {previewEnabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+              </div>
+            }
           >
 
 
@@ -1359,7 +1424,7 @@ function Highlightable({ children }: { children: React.ReactNode }) {
       {children}
     </div>
   );
-}
+  }
 
 
 function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string, string | undefined][] {

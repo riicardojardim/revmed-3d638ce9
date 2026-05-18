@@ -46,7 +46,7 @@ function CandidateView() {
   const [finished, setFinished] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [introDone, setIntroDone] = useState(false);
-  const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null; checks: Record<string, number>; item_comments: Record<string, string> } | null>(null);
+  const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null; checks: Record<string, number>; item_comments: Record<string, string>; preview_for_candidate: boolean } | null>(null);
   const [hideTimer, setHideTimer] = useState(false);
   const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -119,7 +119,7 @@ function CandidateView() {
   async function loadEvaluation(roomId: string) {
     if (!user) return;
     const { data } = await supabase.from("room_evaluations")
-      .select("final_score, status, final_feedback, checks, item_comments")
+      .select("final_score, status, final_feedback, checks, item_comments, preview_for_candidate")
       .eq("room_id", roomId)
       .eq("candidate_id", user.id)
       .maybeSingle();
@@ -129,6 +129,7 @@ function CandidateView() {
       final_feedback: data.final_feedback,
       checks: (data.checks ?? {}) as Record<string, number>,
       item_comments: (data.item_comments ?? {}) as Record<string, string>,
+      preview_for_candidate: !!(data as { preview_for_candidate?: boolean }).preview_for_candidate,
     });
   }
 
@@ -253,7 +254,7 @@ function CandidateView() {
   const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
-  const correctionReady = !!evaluation && isFinished;
+  const correctionReady = !!evaluation && (isFinished || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
 
   // Lobby de espera — tela cheia, transita sozinha quando room.status virar "running"

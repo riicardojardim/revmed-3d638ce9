@@ -1,0 +1,1 @@
+ALTER TABLE public.room_evaluations ADD COLUMN IF NOT EXISTS preview_for_candidate boolean NOT NULL DEFAULT false;
