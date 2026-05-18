@@ -30,19 +30,19 @@ function ProgressPage() {
   const [attempts, setAttempts] = useState<DbAttempt[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
-    supabase
+    setLoading(true);
+    const { data } = await supabase
       .from("attempts")
       .select("id, station_id, station_title, specialty, score, status, created_at, professor_score, reviewed_at, professor_feedback")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(500)
-      .then(({ data }) => {
-        setAttempts((data ?? []) as DbAttempt[]);
-        setLoading(false);
-      });
-  }, [user]);
+      .limit(500);
+    setAttempts((data ?? []) as DbAttempt[]);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
 
   const specStats = useMemo(() => {
     const m = new Map<string, { sum: number; n: number }>();
