@@ -126,15 +126,9 @@ function SignupPage() {
                 ))}
               </RadioGroup>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="wpp">WhatsApp</Label>
-                <Input id="wpp" placeholder="opcional" value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} />
-              </div>
-              <div>
-                <Label htmlFor="year">Ano da prova</Label>
-                <Input id="year" placeholder="opcional" value={form.year} onChange={(e) => update("year", e.target.value)} />
-              </div>
+            <div>
+              <Label htmlFor="wpp">WhatsApp</Label>
+              <Input id="wpp" placeholder="opcional" value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} />
             </div>
             <Button variant="hero" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Criando..." : (<>Criar conta <ArrowRight className="h-4 w-4" /></>)}
