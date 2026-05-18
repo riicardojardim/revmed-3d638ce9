@@ -316,7 +316,24 @@ function ProfilePage() {
                 ))}
               </SelectContent>
             </Select>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="username">@username</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">@</span>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => { setUsername(e.target.value.toLowerCase()); setUsernameError(null); }}
+                placeholder="seunome"
+                maxLength={20}
+                autoComplete="off"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {usernameError ?? "Como seus amigos vão te encontrar. 3–20 caracteres, letras minúsculas, números, ponto ou _."}
+            </p>
           </div>
+        </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="whatsapp">WhatsApp</Label>
