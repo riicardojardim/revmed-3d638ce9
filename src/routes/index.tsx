@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import {
   ArrowRight,
