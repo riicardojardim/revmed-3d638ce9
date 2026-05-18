@@ -955,7 +955,7 @@ function SimuladoRunner() {
             {running && (
               <button
                 type="button"
-                onClick={finishTimer}
+                  onClick={() => void finishTimer()}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 active:scale-[0.98]"
               >
                 <Square className="h-4 w-4" /> Encerrar estação
