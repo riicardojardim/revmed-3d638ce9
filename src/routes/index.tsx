@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
 import {
   ArrowRight,
   CheckCircle2,
@@ -26,7 +27,7 @@ import {
   UserRound,
   ClipboardCheck,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +57,13 @@ const nav = [
 ];
 
 function LandingPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!loading && user) {
+      navigate({ to: "/app", replace: true });
+    }
+  }, [loading, user, navigate]);
   return (
     <div className="min-h-screen bg-background">
       <Header />
