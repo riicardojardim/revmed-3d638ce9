@@ -52,6 +52,7 @@ function CandidateView() {
   const [evaluation, setEvaluation] = useState<{ final_score: number | null; status: string; final_feedback: string | null; checks: Record<string, number>; item_comments: Record<string, string>; preview_for_candidate: boolean } | null>(null);
   const [hideTimer, setHideTimer] = useState(false);
   const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
+  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const savedAttemptRef = useRef<string | null>(null);
