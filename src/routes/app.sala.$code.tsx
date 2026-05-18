@@ -584,6 +584,14 @@ function SimuladoRunner({ id }: { id: string }) {
       return;
     }
     const currentStationId = sim.stations[sim.currentIndex]?.id;
+    // Fallback para imagens hardcoded (estações antigas sem imageUrl no banco)
+    const nameLc = (m.name || "").toLowerCase();
+    const fallbackImage = !m.imageUrl
+      ? (/aranha/.test(nameLc) ? aranhaArmadeira
+        : /ritmo/.test(nameLc) ? ecgRitmoSinusal
+        : null)
+      : null;
+    const effectiveImageUrl = m.imageUrl ?? fallbackImage ?? null;
     const { error } = await supabase.from("room_material_deliveries").insert({
       room_id: sim.roomId,
       station_id: currentStationId,
@@ -592,7 +600,7 @@ function SimuladoRunner({ id }: { id: string }) {
       material_type: m.type,
       material_description: m.description ?? null,
       material_content: m.content,
-      material_image_url: m.imageUrl ?? null,
+      material_image_url: effectiveImageUrl,
       delivered_by: user.id,
     });
     if (error) { toast.error(error.message); return; }
