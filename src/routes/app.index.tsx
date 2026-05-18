@@ -246,7 +246,7 @@ function Dashboard() {
         <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-5 shadow-card">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-mint" />
-            <h3 className="font-display font-bold">Desempenho por categorias</h3>
+            <h3 className="font-display font-bold">Desempenho por especialidades</h3>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Estude com mais foco.</p>
           <div className="mt-3 h-64">
