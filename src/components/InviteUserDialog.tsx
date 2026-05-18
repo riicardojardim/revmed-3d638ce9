@@ -28,6 +28,7 @@ type Props = {
 export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Props) {
   const [q, setQ] = useState("");
   const [results, setResults] = useState<UserResult[]>([]);
+  const [recent, setRecent] = useState<UserResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
@@ -39,7 +40,13 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
       setQ("");
       setResults([]);
       setInvitedIds(new Set());
+      return;
     }
+    // Load recently invited users when dialog opens
+    (async () => {
+      const { data, error } = await supabase.rpc("recent_invited_users", { _limit: 8 });
+      if (!error && data) setRecent(data as UserResult[]);
+    })();
   }, [open]);
 
   useEffect(() => {
