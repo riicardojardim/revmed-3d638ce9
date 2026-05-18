@@ -83,7 +83,16 @@ function ProfilePage() {
         : "Aluno";
 
   // -------- Personal info form --------
-  const [fullName, setFullName] = useState(profile?.full_name ?? "");
+  const splitName = (full: string | null | undefined): [string, string] => {
+    const trimmed = (full ?? "").trim();
+    if (!trimmed) return ["", ""];
+    const parts = trimmed.split(/\s+/);
+    const first = parts.shift() ?? "";
+    return [first, parts.join(" ")];
+  };
+  const [initialFirst, initialLast] = splitName(profile?.full_name);
+  const [firstName, setFirstName] = useState(initialFirst);
+  const [lastName, setLastName] = useState(initialLast);
   const [title, setTitle] = useState<string>(profile?.title ?? "");
   const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
@@ -91,7 +100,9 @@ function ProfilePage() {
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
-    setFullName(profile?.full_name ?? "");
+    const [f, l] = splitName(profile?.full_name);
+    setFirstName(f);
+    setLastName(l);
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
@@ -107,10 +118,11 @@ function ProfilePage() {
       return;
     }
     setSavingProfile(true);
+    const composedName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name: fullName.trim() || null,
+        full_name: composedName || null,
         title: title || null,
         gender: gender || null,
         whatsapp: digits || null,
@@ -238,13 +250,24 @@ function ProfilePage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2 space-y-1.5">
-            <Label htmlFor="fullName">Nome completo</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="firstName">Nome</Label>
             <Input
-              id="fullName"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Como aparece no seu diploma"
+              id="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Seu nome"
+              autoComplete="given-name"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="lastName">Sobrenome</Label>
+            <Input
+              id="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Seu sobrenome"
+              autoComplete="family-name"
             />
           </div>
 
