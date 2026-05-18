@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
 import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
 import { formatDoctorName } from "@/lib/doctorName";
+import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
