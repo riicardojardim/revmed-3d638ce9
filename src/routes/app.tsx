@@ -94,7 +94,6 @@ function AppLayout() {
         label: "Checklist & Flashcard",
         items: [
           { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
-          { to: "/app/treinar", label: "Criar Simulado", icon: Dumbbell },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
