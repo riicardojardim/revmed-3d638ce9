@@ -236,8 +236,8 @@ function SimuladoRunner() {
         if (payload.eventType === "INSERT") {
           const row = payload.new as { user_id: string; role: string; display_name: string | null };
           if (row.role === "candidato") {
-            const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", row.user_id).maybeSingle();
-            toast.success(`${formatCandidateName(prof?.full_name ?? row.display_name, row.user_id)} entrou no simulado`);
+            const { data: prof } = await supabase.from("profiles").select("full_name, title").eq("id", row.user_id).maybeSingle();
+            toast.success(`${formatCandidateName(prof?.full_name ?? row.display_name, prof?.title, row.user_id)} entrou no simulado`);
           }
         }
       })
