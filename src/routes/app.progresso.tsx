@@ -63,11 +63,14 @@ function ProgressPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">Sua evolução</h1>
-        <p className="mt-1 text-muted-foreground">
-          Acompanhe seu desempenho por competência e histórico de estações.
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Sua evolução</h1>
+          <p className="mt-1 text-muted-foreground">
+            Acompanhe seu desempenho por competência e histórico de estações.
+          </p>
+        </div>
+        <ResetStatsButton scope="attempts" onDone={load} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
