@@ -51,6 +51,12 @@ function CandidateView() {
   const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
+  const displayName =
+    profile?.full_name?.trim() ||
+    (user?.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user?.user_metadata?.name as string | undefined)?.trim() ||
+    user?.email?.split("@")[0] ||
+    null;
 
   useEffect(() => {
     (async () => {
@@ -99,6 +105,16 @@ function CandidateView() {
     }, 2000);
     return () => { supabase.removeChannel(ch); clearInterval(pollId); };
   }, [room?.id]);
+
+  useEffect(() => {
+    if (!room || !user || !displayName) return;
+    supabase
+      .from("training_room_participants")
+      .update({ display_name: displayName })
+      .eq("room_id", room.id)
+      .eq("user_id", user.id)
+      .then(() => {});
+  }, [room?.id, user?.id, displayName]);
 
   async function loadEvaluation(roomId: string) {
     if (!user) return;
