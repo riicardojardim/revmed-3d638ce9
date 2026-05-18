@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, ChevronRight, ChevronDown, ListOrdered } from "lucide-react";
+import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 
 export const Route = createFileRoute("/app/historico")({
   component: Historico,
