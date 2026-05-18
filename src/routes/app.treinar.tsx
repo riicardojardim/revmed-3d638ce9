@@ -75,8 +75,8 @@ function TrainPage() {
   }
   function startSimulado() {
     if (!user) { toast.error("Faça login para criar um simulado."); return; }
-    if (selected.length === 0) {
-      toast.error("Adicione pelo menos um checklist.");
+    if (selected.length < 2) {
+      toast.error("Um simulado precisa de pelo menos 2 checklists.");
       return;
     }
     const today = new Date().toLocaleDateString("pt-BR");
@@ -233,12 +233,13 @@ function TrainPage() {
             {selectMode && (
               <Button
                 variant="hero"
-                disabled={selected.length === 0}
+                disabled={selected.length < 2}
                 onClick={() => {
                   const today = new Date().toLocaleDateString("pt-BR");
                   setSimName(`Simulado ${today}`);
                   setReviewOpen(true);
                 }}
+                title={selected.length < 2 ? "Selecione pelo menos 2 checklists" : ""}
               >
                 Simulado ({selected.length})
               </Button>
@@ -325,7 +326,7 @@ function TrainPage() {
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setReviewOpen(false)}>Cancelar</Button>
-            <Button variant="hero" onClick={startSimulado} disabled={selected.length === 0}>
+            <Button variant="hero" onClick={startSimulado} disabled={selected.length < 2}>
               Iniciar Simulado
             </Button>
           </div>

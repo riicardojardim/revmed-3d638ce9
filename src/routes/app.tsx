@@ -94,7 +94,6 @@ function AppLayout() {
         label: "Checklist & Flashcard",
         items: [
           { to: "/app/estacoes", label: "Banco de checklists", icon: ClipboardList },
-          { to: "/app/treinar", label: "Criar Simulado", icon: Dumbbell },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/revisao", label: "Revisão" },
@@ -132,7 +131,7 @@ function AppLayout() {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
           { to: "/app/estacoes", label: "Checklists", icon: ClipboardList },
-          { to: "/app/treinar", label: "Treinar", icon: Dumbbell },
+          
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           
           { to: "/app/progresso", label: "Progresso", icon: TrendingUp },
