@@ -217,6 +217,14 @@ function SimuladoRunner({ id }: { id: string }) {
     };
   }, [sim?.id, sim?.roomCode, sim?.name, sim?.finished]);
 
+  // Garante que a URL do ator seja o mesmo código da sala compartilhada no link de convite,
+  // para que ator e candidato sempre estejam no mesmo "endereço" da sala.
+  useEffect(() => {
+    if (!sim?.roomCode) return;
+    if (id === sim.roomCode) return;
+    nav({ to: "/app/sala/$code", params: { code: sim.roomCode }, replace: true });
+  }, [id, sim?.roomCode, nav]);
+
   async function refreshCandidates(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
       .select("user_id, role, display_name").eq("room_id", roomId);
