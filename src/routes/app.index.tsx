@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   Flame,
-  MessageCircle,
+  
   Sparkles,
   Trophy,
   TrendingUp,
