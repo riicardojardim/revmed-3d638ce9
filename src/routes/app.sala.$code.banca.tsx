@@ -59,6 +59,7 @@ function EvaluatorView() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
+  const { zoomImage, setZoomImage } = useImageZoom();
   const [candidateId, setCandidateId] = useState<string | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [levels, setLevels] = useState<Record<string, Level>>({});
