@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
+import { AvatarUploader } from "@/components/AvatarUploader";
 
 export const Route = createFileRoute("/app/perfil")({
   component: ProfilePage,
