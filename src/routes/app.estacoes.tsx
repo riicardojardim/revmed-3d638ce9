@@ -10,6 +10,7 @@ import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { createSimulado } from "@/lib/simulado";
+import { SimuladoBuilder } from "@/components/SimuladoBuilder";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/estacoes")({
