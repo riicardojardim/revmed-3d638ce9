@@ -40,13 +40,17 @@ type AttemptRow = {
   created_at: string;
 };
 
-const SPECIALTIES: { key: string; label: string; color: string }[] = [
+const SPECIALTIES: { key: string; label: string; color: string; aliases?: string[] }[] = [
   { key: "Clínica Médica", label: "Clínica", color: "text-blue-400" },
   { key: "Cirurgia", label: "Cirurgia", color: "text-violet-400" },
   { key: "Pediatria", label: "Pediatria", color: "text-amber-400" },
   { key: "Ginecologia e Obstetrícia", label: "GO", color: "text-pink-400" },
-  { key: "Medicina de Família e Comunidade", label: "MFC", color: "text-emerald-400" },
-  { key: "Medicina Preventiva", label: "Preventiva", color: "text-orange-400" },
+  {
+    key: "Medicina de Família e Comunidade",
+    label: "MFC / Preventiva",
+    color: "text-emerald-400",
+    aliases: ["Preventiva", "Medicina Preventiva", "Saúde Coletiva"],
+  },
 ];
 
 const CATEGORIES = ["Anamnese", "E. Físico", "Lab", "Imagem", "Dx", "Conduta"];
@@ -204,14 +208,20 @@ function Dashboard() {
           </div>
           <ul className="mt-3 space-y-2.5 text-sm">
             {SPECIALTIES.map((s) => {
-              const d = stats.bySpec.get(s.key);
-              const avg = d ? d.sum / d.n : 0;
+              const keys = [s.key, ...(s.aliases ?? [])];
+              let sum = 0;
+              let n = 0;
+              keys.forEach((k) => {
+                const d = stats.bySpec.get(k);
+                if (d) { sum += d.sum; n += d.n; }
+              });
+              const avg = n ? sum / n : 0;
               return (
                 <li key={s.key} className="space-y-0.5">
                   <div className={`font-semibold ${s.color}`}>{s.label}</div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Média: {avg.toFixed(1)}</span>
-                    <span>Est.: {d?.n ?? 0}</span>
+                    <span>Est.: {n}</span>
                   </div>
                 </li>
               );
