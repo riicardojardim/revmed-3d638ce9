@@ -199,6 +199,7 @@ function ActorView() {
           setComments((ev.item_comments ?? {}) as Record<string, string>);
           setFeedback(ev.final_feedback ?? "");
           setEvalStatus(ev.status as typeof evalStatus);
+          setPreviewEnabled(!!(ev as { preview_for_candidate?: boolean }).preview_for_candidate);
         }
       }
     })();
