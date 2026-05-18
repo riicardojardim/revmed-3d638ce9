@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading, Highlightable } from "@/components/station/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
@@ -658,21 +658,26 @@ function SimuladoRunner() {
           </PRBlock>
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
-            {station.patientScript ? (
-              <ScriptText text={station.patientScript} />
-            ) : p ? (
-              <ScriptText text={formatPatientProfile(p)} />
-            ) : (
-              <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
-            )}
-            {p?.spontaneous && <SubBlock label="O que falar espontaneamente"><ScriptText text={p.spontaneous} /></SubBlock>}
-            {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose"><ScriptText text={p.doNotReveal} /></SubBlock>}
-            {(p?.emotionalTone || p?.actingTips) && (
-              <SubBlock label="Tom emocional e atuação">
-                {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
-                {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
-              </SubBlock>
-            )}
+            <p className="mb-3 text-[11px] text-muted-foreground italic">
+              Dica: o texto antes dos <strong className="font-semibold">dois pontos</strong> já vem em negrito. Selecione qualquer trecho para usá-lo como marca-texto; selecione de novo (ou clique no destaque) para remover.
+            </p>
+            <Highlightable>
+              {station.patientScript ? (
+                <ScriptText text={station.patientScript} />
+              ) : p ? (
+                <ScriptText text={formatPatientProfile(p)} />
+              ) : (
+                <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
+              )}
+              {p?.spontaneous && <SubBlock label="O que falar espontaneamente"><ScriptText text={p.spontaneous} /></SubBlock>}
+              {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose"><ScriptText text={p.doNotReveal} /></SubBlock>}
+              {(p?.emotionalTone || p?.actingTips) && (
+                <SubBlock label="Tom emocional e atuação">
+                  {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
+                  {p?.actingTips && <p className="mt-1"><span className="font-medium">Dicas:</span> {p.actingTips}</p>}
+                </SubBlock>
+              )}
+            </Highlightable>
           </PRBlock>
 
           {/* Materiais */}
