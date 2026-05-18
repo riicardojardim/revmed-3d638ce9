@@ -412,7 +412,7 @@ const areas = [
   { icon: Scissors, name: "Cirurgia", count: 18 },
   { icon: Heart, name: "Ginecologia e Obstetrícia", count: 24 },
   { icon: Baby, name: "Pediatria", count: 22 },
-  { icon: HomeIcon, name: "Medicina da Família", count: 20 },
+  { icon: HomeIcon, name: "Medicina de Família e Comunidade", count: 20 },
   { icon: Siren, name: "Urgência e Emergência", count: 16 },
   { icon: MessagesSquare, name: "Comunicação médico-paciente", count: 12 },
   { icon: Stethoscope, name: "Exames e condutas", count: 14 },

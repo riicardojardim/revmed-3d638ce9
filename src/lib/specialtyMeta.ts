@@ -4,7 +4,7 @@
 //   GO  Ginecologia e Obstetrícia → coral / vermelho
 //   PE  Pediatria                 → verde
 //   PR  Preventiva                → laranja
-//   MF  Medicina da Família       → esmeralda (fora do Pense, mantido)
+//   MFC Medicina de Família e Comunidade → esmeralda
 //   UE  Urgência e Emergência     → vermelho escuro (fora do Pense, mantido)
 
 export type SpecialtyMeta = {
@@ -48,8 +48,8 @@ const META: Record<string, SpecialtyMeta> = {
     solid: "bg-rose-500",
     text: "text-rose-400",
   },
-  "Medicina da Família": {
-    code: "MF",
+  "Medicina de Família e Comunidade": {
+    code: "MFC",
     badge: "bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/30",
     card: "border-teal-500/40 bg-teal-500/5",
     solid: "bg-teal-500",
@@ -103,7 +103,7 @@ export function getSpecialtyMeta(specialty?: string | null): SpecialtyMeta {
  *   2. Cirurgia
  *   3. Ginecologia e Obstetrícia
  *   4. Pediatria
- *   5. Medicina da Família e Comunidade / Preventiva
+ *   5. Medicina de Família e Comunidade / Preventiva
  * Extras (fora da prova oficial) ficam no final.
  */
 export const SPECIALTY_ORDER: string[] = [
@@ -111,7 +111,7 @@ export const SPECIALTY_ORDER: string[] = [
   "Cirurgia",
   "Ginecologia e Obstetrícia",
   "Pediatria",
-  "Medicina da Família",
+  "Medicina de Família e Comunidade",
   "Preventiva",
   "Saúde Coletiva",
   "Urgência e Emergência",
@@ -123,7 +123,7 @@ export const REVALIDA_SPECIALTIES: string[] = [
   "Cirurgia",
   "Ginecologia e Obstetrícia",
   "Pediatria",
-  "Medicina da Família",
+  "Medicina de Família e Comunidade",
 ];
 
 /** Índice (rank) de uma especialidade segundo a ordem oficial. Desconhecidas vão pro fim. */
