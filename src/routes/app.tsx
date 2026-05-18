@@ -99,7 +99,7 @@ function AppLayout() {
           { to: "/app/checklists", label: "Banco de checklists", icon: ClipboardList },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
             { to: "/app/flashcards", label: "Flashcards" },
-            { to: "/app/flashcards/revisao", label: "Revisão" },
+            { to: "/app/flashcards/desempenho", label: "Desempenho" },
           ]},
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
