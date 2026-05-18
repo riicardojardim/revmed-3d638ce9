@@ -269,7 +269,7 @@ function RoomPage() {
     if (!room || !isHost) return;
     if (!confirm("Cancelar e fechar esta sala?")) return;
     await supabase.from("training_rooms").delete().eq("id", room.id);
-    nav({ to: "/app/treinar" });
+    nav({ to: "/app/estacoes" });
   }
 
   async function onIntroComplete() {
@@ -323,7 +323,7 @@ function RoomPage() {
       )}
 
       <div className="mx-auto max-w-5xl space-y-6">
-        <Link to="/app/treinar" className="text-sm text-muted-foreground hover:text-foreground">
+        <Link to="/app/estacoes" className="text-sm text-muted-foreground hover:text-foreground">
           ← Voltar
         </Link>
 
