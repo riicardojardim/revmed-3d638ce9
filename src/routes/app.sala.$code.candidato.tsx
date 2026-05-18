@@ -438,8 +438,8 @@ function CandidateView() {
       {showSavingBanner && (
         <div
           className={cn(
-            "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm shadow-elegant",
-            resultSaved ? "border-mint/30 bg-mint/10" : "border-mint/30 bg-mint/5",
+            "sticky top-16 z-40 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm shadow-elegant backdrop-blur-xl",
+            resultSaved ? "border-mint/40 bg-mint/15" : "border-mint/30 bg-mint/10",
           )}
         >
           {resultSaved ? (
