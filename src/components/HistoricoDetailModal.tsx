@@ -94,11 +94,13 @@ export function HistoricoDetailModal({
             .select("final_score, status, final_feedback, checks, item_comments")
             .eq("room_id", att.room_id)
             .eq("candidate_id", user.id)
+            .eq("station_id", att.station_id)
             .maybeSingle(),
           supabase
             .from("room_material_deliveries")
             .select("id, material_id, material_name, material_type, material_description, material_content, material_image_url, delivered_at")
             .eq("room_id", att.room_id)
+            .eq("station_id", att.station_id)
             .order("delivered_at", { ascending: true }),
         ]);
         if (cancelled) return;
