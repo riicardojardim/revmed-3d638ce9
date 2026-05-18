@@ -225,8 +225,9 @@ function SimuladoRunner() {
         }
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${roomId}` }, (payload) => {
-        const row = payload.new as { evaluated_candidate_id: string | null };
+        const row = payload.new as { evaluated_candidate_id: string | null; status?: string | null };
         setEvaluatedCandidateId(row.evaluated_candidate_id ?? null);
+        if (row.status) setRoomStatus(row.status);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -424,6 +425,7 @@ function SimuladoRunner() {
           started_at: startsAtIso,
           duration_minutes: duration,
         }).eq("id", sim.roomId);
+        setRoomStatus("starting");
       } catch (e) { console.error(e); }
     }
   }
@@ -435,6 +437,7 @@ function SimuladoRunner() {
         .update({ status: "running" })
         .eq("id", sim.roomId)
         .eq("status", "starting");
+      setRoomStatus("running");
     }
   }
   async function finishTimer(auto = false) {
@@ -477,6 +480,7 @@ function SimuladoRunner() {
         toast.error(roomError.message);
         return;
       }
+      setRoomStatus("finished");
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
