@@ -774,12 +774,10 @@ function CandidateView() {
           )}
 
           {/* PEP locked card — só para o candidato avaliado */}
-          {!isSpectator && (
+          {!isSpectator && correctionReady && (
             <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
               <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
-              <div className="mt-2 text-[11px] text-muted-foreground">
-                {correctionReady ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
-              </div>
+              <div className="mt-2 text-[11px] text-muted-foreground">PEP disponível abaixo</div>
             </div>
           )}
         </aside>
