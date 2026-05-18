@@ -1178,6 +1178,14 @@ function SimuladoRunner() {
           </div>
         </div>
       )}
+      {sim?.roomId && current?.id && (
+        <InviteUserDialog
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+          roomId={sim.roomId}
+          stationId={current.id}
+        />
+      )}
     </div>
     </>
   );
