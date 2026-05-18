@@ -253,6 +253,7 @@ function ActorView() {
     };
   }, []);
 
+  // When the evaluated candidate changes, reload draft for that candidate (or reset)
   useEffect(() => {
     if (!room || !user || !room.evaluated_candidate_id) {
       setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
