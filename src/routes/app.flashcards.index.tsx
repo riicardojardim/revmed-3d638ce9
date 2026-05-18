@@ -421,9 +421,6 @@ function FlashcardsPage() {
                     <p className="text-center text-sm font-medium text-medical">
                       Como foi sua resposta?
                     </p>
-                    <p className="mt-1 text-center text-[11px] text-muted-foreground">
-                      Isso ajusta quando este card volta para você
-                    </p>
                     <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                       <button
                         onClick={() => rate(0)}
