@@ -67,6 +67,7 @@ function SimuladoRunner() {
   const [copied, setCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
+  const [roomStatus, setRoomStatus] = useState("waiting");
 
   // Load simulado
   useEffect(() => {
@@ -99,6 +100,7 @@ function SimuladoRunner() {
         setEvalStatus("em_andamento");
         setShowAnalysis(false);
         setPreviewEnabled(false);
+        setRoomStatus("waiting");
       }
     });
   }, [sim?.currentIndex, sim?.id, sim?.finished]);
@@ -111,11 +113,23 @@ function SimuladoRunner() {
       // If we already have a room, just sync its station to the current one.
       if (sim.roomId) {
         const cur = sim.stations[sim.currentIndex];
-        await supabase.from("training_rooms")
-          .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
-          .eq("id", sim.roomId);
         const { data: r } = await supabase.from("training_rooms")
-          .select("evaluated_candidate_id").eq("id", sim.roomId).maybeSingle();
+          .select("station_id, status, evaluated_candidate_id, duration_minutes").eq("id", sim.roomId).maybeSingle();
+        if (r?.station_id === cur.id && r.status === "finished") {
+          if (!cancelled) {
+            setRoomStatus("finished");
+            setFinishedStation(true);
+            setPreviewEnabled(true);
+            setRunning(false);
+            setRemaining(0);
+            setDuration((r.duration_minutes as number | null) ?? station.durationMinutes ?? 10);
+          }
+        } else {
+          await supabase.from("training_rooms")
+            .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
+            .eq("id", sim.roomId);
+          if (!cancelled) setRoomStatus("waiting");
+        }
         if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
         await refreshCandidates(sim.roomId);
         return;
@@ -133,6 +147,7 @@ function SimuladoRunner() {
         duration_minutes: station.durationMinutes ?? 10,
       }).select("id, code").single();
       if (error || !created) { console.error(error); return; }
+      if (!cancelled) setRoomStatus("waiting");
       setSim((prev) => {
         if (!prev) return prev;
         const next = { ...prev, roomId: created.id as string, roomCode: created.code as string };
