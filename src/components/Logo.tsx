@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import logoUrl from "@/assets/logo-estacao-revalida.png";
 import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.png";
+import { useAuth } from "@/hooks/use-auth";
 
 export function Logo({
   variant = "dark",
@@ -13,9 +14,11 @@ export function Logo({
 }) {
   void variant;
   const isStacked = layout === "stacked";
+  const { user } = useAuth();
+  const target = user ? "/app" : "/";
   return (
     <Link
-      to="/"
+      to={target}
       className="inline-flex items-center justify-center"
       aria-label="Estação Revalida — início"
     >
