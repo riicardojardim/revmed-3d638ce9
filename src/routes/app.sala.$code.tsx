@@ -27,9 +27,21 @@ import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
 export const Route = createFileRoute("/app/sala/$code")({
-  component: SimuladoRunner,
-  head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
+  component: SalaDispatcher,
+  head: () => ({ meta: [{ title: "Sala — Estação Revalida" }] }),
 });
+
+function SalaDispatcher() {
+  const { code } = Route.useParams();
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
+  }
+  const sim = user ? getSimulado(user.id, code) : null;
+  if (sim) return <SimuladoRunner id={code} />;
+  // Não é simulado do usuário atual → fluxo normal de sala (lobby/candidato/paciente/banca)
+  return <Outlet />;
+}
 
 type Candidate = { id: string; name: string; avatarUrl: string | null };
 
