@@ -250,19 +250,6 @@ function ProfilePage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="examYear">Ano da prova</Label>
-            <Select value={examYear} onValueChange={setExamYear}>
-              <SelectTrigger id="examYear">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {EXAM_YEARS.map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <div>
