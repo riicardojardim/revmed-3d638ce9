@@ -337,8 +337,8 @@ function CandidateView() {
   useEffect(() => {
     if (!station || !user || !room) return;
     if (!evaluation) return;
-    // Espectadores não salvam tentativa — só o candidato avaliado.
-    if (room.evaluated_candidate_id && room.evaluated_candidate_id !== user.id) return;
+    // Espectadores não salvam tentativa — só o candidato avaliado da vez.
+    if (!room.evaluated_candidate_id || room.evaluated_candidate_id !== user.id) return;
     const isFinalized = evaluation.status === "aprovado" || evaluation.status === "reprovado";
     if (!isFinalized) return;
     const allItemsScored = station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
