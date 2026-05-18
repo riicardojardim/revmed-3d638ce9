@@ -124,6 +124,7 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
             <CredentialCard
               role={role}
               displayName={displayName}
+              avatarUrl={avatarUrl}
               stationTitle={isCandidate ? "Sigiloso até a abertura" : stationTitle}
               specialty={isCandidate ? null : specialty}
               hideStation={isCandidate}
