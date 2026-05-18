@@ -40,6 +40,8 @@ function StationsPage() {
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
 
   function startStation(s: ListStation) {
     if (!user) { toast.error("Faça login para iniciar."); return; }
