@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
+import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/app/perfil")({
   component: ProfilePage,
@@ -84,7 +85,7 @@ function ProfilePage() {
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [title, setTitle] = useState<string>(profile?.title ?? "");
   const [gender, setGender] = useState<string>(profile?.gender ?? "");
-  const [whatsapp, setWhatsapp] = useState(profile?.whatsapp ?? "");
+  const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
   const examYear = profile?.exam_year || deduceExamYear();
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -92,13 +93,18 @@ function ProfilePage() {
     setFullName(profile?.full_name ?? "");
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
-    setWhatsapp(profile?.whatsapp ?? "");
+    setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
     
   }, [profile]);
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    const digits = normalizeWhatsapp(whatsapp);
+    if (digits && !isValidWhatsapp(digits)) {
+      toast.error("WhatsApp inválido. Use o formato (XX) 9XXXX-XXXX.");
+      return;
+    }
     setSavingProfile(true);
     const { error } = await supabase
       .from("profiles")
@@ -106,7 +112,7 @@ function ProfilePage() {
         full_name: fullName.trim() || null,
         title: title || null,
         gender: gender || null,
-        whatsapp: whatsapp.trim() || null,
+        whatsapp: digits || null,
         exam_year: examYear || null,
       })
       .eq("id", user.id);
@@ -244,9 +250,13 @@ function ProfilePage() {
             <Label htmlFor="whatsapp">WhatsApp</Label>
             <Input
               id="whatsapp"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
               value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
+              onChange={(e) => setWhatsapp(formatWhatsapp(e.target.value))}
               placeholder="(11) 99999-9999"
+              maxLength={16}
             />
           </div>
 

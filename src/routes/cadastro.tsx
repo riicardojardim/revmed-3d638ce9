@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/cadastro")({
   component: SignupPage,
@@ -33,6 +34,11 @@ function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const wppDigits = normalizeWhatsapp(form.whatsapp);
+    if (wppDigits && !isValidWhatsapp(wppDigits)) {
+      toast.error("WhatsApp inválido. Use o formato (XX) 9XXXX-XXXX.");
+      return;
+    }
     setSubmitting(true);
     const now = new Date();
     const y = now.getFullYear();
@@ -45,7 +51,7 @@ function SignupPage() {
         emailRedirectTo: `${window.location.origin}/app`,
         data: {
           full_name: form.name,
-          whatsapp: form.whatsapp,
+          whatsapp: wppDigits,
           exam_year: deducedYear,
           role,
         },
@@ -128,7 +134,7 @@ function SignupPage() {
             </div>
             <div>
               <Label htmlFor="wpp">WhatsApp</Label>
-              <Input id="wpp" placeholder="opcional" value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} />
+              <Input id="wpp" type="tel" inputMode="numeric" autoComplete="tel" placeholder="(11) 99999-9999" maxLength={16} value={form.whatsapp} onChange={(e) => update("whatsapp", formatWhatsapp(e.target.value))} />
             </div>
             <Button variant="hero" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Criando..." : (<>Criar conta <ArrowRight className="h-4 w-4" /></>)}
