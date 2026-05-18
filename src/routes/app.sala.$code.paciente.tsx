@@ -22,6 +22,7 @@ import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { UserAvatar } from "@/components/UserAvatar";
+import { InviteUserDialog } from "@/components/InviteUserDialog";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -1192,7 +1193,13 @@ function ActorView() {
                       <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                         Participantes ({candidates.length})
                       </div>
-                      <span className="text-[10px] text-muted-foreground">avaliado da vez</span>
+                      <button
+                        type="button"
+                        onClick={() => setInviteOpen(true)}
+                        className="inline-flex items-center gap-1 rounded-full border border-mint/40 bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint transition hover:bg-mint/20"
+                      >
+                        <UserPlus className="h-3 w-3" /> Convidar amigo
+                      </button>
                     </div>
                     {candidates.length === 0 ? (
                       <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
