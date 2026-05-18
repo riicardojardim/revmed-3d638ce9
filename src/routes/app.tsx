@@ -319,7 +319,8 @@ function AppLayout() {
             <UserAvatar
               avatarUrl={profile?.avatar_url}
               name={profile?.full_name ?? user.email}
-              className="hidden h-9 w-9 sm:inline-flex"
+              size="md"
+              className="hidden sm:inline-flex"
             />
           </div>
         </header>
