@@ -799,7 +799,25 @@ function ActorView() {
           <PRBlock
             icon={ClipboardCheck}
             title="CHECKLIST ( PEP )"
-            right={<Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>}
+            right={
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>
+                <button
+                  type="button"
+                  onClick={togglePreview}
+                  title={previewEnabled ? "Ocultar PEP do candidato" : "Mostrar PEP para o candidato em tempo real"}
+                  className={cn(
+                    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors",
+                    previewEnabled
+                      ? "border-mint/60 bg-mint/20 text-mint hover:bg-mint/30"
+                      : "border-white/30 text-white/80 hover:bg-white/10",
+                  )}
+                  aria-label={previewEnabled ? "Ocultar PEP do candidato" : "Mostrar PEP ao candidato"}
+                >
+                  {previewEnabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+              </div>
+            }
           >
 
 
