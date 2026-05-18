@@ -2,10 +2,11 @@ import { Medal, Lock } from "lucide-react";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
 // Nota de corte oficial do INEP — Revalida, prova de habilidades clínicas (2ª etapa).
-// Última divulgada: edição 2025/1 = 65,655 pontos (escala 0–100).
-// Fonte: gov.br/inep — "Revalida 2025/1: Nota de corte da 2ª etapa é de 65,655 pontos" (DOU, 09/06/2025).
-export const NOTA_DE_CORTE = 65.655; // escala 0–100
-export const NOTA_DE_CORTE_EDICAO = "Revalida 2025/1";
+// Última divulgada: edição 2025/2 = 62,174 pontos (escala 0–100).
+// Fonte: DOU, Edital INEP nº 31, de 31/03/2026 (publicado em 01/04/2026, Seção 3, p. 85).
+// https://www.in.gov.br/web/dou/-/edital-n-31-de-31-de-marco-de-2026-697022309
+export const NOTA_DE_CORTE = 62.174; // escala 0–100
+export const NOTA_DE_CORTE_EDICAO = "Revalida 2025/2";
 export const MIN_STATIONS_PER_SPECIALTY = 5;
 
 // Notas internas das tentativas são salvas na escala 0–10 — convertemos a nota de corte:
