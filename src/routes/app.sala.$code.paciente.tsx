@@ -237,6 +237,9 @@ function ActorView() {
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async () => {
         await refreshCandidates(room.id);
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async () => {
+        await refreshCandidates(room.id);
+      })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${room.id}` }, (payload) => {
         setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
       })
