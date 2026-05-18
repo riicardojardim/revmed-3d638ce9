@@ -15,7 +15,6 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as ECodeRouteImport } from './routes/e.$code'
-import { Route as AppTreinarRouteImport } from './routes/app.treinar'
 import { Route as AppSuporteRouteImport } from './routes/app.suporte'
 import { Route as AppResumosRouteImport } from './routes/app.resumos'
 import { Route as AppProgressoRouteImport } from './routes/app.progresso'
@@ -89,11 +88,6 @@ const ECodeRoute = ECodeRouteImport.update({
   id: '/e/$code',
   path: '/e/$code',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppTreinarRoute = AppTreinarRouteImport.update({
-  id: '/treinar',
-  path: '/treinar',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppSuporteRoute = AppSuporteRouteImport.update({
   id: '/suporte',
@@ -330,7 +324,6 @@ export interface FileRoutesByFullPath {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
-  '/app/treinar': typeof AppTreinarRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -379,7 +372,6 @@ export interface FileRoutesByTo {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
-  '/app/treinar': typeof AppTreinarRoute
   '/e/$code': typeof ECodeRoute
   '/app': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -430,7 +422,6 @@ export interface FileRoutesById {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
-  '/app/treinar': typeof AppTreinarRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -484,7 +475,6 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
-    | '/app/treinar'
     | '/e/$code'
     | '/app/'
     | '/app/admin/conteudo'
@@ -533,7 +523,6 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
-    | '/app/treinar'
     | '/e/$code'
     | '/app'
     | '/app/admin/conteudo'
@@ -583,7 +572,6 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
-    | '/app/treinar'
     | '/e/$code'
     | '/app/'
     | '/app/admin/conteudo'
@@ -668,13 +656,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/e/$code'
       preLoaderRoute: typeof ECodeRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/app/treinar': {
-      id: '/app/treinar'
-      path: '/treinar'
-      fullPath: '/app/treinar'
-      preLoaderRoute: typeof AppTreinarRouteImport
-      parentRoute: typeof AppRoute
     }
     '/app/suporte': {
       id: '/app/suporte'
@@ -1123,7 +1104,6 @@ interface AppRouteChildren {
   AppProgressoRoute: typeof AppProgressoRoute
   AppResumosRoute: typeof AppResumosRouteWithChildren
   AppSuporteRoute: typeof AppSuporteRoute
-  AppTreinarRoute: typeof AppTreinarRoute
   AppIndexRoute: typeof AppIndexRoute
   AppEntrarCodeRoute: typeof AppEntrarCodeRoute
   AppResultadoIdRoute: typeof AppResultadoIdRoute
@@ -1151,7 +1131,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppProgressoRoute: AppProgressoRoute,
   AppResumosRoute: AppResumosRouteWithChildren,
   AppSuporteRoute: AppSuporteRoute,
-  AppTreinarRoute: AppTreinarRoute,
   AppIndexRoute: AppIndexRoute,
   AppEntrarCodeRoute: AppEntrarCodeRoute,
   AppResultadoIdRoute: AppResultadoIdRoute,
@@ -1176,3 +1155,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
