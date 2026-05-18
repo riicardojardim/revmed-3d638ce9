@@ -195,7 +195,7 @@ function SimuladoRunner({ id }: { id: string }) {
       localStorage.setItem("ator:activeRoom", JSON.stringify({
         code: sim.roomCode,
         title: sim.name,
-        path: `/app/sala/${sim.roomCode}`,
+        path: `/app/sala/${sim.id}`,
         parent: (sim.stations?.length ?? 0) >= 2 ? "treinar" : "estacoes",
       }));
       window.dispatchEvent(new Event("ator:activeRoom"));
@@ -212,14 +212,6 @@ function SimuladoRunner({ id }: { id: string }) {
       } catch {}
     };
   }, [sim?.id, sim?.roomCode, sim?.name, sim?.finished]);
-
-  // Garante que a URL do ator seja o mesmo código da sala compartilhada no link de convite,
-  // para que ator e candidato sempre estejam no mesmo "endereço" da sala.
-  useEffect(() => {
-    if (!sim?.roomCode) return;
-    if (id === sim.roomCode) return;
-    nav({ to: "/app/sala/$code", params: { code: sim.roomCode }, replace: true });
-  }, [id, sim?.roomCode, nav]);
 
   async function refreshCandidates(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
