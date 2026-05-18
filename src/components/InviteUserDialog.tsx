@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Search, Send, Loader2 } from "lucide-react";
+import { Search, Send, Loader2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnlinePresence } from "@/hooks/use-online-presence";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ type UserResult = {
   username: string | null;
   avatar_url: string | null;
   email: string | null;
+  allows_candidato: boolean | null;
 };
 
 type Props = {
