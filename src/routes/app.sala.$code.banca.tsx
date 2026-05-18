@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ScriptText } from "@/components/station/shared";
+import { ImageZoomOverlay, useImageZoom } from "@/components/ImageZoomOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
   component: EvaluatorView,
