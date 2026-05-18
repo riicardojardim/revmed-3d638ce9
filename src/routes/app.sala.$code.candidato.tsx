@@ -400,15 +400,6 @@ function CandidateView() {
             )}
           </PRBlock>
 
-          <PRBlock icon={StickyNote} title="Anotações" tone="amber">
-            <Textarea
-              placeholder="Anote raciocínio, hipóteses, conduta…"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={6}
-              disabled={!isRunning}
-            />
-          </PRBlock>
 
           {/* PEP — só aparece quando ator liberar a correção */}
           {isFinished && (
