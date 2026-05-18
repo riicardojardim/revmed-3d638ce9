@@ -1116,24 +1116,26 @@ function SimuladoRunner() {
             </div>
           )}
 
-          {/* Progresso do simulado — sem títulos das próximas estações para não revelar ao candidato */}
-          <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Progresso do simulado</div>
-            <div className="mt-2 text-xs text-muted-foreground">
-              Estação <span className="font-bold text-foreground">{sim.currentIndex + 1}</span> de <span className="font-bold text-foreground">{sim.stations.length}</span>
+          {/* Progresso do simulado — só faz sentido com 2+ estações */}
+          {sim.stations.length >= 2 && (
+            <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Progresso do simulado</div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                Estação <span className="font-bold text-foreground">{sim.currentIndex + 1}</span> de <span className="font-bold text-foreground">{sim.stations.length}</span>
+              </div>
+              <div className="mt-2 flex gap-1">
+                {sim.stations.map((_, i) => (
+                  <div key={i} className={cn(
+                    "h-1.5 flex-1 rounded-full",
+                    i < sim.currentIndex ? "bg-mint" : i === sim.currentIndex ? "bg-mint/60" : "bg-muted",
+                  )} />
+                ))}
+              </div>
+              <div className="mt-2 text-[10px] text-muted-foreground/70 italic">
+                Os títulos das próximas estações ficam ocultos para não revelar o conteúdo ao candidato.
+              </div>
             </div>
-            <div className="mt-2 flex gap-1">
-              {sim.stations.map((_, i) => (
-                <div key={i} className={cn(
-                  "h-1.5 flex-1 rounded-full",
-                  i < sim.currentIndex ? "bg-mint" : i === sim.currentIndex ? "bg-mint/60" : "bg-muted",
-                )} />
-              ))}
-            </div>
-            <div className="mt-2 text-[10px] text-muted-foreground/70 italic">
-              Os títulos das próximas estações ficam ocultos para não revelar o conteúdo ao candidato.
-            </div>
-          </div>
+          )}
         </aside>
       </div>
 
