@@ -103,7 +103,7 @@ export function getSpecialtyMeta(specialty?: string | null): SpecialtyMeta {
  *   2. Cirurgia
  *   3. Ginecologia e Obstetrícia
  *   4. Pediatria
- *   5. Medicina de Família e Comunidade e Comunidade / Preventiva
+ *   5. Medicina de Família e Comunidade / Preventiva
  * Extras (fora da prova oficial) ficam no final.
  */
 export const SPECIALTY_ORDER: string[] = [
