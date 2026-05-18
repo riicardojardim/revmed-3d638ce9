@@ -100,6 +100,11 @@ function ProfilePage() {
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    const digits = normalizeWhatsapp(whatsapp);
+    if (digits && !isValidWhatsapp(digits)) {
+      toast.error("WhatsApp inválido. Use o formato (XX) 9XXXX-XXXX.");
+      return;
+    }
     setSavingProfile(true);
     const { error } = await supabase
       .from("profiles")
@@ -107,7 +112,7 @@ function ProfilePage() {
         full_name: fullName.trim() || null,
         title: title || null,
         gender: gender || null,
-        whatsapp: whatsapp.trim() || null,
+        whatsapp: digits || null,
         exam_year: examYear || null,
       })
       .eq("id", user.id);
