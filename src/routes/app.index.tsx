@@ -8,7 +8,7 @@ import {
   Trophy,
   TrendingUp,
 } from "lucide-react";
-import { SpecialtyMedals, NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
+import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import {
   ResponsiveContainer,
   RadarChart,
