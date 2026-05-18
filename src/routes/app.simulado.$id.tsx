@@ -294,11 +294,12 @@ function SimuladoRunner() {
   // Auto-sincroniza a prévia do PEP enquanto estiver habilitada
   useEffect(() => {
     if (!previewEnabled || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    const roomId = sim.roomId;
     const stationId = sim.stations[sim.currentIndex]?.id;
     if (!stationId) return;
     const t = setTimeout(() => {
       void supabase.from("room_evaluations").upsert({
-        room_id: sim.roomId,
+        room_id: roomId,
         evaluator_id: user.id,
         candidate_id: evaluatedCandidateId,
         station_id: stationId,
