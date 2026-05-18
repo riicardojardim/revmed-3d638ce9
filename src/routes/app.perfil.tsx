@@ -331,12 +331,24 @@ function ProfilePage() {
           <Lock className="h-4 w-4 text-mint" />
           <h3 className="font-semibold">Alterar senha</h3>
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="currentPassword">Senha atual</Label>
+          <Input
+            id="currentPassword"
+            type="password"
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Digite sua senha atual"
+          />
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="newPassword">Nova senha</Label>
             <Input
               id="newPassword"
               type="password"
+              autoComplete="new-password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres"
@@ -347,6 +359,7 @@ function ProfilePage() {
             <Input
               id="confirmPassword"
               type="password"
+              autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repita a senha"
@@ -354,7 +367,11 @@ function ProfilePage() {
           </div>
         </div>
         <div>
-          <Button type="submit" variant="outline" disabled={savingPassword || !newPassword || !confirmPassword}>
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={savingPassword || !currentPassword || !newPassword || !confirmPassword}
+          >
             {savingPassword ? "Atualizando..." : "Atualizar senha"}
           </Button>
         </div>
