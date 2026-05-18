@@ -142,6 +142,8 @@ function Dashboard() {
   );
 
   const displayName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "estudante";
+  const titlePrefix = profile?.title && profile.title !== "Sem título" ? `${profile.title} ` : "";
+  const greetingName = `${titlePrefix}${displayName}`;
 
   if (subLoading) {
     return <div className="text-sm text-muted-foreground">Carregando...</div>;
