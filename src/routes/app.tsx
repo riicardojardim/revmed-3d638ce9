@@ -302,24 +302,26 @@ function AppLayout() {
           <div className="flex items-center gap-2 lg:hidden">
             <Logo />
           </div>
-          <div className="flex flex-1 items-center gap-2 overflow-hidden">
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-elegant">
-              <Activity className="h-3.5 w-3.5" /> Revalida 2026.1
+          <div className="flex flex-1 items-center gap-2 overflow-hidden font-sans">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-medical px-3 py-1.5 text-xs font-semibold tracking-tight text-white shadow-elegant ring-1 ring-mint/30">
+              <Activity className="h-3.5 w-3.5 text-mint" /> Revalida 2026.1
             </span>
             <span
               title={`Nota de corte da prova de habilidades clínicas — ${NOTA_DE_CORTE_EDICAO} (INEP)`}
-              className="hidden shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300 md:inline-flex"
+              className="hidden shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground md:inline-flex"
             >
-              Nota de corte INEP: <span className="text-emerald-200">{NOTA_DE_CORTE.toFixed(3)} pts</span>
-              <span className="text-emerald-300/70">· {NOTA_DE_CORTE_EDICAO}</span>
+              <span className="text-muted-foreground">Nota de corte INEP</span>
+              <span className="font-display font-bold tabular-nums text-mint">{NOTA_DE_CORTE.toFixed(3)} pts</span>
+              <span className="hidden h-3 w-px bg-mint/40 lg:inline-block" />
+              <span className="hidden text-muted-foreground lg:inline">{NOTA_DE_CORTE_EDICAO}</span>
             </span>
             <a
               href="https://chat.whatsapp.com/"
               target="_blank"
               rel="noreferrer"
-              className="hidden truncate rounded-full border border-rose-500/30 bg-rose-500/5 px-3 py-1 text-xs font-medium text-rose-300 transition-colors hover:bg-rose-500/10 sm:inline-block"
+              className="hidden shrink-0 truncate rounded-full border border-medical/40 bg-medical/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:border-mint/50 hover:bg-mint/10 hover:text-mint sm:inline-block"
             >
-              Faça parte do Grupo Premium 2026.1 — WhatsApp (Grupo 6)
+              <span className="text-muted-foreground">Grupo Premium 2026.1 ·</span> <span className="text-mint">WhatsApp (Grupo 6)</span>
             </a>
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
