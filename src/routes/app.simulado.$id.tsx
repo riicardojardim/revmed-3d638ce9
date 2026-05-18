@@ -820,7 +820,11 @@ function SimuladoRunner() {
                       )}
                       <Textarea
                         value={comments[it.id] ?? ""}
-                        onChange={(e) => setComments((c) => ({ ...c, [it.id]: e.target.value }))}
+                        onChange={(e) => {
+                          const nextComments = { ...comments, [it.id]: e.target.value };
+                          setComments(nextComments);
+                          void syncEvaluationToCandidate(checks, nextComments, feedback);
+                        }}
                         placeholder="Comentário (opcional)"
                         rows={2}
                         className="mt-3"
@@ -862,7 +866,11 @@ function SimuladoRunner() {
               </div>
               <Textarea
                 value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
+                onChange={(e) => {
+                  const nextFeedback = e.target.value;
+                  setFeedback(nextFeedback);
+                  void syncEvaluationToCandidate(checks, comments, nextFeedback);
+                }}
                 rows={4}
                 placeholder="Pontos fortes, pontos a melhorar..."
                 className="mt-2"
