@@ -208,14 +208,20 @@ function Dashboard() {
           </div>
           <ul className="mt-3 space-y-2.5 text-sm">
             {SPECIALTIES.map((s) => {
-              const d = stats.bySpec.get(s.key);
-              const avg = d ? d.sum / d.n : 0;
+              const keys = [s.key, ...(s.aliases ?? [])];
+              let sum = 0;
+              let n = 0;
+              keys.forEach((k) => {
+                const d = stats.bySpec.get(k);
+                if (d) { sum += d.sum; n += d.n; }
+              });
+              const avg = n ? sum / n : 0;
               return (
                 <li key={s.key} className="space-y-0.5">
                   <div className={`font-semibold ${s.color}`}>{s.label}</div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Média: {avg.toFixed(1)}</span>
-                    <span>Est.: {d?.n ?? 0}</span>
+                    <span>Est.: {n}</span>
                   </div>
                 </li>
               );
