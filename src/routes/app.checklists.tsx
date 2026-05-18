@@ -4,6 +4,8 @@ import { Search, ArrowRight, ListChecks, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { SPECIALTIES, type Specialty, type Station } from "@/data/stations";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
@@ -40,6 +42,8 @@ function StationsPage() {
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
 
   function startStation(s: ListStation) {
     if (!user) { toast.error("Faça login para iniciar."); return; }
@@ -208,7 +212,7 @@ function StationsPage() {
             <Button
               variant="outline"
               className="mt-4 w-full"
-              onClick={() => { setQ(""); setSpec("Todas"); }}
+              onClick={() => { setAllSearch(""); setAllOpen(true); }}
             >
               Ver todas <ArrowRight className="h-4 w-4" />
             </Button>
@@ -229,6 +233,51 @@ function StationsPage() {
         </aside>
       </div>
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
+
+      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+        <DialogContent className="max-w-3xl overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-mint" />
+              Todos os checklists
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={allSearch}
+                onChange={(e) => setAllSearch(e.target.value)}
+                placeholder="Buscar checklist..."
+                className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
+              />
+            </div>
+            <ul className="max-h-[60vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
+              {dbStations
+                .filter((s) => s.title.toLowerCase().includes(allSearch.toLowerCase()))
+                .map((s) => {
+                  const m = getSpecialtyMeta(s.specialty);
+                  return (
+                    <li key={s.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
+                      <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
+                      </div>
+                      <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); startStation(s); }}>
+                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </li>
+                  );
+                })}
+              {dbStations.length === 0 && (
+                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum checklist publicado.</li>
+              )}
+            </ul>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
