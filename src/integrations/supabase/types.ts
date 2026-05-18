@@ -892,6 +892,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      respond_room_invite: {
+        Args: { _accept: boolean; _invite_id: string }
+        Returns: {
+          room_code: string
+          room_id: string
+        }[]
+      }
       search_users_for_invite: {
         Args: { _q: string }
         Returns: {
