@@ -44,6 +44,7 @@ function StationsPage() {
   const [builderOpen, setBuilderOpen] = useState(false);
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
+  const [allSpec, setAllSpec] = useState<Specialty | "Todas">("Todas");
 
   function startStation(s: ListStation) {
     if (!user) { toast.error("Faça login para iniciar."); return; }
