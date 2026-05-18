@@ -206,6 +206,11 @@ function Historico() {
           </div>
         )}
       </div>
+      <HistoricoDetailModal
+        attemptId={detailId}
+        open={!!detailId}
+        onOpenChange={(v) => { if (!v) setDetailId(null); }}
+      />
     </div>
   );
 }
