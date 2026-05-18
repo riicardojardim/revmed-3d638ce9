@@ -567,20 +567,6 @@ const plans = [
     cta: "Quero ser Ator",
   },
   {
-    name: "Completo Mensal",
-    price: "R$ 147",
-    period: "/ mês",
-    desc: "Mesmo acesso do Completo, cobrado mês a mês.",
-    features: [
-      "Acesso enquanto a assinatura estiver ativa",
-      "Treine como candidato e como ator",
-      "+600 checklists e +450 flashcards",
-      "Cronograma, desempenho e correção por IA",
-      "Cancele quando quiser",
-    ],
-    cta: "Assinar mensal",
-  },
-  {
     name: "Completo",
     price: "R$ 497",
     originalPrice: "R$ 597",
@@ -596,6 +582,20 @@ const plans = [
     ],
     highlight: true,
     cta: "Quero o Completo",
+  },
+  {
+    name: "Completo Mensal",
+    price: "R$ 147",
+    period: "/ mês",
+    desc: "Mesmo acesso do Completo, cobrado mês a mês.",
+    features: [
+      "Acesso enquanto a assinatura estiver ativa",
+      "Treine como candidato e como ator",
+      "+600 checklists e +450 flashcards",
+      "Cronograma, desempenho e correção por IA",
+      "Cancele quando quiser",
+    ],
+    cta: "Assinar mensal",
   },
 ];
 
