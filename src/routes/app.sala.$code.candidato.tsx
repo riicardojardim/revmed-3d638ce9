@@ -427,8 +427,9 @@ function CandidateView() {
   const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = !isSpectator && (finished || room.status === "finished");
-  // Espectadores também enxergam o PEP do candidato avaliado quando o ator libera/encerra.
-  const correctionReady = !!evaluation && (isFinished || room.status === "finished" || evaluation.preview_for_candidate);
+  // Espectadores enxergam o PEP do candidato avaliado em tempo real (como o ator),
+  // independente da liberação de preview. Candidato só vê após liberação/encerramento.
+  const correctionReady = !!evaluation && (isSpectator || isFinished || room.status === "finished" || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
   const allScored = !!evaluation && station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
   const resultSaved = !!evaluation && (evaluation.status === "aprovado" || evaluation.status === "reprovado");
