@@ -43,14 +43,7 @@ export function getSpecAvg(stats: SpecStats, key: string): { avg: number; n: num
 export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-display font-bold">Medalhas por especialidade</h3>
-        <span className="text-xs text-muted-foreground">
-          Conquiste ≥ {MIN_STATIONS_PER_SPECIALTY} estações com média ≥{" "}
-          <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span>{" "}
-          (nota de corte INEP — {NOTA_DE_CORTE.toFixed(3)} pts / {NOTA_DE_CORTE_EDICAO})
-        </span>
-      </div>
+      <h3 className="font-display font-bold">Medalhas por especialidade</h3>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {MEDAL_SPECIALTIES.map((s) => {
           const meta = getSpecialtyMeta(s.key);
@@ -78,9 +71,6 @@ export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
                 {s.short}
               </div>
               <div className="text-[11px] leading-tight text-muted-foreground">{s.label}</div>
-              <div className="mt-1 text-[11px] text-muted-foreground">
-                {n}/{MIN_STATIONS_PER_SPECIALTY} est. · média {avg.toFixed(1)}
-              </div>
             </div>
           );
         })}
