@@ -41,8 +41,8 @@ type AttemptRow = {
 };
 
 const SPECIALTIES: { key: string; label: string; color: string }[] = [
-  { key: "Cirurgia", label: "Cirurgia", color: "text-violet-400" },
   { key: "Clínica Médica", label: "Clínica", color: "text-sky-400" },
+  { key: "Cirurgia", label: "Cirurgia", color: "text-violet-400" },
   { key: "Ginecologia e Obstetrícia", label: "GO", color: "text-pink-400" },
   { key: "Pediatria", label: "Pediatria", color: "text-emerald-400" },
   { key: "Medicina Preventiva", label: "Preventiva", color: "text-amber-400" },
