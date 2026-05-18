@@ -25,6 +25,7 @@ export type Database = {
           professor_score: number | null
           reviewed_at: string | null
           reviewed_by: string | null
+          room_id: string | null
           score: number
           specialty: string | null
           station_id: string
@@ -44,6 +45,7 @@ export type Database = {
           professor_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          room_id?: string | null
           score?: number
           specialty?: string | null
           station_id: string
@@ -63,6 +65,7 @@ export type Database = {
           professor_score?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          room_id?: string | null
           score?: number
           specialty?: string | null
           station_id?: string

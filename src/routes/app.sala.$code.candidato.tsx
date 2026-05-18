@@ -186,7 +186,8 @@ function CandidateView() {
         checked_items: [],
         notes: notes || null,
         status: "aguardando_correcao",
-      });
+        room_id: room.id,
+      } as never);
       toast.success("Estação finalizada. Aguarde a correção do ator.");
     } catch (e) { console.error(e); }
   }
