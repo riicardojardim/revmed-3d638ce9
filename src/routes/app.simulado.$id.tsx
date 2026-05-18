@@ -623,6 +623,7 @@ function SimuladoRunner() {
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}
           displayName={formatCandidateName(profile?.full_name, profile?.title, profile?.id ?? user?.id) || "Ator"}
+          avatarUrl={profile?.avatar_url}
           onComplete={onIntroComplete}
         />
       )}
