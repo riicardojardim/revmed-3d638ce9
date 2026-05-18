@@ -259,6 +259,7 @@ function FakeQR({ seed, size = 80 }: { seed: string; size?: number }) {
 function CredentialCard({
   role,
   displayName,
+  avatarUrl,
   stationTitle,
   specialty,
   hideStation,
@@ -266,6 +267,7 @@ function CredentialCard({
 }: {
   role: IntroRole;
   displayName: string;
+  avatarUrl?: string | null;
   stationTitle: string;
   specialty?: string | null;
   hideStation?: boolean;
