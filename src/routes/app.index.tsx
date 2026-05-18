@@ -14,6 +14,7 @@ import {
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
+  PolarRadiusAxis,
   Radar,
   BarChart,
   Bar,
@@ -140,10 +141,22 @@ function Dashboard() {
     return days;
   }, [attempts]);
 
-  const categoryRadar = useMemo(
-    () => CATEGORIES.map((c) => ({ category: c, value: 0 })),
-    [],
-  );
+  const specialtyRadar = useMemo(() => {
+    return SPECIALTIES.map((s) => {
+      const keys = [s.key, ...(s.aliases ?? [])];
+      let sum = 0;
+      let n = 0;
+      keys.forEach((k) => {
+        const cur = stats.bySpec.get(k);
+        if (cur) {
+          sum += cur.sum;
+          n += cur.n;
+        }
+      });
+      const avg = n ? sum / n : 0;
+      return { category: s.label, value: Number(avg.toFixed(2)) };
+    });
+  }, [stats.bySpec]);
 
   const displayName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "estudante";
   const titlePrefix = profile?.title && profile.title !== "Sem título" ? `${profile.title} ` : "";
@@ -251,7 +264,8 @@ function Dashboard() {
           <p className="mt-1 text-xs text-muted-foreground">Estude com mais foco.</p>
           <div className="mt-3 h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={categoryRadar}>
+              <RadarChart data={specialtyRadar}>
+                <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
                 <PolarGrid stroke="hsl(var(--border))" />
                 <PolarAngleAxis dataKey="category" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
                 <Radar
