@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, ChevronRight, ChevronDown, ListOrdered } from "lucide-react";
+import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 
 export const Route = createFileRoute("/app/historico")({
   component: Historico,
@@ -29,6 +30,7 @@ function Historico() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -123,10 +125,14 @@ function Historico() {
                 ) : penseItems.map((a) => (
                   <tr key={a.id} className="group border-t border-border transition-colors hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium">
-                      <Link to="/app/historico/$id" params={{ id: a.id }} className="flex items-center gap-2 hover:text-mint">
+                      <button
+                        type="button"
+                        onClick={() => setDetailId(a.id)}
+                        className="flex items-center gap-2 text-left hover:text-mint"
+                      >
                         {a.station_title ?? "—"}
                         <ChevronRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
-                      </Link>
+                      </button>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{new Date(a.created_at).toLocaleDateString("pt-BR")}</td>
                     <td className="px-4 py-3 text-muted-foreground">
@@ -175,11 +181,15 @@ function Historico() {
                         {g.stations.map((a, i) => (
                           <tr key={a.id} className="group border-t border-border transition-colors hover:bg-muted/30">
                             <td className="px-4 py-2.5 font-medium">
-                              <Link to="/app/historico/$id" params={{ id: a.id }} className="flex items-center gap-2 hover:text-mint">
+                              <button
+                                type="button"
+                                onClick={() => setDetailId(a.id)}
+                                className="flex items-center gap-2 text-left hover:text-mint"
+                              >
                                 <span className="text-xs text-muted-foreground">{(a.simulado_station_index ?? i) + 1}.</span>
                                 {a.station_title ?? "—"}
                                 <ChevronRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
-                              </Link>
+                              </button>
                             </td>
                             <td className="px-4 py-2.5 text-muted-foreground">
                               <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> {Math.round(a.used_seconds / 60)} min</span>
@@ -196,6 +206,11 @@ function Historico() {
           </div>
         )}
       </div>
+      <HistoricoDetailModal
+        attemptId={detailId}
+        open={!!detailId}
+        onOpenChange={(v) => { if (!v) setDetailId(null); }}
+      />
     </div>
   );
 }
