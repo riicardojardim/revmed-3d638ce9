@@ -399,6 +399,7 @@ export type Database = {
           final_score: number | null
           id: string
           item_comments: Json
+          preview_for_candidate: boolean
           room_id: string
           station_id: string
           status: string
@@ -414,6 +415,7 @@ export type Database = {
           final_score?: number | null
           id?: string
           item_comments?: Json
+          preview_for_candidate?: boolean
           room_id: string
           station_id: string
           status?: string
@@ -429,6 +431,7 @@ export type Database = {
           final_score?: number | null
           id?: string
           item_comments?: Json
+          preview_for_candidate?: boolean
           room_id?: string
           station_id?: string
           status?: string
