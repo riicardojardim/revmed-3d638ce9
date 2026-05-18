@@ -15,6 +15,12 @@ interface Props {
   displayName: string;
   avatarUrl?: string | null;
   onComplete: () => void;
+  /** Âncora compartilhada (ms epoch, em tempo do servidor) marcando o início da animação.
+   *  Quando informado, ator e candidato sincronizam a timeline a partir do mesmo instante,
+   *  pulando fases já decorridas para o lado que receber o evento com atraso. */
+  startAtMs?: number;
+  /** Função opcional para obter o "now" em tempo do servidor (default: Date.now). */
+  nowMs?: () => number;
 }
 
 const ROLE_META: Record<IntroRole, { label: string; icon: typeof Stethoscope }> = {
@@ -22,14 +28,44 @@ const ROLE_META: Record<IntroRole, { label: string; icon: typeof Stethoscope }> 
   paciente: { label: "Ator / Paciente", icon: UserRound },
 };
 
+// Marcos de início de cada fase (ms a partir de startAt). Devem bater com a timeline original.
+const PHASE_AT = {
+  intro: 0,
+  credential: 700,
+  record: 2500,
+  doors: 5500,
+  countdown: 6300,
+} as const;
+const COUNT_STEP_MS = 700; // intervalo entre 3→2→1→0
+const COUNT_END_MS = 600;  // delay entre count 0 e onComplete
+
 /**
  * StationIntroOverlay — sequência institucional "Prontuário + Crachá".
- * Duração ~5.2s. Sincronizada externamente via Supabase Realtime.
+ * Sincronizada via âncora `startAtMs` para que ator e candidato vejam exatamente
+ * o mesmo frame ao mesmo tempo (independente de latência da realtime).
  */
-export function StationIntroOverlay({ role, stationTitle, specialty, displayName, avatarUrl, onComplete }: Props) {
+export function StationIntroOverlay({ role, stationTitle, specialty, displayName, avatarUrl, onComplete, startAtMs, nowMs }: Props) {
   const reduce = useReducedMotion();
-  const [phase, setPhase] = useState<"intro" | "credential" | "record" | "doors" | "countdown" | "done">("intro");
-  const [count, setCount] = useState<3 | 2 | 1 | 0>(3);
+  const now = nowMs ?? (() => Date.now());
+  const anchor = startAtMs ?? now();
+
+  // Calcula a fase inicial com base no quanto já passou desde o anchor.
+  const initialElapsed = Math.max(0, now() - anchor);
+  const initialPhase: "intro" | "credential" | "record" | "doors" | "countdown" | "done" =
+    initialElapsed >= PHASE_AT.countdown ? "countdown"
+    : initialElapsed >= PHASE_AT.doors ? "doors"
+    : initialElapsed >= PHASE_AT.record ? "record"
+    : initialElapsed >= PHASE_AT.credential ? "credential"
+    : "intro";
+  const initialCount: 3 | 2 | 1 | 0 = (() => {
+    if (initialPhase !== "countdown") return 3;
+    const inCd = initialElapsed - PHASE_AT.countdown;
+    const step = Math.floor(inCd / COUNT_STEP_MS);
+    return Math.max(0, 3 - step) as 3 | 2 | 1 | 0;
+  })();
+
+  const [phase, setPhase] = useState<"intro" | "credential" | "record" | "doors" | "countdown" | "done">(initialPhase);
+  const [count, setCount] = useState<3 | 2 | 1 | 0>(initialCount);
 
   // Timeline (reduced: pula direto para countdown curto)
   useEffect(() => {
@@ -37,28 +73,40 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
       const t1 = setTimeout(() => setPhase("countdown"), 300);
       return () => clearTimeout(t1);
     }
+    const elapsed = Math.max(0, now() - anchor);
+    const schedule = (phaseAt: number, p: typeof phase) => {
+      const delay = phaseAt - elapsed;
+      if (delay <= 0) return null;
+      return setTimeout(() => setPhase(p), delay);
+    };
     const timers = [
-      setTimeout(() => setPhase("credential"), 700),
-      setTimeout(() => setPhase("record"), 2500),
-      setTimeout(() => setPhase("doors"), 5500),
-      setTimeout(() => setPhase("countdown"), 6300),
-    ];
+      schedule(PHASE_AT.credential, "credential"),
+      schedule(PHASE_AT.record, "record"),
+      schedule(PHASE_AT.doors, "doors"),
+      schedule(PHASE_AT.countdown, "countdown"),
+    ].filter((t): t is ReturnType<typeof setTimeout> => t !== null);
     return () => timers.forEach(clearTimeout);
-  }, [reduce]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce, anchor]);
 
-  // Countdown 3-2-1-0 → done → onComplete
+  // Countdown 3-2-1-0 → done → onComplete (também ancorado para sincronizar)
   useEffect(() => {
     if (phase !== "countdown") return;
     if (count === 0) {
       const t = setTimeout(() => {
         setPhase("done");
         onComplete();
-      }, 600);
+      }, COUNT_END_MS);
       return () => clearTimeout(t);
     }
-    const t = setTimeout(() => setCount((c) => (c - 1) as 3 | 2 | 1 | 0), 700);
+    // Próximo decremento ancorado: tempo absoluto do próximo step.
+    const stepsTaken = 3 - count; // 0,1,2
+    const nextStepAt = anchor + PHASE_AT.countdown + (stepsTaken + 1) * COUNT_STEP_MS;
+    const delay = Math.max(0, nextStepAt - now());
+    const t = setTimeout(() => setCount((c) => (c - 1) as 3 | 2 | 1 | 0), delay);
     return () => clearTimeout(t);
-  }, [phase, count, onComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, count, onComplete, anchor]);
 
   const isCandidate = role === "candidato";
   const Icon = ROLE_META[role].icon;
