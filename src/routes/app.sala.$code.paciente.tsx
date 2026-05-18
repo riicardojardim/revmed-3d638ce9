@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
