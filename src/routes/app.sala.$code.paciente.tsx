@@ -253,6 +253,21 @@ function ActorView() {
     };
   }, []);
 
+  // React to room cancellation (e.g. candidate left mid-session)
+  const actorCancelledHandledRef = useRef(false);
+  const navActor = useNavigate();
+  useEffect(() => {
+    if (room?.status === "cancelled" && !actorCancelledHandledRef.current) {
+      actorCancelledHandledRef.current = true;
+      try {
+        localStorage.removeItem("ator:activeRoom");
+        window.dispatchEvent(new Event("ator:activeRoom"));
+      } catch {}
+      toast.error("A sessão foi encerrada — o candidato saiu da sala. Estação cancelada.");
+      navActor({ to: "/app" });
+    }
+  }, [room?.status, navActor]);
+
   // When the evaluated candidate changes, reload draft for that candidate (or reset)
   useEffect(() => {
     if (!room || !user || !room.evaluated_candidate_id) {
