@@ -645,7 +645,7 @@ function SimuladoRunner() {
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
           {/* Title bar — gradient institucional (igual ao painel do candidato) */}
