@@ -32,8 +32,8 @@ import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.in
 import { Route as AppFlashcardsIndexRouteImport } from './routes/app.flashcards.index'
 import { Route as AppEntrarIndexRouteImport } from './routes/app.entrar.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
-import { Route as AppSimuladoIdRouteImport } from './routes/app.simulado.$id'
 import { Route as AppSimulacaoIdRouteImport } from './routes/app.simulacao.$id'
+import { Route as AppSalaCodeRouteImport } from './routes/app.sala.$code'
 import { Route as AppResumosIdRouteImport } from './routes/app.resumos.$id'
 import { Route as AppResultadoIdRouteImport } from './routes/app.resultado.$id'
 import { Route as AppProfessorResumosRouteImport } from './routes/app.professor.resumos'
@@ -174,14 +174,14 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminRoute,
 } as any)
-const AppSimuladoIdRoute = AppSimuladoIdRouteImport.update({
-  id: '/simulado/$id',
-  path: '/simulado/$id',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppSimulacaoIdRoute = AppSimulacaoIdRouteImport.update({
   id: '/simulacao/$id',
   path: '/simulacao/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSalaCodeRoute = AppSalaCodeRouteImport.update({
+  id: '/sala/$code',
+  path: '/sala/$code',
   getParentRoute: () => AppRoute,
 } as any)
 const AppResumosIdRoute = AppResumosIdRouteImport.update({
@@ -255,9 +255,9 @@ const AppAdminConteudoRoute = AppAdminConteudoRouteImport.update({
   getParentRoute: () => AppAdminRoute,
 } as any)
 const AppSalaCodeIndexRoute = AppSalaCodeIndexRouteImport.update({
-  id: '/sala/$code/',
-  path: '/sala/$code/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSalaCodeRoute,
 } as any)
 const AppAdminFlashcardsIndexRoute = AppAdminFlashcardsIndexRouteImport.update({
   id: '/',
@@ -270,19 +270,19 @@ const AppAdminEstacoesIndexRoute = AppAdminEstacoesIndexRouteImport.update({
   getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
 const AppSalaCodePacienteRoute = AppSalaCodePacienteRouteImport.update({
-  id: '/sala/$code/paciente',
-  path: '/sala/$code/paciente',
-  getParentRoute: () => AppRoute,
+  id: '/paciente',
+  path: '/paciente',
+  getParentRoute: () => AppSalaCodeRoute,
 } as any)
 const AppSalaCodeCandidatoRoute = AppSalaCodeCandidatoRouteImport.update({
-  id: '/sala/$code/candidato',
-  path: '/sala/$code/candidato',
-  getParentRoute: () => AppRoute,
+  id: '/candidato',
+  path: '/candidato',
+  getParentRoute: () => AppSalaCodeRoute,
 } as any)
 const AppSalaCodeBancaRoute = AppSalaCodeBancaRouteImport.update({
-  id: '/sala/$code/banca',
-  path: '/sala/$code/banca',
-  getParentRoute: () => AppRoute,
+  id: '/banca',
+  path: '/banca',
+  getParentRoute: () => AppSalaCodeRoute,
 } as any)
 const AppProfessorEstacoesIdRoute = AppProfessorEstacoesIdRouteImport.update({
   id: '/$id',
@@ -339,8 +339,8 @@ export interface FileRoutesByFullPath {
   '/app/professor/resumos': typeof AppProfessorResumosRoute
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
+  '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
-  '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
@@ -386,7 +386,6 @@ export interface FileRoutesByTo {
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
-  '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/entrar': typeof AppEntrarIndexRoute
   '/app/flashcards': typeof AppFlashcardsIndexRoute
@@ -437,8 +436,8 @@ export interface FileRoutesById {
   '/app/professor/resumos': typeof AppProfessorResumosRoute
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
+  '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
-  '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
@@ -490,8 +489,8 @@ export interface FileRouteTypes {
     | '/app/professor/resumos'
     | '/app/resultado/$id'
     | '/app/resumos/$id'
+    | '/app/sala/$code'
     | '/app/simulacao/$id'
-    | '/app/simulado/$id'
     | '/app/admin/'
     | '/app/entrar/'
     | '/app/flashcards/'
@@ -537,7 +536,6 @@ export interface FileRouteTypes {
     | '/app/resultado/$id'
     | '/app/resumos/$id'
     | '/app/simulacao/$id'
-    | '/app/simulado/$id'
     | '/app/admin'
     | '/app/entrar'
     | '/app/flashcards'
@@ -587,8 +585,8 @@ export interface FileRouteTypes {
     | '/app/professor/resumos'
     | '/app/resultado/$id'
     | '/app/resumos/$id'
+    | '/app/sala/$code'
     | '/app/simulacao/$id'
-    | '/app/simulado/$id'
     | '/app/admin/'
     | '/app/entrar/'
     | '/app/flashcards/'
@@ -776,18 +774,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
     }
-    '/app/simulado/$id': {
-      id: '/app/simulado/$id'
-      path: '/simulado/$id'
-      fullPath: '/app/simulado/$id'
-      preLoaderRoute: typeof AppSimuladoIdRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/simulacao/$id': {
       id: '/app/simulacao/$id'
       path: '/simulacao/$id'
       fullPath: '/app/simulacao/$id'
       preLoaderRoute: typeof AppSimulacaoIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/sala/$code': {
+      id: '/app/sala/$code'
+      path: '/sala/$code'
+      fullPath: '/app/sala/$code'
+      preLoaderRoute: typeof AppSalaCodeRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/resumos/$id': {
@@ -890,10 +888,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/sala/$code/': {
       id: '/app/sala/$code/'
-      path: '/sala/$code'
+      path: '/'
       fullPath: '/app/sala/$code/'
       preLoaderRoute: typeof AppSalaCodeIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSalaCodeRoute
     }
     '/app/admin/flashcards/': {
       id: '/app/admin/flashcards/'
@@ -911,24 +909,24 @@ declare module '@tanstack/react-router' {
     }
     '/app/sala/$code/paciente': {
       id: '/app/sala/$code/paciente'
-      path: '/sala/$code/paciente'
+      path: '/paciente'
       fullPath: '/app/sala/$code/paciente'
       preLoaderRoute: typeof AppSalaCodePacienteRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSalaCodeRoute
     }
     '/app/sala/$code/candidato': {
       id: '/app/sala/$code/candidato'
-      path: '/sala/$code/candidato'
+      path: '/candidato'
       fullPath: '/app/sala/$code/candidato'
       preLoaderRoute: typeof AppSalaCodeCandidatoRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSalaCodeRoute
     }
     '/app/sala/$code/banca': {
       id: '/app/sala/$code/banca'
-      path: '/sala/$code/banca'
+      path: '/banca'
       fullPath: '/app/sala/$code/banca'
       preLoaderRoute: typeof AppSalaCodeBancaRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSalaCodeRoute
     }
     '/app/professor/estacoes/$id': {
       id: '/app/professor/estacoes/$id'
@@ -1077,6 +1075,24 @@ const AppResumosRouteWithChildren = AppResumosRoute._addFileChildren(
   AppResumosRouteChildren,
 )
 
+interface AppSalaCodeRouteChildren {
+  AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
+  AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
+  AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
+  AppSalaCodeIndexRoute: typeof AppSalaCodeIndexRoute
+}
+
+const AppSalaCodeRouteChildren: AppSalaCodeRouteChildren = {
+  AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
+  AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
+  AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
+  AppSalaCodeIndexRoute: AppSalaCodeIndexRoute,
+}
+
+const AppSalaCodeRouteWithChildren = AppSalaCodeRoute._addFileChildren(
+  AppSalaCodeRouteChildren,
+)
+
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppAulasRoute: typeof AppAulasRoute
@@ -1095,14 +1111,10 @@ interface AppRouteChildren {
   AppEntrarCodeRoute: typeof AppEntrarCodeRoute
   AppFlashcardsDesempenhoRoute: typeof AppFlashcardsDesempenhoRoute
   AppResultadoIdRoute: typeof AppResultadoIdRoute
+  AppSalaCodeRoute: typeof AppSalaCodeRouteWithChildren
   AppSimulacaoIdRoute: typeof AppSimulacaoIdRoute
-  AppSimuladoIdRoute: typeof AppSimuladoIdRoute
   AppEntrarIndexRoute: typeof AppEntrarIndexRoute
   AppFlashcardsIndexRoute: typeof AppFlashcardsIndexRoute
-  AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
-  AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
-  AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
-  AppSalaCodeIndexRoute: typeof AppSalaCodeIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1123,14 +1135,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppEntrarCodeRoute: AppEntrarCodeRoute,
   AppFlashcardsDesempenhoRoute: AppFlashcardsDesempenhoRoute,
   AppResultadoIdRoute: AppResultadoIdRoute,
+  AppSalaCodeRoute: AppSalaCodeRouteWithChildren,
   AppSimulacaoIdRoute: AppSimulacaoIdRoute,
-  AppSimuladoIdRoute: AppSimuladoIdRoute,
   AppEntrarIndexRoute: AppEntrarIndexRoute,
   AppFlashcardsIndexRoute: AppFlashcardsIndexRoute,
-  AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
-  AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
-  AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,
-  AppSalaCodeIndexRoute: AppSalaCodeIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -1145,3 +1153,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

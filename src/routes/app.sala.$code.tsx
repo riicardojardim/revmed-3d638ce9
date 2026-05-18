@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,8 +49,7 @@ function formatCandidateName(
 }
 
 
-function SimuladoRunner() {
-  const { id } = Route.useParams();
+function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
   const [sim, setSim] = useState<Simulado | null>(null);
