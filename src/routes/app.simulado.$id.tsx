@@ -660,6 +660,10 @@ function SimuladoRunner() {
             />
             <div className="relative flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
+                <Link to="/app/checklists" className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[11px] font-medium text-white/90 transition hover:bg-white/20 hover:text-white">
+                  <ArrowLeft className="h-3 w-3" /> Sair
+                </Link>
+                <span className="h-5 w-px bg-white/20" />
                 <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>{meta.code}</span>
                 <h1 className="truncate font-display text-lg font-bold text-white md:text-xl">{station.title}</h1>
               </div>
