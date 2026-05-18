@@ -72,10 +72,30 @@ function FlashcardsPage() {
     [decks],
   );
 
-  const filtered = useMemo(
-    () => decks.filter((d) => specialty === "Todas" || d.specialty === specialty),
-    [decks, specialty],
-  );
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return decks.filter((d) => {
+      if (specialty !== "Todas" && d.specialty !== specialty) return false;
+      if (!q) return true;
+      return (
+        d.title.toLowerCase().includes(q) ||
+        d.specialty.toLowerCase().includes(q) ||
+        (d.topic ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [decks, specialty, search]);
+
+  // Agrupa por especialidade (ordem canônica)
+  const grouped = useMemo(() => {
+    const map = new Map<string, Deck[]>();
+    filtered.forEach((d) => {
+      const arr = map.get(d.specialty) ?? [];
+      arr.push(d);
+      map.set(d.specialty, arr);
+    });
+    const orderedSpecs = sortSpecialties(Array.from(map.keys()));
+    return orderedSpecs.map((s) => ({ specialty: s, decks: map.get(s)! }));
+  }, [filtered]);
 
   async function openDeck(d: Deck) {
     setActiveDeck(d);
