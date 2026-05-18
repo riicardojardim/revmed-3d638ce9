@@ -28,6 +28,7 @@ import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
 import { Route as AppCronogramaRouteImport } from './routes/app.cronograma'
 import { Route as AppChecklistsRouteImport } from './routes/app.checklists'
 import { Route as AppAulasRouteImport } from './routes/app.aulas'
+import { Route as AppAmigosRouteImport } from './routes/app.amigos'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
 import { Route as AppEntrarIndexRouteImport } from './routes/app.entrar.index'
@@ -152,6 +153,11 @@ const AppChecklistsRoute = AppChecklistsRouteImport.update({
 const AppAulasRoute = AppAulasRouteImport.update({
   id: '/aulas',
   path: '/aulas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAmigosRoute = AppAmigosRouteImport.update({
+  id: '/amigos',
+  path: '/amigos',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminRoute = AppAdminRouteImport.update({
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/app/admin': typeof AppAdminRouteWithChildren
+  '/app/amigos': typeof AppAmigosRoute
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
@@ -360,6 +367,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
+  '/app/amigos': typeof AppAmigosRoute
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
@@ -409,6 +417,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/app/admin': typeof AppAdminRouteWithChildren
+  '/app/amigos': typeof AppAmigosRoute
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
@@ -462,6 +471,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/app/admin'
+    | '/app/amigos'
     | '/app/aulas'
     | '/app/checklists'
     | '/app/cronograma'
@@ -511,6 +521,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/login'
+    | '/app/amigos'
     | '/app/aulas'
     | '/app/checklists'
     | '/app/cronograma'
@@ -559,6 +570,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/app/admin'
+    | '/app/amigos'
     | '/app/aulas'
     | '/app/checklists'
     | '/app/cronograma'
@@ -746,6 +758,13 @@ declare module '@tanstack/react-router' {
       path: '/aulas'
       fullPath: '/app/aulas'
       preLoaderRoute: typeof AppAulasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/amigos': {
+      id: '/app/amigos'
+      path: '/amigos'
+      fullPath: '/app/amigos'
+      preLoaderRoute: typeof AppAmigosRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/admin': {
@@ -1091,6 +1110,7 @@ const AppResumosRouteWithChildren = AppResumosRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
+  AppAmigosRoute: typeof AppAmigosRoute
   AppAulasRoute: typeof AppAulasRoute
   AppChecklistsRoute: typeof AppChecklistsRoute
   AppCronogramaRoute: typeof AppCronogramaRoute
@@ -1118,6 +1138,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRouteWithChildren,
+  AppAmigosRoute: AppAmigosRoute,
   AppAulasRoute: AppAulasRoute,
   AppChecklistsRoute: AppChecklistsRoute,
   AppCronogramaRoute: AppCronogramaRoute,
