@@ -5,7 +5,7 @@
 //   PE  Pediatria                 → verde
 //   PR  Preventiva                → laranja
 //   MFC Medicina de Família e Comunidade → esmeralda
-//   UE  Urgência e Emergência     → vermelho escuro (fora do Pense, mantido)
+
 
 export type SpecialtyMeta = {
   code: string;
