@@ -569,7 +569,7 @@ function ActorView() {
     const review = latestReviewRef.current;
     if (user && room.evaluated_candidate_id) {
       const resolvedStatus = review.allScored
-        ? (review.evalStatus === "em_andamento" ? (review.pct >= 61.17 ? "aprovado" : "reprovado") : review.evalStatus)
+        ? (review.evalStatus === "em_andamento" ? (review.pct >= NOTA_DE_CORTE ? "aprovado" : "reprovado") : review.evalStatus)
         : "em_andamento";
       const { error: evalError } = await supabase.from("room_evaluations")
         .upsert({
