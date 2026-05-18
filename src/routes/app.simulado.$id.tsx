@@ -645,7 +645,7 @@ function SimuladoRunner() {
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
           {/* Title bar — gradient institucional (igual ao painel do candidato) */}
@@ -982,7 +982,7 @@ function SimuladoRunner() {
         </div>
 
         {/* RIGHT: control panel */}
-        <aside className="lg:sticky lg:top-32 lg:self-start space-y-3">
+        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
           {/* Timer */}
           <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
             <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
