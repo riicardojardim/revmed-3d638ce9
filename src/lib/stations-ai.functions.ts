@@ -464,9 +464,7 @@ function normalizeSpecialty(raw?: string): string | undefined {
   if (/(cirurg|\bcc\b|pos.?operat|pre.?operat)/.test(s)) return "Cirurgia";
   if (/(familia|mfc|atencao primaria|saude da familia|esf|ubs|unidade basica)/.test(s))
     return "Medicina de Família e Comunidade";
-  if (/(urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s))
-    return "Urgência e Emergência";
-  if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
+  if (/(clinica medica|medicina interna|\bcm\b|urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s)) return "Clínica Médica";
   const match = SPECIALTY_ENUM.find((e) => e.toLowerCase() === raw.trim().toLowerCase());
   return match;
 }
