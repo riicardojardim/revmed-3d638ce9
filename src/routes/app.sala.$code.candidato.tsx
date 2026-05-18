@@ -570,13 +570,13 @@ function CandidateView() {
           <div className="leading-tight">
             {resultSaved ? (
               <>
-                <span className="font-semibold text-foreground">Resultado salvo!</span>{" "}
-                <span className="text-muted-foreground">Disponível em <span className="font-medium text-foreground">Desempenho</span> e a estação no <span className="font-medium text-foreground">Histórico</span>.</span>
+                <span className="font-semibold text-white">Resultado salvo!</span>{" "}
+                <span className="text-white/80">Disponível em <span className="font-medium text-white">Desempenho</span> e a estação no <span className="font-medium text-white">Histórico</span>.</span>
               </>
             ) : (
               <>
-                <span className="font-semibold text-foreground">Salvando seu resultado...</span>{" "}
-                <span className="text-muted-foreground">Em instantes ficará disponível em <span className="font-medium text-foreground">Desempenho</span> e a estação no <span className="font-medium text-foreground">Histórico</span>.</span>
+                <span className="font-semibold text-white">Salvando seu resultado...</span>{" "}
+                <span className="text-white/80">Em instantes ficará disponível em <span className="font-medium text-white">Desempenho</span> e a estação no <span className="font-medium text-white">Histórico</span>.</span>
               </>
             )}
           </div>
