@@ -26,7 +26,7 @@ import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 
-export const Route = createFileRoute("/app/simulado/$id")({
+export const Route = createFileRoute("/app/sala/$code")({
   component: SimuladoRunner,
   head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
 });
