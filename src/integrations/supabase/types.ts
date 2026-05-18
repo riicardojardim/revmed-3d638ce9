@@ -377,7 +377,9 @@ export type Database = {
           created_at: string
           exam_year: string | null
           full_name: string | null
+          gender: string | null
           id: string
+          title: string | null
           updated_at: string
           whatsapp: string | null
         }
@@ -386,7 +388,9 @@ export type Database = {
           created_at?: string
           exam_year?: string | null
           full_name?: string | null
+          gender?: string | null
           id: string
+          title?: string | null
           updated_at?: string
           whatsapp?: string | null
         }
@@ -395,7 +399,9 @@ export type Database = {
           created_at?: string
           exam_year?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          title?: string | null
           updated_at?: string
           whatsapp?: string | null
         }
