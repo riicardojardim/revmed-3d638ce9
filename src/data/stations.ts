@@ -4,7 +4,7 @@ export type Specialty =
   | "Pediatria"
   | "Ginecologia e Obstetrícia"
   | "Cirurgia"
-  | "Medicina da Família"
+  | "Medicina de Família e Comunidade"
   | "Urgência e Emergência";
 
 export type Difficulty = "Fácil" | "Médio" | "Difícil";
@@ -586,7 +586,7 @@ export const STATIONS: Station[] = [
     id: "6",
     slug: "aconselhamento-diabetes",
     title: "Aconselhamento sobre diabetes",
-    specialty: "Medicina da Família",
+    specialty: "Medicina de Família e Comunidade",
     difficulty: "Fácil",
     durationMinutes: 5,
     clinicalCase: "Paciente recém-diagnosticado com DM2 retorna para receber resultado e orientações.",
@@ -607,7 +607,7 @@ export const SPECIALTIES: Specialty[] = [
   "Cirurgia",
   "Ginecologia e Obstetrícia",
   "Pediatria",
-  "Medicina da Família",
+  "Medicina de Família e Comunidade",
   "Urgência e Emergência",
 ];
 

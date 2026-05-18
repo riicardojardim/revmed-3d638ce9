@@ -33,7 +33,7 @@ const SPECIALTIES = [
   "Cirurgia",
   "Ginecologia e Obstetrícia",
   "Pediatria",
-  "Medicina da Família",
+  "Medicina de Família e Comunidade",
   "Urgência e Emergência",
 ];
 

@@ -95,7 +95,7 @@ interface Item {
 
 const SPECIALTIES = [
   "Clínica Médica", "Cirurgia", "Ginecologia e Obstetrícia",
-  "Pediatria", "Medicina da Família", "Urgência e Emergência",
+  "Pediatria", "Medicina de Família e Comunidade", "Urgência e Emergência",
 ];
 const CATEGORIES = [
   "Apresentação", "Anamnese", "Exame físico", "Hipótese diagnóstica",

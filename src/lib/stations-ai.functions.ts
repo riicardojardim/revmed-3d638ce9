@@ -175,9 +175,9 @@ REGRA GERAL DE FIDELIDADE LITERAL (vale para TODOS os campos — category, descr
    - "Pediatria"  (PDF: "Pediatria", "PED")
    - "Ginecologia e Obstetrícia"  (PDF: "GO", "G.O.", "Ginecologia", "Obstetrícia", "Tocoginecologia")
    - "Cirurgia"  (PDF: "Clínica Cirúrgica", "CC", "Cirurgia Geral", "CIRURGIA")
-   - "Medicina da Família"  (PDF: "Medicina de Família e Comunidade", "MFC", "Saúde da Família", "Atenção Primária")
+   - "Medicina de Família e Comunidade"  (PDF: "Medicina de Família e Comunidade", "MFC", "Saúde da Família", "Atenção Primária")
    - "Urgência e Emergência"  (PDF: "Urgência", "Emergência", "PS", "Pronto-Socorro", "UPA", "SAMU", "Trauma")
-   - REGRA: PRIMEIRO procure a especialidade EXPLÍCITA no PDF (cabeçalho, área, "Especialidade:", banner). Se encontrar, mapeie para o enum acima e use. Se NÃO houver especialidade explícita, DEDUZA a partir do cenário+caso: paciente criança/lactente/RN → Pediatria; gestante/parto/puerpério/ginecológico → Ginecologia e Obstetrícia; UPA/PS/SAMU/trauma/emergência → Urgência e Emergência; UBS/ESF/atenção primária/saúde da família → Medicina da Família; pré/pós-operatório/abdome agudo cirúrgico/trauma cirúrgico → Cirurgia; demais quadros clínicos em ambulatório/hospital → Clínica Médica. NUNCA deixe specialty vazio se houver caso clínico — sempre escolha o valor mais provável do enum.
+   - REGRA: PRIMEIRO procure a especialidade EXPLÍCITA no PDF (cabeçalho, área, "Especialidade:", banner). Se encontrar, mapeie para o enum acima e use. Se NÃO houver especialidade explícita, DEDUZA a partir do cenário+caso: paciente criança/lactente/RN → Pediatria; gestante/parto/puerpério/ginecológico → Ginecologia e Obstetrícia; UPA/PS/SAMU/trauma/emergência → Urgência e Emergência; UBS/ESF/atenção primária/saúde da família → Medicina de Família e Comunidade; pré/pós-operatório/abdome agudo cirúrgico/trauma cirúrgico → Cirurgia; demais quadros clínicos em ambulatório/hospital → Clínica Médica. NUNCA deixe specialty vazio se houver caso clínico — sempre escolha o valor mais provável do enum.
 
 7) clinical_case  vs  case_description — SEPARE OS DOIS:
    - "clinical_case" = SEÇÃO "CENÁRIO DE ATENDIMENTO" do PDF. Contém: Nível de atenção, Tipo de atendimento, Infraestrutura disponível. NÃO inclua a narrativa do caso aqui.
@@ -446,7 +446,7 @@ const SPECIALTY_ENUM = [
   "Pediatria",
   "Ginecologia e Obstetrícia",
   "Cirurgia",
-  "Medicina da Família",
+  "Medicina de Família e Comunidade",
   "Urgência e Emergência",
 ] as const;
 
@@ -465,7 +465,7 @@ function normalizeSpecialty(raw?: string): string | undefined {
     return "Ginecologia e Obstetrícia";
   if (/(cirurg|\bcc\b|pos.?operat|pre.?operat)/.test(s)) return "Cirurgia";
   if (/(familia|mfc|atencao primaria|saude da familia|esf|ubs|unidade basica)/.test(s))
-    return "Medicina da Família";
+    return "Medicina de Família e Comunidade";
   if (/(urgencia|emergencia|\bps\b|pronto.?socorro|upa|samu|trauma)/.test(s))
     return "Urgência e Emergência";
   if (/(clinica medica|medicina interna|\bcm\b)/.test(s)) return "Clínica Médica";
