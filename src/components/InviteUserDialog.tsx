@@ -123,8 +123,8 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
           )}
         </div>
 
-        <ul className="max-h-[50vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
-          {results.map((u) => {
+        {(() => {
+          const renderRow = (u: UserResult) => {
             const isOnline = online.has(u.id);
             const invited = invitedIds.has(u.id);
             const isAtorOnly = u.allows_candidato === false;
@@ -172,18 +172,35 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
                 </Button>
               </li>
             );
-          })}
-          {!loading && q.trim().length >= 2 && results.length === 0 && (
-            <li className="px-3 py-10 text-center text-xs text-muted-foreground">
-              Nenhum usuário encontrado.
-            </li>
-          )}
-          {q.trim().length < 2 && (
-            <li className="px-3 py-10 text-center text-xs text-muted-foreground">
-              Digite pelo menos 2 caracteres.
-            </li>
-          )}
-        </ul>
+          };
+
+          const showingSearch = q.trim().length >= 2;
+          return (
+            <div className="max-h-[50vh] overflow-y-auto rounded-xl border border-border bg-card">
+              {showingSearch ? (
+                <ul className="divide-y divide-border">
+                  {results.map(renderRow)}
+                  {!loading && results.length === 0 && (
+                    <li className="px-3 py-10 text-center text-xs text-muted-foreground">
+                      Nenhum usuário encontrado.
+                    </li>
+                  )}
+                </ul>
+              ) : recent.length > 0 ? (
+                <>
+                  <div className="px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Convidados recentemente
+                  </div>
+                  <ul className="divide-y divide-border">{recent.map(renderRow)}</ul>
+                </>
+              ) : (
+                <div className="px-3 py-10 text-center text-xs text-muted-foreground">
+                  Digite pelo menos 2 caracteres para buscar.
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </DialogContent>
     </Dialog>
   );
