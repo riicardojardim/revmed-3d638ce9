@@ -224,7 +224,35 @@ function ActorView() {
     };
   }, [code, user?.id]);
 
-  // When the evaluated candidate changes, reload draft for that candidate (or reset)
+  // Auto-cancel the session if the actor leaves (unmount / tab close / reload)
+  // while the room is still active. This kicks both sides out cleanly.
+  const cancelStateRef = useRef<{ roomId: string | null; status: string; token: string | null }>({ roomId: null, status: "", token: null });
+  useEffect(() => {
+    cancelStateRef.current.roomId = room?.id ?? null;
+    cancelStateRef.current.status = room?.status ?? "";
+  }, [room?.id, room?.status]);
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) cancelStateRef.current.token = data.session?.access_token ?? null;
+    });
+    const onBeforeUnload = () => {
+      const s = cancelStateRef.current;
+      if (!s.roomId) return;
+      if (s.status === "finished" || s.status === "cancelled") return;
+      cancelRoomBeacon(s.roomId, s.token);
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      mounted = false;
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      const s = cancelStateRef.current;
+      if (s.roomId && s.status !== "finished" && s.status !== "cancelled") {
+        void cancelRoom(s.roomId);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (!room || !user || !room.evaluated_candidate_id) {
       setChecks({}); setComments({}); setFeedback(""); setEvalStatus("em_andamento");
