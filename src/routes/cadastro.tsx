@@ -34,6 +34,10 @@ function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const deducedYear = m <= 3 ? `${y}.1` : m <= 8 ? `${y}.2` : `${y + 1}.1`;
     const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -42,7 +46,7 @@ function SignupPage() {
         data: {
           full_name: form.name,
           whatsapp: form.whatsapp,
-          exam_year: form.year,
+          exam_year: deducedYear,
           role,
         },
       },
