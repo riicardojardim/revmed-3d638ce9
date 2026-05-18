@@ -78,9 +78,12 @@ function Historico() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold md:text-3xl">Histórico</h1>
-        <p className="text-sm text-muted-foreground">Seus treinos anteriores.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold md:text-3xl">Histórico</h1>
+          <p className="text-sm text-muted-foreground">Seus treinos anteriores.</p>
+        </div>
+        <ResetStatsButton scope="attempts" label="Resetar histórico" onDone={load} />
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
