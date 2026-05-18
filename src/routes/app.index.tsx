@@ -8,7 +8,7 @@ import {
   Trophy,
   TrendingUp,
 } from "lucide-react";
-import { SpecialtyMedals, NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
+import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import {
   ResponsiveContainer,
   RadarChart,
@@ -183,7 +183,7 @@ function Dashboard() {
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Com nossos treinamentos vamos trabalhar para manter sua média sempre acima
-            da última nota de corte do Revalida (<span className="font-semibold text-foreground">{NOTA_DE_CORTE.toFixed(1)}</span> — INEP).
+            da última nota de corte do Revalida (<span className="font-semibold text-foreground">{NOTA_DE_CORTE.toFixed(3)} pts</span> — INEP {NOTA_DE_CORTE_EDICAO}).
           </p>
           <div className="mt-5">
             <SpecialtyMedals stats={stats.bySpec} />

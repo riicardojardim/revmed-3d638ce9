@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
   Home,
@@ -304,6 +305,13 @@ function AppLayout() {
           <div className="flex flex-1 items-center gap-2 overflow-hidden">
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-elegant">
               <Activity className="h-3.5 w-3.5" /> Revalida 2026.1
+            </span>
+            <span
+              title={`Nota de corte da prova de habilidades clínicas — ${NOTA_DE_CORTE_EDICAO} (INEP)`}
+              className="hidden shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300 md:inline-flex"
+            >
+              Nota de corte INEP: <span className="text-emerald-200">{NOTA_DE_CORTE.toFixed(3)} pts</span>
+              <span className="text-emerald-300/70">· {NOTA_DE_CORTE_EDICAO}</span>
             </span>
             <a
               href="https://chat.whatsapp.com/"

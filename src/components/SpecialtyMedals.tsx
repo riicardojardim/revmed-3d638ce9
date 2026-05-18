@@ -1,11 +1,15 @@
 import { Medal, Lock } from "lucide-react";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
-// Nota de corte oficial do INEP — Revalida prática.
-// Histórico recente: a nota mínima vem se mantendo em 6,0 (60% dos pontos).
-// Fonte: edital INEP Revalida 2024/2025.
-export const NOTA_DE_CORTE = 6.0;
+// Nota de corte oficial do INEP — Revalida, prova de habilidades clínicas (2ª etapa).
+// Última divulgada: edição 2025/1 = 65,655 pontos (escala 0–100).
+// Fonte: gov.br/inep — "Revalida 2025/1: Nota de corte da 2ª etapa é de 65,655 pontos" (DOU, 09/06/2025).
+export const NOTA_DE_CORTE = 65.655; // escala 0–100
+export const NOTA_DE_CORTE_EDICAO = "Revalida 2025/1";
 export const MIN_STATIONS_PER_SPECIALTY = 5;
+
+// Notas internas das tentativas são salvas na escala 0–10 — convertemos a nota de corte:
+export const NOTA_DE_CORTE_ESCALA10 = NOTA_DE_CORTE / 10;
 
 // Ordem e rótulos canônicos para as medalhas
 export const MEDAL_SPECIALTIES: { key: string; label: string; short: string }[] = [
@@ -43,15 +47,15 @@ export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
         <h3 className="font-display font-bold">Medalhas por especialidade</h3>
         <span className="text-xs text-muted-foreground">
           Conquiste ≥ {MIN_STATIONS_PER_SPECIALTY} estações com média ≥{" "}
-          <span className="font-semibold text-foreground">{NOTA_DE_CORTE.toFixed(1)}</span>{" "}
-          (nota de corte INEP)
+          <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span>{" "}
+          (nota de corte INEP — {NOTA_DE_CORTE.toFixed(3)} pts / {NOTA_DE_CORTE_EDICAO})
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
         {MEDAL_SPECIALTIES.map((s) => {
           const meta = getSpecialtyMeta(s.key);
           const { avg, n } = getSpecAvg(stats, s.key);
-          const unlocked = n >= MIN_STATIONS_PER_SPECIALTY && avg >= NOTA_DE_CORTE;
+          const unlocked = n >= MIN_STATIONS_PER_SPECIALTY && avg >= NOTA_DE_CORTE_ESCALA10;
           return (
             <div
               key={s.key}
