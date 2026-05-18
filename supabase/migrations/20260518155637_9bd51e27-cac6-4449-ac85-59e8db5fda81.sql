@@ -1,0 +1,5 @@
+UPDATE public.custom_stations SET specialty = 'Medicina de Família e Comunidade' WHERE specialty IN ('Medicina da Família', 'Medicina da Familia', 'Medicina de Familia e Comunidade');
+UPDATE public.attempts SET specialty = 'Medicina de Família e Comunidade' WHERE specialty IN ('Medicina da Família', 'Medicina da Familia', 'Medicina de Familia e Comunidade');
+UPDATE public.flashcard_decks SET specialty = 'Medicina de Família e Comunidade' WHERE specialty IN ('Medicina da Família', 'Medicina da Familia', 'Medicina de Familia e Comunidade');
+UPDATE public.flashcards SET specialty = 'Medicina de Família e Comunidade' WHERE specialty IN ('Medicina da Família', 'Medicina da Familia', 'Medicina de Familia e Comunidade');
+UPDATE public.summaries SET specialty = 'Medicina de Família e Comunidade' WHERE specialty IN ('Medicina da Família', 'Medicina da Familia', 'Medicina de Familia e Comunidade');
