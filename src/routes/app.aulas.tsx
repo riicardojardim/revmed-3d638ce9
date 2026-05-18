@@ -12,7 +12,6 @@ const areas = [
   { name: "Pediatria", color: "from-amber-500/80 to-amber-600" },
   { name: "G.O.", color: "from-pink-500/80 to-pink-600" },
   { name: "MFC", color: "from-emerald-500/80 to-emerald-600" },
-  { name: "Preventiva", color: "from-orange-500/80 to-orange-600" },
 ];
 
 function Aulas() {
