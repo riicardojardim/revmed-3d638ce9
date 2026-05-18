@@ -93,7 +93,7 @@ function ProfilePage() {
     setFullName(profile?.full_name ?? "");
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
-    setWhatsapp(profile?.whatsapp ?? "");
+    setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
     
   }, [profile]);
 
