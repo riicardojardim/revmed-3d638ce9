@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading, Highlightable } from "@/components/station/shared";
 import { supabase } from "@/integrations/supabase/client";
+import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { useAuth } from "@/hooks/use-auth";
 import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
@@ -270,6 +271,46 @@ function SimuladoRunner({ id }: { id: string }) {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [sim?.roomId]);
+
+  // Se a sala for cancelada (candidato saiu / fechou aba), retorna o ator ao dashboard.
+  const actorCancelledHandledRef = useRef(false);
+  useEffect(() => {
+    if (roomStatus === "cancelled" && !actorCancelledHandledRef.current) {
+      actorCancelledHandledRef.current = true;
+      toast.error("A sessão foi encerrada — o candidato saiu da sala.");
+      nav({ to: "/app" });
+    }
+  }, [roomStatus, nav]);
+
+  // Auto-cancela a sala se o ator sair (fechar aba, navegar, perder energia, etc.).
+  const actorCancelRef = useRef<{ roomId: string | null; status: string; token: string | null }>({ roomId: null, status: "", token: null });
+  useEffect(() => {
+    actorCancelRef.current.roomId = sim?.roomId ?? null;
+    actorCancelRef.current.status = roomStatus;
+  }, [sim?.roomId, roomStatus]);
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) actorCancelRef.current.token = data.session?.access_token ?? null;
+    });
+    const onBeforeUnload = () => {
+      const s = actorCancelRef.current;
+      if (!s.roomId) return;
+      if (s.status === "finished" || s.status === "cancelled") return;
+      cancelRoomBeacon(s.roomId, s.token);
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      mounted = false;
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      const s = actorCancelRef.current;
+      if (s.roomId && s.status !== "finished" && s.status !== "cancelled") {
+        void cancelRoom(s.roomId);
+      }
+    };
+  }, []);
+
+
 
   async function setEvaluatedCandidate(candId: string) {
     if (!sim?.roomId) return;
