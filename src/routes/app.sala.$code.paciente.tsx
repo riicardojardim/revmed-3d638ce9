@@ -118,7 +118,7 @@ function ActorView() {
 
   async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
-      .select("user_id, role").eq("room_id", roomId);
+      .select("user_id, role, display_name").eq("room_id", roomId);
     const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
     if (candUsers.length === 0) {
       setCandidates([]);
@@ -127,8 +127,13 @@ function ActorView() {
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     const { data: profs } = await supabase.from("profiles")
       .select("id, full_name").in("id", ids);
-    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
-    const list: Candidate[] = ids.map((id: string) => ({ id, name: map.get(id) ?? "Candidato" }));
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
+    const list: Candidate[] = ids.map((id: string) => {
+      const raw = ((profMap.get(id) ?? dispMap.get(id) ?? "") as string).trim();
+      const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
+      return { id, name };
+    });
     setCandidates(list);
     return list;
   }
@@ -211,11 +216,12 @@ function ActorView() {
         setDeliveries((dels ?? []) as Delivery[]);
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "training_room_participants", filter: `room_id=eq.${room.id}` }, async (payload) => {
-        const row = payload.new as { user_id: string; role: string };
+        const row = payload.new as { user_id: string; role: string; display_name: string | null };
         if (row.role === "candidato") {
           const { data: prof } = await supabase.from("profiles")
             .select("full_name").eq("id", row.user_id).maybeSingle();
-          const name = prof?.full_name ?? "Candidato";
+          const raw = ((prof?.full_name ?? row.display_name ?? "") as string).trim();
+          const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
           setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
           toast.success(`${name} entrou na sala`);
           if (!room.evaluated_candidate_id) {

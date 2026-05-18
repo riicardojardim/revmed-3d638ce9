@@ -160,15 +160,18 @@ function SimuladoRunner() {
 
   async function refreshCandidates(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
-      .select("user_id, role").eq("room_id", roomId);
+      .select("user_id, role, display_name").eq("room_id", roomId);
     const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
     if (candUsers.length === 0) { setCandidates([]); return; }
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
+    // Tenta enriquecer com profiles (caso o usuário logado consiga ler — owner/admin).
     const { data: profs } = await supabase.from("profiles")
       .select("id, full_name").in("id", ids);
-    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    // Fallback de nome via display_name salvo no participante (visível para todos).
+    const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list = ids.map((uid: string) => {
-      const raw = (map.get(uid) ?? "").trim();
+      const raw = ((profMap.get(uid) ?? dispMap.get(uid) ?? "") as string).trim();
       const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
       return { id: uid, name };
     });
