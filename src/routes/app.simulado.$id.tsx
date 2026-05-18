@@ -304,6 +304,7 @@ function SimuladoRunner() {
   }, [station, checks]);
 
   const allScored = totals.count > 0 && totals.scored === totals.count;
+  const isStationFinished = finishedStation || roomStatus === "finished";
 
   function computeEvaluationTotals(sourceChecks: Record<string, number>) {
     if (!station) return { count: 0, scored: 0, earned: 0, total: 0 };
@@ -324,13 +325,13 @@ function SimuladoRunner() {
     sourceComments = comments,
     sourceFeedback = feedback,
   ) {
-    if (!(previewEnabled || finishedStation) || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    if (!(previewEnabled || isStationFinished) || !sim?.roomId || !user || !evaluatedCandidateId) return;
     const stationId = sim.stations[sim.currentIndex]?.id;
     if (!stationId) return;
     const nextTotals = computeEvaluationTotals(sourceChecks);
     const nextAllScored = nextTotals.count > 0 && nextTotals.scored === nextTotals.count;
     const pct = nextTotals.total > 0 ? (nextTotals.earned / nextTotals.total) * 100 : 0;
-    const resolvedStatus = finishedStation && nextAllScored
+    const resolvedStatus = isStationFinished && nextAllScored
       ? (pct >= 61.17 ? "aprovado" : "reprovado")
       : "em_andamento";
 
@@ -351,12 +352,12 @@ function SimuladoRunner() {
 
   // Auto-sincroniza a prévia do PEP enquanto estiver habilitada OU após o encerramento
   useEffect(() => {
-    if (!(previewEnabled || finishedStation) || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    if (!(previewEnabled || isStationFinished) || !sim?.roomId || !user || !evaluatedCandidateId) return;
     const t = setTimeout(() => {
       void syncEvaluationToCandidate(checks, comments, feedback);
     }, 400);
     return () => clearTimeout(t);
-  }, [previewEnabled, finishedStation, checks, comments, feedback, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
+  }, [previewEnabled, isStationFinished, checks, comments, feedback, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
 
   async function togglePreview() {
     if (!sim?.roomId || !user) return;
