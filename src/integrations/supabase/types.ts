@@ -603,6 +603,7 @@ export type Database = {
           material_name: string
           material_type: string | null
           room_id: string
+          station_id: string
         }
         Insert: {
           delivered_at?: string
@@ -615,6 +616,7 @@ export type Database = {
           material_name: string
           material_type?: string | null
           room_id: string
+          station_id?: string
         }
         Update: {
           delivered_at?: string
@@ -627,6 +629,7 @@ export type Database = {
           material_name?: string
           material_type?: string | null
           room_id?: string
+          station_id?: string
         }
         Relationships: []
       }

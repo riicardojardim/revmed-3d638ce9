@@ -419,6 +419,7 @@ function ActorView() {
     if (!m) return;
     const { error } = await supabase.from("room_material_deliveries").insert({
       room_id: room.id,
+      station_id: room.station_id,
       material_id: m.id,
       material_name: m.name,
       material_type: m.type,
@@ -446,7 +447,7 @@ function ActorView() {
         final_score: Number(score.toFixed(2)),
         status: "em_andamento",
         preview_for_candidate: true,
-      }, { onConflict: "room_id,evaluator_id,candidate_id" });
+      }, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
     }, 400);
     return () => clearTimeout(t);
   }, [previewEnabled, checks, comments, feedback, score, room?.id, room?.evaluated_candidate_id, user?.id, room?.station_id]);
@@ -468,7 +469,7 @@ function ActorView() {
       submitted_at: submit ? new Date().toISOString() : null,
     };
     const { error } = await supabase.from("room_evaluations")
-      .upsert(payload, { onConflict: "room_id,evaluator_id,candidate_id" });
+      .upsert(payload, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
 
@@ -526,7 +527,7 @@ function ActorView() {
       final_score: Number(score.toFixed(2)),
       status: "em_andamento",
       preview_for_candidate: next,
-    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    }, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
     if (error) {
       setPreviewEnabled(!next);
       return toast.error(error.message);
@@ -584,7 +585,7 @@ function ActorView() {
           status: resolvedStatus,
           submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
           preview_for_candidate: true,
-        }, { onConflict: "room_id,evaluator_id,candidate_id" });
+        }, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
       if (evalError) {
         finishingRef.current = false;
         return toast.error(evalError.message);
