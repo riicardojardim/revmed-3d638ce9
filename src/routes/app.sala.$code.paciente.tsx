@@ -30,7 +30,7 @@ export const Route = createFileRoute("/app/sala/$code/paciente")({
 
 type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
 type Delivery = { id: string; material_id: string; material_name: string };
-type Candidate = { id: string; name: string };
+type Candidate = { id: string; name: string; avatarUrl: string | null };
 
 function formatCandidateName(
   rawName: string | null | undefined,
