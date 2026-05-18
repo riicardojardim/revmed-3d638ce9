@@ -29,7 +29,7 @@ export const Route = createFileRoute("/app/simulado/$id")({
   head: () => ({ meta: [{ title: "Simulado — Estação Revalida" }] }),
 });
 
-type Candidate = { id: string; name: string };
+type Candidate = { id: string; name: string; avatarUrl: string | null };
 
 function formatCandidateName(
   rawName: string | null | undefined,
