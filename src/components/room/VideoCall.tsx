@@ -86,7 +86,7 @@ type Props = {
 
 export function VideoCall({ roomCode, displayName, className }: Props) {
   const fetchToken = useServerFn(getLivekitToken);
-  const [creds, setCreds] = useState<{ url: string; token: string; role: string } | null>(null);
+  const [creds, setCreds] = useState<{ url: string; token: string; role: string; hostId: string | null; evaluatedId: string | null } | null>(null);
   const [selfIdentity, setSelfIdentity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connect, setConnect] = useState(false);
