@@ -191,7 +191,20 @@ function CandidateView() {
     } catch (e) { console.error(e); }
   }
 
-  const visibleDeliveries = useMemo(() => deliveries, [deliveries]);
+  const visibleDeliveries = useMemo(() => {
+    // Ordena por número do impresso (Impresso 1, 2, 3...) extraído do nome.
+    // Itens sem número vão para o fim, mantendo a ordem de entrega como desempate.
+    const extractNum = (name: string): number => {
+      const m = (name || "").match(/\d+/);
+      return m ? parseInt(m[0], 10) : Number.POSITIVE_INFINITY;
+    };
+    return [...deliveries].sort((a, b) => {
+      const na = extractNum(a.material_name);
+      const nb = extractNum(b.material_name);
+      if (na !== nb) return na - nb;
+      return (a.delivered_at || "").localeCompare(b.delivered_at || "");
+    });
+  }, [deliveries]);
 
   // Dispara o overlay institucional quando o ator inicia a estação
   useEffect(() => {
