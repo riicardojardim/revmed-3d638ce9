@@ -25,6 +25,7 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
+import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -403,10 +404,10 @@ function ActorView() {
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
   latestReviewRef.current = { checks, comments, feedback, evalStatus, allScored, pct, score };
 
-  // Auto-preencher status: >=61.17% aprovado, <61.17% reprovado (apenas quando o checklist está completo)
+  // Auto-preencher status com base na nota de corte oficial do INEP (NOTA_DE_CORTE)
   useEffect(() => {
     if (!allScored) return;
-    const auto = pct >= 61.17 ? "aprovado" : "reprovado";
+    const auto = pct >= NOTA_DE_CORTE ? "aprovado" : "reprovado";
     setEvalStatus((prev) => (prev === auto ? prev : auto));
   }, [allScored, pct]);
 
@@ -568,7 +569,7 @@ function ActorView() {
     const review = latestReviewRef.current;
     if (user && room.evaluated_candidate_id) {
       const resolvedStatus = review.allScored
-        ? (review.evalStatus === "em_andamento" ? (review.pct >= 61.17 ? "aprovado" : "reprovado") : review.evalStatus)
+        ? (review.evalStatus === "em_andamento" ? (review.pct >= NOTA_DE_CORTE ? "aprovado" : "reprovado") : review.evalStatus)
         : "em_andamento";
       const { error: evalError } = await supabase.from("room_evaluations")
         .upsert({

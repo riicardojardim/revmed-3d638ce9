@@ -24,6 +24,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { UserAvatar } from "@/components/UserAvatar";
+import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
@@ -421,7 +422,7 @@ function SimuladoRunner({ id }: { id: string }) {
     const nextAllScored = nextTotals.count > 0 && nextTotals.scored === nextTotals.count;
     const pct = nextTotals.total > 0 ? (nextTotals.earned / nextTotals.total) * 100 : 0;
     const resolvedStatus = isStationFinished && nextAllScored
-      ? (pct >= 61.17 ? "aprovado" : "reprovado")
+      ? (pct >= NOTA_DE_CORTE ? "aprovado" : "reprovado")
       : "em_andamento";
 
     const { error } = await supabase.from("room_evaluations").upsert({
@@ -537,7 +538,7 @@ function SimuladoRunner({ id }: { id: string }) {
     if (sim?.roomId) {
       const finishedAt = new Date().toISOString();
       const resolvedStatus = allScored
-        ? (evalStatus === "em_andamento" ? ((totals.total > 0 ? (totals.earned / totals.total) * 100 : 0) >= 61.17 ? "aprovado" : "reprovado") : evalStatus)
+        ? (evalStatus === "em_andamento" ? ((totals.total > 0 ? (totals.earned / totals.total) * 100 : 0) >= NOTA_DE_CORTE ? "aprovado" : "reprovado") : evalStatus)
         : "em_andamento";
 
       if (user && evaluatedCandidateId) {
