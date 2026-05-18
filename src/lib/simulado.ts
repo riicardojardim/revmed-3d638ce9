@@ -72,6 +72,14 @@ export function getSimulado(userId: string | null | undefined, id: string): Simu
   return readAll(userId)[id] ?? readSingleStations(userId)[id] ?? null;
 }
 
+export function getSimuladoByRoomCode(userId: string | null | undefined, roomCode: string): Simulado | null {
+  if (!userId || !roomCode) return null;
+  const code = roomCode.toUpperCase();
+  const matchInMap = (map: Record<string, Simulado>) =>
+    Object.values(map).find((s) => (s.roomCode ?? "").toUpperCase() === code) ?? null;
+  return matchInMap(readAll(userId)) ?? matchInMap(readSingleStations(userId)) ?? null;
+}
+
 export function saveSimulado(userId: string, sim: Simulado) {
   if (sim.stations.length < 2) {
     const temporary = readSingleStations(userId);
