@@ -20,7 +20,7 @@ function SignupPage() {
   const nav = useNavigate();
   const { user, loading } = useAuth();
   const [role, setRole] = useState<"aluno" | "professor">("aluno");
-  const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: "", year: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: "" });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
