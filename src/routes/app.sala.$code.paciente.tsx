@@ -1364,50 +1364,6 @@ function Highlightable({ children }: { children: React.ReactNode }) {
   );
   }
 
-  async function togglePreview() {
-    if (!room || !user) return;
-    if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
-    const next = !previewEnabled;
-    setPreviewEnabled(next);
-    const { error } = await supabase.from("room_evaluations").upsert({
-      room_id: room.id,
-      evaluator_id: user.id,
-      candidate_id: room.evaluated_candidate_id,
-      station_id: room.station_id,
-      checks,
-      item_comments: comments,
-      final_feedback: feedback,
-      final_score: Number(score.toFixed(2)),
-      status: "em_andamento",
-      preview_for_candidate: next,
-    }, { onConflict: "room_id,evaluator_id,candidate_id" });
-    if (error) {
-      setPreviewEnabled(!next);
-      return toast.error(error.message);
-    }
-    toast.success(next ? "PEP visível para o candidato em tempo real." : "Prévia do PEP ocultada.");
-  }
-
-  // Auto-sincroniza a prévia do PEP enquanto estiver habilitada
-  useEffect(() => {
-    if (!previewEnabled || !room || !user || !room.evaluated_candidate_id) return;
-    const t = setTimeout(() => {
-      void supabase.from("room_evaluations").upsert({
-        room_id: room.id,
-        evaluator_id: user.id,
-        candidate_id: room.evaluated_candidate_id,
-        station_id: room.station_id,
-        checks,
-        item_comments: comments,
-        final_feedback: feedback,
-        final_score: Number(score.toFixed(2)),
-        status: "em_andamento",
-        preview_for_candidate: true,
-      }, { onConflict: "room_id,evaluator_id,candidate_id" });
-    }, 400);
-    return () => clearTimeout(t);
-  }, [previewEnabled, checks, comments, feedback, room?.id, room?.evaluated_candidate_id, user?.id, room?.station_id]);
-
 
 function patientFields(p: NonNullable<LoadedStation["patientProfile"]>): [string, string | undefined][] {
   return [
