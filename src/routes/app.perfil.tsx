@@ -145,21 +145,44 @@ function ProfilePage() {
   }
 
   // -------- Password change --------
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
 
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
+    if (!user?.email) {
+      toast.error("Não foi possível identificar seu e-mail.");
+      return;
+    }
+    if (!currentPassword) {
+      toast.error("Informe a senha atual.");
+      return;
+    }
     if (newPassword.length < 6) {
-      toast.error("A senha precisa de no mínimo 6 caracteres.");
+      toast.error("A nova senha precisa de no mínimo 6 caracteres.");
       return;
     }
     if (newPassword !== confirmPassword) {
       toast.error("As senhas não coincidem.");
       return;
     }
+    if (newPassword === currentPassword) {
+      toast.error("A nova senha deve ser diferente da atual.");
+      return;
+    }
     setSavingPassword(true);
+    // Reautentica para validar a senha atual antes de atualizar.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+    if (signInError) {
+      setSavingPassword(false);
+      toast.error("Senha atual incorreta.");
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     setSavingPassword(false);
     if (error) {
@@ -167,6 +190,7 @@ function ProfilePage() {
       return;
     }
     toast.success("Senha atualizada com sucesso!");
+    setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
   }
@@ -307,12 +331,24 @@ function ProfilePage() {
           <Lock className="h-4 w-4 text-mint" />
           <h3 className="font-semibold">Alterar senha</h3>
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="currentPassword">Senha atual</Label>
+          <Input
+            id="currentPassword"
+            type="password"
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Digite sua senha atual"
+          />
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="newPassword">Nova senha</Label>
             <Input
               id="newPassword"
               type="password"
+              autoComplete="new-password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres"
@@ -323,6 +359,7 @@ function ProfilePage() {
             <Input
               id="confirmPassword"
               type="password"
+              autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repita a senha"
@@ -330,7 +367,11 @@ function ProfilePage() {
           </div>
         </div>
         <div>
-          <Button type="submit" variant="outline" disabled={savingPassword || !newPassword || !confirmPassword}>
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={savingPassword || !currentPassword || !newPassword || !confirmPassword}
+          >
             {savingPassword ? "Atualizando..." : "Atualizar senha"}
           </Button>
         </div>
