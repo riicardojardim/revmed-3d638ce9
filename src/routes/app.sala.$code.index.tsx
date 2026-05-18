@@ -46,6 +46,7 @@ type Participant = {
   role: string;
   joined_at: string;
   is_ready: boolean;
+  display_name: string | null;
 };
 
 const ROLE_CARDS = [
@@ -219,7 +220,7 @@ function RoomPage() {
     if (existing) {
       const { error } = await supabase
         .from("training_room_participants")
-        .update({ role, is_ready: false })
+        .update({ role, is_ready: false, display_name: profile?.full_name ?? existing.display_name ?? null })
         .eq("id", existing.id);
       if (error) return toast.error(error.message);
     } else {
