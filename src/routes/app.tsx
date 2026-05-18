@@ -215,7 +215,9 @@ function AppLayout() {
               <div className="space-y-0.5">
                 {section.items.map((n) => {
                   const active = isActive(n.to, n.exact);
-                  const isSalas = n.to === "/app/treinar" || (isAtorOnly && n.to === "/app/estacoes");
+                  const parentSlot = activeRoom?.parent ?? "treinar";
+                  const isSalas = (n.to === "/app/treinar" && parentSlot === "treinar")
+                    || (n.to === "/app/estacoes" && (parentSlot === "estacoes" || isAtorOnly));
                   const hasChildren = !!n.children?.length;
                   const childActive = hasChildren && n.children!.some((c) => isActive(c.to, true));
                   return (
