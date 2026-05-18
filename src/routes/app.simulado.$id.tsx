@@ -631,26 +631,19 @@ function SimuladoRunner() {
       )}
     <div className="mx-auto max-w-7xl space-y-4">
       {/* Progress header */}
-      <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
-          <Link to={sim.stations.length >= 2 ? "/app/checklists" : "/app/checklists"} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3.5 w-3.5" /> Sair
-          </Link>
-          {sim.stations.length >= 2 && (
-            <>
-              <div className="text-sm font-semibold">{sim.name}</div>
-              <Badge variant="outline" className="ml-auto">
-                Estação {sim.currentIndex + 1} de {sim.stations.length}
-              </Badge>
-            </>
-          )}
-        </div>
-        {sim.stations.length >= 2 && (
+      {sim.stations.length >= 2 && (
+        <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
+            <div className="text-sm font-semibold">{sim.name}</div>
+            <Badge variant="outline" className="ml-auto">
+              Estação {sim.currentIndex + 1} de {sim.stations.length}
+            </Badge>
+          </div>
           <div className="mx-auto mt-2 h-1.5 max-w-7xl overflow-hidden rounded-full bg-muted">
             <div className="h-full bg-gradient-mint transition-all" style={{ width: `${progress}%` }} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
