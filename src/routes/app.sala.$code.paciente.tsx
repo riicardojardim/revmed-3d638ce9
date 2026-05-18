@@ -419,6 +419,7 @@ function ActorView() {
     if (!m) return;
     const { error } = await supabase.from("room_material_deliveries").insert({
       room_id: room.id,
+      station_id: room.station_id,
       material_id: m.id,
       material_name: m.name,
       material_type: m.type,
