@@ -1,11 +1,15 @@
 import { Medal, Lock } from "lucide-react";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 
-// Nota de corte oficial do INEP — Revalida prática.
-// Histórico recente: a nota mínima vem se mantendo em 6,0 (60% dos pontos).
-// Fonte: edital INEP Revalida 2024/2025.
-export const NOTA_DE_CORTE = 6.0;
+// Nota de corte oficial do INEP — Revalida, prova de habilidades clínicas (2ª etapa).
+// Última divulgada: edição 2025/1 = 65,655 pontos (escala 0–100).
+// Fonte: gov.br/inep — "Revalida 2025/1: Nota de corte da 2ª etapa é de 65,655 pontos" (DOU, 09/06/2025).
+export const NOTA_DE_CORTE = 65.655; // escala 0–100
+export const NOTA_DE_CORTE_EDICAO = "Revalida 2025/1";
 export const MIN_STATIONS_PER_SPECIALTY = 5;
+
+// Notas internas das tentativas são salvas na escala 0–10 — convertemos a nota de corte:
+export const NOTA_DE_CORTE_ESCALA10 = NOTA_DE_CORTE / 10;
 
 // Ordem e rótulos canônicos para as medalhas
 export const MEDAL_SPECIALTIES: { key: string; label: string; short: string }[] = [
