@@ -7,7 +7,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
-import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
+import { getSimulado, getSimuladoByRoomCode, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy, Eye, EyeOff,
@@ -38,8 +38,12 @@ function SalaDispatcher() {
   if (loading) {
     return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
   }
-  const sim = user ? getSimulado(user.id, code) : null;
-  if (sim) return <SimuladoRunner id={code} />;
+  // Aceita tanto o ID do simulado (URL do ator) quanto o código da sala (link de convite),
+  // para que ator e candidato fiquem sempre na mesma sala mesmo se o ator compartilhar a URL.
+  const sim = user
+    ? (getSimulado(user.id, code) ?? getSimuladoByRoomCode(user.id, code))
+    : null;
+  if (sim) return <SimuladoRunner id={sim.id} />;
   // Não é simulado do usuário atual → fluxo normal de sala (lobby/candidato/paciente/banca)
   return <Outlet />;
 }
@@ -195,7 +199,7 @@ function SimuladoRunner({ id }: { id: string }) {
       localStorage.setItem("ator:activeRoom", JSON.stringify({
         code: sim.roomCode,
         title: sim.name,
-        path: `/app/sala/${sim.id}`,
+        path: `/app/sala/${sim.roomCode}`,
         parent: (sim.stations?.length ?? 0) >= 2 ? "treinar" : "estacoes",
       }));
       window.dispatchEvent(new Event("ator:activeRoom"));
@@ -212,6 +216,14 @@ function SimuladoRunner({ id }: { id: string }) {
       } catch {}
     };
   }, [sim?.id, sim?.roomCode, sim?.name, sim?.finished]);
+
+  // Garante que a URL do ator seja o mesmo código da sala compartilhada no link de convite,
+  // para que ator e candidato sempre estejam no mesmo "endereço" da sala.
+  useEffect(() => {
+    if (!sim?.roomCode) return;
+    if (id === sim.roomCode) return;
+    nav({ to: "/app/sala/$code", params: { code: sim.roomCode }, replace: true });
+  }, [id, sim?.roomCode, nav]);
 
   async function refreshCandidates(roomId: string) {
     const { data: parts } = await supabase.from("training_room_participants")
