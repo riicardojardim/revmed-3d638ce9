@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
+import { InviteFriendToRoomDialog } from "@/components/InviteFriendToRoomDialog";
+import { Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/checklists")({

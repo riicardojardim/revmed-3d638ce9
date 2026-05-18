@@ -100,6 +100,7 @@ function AppLayout() {
             { to: "/app/flashcards/revisao", label: "Revisão" },
           ]},
           
+          { to: "/app/amigos", label: "Amigos", icon: Users },
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
