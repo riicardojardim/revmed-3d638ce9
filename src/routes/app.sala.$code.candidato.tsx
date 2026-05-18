@@ -253,7 +253,7 @@ function CandidateView() {
   const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
-  const correctionReady = !!evaluation && evaluation.status !== "em_andamento";
+  const correctionReady = !!evaluation && isFinished;
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
 
   // Lobby de espera — tela cheia, transita sozinha quando room.status virar "running"
@@ -436,7 +436,7 @@ function CandidateView() {
                       {evaluation!.final_score?.toFixed(2) ?? "—"} / {pct.toFixed(0)}%
                     </div>
                     <Badge className="mt-2" variant="outline">
-                      {evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : "Pedir repetição"}
+                      {evaluation!.status === "aprovado" ? "Aprovado" : evaluation!.status === "reprovado" ? "Reprovado" : evaluation!.status === "repetir" ? "Pedir repetição" : "Correção em andamento"}
                     </Badge>
                   </div>
 
@@ -522,7 +522,7 @@ function CandidateView() {
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-4 py-6 text-sm text-muted-foreground">
-                  <Lock className="h-4 w-4" /> Aguardando o ator finalizar a correção...
+                  <Lock className="h-4 w-4" /> Aguardando o ator abrir o PEP...
                 </div>
               )}
             </PRBlock>

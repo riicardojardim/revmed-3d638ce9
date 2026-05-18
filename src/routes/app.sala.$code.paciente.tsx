@@ -122,6 +122,24 @@ function ActorView() {
   const [remaining, setRemaining] = useState(0);
   const [finished, setFinished] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const finishingRef = useRef(false);
+  const latestReviewRef = useRef<{
+    checks: Record<string, number>;
+    comments: Record<string, string>;
+    feedback: string;
+    evalStatus: "em_andamento" | "aprovado" | "reprovado" | "repetir";
+    allScored: boolean;
+    pct: number;
+    score: number;
+  }>({
+    checks: {},
+    comments: {},
+    feedback: "",
+    evalStatus: "em_andamento",
+    allScored: false,
+    pct: 0,
+    score: 0,
+  });
 
   async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
@@ -261,8 +279,8 @@ function ActorView() {
         const left = Math.max(0, Math.min(totalSec, totalSec - elapsed));
         setRemaining(left);
         if (left <= 0 && elapsed >= 0) {
-          setFinished(true);
           if (intervalRef.current) clearInterval(intervalRef.current);
+          void finishStation(true);
         }
       };
 
@@ -322,6 +340,7 @@ function ActorView() {
   const allScored = totals.scored === totals.count && totals.count > 0;
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
+  latestReviewRef.current = { checks, comments, feedback, evalStatus, allScored, pct, score };
 
   // Auto-preencher status: >=61.17% aprovado, <61.17% reprovado (apenas quando o checklist está completo)
   useEffect(() => {
@@ -432,13 +451,41 @@ function ActorView() {
     toast.success("Cronômetro iniciado para o candidato.");
   }
 
-  async function finishStation() {
+  async function finishStation(auto = false) {
     if (!room) return;
-    await supabase.from("training_rooms")
-      .update({ status: "finished", finished_at: new Date().toISOString() })
+    if (finishingRef.current) return;
+    finishingRef.current = true;
+    const finishedAt = new Date().toISOString();
+    const review = latestReviewRef.current;
+    const { error } = await supabase.from("training_rooms")
+      .update({ status: "finished", finished_at: finishedAt })
       .eq("id", room.id);
+    if (error) {
+      finishingRef.current = false;
+      return toast.error(error.message);
+    }
+    setRoom((prev) => prev ? { ...prev, status: "finished" } : prev);
     setFinished(true);
-    toast.success("Estação finalizada. Preencha o PEP abaixo.");
+    if (user && room.evaluated_candidate_id) {
+      const resolvedStatus = review.allScored
+        ? (review.evalStatus === "em_andamento" ? (review.pct >= 61.17 ? "aprovado" : "reprovado") : review.evalStatus)
+        : "em_andamento";
+      const { error: evalError } = await supabase.from("room_evaluations")
+        .upsert({
+          room_id: room.id,
+          evaluator_id: user.id,
+          candidate_id: room.evaluated_candidate_id,
+          station_id: room.station_id,
+          checks: review.checks,
+          item_comments: review.comments,
+          final_feedback: review.feedback,
+          final_score: Number(review.score.toFixed(2)),
+          status: resolvedStatus,
+          submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
+        }, { onConflict: "room_id,evaluator_id,candidate_id" });
+      if (evalError) toast.error(evalError.message);
+    }
+    toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação finalizada. PEP liberado para o candidato.");
   }
 
   async function copyInviteLink() {
@@ -1013,7 +1060,7 @@ function ActorView() {
                       </Button>
                     )}
                     {isRunning && (
-                      <Button variant="outline" className="mt-3 w-full" onClick={finishStation}>
+                      <Button variant="outline" className="mt-3 w-full" onClick={() => finishStation()}>
                         <Square className="mr-1 h-4 w-4" /> Encerrar estação
                       </Button>
                     )}
