@@ -728,6 +728,8 @@ function SimuladoRunner({ id }: { id: string }) {
           specialty={station?.specialty ?? null}
           displayName={(profile?.full_name?.trim()) || "Ator"}
           avatarUrl={profile?.avatar_url}
+          startAtMs={introStartAt ?? undefined}
+          nowMs={serverNow}
           onComplete={onIntroComplete}
         />
       )}
