@@ -438,7 +438,6 @@ function FlashcardsPage() {
                         className="rounded-xl border-2 border-amber-500/40 bg-card px-2 py-3 text-center font-display font-bold text-amber-500 transition hover:bg-amber-500/10 active:scale-[0.97]"
                       >
                         <div className="text-[15px]">Quase</div>
-                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">curto prazo</div>
                       </button>
                       <button
                         onClick={() => rate(5)}
