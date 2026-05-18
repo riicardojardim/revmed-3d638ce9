@@ -24,7 +24,7 @@ type Attempt = {
 
 function Historico() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"pense" | "simulado" | "parceiros">("pense");
+  const [tab, setTab] = useState<"pense" | "simulado">("pense");
   const [items, setItems] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
