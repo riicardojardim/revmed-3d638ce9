@@ -19,11 +19,10 @@ export const Route = createFileRoute("/app/admin/flashcards/$id")({
 const SPECIALTIES = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
   "Preventiva",
-  "Urgência e Emergência",
 ];
 
 type Deck = {

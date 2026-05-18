@@ -31,10 +31,9 @@ interface Station {
 const SPECIALTIES = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
-  "Urgência e Emergência",
 ];
 
 function AdminStationsPage() {

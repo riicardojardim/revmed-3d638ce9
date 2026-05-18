@@ -1,11 +1,10 @@
 // Mock data for demo. TODO: replace with Supabase backend.
 export type Specialty =
   | "Clínica Médica"
+  | "Cirurgia"
   | "Pediatria"
   | "Ginecologia e Obstetrícia"
-  | "Cirurgia"
-  | "Medicina de Família e Comunidade"
-  | "Urgência e Emergência";
+  | "Medicina de Família e Comunidade";
 
 export type Difficulty = "Fácil" | "Médio" | "Difícil";
 
@@ -85,7 +84,7 @@ export const STATIONS: Station[] = [
     id: "1",
     slug: "dor-toracica-emergencia",
     title: "Dor torácica na emergência",
-    specialty: "Urgência e Emergência",
+    specialty: "Clínica Médica",
     difficulty: "Difícil",
     durationMinutes: 10,
     tag: "Popular",
@@ -277,7 +276,7 @@ export const STATIONS: Station[] = [
     id: "7",
     slug: "pcr-aesp-suporte-avancado",
     title: "PCR em AESP — Suporte Avançado de Vida",
-    specialty: "Urgência e Emergência",
+    specialty: "Clínica Médica",
     difficulty: "Difícil",
     durationMinutes: 10,
     tag: "Nova",
@@ -605,10 +604,9 @@ export const STATIONS: Station[] = [
 export const SPECIALTIES: Specialty[] = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
-  "Urgência e Emergência",
 ];
 
 export interface Attempt {

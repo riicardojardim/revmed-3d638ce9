@@ -410,10 +410,9 @@ function RolesSimulation() {
 const areas = [
   { icon: Activity, name: "Clínica Médica", count: 28 },
   { icon: Scissors, name: "Cirurgia", count: 18 },
-  { icon: Heart, name: "Ginecologia e Obstetrícia", count: 24 },
   { icon: Baby, name: "Pediatria", count: 22 },
+  { icon: Heart, name: "Ginecologia e Obstetrícia", count: 24 },
   { icon: HomeIcon, name: "Medicina de Família e Comunidade", count: 20 },
-  { icon: Siren, name: "Urgência e Emergência", count: 16 },
   { icon: MessagesSquare, name: "Comunicação médico-paciente", count: 12 },
   { icon: Stethoscope, name: "Exames e condutas", count: 14 },
 ];

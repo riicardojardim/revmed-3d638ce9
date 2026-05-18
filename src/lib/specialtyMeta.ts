@@ -5,7 +5,7 @@
 //   PE  Pediatria                 → verde
 //   PR  Preventiva                → laranja
 //   MFC Medicina de Família e Comunidade → esmeralda
-//   UE  Urgência e Emergência     → vermelho escuro (fora do Pense, mantido)
+
 
 export type SpecialtyMeta = {
   code: string;
@@ -55,13 +55,6 @@ const META: Record<string, SpecialtyMeta> = {
     solid: "bg-teal-500",
     text: "text-teal-400",
   },
-  "Urgência e Emergência": {
-    code: "UE",
-    badge: "bg-red-500/15 text-red-300 ring-1 ring-red-500/30",
-    card: "border-red-500/40 bg-red-500/5",
-    solid: "bg-red-500",
-    text: "text-red-400",
-  },
   "Saúde Coletiva": {
     code: "SC",
     badge: "bg-orange-500/15 text-orange-300 ring-1 ring-orange-500/30",
@@ -101,28 +94,27 @@ export function getSpecialtyMeta(specialty?: string | null): SpecialtyMeta {
  * Use SEMPRE essa ordem em listas, filtros, dashboards, etc.
  *   1. Clínica Médica
  *   2. Cirurgia
- *   3. Ginecologia e Obstetrícia
- *   4. Pediatria
+ *   3. Pediatria
+ *   4. Ginecologia e Obstetrícia
  *   5. Medicina de Família e Comunidade / Preventiva
  * Extras (fora da prova oficial) ficam no final.
  */
 export const SPECIALTY_ORDER: string[] = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
   "Preventiva",
   "Saúde Coletiva",
-  "Urgência e Emergência",
 ];
 
 /** Lista padrão das 5 especialidades oficiais do Revalida, na ordem certa. */
 export const REVALIDA_SPECIALTIES: string[] = [
   "Clínica Médica",
   "Cirurgia",
-  "Ginecologia e Obstetrícia",
   "Pediatria",
+  "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
 ];
 
