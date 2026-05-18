@@ -296,6 +296,16 @@ function SimuladoRunner({ id }: { id: string }) {
       toast.success("Link copiado");
     } catch { toast.error("Não foi possível copiar."); }
   }
+  async function copyInviteCode() {
+    const code = sim?.roomCode ?? "";
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 1800);
+      toast.success("Código copiado");
+    } catch { toast.error("Não foi possível copiar."); }
+  }
   function shareWhatsApp() {
     const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(`Vamos treinar um simulado no Estação Revalida 🩺\nEntre: ${link}`)}`, "_blank", "noopener,noreferrer");
