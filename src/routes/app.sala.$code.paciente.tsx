@@ -23,6 +23,7 @@ import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
+import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
