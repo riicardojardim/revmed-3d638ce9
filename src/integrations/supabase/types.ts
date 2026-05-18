@@ -27,6 +27,10 @@ export type Database = {
           reviewed_by: string | null
           room_id: string | null
           score: number
+          simulado_id: string | null
+          simulado_name: string | null
+          simulado_station_index: number | null
+          simulado_total_stations: number | null
           specialty: string | null
           station_id: string
           station_title: string | null
@@ -47,6 +51,10 @@ export type Database = {
           reviewed_by?: string | null
           room_id?: string | null
           score?: number
+          simulado_id?: string | null
+          simulado_name?: string | null
+          simulado_station_index?: number | null
+          simulado_total_stations?: number | null
           specialty?: string | null
           station_id: string
           station_title?: string | null
@@ -67,6 +75,10 @@ export type Database = {
           reviewed_by?: string | null
           room_id?: string | null
           score?: number
+          simulado_id?: string | null
+          simulado_name?: string | null
+          simulado_station_index?: number | null
+          simulado_total_stations?: number | null
           specialty?: string | null
           station_id?: string
           station_title?: string | null
@@ -623,6 +635,10 @@ export type Database = {
           host_id: string
           id: string
           mode: string
+          simulado_id: string | null
+          simulado_index: number | null
+          simulado_name: string | null
+          simulado_total: number | null
           started_at: string | null
           starting_at: string | null
           station_id: string
@@ -641,6 +657,10 @@ export type Database = {
           host_id: string
           id?: string
           mode?: string
+          simulado_id?: string | null
+          simulado_index?: number | null
+          simulado_name?: string | null
+          simulado_total?: number | null
           started_at?: string | null
           starting_at?: string | null
           station_id: string
@@ -659,6 +679,10 @@ export type Database = {
           host_id?: string
           id?: string
           mode?: string
+          simulado_id?: string | null
+          simulado_index?: number | null
+          simulado_name?: string | null
+          simulado_total?: number | null
           started_at?: string | null
           starting_at?: string | null
           station_id?: string
