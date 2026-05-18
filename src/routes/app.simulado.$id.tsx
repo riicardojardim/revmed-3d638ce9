@@ -31,6 +31,13 @@ export const Route = createFileRoute("/app/simulado/$id")({
 
 type Candidate = { id: string; name: string };
 
+function formatCandidateName(rawName: string | null | undefined, userId?: string): string {
+  const raw = (rawName ?? "").trim();
+  const fallback = userId ? `Dr. ${userId.slice(0, 8).toUpperCase()}` : "Dr.";
+  const name = raw || fallback;
+  return name.toLowerCase().startsWith("dr") ? name : `Dr. ${name}`;
+}
+
 function SimuladoRunner() {
   const { id } = Route.useParams();
   const nav = useNavigate();
@@ -171,9 +178,8 @@ function SimuladoRunner() {
     // Fallback de nome via display_name salvo no participante (visível para todos).
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list = ids.map((uid: string) => {
-      const raw = ((profMap.get(uid) ?? dispMap.get(uid) ?? "") as string).trim();
-      const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
-      return { id: uid, name };
+      const raw = (profMap.get(uid) ?? dispMap.get(uid)) as string | null | undefined;
+      return { id: uid, name: formatCandidateName(raw, uid) };
     });
     setCandidates(list);
     // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
@@ -194,10 +200,10 @@ function SimuladoRunner() {
       .on("postgres_changes", { event: "*", schema: "public", table: "training_room_participants", filter: `room_id=eq.${roomId}` }, async (payload) => {
         await refreshCandidates(roomId);
         if (payload.eventType === "INSERT") {
-          const row = payload.new as { user_id: string; role: string };
+          const row = payload.new as { user_id: string; role: string; display_name: string | null };
           if (row.role === "candidato") {
             const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", row.user_id).maybeSingle();
-            toast.success(`${prof?.full_name ?? "Candidato"} entrou no simulado`);
+            toast.success(`${formatCandidateName(prof?.full_name ?? row.display_name, row.user_id)} entrou no simulado`);
           }
         }
       })
