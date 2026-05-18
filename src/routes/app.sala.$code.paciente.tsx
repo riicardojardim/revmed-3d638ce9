@@ -188,8 +188,8 @@ function ActorView() {
       setRemaining(effMin * 60);
 
       const list = await refreshCandidates((r as Room).id);
-      // Auto-select first candidate as the evaluated if none chosen yet
-      if (!(r as Room).evaluated_candidate_id && list.length > 0) {
+      // Auto-select apenas se houver UM único candidato. Com 2+ o ator escolhe quem é o da vez.
+      if (!(r as Room).evaluated_candidate_id && list.length === 1) {
         await supabase.from("training_rooms").update({ evaluated_candidate_id: list[0].id }).eq("id", (r as Room).id);
         setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: list[0].id } : prev);
       }
