@@ -422,7 +422,7 @@ function SimuladoRunner({ id }: { id: string }) {
     const nextAllScored = nextTotals.count > 0 && nextTotals.scored === nextTotals.count;
     const pct = nextTotals.total > 0 ? (nextTotals.earned / nextTotals.total) * 100 : 0;
     const resolvedStatus = isStationFinished && nextAllScored
-      ? (pct >= 61.17 ? "aprovado" : "reprovado")
+      ? (pct >= NOTA_DE_CORTE ? "aprovado" : "reprovado")
       : "em_andamento";
 
     const { error } = await supabase.from("room_evaluations").upsert({
