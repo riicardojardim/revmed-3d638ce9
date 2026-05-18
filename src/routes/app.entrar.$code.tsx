@@ -11,9 +11,16 @@ export const Route = createFileRoute("/app/entrar/$code")({
 
 function JoinRoom() {
   const { code } = Route.useParams();
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const nav = useNavigate();
   const [error, setError] = useState<string | null>(null);
+
+  const displayName =
+    profile?.full_name?.trim() ||
+    (user?.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user?.user_metadata?.name as string | undefined)?.trim() ||
+    user?.email?.split("@")[0] ||
+    null;
 
   useEffect(() => {
     if (loading) return;
@@ -38,7 +45,7 @@ function JoinRoom() {
 
       const { data: existing } = await supabase
         .from("training_room_participants")
-        .select("id, role")
+        .select("id, role, display_name")
         .eq("room_id", room.id)
         .eq("user_id", user.id)
         .maybeSingle();
@@ -46,11 +53,16 @@ function JoinRoom() {
       if (!existing) {
         const { error: insErr } = await supabase
           .from("training_room_participants")
-          .insert({ room_id: room.id, user_id: user.id, role: targetRole });
+          .insert({ room_id: room.id, user_id: user.id, role: targetRole, display_name: displayName });
         if (insErr) {
           setError(insErr.message);
           return;
         }
+      } else if (!existing.display_name && displayName) {
+        await supabase
+          .from("training_room_participants")
+          .update({ display_name: displayName })
+          .eq("id", existing.id);
       }
 
       // Candidato vai direto para a sua sala (sem passar pela tela "Escolha seu papel").
@@ -61,7 +73,7 @@ function JoinRoom() {
         nav({ to: "/app/sala/$code", params: { code }, replace: true });
       }
     })();
-  }, [loading, user?.id, code]);
+  }, [loading, user?.id, profile?.full_name, code]);
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center justify-center py-20 text-center">
