@@ -33,18 +33,17 @@ function Desempenho() {
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("flashcard_reviews")
-        .select("card_id, reviews_count, last_quality, last_time_seconds, total_time_seconds, ease, flashcards!inner(id, specialty, front, deck)")
-        .eq("user_id", user.id);
-      setRows((data as any) ?? []);
-      setLoading(false);
-    })();
-  }, [user]);
+    setLoading(true);
+    const { data } = await supabase
+      .from("flashcard_reviews")
+      .select("card_id, reviews_count, last_quality, last_time_seconds, total_time_seconds, ease, flashcards!inner(id, specialty, front, deck)")
+      .eq("user_id", user.id);
+    setRows((data as any) ?? []);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user]);
 
   const stats = useMemo(() => {
     const totalCards = rows.length;
