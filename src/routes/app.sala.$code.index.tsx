@@ -318,7 +318,7 @@ function RoomPage() {
           role={introRole}
           stationTitle={room.station_title}
           specialty={specialty}
-          displayName={profile?.full_name ?? "Participante"}
+          displayName={formatDoctorName(profile?.full_name, profile?.title, "Participante")}
           onComplete={onIntroComplete}
         />
       )}
