@@ -10,6 +10,7 @@ import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { createSimulado } from "@/lib/simulado";
+import { SimuladoBuilder } from "@/components/SimuladoBuilder";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/estacoes")({
@@ -38,6 +39,7 @@ function StationsPage() {
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [builderOpen, setBuilderOpen] = useState(false);
 
   function startStation(s: ListStation) {
     if (!user) { toast.error("Faça login para iniciar."); return; }
@@ -220,14 +222,13 @@ function StationsPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Monte um simulado com 2 ou mais checklists e cronômetro oficial.
             </p>
-            <Link to="/app/treinar" className="mt-4 block">
-              <Button variant="hero" className="w-full">
-                Montar simulado <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+            <Button variant="hero" className="mt-4 w-full" onClick={() => setBuilderOpen(true)}>
+              Montar simulado <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </aside>
       </div>
+      <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
     </div>
   );
 }
