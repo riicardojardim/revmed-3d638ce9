@@ -99,7 +99,9 @@ export function createSimulado(
   stations: { id: string; title: string; specialty: string }[],
 ): Simulado {
   const sim: Simulado = {
-    id: Math.random().toString(36).slice(2, 10),
+    id: (typeof crypto !== "undefined" && "randomUUID" in crypto)
+      ? crypto.randomUUID()
+      : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}-4${Math.random().toString(16).slice(2, 5)}-${Math.random().toString(16).slice(2, 6)}-${Math.random().toString(16).slice(2, 14)}`,
     name: name.trim() || (stations.length >= 2 ? "Simulado" : "Estação"),
     createdAt: Date.now(),
     currentIndex: 0,
