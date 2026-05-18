@@ -401,14 +401,6 @@ function SimuladoRunner() {
         ? (evalStatus === "em_andamento" ? ((totals.total > 0 ? (totals.earned / totals.total) * 100 : 0) >= 61.17 ? "aprovado" : "reprovado") : evalStatus)
         : "em_andamento";
 
-      const { error: roomError } = await supabase.from("training_rooms")
-        .update({ status: "finished", finished_at: finishedAt })
-        .eq("id", sim.roomId);
-      if (roomError) {
-        toast.error(roomError.message);
-        return;
-      }
-
       if (user && evaluatedCandidateId) {
         const stationId = sim.stations[sim.currentIndex]?.id;
         if (stationId) {
@@ -427,6 +419,14 @@ function SimuladoRunner() {
           }, { onConflict: "room_id,evaluator_id,candidate_id" });
           if (evalError) toast.error(evalError.message);
         }
+      }
+
+      const { error: roomError } = await supabase.from("training_rooms")
+        .update({ status: "finished", finished_at: finishedAt })
+        .eq("id", sim.roomId);
+      if (roomError) {
+        toast.error(roomError.message);
+        return;
       }
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
