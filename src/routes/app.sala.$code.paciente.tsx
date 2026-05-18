@@ -123,6 +123,23 @@ function ActorView() {
   const [finished, setFinished] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const finishingRef = useRef(false);
+  const latestReviewRef = useRef<{
+    checks: Record<string, number>;
+    comments: Record<string, string>;
+    feedback: string;
+    evalStatus: "em_andamento" | "aprovado" | "reprovado" | "repetir";
+    allScored: boolean;
+    pct: number;
+    score: number;
+  }>({
+    checks: {},
+    comments: {},
+    feedback: "",
+    evalStatus: "em_andamento",
+    allScored: false,
+    pct: 0,
+    score: 0,
+  });
 
   async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
@@ -323,6 +340,7 @@ function ActorView() {
   const allScored = totals.scored === totals.count && totals.count > 0;
   const score = totals.total > 0 ? (totals.earned / totals.total) * 10 : 0;
   const pct = totals.total > 0 ? (totals.earned / totals.total) * 100 : 0;
+  latestReviewRef.current = { checks, comments, feedback, evalStatus, allScored, pct, score };
 
   // Auto-preencher status: >=61.17% aprovado, <61.17% reprovado (apenas quando o checklist está completo)
   useEffect(() => {
