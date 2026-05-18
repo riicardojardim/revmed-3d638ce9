@@ -218,7 +218,7 @@ function FlashcardsPage() {
               variant="outline"
               className="mt-4 w-full"
               disabled={cards.length === 0}
-              onClick={() => { setStep("play"); setIndex(0); setRevealed(false); }}
+              onClick={startSession}
             >
               {cards.length === 0 ? "Sem cards publicados" : "Iniciar Flashcard"}
             </Button>
@@ -231,7 +231,16 @@ function FlashcardsPage() {
   // ===== PLAY =====
   if (step === "play" && activeDeck) {
     const current = cards[index];
-    const done = !current;
+    const done = index >= cards.length || !current;
+    // Sessão concluída → mostra estatísticas no estilo wemeds
+    const totalAnswered = outcomes.length;
+    const acertei = outcomes.filter((q) => q === 5).length;
+    const quase = outcomes.filter((q) => q === 3).length;
+    const naoSei = outcomes.filter((q) => q === 0).length;
+    const pctAcertos = totalAnswered > 0 ? Math.round((acertei / totalAnswered) * 100) : 0;
+    const totalSec = perCardSeconds.reduce((s, n) => s + n, 0);
+    const avgSec = totalAnswered > 0 ? Math.round(totalSec / totalAnswered) : 0;
+    const fmtSec = (s: number) => (s >= 60 ? `${Math.floor(s / 60)} min ${s % 60}s` : `${s} seg`);
     return (
       <FlashcardModalShell title={`FlashCards | ${activeDeck.title}`} onClose={close}>
         <div className="flex-1 flex items-center px-2 sm:px-8 relative">
@@ -254,11 +263,70 @@ function FlashcardsPage() {
 
           <div className="mx-auto w-[min(100%,65svh)] max-w-md">
             {done ? (
-              <div className="rounded-2xl border border-border bg-card p-10 text-center">
-                <Smile className="mx-auto h-10 w-10 text-mint" />
-                <h2 className="mt-3 font-display text-xl font-bold">Deck concluído!</h2>
-                <p className="mt-2 text-sm text-muted-foreground">Você revisou todos os cards deste deck.</p>
-                <Button variant="hero" className="mt-4" onClick={close}>Voltar</Button>
+              <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-card">
+                <h2 className="text-center font-display text-xl font-bold">Revisão concluída</h2>
+                <p className="mt-1 text-center text-sm text-muted-foreground">
+                  {activeDeck.title}
+                </p>
+
+                <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
+                  {/* Anel de % de acertos */}
+                  <div className="mx-auto">
+                    <div
+                      className="relative grid h-36 w-36 place-items-center rounded-full"
+                      style={{
+                        background: `conic-gradient(hsl(var(--mint, 160 80% 50%)) ${pctAcertos * 3.6}deg, hsl(var(--muted)) 0)`,
+                      }}
+                    >
+                      <div className="grid h-28 w-28 place-items-center rounded-full bg-card text-center">
+                        <div>
+                          <div className="font-display text-3xl font-bold tabular-nums">{pctAcertos}%</div>
+                          <div className="text-[11px] text-muted-foreground">de acertos</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Métricas */}
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="rounded-xl border border-border bg-muted/20 p-3">
+                      <Pencil className="mx-auto h-5 w-5 text-mint" />
+                      <div className="mt-1 font-display text-lg font-bold tabular-nums">{totalAnswered}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Respondidos</div>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted/20 p-3">
+                      <Clock className="mx-auto h-5 w-5 text-amber-500" />
+                      <div className="mt-1 font-display text-lg font-bold tabular-nums">{fmtSec(avgSec)}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Média / card</div>
+                    </div>
+                    <div className="rounded-xl border border-border bg-muted/20 p-3">
+                      <Timer className="mx-auto h-5 w-5 text-medical" />
+                      <div className="mt-1 font-display text-lg font-bold tabular-nums">{fmtSec(totalSec)}</div>
+                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Tempo total</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contadores por resposta */}
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-semibold text-emerald-600">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-[11px] font-bold text-white">{acertei}</span>
+                    Acertei
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 font-semibold text-amber-600">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-amber-500 text-[11px] font-bold text-white">{quase}</span>
+                    Quase
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-600">
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-[11px] font-bold text-white">{naoSei}</span>
+                    Não sei
+                  </span>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+                  <Button variant="outline" onClick={startSession}>Refazer deck</Button>
+                  <Button variant="hero" onClick={close}>Voltar aos flashcards</Button>
+                </div>
               </div>
             ) : (
               <>
@@ -304,30 +372,27 @@ function FlashcardsPage() {
                     <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                       <button
                         onClick={() => rate(0)}
-                        title="Errei — volta em ~10 min"
-                        className="group flex flex-col items-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 hover:border-rose-500/40 px-2 py-3 transition active:scale-[0.97]"
+                        title="Não sei — volta em ~10 min"
+                        className="rounded-xl border-2 border-rose-500/40 bg-card px-2 py-3 text-center font-display font-bold text-rose-500 transition hover:bg-rose-500/10 active:scale-[0.97]"
                       >
-                        <Frown className="h-6 w-6 text-rose-500" />
-                        <span className="text-[13px] font-semibold text-rose-500">Errei</span>
-                        <span className="text-[10px] text-muted-foreground">~10 min</span>
+                        <div className="text-[15px]">Não sei</div>
+                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">volta em breve</div>
                       </button>
                       <button
                         onClick={() => rate(3)}
-                        title="Difícil — em breve"
-                        className="group flex flex-col items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 hover:border-amber-500/40 px-2 py-3 transition active:scale-[0.97]"
+                        title="Quase — curto prazo"
+                        className="rounded-xl border-2 border-amber-500/40 bg-card px-2 py-3 text-center font-display font-bold text-amber-500 transition hover:bg-amber-500/10 active:scale-[0.97]"
                       >
-                        <Meh className="h-6 w-6 text-amber-500" />
-                        <span className="text-[13px] font-semibold text-amber-500">Difícil</span>
-                        <span className="text-[10px] text-muted-foreground">curto prazo</span>
+                        <div className="text-[15px]">Quase</div>
+                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">curto prazo</div>
                       </button>
                       <button
                         onClick={() => rate(5)}
-                        title="Fácil — intervalo maior"
-                        className="group flex flex-col items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-500/40 px-2 py-3 transition active:scale-[0.97]"
+                        title="Acertei — intervalo maior"
+                        className="rounded-xl border-2 border-medical bg-card px-2 py-3 text-center font-display font-bold text-medical transition hover:bg-medical/10 active:scale-[0.97]"
                       >
-                        <Smile className="h-6 w-6 text-emerald-500" />
-                        <span className="text-[13px] font-semibold text-emerald-500">Fácil</span>
-                        <span className="text-[10px] text-muted-foreground">longo prazo</span>
+                        <div className="text-[15px]">Acertei</div>
+                        <div className="mt-0.5 text-[10px] font-normal text-muted-foreground">longo prazo</div>
                       </button>
                     </div>
                   </div>
