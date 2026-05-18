@@ -42,7 +42,6 @@ function CandidateView() {
   const { code } = Route.useParams();
   const { user, profile } = useAuth();
   const nav = useNavigate();
-  const { zoomImage, setZoomImage } = useImageZoom();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
