@@ -96,6 +96,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
+  const [introStartAt, setIntroStartAt] = useState<number | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
