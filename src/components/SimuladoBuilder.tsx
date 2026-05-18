@@ -64,11 +64,11 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
 
   function start() {
     if (!user) { toast.error("Faça login para criar um simulado."); return; }
-    if (selected.length === 0) {
-      toast.error("Selecione pelo menos uma estação.");
+    if (selected.length < 2) {
+      toast.error("Um simulado precisa de pelo menos 2 checklists.");
       return;
     }
-    const sim = createSimulado(user.id, name || `Simulado com ${selected.length} estação(ões)`, selected);
+    const sim = createSimulado(user.id, name || `Simulado com ${selected.length} estações`, selected);
     onOpenChange(false);
     nav({ to: "/app/simulado/$id", params: { id: sim.id } });
   }
