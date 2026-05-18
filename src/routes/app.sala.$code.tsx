@@ -7,7 +7,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
-import { getSimulado, getSimuladoByRoomCode, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
+import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy, Eye, EyeOff,
