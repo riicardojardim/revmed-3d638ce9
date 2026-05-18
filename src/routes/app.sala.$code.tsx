@@ -91,6 +91,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
@@ -294,6 +295,16 @@ function SimuladoRunner({ id }: { id: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
       toast.success("Link copiado");
+    } catch { toast.error("Não foi possível copiar."); }
+  }
+  async function copyInviteCode() {
+    const code = sim?.roomCode ?? "";
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 1800);
+      toast.success("Código copiado");
     } catch { toast.error("Não foi possível copiar."); }
   }
   function shareWhatsApp() {
@@ -1151,10 +1162,19 @@ function SimuladoRunner({ id }: { id: string }) {
           {/* Convite do candidato */}
           {sim.roomCode && (
             <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Convite do candidato</div>
-                <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">{sim.roomCode}</span>
+                <button
+                  type="button"
+                  onClick={copyInviteCode}
+                  title="Copiar código"
+                  className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint transition hover:bg-mint/25"
+                >
+                  {sim.roomCode}
+                  {codeCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                </button>
               </div>
+
               <button
                 onClick={copyInviteLink}
                 className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
