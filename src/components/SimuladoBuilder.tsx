@@ -164,7 +164,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button variant="hero" onClick={start} disabled={selected.length === 0}>
+          <Button variant="hero" onClick={start} disabled={selected.length < 2}>
             Iniciar simulado
           </Button>
         </DialogFooter>
