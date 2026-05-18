@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Search, Send, Loader2 } from "lucide-react";
+import { Search, Send, Loader2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnlinePresence } from "@/hooks/use-online-presence";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ type UserResult = {
   username: string | null;
   avatar_url: string | null;
   email: string | null;
+  allows_candidato: boolean | null;
 };
 
 type Props = {
@@ -64,6 +65,10 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
   }, [q]);
 
   async function invite(u: UserResult) {
+    if (u.allows_candidato === false) {
+      toast.error(`${u.full_name ?? "Esse usuário"} tem plano de Ator e não pode ser candidato.`);
+      return;
+    }
     setSendingId(u.id);
     try {
       const { error } = await supabase.rpc("send_room_invite", {
@@ -76,7 +81,12 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
       toast.success(`Convite enviado para ${u.full_name ?? u.username ?? "usuário"}`);
     } catch (e) {
       console.error(e);
-      toast.error("Não foi possível enviar o convite.");
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("recipient plan does not allow candidato")) {
+        toast.error(`${u.full_name ?? "Esse usuário"} tem plano de Ator e não pode ser candidato.`);
+      } else {
+        toast.error("Não foi possível enviar o convite.");
+      }
     } finally {
       setSendingId(null);
     }
@@ -110,6 +120,7 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
           {results.map((u) => {
             const isOnline = online.has(u.id);
             const invited = invitedIds.has(u.id);
+            const isAtorOnly = u.allows_candidato === false;
             return (
               <li key={u.id} className="flex items-center gap-3 px-3 py-2.5">
                 <div className="relative">
@@ -127,17 +138,25 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
                   <div className="truncate text-xs text-muted-foreground">
                     {u.username ? `@${u.username}` : u.email ?? ""}
                   </div>
+                  {isAtorOnly && (
+                    <div className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                      <Lock className="h-2.5 w-2.5" /> Plano Ator — não pode ser candidato
+                    </div>
+                  )}
                 </div>
                 <Button
                   size="sm"
                   variant={invited ? "outline" : "hero"}
-                  disabled={invited || sendingId === u.id}
+                  disabled={invited || sendingId === u.id || isAtorOnly}
                   onClick={() => invite(u)}
+                  title={isAtorOnly ? "Usuário com plano Ator não pode receber convites como candidato" : undefined}
                 >
                   {sendingId === u.id ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : invited ? (
                     "Convidado"
+                  ) : isAtorOnly ? (
+                    <><Lock className="h-3.5 w-3.5" /> Indisponível</>
                   ) : (
                     <>
                       <Send className="h-3.5 w-3.5" /> Convidar

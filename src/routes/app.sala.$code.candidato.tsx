@@ -337,9 +337,13 @@ function CandidateView() {
   if (isWaiting) {
     return (
       <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
-        <Link to="/app/sala/$code" params={{ code }} className="absolute left-6 top-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Voltar
-        </Link>
+        <button
+          type="button"
+          onClick={() => { if (typeof window !== "undefined" && window.history.length > 1) window.history.back(); else nav({ to: "/app" }); }}
+          className="absolute left-6 top-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> Sair
+        </button>
 
         <div className="relative">
           <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/20" />
@@ -378,9 +382,13 @@ function CandidateView() {
   return (
     <div className="mx-auto max-w-7xl space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Voltar
-        </Link>
+        <button
+          type="button"
+          onClick={() => { if (typeof window !== "undefined" && window.history.length > 1) window.history.back(); else nav({ to: "/app" }); }}
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> Sair
+        </button>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">Candidato</span>
           <span>•</span>
