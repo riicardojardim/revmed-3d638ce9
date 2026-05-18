@@ -168,6 +168,7 @@ function SimuladoRunner() {
         code: sim.roomCode,
         title: sim.name,
         path: `/app/simulado/${sim.id}`,
+        parent: (sim.stations?.length ?? 0) >= 2 ? "treinar" : "estacoes",
       }));
       window.dispatchEvent(new Event("ator:activeRoom"));
     } catch {}
