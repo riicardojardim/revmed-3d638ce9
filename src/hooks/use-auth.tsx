@@ -10,6 +10,8 @@ export interface Profile {
   whatsapp: string | null;
   exam_year: string | null;
   avatar_url: string | null;
+  title: string | null;
+  gender: string | null;
 }
 
 interface AuthContextValue {
@@ -41,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadExtras(uid: string) {
     try {
       const result = await withTimeout(Promise.all([
-        supabase.from("profiles").select("id, full_name, whatsapp, exam_year, avatar_url").eq("id", uid).maybeSingle(),
+        supabase.from("profiles").select("id, full_name, whatsapp, exam_year, avatar_url, title, gender").eq("id", uid).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", uid),
       ]), 2000);
       if (!result) return;

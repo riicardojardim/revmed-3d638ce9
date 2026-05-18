@@ -38,7 +38,7 @@ const GENDER_OPTIONS = [
 const EXAM_YEARS = ["2026.1", "2026.2", "2027.1", "2027.2", "Ainda não decidi"];
 
 function ProfilePage() {
-  const { user, profile, roles, signOut, refreshProfile } = useAuth();
+  const { user, profile, roles, signOut, refresh } = useAuth();
   const { plan, daysLeft, loading: subLoading, isCompletoLike, isAtorOnly } = useSubscription();
   const nav = useNavigate();
 
@@ -75,16 +75,16 @@ function ProfilePage() {
 
   // -------- Personal info form --------
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
-  const [title, setTitle] = useState<string>((profile as { title?: string } | null)?.title ?? "");
-  const [gender, setGender] = useState<string>((profile as { gender?: string } | null)?.gender ?? "");
+  const [title, setTitle] = useState<string>(profile?.title ?? "");
+  const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(profile?.whatsapp ?? "");
   const [examYear, setExamYear] = useState(profile?.exam_year ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     setFullName(profile?.full_name ?? "");
-    setTitle((profile as { title?: string } | null)?.title ?? "");
-    setGender((profile as { gender?: string } | null)?.gender ?? "");
+    setTitle(profile?.title ?? "");
+    setGender(profile?.gender ?? "");
     setWhatsapp(profile?.whatsapp ?? "");
     setExamYear(profile?.exam_year ?? "");
   }, [profile]);
@@ -109,7 +109,7 @@ function ProfilePage() {
       return;
     }
     toast.success("Perfil atualizado!");
-    await refreshProfile?.();
+    await refresh();
   }
 
   // -------- Email change --------
