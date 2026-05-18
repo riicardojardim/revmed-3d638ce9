@@ -751,31 +751,35 @@ function CandidateView() {
             )}
           </div>
 
-          {/* Resultado */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Resultado
+          {/* Resultado — só para o candidato avaliado */}
+          {!isSpectator && (
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Resultado
+              </div>
+              <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+                {correctionReady ? (
+                  <div className="font-display text-xl font-bold tabular-nums text-mint">
+                    {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
+                  </div>
+                ) : (
+                  <div className="font-display text-base font-semibold text-muted-foreground">
+                    Aguardando...
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-              {correctionReady ? (
-                <div className="font-display text-xl font-bold tabular-nums text-mint">
-                  {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
-                </div>
-              ) : (
-                <div className="font-display text-base font-semibold text-muted-foreground">
-                  Aguardando...
-                </div>
-              )}
-            </div>
-          </div>
+          )}
 
-          {/* PEP locked card */}
-          <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
-            <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
-            <div className="mt-2 text-[11px] text-muted-foreground">
-              {correctionReady ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
+          {/* PEP locked card — só para o candidato avaliado */}
+          {!isSpectator && (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
+              <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                {correctionReady ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
+              </div>
             </div>
-          </div>
+          )}
         </aside>
       </div>
     </div>
