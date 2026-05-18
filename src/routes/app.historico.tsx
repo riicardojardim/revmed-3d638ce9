@@ -30,6 +30,7 @@ function Historico() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
