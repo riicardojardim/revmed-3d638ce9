@@ -95,6 +95,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [showIntro, setShowIntro] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
+  const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
 
   // Load simulado
   useEffect(() => {
