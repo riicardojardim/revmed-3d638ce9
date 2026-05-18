@@ -234,8 +234,10 @@ export type Database = {
           id: string
           interval_days: number
           last_quality: number | null
+          last_time_seconds: number
           next_review_at: string
           reviews_count: number
+          total_time_seconds: number
           updated_at: string
           user_id: string
         }
@@ -246,8 +248,10 @@ export type Database = {
           id?: string
           interval_days?: number
           last_quality?: number | null
+          last_time_seconds?: number
           next_review_at?: string
           reviews_count?: number
+          total_time_seconds?: number
           updated_at?: string
           user_id: string
         }
@@ -258,8 +262,10 @@ export type Database = {
           id?: string
           interval_days?: number
           last_quality?: number | null
+          last_time_seconds?: number
           next_review_at?: string
           reviews_count?: number
+          total_time_seconds?: number
           updated_at?: string
           user_id?: string
         }

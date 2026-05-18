@@ -139,9 +139,9 @@ function FlashcardsPage() {
 
     const { data: prevRow } = await supabase
       .from("flashcard_reviews")
-      .select("ease, interval_days, reviews_count")
+      .select("ease, interval_days, reviews_count, total_time_seconds")
       .eq("user_id", user.id).eq("card_id", current.id).maybeSingle();
-    const prev = prevRow as Review | null;
+    const prev = prevRow as (Review & { total_time_seconds?: number }) | null;
     let ease = prev?.ease ?? 2.5;
     let interval = prev?.interval_days ?? 0;
     if (quality < 3) {
@@ -156,6 +156,8 @@ function FlashcardsPage() {
       user_id: user.id, card_id: current.id, ease, interval_days: interval,
       next_review_at: next, last_quality: quality,
       reviews_count: (prev?.reviews_count ?? 0) + 1,
+      last_time_seconds: elapsed,
+      total_time_seconds: (prev?.total_time_seconds ?? 0) + elapsed,
     }, { onConflict: "user_id,card_id" });
     if (error) toast.error(error.message);
     setRevealed(false);
