@@ -134,7 +134,7 @@ function SignupPage() {
             </div>
             <div>
               <Label htmlFor="wpp">WhatsApp</Label>
-              <Input id="wpp" placeholder="opcional" value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} />
+              <Input id="wpp" type="tel" inputMode="numeric" autoComplete="tel" placeholder="(11) 99999-9999" maxLength={16} value={form.whatsapp} onChange={(e) => update("whatsapp", formatWhatsapp(e.target.value))} />
             </div>
             <Button variant="hero" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Criando..." : (<>Criar conta <ArrowRight className="h-4 w-4" /></>)}
