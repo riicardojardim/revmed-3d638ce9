@@ -53,13 +53,13 @@ const CATEGORIES = ["Anamnese", "E. Físico", "Lab", "Imagem", "Dx", "Conduta"];
 
 function Dashboard() {
   const { user, profile } = useAuth();
-  const { plan, isPrivileged, loading: subLoading } = useSubscription();
+  const { plan, isPrivileged, isCompletoLike, isAtorOnly, loading: subLoading } = useSubscription();
   const [attempts, setAttempts] = useState<AttemptRow[]>([]);
   const [ranking, setRanking] = useState<{ name: string; score: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const isAtorPlan = plan?.slug === "ator" && !plan.expired;
-  const isCompleto = isPrivileged || (!!plan && !plan.expired && plan.slug === "completo");
+  const isAtorPlan = isAtorOnly;
+  const isCompleto = isCompletoLike;
 
   useEffect(() => {
     if (!user) return;
