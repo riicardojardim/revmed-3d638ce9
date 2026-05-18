@@ -1083,7 +1083,7 @@ function SimuladoRunner() {
                           running && !isEvaluated && "opacity-50 cursor-not-allowed",
                         )}
                       >
-                        <UserAvatar avatarUrl={c.avatarUrl} name={c.name} className="h-7 w-7 text-xs" />
+                        <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
                         <span className="flex-1 truncate font-medium">{c.name}</span>
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
