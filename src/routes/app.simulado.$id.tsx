@@ -206,13 +206,14 @@ function SimuladoRunner() {
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     // Tenta enriquecer com profiles (caso o usuário logado consiga ler — owner/admin).
     const { data: profs } = await supabase.from("profiles")
-      .select("id, full_name").in("id", ids);
-    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+      .select("id, full_name, title").in("id", ids);
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null }) => [p.id, p]));
     // Fallback de nome via display_name salvo no participante (visível para todos).
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list = ids.map((uid: string) => {
-      const raw = (profMap.get(uid) ?? dispMap.get(uid)) as string | null | undefined;
-      return { id: uid, name: formatCandidateName(raw, uid) };
+      const prof = profMap.get(uid);
+      const raw = (prof?.full_name ?? dispMap.get(uid)) as string | null | undefined;
+      return { id: uid, name: formatCandidateName(raw, prof?.title, uid) };
     });
     setCandidates(list);
     // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
