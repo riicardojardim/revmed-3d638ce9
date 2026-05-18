@@ -615,7 +615,7 @@ function SimuladoRunner() {
       {/* Progress header */}
       <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
-          <Link to="/app/treinar" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          <Link to={sim.stations.length >= 2 ? "/app/treinar" : "/app/estacoes"} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-3.5 w-3.5" /> Sair
           </Link>
           <div className="text-sm font-semibold">{sim.name}</div>
