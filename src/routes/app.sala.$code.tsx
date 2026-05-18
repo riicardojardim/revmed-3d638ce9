@@ -91,6 +91,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
