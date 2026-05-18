@@ -142,6 +142,8 @@ function Dashboard() {
   );
 
   const displayName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "estudante";
+  const titlePrefix = profile?.title && profile.title !== "Sem título" ? `${profile.title} ` : "";
+  const greetingName = `${titlePrefix}${displayName}`;
 
   if (subLoading) {
     return <div className="text-sm text-muted-foreground">Carregando...</div>;
@@ -182,7 +184,7 @@ function Dashboard() {
             </div>
           </div>
           <h2 className="mt-4 font-display text-xl font-bold md:text-2xl">
-            <span className="text-mint">Dr(a). {displayName}</span>{" "}
+            <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
             <span className="text-mint">{stats.avg.toFixed(1)}</span>
           </h2>

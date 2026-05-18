@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner";
 import { useSubscription } from "@/hooks/use-subscription";
 import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { formatDoctorName } from "@/lib/doctorName";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 
 export const Route = createFileRoute("/app/sala/$code/")({
@@ -317,7 +318,7 @@ function RoomPage() {
           role={introRole}
           stationTitle={room.station_title}
           specialty={specialty}
-          displayName={profile?.full_name ?? "Participante"}
+          displayName={formatDoctorName(profile?.full_name, profile?.title, "Participante")}
           onComplete={onIntroComplete}
         />
       )}

@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
 import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { formatDoctorName } from "@/lib/doctorName";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
@@ -316,7 +317,7 @@ function CandidateView() {
         role={"candidato" as IntroRole}
         stationTitle={room.station_title ?? station.title}
         specialty={station.specialty}
-        displayName={profile?.full_name ?? "Candidato"}
+        displayName={formatDoctorName(profile?.full_name, profile?.title, "Candidato")}
         onComplete={() => { setShowIntro(false); setIntroDone(true); }}
       />
     );

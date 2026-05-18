@@ -31,11 +31,19 @@ type Room = { id: string; code: string; station_id: string; station_title: strin
 type Delivery = { id: string; material_id: string; material_name: string };
 type Candidate = { id: string; name: string };
 
-function formatCandidateName(rawName: string | null | undefined, userId?: string): string {
+function formatCandidateName(
+  rawName: string | null | undefined,
+  title: string | null | undefined,
+  userId?: string,
+): string {
   const raw = (rawName ?? "").trim();
-  const fallback = userId ? `Dr. ${userId.slice(0, 8).toUpperCase()}` : "Dr.";
+  const t = (title ?? "").trim();
+  const prefix = t && t !== "Sem título" ? t : "Dr.";
+  const fallback = userId ? `${prefix} ${userId.slice(0, 8).toUpperCase()}` : prefix;
   const name = raw || fallback;
-  return name.toLowerCase().startsWith("dr") ? name : `Dr. ${name}`;
+  const lower = name.toLowerCase();
+  if (lower.startsWith("dr.") || lower.startsWith("dra.") || lower.startsWith("dr ") || lower.startsWith("dra ")) return name;
+  return `${prefix} ${name}`;
 }
 
 // Migrate legacy checks (boolean) to new shape (number = chosen level points).
@@ -152,12 +160,13 @@ function ActorView() {
     }
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     const { data: profs } = await supabase.from("profiles")
-      .select("id, full_name").in("id", ids);
-    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+      .select("id, full_name, title").in("id", ids);
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null }) => [p.id, p]));
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list: Candidate[] = ids.map((id: string) => {
-      const raw = (profMap.get(id) ?? dispMap.get(id)) as string | null | undefined;
-      return { id, name: formatCandidateName(raw, id) };
+      const prof = profMap.get(id);
+      const raw = (prof?.full_name ?? dispMap.get(id)) as string | null | undefined;
+      return { id, name: formatCandidateName(raw, prof?.title, id) };
     });
     setCandidates(list);
     return list;
@@ -246,8 +255,8 @@ function ActorView() {
         const row = payload.new as { user_id: string; role: string; display_name: string | null };
         if (row.role === "candidato") {
           const { data: prof } = await supabase.from("profiles")
-            .select("full_name").eq("id", row.user_id).maybeSingle();
-          const name = formatCandidateName(prof?.full_name ?? row.display_name, row.user_id);
+            .select("full_name, title").eq("id", row.user_id).maybeSingle();
+          const name = formatCandidateName(prof?.full_name ?? row.display_name, prof?.title, row.user_id);
           setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
           toast.success(`${name} entrou na sala`);
           if (!room.evaluated_candidate_id) {

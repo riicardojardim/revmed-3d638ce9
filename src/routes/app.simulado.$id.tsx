@@ -31,12 +31,21 @@ export const Route = createFileRoute("/app/simulado/$id")({
 
 type Candidate = { id: string; name: string };
 
-function formatCandidateName(rawName: string | null | undefined, userId?: string): string {
+function formatCandidateName(
+  rawName: string | null | undefined,
+  title: string | null | undefined,
+  userId?: string,
+): string {
   const raw = (rawName ?? "").trim();
-  const fallback = userId ? `Dr. ${userId.slice(0, 8).toUpperCase()}` : "Dr.";
+  const t = (title ?? "").trim();
+  const prefix = t && t !== "Sem título" ? t : "Dr.";
+  const fallback = userId ? `${prefix} ${userId.slice(0, 8).toUpperCase()}` : prefix;
   const name = raw || fallback;
-  return name.toLowerCase().startsWith("dr") ? name : `Dr. ${name}`;
+  const lower = name.toLowerCase();
+  if (lower.startsWith("dr.") || lower.startsWith("dra.") || lower.startsWith("dr ") || lower.startsWith("dra ")) return name;
+  return `${prefix} ${name}`;
 }
+
 
 function SimuladoRunner() {
   const { id } = Route.useParams();
@@ -197,13 +206,14 @@ function SimuladoRunner() {
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     // Tenta enriquecer com profiles (caso o usuário logado consiga ler — owner/admin).
     const { data: profs } = await supabase.from("profiles")
-      .select("id, full_name").in("id", ids);
-    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+      .select("id, full_name, title").in("id", ids);
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null }) => [p.id, p]));
     // Fallback de nome via display_name salvo no participante (visível para todos).
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list = ids.map((uid: string) => {
-      const raw = (profMap.get(uid) ?? dispMap.get(uid)) as string | null | undefined;
-      return { id: uid, name: formatCandidateName(raw, uid) };
+      const prof = profMap.get(uid);
+      const raw = (prof?.full_name ?? dispMap.get(uid)) as string | null | undefined;
+      return { id: uid, name: formatCandidateName(raw, prof?.title, uid) };
     });
     setCandidates(list);
     // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
@@ -226,8 +236,8 @@ function SimuladoRunner() {
         if (payload.eventType === "INSERT") {
           const row = payload.new as { user_id: string; role: string; display_name: string | null };
           if (row.role === "candidato") {
-            const { data: prof } = await supabase.from("profiles").select("full_name").eq("id", row.user_id).maybeSingle();
-            toast.success(`${formatCandidateName(prof?.full_name ?? row.display_name, row.user_id)} entrou no simulado`);
+            const { data: prof } = await supabase.from("profiles").select("full_name, title").eq("id", row.user_id).maybeSingle();
+            toast.success(`${formatCandidateName(prof?.full_name ?? row.display_name, prof?.title, row.user_id)} entrou no simulado`);
           }
         }
       })
@@ -611,7 +621,7 @@ function SimuladoRunner() {
           role={"paciente" as IntroRole}
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}
-          displayName={profile?.full_name ?? "Ator"}
+          displayName={formatCandidateName(profile?.full_name, profile?.title, profile?.id ?? user?.id) || "Ator"}
           onComplete={onIntroComplete}
         />
       )}
