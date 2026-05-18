@@ -902,6 +902,7 @@ export type Database = {
       search_users_for_invite: {
         Args: { _q: string }
         Returns: {
+          allows_candidato: boolean
           avatar_url: string
           email: string
           full_name: string
