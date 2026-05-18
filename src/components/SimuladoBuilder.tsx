@@ -75,7 +75,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-mint" />
@@ -89,7 +89,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Simulado Pediatria 1" className="mt-1.5" />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             {/* Available */}
             <div className="rounded-xl border border-border bg-card">
               <div className="border-b border-border p-3">
@@ -134,7 +134,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
                 {selected.map((s, idx) => {
                   const m = getSpecialtyMeta(s.specialty);
                   return (
-                    <li key={s.id} className="flex items-center gap-2 px-3 py-2.5">
+                    <li key={s.id} className="flex min-w-0 items-center gap-2 px-3 py-2.5">
                       <span className="w-6 text-center text-xs font-bold text-mint tabular-nums">{idx + 1}</span>
                       <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
                       <div className="min-w-0 flex-1">
