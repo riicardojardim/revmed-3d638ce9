@@ -381,12 +381,16 @@ function CandidateView() {
     );
   }
 
-  // Se há um avaliado selecionado e NÃO sou eu, sou espectador: fico no lobby até a próxima estação.
+  // Espectador: outro candidato foi selecionado para ser avaliado.
+  // Ele acompanha a estação (vê cenário, tarefa, materiais) mas não recebe PEP nem resultado,
+  // e futuramente não poderá falar no áudio/vídeo (só escutar).
   const isSpectator = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id !== user.id);
-  const isWaiting = isSpectator || (room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished);
-  const isRunning = !isSpectator && room.status === "running" && !finished;
+  // Lobby só quando a sala ainda não começou (ou está entre estações). Espectador NÃO fica no lobby
+  // durante uma estação rodando — ele acompanha junto.
+  const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
+  const isRunning = room.status === "running" && !finished;
   const isFinished = !isSpectator && (finished || room.status === "finished");
-  const correctionReady = !!evaluation && (isFinished || evaluation.preview_for_candidate);
+  const correctionReady = !isSpectator && !!evaluation && (isFinished || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
   const allScored = !!evaluation && station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
   const resultSaved = !!evaluation && (evaluation.status === "aprovado" || evaluation.status === "reprovado");
@@ -452,11 +456,25 @@ function CandidateView() {
           <ArrowLeft className="h-4 w-4" /> Sair
         </button>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">Candidato</span>
+          <span className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium",
+            isSpectator ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" : "bg-mint/15 text-mint",
+          )}>
+            {isSpectator ? "Espectador" : "Candidato"}
+          </span>
           <span>•</span>
           <span>{station.specialty}</span>
         </div>
       </div>
+
+      {isSpectator && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+          <div className="font-semibold">Você está acompanhando esta estação</div>
+          <div className="text-xs opacity-90">
+            Outro candidato foi selecionado pelo ator para ser avaliado nesta rodada. Você pode acompanhar o cenário, a tarefa e os materiais entregues — mas não recebe PEP nem resultado, e (em breve) não poderá falar no áudio/vídeo, só escutar. Sua vez chega na próxima estação.
+          </div>
+        </div>
+      )}
 
       {/* Banner gradient institucional (igual ao painel do ator) */}
       <div className="relative overflow-hidden rounded-3xl border border-mint/20 bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
@@ -733,31 +751,35 @@ function CandidateView() {
             )}
           </div>
 
-          {/* Resultado */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Resultado
+          {/* Resultado — só para o candidato avaliado */}
+          {!isSpectator && (
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Resultado
+              </div>
+              <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+                {correctionReady ? (
+                  <div className="font-display text-xl font-bold tabular-nums text-mint">
+                    {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
+                  </div>
+                ) : (
+                  <div className="font-display text-base font-semibold text-muted-foreground">
+                    Aguardando...
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-              {correctionReady ? (
-                <div className="font-display text-xl font-bold tabular-nums text-mint">
-                  {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
-                </div>
-              ) : (
-                <div className="font-display text-base font-semibold text-muted-foreground">
-                  Aguardando...
-                </div>
-              )}
-            </div>
-          </div>
+          )}
 
-          {/* PEP locked card */}
-          <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
-            <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
-            <div className="mt-2 text-[11px] text-muted-foreground">
-              {correctionReady ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
+          {/* PEP locked card — só para o candidato avaliado */}
+          {!isSpectator && (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
+              <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                {correctionReady ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
+              </div>
             </div>
-          </div>
+          )}
         </aside>
       </div>
     </div>
