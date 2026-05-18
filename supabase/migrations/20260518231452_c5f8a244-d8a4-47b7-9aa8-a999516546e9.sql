@@ -1,0 +1,1 @@
+CREATE POLICY "Room participants can read evaluations" ON public.room_evaluations FOR SELECT USING (EXISTS (SELECT 1 FROM public.training_room_participants p WHERE p.room_id = room_evaluations.room_id AND p.user_id = auth.uid()));
