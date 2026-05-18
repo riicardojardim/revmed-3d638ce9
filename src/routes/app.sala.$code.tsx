@@ -1232,6 +1232,41 @@ function SimuladoRunner({ id }: { id: string }) {
           stationId={current.id}
         />
       )}
+      <Dialog open={selectCandidateOpen} onOpenChange={setSelectCandidateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Selecione o candidato</DialogTitle>
+            <DialogDescription>
+              Escolha quem será avaliado nesta estação antes de iniciar o cronômetro.
+            </DialogDescription>
+          </DialogHeader>
+          {candidates.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+              Nenhum participante na sala ainda. Compartilhe o link de convite.
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {candidates.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await setEvaluatedCandidate(c.id);
+                      setSelectCandidateOpen(false);
+                      setTimeout(() => { void startTimer(); }, 50);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-xl border border-border bg-background/40 px-3 py-2.5 text-left text-sm transition hover:border-mint/50 hover:bg-mint/5"
+                  >
+                    <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                    <span className="flex-1 truncate font-medium">{c.name}</span>
+                    <ArrowRight className="h-4 w-4 text-mint" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
     </>
   );
