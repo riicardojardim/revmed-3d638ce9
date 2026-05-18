@@ -591,7 +591,7 @@ function CandidateView() {
           <div className="rounded-2xl border border-dashed border-border bg-card p-4 text-center">
             <Lock className="mx-auto h-4 w-4 text-muted-foreground" />
             <div className="mt-2 text-[11px] text-muted-foreground">
-              {isFinished ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
+              {correctionReady ? "PEP disponível abaixo" : "PEP liberado ao final da estação"}
             </div>
           </div>
         </aside>
