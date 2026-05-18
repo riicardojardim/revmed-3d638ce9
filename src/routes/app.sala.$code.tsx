@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
@@ -95,6 +96,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [showIntro, setShowIntro] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
+  const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
 
   // Load simulado
   useEffect(() => {
@@ -241,15 +243,7 @@ function SimuladoRunner({ id }: { id: string }) {
       return { id: uid, name: formatCandidateName(raw, prof?.title, uid), avatarUrl: prof?.avatar_url ?? null };
     });
     setCandidates(list);
-    // Auto-seleciona apenas se houver UM único candidato.
-    // Com 2+ participantes o ator precisa escolher conscientemente quem é o "candidato da vez".
-    const { data: r } = await supabase.from("training_rooms")
-      .select("evaluated_candidate_id").eq("id", roomId).maybeSingle();
-    if (!r?.evaluated_candidate_id && list.length === 1) {
-      await supabase.from("training_rooms")
-        .update({ evaluated_candidate_id: list[0].id }).eq("id", roomId);
-      setEvaluatedCandidateId(list[0].id);
-    }
+    // Sem auto-seleção: o ator escolhe conscientemente o candidato a ser avaliado.
   }
 
   // Realtime: participants + room updates
@@ -1056,26 +1050,19 @@ function SimuladoRunner({ id }: { id: string }) {
                 </div>
               )}
             </div>
-            {isWaiting && (() => {
-              const canStart = !!evaluatedCandidateId;
-              return (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!canStart) { toast.error("Selecione o candidato avaliado antes de iniciar."); return; }
-                    startTimer();
-                  }}
-                  disabled={!canStart}
-                  style={canStart ? { color: "var(--medical)" } : undefined}
-                  className={cn(
-                    "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
-                    canStart ? "bg-white hover:bg-white/90 hover:shadow" : "bg-white/10 text-white/60 cursor-not-allowed border border-white/20",
-                  )}
-                >
-                  <Play className="h-4 w-4" /> {canStart ? "Iniciar cronômetro" : "Aguardando candidato…"}
-                </button>
-              );
-            })()}
+            {isWaiting && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!evaluatedCandidateId) { setSelectCandidateOpen(true); return; }
+                  startTimer();
+                }}
+                style={{ color: "var(--medical)" }}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
+              >
+                <Play className="h-4 w-4" /> Iniciar cronômetro
+              </button>
+            )}
             {running && (
               <button
                 type="button"
@@ -1246,6 +1233,41 @@ function SimuladoRunner({ id }: { id: string }) {
           stationId={current.id}
         />
       )}
+      <Dialog open={selectCandidateOpen} onOpenChange={setSelectCandidateOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Selecione o candidato</DialogTitle>
+            <DialogDescription>
+              Escolha quem será avaliado nesta estação antes de iniciar o cronômetro.
+            </DialogDescription>
+          </DialogHeader>
+          {candidates.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-6 text-center text-sm text-muted-foreground">
+              Nenhum participante na sala ainda. Compartilhe o link de convite.
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {candidates.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await setEvaluatedCandidate(c.id);
+                      setSelectCandidateOpen(false);
+                      setTimeout(() => { void startTimer(); }, 50);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-xl border border-border bg-background/40 px-3 py-2.5 text-left text-sm transition hover:border-mint/50 hover:bg-mint/5"
+                  >
+                    <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                    <span className="flex-1 truncate font-medium">{c.name}</span>
+                    <ArrowRight className="h-4 w-4 text-mint" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
     </>
   );
