@@ -447,7 +447,6 @@ const SPECIALTY_ENUM = [
   "Ginecologia e Obstetrícia",
   "Cirurgia",
   "Medicina de Família e Comunidade",
-  "Urgência e Emergência",
 ] as const;
 
 function normalizeSpecialty(raw?: string): string | undefined {

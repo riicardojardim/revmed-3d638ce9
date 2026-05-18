@@ -84,7 +84,7 @@ export const STATIONS: Station[] = [
     id: "1",
     slug: "dor-toracica-emergencia",
     title: "Dor torácica na emergência",
-    specialty: "Urgência e Emergência",
+    specialty: "Clínica Médica",
     difficulty: "Difícil",
     durationMinutes: 10,
     tag: "Popular",
@@ -276,7 +276,7 @@ export const STATIONS: Station[] = [
     id: "7",
     slug: "pcr-aesp-suporte-avancado",
     title: "PCR em AESP — Suporte Avançado de Vida",
-    specialty: "Urgência e Emergência",
+    specialty: "Clínica Médica",
     difficulty: "Difícil",
     durationMinutes: 10,
     tag: "Nova",
@@ -607,7 +607,6 @@ export const SPECIALTIES: Specialty[] = [
   "Ginecologia e Obstetrícia",
   "Pediatria",
   "Medicina de Família e Comunidade",
-  "Urgência e Emergência",
 ];
 
 export interface Attempt {
