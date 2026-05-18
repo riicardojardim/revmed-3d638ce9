@@ -160,11 +160,11 @@ function SimuladoRunner({ id }: { id: string }) {
         await refreshCandidates(sim.roomId);
         return;
       }
-      // Create the room with a short, friendly code.
-      const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+      // Usa o próprio ID do simulado como código da sala, para que a URL do ator e o link de
+      // convite tenham exatamente o mesmo código. Se já existir uma sala com esse código
+      // (de outro host, conflito raro), gera um código aleatório como fallback.
       const cur = sim.stations[sim.currentIndex];
-      const { data: created, error } = await supabase.from("training_rooms").insert({
-        code,
+      const baseRow = {
         host_id: user.id,
         station_id: cur.id,
         station_title: cur.title,
@@ -175,7 +175,16 @@ function SimuladoRunner({ id }: { id: string }) {
         simulado_name: sim.name,
         simulado_index: sim.currentIndex,
         simulado_total: sim.stations.length,
-      }).select("id, code").single();
+      };
+      let { data: created, error } = await supabase.from("training_rooms")
+        .insert({ ...baseRow, code: sim.id })
+        .select("id, code").single();
+      if (error && (error.code === "23505" || /duplicate|unique/i.test(error.message))) {
+        const fallbackCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+        ({ data: created, error } = await supabase.from("training_rooms")
+          .insert({ ...baseRow, code: fallbackCode })
+          .select("id, code").single());
+      }
       if (error || !created) { console.error(error); return; }
       if (!cancelled) setRoomStatus("waiting");
       setSim((prev) => {
