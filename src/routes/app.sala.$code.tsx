@@ -38,8 +38,12 @@ function SalaDispatcher() {
   if (loading) {
     return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
   }
-  const sim = user ? getSimulado(user.id, code) : null;
-  if (sim) return <SimuladoRunner id={code} />;
+  // Aceita tanto o ID do simulado (URL do ator) quanto o código da sala (link de convite),
+  // para que ator e candidato fiquem sempre na mesma sala mesmo se o ator compartilhar a URL.
+  const sim = user
+    ? (getSimulado(user.id, code) ?? getSimuladoByRoomCode(user.id, code))
+    : null;
+  if (sim) return <SimuladoRunner id={sim.id} />;
   // Não é simulado do usuário atual → fluxo normal de sala (lobby/candidato/paciente/banca)
   return <Outlet />;
 }
