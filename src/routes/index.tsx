@@ -553,49 +553,49 @@ function ForTeachers() {
 
 const plans = [
   {
-    name: "Grátis",
-    price: "R$ 0",
-    period: "/ 3 dias",
-    desc: "Experimente a plataforma completa por 3 dias.",
+    name: "Ator",
+    price: "R$ 97",
+    period: "até o dia da prova",
+    desc: "Exclusivo para atuar como paciente simulado e avaliar candidatos.",
     features: [
-      "3 dias de acesso completo",
-      "Treine como médico ou ator",
-      "+600 checklists atualizados",
-      "Flashcards e resumos",
-      "Estatísticas de estudo",
+      "Acesso até o dia da prova",
+      "Banca de checklists completa",
+      "Atue como ator em salas de treino",
+      "Libere impressos e materiais",
+      "Avalie pelo PEP em tempo real",
     ],
-    cta: "Começar grátis",
+    cta: "Quero ser Ator",
+  },
+  {
+    name: "Completo Mensal",
+    price: "R$ 147",
+    period: "/ mês",
+    desc: "Mesmo acesso do Completo, cobrado mês a mês.",
+    features: [
+      "Acesso enquanto a assinatura estiver ativa",
+      "Treine como candidato e como ator",
+      "+600 checklists e +450 flashcards",
+      "Cronograma, desempenho e correção por IA",
+      "Cancele quando quiser",
+    ],
+    cta: "Assinar mensal",
   },
   {
     name: "Completo",
-    price: "R$ 800",
+    price: "R$ 497",
+    originalPrice: "R$ 597",
     period: "até o dia da prova",
-    desc: "Treine como médico/candidato OU como ator.",
+    desc: "Tudo da plataforma, pagamento único até a prova.",
     features: [
       "Acesso até o dia da prova",
-      "Treine como médico OU ator",
+      "Treine como candidato e como ator",
       "+600 checklists e +450 flashcards",
-      "Treinamentos ilimitados",
-      "Grupo de WhatsApp e CHAT",
+      "Cronograma, desempenho e correção por IA",
+      "Grupo de WhatsApp e suporte por chat",
       "Crie checklists com IA",
-      "Correção por IA com feedback",
     ],
     highlight: true,
     cta: "Quero o Completo",
-  },
-  {
-    name: "Ator",
-    price: "R$ 170",
-    period: "até o dia da prova",
-    desc: "Exclusivo para quem vai avaliar e atuar como paciente.",
-    features: [
-      "Acesso até o dia da prova",
-      "Atue como ator",
-      "+600 checklists atualizados",
-      "Treinamentos ilimitados",
-      "Use a plataforma como ator",
-    ],
-    cta: "Quero ser Ator",
   },
 ];
 
@@ -621,7 +621,10 @@ function Plans() {
               )}
               <div className="font-display text-xl font-bold">{p.name}</div>
               <div className="mt-1 text-sm text-muted-foreground">{p.desc}</div>
-              <div className="mt-5 flex items-baseline gap-1">
+              <div className="mt-5 flex items-baseline gap-2">
+                {p.originalPrice && (
+                  <span className="text-base text-muted-foreground line-through">{p.originalPrice}</span>
+                )}
                 <span className="font-display text-4xl font-bold">{p.price}</span>
                 <span className="text-sm text-muted-foreground">{p.period}</span>
               </div>
