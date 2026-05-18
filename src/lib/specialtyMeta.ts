@@ -49,7 +49,7 @@ const META: Record<string, SpecialtyMeta> = {
     text: "text-rose-400",
   },
   "Medicina de Família e Comunidade": {
-    code: "MF",
+    code: "MFC",
     badge: "bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/30",
     card: "border-teal-500/40 bg-teal-500/5",
     solid: "bg-teal-500",
