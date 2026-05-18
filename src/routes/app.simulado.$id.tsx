@@ -625,7 +625,7 @@ function SimuladoRunner() {
           role={"paciente" as IntroRole}
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}
-          displayName={formatCandidateName(profile?.full_name, profile?.title, profile?.id ?? user?.id) || "Ator"}
+          displayName={(profile?.full_name?.trim()) || "Ator"}
           avatarUrl={profile?.avatar_url}
           onComplete={onIntroComplete}
         />
