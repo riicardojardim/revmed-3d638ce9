@@ -1079,13 +1079,6 @@ function SimuladoRunner({ id }: { id: string }) {
             )}
           </div>
 
-          {/* Resultado */}
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Resultado</div>
-            <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-              <div className="font-display text-xl font-bold tabular-nums text-mint">{totals.earned.toFixed(2)}</div>
-            </div>
-          </div>
 
           {/* Participantes */}
           <div className="rounded-2xl border border-border bg-card p-4">
