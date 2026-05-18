@@ -118,10 +118,11 @@ function ProfilePage() {
       return;
     }
     setSavingProfile(true);
+    const composedName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name: fullName.trim() || null,
+        full_name: composedName || null,
         title: title || null,
         gender: gender || null,
         whatsapp: digits || null,
