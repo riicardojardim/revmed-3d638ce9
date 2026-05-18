@@ -4,7 +4,7 @@ import { STATIONS } from "@/data/stations";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { SpecialtyMedals, NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
+import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10 } from "@/components/SpecialtyMedals";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
