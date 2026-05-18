@@ -233,12 +233,13 @@ function TrainPage() {
             {selectMode && (
               <Button
                 variant="hero"
-                disabled={selected.length === 0}
+                disabled={selected.length < 2}
                 onClick={() => {
                   const today = new Date().toLocaleDateString("pt-BR");
                   setSimName(`Simulado ${today}`);
                   setReviewOpen(true);
                 }}
+                title={selected.length < 2 ? "Selecione pelo menos 2 checklists" : ""}
               >
                 Simulado ({selected.length})
               </Button>
