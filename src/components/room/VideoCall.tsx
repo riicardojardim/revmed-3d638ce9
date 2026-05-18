@@ -42,14 +42,18 @@ function HostMuteButton({ roomCode, targetIdentity, isMuted }: { roomCode: strin
   );
 }
 
-function Stage({ isHost, roomCode, selfIdentity }: { isHost: boolean; roomCode: string; selfIdentity: string }) {
-  const tracks = useTracks(
+function Stage({ isHost, roomCode, selfIdentity, allowedIdentities }: { isHost: boolean; roomCode: string; selfIdentity: string; allowedIdentities: Set<string> | null }) {
+  const allTracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
     { onlySubscribed: false },
   );
+  // Espectadores só veem participantes permitidos (ator + candidato avaliado)
+  const tracks = allowedIdentities
+    ? allTracks.filter((t) => t.participant && allowedIdentities.has(t.participant.identity))
+    : allTracks;
   const participants = useParticipants();
   return (
     <GridLayout tracks={tracks} style={{ height: "100%" }}>
