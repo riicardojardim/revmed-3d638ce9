@@ -50,7 +50,7 @@ function TrainPage() {
   const [selected, setSelected] = useState<DBStation[]>([]);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [simName, setSimName] = useState("");
-  const [simulados, setSimulados] = useState<Simulado[]>([]);
+  // simulados list removido (agora aparece em Histórico após o candidato concluir)
 
   // Always in select-mode: this page only creates simulados, no individual "Iniciar"
   const selectMode = true;
