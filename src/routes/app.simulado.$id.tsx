@@ -75,7 +75,7 @@ function SimuladoRunner() {
   useEffect(() => {
     if (!user) return;
     const s = getSimulado(user.id, id);
-    if (!s) { toast.error("Simulado não encontrado."); nav({ to: "/app/estacoes" }); return; }
+    if (!s) { toast.error("Simulado não encontrado."); nav({ to: "/app/checklists" }); return; }
     setSim(s);
   }, [id, nav, user]);
 
@@ -585,7 +585,7 @@ function SimuladoRunner() {
           </ul>
         </div>
         <div className="flex justify-center gap-3">
-          <Button asChild variant="outline"><Link to={(sim?.stations?.length ?? 0) >= 2 ? "/app/estacoes" : "/app/estacoes"}><ArrowLeft className="mr-1 h-4 w-4" /> Voltar</Link></Button>
+          <Button asChild variant="outline"><Link to={(sim?.stations?.length ?? 0) >= 2 ? "/app/checklists" : "/app/checklists"}><ArrowLeft className="mr-1 h-4 w-4" /> Voltar</Link></Button>
         </div>
       </div>
     );
@@ -619,7 +619,7 @@ function SimuladoRunner() {
       {/* Progress header */}
       <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
-          <Link to={sim.stations.length >= 2 ? "/app/estacoes" : "/app/estacoes"} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+          <Link to={sim.stations.length >= 2 ? "/app/checklists" : "/app/checklists"} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-3.5 w-3.5" /> Sair
           </Link>
           {sim.stations.length >= 2 && (

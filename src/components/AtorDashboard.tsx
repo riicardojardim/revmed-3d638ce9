@@ -62,7 +62,7 @@ export function AtorDashboard() {
             Ao selecionar a estação, o sistema gera automaticamente um <strong>código de sala</strong>.
             Esse mesmo código é usado pelo candidato para entrar — e por você, como Ator.
           </p>
-          <Link to="/app/estacoes" className="inline-block">
+          <Link to="/app/checklists" className="inline-block">
             <Button variant="hero" size="lg">
               Escolher estação <ArrowRight className="h-4 w-4" />
             </Button>
