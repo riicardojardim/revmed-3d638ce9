@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, ChevronRight, ChevronDown, ListOrdered } from "lucide-react";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
+import { ResetStatsButton } from "@/components/ResetStatsButton";
 
 export const Route = createFileRoute("/app/historico")({
   component: Historico,
