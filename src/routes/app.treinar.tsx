@@ -326,7 +326,7 @@ function TrainPage() {
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setReviewOpen(false)}>Cancelar</Button>
-            <Button variant="hero" onClick={startSimulado} disabled={selected.length === 0}>
+            <Button variant="hero" onClick={startSimulado} disabled={selected.length < 2}>
               Iniciar Simulado
             </Button>
           </div>
