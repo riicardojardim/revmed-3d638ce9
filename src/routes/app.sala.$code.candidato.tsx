@@ -277,10 +277,26 @@ function CandidateView() {
     });
   }, [deliveries, station]);
 
-  // Dispara o overlay institucional quando o ator inicia a estação
+  // Dispara o overlay institucional quando o ator inicia a estação.
+  // Só roda para o candidato selecionado da vez (evaluated_candidate_id).
+  // Se ninguém estiver selecionado ainda, ninguém vê a animação.
   useEffect(() => {
-    if (room?.status === "starting" && !introDone) setShowIntro(true);
-  }, [room?.status, introDone]);
+    if (!room || !user) return;
+    const isSelected = room.evaluated_candidate_id === user.id;
+    if (room.status === "starting" && !introDone && isSelected) setShowIntro(true);
+  }, [room?.status, room?.evaluated_candidate_id, user?.id, introDone]);
+
+  // Reset entre estações: quando a sala volta para "waiting" (próxima estação),
+  // limpa estado local pra que o lobby/animação funcione de novo.
+  useEffect(() => {
+    if (room?.status === "waiting") {
+      setFinished(false);
+      setIntroDone(false);
+      setShowIntro(false);
+      setEvaluation(null);
+      savedAttemptRef.current = null;
+    }
+  }, [room?.status, room?.station_id]);
 
   // Persiste a tentativa em Desempenho/Histórico assim que o ator finalizar a correção
   // (status = aprovado/reprovado e todos os itens pontuados). Atualiza se já existir.
