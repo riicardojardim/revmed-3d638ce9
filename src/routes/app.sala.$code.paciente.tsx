@@ -439,7 +439,7 @@ function ActorView() {
     finishingRef.current = true;
     const finishedAt = new Date().toISOString();
     const { error } = await supabase.from("training_rooms")
-      .update({ status: "finished", finished_at: new Date().toISOString() })
+      .update({ status: "finished", finished_at: finishedAt })
       .eq("id", room.id);
     if (error) {
       finishingRef.current = false;
@@ -1041,7 +1041,7 @@ function ActorView() {
                       </Button>
                     )}
                     {isRunning && (
-                      <Button variant="outline" className="mt-3 w-full" onClick={finishStation}>
+                      <Button variant="outline" className="mt-3 w-full" onClick={() => finishStation()}>
                         <Square className="mr-1 h-4 w-4" /> Encerrar estação
                       </Button>
                     )}
