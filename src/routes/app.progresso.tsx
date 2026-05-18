@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { COMPETENCIES, STATIONS } from "@/data/stations";
+import { useEffect, useMemo, useState } from "react";
+import { STATIONS } from "@/data/stations";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { SpecialtyMedals, NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
@@ -42,6 +43,18 @@ function ProgressPage() {
       });
   }, [user]);
 
+  const specStats = useMemo(() => {
+    const m = new Map<string, { sum: number; n: number }>();
+    attempts.forEach((a) => {
+      const k = a.specialty ?? "Outras";
+      const cur = m.get(k) ?? { sum: 0, n: 0 };
+      cur.sum += Number(a.score) || 0;
+      cur.n += 1;
+      m.set(k, cur);
+    });
+    return m;
+  }, [attempts]);
+
   const avg =
     attempts.length > 0
       ? attempts.reduce((s, a) => s + Number(a.score), 0) / attempts.length
@@ -68,34 +81,16 @@ function ProgressPage() {
           </div>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">Melhor nota</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota de corte INEP</div>
           <div className="mt-2 font-display text-3xl font-bold text-mint">
-            {attempts.length ? Math.max(...attempts.map((a) => Number(a.score))).toFixed(1) : "—"}
+            {NOTA_DE_CORTE.toFixed(1)}
           </div>
+          <div className="mt-1 text-[11px] text-muted-foreground">Revalida — prática</div>
         </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-        <h3 className="font-semibold">Competências</h3>
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {COMPETENCIES.map((c) => {
-            const value = attempts.length > 0 ? Math.round(avg * 10) : 0;
-            return (
-              <div key={c.name}>
-                <div className="flex justify-between text-sm">
-                  <span>{c.name}</span>
-                  <span className="font-medium text-medical">{value}%</span>
-                </div>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-gradient-mint transition-all"
-                    style={{ width: `${value}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <SpecialtyMedals stats={specStats} />
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Award,
   BarChart3,
   Flame,
   MessageCircle,
@@ -9,6 +8,7 @@ import {
   Trophy,
   TrendingUp,
 } from "lucide-react";
+import { SpecialtyMedals, NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import {
   ResponsiveContainer,
   RadarChart,
@@ -176,22 +176,18 @@ function Dashboard() {
       {/* Top row: welcome + stats */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-6 shadow-card">
-          <div className="flex items-start gap-4">
-            <div className="flex gap-0.5 text-mint">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Award key={i} className="h-6 w-6 opacity-60" />
-              ))}
-            </div>
-          </div>
-          <h2 className="mt-4 font-display text-xl font-bold md:text-2xl">
+          <h2 className="font-display text-xl font-bold md:text-2xl">
             <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
             <span className="text-mint">{stats.avg.toFixed(1)}</span>
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Com nossos treinamentos vamos trabalhar para manter sua média sempre acima
-            da última nota de corte do Revalida.
+            da última nota de corte do Revalida (<span className="font-semibold text-foreground">{NOTA_DE_CORTE.toFixed(1)}</span> — INEP).
           </p>
+          <div className="mt-5">
+            <SpecialtyMedals stats={stats.bySpec} />
+          </div>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
