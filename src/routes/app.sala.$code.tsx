@@ -436,7 +436,7 @@ function SimuladoRunner({ id }: { id: string }) {
       final_score: Number(nextTotals.earned.toFixed(2)),
       status: resolvedStatus,
       preview_for_candidate: true,
-    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    }, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
     if (error) console.error(error);
   }
 
@@ -471,7 +471,7 @@ function SimuladoRunner({ id }: { id: string }) {
       final_score: Number(totals.earned.toFixed(2)),
       status: "em_andamento",
       preview_for_candidate: next,
-    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    }, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
     if (error) {
       setPreviewEnabled(!next);
       return toast.error(error.message);
@@ -556,7 +556,7 @@ function SimuladoRunner({ id }: { id: string }) {
             status: resolvedStatus,
             submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
             preview_for_candidate: true,
-          }, { onConflict: "room_id,evaluator_id,candidate_id" });
+          }, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
           if (evalError) {
             toast.error(evalError.message);
             return;
@@ -583,8 +583,10 @@ function SimuladoRunner({ id }: { id: string }) {
       toast.error("Sala ainda não está pronta. Tente novamente em instantes.");
       return;
     }
+    const currentStationId = sim.stations[sim.currentIndex]?.id;
     const { error } = await supabase.from("room_material_deliveries").insert({
       room_id: sim.roomId,
+      station_id: currentStationId,
       material_id: m.id,
       material_name: m.name,
       material_type: m.type,
