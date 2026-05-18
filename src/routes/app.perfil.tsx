@@ -93,7 +93,7 @@ function ProfilePage() {
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(profile?.whatsapp ?? "");
-    setExamYear(profile?.exam_year ?? "");
+    
   }, [profile]);
 
   async function handleSaveProfile(e: React.FormEvent) {
