@@ -456,11 +456,25 @@ function CandidateView() {
           <ArrowLeft className="h-4 w-4" /> Sair
         </button>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2.5 py-1 font-medium text-mint">Candidato</span>
+          <span className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium",
+            isSpectator ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" : "bg-mint/15 text-mint",
+          )}>
+            {isSpectator ? "Espectador" : "Candidato"}
+          </span>
           <span>•</span>
           <span>{station.specialty}</span>
         </div>
       </div>
+
+      {isSpectator && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+          <div className="font-semibold">Você está acompanhando esta estação</div>
+          <div className="text-xs opacity-90">
+            Outro candidato foi selecionado pelo ator para ser avaliado nesta rodada. Você pode acompanhar o cenário, a tarefa e os materiais entregues — mas não recebe PEP nem resultado, e (em breve) não poderá falar no áudio/vídeo, só escutar. Sua vez chega na próxima estação.
+          </div>
+        </div>
+      )}
 
       {/* Banner gradient institucional (igual ao painel do ator) */}
       <div className="relative overflow-hidden rounded-3xl border border-mint/20 bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
