@@ -209,9 +209,9 @@ function CandidateView() {
     }
     if (room.status === "finished") {
       setFinished(true);
-      loadEvaluation(room.id);
+      loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
     }
-  }, [room?.status, room?.started_at, room?.duration_minutes, station?.id, finished]);
+  }, [room?.status, room?.started_at, room?.duration_minutes, room?.station_id, room?.evaluated_candidate_id, station?.id, finished]);
 
   // React to room cancellation (actor left, tab closed, etc.)
   const cancelledHandledRef = useRef(false);
