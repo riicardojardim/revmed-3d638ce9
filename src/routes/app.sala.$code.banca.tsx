@@ -431,8 +431,17 @@ function EvaluatorView() {
                           </div>
                         )}
                         {isDelivered && m.imageUrl && (
-                          <img src={m.imageUrl} alt={m.name || "Material"} className="mt-3 max-h-48 w-full rounded-lg border border-emerald-300/30 object-contain" />
+                          <button
+                            type="button"
+                            onClick={() => setZoomImage({ src: m.imageUrl!, alt: m.name || "Material" })}
+                            className="mt-3 block w-full group relative"
+                            title="Clique para ampliar"
+                          >
+                            <img src={m.imageUrl} alt={m.name || "Material"} className="max-h-48 w-full rounded-lg border border-emerald-300/30 object-contain transition-opacity group-hover:opacity-90" />
+                            <span className="absolute bottom-1 right-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">🔍 ampliar</span>
+                          </button>
                         )}
+
 
                         <Button size="sm" variant={isDelivered ? "outline" : "hero"} className="mt-3 w-full"
                           disabled={isDelivered} onClick={() => deliver(m.id)}>
