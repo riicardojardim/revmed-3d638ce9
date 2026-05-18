@@ -273,6 +273,7 @@ function CandidateView() {
           .eq("room_id", room.id)
           .maybeSingle();
 
+        const r = room as unknown as { simulado_id?: string | null; simulado_name?: string | null; simulado_index?: number | null; simulado_total?: number | null };
         const payload = {
           score,
           earned: Math.round(earned),
@@ -280,6 +281,10 @@ function CandidateView() {
           checked_items: checkedItems,
           notes: notes || evaluation.final_feedback || null,
           status: evaluation.status,
+          simulado_id: r.simulado_id ?? null,
+          simulado_name: r.simulado_name ?? null,
+          simulado_station_index: r.simulado_index ?? null,
+          simulado_total_stations: r.simulado_total ?? null,
         };
 
         if (existing?.id) {

@@ -3,12 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search, GraduationCap, ListChecks, Play, Trash2, ListOrdered, ChevronUp, ChevronDown, X, GripVertical } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
-import { toast } from "sonner";
-import { createSimulado, listSimulados, deleteSimulado, type Simulado } from "@/lib/simulado";
+import { Sparkles, ArrowRight, UserRound, Theater, Copy, Search, GraduationCap, ListOrdered, ChevronUp, ChevronDown, X, GripVertical } from "lucide-react";
+import { createSimulado } from "@/lib/simulado";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/treinar")({
   component: TrainPage,
@@ -50,7 +50,7 @@ function TrainPage() {
   const [selected, setSelected] = useState<DBStation[]>([]);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [simName, setSimName] = useState("");
-  const [simulados, setSimulados] = useState<Simulado[]>([]);
+  // simulados list removido (agora aparece em Histórico após o candidato concluir)
 
   // Always in select-mode: this page only creates simulados, no individual "Iniciar"
   const selectMode = true;
@@ -102,17 +102,7 @@ function TrainPage() {
       .sort((a, b) => a.title.localeCompare(b.title, "pt-BR"));
   }, [stations, allSearch, allSpecialty]);
 
-  useEffect(() => {
-    if (!user) { setSimulados([]); return; }
-    const refresh = () => setSimulados(listSimulados(user.id));
-    refresh();
-    window.addEventListener("estacao:simulados", refresh);
-    window.addEventListener("storage", refresh);
-    return () => {
-      window.removeEventListener("estacao:simulados", refresh);
-      window.removeEventListener("storage", refresh);
-    };
-  }, [user]);
+  // efeito de "Meus simulados" removido — histórico cuida disso agora
 
   useEffect(() => {
     (async () => {
@@ -159,55 +149,7 @@ function TrainPage() {
         </div>
       </div>
 
-      {/* Meus simulados — somente para usuários com assinatura completa */}
-      {canSaveSimulado && (
-        <div className="rounded-3xl border border-border bg-card p-5 shadow-card">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            <ListChecks className="h-3.5 w-3.5" /> Meus simulados
-          </div>
-          {simulados.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Nenhum simulado criado ainda. Clique em <strong>Criar Simulado</strong> para começar.
-            </p>
-          ) : (
-            <ul className="mt-3 space-y-1.5">
-              {simulados.map((s) => {
-                const total = s.stations.length;
-                const done = s.finished ? total : s.currentIndex;
-                return (
-                  <li key={s.id} className="group flex items-center gap-2 rounded-lg border border-border bg-background/40 px-3 py-2.5">
-                    <Link
-                      to="/app/simulado/$id"
-                      params={{ id: s.id }}
-                      className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                    >
-                      <Play className="h-3.5 w-3.5 shrink-0 text-mint" />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.name}</div>
-                        <div className="text-[11px] text-muted-foreground">
-                          {s.finished ? "Concluído" : `${done}/${total} estações`}
-                        </div>
-                      </div>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!user) return;
-                        deleteSimulado(user.id, s.id);
-                        setSimulados(listSimulados(user.id));
-                      }}
-                      className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:text-rose-400 group-hover:opacity-100"
-                      aria-label="Remover simulado"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      )}
+      {/* "Meus simulados" removido — simulados concluídos aparecem em Histórico */}
 
       <Dialog open={allOpen} onOpenChange={(v) => { setAllOpen(v); }}>
         <DialogContent className="max-w-5xl max-h-[88vh] overflow-hidden p-0 flex flex-col">

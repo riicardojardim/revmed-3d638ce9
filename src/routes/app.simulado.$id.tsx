@@ -128,7 +128,7 @@ function SimuladoRunner() {
           }
         } else {
           await supabase.from("training_rooms")
-            .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null })
+            .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null, simulado_id: sim.id, simulado_name: sim.name, simulado_index: sim.currentIndex, simulado_total: sim.stations.length })
             .eq("id", sim.roomId);
           if (!cancelled) setRoomStatus("waiting");
         }
@@ -147,6 +147,10 @@ function SimuladoRunner() {
         mode: "simulado",
         status: "waiting",
         duration_minutes: station.durationMinutes ?? 10,
+        simulado_id: sim.id,
+        simulado_name: sim.name,
+        simulado_index: sim.currentIndex,
+        simulado_total: sim.stations.length,
       }).select("id, code").single();
       if (error || !created) { console.error(error); return; }
       if (!cancelled) setRoomStatus("waiting");
