@@ -316,7 +316,7 @@ function CandidateView() {
         role={"candidato" as IntroRole}
         stationTitle={room.station_title ?? station.title}
         specialty={station.specialty}
-        displayName={profile?.full_name ?? "Candidato"}
+        displayName={formatDoctorName(profile?.full_name, profile?.title, "Candidato")}
         onComplete={() => { setShowIntro(false); setIntroDone(true); }}
       />
     );
