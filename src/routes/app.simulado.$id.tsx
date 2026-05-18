@@ -581,7 +581,7 @@ function SimuladoRunner() {
           </ul>
         </div>
         <div className="flex justify-center gap-3">
-          <Button asChild variant="outline"><Link to="/app/treinar"><ArrowLeft className="mr-1 h-4 w-4" /> Voltar</Link></Button>
+          <Button asChild variant="outline"><Link to={(sim?.stations?.length ?? 0) >= 2 ? "/app/treinar" : "/app/estacoes"}><ArrowLeft className="mr-1 h-4 w-4" /> Voltar</Link></Button>
         </div>
       </div>
     );
