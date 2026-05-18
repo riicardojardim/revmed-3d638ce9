@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Frown, Meh, Smile, List, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Smile, List, X, Pencil, Clock, Timer } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
@@ -38,6 +38,10 @@ function FlashcardsPage() {
   const [cards, setCards] = useState<Card[]>([]);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  // Stats da sessão
+  const [outcomes, setOutcomes] = useState<Array<0 | 3 | 5>>([]);
+  const [perCardSeconds, setPerCardSeconds] = useState<number[]>([]);
+  const [cardStartedAt, setCardStartedAt] = useState<number>(() => Date.now());
 
   useEffect(() => {
     (async () => {
