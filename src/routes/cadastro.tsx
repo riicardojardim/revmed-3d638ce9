@@ -51,7 +51,7 @@ function SignupPage() {
         emailRedirectTo: `${window.location.origin}/app`,
         data: {
           full_name: form.name,
-          whatsapp: form.whatsapp,
+          whatsapp: wppDigits,
           exam_year: deducedYear,
           role,
         },
