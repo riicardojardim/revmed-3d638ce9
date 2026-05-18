@@ -10,7 +10,7 @@ import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { getSimulado, saveSimulado, type Simulado, type SimuladoStationState } from "@/lib/simulado";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
-  ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy,
+  ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy, Eye, EyeOff,
   MessageSquare, ListChecks, Theater, Inbox, FileText, PackageCheck, Send,
   Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail,
 } from "lucide-react";
@@ -66,6 +66,7 @@ function SimuladoRunner() {
   const [evaluatedCandidateId, setEvaluatedCandidateId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
+  const [previewEnabled, setPreviewEnabled] = useState(false);
 
   // Load simulado
   useEffect(() => {
@@ -97,6 +98,7 @@ function SimuladoRunner() {
         setFeedback("");
         setEvalStatus("em_andamento");
         setShowAnalysis(false);
+        setPreviewEnabled(false);
       }
     });
   }, [sim?.currentIndex, sim?.id, sim?.finished]);
@@ -288,6 +290,59 @@ function SimuladoRunner() {
   }, [station, checks]);
 
   const allScored = totals.count > 0 && totals.scored === totals.count;
+
+  // Auto-sincroniza a prévia do PEP enquanto estiver habilitada
+  useEffect(() => {
+    if (!previewEnabled || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    const roomId = sim.roomId;
+    const stationId = sim.stations[sim.currentIndex]?.id;
+    if (!stationId) return;
+    const t = setTimeout(() => {
+      void supabase.from("room_evaluations").upsert({
+        room_id: roomId,
+        evaluator_id: user.id,
+        candidate_id: evaluatedCandidateId,
+        station_id: stationId,
+        checks,
+        item_comments: comments,
+        final_feedback: feedback,
+        final_score: Number(totals.earned.toFixed(2)),
+        status: "em_andamento",
+        preview_for_candidate: true,
+      }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [previewEnabled, checks, comments, feedback, totals.earned, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
+
+  async function togglePreview() {
+    if (!sim?.roomId || !user) return;
+    if (!evaluatedCandidateId) return toast.error("Selecione o candidato que será avaliado.");
+    const stationId = sim.stations[sim.currentIndex]?.id;
+    if (!stationId) return;
+    const next = !previewEnabled;
+    if (next) {
+      const ok = window.confirm("Deseja realmente liberar o PEP para o candidato? Ele verá o preenchimento em tempo real.");
+      if (!ok) return;
+    }
+    setPreviewEnabled(next);
+    const { error } = await supabase.from("room_evaluations").upsert({
+      room_id: sim.roomId!,
+      evaluator_id: user.id,
+      candidate_id: evaluatedCandidateId,
+      station_id: stationId,
+      checks,
+      item_comments: comments,
+      final_feedback: feedback,
+      final_score: Number(totals.earned.toFixed(2)),
+      status: "em_andamento",
+      preview_for_candidate: next,
+    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    if (error) {
+      setPreviewEnabled(!next);
+      return toast.error(error.message);
+    }
+    toast.success(next ? "PEP liberado para o candidato em tempo real." : "Prévia do PEP ocultada.");
+  }
 
   function updateCurrent(updater: (s: SimuladoStationState) => SimuladoStationState) {
     setSim((prev) => {
@@ -615,7 +670,25 @@ function SimuladoRunner() {
           <PRBlock
             icon={ClipboardCheck}
             title="CHECKLIST ( PEP )"
-            right={<Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>}
+            right={
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-white border-white/30">{totals.scored}/{totals.count}</Badge>
+                <button
+                  type="button"
+                  onClick={togglePreview}
+                  title={previewEnabled ? "Ocultar PEP do candidato" : "Mostrar PEP para o candidato em tempo real"}
+                  className={cn(
+                    "inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors",
+                    previewEnabled
+                      ? "border-mint/60 bg-mint/20 text-mint hover:bg-mint/30"
+                      : "border-white/30 text-white/80 hover:bg-white/10",
+                  )}
+                  aria-label={previewEnabled ? "Ocultar PEP do candidato" : "Mostrar PEP ao candidato"}
+                >
+                  {previewEnabled ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                </button>
+              </div>
+            }
           >
             <ol className="space-y-3">
               {station.checklist.map((it, idx) => {
