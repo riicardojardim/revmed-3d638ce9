@@ -37,7 +37,7 @@ function ProgressPage() {
       .select("id, station_id, station_title, specialty, score, status, created_at, professor_score, reviewed_at, professor_feedback")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(20)
+      .limit(500)
       .then(({ data }) => {
         setAttempts((data ?? []) as DbAttempt[]);
         setLoading(false);
