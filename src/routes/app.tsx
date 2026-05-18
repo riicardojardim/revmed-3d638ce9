@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
   Home,
