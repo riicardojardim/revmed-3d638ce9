@@ -45,18 +45,22 @@ function Historico() {
       });
   }, [user]);
 
-  // Pense (estação única): tentativas SEM simulado
+  // Pense (estação única): tentativas SEM simulado OU simulados com apenas 1 estação
   const penseItems = useMemo(
-    () => items.filter((i) => !i.simulado_id).filter((i) => !search || (i.station_title ?? "").toLowerCase().includes(search.toLowerCase())),
+    () =>
+      items
+        .filter((i) => !i.simulado_id || (i.simulado_total_stations ?? 0) <= 1)
+        .filter((i) => !search || (i.station_title ?? "").toLowerCase().includes(search.toLowerCase())),
     [items, search],
   );
 
-  // Simulado: agrupa por simulado_id
+  // Simulado: agrupa por simulado_id (apenas com 2+ estações)
   type SimGroup = { id: string; name: string; lastAt: string; total: number; stations: Attempt[]; avg: number };
   const simGroups = useMemo<SimGroup[]>(() => {
     const map = new Map<string, SimGroup>();
     for (const a of items) {
       if (!a.simulado_id) continue;
+      if ((a.simulado_total_stations ?? 0) <= 1) continue;
       const g = map.get(a.simulado_id) ?? { id: a.simulado_id, name: a.simulado_name ?? "Simulado", lastAt: a.created_at, total: a.simulado_total_stations ?? 0, stations: [], avg: 0 };
       g.stations.push(a);
       if (new Date(a.created_at) > new Date(g.lastAt)) g.lastAt = a.created_at;
