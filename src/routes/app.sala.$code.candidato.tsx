@@ -63,6 +63,7 @@ function CandidateView() {
     user?.email?.split("@")[0] ||
     null;
 
+  // Carrega/sincroniza a sala. station_id muda quando o ator avança no simulado.
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
@@ -70,27 +71,52 @@ function CandidateView() {
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
-      const st = await loadStation((r as Room).station_id);
-      setStation(st);
-      const effMin = (r as Room).duration_minutes ?? st?.durationMinutes ?? 10;
-      setRemaining(effMin * 60);
-
-      const { data: dels } = await supabase.from("room_material_deliveries")
-        .select("*").eq("room_id", (r as Room).id).order("delivered_at");
-      const list = (dels ?? []) as Delivery[];
-      list.forEach((d) => seenIds.current.add(d.id));
-      setDeliveries(list);
     })();
   }, [code]);
 
+  // Sempre que a estação corrente da sala mudar, recarrega tudo dependente dela:
+  // station, deliveries (filtradas pela estação), evaluation, timer.
   useEffect(() => {
     if (!room) return;
-    void loadEvaluation(room.id);
+    let cancelled = false;
+    (async () => {
+      const st = await loadStation(room.station_id);
+      if (cancelled) return;
+      setStation(st);
+      const effMin = room.duration_minutes ?? st?.durationMinutes ?? 10;
+      setRemaining(effMin * 60);
 
+      // Reset estado por-estação (impressos, finalização, avaliação salva).
+      seenIds.current = new Set();
+      setDeliveries([]);
+      setEvaluation(null);
+      setFinished(false);
+      savedAttemptRef.current = null;
+      setOpenDeliveries({});
+
+      // Carrega impressos da estação ATUAL apenas
+      const { data: dels } = await supabase.from("room_material_deliveries")
+        .select("*").eq("room_id", room.id).eq("station_id", room.station_id).order("delivered_at");
+      if (cancelled) return;
+      const list = (dels ?? []) as Delivery[];
+      list.forEach((d) => seenIds.current.add(d.id));
+      setDeliveries(list);
+
+      // Carrega evaluation da estação atual (do candidato avaliado da vez, se houver — assim
+      // espectadores também enxergam o PEP em tempo real).
+      await loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
+    })();
+    return () => { cancelled = true; };
+  }, [room?.id, room?.station_id, room?.evaluated_candidate_id]);
+
+  useEffect(() => {
+    if (!room) return;
     const ch = supabase
       .channel(`candidate-${room.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "room_material_deliveries", filter: `room_id=eq.${room.id}` }, (payload) => {
-        const d = payload.new as Delivery;
+        const d = payload.new as Delivery & { station_id?: string };
+        // Ignora entregas de outras estações (impressos da estação anterior não devem reaparecer)
+        if (d.station_id && room.station_id && d.station_id !== room.station_id) return;
         if (seenIds.current.has(d.id)) return;
         seenIds.current.add(d.id);
         setDeliveries((prev) => [...prev, d]);
@@ -100,19 +126,19 @@ function CandidateView() {
         setRoom((prev) => prev ? { ...prev, ...(payload.new as Room) } : prev);
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "room_evaluations", filter: `room_id=eq.${room.id}` }, async () => {
-        await loadEvaluation(room.id);
+        await loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
       })
       .subscribe();
-    // Fallback: polling a cada 2s para garantir sincronia mesmo se realtime atrasar
+    // Fallback: polling para garantir sincronia mesmo se realtime atrasar
     const pollId = setInterval(async () => {
       const { data: r } = await supabase.from("training_rooms")
         .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
         .eq("id", room.id).maybeSingle();
       if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
-      await loadEvaluation(room.id);
+      await loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
     }, 2000);
     return () => { supabase.removeChannel(ch); clearInterval(pollId); };
-  }, [room?.id, user?.id]);
+  }, [room?.id, room?.station_id, room?.evaluated_candidate_id, user?.id]);
 
   useEffect(() => {
     if (!room || !user || !displayName) return;
@@ -124,12 +150,16 @@ function CandidateView() {
       .then(() => {});
   }, [room?.id, user?.id, displayName]);
 
-  async function loadEvaluation(roomId: string) {
+  async function loadEvaluation(roomId: string, stationId: string, evaluatedCandidateId: string | null) {
     if (!user) return;
+    // Candidato avaliado vê sua própria avaliação; espectadores enxergam a avaliação
+    // do candidato da vez para acompanhar o PEP em tempo real.
+    const targetCandidateId = evaluatedCandidateId ?? user.id;
     const { data } = await supabase.from("room_evaluations")
       .select("final_score, status, final_feedback, checks, item_comments, preview_for_candidate")
       .eq("room_id", roomId)
-      .eq("candidate_id", user.id)
+      .eq("station_id", stationId)
+      .eq("candidate_id", targetCandidateId)
       .maybeSingle();
     if (data) setEvaluation({
       final_score: data.final_score,
@@ -139,6 +169,7 @@ function CandidateView() {
       item_comments: (data.item_comments ?? {}) as Record<string, string>,
       preview_for_candidate: !!(data as { preview_for_candidate?: boolean }).preview_for_candidate,
     });
+    else setEvaluation(null);
   }
 
   // Timer sync
