@@ -381,9 +381,11 @@ function CandidateView() {
     );
   }
 
-  const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
-  const isRunning = room.status === "running" && !finished;
-  const isFinished = finished || room.status === "finished";
+  // Se há um avaliado selecionado e NÃO sou eu, sou espectador: fico no lobby até a próxima estação.
+  const isSpectator = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id !== user.id);
+  const isWaiting = isSpectator || (room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished);
+  const isRunning = !isSpectator && room.status === "running" && !finished;
+  const isFinished = !isSpectator && (finished || room.status === "finished");
   const correctionReady = !!evaluation && (isFinished || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
   const allScored = !!evaluation && station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
