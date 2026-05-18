@@ -362,6 +362,7 @@ function CandidateView() {
           .select("id")
           .eq("user_id", user.id)
           .eq("room_id", room.id)
+          .eq("station_id", station.id)
           .maybeSingle();
 
         const r = room as unknown as { simulado_id?: string | null; simulado_name?: string | null; simulado_index?: number | null; simulado_total?: number | null };
