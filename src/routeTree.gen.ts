@@ -23,13 +23,13 @@ import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppNovidadesRouteImport } from './routes/app.novidades'
 import { Route as AppLiveRouteImport } from './routes/app.live'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
-import { Route as AppFlashcardsRouteImport } from './routes/app.flashcards'
 import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
 import { Route as AppCronogramaRouteImport } from './routes/app.cronograma'
 import { Route as AppChecklistsRouteImport } from './routes/app.checklists'
 import { Route as AppAulasRouteImport } from './routes/app.aulas'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.index'
+import { Route as AppFlashcardsIndexRouteImport } from './routes/app.flashcards.index'
 import { Route as AppEntrarIndexRouteImport } from './routes/app.entrar.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as AppSimuladoIdRouteImport } from './routes/app.simulado.$id'
@@ -129,11 +129,6 @@ const AppHistoricoRoute = AppHistoricoRouteImport.update({
   path: '/historico',
   getParentRoute: () => AppRoute,
 } as any)
-const AppFlashcardsRoute = AppFlashcardsRouteImport.update({
-  id: '/flashcards',
-  path: '/flashcards',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppFeedbackRoute = AppFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -163,6 +158,11 @@ const AppProfessorIndexRoute = AppProfessorIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppProfessorRoute,
+} as any)
+const AppFlashcardsIndexRoute = AppFlashcardsIndexRouteImport.update({
+  id: '/flashcards/',
+  path: '/flashcards/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppEntrarIndexRoute = AppEntrarIndexRouteImport.update({
   id: '/entrar/',
@@ -220,9 +220,9 @@ const AppHistoricoIdRoute = AppHistoricoIdRouteImport.update({
   getParentRoute: () => AppHistoricoRoute,
 } as any)
 const AppFlashcardsDesempenhoRoute = AppFlashcardsDesempenhoRouteImport.update({
-  id: '/desempenho',
-  path: '/desempenho',
-  getParentRoute: () => AppFlashcardsRoute,
+  id: '/flashcards/desempenho',
+  path: '/flashcards/desempenho',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppEntrarCodeRoute = AppEntrarCodeRouteImport.update({
   id: '/entrar/$code',
@@ -315,7 +315,6 @@ export interface FileRoutesByFullPath {
   '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
   '/app/feedback': typeof AppFeedbackRoute
-  '/app/flashcards': typeof AppFlashcardsRouteWithChildren
   '/app/historico': typeof AppHistoricoRouteWithChildren
   '/app/live': typeof AppLiveRoute
   '/app/novidades': typeof AppNovidadesRoute
@@ -344,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/entrar/': typeof AppEntrarIndexRoute
+  '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
@@ -364,7 +364,6 @@ export interface FileRoutesByTo {
   '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
   '/app/feedback': typeof AppFeedbackRoute
-  '/app/flashcards': typeof AppFlashcardsRouteWithChildren
   '/app/historico': typeof AppHistoricoRouteWithChildren
   '/app/live': typeof AppLiveRoute
   '/app/novidades': typeof AppNovidadesRoute
@@ -390,6 +389,7 @@ export interface FileRoutesByTo {
   '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/entrar': typeof AppEntrarIndexRoute
+  '/app/flashcards': typeof AppFlashcardsIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
@@ -413,7 +413,6 @@ export interface FileRoutesById {
   '/app/checklists': typeof AppChecklistsRoute
   '/app/cronograma': typeof AppCronogramaRoute
   '/app/feedback': typeof AppFeedbackRoute
-  '/app/flashcards': typeof AppFlashcardsRouteWithChildren
   '/app/historico': typeof AppHistoricoRouteWithChildren
   '/app/live': typeof AppLiveRoute
   '/app/novidades': typeof AppNovidadesRoute
@@ -442,6 +441,7 @@ export interface FileRoutesById {
   '/app/simulado/$id': typeof AppSimuladoIdRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/entrar/': typeof AppEntrarIndexRoute
+  '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
@@ -466,7 +466,6 @@ export interface FileRouteTypes {
     | '/app/checklists'
     | '/app/cronograma'
     | '/app/feedback'
-    | '/app/flashcards'
     | '/app/historico'
     | '/app/live'
     | '/app/novidades'
@@ -495,6 +494,7 @@ export interface FileRouteTypes {
     | '/app/simulado/$id'
     | '/app/admin/'
     | '/app/entrar/'
+    | '/app/flashcards/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
@@ -515,7 +515,6 @@ export interface FileRouteTypes {
     | '/app/checklists'
     | '/app/cronograma'
     | '/app/feedback'
-    | '/app/flashcards'
     | '/app/historico'
     | '/app/live'
     | '/app/novidades'
@@ -541,6 +540,7 @@ export interface FileRouteTypes {
     | '/app/simulado/$id'
     | '/app/admin'
     | '/app/entrar'
+    | '/app/flashcards'
     | '/app/professor'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
@@ -563,7 +563,6 @@ export interface FileRouteTypes {
     | '/app/checklists'
     | '/app/cronograma'
     | '/app/feedback'
-    | '/app/flashcards'
     | '/app/historico'
     | '/app/live'
     | '/app/novidades'
@@ -592,6 +591,7 @@ export interface FileRouteTypes {
     | '/app/simulado/$id'
     | '/app/admin/'
     | '/app/entrar/'
+    | '/app/flashcards/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
@@ -713,13 +713,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistoricoRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/flashcards': {
-      id: '/app/flashcards'
-      path: '/flashcards'
-      fullPath: '/app/flashcards'
-      preLoaderRoute: typeof AppFlashcardsRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/feedback': {
       id: '/app/feedback'
       path: '/feedback'
@@ -761,6 +754,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/professor/'
       preLoaderRoute: typeof AppProfessorIndexRouteImport
       parentRoute: typeof AppProfessorRoute
+    }
+    '/app/flashcards/': {
+      id: '/app/flashcards/'
+      path: '/flashcards'
+      fullPath: '/app/flashcards/'
+      preLoaderRoute: typeof AppFlashcardsIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/entrar/': {
       id: '/app/entrar/'
@@ -841,10 +841,10 @@ declare module '@tanstack/react-router' {
     }
     '/app/flashcards/desempenho': {
       id: '/app/flashcards/desempenho'
-      path: '/desempenho'
+      path: '/flashcards/desempenho'
       fullPath: '/app/flashcards/desempenho'
       preLoaderRoute: typeof AppFlashcardsDesempenhoRouteImport
-      parentRoute: typeof AppFlashcardsRoute
+      parentRoute: typeof AppRoute
     }
     '/app/entrar/$code': {
       id: '/app/entrar/$code'
@@ -1009,18 +1009,6 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
   AppAdminRouteChildren,
 )
 
-interface AppFlashcardsRouteChildren {
-  AppFlashcardsDesempenhoRoute: typeof AppFlashcardsDesempenhoRoute
-}
-
-const AppFlashcardsRouteChildren: AppFlashcardsRouteChildren = {
-  AppFlashcardsDesempenhoRoute: AppFlashcardsDesempenhoRoute,
-}
-
-const AppFlashcardsRouteWithChildren = AppFlashcardsRoute._addFileChildren(
-  AppFlashcardsRouteChildren,
-)
-
 interface AppHistoricoRouteChildren {
   AppHistoricoIdRoute: typeof AppHistoricoIdRoute
 }
@@ -1095,7 +1083,6 @@ interface AppRouteChildren {
   AppChecklistsRoute: typeof AppChecklistsRoute
   AppCronogramaRoute: typeof AppCronogramaRoute
   AppFeedbackRoute: typeof AppFeedbackRoute
-  AppFlashcardsRoute: typeof AppFlashcardsRouteWithChildren
   AppHistoricoRoute: typeof AppHistoricoRouteWithChildren
   AppLiveRoute: typeof AppLiveRoute
   AppNovidadesRoute: typeof AppNovidadesRoute
@@ -1106,10 +1093,12 @@ interface AppRouteChildren {
   AppSuporteRoute: typeof AppSuporteRoute
   AppIndexRoute: typeof AppIndexRoute
   AppEntrarCodeRoute: typeof AppEntrarCodeRoute
+  AppFlashcardsDesempenhoRoute: typeof AppFlashcardsDesempenhoRoute
   AppResultadoIdRoute: typeof AppResultadoIdRoute
   AppSimulacaoIdRoute: typeof AppSimulacaoIdRoute
   AppSimuladoIdRoute: typeof AppSimuladoIdRoute
   AppEntrarIndexRoute: typeof AppEntrarIndexRoute
+  AppFlashcardsIndexRoute: typeof AppFlashcardsIndexRoute
   AppSalaCodeBancaRoute: typeof AppSalaCodeBancaRoute
   AppSalaCodeCandidatoRoute: typeof AppSalaCodeCandidatoRoute
   AppSalaCodePacienteRoute: typeof AppSalaCodePacienteRoute
@@ -1122,7 +1111,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppChecklistsRoute: AppChecklistsRoute,
   AppCronogramaRoute: AppCronogramaRoute,
   AppFeedbackRoute: AppFeedbackRoute,
-  AppFlashcardsRoute: AppFlashcardsRouteWithChildren,
   AppHistoricoRoute: AppHistoricoRouteWithChildren,
   AppLiveRoute: AppLiveRoute,
   AppNovidadesRoute: AppNovidadesRoute,
@@ -1133,10 +1121,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppSuporteRoute: AppSuporteRoute,
   AppIndexRoute: AppIndexRoute,
   AppEntrarCodeRoute: AppEntrarCodeRoute,
+  AppFlashcardsDesempenhoRoute: AppFlashcardsDesempenhoRoute,
   AppResultadoIdRoute: AppResultadoIdRoute,
   AppSimulacaoIdRoute: AppSimulacaoIdRoute,
   AppSimuladoIdRoute: AppSimuladoIdRoute,
   AppEntrarIndexRoute: AppEntrarIndexRoute,
+  AppFlashcardsIndexRoute: AppFlashcardsIndexRoute,
   AppSalaCodeBancaRoute: AppSalaCodeBancaRoute,
   AppSalaCodeCandidatoRoute: AppSalaCodeCandidatoRoute,
   AppSalaCodePacienteRoute: AppSalaCodePacienteRoute,

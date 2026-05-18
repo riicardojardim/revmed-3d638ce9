@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/app/flashcards")({
+export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
   head: () => ({ meta: [{ title: "Flashcards — Estação Revalida" }] }),
 });
