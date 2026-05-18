@@ -220,14 +220,13 @@ function StationsPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Monte um simulado com 2 ou mais checklists e cronômetro oficial.
             </p>
-            <Link to="/app/treinar" className="mt-4 block">
-              <Button variant="hero" className="w-full">
-                Montar simulado <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+            <Button variant="hero" className="mt-4 w-full" onClick={() => setBuilderOpen(true)}>
+              Montar simulado <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </aside>
       </div>
+      <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
     </div>
   );
 }
