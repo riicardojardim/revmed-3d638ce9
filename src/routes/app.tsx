@@ -303,9 +303,6 @@ function AppLayout() {
             <Logo />
           </div>
           <div className="flex flex-1 items-center gap-2 overflow-hidden font-sans">
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-medical px-3 py-1.5 text-xs font-semibold tracking-tight text-white shadow-elegant ring-1 ring-mint/30">
-              <Activity className="h-3.5 w-3.5 text-mint" /> Revalida 2026.1
-            </span>
             <span
               title={`Nota de corte da prova de habilidades clínicas — ${NOTA_DE_CORTE_EDICAO} (INEP)`}
               className="hidden shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground md:inline-flex"
