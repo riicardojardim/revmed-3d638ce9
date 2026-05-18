@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
-export type PlanSlug = "free" | "completo" | "ator";
+export type PlanSlug = "free" | "completo" | "completo_mensal" | "ator";
 
 export interface ActivePlan {
   slug: PlanSlug;
@@ -64,6 +64,11 @@ export function useSubscription() {
   const canBeCandidato = isPrivileged || (!!plan && !plan.expired && plan.allows_candidato);
   const canBeAtor = isPrivileged || (!!plan && !plan.expired && plan.allows_ator);
   const hasAccess = isPrivileged || (!!plan && !plan.expired);
+  // "Completo-like": full-access plans (one-off or monthly). Used by gates and UI.
+  const isCompletoLike =
+    isPrivileged ||
+    (!!plan && !plan.expired && (plan.slug === "completo" || plan.slug === "completo_mensal"));
+  const isAtorOnly = !!plan && !plan.expired && plan.slug === "ator";
 
   let daysLeft: number | null = null;
   if (plan?.current_period_end) {
@@ -71,5 +76,5 @@ export function useSubscription() {
     daysLeft = Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
   }
 
-  return { plan, loading, canBeCandidato, canBeAtor, hasAccess, isPrivileged, daysLeft };
+  return { plan, loading, canBeCandidato, canBeAtor, hasAccess, isPrivileged, isCompletoLike, isAtorOnly, daysLeft };
 }
