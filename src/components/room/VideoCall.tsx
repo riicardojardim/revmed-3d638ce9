@@ -192,7 +192,16 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
         data-lk-theme="default"
         style={{ height: "100%", borderRadius: "0.5rem", overflow: "hidden" }}
       >
-        <Stage isHost={isHost} roomCode={roomCode} selfIdentity={selfIdentity ?? ""} />
+        <Stage
+          isHost={isHost}
+          roomCode={roomCode}
+          selfIdentity={selfIdentity ?? ""}
+          allowedIdentities={
+            creds.role === "spectator"
+              ? new Set([creds.hostId, creds.evaluatedId].filter((v): v is string => !!v))
+              : null
+          }
+        />
         <RoomAudioRenderer />
         <ControlBar variation="minimal" controls={{ leave: false, screenShare: isHost, microphone: canPublish, camera: canPublish }} />
       </LiveKitRoom>
