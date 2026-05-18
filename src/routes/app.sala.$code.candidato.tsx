@@ -373,7 +373,7 @@ function CandidateView() {
             icon={Inbox}
             title="Materiais recebidos"
             tone="sky"
-            right={<Badge variant="outline">{visibleDeliveries.length}</Badge>}
+            right={<Badge variant="outline" className="text-white border-white/30">{visibleDeliveries.length}</Badge>}
           >
             {visibleDeliveries.length === 0 ? (
               <p className="text-sm text-muted-foreground">
