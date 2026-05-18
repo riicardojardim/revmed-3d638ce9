@@ -184,7 +184,7 @@ function Dashboard() {
             </div>
           </div>
           <h2 className="mt-4 font-display text-xl font-bold md:text-2xl">
-            <span className="text-mint">Dr(a). {displayName}</span>{" "}
+            <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
             <span className="text-mint">{stats.avg.toFixed(1)}</span>
           </h2>
