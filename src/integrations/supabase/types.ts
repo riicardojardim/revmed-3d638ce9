@@ -892,6 +892,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      search_users_for_invite: {
+        Args: { _q: string }
+        Returns: {
+          avatar_url: string
+          email: string
+          full_name: string
+          id: string
+          username: string
+        }[]
+      }
       send_friend_request: { Args: { _to_user: string }; Returns: string }
       send_room_invite: {
         Args: { _room_id: string; _station_id: string; _to_user: string }
