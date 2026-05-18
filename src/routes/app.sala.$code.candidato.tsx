@@ -226,7 +226,7 @@ function CandidateView() {
     );
   }
 
-  const isWaiting = room.status !== "running" && room.status !== "starting" && !finished;
+  const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
   const isRunning = room.status === "running" && !finished;
   const isFinished = finished || room.status === "finished";
   const correctionReady = !!evaluation && evaluation.status !== "em_andamento";
