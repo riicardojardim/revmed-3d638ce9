@@ -194,7 +194,7 @@ function SimuladoRunner({ id }: { id: string }) {
       localStorage.setItem("ator:activeRoom", JSON.stringify({
         code: sim.roomCode,
         title: sim.name,
-        path: `/app/simulado/${sim.id}`,
+        path: `/app/sala/${sim.id}`,
         parent: (sim.stations?.length ?? 0) >= 2 ? "treinar" : "estacoes",
       }));
       window.dispatchEvent(new Event("ator:activeRoom"));
