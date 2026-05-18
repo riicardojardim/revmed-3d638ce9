@@ -62,7 +62,7 @@ function FlashcardsPage() {
   }, []);
 
   const specialties = useMemo(
-    () => ["Todas", ...Array.from(new Set(decks.map((d) => d.specialty)))],
+    () => ["Todas", ...sortSpecialties(Array.from(new Set(decks.map((d) => d.specialty))))],
     [decks],
   );
 
