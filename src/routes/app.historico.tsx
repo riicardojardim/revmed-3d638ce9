@@ -24,7 +24,7 @@ type Attempt = {
 
 function Historico() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"pense" | "simulado" | "parceiros">("pense");
+  const [tab, setTab] = useState<"pense" | "simulado">("pense");
   const [items, setItems] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -86,8 +86,8 @@ function Historico() {
           placeholder="Tema..."
           className="mt-3 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint"
         />
-        <div className="mt-4 grid grid-cols-3 gap-2 rounded-xl bg-muted/30 p-1">
-          {(["pense", "simulado", "parceiros"] as const).map((t) => (
+        <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-muted/30 p-1">
+          {(["pense", "simulado"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -95,7 +95,7 @@ function Historico() {
                 tab === t ? "bg-mint text-night" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "pense" ? "Estação Revalida" : t === "simulado" ? "Simulado" : "Parceiros e Clientes"}
+              {t === "pense" ? "Estação Única" : "Simulado"}
             </button>
           ))}
         </div>
