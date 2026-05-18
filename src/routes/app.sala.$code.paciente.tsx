@@ -650,8 +650,8 @@ function ActorView() {
   const isFinished = finished || room.status === "finished";
   const isWaiting = !isRunning && !isFinished;
   const inviteHost = "estacaorevalida.com.br";
-  const inviteLink = `https://${inviteHost}/e/${code}`;
-  const inviteLinkDisplay = `${inviteHost}/e/${code}`;
+  const inviteLink = `https://${inviteHost}/app/sala/${code}`;
+  const inviteLinkDisplay = `${inviteHost}/app/sala/${code}`;
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
 
