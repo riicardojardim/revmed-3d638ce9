@@ -277,10 +277,26 @@ function CandidateView() {
     });
   }, [deliveries, station]);
 
-  // Dispara o overlay institucional quando o ator inicia a estação
+  // Dispara o overlay institucional quando o ator inicia a estação.
+  // Só roda para o candidato selecionado da vez (evaluated_candidate_id).
+  // Se ninguém estiver selecionado ainda, ninguém vê a animação.
   useEffect(() => {
-    if (room?.status === "starting" && !introDone) setShowIntro(true);
-  }, [room?.status, introDone]);
+    if (!room || !user) return;
+    const isSelected = room.evaluated_candidate_id === user.id;
+    if (room.status === "starting" && !introDone && isSelected) setShowIntro(true);
+  }, [room?.status, room?.evaluated_candidate_id, user?.id, introDone]);
+
+  // Reset entre estações: quando a sala volta para "waiting" (próxima estação),
+  // limpa estado local pra que o lobby/animação funcione de novo.
+  useEffect(() => {
+    if (room?.status === "waiting") {
+      setFinished(false);
+      setIntroDone(false);
+      setShowIntro(false);
+      setEvaluation(null);
+      savedAttemptRef.current = null;
+    }
+  }, [room?.status, room?.station_id]);
 
   // Persiste a tentativa em Desempenho/Histórico assim que o ator finalizar a correção
   // (status = aprovado/reprovado e todos os itens pontuados). Atualiza se já existir.
@@ -365,9 +381,11 @@ function CandidateView() {
     );
   }
 
-  const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
-  const isRunning = room.status === "running" && !finished;
-  const isFinished = finished || room.status === "finished";
+  // Se há um avaliado selecionado e NÃO sou eu, sou espectador: fico no lobby até a próxima estação.
+  const isSpectator = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id !== user.id);
+  const isWaiting = isSpectator || (room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished);
+  const isRunning = !isSpectator && room.status === "running" && !finished;
+  const isFinished = !isSpectator && (finished || room.status === "finished");
   const correctionReady = !!evaluation && (isFinished || evaluation.preview_for_candidate);
   const pct = evaluation?.final_score != null ? evaluation.final_score * 10 : 0;
   const allScored = !!evaluation && station.checklist.length > 0 && station.checklist.every((it) => typeof evaluation.checks[it.id] === "number");
@@ -400,11 +418,14 @@ function CandidateView() {
         </div>
 
         <h1 className="mt-6 font-display text-3xl font-bold md:text-4xl">
-          Aguardando o ator iniciar...
+          {isSpectator ? "Aguarde sua vez..." : "Aguardando o ator iniciar..."}
         </h1>
         <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-          Você já está dentro da estação de <span className="font-semibold text-foreground">{station.specialty}</span>.
-          Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.
+          {isSpectator ? (
+            <>Outro candidato está sendo avaliado nesta estação. Quando chegar a sua vez, o ator vai te selecionar e a próxima estação abrirá automaticamente — não precisa atualizar a página.</>
+          ) : (
+            <>Você já está dentro da estação de <span className="font-semibold text-foreground">{station.specialty}</span>. Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.</>
+          )}
         </p>
 
         <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-2 text-xs">

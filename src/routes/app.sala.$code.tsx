@@ -548,8 +548,10 @@ function SimuladoRunner({ id }: { id: string }) {
       // pode ter outro "candidato da vez". Se restar só 1 participante, será re-selecionado automaticamente.
       if (sim.roomId) {
         await supabase.from("training_rooms")
-          .update({ evaluated_candidate_id: null }).eq("id", sim.roomId);
+          .update({ evaluated_candidate_id: null, status: "waiting", started_at: null, starting_at: null, finished_at: null })
+          .eq("id", sim.roomId);
         setEvaluatedCandidateId(null);
+        setRoomStatus("waiting");
       }
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
       saveSimulado(user!.id, next);
@@ -1085,6 +1087,11 @@ function SimuladoRunner({ id }: { id: string }) {
                 <UserPlus className="h-3 w-3" /> Convidar amigo
               </button>
             </div>
+            {!evaluatedCandidateId && candidates.length >= 2 && !running && (
+              <div className="mt-2 rounded-xl border border-mint/40 bg-mint/10 px-3 py-2 text-xs font-medium text-mint">
+                👇 Selecione o próximo candidato a ser avaliado
+              </div>
+            )}
             {candidates.length === 0 ? (
               <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                 <UserPlus className="h-4 w-4" />
