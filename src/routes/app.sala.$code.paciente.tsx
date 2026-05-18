@@ -118,7 +118,7 @@ function ActorView() {
 
   async function refreshCandidates(roomId: string): Promise<Candidate[]> {
     const { data: parts } = await supabase.from("training_room_participants")
-      .select("user_id, role").eq("room_id", roomId);
+      .select("user_id, role, display_name").eq("room_id", roomId);
     const candUsers = (parts ?? []).filter((p: { role: string }) => p.role === "candidato");
     if (candUsers.length === 0) {
       setCandidates([]);
@@ -127,8 +127,13 @@ function ActorView() {
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     const { data: profs } = await supabase.from("profiles")
       .select("id, full_name").in("id", ids);
-    const map = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
-    const list: Candidate[] = ids.map((id: string) => ({ id, name: map.get(id) ?? "Candidato" }));
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
+    const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
+    const list: Candidate[] = ids.map((id: string) => {
+      const raw = ((profMap.get(id) ?? dispMap.get(id) ?? "") as string).trim();
+      const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
+      return { id, name };
+    });
     setCandidates(list);
     return list;
   }
