@@ -20,7 +20,7 @@ function SignupPage() {
   const nav = useNavigate();
   const { user, loading } = useAuth();
   const [role, setRole] = useState<"aluno" | "professor">("aluno");
-  const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: "", year: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", whatsapp: "" });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -34,6 +34,10 @@ function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const deducedYear = m <= 3 ? `${y}.1` : m <= 8 ? `${y}.2` : `${y + 1}.1`;
     const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -42,7 +46,7 @@ function SignupPage() {
         data: {
           full_name: form.name,
           whatsapp: form.whatsapp,
-          exam_year: form.year,
+          exam_year: deducedYear,
           role,
         },
       },
@@ -122,15 +126,9 @@ function SignupPage() {
                 ))}
               </RadioGroup>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="wpp">WhatsApp</Label>
-                <Input id="wpp" placeholder="opcional" value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} />
-              </div>
-              <div>
-                <Label htmlFor="year">Ano da prova</Label>
-                <Input id="year" placeholder="opcional" value={form.year} onChange={(e) => update("year", e.target.value)} />
-              </div>
+            <div>
+              <Label htmlFor="wpp">WhatsApp</Label>
+              <Input id="wpp" placeholder="opcional" value={form.whatsapp} onChange={(e) => update("whatsapp", e.target.value)} />
             </div>
             <Button variant="hero" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Criando..." : (<>Criar conta <ArrowRight className="h-4 w-4" /></>)}

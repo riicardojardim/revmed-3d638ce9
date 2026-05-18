@@ -35,7 +35,14 @@ const GENDER_OPTIONS = [
   { value: "prefiro_nao_dizer", label: "Prefiro não dizer" },
 ];
 
-const EXAM_YEARS = ["2026.1", "2026.2", "2027.1", "2027.2", "Ainda não decidi"];
+function deduceExamYear(): string {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  if (m <= 3) return `${y}.1`;
+  if (m <= 8) return `${y}.2`;
+  return `${y + 1}.1`;
+}
 
 function ProfilePage() {
   const { user, profile, roles, signOut, refresh } = useAuth();
@@ -78,7 +85,7 @@ function ProfilePage() {
   const [title, setTitle] = useState<string>(profile?.title ?? "");
   const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(profile?.whatsapp ?? "");
-  const [examYear, setExamYear] = useState(profile?.exam_year ?? "");
+  const examYear = profile?.exam_year || deduceExamYear();
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
@@ -86,7 +93,7 @@ function ProfilePage() {
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(profile?.whatsapp ?? "");
-    setExamYear(profile?.exam_year ?? "");
+    
   }, [profile]);
 
   async function handleSaveProfile(e: React.FormEvent) {
@@ -243,19 +250,6 @@ function ProfilePage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="examYear">Ano da prova</Label>
-            <Select value={examYear} onValueChange={setExamYear}>
-              <SelectTrigger id="examYear">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {EXAM_YEARS.map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <div>
