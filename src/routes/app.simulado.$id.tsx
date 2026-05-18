@@ -291,6 +291,58 @@ function SimuladoRunner() {
 
   const allScored = totals.count > 0 && totals.scored === totals.count;
 
+  // Auto-sincroniza a prévia do PEP enquanto estiver habilitada
+  useEffect(() => {
+    if (!previewEnabled || !sim?.roomId || !user || !evaluatedCandidateId) return;
+    const stationId = sim.stations[sim.currentIndex]?.id;
+    if (!stationId) return;
+    const t = setTimeout(() => {
+      void supabase.from("room_evaluations").upsert({
+        room_id: sim.roomId,
+        evaluator_id: user.id,
+        candidate_id: evaluatedCandidateId,
+        station_id: stationId,
+        checks,
+        item_comments: comments,
+        final_feedback: feedback,
+        final_score: Number(totals.earned.toFixed(2)),
+        status: "em_andamento",
+        preview_for_candidate: true,
+      }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [previewEnabled, checks, comments, feedback, totals.earned, sim?.roomId, sim?.currentIndex, evaluatedCandidateId, user?.id]);
+
+  async function togglePreview() {
+    if (!sim?.roomId || !user) return;
+    if (!evaluatedCandidateId) return toast.error("Selecione o candidato que será avaliado.");
+    const stationId = sim.stations[sim.currentIndex]?.id;
+    if (!stationId) return;
+    const next = !previewEnabled;
+    if (next) {
+      const ok = window.confirm("Deseja realmente liberar o PEP para o candidato? Ele verá o preenchimento em tempo real.");
+      if (!ok) return;
+    }
+    setPreviewEnabled(next);
+    const { error } = await supabase.from("room_evaluations").upsert({
+      room_id: sim.roomId,
+      evaluator_id: user.id,
+      candidate_id: evaluatedCandidateId,
+      station_id: stationId,
+      checks,
+      item_comments: comments,
+      final_feedback: feedback,
+      final_score: Number(totals.earned.toFixed(2)),
+      status: "em_andamento",
+      preview_for_candidate: next,
+    }, { onConflict: "room_id,evaluator_id,candidate_id" });
+    if (error) {
+      setPreviewEnabled(!next);
+      return toast.error(error.message);
+    }
+    toast.success(next ? "PEP liberado para o candidato em tempo real." : "Prévia do PEP ocultada.");
+  }
+
   function updateCurrent(updater: (s: SimuladoStationState) => SimuladoStationState) {
     setSim((prev) => {
       if (!prev) return prev;
