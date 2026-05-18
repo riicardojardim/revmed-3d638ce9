@@ -48,7 +48,32 @@ export function NotificationBell() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
-      if (mounted) setItems((data ?? []) as NotificationRow[]);
+      const rows = (data ?? []) as NotificationRow[];
+      if (!mounted) return;
+      setItems(rows);
+
+      // Resolve status of any room invites already responded to
+      const inviteIds = rows
+        .filter((n) => n.type === "room_invite_received")
+        .map((n) => n.payload?.invite_id as string | undefined)
+        .filter((x): x is string => !!x);
+      if (inviteIds.length > 0) {
+        const { data: invs } = await supabase
+          .from("room_invites")
+          .select("id, status")
+          .in("id", inviteIds);
+        if (mounted && invs) {
+          const map: Record<string, "accepted" | "declined"> = {};
+          for (const n of rows) {
+            const iid = n.payload?.invite_id as string | undefined;
+            const inv = invs.find((x) => x.id === iid);
+            if (inv && (inv.status === "accepted" || inv.status === "declined")) {
+              map[n.id] = inv.status;
+            }
+          }
+          setResponded((s) => ({ ...s, ...map }));
+        }
+      }
     })();
 
     const ch = supabase
