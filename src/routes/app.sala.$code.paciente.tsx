@@ -31,6 +31,13 @@ type Room = { id: string; code: string; station_id: string; station_title: strin
 type Delivery = { id: string; material_id: string; material_name: string };
 type Candidate = { id: string; name: string };
 
+function formatCandidateName(rawName: string | null | undefined, userId?: string): string {
+  const raw = (rawName ?? "").trim();
+  const fallback = userId ? `Dr. ${userId.slice(0, 8).toUpperCase()}` : "Dr.";
+  const name = raw || fallback;
+  return name.toLowerCase().startsWith("dr") ? name : `Dr. ${name}`;
+}
+
 // Migrate legacy checks (boolean) to new shape (number = chosen level points).
 // `true` → full points, `false`/missing → unscored.
 function migrateChecks(raw: unknown, checklist: { id: string; points: number }[]): Record<string, number> {
@@ -130,9 +137,8 @@ function ActorView() {
     const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name]));
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list: Candidate[] = ids.map((id: string) => {
-      const raw = ((profMap.get(id) ?? dispMap.get(id) ?? "") as string).trim();
-      const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
-      return { id, name };
+      const raw = (profMap.get(id) ?? dispMap.get(id)) as string | null | undefined;
+      return { id, name: formatCandidateName(raw, id) };
     });
     setCandidates(list);
     return list;
@@ -220,8 +226,7 @@ function ActorView() {
         if (row.role === "candidato") {
           const { data: prof } = await supabase.from("profiles")
             .select("full_name").eq("id", row.user_id).maybeSingle();
-          const raw = ((prof?.full_name ?? row.display_name ?? "") as string).trim();
-          const name = raw ? (raw.toLowerCase().startsWith("dr") ? raw : `Dr. ${raw}`) : "Candidato";
+          const name = formatCandidateName(prof?.full_name ?? row.display_name, row.user_id);
           setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name }]);
           toast.success(`${name} entrou na sala`);
           if (!room.evaluated_candidate_id) {
