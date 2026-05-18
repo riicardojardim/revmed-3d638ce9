@@ -161,13 +161,13 @@ function ActorView() {
     }
     const ids = candUsers.map((c: { user_id: string }) => c.user_id);
     const { data: profs } = await supabase.from("profiles")
-      .select("id, full_name, title").in("id", ids);
-    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null }) => [p.id, p]));
+      .select("id, full_name, title, avatar_url").in("id", ids);
+    const profMap = new Map((profs ?? []).map((p: { id: string; full_name: string | null; title: string | null; avatar_url: string | null }) => [p.id, p]));
     const dispMap = new Map(candUsers.map((c: { user_id: string; display_name: string | null }) => [c.user_id, c.display_name]));
     const list: Candidate[] = ids.map((id: string) => {
       const prof = profMap.get(id);
       const raw = (prof?.full_name ?? dispMap.get(id)) as string | null | undefined;
-      return { id, name: formatCandidateName(raw, prof?.title, id) };
+      return { id, name: formatCandidateName(raw, prof?.title, id), avatarUrl: prof?.avatar_url ?? null };
     });
     setCandidates(list);
     return list;
