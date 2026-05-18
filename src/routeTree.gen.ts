@@ -41,6 +41,7 @@ import { Route as AppProfessorResumosRouteImport } from './routes/app.professor.
 import { Route as AppProfessorFlashcardsRouteImport } from './routes/app.professor.flashcards'
 import { Route as AppProfessorEstacoesRouteImport } from './routes/app.professor.estacoes'
 import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professor.correcoes'
+import { Route as AppHistoricoIdRouteImport } from './routes/app.historico.$id'
 import { Route as AppFlashcardsRevisaoRouteImport } from './routes/app.flashcards.revisao'
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
@@ -219,6 +220,11 @@ const AppProfessorCorrecoesRoute = AppProfessorCorrecoesRouteImport.update({
   path: '/correcoes',
   getParentRoute: () => AppProfessorRoute,
 } as any)
+const AppHistoricoIdRoute = AppHistoricoIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppHistoricoRoute,
+} as any)
 const AppFlashcardsRevisaoRoute = AppFlashcardsRevisaoRouteImport.update({
   id: '/revisao',
   path: '/revisao',
@@ -316,7 +322,7 @@ export interface FileRoutesByFullPath {
   '/app/estacoes': typeof AppEstacoesRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/flashcards': typeof AppFlashcardsRouteWithChildren
-  '/app/historico': typeof AppHistoricoRoute
+  '/app/historico': typeof AppHistoricoRouteWithChildren
   '/app/live': typeof AppLiveRoute
   '/app/novidades': typeof AppNovidadesRoute
   '/app/perfil': typeof AppPerfilRoute
@@ -334,6 +340,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/revisao': typeof AppFlashcardsRevisaoRoute
+  '/app/historico/$id': typeof AppHistoricoIdRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/professor/flashcards': typeof AppProfessorFlashcardsRoute
@@ -365,7 +372,7 @@ export interface FileRoutesByTo {
   '/app/estacoes': typeof AppEstacoesRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/flashcards': typeof AppFlashcardsRouteWithChildren
-  '/app/historico': typeof AppHistoricoRoute
+  '/app/historico': typeof AppHistoricoRouteWithChildren
   '/app/live': typeof AppLiveRoute
   '/app/novidades': typeof AppNovidadesRoute
   '/app/perfil': typeof AppPerfilRoute
@@ -380,6 +387,7 @@ export interface FileRoutesByTo {
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/revisao': typeof AppFlashcardsRevisaoRoute
+  '/app/historico/$id': typeof AppHistoricoIdRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/professor/flashcards': typeof AppProfessorFlashcardsRoute
@@ -414,7 +422,7 @@ export interface FileRoutesById {
   '/app/estacoes': typeof AppEstacoesRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/flashcards': typeof AppFlashcardsRouteWithChildren
-  '/app/historico': typeof AppHistoricoRoute
+  '/app/historico': typeof AppHistoricoRouteWithChildren
   '/app/live': typeof AppLiveRoute
   '/app/novidades': typeof AppNovidadesRoute
   '/app/perfil': typeof AppPerfilRoute
@@ -432,6 +440,7 @@ export interface FileRoutesById {
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/revisao': typeof AppFlashcardsRevisaoRoute
+  '/app/historico/$id': typeof AppHistoricoIdRoute
   '/app/professor/correcoes': typeof AppProfessorCorrecoesRouteWithChildren
   '/app/professor/estacoes': typeof AppProfessorEstacoesRouteWithChildren
   '/app/professor/flashcards': typeof AppProfessorFlashcardsRoute
@@ -485,6 +494,7 @@ export interface FileRouteTypes {
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/revisao'
+    | '/app/historico/$id'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
     | '/app/professor/flashcards'
@@ -531,6 +541,7 @@ export interface FileRouteTypes {
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/revisao'
+    | '/app/historico/$id'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
     | '/app/professor/flashcards'
@@ -582,6 +593,7 @@ export interface FileRouteTypes {
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/revisao'
+    | '/app/historico/$id'
     | '/app/professor/correcoes'
     | '/app/professor/estacoes'
     | '/app/professor/flashcards'
@@ -839,6 +851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfessorCorrecoesRouteImport
       parentRoute: typeof AppProfessorRoute
     }
+    '/app/historico/$id': {
+      id: '/app/historico/$id'
+      path: '/$id'
+      fullPath: '/app/historico/$id'
+      preLoaderRoute: typeof AppHistoricoIdRouteImport
+      parentRoute: typeof AppHistoricoRoute
+    }
     '/app/flashcards/revisao': {
       id: '/app/flashcards/revisao'
       path: '/revisao'
@@ -1021,6 +1040,18 @@ const AppFlashcardsRouteWithChildren = AppFlashcardsRoute._addFileChildren(
   AppFlashcardsRouteChildren,
 )
 
+interface AppHistoricoRouteChildren {
+  AppHistoricoIdRoute: typeof AppHistoricoIdRoute
+}
+
+const AppHistoricoRouteChildren: AppHistoricoRouteChildren = {
+  AppHistoricoIdRoute: AppHistoricoIdRoute,
+}
+
+const AppHistoricoRouteWithChildren = AppHistoricoRoute._addFileChildren(
+  AppHistoricoRouteChildren,
+)
+
 interface AppProfessorCorrecoesRouteChildren {
   AppProfessorCorrecoesIdRoute: typeof AppProfessorCorrecoesIdRoute
 }
@@ -1084,7 +1115,7 @@ interface AppRouteChildren {
   AppEstacoesRoute: typeof AppEstacoesRoute
   AppFeedbackRoute: typeof AppFeedbackRoute
   AppFlashcardsRoute: typeof AppFlashcardsRouteWithChildren
-  AppHistoricoRoute: typeof AppHistoricoRoute
+  AppHistoricoRoute: typeof AppHistoricoRouteWithChildren
   AppLiveRoute: typeof AppLiveRoute
   AppNovidadesRoute: typeof AppNovidadesRoute
   AppPerfilRoute: typeof AppPerfilRoute
@@ -1112,7 +1143,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEstacoesRoute: AppEstacoesRoute,
   AppFeedbackRoute: AppFeedbackRoute,
   AppFlashcardsRoute: AppFlashcardsRouteWithChildren,
-  AppHistoricoRoute: AppHistoricoRoute,
+  AppHistoricoRoute: AppHistoricoRouteWithChildren,
   AppLiveRoute: AppLiveRoute,
   AppNovidadesRoute: AppNovidadesRoute,
   AppPerfilRoute: AppPerfilRoute,
