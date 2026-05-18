@@ -230,10 +230,11 @@ function SimuladoRunner({ id }: { id: string }) {
       return { id: uid, name: formatCandidateName(raw, prof?.title, uid), avatarUrl: prof?.avatar_url ?? null };
     });
     setCandidates(list);
-    // Auto-seleciona o primeiro candidato como avaliado, se ainda não houver um.
+    // Auto-seleciona apenas se houver UM único candidato.
+    // Com 2+ participantes o ator precisa escolher conscientemente quem é o "candidato da vez".
     const { data: r } = await supabase.from("training_rooms")
       .select("evaluated_candidate_id").eq("id", roomId).maybeSingle();
-    if (!r?.evaluated_candidate_id && list.length > 0) {
+    if (!r?.evaluated_candidate_id && list.length === 1) {
       await supabase.from("training_rooms")
         .update({ evaluated_candidate_id: list[0].id }).eq("id", roomId);
       setEvaluatedCandidateId(list[0].id);
@@ -540,9 +541,16 @@ function SimuladoRunner({ id }: { id: string }) {
     toast.success(`Entregue: ${m.name}`);
   }
 
-  function goNext() {
+  async function goNext() {
     if (!sim || !allScored) return;
     if (sim.currentIndex < sim.stations.length - 1) {
+      // Limpa o candidato avaliado da sala antes de avançar — a próxima estação
+      // pode ter outro "candidato da vez". Se restar só 1 participante, será re-selecionado automaticamente.
+      if (sim.roomId) {
+        await supabase.from("training_rooms")
+          .update({ evaluated_candidate_id: null }).eq("id", sim.roomId);
+        setEvaluatedCandidateId(null);
+      }
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
       saveSimulado(user!.id, next);
       setSim(next);
