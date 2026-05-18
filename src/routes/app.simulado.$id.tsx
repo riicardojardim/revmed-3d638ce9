@@ -661,18 +661,18 @@ function SimuladoRunner() {
 
           <PRBlock icon={Theater} title="Orientações do Ator/Atriz">
             <p className="mb-3 text-[11px] text-muted-foreground italic">
-              Dica: o texto antes dos <strong className="font-semibold">dois pontos</strong> já vem em negrito. Selecione qualquer trecho para usá-lo como marca-texto; selecione de novo (ou clique no destaque) para remover.
+              Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.
             </p>
             <Highlightable>
               {station.patientScript ? (
-                <ScriptText text={station.patientScript} />
+                <ScriptText text={station.patientScript} strikeable prefix="ps" struck={struckWords} toggle={toggleStruck} />
               ) : p ? (
-                <ScriptText text={formatPatientProfile(p)} />
+                <ScriptText text={formatPatientProfile(p)} strikeable prefix="pp" struck={struckWords} toggle={toggleStruck} />
               ) : (
                 <p className="text-sm text-muted-foreground">Nenhuma orientação preenchida.</p>
               )}
-              {p?.spontaneous && <SubBlock label="O que falar espontaneamente"><ScriptText text={p.spontaneous} /></SubBlock>}
-              {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose"><ScriptText text={p.doNotReveal} /></SubBlock>}
+              {p?.spontaneous && <SubBlock label="O que falar espontaneamente"><ScriptText text={p.spontaneous} strikeable prefix="sp" struck={struckWords} toggle={toggleStruck} /></SubBlock>}
+              {p?.doNotReveal && <SubBlock label="Nunca revelar" tone="rose"><ScriptText text={p.doNotReveal} strikeable prefix="dnr" struck={struckWords} toggle={toggleStruck} /></SubBlock>}
               {(p?.emotionalTone || p?.actingTips) && (
                 <SubBlock label="Tom emocional e atuação">
                   {p?.emotionalTone && <p><span className="font-medium">Tom:</span> {p.emotionalTone}</p>}
