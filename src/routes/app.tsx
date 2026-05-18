@@ -202,7 +202,7 @@ function AppLayout() {
     <OnlinePresenceProvider>
     <div className="flex min-h-screen w-full bg-background">
       {/* Desktop sidebar — fixa */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar lg:flex lg:flex-col">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar">
 
         <div className="px-6 py-5">
           <Logo />
