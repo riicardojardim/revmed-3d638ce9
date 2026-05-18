@@ -31,11 +31,19 @@ type Room = { id: string; code: string; station_id: string; station_title: strin
 type Delivery = { id: string; material_id: string; material_name: string };
 type Candidate = { id: string; name: string };
 
-function formatCandidateName(rawName: string | null | undefined, userId?: string): string {
+function formatCandidateName(
+  rawName: string | null | undefined,
+  title: string | null | undefined,
+  userId?: string,
+): string {
   const raw = (rawName ?? "").trim();
-  const fallback = userId ? `Dr. ${userId.slice(0, 8).toUpperCase()}` : "Dr.";
+  const t = (title ?? "").trim();
+  const prefix = t && t !== "Sem título" ? t : "Dr.";
+  const fallback = userId ? `${prefix} ${userId.slice(0, 8).toUpperCase()}` : prefix;
   const name = raw || fallback;
-  return name.toLowerCase().startsWith("dr") ? name : `Dr. ${name}`;
+  const lower = name.toLowerCase();
+  if (lower.startsWith("dr.") || lower.startsWith("dra.") || lower.startsWith("dr ") || lower.startsWith("dra ")) return name;
+  return `${prefix} ${name}`;
 }
 
 // Migrate legacy checks (boolean) to new shape (number = chosen level points).
