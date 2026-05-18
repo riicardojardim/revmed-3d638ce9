@@ -80,6 +80,8 @@ function CandidateView() {
 
   useEffect(() => {
     if (!room) return;
+    void loadEvaluation(room.id);
+
     const ch = supabase
       .channel(`candidate-${room.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "room_material_deliveries", filter: `room_id=eq.${room.id}` }, (payload) => {
@@ -102,9 +104,10 @@ function CandidateView() {
         .select("id, code, station_id, station_title, status, started_at, duration_minutes, evaluated_candidate_id")
         .eq("id", room.id).maybeSingle();
       if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
+      await loadEvaluation(room.id);
     }, 2000);
     return () => { supabase.removeChannel(ch); clearInterval(pollId); };
-  }, [room?.id]);
+  }, [room?.id, user?.id]);
 
   useEffect(() => {
     if (!room || !user || !displayName) return;
