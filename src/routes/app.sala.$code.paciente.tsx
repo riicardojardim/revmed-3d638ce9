@@ -508,15 +508,6 @@ function ActorView() {
     finishingRef.current = true;
     const finishedAt = new Date().toISOString();
     const review = latestReviewRef.current;
-    const { error } = await supabase.from("training_rooms")
-      .update({ status: "finished", finished_at: finishedAt })
-      .eq("id", room.id);
-    if (error) {
-      finishingRef.current = false;
-      return toast.error(error.message);
-    }
-    setRoom((prev) => prev ? { ...prev, status: "finished" } : prev);
-    setFinished(true);
     if (user && room.evaluated_candidate_id) {
       const resolvedStatus = review.allScored
         ? (review.evalStatus === "em_andamento" ? (review.pct >= 61.17 ? "aprovado" : "reprovado") : review.evalStatus)
@@ -533,9 +524,20 @@ function ActorView() {
           final_score: Number(review.score.toFixed(2)),
           status: resolvedStatus,
           submitted_at: resolvedStatus === "em_andamento" ? null : finishedAt,
+          preview_for_candidate: true,
         }, { onConflict: "room_id,evaluator_id,candidate_id" });
       if (evalError) toast.error(evalError.message);
     }
+    const { error } = await supabase.from("training_rooms")
+      .update({ status: "finished", finished_at: finishedAt })
+      .eq("id", room.id);
+    if (error) {
+      finishingRef.current = false;
+      return toast.error(error.message);
+    }
+    setPreviewEnabled(true);
+    setRoom((prev) => prev ? { ...prev, status: "finished" } : prev);
+    setFinished(true);
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação finalizada. PEP liberado para o candidato.");
   }
 
