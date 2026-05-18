@@ -26,7 +26,7 @@ export const Route = createFileRoute("/app/sala/$code/candidato")({
   head: () => ({ meta: [{ title: "Estação — Candidato" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; starting_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
 type Delivery = {
   id: string;
   material_id: string;
