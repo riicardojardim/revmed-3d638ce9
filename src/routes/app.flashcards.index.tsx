@@ -54,7 +54,7 @@ function FlashcardsPage() {
         .from("flashcard_decks")
         .select("id, title, specialty, topic, cover_image_url")
         .eq("published", true)
-        .order("title", { ascending: true });
+        .order("created_at", { ascending: false });
       const list = (ds ?? []) as Deck[];
       setDecks(list);
       const ids = list.map((d) => d.id);
