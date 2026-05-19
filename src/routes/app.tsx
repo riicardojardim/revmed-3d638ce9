@@ -10,7 +10,7 @@ import {
   Home,
   ClipboardList,
   Dumbbell,
-  TrendingUp,
+  
   User,
   Bell,
   LogOut,
