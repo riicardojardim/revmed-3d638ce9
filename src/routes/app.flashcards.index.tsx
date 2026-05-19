@@ -533,7 +533,7 @@ function FlashcardsList({
               {filtered.length > 4 && (
                 <motion.div
                   variants={staggerItem}
-                  className="col-span-2 flex justify-center pt-2 sm:col-span-3 lg:col-span-4"
+                  className="col-span-2 flex justify-center pt-2 lg:col-span-4"
                 >
                   <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
                     Ver todos os {filtered.length} flashcards <ArrowRight className="h-4 w-4" />
