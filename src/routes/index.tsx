@@ -1084,7 +1084,7 @@ function Resources() {
   return (
     <section id="recursos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Recursos" title="Tudo que você precisa para treinar com método" />
-      <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {features.map((f, i) => (
           <motion.div
             key={f.title}
