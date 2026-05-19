@@ -96,35 +96,53 @@ const nav = [
   { label: "FAQ", href: "#faq" },
 ];
 
+/* ---------------- Landing helpers (scroll + checkout modal) ---------------- */
+function scrollToPlanos() {
+  const el = document.getElementById("planos");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  else window.location.hash = "planos";
+}
+
+const CheckoutCtx = createContext<(plan: CheckoutPlanSlug) => void>(() => {});
+const useOpenCheckout = () => useContext(CheckoutCtx);
+
 function LandingPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [checkoutPlan, setCheckoutPlan] = useState<CheckoutPlanSlug | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const openCheckout = (plan: CheckoutPlanSlug) => {
+    setCheckoutPlan(plan);
+    setCheckoutOpen(true);
+  };
   useEffect(() => {
     if (!loading && user) {
       navigate({ to: "/app", replace: true });
     }
   }, [loading, user, navigate]);
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <Hero />
-      <TrustBar />
-      <Stats />
-      <HowItWorks />
-      <BeforeAfter />
-      <Simulation />
-      <Resources />
-      <Areas />
-      
-      <Comparison />
-      <ExamCountdown />
-      <Plans />
-      <Testimonials />
-      <FAQ />
-      <FinalCTA />
-      <Footer />
-      <FloatingNotifications />
-    </div>
+    <CheckoutCtx.Provider value={openCheckout}>
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <Hero />
+        <TrustBar />
+        <Stats />
+        <HowItWorks />
+        <BeforeAfter />
+        <Simulation />
+        <Resources />
+        <Areas />
+        <Comparison />
+        <ExamCountdown />
+        <Plans />
+        <Testimonials />
+        <FAQ />
+        <FinalCTA />
+        <Footer />
+        <FloatingNotifications />
+      </div>
+      <CheckoutModal plan={checkoutPlan} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+    </CheckoutCtx.Provider>
   );
 }
 
