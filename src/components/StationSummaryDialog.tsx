@@ -173,10 +173,7 @@ export function StationSummaryDialog({
       </DialogTrigger>
 
       <DialogContent className="flex max-h-[calc(100dvh-1.25rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
-        <div
-          className="pointer-events-none absolute right-4 z-50"
-          style={{ top: "max(1rem, env(safe-area-inset-top))" }}
-        >
+        <div className="pointer-events-none absolute right-4 top-4 z-50">
           <DialogClose className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
             <X className="h-4 w-4" />
             <span className="sr-only">Fechar</span>
@@ -196,15 +193,16 @@ export function StationSummaryDialog({
           </div>
         ) : (
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-            <div
-              className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 text-white sm:px-6 sm:pb-7"
-              style={{ paddingTop: "max(1.75rem, calc(env(safe-area-inset-top) + 0.75rem))" }}
-            >
+            <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 pt-5 text-white sm:px-6 sm:pb-7 sm:pt-6">
               <div className="space-y-3 pr-14">
                 <div className="flex items-start gap-3">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <SpecialtyBadge specialty={summary.specialty} short />
-                    <span className="min-w-0 text-[11px] font-semibold uppercase tracking-wider text-white/75">
+                    <SpecialtyBadge
+                      specialty={summary.specialty}
+                      short
+                      className="!bg-white !text-slate-900 ring-1 ring-white/60 shadow-sm"
+                    />
+                    <span className="min-w-0 text-[11px] font-semibold uppercase tracking-wider text-white/85">
                       {summary.specialty}
                     </span>
                   </div>
