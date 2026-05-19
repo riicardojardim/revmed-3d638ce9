@@ -20,6 +20,7 @@ import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIn
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
@@ -843,6 +844,18 @@ function CandidateView() {
 
         </aside>
       </div>
+      {isFinished && (
+        <div className="mt-4">
+          <RelatedResources
+            specialty={station.specialty}
+            title={room.station_title ?? station.title}
+            stationId={station.id}
+            show={{ resumo: true }}
+            excludeStationId={station.id}
+            heading="Resumo desta estação"
+          />
+        </div>
+      )}
       <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
       </div>
     </>

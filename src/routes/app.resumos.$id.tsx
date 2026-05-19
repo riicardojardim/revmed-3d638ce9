@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Clock, BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText } from "lucide-react";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { cn } from "@/lib/utils";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/resumos/$id")({
   component: ResumoPage,
@@ -217,6 +218,14 @@ function ResumoPage() {
           {s.content_md}
         </div>
       )}
+
+      <RelatedResources
+        specialty={s.specialty}
+        title={s.title}
+        show={{ checklist: true, flashcard: true }}
+        excludeResumoId={s.id}
+        heading="Continue estudando este tema"
+      />
     </article>
   );
 }

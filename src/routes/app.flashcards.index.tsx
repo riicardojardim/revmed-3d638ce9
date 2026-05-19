@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
 import { createSimulado } from "@/lib/simulado";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
@@ -234,22 +235,16 @@ function FlashcardsPage() {
               {cards.length === 0 ? "Sem cards publicados" : "Iniciar Flashcard"}
             </Button>
 
-            {suggestedStation && (
-              <div className="mt-4 rounded-2xl border border-mint/30 bg-mint/5 p-4 shadow-card">
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-medical">
-                  <ListChecks className="h-3.5 w-3.5" /> Checklist sugerido
-                </div>
-                <div className="mt-2 line-clamp-2 font-display text-sm font-bold leading-snug">
-                  {suggestedStation.title}
-                </div>
-                <div className="mt-1 text-[11px] text-muted-foreground">
-                  {suggestedStation.specialty} · {suggestedStation.checklistCount} {suggestedStation.checklistCount === 1 ? "item" : "itens"}
-                </div>
-                <Button size="sm" variant="hero" className="mt-3 w-full" onClick={startSuggestedStation}>
-                  Treinar checklist <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            )}
+            <div className="mt-4">
+              <RelatedResources
+                specialty={activeDeck.specialty}
+                title={activeDeck.title}
+                stationId={activeDeck.station_id}
+                show={{ checklist: true, resumo: true }}
+                excludeDeckId={activeDeck.id}
+                heading="Sugestões para este tema"
+              />
+            </div>
           </div>
         </div>
       </FlashcardModalShell>

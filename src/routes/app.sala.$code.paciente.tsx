@@ -26,6 +26,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -1148,7 +1149,18 @@ function ActorView() {
               <MessageCircle className="mr-1 h-4 w-4" /> Enviar feedback
             </Button>
           </PRBlock>
+
+          <RelatedResources
+            specialty={station.specialty}
+            title={room.station_title ?? station.title}
+            stationId={station.id}
+            show={{ resumo: true }}
+            excludeStationId={station.id}
+            heading="Resumo de apoio"
+          />
         </div>
+
+
 
         {/* RIGHT: control panel (timer, participantes, convite) */}
         <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
