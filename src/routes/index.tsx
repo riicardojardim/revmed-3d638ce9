@@ -102,6 +102,7 @@ function LandingPage() {
       <TrustBar />
       <Stats />
       <HowItWorks />
+      <BeforeAfter />
       <Simulation />
       <Resources />
       <Areas />
