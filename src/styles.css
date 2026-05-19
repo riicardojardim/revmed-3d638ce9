@@ -287,3 +287,33 @@
 @media (prefers-reduced-motion: reduce) {
   .text-shimmer { animation: none; }
 }
+
+/* Login background animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.08); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+@keyframes ecg-draw {
+  0%   { stroke-dashoffset: 1400; }
+  60%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -1400; }
+}
+.animate-ecg {
+  animation: ecg-draw 4.5s linear infinite;
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-14px) rotate(8deg); }
+}
+.animate-float {
+  animation: float-y 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-slow, .animate-ecg, .animate-float { animation: none; }
+}
