@@ -68,11 +68,11 @@ export function RelatedResources({
         show.resumo
           ? supabase
               .from("summaries")
-              .select("id, title, specialty, topic, read_time_minutes, high_yield")
+              .select("id, title, specialty, topic, read_time_minutes, high_yield, station_id")
               .eq("published", true)
               .eq("specialty", specialty)
               .limit(20)
-          : Promise.resolve({ data: [] as Array<{ id: string; title: string; specialty: string; topic: string | null; read_time_minutes: number; high_yield: boolean }> }),
+          : Promise.resolve({ data: [] as Array<{ id: string; title: string; specialty: string; topic: string | null; read_time_minutes: number; high_yield: boolean; station_id: string | null }> }),
         show.flashcard
           ? supabase
               .from("flashcard_decks")
@@ -95,11 +95,14 @@ export function RelatedResources({
       const decksAll = (decksRes.data ?? []).filter((d) => d.id !== excludeDeckId);
       const stations = (stationsRes.data ?? []).filter((s) => s.id !== excludeStationId);
 
-      // Prefer deck explicitly linked to this station
+      // Prefer items explicitly linked to this station
       let bestDeck = stationId ? decksAll.find((d) => d.station_id === stationId) ?? null : null;
       if (!bestDeck) bestDeck = pickBest(decksAll, title, specialty);
 
-      const bestResumo = pickBest(resumos, title, specialty);
+      let bestResumo = stationId ? resumos.find((r) => r.station_id === stationId) ?? null : null;
+      if (!bestResumo) bestResumo = pickBest(resumos, title, specialty);
+
+      const bestStation = pickBest(stations, title, specialty);
       const bestStation = pickBest(stations, title, specialty);
 
       let checklistCount = 0;
