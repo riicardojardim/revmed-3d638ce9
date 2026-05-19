@@ -844,7 +844,8 @@ function CandidateView() {
         </aside>
       </div>
       <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
-    </div>
+      </div>
+    </>
   );
 }
 
