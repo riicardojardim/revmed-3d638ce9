@@ -291,60 +291,6 @@ function Dashboard() {
         <DailyMotivationCard userId={user?.id ?? "anon"} />
       </div>
 
-      {/* Ranking row */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <div className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-mint" />
-            <h3 className="font-display font-bold">Ranking - Top 5</h3>
-          </div>
-          <div className="mt-4 overflow-hidden rounded-xl border border-border">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2">Nome</th>
-                  <th className="px-3 py-2 text-right">Pontos</th>
-                  <th className="px-3 py-2 text-right">Troféu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={3} className="px-3 py-6 text-center text-muted-foreground">Carregando...</td></tr>
-                ) : ranking.length === 0 ? (
-                  <tr><td colSpan={3} className="px-3 py-6 text-center text-muted-foreground">Sem dados.</td></tr>
-                ) : ranking.map((r, i) => (
-                  <tr key={i} className="border-t border-border">
-                    <td className="px-3 py-2 font-medium">{i + 1}º {r.name}</td>
-                    <td className="px-3 py-2 text-right font-display font-bold">{r.score}</td>
-                    <td className="px-3 py-2 text-right">
-                      {i === 0 && <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-400">OURO</span>}
-                      {i === 1 && <span className="rounded-md bg-slate-400/20 px-2 py-0.5 text-xs font-bold text-slate-300">PRATA</span>}
-                      {i === 2 && <span className="rounded-md bg-orange-500/20 px-2 py-0.5 text-xs font-bold text-orange-400">BRONZE</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-mint" />
-            <h3 className="font-display font-bold">Desempenho Geral por Mês</h3>
-          </div>
-          <div className="mt-3 h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={last7}>
-                <XAxis dataKey="day" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
-                <YAxis hide />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                <Bar dataKey="avg" fill="hsl(var(--mint, 160 80% 50%))" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
 
     </div>
   );
