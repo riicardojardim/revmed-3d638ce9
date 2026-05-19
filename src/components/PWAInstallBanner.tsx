@@ -122,9 +122,18 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 top-3 z-50 w-[min(96vw,720px)] -translate-x-1/2 rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl"
+        className="fixed left-1/2 top-3 z-50 w-[min(96vw,720px)] rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none"
         role="dialog"
         aria-label="Instalar aplicativo"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        style={{
+          transform: `translateX(calc(-50% + ${dragX}px))`,
+          opacity: Math.max(0, 1 - Math.abs(dragX) / 200),
+          transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
+        }}
       >
         <div className="flex items-center gap-2">
           <span className="text-sm leading-none">📲</span>
