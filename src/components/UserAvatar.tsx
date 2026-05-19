@@ -60,7 +60,8 @@ export function UserAvatar({ avatarUrl, name, fallback = "?", size = "md", class
       {avatar}
       <span
         className={cn(
-          "absolute bottom-0 right-0 rounded-full ring-2 ring-card",
+          "absolute rounded-full ring-2 ring-card",
+          "bottom-[6%] right-[6%]",
           DOT_CLASSES[size],
           online ? "bg-emerald-500" : "bg-muted-foreground/50",
         )}
