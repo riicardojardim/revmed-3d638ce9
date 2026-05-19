@@ -37,12 +37,15 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T | null> 
 const DEVICE_KEY = "er_device_id";
 function getDeviceId(): string {
   try {
-    let id = localStorage.getItem(DEVICE_KEY);
-    if (!id) {
-      id = (crypto as any)?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      localStorage.setItem(DEVICE_KEY, id);
-    }
+    const existing = localStorage.getItem(DEVICE_KEY);
+    if (existing) return existing;
+    const id = (crypto as any)?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem(DEVICE_KEY, id);
     return id;
+  } catch {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+}
   } catch {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
