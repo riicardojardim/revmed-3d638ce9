@@ -1015,11 +1015,13 @@ function Simulation() {
             ))}
           </ul>
           <div className="flex flex-wrap gap-3 pt-3">
-            <Link to="/cadastro">
-              <Button size="lg" className="h-11 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90">
-                Criar minha sala
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={scrollToPlanos}
+              className="h-11 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90"
+            >
+              Ver planos e começar
+            </Button>
           </div>
         </div>
 
