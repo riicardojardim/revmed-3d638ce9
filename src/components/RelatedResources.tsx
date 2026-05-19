@@ -103,7 +103,6 @@ export function RelatedResources({
       if (!bestResumo) bestResumo = pickBest(resumos, title, specialty);
 
       const bestStation = pickBest(stations, title, specialty);
-      const bestStation = pickBest(stations, title, specialty);
 
       let checklistCount = 0;
       if (bestStation) {
