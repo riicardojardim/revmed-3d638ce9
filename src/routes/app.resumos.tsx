@@ -1,8 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain } from "lucide-react";
+import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText } from "lucide-react";
 import { SummaryCover } from "@/components/SummaryCover";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
@@ -23,21 +23,27 @@ type Summary = {
   title: string;
   specialty: string;
   topic: string | null;
+  content_md: string | null;
   read_time_minutes: number;
   difficulty: string;
   high_yield: boolean;
   cover_image_url: string | null;
   definition: string | null;
+  clinical_picture: string | null;
+  diagnosis: string | null;
+  conduct: string | null;
+  key_points: string | null;
+  pitfalls: string | null;
   created_at: string;
 };
 
 function ResumosPage() {
-  const nav = useNavigate();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState<string>("Todas");
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpec, setAllSpec] = useState<string>("Todas");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["resumos", "published"],
@@ -45,12 +51,41 @@ function ResumosPage() {
     queryFn: async (): Promise<Summary[]> => {
       const { data } = await supabase
         .from("summaries")
-        .select("id, title, specialty, topic, read_time_minutes, difficulty, high_yield, cover_image_url, definition, created_at")
+        .select("id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at")
         .eq("published", true)
         .order("created_at", { ascending: false });
       return (data ?? []) as Summary[];
     },
   });
+
+  const selectedSummary = useMemo(
+    () => items.find((item) => item.id === selectedId) ?? null,
+    [items, selectedId],
+  );
+
+  const selectedSections = selectedSummary
+    ? [
+        { icon: BookOpen, title: "Definição", text: selectedSummary.definition, tone: "default" as const },
+        { icon: Stethoscope, title: "Quadro clínico", text: selectedSummary.clinical_picture, tone: "default" as const },
+        { icon: Microscope, title: "Diagnóstico", text: selectedSummary.diagnosis, tone: "default" as const },
+        { icon: ClipboardCheck, title: "Conduta", text: selectedSummary.conduct, tone: "default" as const },
+        { icon: Star, title: "Pontos-chave", text: selectedSummary.key_points, tone: "highlight" as const },
+        { icon: AlertTriangle, title: "Armadilhas", text: selectedSummary.pitfalls, tone: "warn" as const },
+      ].filter((section) => section.text && section.text.trim())
+    : [];
+
+  const selectedRaw = selectedSummary?.content_md ?? "";
+  const selectedMarker = "Fontes utilizadas:";
+  const selectedMarkerIdx = selectedRaw.indexOf(selectedMarker);
+  const selectedNotes = selectedMarkerIdx >= 0 ? selectedRaw.slice(0, selectedMarkerIdx).trim() : selectedRaw.trim();
+  const selectedSources = selectedMarkerIdx >= 0
+    ? selectedRaw
+        .slice(selectedMarkerIdx + selectedMarker.length)
+        .trim()
+        .split("\n")
+        .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
+        .filter(Boolean)
+    : [];
 
   const specialties = useMemo(
     () => ["Todas", ...sortSpecialties(Array.from(new Set(items.map((i) => i.specialty))))],
@@ -202,9 +237,9 @@ function ResumosPage() {
             >
               {filtered.slice(0, 4).map((s) => (
                 <motion.div key={s.id} variants={staggerItem}>
-                  <Link
-                    to="/app/resumos/$id"
-                    params={{ id: s.id }}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(s.id)}
                     className="group flex h-full flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 text-left shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant sm:gap-3 sm:p-3"
                   >
                     <SummaryCover
@@ -228,7 +263,7 @@ function ResumosPage() {
                         <Clock className="h-3 w-3" /> {s.read_time_minutes} min
                       </div>
                     </div>
-                  </Link>
+                  </button>
                 </motion.div>
               ))}
             </motion.div>
@@ -362,7 +397,7 @@ function ResumosPage() {
                     <Button
                       size="sm"
                       variant="hero"
-                      onClick={() => { setAllOpen(false); nav({ to: "/app/resumos/$id", params: { id: s.id } }); }}
+                      onClick={() => { setAllOpen(false); setSelectedId(s.id); }}
                     >
                       Abrir <ArrowRight className="h-3.5 w-3.5" />
                     </Button>
@@ -374,6 +409,120 @@ function ResumosPage() {
               )}
             </ul>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
+        <DialogContent className="max-h-[85vh] w-[calc(100vw-1.5rem)] max-w-3xl overflow-y-auto p-0">
+          {!selectedSummary ? (
+            <div className="p-8 text-sm text-muted-foreground">Carregando resumo...</div>
+          ) : (
+            <>
+              <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero p-6 text-white">
+                {selectedSummary.cover_image_url && (
+                  <>
+                    <img
+                      src={selectedSummary.cover_image_url}
+                      alt=""
+                      className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+                  </>
+                )}
+                <div className="relative pr-8">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">Resumo clínico</div>
+                  <DialogTitle className="mt-1 font-display text-2xl font-bold leading-tight text-white">
+                    {selectedSummary.title}
+                  </DialogTitle>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <SpecialtyBadge specialty={selectedSummary.specialty} />
+                    <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ring-1 ring-white/20">
+                      {selectedSummary.difficulty}
+                    </span>
+                    {selectedSummary.high_yield && (
+                      <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
+                        Alta incidência
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1 text-xs text-white/80">
+                      <Clock className="h-3.5 w-3.5" /> {selectedSummary.read_time_minutes} min
+                    </span>
+                    {selectedSummary.topic && <span className="text-xs text-white/70">· {selectedSummary.topic}</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 p-5 sm:p-6">
+                {selectedSections.length > 0 ? (
+                  selectedSections.map((section, index) => (
+                    <section
+                      key={section.title}
+                      className={cn(
+                        "rounded-2xl border bg-card p-5 shadow-card",
+                        section.tone === "highlight" && "border-mint/30 bg-mint/[0.04]",
+                        section.tone === "warn" && "border-amber-400/30 bg-amber-400/[0.04]",
+                        section.tone === "default" && "border-border",
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold tabular-nums",
+                            section.tone === "highlight" && "bg-mint/15 text-mint",
+                            section.tone === "warn" && "bg-amber-400/15 text-amber-600",
+                            section.tone === "default" && "bg-muted text-muted-foreground",
+                          )}
+                        >
+                          {String(index + 1).padStart(2, "0")}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <section.icon
+                            className={cn(
+                              "h-4 w-4",
+                              section.tone === "highlight" ? "text-mint" : section.tone === "warn" ? "text-amber-500" : "text-muted-foreground",
+                            )}
+                          />
+                          <h3 className="font-display text-sm font-bold uppercase tracking-wide">{section.title}</h3>
+                        </div>
+                      </div>
+                      <div className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-foreground/90">{section.text}</div>
+                    </section>
+                  ))
+                ) : selectedNotes ? (
+                  <div className="whitespace-pre-wrap rounded-2xl border border-border bg-card p-5 text-[14px] leading-relaxed text-foreground/90 shadow-card">
+                    {selectedNotes}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Este resumo ainda não tem conteúdo estruturado.</p>
+                )}
+
+                {selectedSources.length > 0 && (
+                  <section className="rounded-2xl border border-border bg-muted/30 p-5">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="font-display text-sm font-bold uppercase tracking-wide">Referências</h3>
+                    </div>
+                    <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
+                      {selectedSources.map((source, index) => (
+                        <li key={index} className="flex gap-2">
+                          <span className="text-muted-foreground">·</span>
+                          <span>{source}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                <div className="flex justify-end pt-2">
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/app/resumos/$id" params={{ id: selectedSummary.id }} onClick={() => setSelectedId(null)}>
+                      Abrir resumo completo <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
