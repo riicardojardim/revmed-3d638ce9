@@ -633,6 +633,72 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          colors: Json
+          contact_email: string | null
+          created_at: string
+          custom_body_html: string | null
+          custom_head_html: string | null
+          favicon_url: string | null
+          fb_pixel_id: string | null
+          ga4_id: string | null
+          gtm_id: string | null
+          id: string
+          is_singleton: boolean
+          logo_url: string | null
+          meta_capi_token: string | null
+          privacy_md: string | null
+          site_name: string
+          tagline: string | null
+          terms_md: string | null
+          tiktok_pixel_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          colors?: Json
+          contact_email?: string | null
+          created_at?: string
+          custom_body_html?: string | null
+          custom_head_html?: string | null
+          favicon_url?: string | null
+          fb_pixel_id?: string | null
+          ga4_id?: string | null
+          gtm_id?: string | null
+          id?: string
+          is_singleton?: boolean
+          logo_url?: string | null
+          meta_capi_token?: string | null
+          privacy_md?: string | null
+          site_name?: string
+          tagline?: string | null
+          terms_md?: string | null
+          tiktok_pixel_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          colors?: Json
+          contact_email?: string | null
+          created_at?: string
+          custom_body_html?: string | null
+          custom_head_html?: string | null
+          favicon_url?: string | null
+          fb_pixel_id?: string | null
+          ga4_id?: string | null
+          gtm_id?: string | null
+          id?: string
+          is_singleton?: boolean
+          logo_url?: string | null
+          meta_capi_token?: string | null
+          privacy_md?: string | null
+          site_name?: string
+          tagline?: string | null
+          terms_md?: string | null
+          tiktok_pixel_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       station_checklist_items: {
         Row: {
           category: string

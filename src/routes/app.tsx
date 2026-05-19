@@ -87,6 +87,8 @@ function AppLayout() {
           { to: "/app/admin/usuarios", label: "Usuários", icon: Users },
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
+          { to: "/app/admin/aparencia", label: "Aparência", icon: Sparkles },
+          { to: "/app/admin/integracoes", label: "Integrações", icon: Activity },
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
       },
