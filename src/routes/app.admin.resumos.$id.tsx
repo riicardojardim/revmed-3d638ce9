@@ -169,15 +169,8 @@ function AdminResumoEdit() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <Label>Dificuldade</Label>
-              <Select value={row.difficulty} onValueChange={(v) => update("difficulty", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {DIFFICULTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+
+
             <div className="space-y-1">
               <Label>Tempo de leitura (min)</Label>
               <Input
