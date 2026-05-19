@@ -1,4 +1,4 @@
-import {detectCodeSplitGroupingsFromRoute} from '@tanstack/router-plugin/dist/esm/core/code-splitter/compilers.js';
+import {detectCodeSplitGroupingsFromRoute} from './node_modules/@tanstack/router-plugin/dist/esm/core/code-splitter/compilers.js';
 import fs from 'fs';
 const code=fs.readFileSync('/dev-server/src/routes/app.sala.$code.candidato.tsx','utf8');
 try{
