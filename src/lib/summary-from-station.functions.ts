@@ -144,13 +144,15 @@ export const generateSummaryFromStation = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
     const prompt = buildUserPrompt(data);
+    // Modelo principal: GPT-5 (mais preciso em dados clínicos: doses, critérios, condutas)
+    // Fallback: Gemini 2.5 Pro (forte raciocínio + contexto grande) em caso de timeout/indisponibilidade
     let result: z.infer<typeof ResultSchema>;
     try {
-      result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 90_000);
+      result = await callGateway(apiKey, prompt, "openai/gpt-5", 150_000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
-      if (!isTimeout) throw err;
+      const isRecoverable = /abort|timeout|504|502|503|upstream|rate/i.test(msg);
+      if (!isRecoverable) throw err;
       result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000);
     }
 
