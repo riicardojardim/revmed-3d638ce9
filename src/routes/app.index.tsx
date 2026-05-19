@@ -910,7 +910,7 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
           <h3 className="font-display text-lg font-bold">Conquistas</h3>
         </div>
         <span className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">{unlockedCount}</span> de {badges.length} desbloqueadas
+          <AnimatedNumber value={unlockedCount} className="font-semibold text-foreground" /> de {badges.length} desbloqueadas
         </span>
       </div>
       <motion.div
