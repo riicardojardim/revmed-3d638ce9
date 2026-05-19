@@ -2353,6 +2353,7 @@ function SectionGenerateSummary({ station }: { station: Station }) {
   const [summary, setSummary] = useState<GeneratedSummary | null>(null);
   const [published, setPublished] = useState(false);
   const [pubLoading, setPubLoading] = useState(false);
+  const [validation, setValidation] = useState<{ verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } | null>(null);
   const [linked, setLinked] = useState<Array<{ id: string; title: string; published: boolean; created_at: string }>>([]);
 
   async function loadLinked() {
