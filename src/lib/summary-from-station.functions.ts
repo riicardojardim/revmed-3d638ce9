@@ -88,6 +88,32 @@ const ResultSchema = z.object({
     .default([]),
 });
 
+function normalizeGatewayResult(value: unknown) {
+  const data = typeof value === "object" && value !== null ? { ...(value as Record<string, unknown>) } : {};
+
+  if (typeof data.read_time_minutes === "string") {
+    const match = data.read_time_minutes.match(/\d+/);
+    data.read_time_minutes = match ? Number(match[0]) : 7;
+  }
+
+  if (typeof data.high_yield === "string") {
+    data.high_yield = /^(true|sim|yes|1|alta)/i.test(data.high_yield.trim());
+  }
+
+  for (const key of [
+    "definition",
+    "clinical_picture",
+    "diagnosis",
+    "conduct",
+    "key_points",
+    "pitfalls",
+  ] as const) {
+    if (data[key] != null) data[key] = String(data[key]);
+  }
+
+  return data;
+}
+
 const SYSTEM_PROMPT = `Você é um professor médico brasileiro, especialista em preparação para o Revalida/INEP, com domínio profundo de medicina baseada em evidências.
 
 Sua tarefa: gerar um RESUMO CLÍNICO de altíssima qualidade a partir do contexto de uma ESTAÇÃO clínica (OSCE). Retorne SOMENTE JSON válido (sem markdown, sem cercas \`\`\`).
@@ -113,8 +139,8 @@ REGRAS DE CONTEÚDO (não negociáveis — segurança do paciente vem primeiro):
 6. NÃO cite o nome do paciente da estação — o resumo deve ser GENERALIZÁVEL sobre a condição clínica, NÃO sobre o caso específico.
 7. Tom direto, didático, em português do Brasil. Use terminologia padrão (CID-10/11, DeCS).
 
-REGRAS DE FORMATO (cada campo é uma string de texto, NÃO HTML, NÃO markdown):
-- "title": nome curto e didático do tema (3–7 palavras). NÃO copie o título da estação. Ex.: "Pneumonia adquirida na comunidade", "Crise hipertensiva na gestante".
+REGRAS DE FORMATO (cada campo textual é uma string, NÃO HTML, NÃO markdown):
+- "title": copie EXATAMENTE o título da estação informado pelo usuário.
 - "topic": subtema opcional (ex.: "Tratamento ambulatorial").
 - "difficulty": "Básico" | "Intermediário" | "Avançado" — proporcional à complexidade do tema na prova.
 - "read_time_minutes": estimativa honesta (5–12 minutos típico).
