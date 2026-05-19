@@ -58,6 +58,10 @@ import candidate4 from "@/assets/candidate-4.jpg";
 import candidate5 from "@/assets/candidate-5.jpg";
 import candidate6 from "@/assets/candidate-6.jpg";
 import candidate7 from "@/assets/candidate-7.jpg";
+import social1 from "@/assets/social-1.jpg";
+import social2 from "@/assets/social-2.jpg";
+import social3 from "@/assets/social-3.jpg";
+import social4 from "@/assets/social-4.jpg";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -251,7 +255,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {[candidate3, candidate6, candidate5, candidate4].map((src, i) => (
+                {[social1, social2, social3, social4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
@@ -1557,7 +1561,7 @@ function FinalCTA() {
         <div className="pointer-events-none absolute -right-20 -top-20 h-[380px] w-[380px] rounded-full bg-mint/20 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-[280px] w-[280px] rounded-full bg-mint/15 blur-[100px]" />
         <div className="relative">
-          <h2 className="mx-auto max-w-2xl font-display text-2xl font-extrabold leading-tight md:text-4xl">
+          <h2 className="font-display text-xl font-extrabold leading-tight sm:text-2xl md:whitespace-nowrap md:text-3xl lg:text-4xl">
             Pronto para treinar como na{" "}
             <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
               estação real?
