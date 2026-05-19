@@ -254,7 +254,7 @@ function Hero() {
             <StaggerText text="Treine a prova prática do Revalida com " />
             <StaggerText
               text="realismo de estação real."
-              className="text-shimmer"
+              className="text-mint"
               delay={0.45}
             />
           </h1>
