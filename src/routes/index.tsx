@@ -555,8 +555,8 @@ function Stats() {
 function HowItWorks() {
   const steps = [
     { icon: ClipboardList, title: "Escolha a estação", desc: "Filtre por especialidade, dificuldade e tempo." },
-    { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da banca." },
-    { icon: ClipboardCheck, title: "Treine o checklist", desc: "Banca (ou IA) marca tudo o que você fez." },
+    { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da prova." },
+    { icon: ClipboardCheck, title: "Treine o checklist", desc: "O ator marca cada item — ou a IA, se você estiver sozinho." },
     { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
