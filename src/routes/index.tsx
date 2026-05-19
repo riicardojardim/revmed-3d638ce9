@@ -234,12 +234,12 @@ function Hero() {
       <div className="pointer-events-none absolute -right-32 -top-32 h-[360px] w-[360px] rounded-full bg-mint/15 blur-[120px] sm:h-[560px] sm:w-[560px]" />
       <div className="pointer-events-none absolute -bottom-32 -left-32 h-[260px] w-[260px] rounded-full bg-mint-soft/25 blur-[120px] sm:h-[380px] sm:w-[380px]" />
 
-      <div className="container mx-auto grid items-center gap-8 sm:gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+      <div className="container mx-auto flex flex-col items-center gap-6 sm:gap-12 lg:grid lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-10">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative z-10 space-y-5 sm:space-y-6"
+          className="relative z-10 order-1 space-y-5 sm:space-y-6"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary sm:text-[11px]">
             <span className="relative flex h-1.5 w-1.5">
@@ -261,7 +261,18 @@ function Hero() {
             <strong className="text-foreground">vídeo-chamada nativa entre candidato e ator</strong>.
             Chegue na prova já tendo feito a prova.
           </p>
+        </motion.div>
 
+        <div className="order-2 w-full lg:order-none lg:col-start-2 lg:row-span-2 lg:self-center">
+          <HeroVisual />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="relative z-10 order-3 w-full space-y-5 sm:space-y-6 lg:order-none lg:col-start-1"
+        >
           <div className="flex flex-col gap-2.5 pt-1 sm:flex-row sm:flex-wrap sm:gap-3">
             <Button
               size="lg"
@@ -271,15 +282,6 @@ function Hero() {
               Ver planos e começar
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
-            <a href="#simulacao" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 w-full rounded-xl border-2 px-6 text-sm font-bold sm:w-auto"
-              >
-                Ver como funciona
-              </Button>
-            </a>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-[11px] text-muted-foreground sm:text-xs">
@@ -287,7 +289,6 @@ function Hero() {
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em 12x</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Cancele em 2 cliques</span>
           </div>
-
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
             <div className="flex items-center gap-3">
@@ -317,8 +318,6 @@ function Hero() {
             </div>
           </div>
         </motion.div>
-
-        <HeroVisual />
       </div>
     </section>
   );
