@@ -103,7 +103,7 @@ function LoginPage() {
       const loginEmail = await resolveLoginEmail(rawIdentifier);
       if (!loginEmail) {
         setSubmitting(false);
-        toast.error("Conta não encontrada", { description: "Verifique seu e-mail, usuário, CPF ou telefone." });
+        toast.error("Conta não encontrada", { description: "Verifique seu e-mail, usuário ou CPF." });
         return;
       }
       const { data, error } = await withTimeout(
@@ -140,7 +140,7 @@ function LoginPage() {
   async function handleForgotPassword() {
     const raw = (emailRef.current?.value || email).trim();
     if (!raw) {
-      toast.error("Informe seu e-mail, usuário, CPF ou telefone", { description: "Preencha o primeiro campo para receber o link de redefinição." });
+      toast.error("Informe seu e-mail, usuário ou CPF", { description: "Preencha o primeiro campo para receber o link de redefinição." });
       emailRef.current?.focus();
       return;
     }
@@ -244,7 +244,7 @@ function LoginPage() {
 
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-medium">E-mail, usuário, CPF ou telefone</Label>
+              <Label htmlFor="email" className="text-xs font-medium">E-mail, usuário ou CPF</Label>
               <Input ref={emailRef} id="email" type="text" inputMode="text" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={email} onChange={(e) => handleIdentifierChange(e.target.value)} required className="h-9 !text-xs placeholder:text-xs" />
             </div>
             <div className="space-y-1.5">
