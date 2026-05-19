@@ -1089,7 +1089,85 @@ function Comparison() {
   );
 }
 
+/* ---------------- Exam Countdown ---------------- */
+const REVALIDA_EXAM_DATE = "2026-08-09T08:00:00-03:00"; // Revalida 2026.1 — Prova prática (ajuste conforme edital INEP)
+
+function useCountdown(targetIso: string) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, new Date(targetIso).getTime() - now);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  return { days, hours, minutes, seconds };
+}
+
+function ExamCountdown() {
+  const { days, hours, minutes, seconds } = useCountdown(REVALIDA_EXAM_DATE);
+  const examDate = new Date(REVALIDA_EXAM_DATE).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  const Box = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex min-w-[64px] flex-col items-center rounded-xl bg-night/40 px-3 py-2.5 backdrop-blur-sm">
+      <span className="font-display text-2xl font-extrabold text-mint tabular-nums md:text-3xl">
+        {String(value).padStart(2, "0")}
+      </span>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">{label}</span>
+    </div>
+  );
+
+  return (
+    <section className="container mx-auto px-4 lg:px-8">
+      <div className="relative overflow-hidden rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-primary p-6 shadow-glow md:p-8">
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: "radial-gradient(circle, var(--mint) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-mint/20 blur-3xl" />
+
+        <div className="relative flex flex-col items-center gap-6 text-white md:flex-row md:justify-between">
+          <div className="text-center md:text-left">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-mint-soft">
+              <Clock className="h-3 w-3" />
+              Próxima prova prática
+            </div>
+            <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight md:text-3xl">
+              Revalida 2026.1 · <span className="text-mint">{examDate}</span>
+            </h3>
+            <p className="mt-1.5 text-sm text-white/70">
+              Cada dia que passa é uma estação a menos que você treina.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Box value={days} label="dias" />
+            <span className="font-display text-2xl font-extrabold text-mint/50">:</span>
+            <Box value={hours} label="hrs" />
+            <span className="font-display text-2xl font-extrabold text-mint/50">:</span>
+            <Box value={minutes} label="min" />
+            <span className="hidden font-display text-2xl font-extrabold text-mint/50 sm:inline">:</span>
+            <div className="hidden sm:block">
+              <Box value={seconds} label="seg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Plans() {
+
 
   return (
     <section id="planos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
