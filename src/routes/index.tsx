@@ -1278,13 +1278,18 @@ function Testimonials() {
 
 /* ---------------- FAQ ---------------- */
 const faqs = [
-  { q: "O app substitui um curso presencial?", a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
-  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como paciente ator — cada um vê apenas o conteúdo do seu papel, com vídeo integrado. Se estiver sozinho, a IA assume o papel do ator." },
+  { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece treinando sozinho com a IA fazendo o papel do ator. Quando estiver confortável, entra em sala com colegas só pra ouvir. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
+  { q: "Já comprei outro curso (Medway, Hardwork, etc). Vale a pena assinar mesmo assim?", a: "Sim, justamente porque eles ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
+  { q: "Tô começando agora, ainda não estudei nada. Devo entrar já?", a: "Pode entrar — mas comece pelas estações de dificuldade básica e use os resumos e flashcards. Quanto antes você treinar em voz alta, melhor. Decorar checklist não substitui executar." },
+  { q: "Não tenho com quem treinar. Como funciona sozinho?", a: "A IA assume o papel do paciente ator: responde com base no roteiro, reage às suas perguntas e marca o checklist no fim. Você também pode entrar em salas abertas da comunidade pra parear com outros candidatos." },
+  { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
+  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como ator — cada um vê só o conteúdo do seu papel, com vídeo integrado." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
-  { q: "Os checklists são oficiais?", a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
-  { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único." },
-  { q: "Existe correção humana?", a: "Sim, para alunos do plano de mentoria. Professores avaliam tentativas, dão nota e escrevem feedback individual." },
+  { q: "Os checklists são oficiais?", a: "Construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
+  { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único, com 7 dias de garantia." },
+  { q: "E se eu não gostar?", a: "Devolvemos 100% do valor em até 7 dias, sem perguntas, sem burocracia. É só responder o email da compra." },
 ];
+
 
 function FAQ() {
   return (
