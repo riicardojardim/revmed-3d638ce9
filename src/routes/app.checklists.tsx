@@ -237,19 +237,6 @@ function StationsPage() {
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-mint/10 to-card p-5 shadow-card">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
-              <ListChecks className="h-5 w-5" />
-            </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Catálogo</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Checklists oficiais publicados e prontos para treinar.
-            </p>
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="font-display text-3xl font-bold">{dbStations.length}</span>
-              <span className="text-xs text-muted-foreground">disponíveis</span>
-            </div>
-          </div>
 
           <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
