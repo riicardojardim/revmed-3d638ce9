@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Stethoscope } from "lucide-react";
 
-const SESSION_KEY = "er_dashboard_countdown_shown_v1";
+export const DASHBOARD_COUNTDOWN_SESSION_KEY = "er_dashboard_countdown_shown_v1";
+const SESSION_KEY = DASHBOARD_COUNTDOWN_SESSION_KEY;
 
 type Props = {
   /** Segundos do countdown (3 a 5). */
