@@ -220,22 +220,22 @@ function EvaluatorView() {
   const p = station.patientProfile;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 pb-24">
+    <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden pb-24 sm:space-y-6">
       <FloatingVideoCall roomCode={code} displayName={user?.email?.split("@")[0] || "Banca"} />
       <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Voltar à sala
       </Link>
 
       {/* HERO */}
-      <div className="relative overflow-hidden rounded-3xl border border-indigo-300/20 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 p-6 text-white shadow-elegant md:p-8">
+      <div className="relative min-w-0 overflow-hidden rounded-2xl border border-indigo-300/20 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 p-4 text-white shadow-elegant sm:rounded-3xl sm:p-6 md:p-8">
         <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-mint/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-10 h-64 w-64 rounded-full bg-purple-400/20 blur-3xl" />
         <div className="relative flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="space-y-3">
+          <div className="min-w-0 space-y-3">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur-md">
               <ClipboardCheck className="h-3.5 w-3.5 text-mint" /> Painel da Banca / Ator
             </div>
-            <h1 className="font-display text-3xl font-bold leading-tight md:text-4xl">{room.station_title}</h1>
+            <h1 className="break-words font-display text-xl font-bold leading-tight sm:text-3xl md:text-4xl">{room.station_title}</h1>
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <Badge className="border-0 bg-white/15 text-white">{station.specialty}</Badge>
               <Badge className="border-0 bg-white/15 text-white">{station.difficulty}</Badge>
@@ -295,8 +295,8 @@ function EvaluatorView() {
         })}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]">
-        <section className="space-y-6">
+      <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6">
+        <section className="min-w-0 space-y-4 sm:space-y-6">
 
           {/* === CENÁRIO === */}
           {tab === "cenario" && (
