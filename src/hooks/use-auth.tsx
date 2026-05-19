@@ -58,13 +58,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
         setTimeout(() => {
           void loadExtras(s.user.id).finally(() => setLoading(false));
         }, 0);
+        // On fresh sign-in, claim this device as the active session
+        if (event === "SIGNED_IN") {
+          setTimeout(() => { void claimActiveSession(s.user.id); }, 0);
+        }
       } else {
         setProfile(null);
         setRoles([]);
@@ -75,7 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) await loadExtras(s.user.id);
+      if (s?.user) {
+        await loadExtras(s.user.id);
+        // Ensure this device is registered as the active session on app open
+        void claimActiveSession(s.user.id);
+      }
       setLoading(false);
     }).catch(() => {
       setSession(null);
@@ -87,6 +95,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  // Single-session enforcement: listen for active-session changes
+  useEffect(() => {
+    if (!user) return;
+    const myDevice = getDeviceId();
+    const channel = supabase
+      .channel(`active-session-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "user_active_session", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { device_id?: string } | null;
+          if (row?.device_id && row.device_id !== myDevice) {
+            void supabase.auth.signOut().then(() => {
+              try {
+                const { toast } = require("sonner");
+                toast.error("Sessão encerrada", {
+                  description: "Você entrou em outro dispositivo.",
+                });
+              } catch {}
+              window.location.href = "/login";
+            });
+          }
+        }
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [user]);
 
   async function signOut() {
     await supabase.auth.signOut();
