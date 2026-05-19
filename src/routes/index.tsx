@@ -909,7 +909,7 @@ const testimonials = [
   {
     name: "Dr. Bruno Almeida",
     role: "Aprovado · Revalida 2024.2",
-    text: "A sala com 3 papéis é o que mais se aproxima da prova real. Atuar como banca me fez enxergar o que faltava.",
+    text: "A sala em dupla é o que mais se aproxima da prova real. Atuar como ator me fez enxergar tudo o que faltava na minha conduta.",
     avatar: doctor4,
   },
   {
