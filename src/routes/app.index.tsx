@@ -560,7 +560,7 @@ function DailyMotivationCard({ userId, streak, didToday }: { userId: string; str
       </div>
 
       {!didToday && (
-        <Link to="/app/estacoes" className="mt-3 inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-mint/90">
+        <Link to="/app/checklists" className="mt-3 inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-mint/90">
           Treinar agora <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       )}
@@ -657,7 +657,7 @@ function RecommendationCard({ rec }: { rec: { key: string; label: string; avg: n
           <h3 className="font-display text-lg font-bold">Próxima ação</h3>
         </div>
         <p className="mt-3 text-sm text-muted-foreground">Comece sua primeira estação para receber recomendações personalizadas.</p>
-        <Link to="/app/estacoes" className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90">
+        <Link to="/app/checklists" className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90">
           Treinar agora <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
@@ -679,7 +679,7 @@ function RecommendationCard({ rec }: { rec: { key: string; label: string; avg: n
         </div>
       </div>
       <Link
-        to="/app/estacoes"
+        to="/app/checklists"
         search={{ esp: rec.key } as never}
         className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90"
       >
