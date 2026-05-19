@@ -348,7 +348,7 @@ function AppLayout() {
                   {profile?.full_name ?? user.email}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => navigate({ to: "/app/perfil" })}>
+                <DropdownMenuItem onSelect={() => nav({ to: "/app/perfil" })}>
                   <User className="mr-2 h-4 w-4" />
                   Perfil
                 </DropdownMenuItem>
