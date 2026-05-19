@@ -728,3 +728,99 @@ function RecommendationCard({ rec }: { rec: { key: string; label: string; avg: n
     </div>
   );
 }
+
+type BadgeStats = {
+  total: number; maxScore: number; bestStreak: number; streak: number;
+  maxDayCount: number; simulatedCompleted: number; specialtiesTouched: number;
+  specialtiesMastered: number; aboveCut: boolean;
+};
+
+type BadgeDef = {
+  key: string;
+  title: string;
+  description: string;
+  icon: typeof Trophy;
+  unlocked: boolean;
+  progress?: { current: number; goal: number };
+  tone: "gold" | "mint" | "orange" | "blue" | "purple";
+};
+
+function buildBadges(s: BadgeStats): BadgeDef[] {
+  return [
+    { key: "first", title: "Primeira estação", description: "Complete sua 1ª estação", icon: Sparkles, unlocked: s.total >= 1, progress: { current: Math.min(s.total, 1), goal: 1 }, tone: "mint" },
+    { key: "ten", title: "10 estações", description: "Complete 10 estações", icon: Trophy, unlocked: s.total >= 10, progress: { current: Math.min(s.total, 10), goal: 10 }, tone: "mint" },
+    { key: "fifty", title: "50 estações", description: "Complete 50 estações", icon: Trophy, unlocked: s.total >= 50, progress: { current: Math.min(s.total, 50), goal: 50 }, tone: "blue" },
+    { key: "hundred", title: "100 estações", description: "Complete 100 estações", icon: Trophy, unlocked: s.total >= 100, progress: { current: Math.min(s.total, 100), goal: 100 }, tone: "purple" },
+    { key: "perfect", title: "Nota 10", description: "Tire nota 10 em uma estação", icon: Award, unlocked: s.maxScore >= 10, tone: "gold" },
+    { key: "above", title: "Acima da corte", description: `Nota ≥ ${NOTA_DE_CORTE_ESCALA10.toFixed(2)}`, icon: Target, unlocked: s.aboveCut, tone: "mint" },
+    { key: "marathon", title: "Maratonista", description: "5+ estações em um dia", icon: Flame, unlocked: s.maxDayCount >= 5, progress: { current: Math.min(s.maxDayCount, 5), goal: 5 }, tone: "orange" },
+    { key: "streak7", title: "7 dias seguidos", description: "Sequência de 7 dias", icon: Flame, unlocked: s.bestStreak >= 7, progress: { current: Math.min(s.bestStreak, 7), goal: 7 }, tone: "orange" },
+    { key: "streak30", title: "30 dias seguidos", description: "Sequência de 30 dias", icon: Flame, unlocked: s.bestStreak >= 30, progress: { current: Math.min(s.bestStreak, 30), goal: 30 }, tone: "gold" },
+    { key: "sim1", title: "Primeiro simulado", description: "Conclua 1 simulado completo", icon: ListOrdered, unlocked: s.simulatedCompleted >= 1, progress: { current: Math.min(s.simulatedCompleted, 1), goal: 1 }, tone: "blue" },
+    { key: "sim10", title: "10 simulados", description: "Conclua 10 simulados", icon: ListOrdered, unlocked: s.simulatedCompleted >= 10, progress: { current: Math.min(s.simulatedCompleted, 10), goal: 10 }, tone: "purple" },
+    { key: "allSpec", title: "Generalista", description: "Treine todas as especialidades", icon: Stethoscope, unlocked: s.specialtiesTouched >= MEDAL_SPECIALTIES.length, progress: { current: s.specialtiesTouched, goal: MEDAL_SPECIALTIES.length }, tone: "mint" },
+    { key: "specialist", title: "Especialista", description: "Média ≥ 7 com 5+ estações em uma especialidade", icon: Award, unlocked: s.specialtiesMastered >= 1, tone: "gold" },
+  ];
+}
+
+const TONE_CLASSES: Record<BadgeDef["tone"], { bg: string; text: string; ring: string }> = {
+  gold:   { bg: "bg-gradient-to-br from-yellow-400 to-amber-600", text: "text-amber-600", ring: "ring-amber-400/40" },
+  mint:   { bg: "bg-gradient-to-br from-mint to-emerald-600", text: "text-mint", ring: "ring-mint/40" },
+  orange: { bg: "bg-gradient-to-br from-orange-400 to-red-500", text: "text-orange-500", ring: "ring-orange-400/40" },
+  blue:   { bg: "bg-gradient-to-br from-sky-400 to-blue-600", text: "text-sky-500", ring: "ring-sky-400/40" },
+  purple: { bg: "bg-gradient-to-br from-fuchsia-400 to-purple-600", text: "text-purple-500", ring: "ring-purple-400/40" },
+};
+
+function BadgesCard({ stats }: { stats: BadgeStats }) {
+  const badges = useMemo(() => buildBadges(stats), [stats]);
+  const unlockedCount = badges.filter((b) => b.unlocked).length;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Award className="h-5 w-5 text-mint" />
+          <h3 className="font-display text-lg font-bold">Conquistas</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">{unlockedCount}</span> de {badges.length} desbloqueadas
+        </span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+        {badges.map((b) => {
+          const tone = TONE_CLASSES[b.tone];
+          const Icon = b.icon;
+          const pct = b.progress ? Math.round((b.progress.current / b.progress.goal) * 100) : 0;
+          return (
+            <div
+              key={b.key}
+              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center transition ${
+                b.unlocked ? `border-border bg-background shadow-sm ring-1 ${tone.ring}` : "border-dashed border-border bg-muted/20"
+              }`}
+              title={b.description}
+            >
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                  b.unlocked ? `${tone.bg} text-white shadow-elegant` : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {b.unlocked ? <Icon className="h-5 w-5" /> : <Lock className="h-4 w-4" />}
+              </div>
+              <div className={`mt-2 text-[11px] font-bold leading-tight ${b.unlocked ? tone.text : "text-muted-foreground"}`}>
+                {b.title}
+              </div>
+              <div className="mt-0.5 text-[9px] leading-tight text-muted-foreground">{b.description}</div>
+              {b.progress && !b.unlocked && (
+                <div className="mt-2 w-full">
+                  <div className="h-1 overflow-hidden rounded-full bg-muted">
+                    <div className={`h-full rounded-full ${tone.bg}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="mt-0.5 text-[9px] text-muted-foreground">{b.progress.current}/{b.progress.goal}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
