@@ -3,13 +3,37 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  Sparkles, Eye, EyeOff, Pencil, Trash2, Search, FileText, Star, Loader2, CheckCircle2, AlertTriangle, XCircle,
+  Sparkles,
+  Eye,
+  EyeOff,
+  Pencil,
+  Trash2,
+  Search,
+  FileText,
+  Star,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
@@ -59,19 +83,30 @@ function AdminResumosPage() {
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [batchResults, setBatchResults] = useState<
-    Array<{ station_id: string; title: string; status: "ok" | "error" | "skipped"; message?: string; verdict?: string; blocking?: boolean }>
+    Array<{
+      station_id: string;
+      title: string;
+      status: "ok" | "error" | "skipped";
+      message?: string;
+      verdict?: string;
+      blocking?: boolean;
+    }>
   >([]);
 
   async function load() {
     setLoading(true);
     const { data } = await supabase
       .from("summaries")
-      .select("id, title, specialty, topic, difficulty, read_time_minutes, published, high_yield, cover_image_url, created_at")
+      .select(
+        "id, title, specialty, topic, difficulty, read_time_minutes, published, high_yield, cover_image_url, created_at",
+      )
       .order("created_at", { ascending: false });
     setItems((data ?? []) as Summary[]);
     setLoading(false);
   }
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    void load();
+  }, []);
 
   async function loadStations() {
     const { data } = await supabase
@@ -91,13 +126,19 @@ function AdminResumosPage() {
   }
 
   async function togglePublish(s: Summary) {
-    const { error } = await supabase.from("summaries").update({ published: !s.published }).eq("id", s.id);
+    const { error } = await supabase
+      .from("summaries")
+      .update({ published: !s.published })
+      .eq("id", s.id);
     if (error) return toast.error("Falha ao atualizar", { description: error.message });
     toast.success(s.published ? "Resumo despublicado" : "Resumo publicado");
     void load();
   }
   async function toggleHighYield(s: Summary) {
-    const { error } = await supabase.from("summaries").update({ high_yield: !s.high_yield }).eq("id", s.id);
+    const { error } = await supabase
+      .from("summaries")
+      .update({ high_yield: !s.high_yield })
+      .eq("id", s.id);
     if (error) return toast.error("Falha", { description: error.message });
     void load();
   }
@@ -122,7 +163,8 @@ function AdminResumosPage() {
   const filteredStations = useMemo(() => {
     return stations.filter((s) => {
       if (stationSpec !== "all" && s.specialty !== stationSpec) return false;
-      if (stationSearch && !s.title.toLowerCase().includes(stationSearch.toLowerCase())) return false;
+      if (stationSearch && !s.title.toLowerCase().includes(stationSearch.toLowerCase()))
+        return false;
       return true;
     });
   }, [stations, stationSearch, stationSpec]);
@@ -146,8 +188,8 @@ function AdminResumosPage() {
     };
     const results: BR[] = [];
 
-    // Concorrência limitada para evitar saturar o AI Gateway
-    const CONCURRENCY = 2;
+    // Um por vez para evitar saturar a IA e reduzir timeouts em estações longas.
+    const CONCURRENCY = 1;
     let cursor = 0;
     let doneCount = 0;
     async function worker() {
@@ -158,7 +200,13 @@ function AdminResumosPage() {
         const title = titleById.get(id) ?? id.slice(0, 8);
         try {
           const out = await generateOne({ data: { station_id: id } });
-          results.push({ station_id: id, title, status: "ok", verdict: out.verdict, blocking: out.blocking });
+          results.push({
+            station_id: id,
+            title,
+            status: "ok",
+            verdict: out.verdict,
+            blocking: out.blocking,
+          });
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           const isSkip = /checklist|PEP/i.test(msg);
@@ -181,7 +229,9 @@ function AdminResumosPage() {
       const ok = results.filter((r) => r.status === "ok").length;
       const errors = results.filter((r) => r.status === "error").length;
       const skipped = results.filter((r) => r.status === "skipped").length;
-      toast.success(`Lote concluído: ${ok}/${ids.length} gerados${errors ? ` · ${errors} falha(s)` : ""}${skipped ? ` · ${skipped} sem PEP` : ""}.`);
+      toast.success(
+        `Lote concluído: ${ok}/${ids.length} gerados${errors ? ` · ${errors} falha(s)` : ""}${skipped ? ` · ${skipped} sem PEP` : ""}.`,
+      );
       void load();
     } finally {
       setRunning(false);
@@ -205,17 +255,30 @@ function AdminResumosPage() {
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
         <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar pelo título..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input
+            className="pl-8"
+            placeholder="Buscar pelo título..."
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
         </div>
         <Select value={spec} onValueChange={setSpec}>
-          <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[220px]">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as áreas</SelectItem>
-            {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            {SPECIALTIES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os status</SelectItem>
             <SelectItem value="published">Publicados</SelectItem>
@@ -230,38 +293,66 @@ function AdminResumosPage() {
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-10 text-center">
           <FileText className="mx-auto h-10 w-10 text-mint" />
           <h3 className="mt-3 font-display text-lg font-semibold">Nenhum resumo ainda</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Use “Gerar em lote” para criar resumos a partir das estações publicadas.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Use “Gerar em lote” para criar resumos a partir das estações publicadas.
+          </p>
         </div>
       ) : (
         <div className="grid gap-3">
           {filtered.map((s) => (
-            <div key={s.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card">
+            <div
+              key={s.id}
+              className="flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-card"
+            >
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
                   <SpecialtyBadge specialty={s.specialty} />
                   <Badge variant="outline">{s.difficulty}</Badge>
                   <Badge variant="outline">{s.read_time_minutes} min</Badge>
                   {s.published ? (
-                    <Badge className="bg-success/15 text-success hover:bg-success/15">Publicado</Badge>
+                    <Badge className="bg-success/15 text-success hover:bg-success/15">
+                      Publicado
+                    </Badge>
                   ) : (
-                    <Badge variant="outline" className="border-warning/30 text-warning">Rascunho</Badge>
+                    <Badge variant="outline" className="border-warning/30 text-warning">
+                      Rascunho
+                    </Badge>
                   )}
                   {s.high_yield && (
-                    <Badge className="bg-amber-400/15 text-amber-600 hover:bg-amber-400/15">Alta incidência</Badge>
+                    <Badge className="bg-amber-400/15 text-amber-600 hover:bg-amber-400/15">
+                      Alta incidência
+                    </Badge>
                   )}
                 </div>
                 <div className="mt-1 font-display text-lg font-semibold">{s.title}</div>
                 {s.topic && <div className="text-xs text-muted-foreground">{s.topic}</div>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant="ghost" size="sm" onClick={() => toggleHighYield(s)} title="Alta incidência">
-                  <Star className={`h-4 w-4 ${s.high_yield ? "fill-amber-400 text-amber-500" : ""}`} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleHighYield(s)}
+                  title="Alta incidência"
+                >
+                  <Star
+                    className={`h-4 w-4 ${s.high_yield ? "fill-amber-400 text-amber-500" : ""}`}
+                  />
                 </Button>
                 <Link to="/app/admin/resumos/$id" params={{ id: s.id }}>
-                  <Button variant="outline" size="sm"><Pencil className="h-4 w-4" /> Editar</Button>
+                  <Button variant="outline" size="sm">
+                    <Pencil className="h-4 w-4" /> Editar
+                  </Button>
                 </Link>
                 <Button variant="outline" size="sm" onClick={() => togglePublish(s)}>
-                  {s.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
+                  {s.published ? (
+                    <>
+                      <EyeOff className="h-4 w-4" /> Despublicar
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4" /> Publicar
+                    </>
+                  )}
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => remove(s)} title="Excluir">
                   <Trash2 className="h-4 w-4" />
@@ -279,7 +370,7 @@ function AdminResumosPage() {
               <Sparkles className="h-5 w-5 text-mint" /> Gerar resumos em lote
             </DialogTitle>
             <DialogDescription>
-              Selecione as estações. Cada resumo é gerado por IA (GPT‑5 com fallback Gemini 2.5 Pro), validado e salvo como rascunho.
+              Selecione as estações. Cada resumo é gerado por IA, validado e salvo como rascunho.
             </DialogDescription>
           </DialogHeader>
 
@@ -288,13 +379,24 @@ function AdminResumosPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <div className="relative flex-1 min-w-[200px]">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input className="pl-8" placeholder="Buscar estação..." value={stationSearch} onChange={(e) => setStationSearch(e.target.value)} />
+                  <Input
+                    className="pl-8"
+                    placeholder="Buscar estação..."
+                    value={stationSearch}
+                    onChange={(e) => setStationSearch(e.target.value)}
+                  />
                 </div>
                 <Select value={stationSpec} onValueChange={setStationSpec}>
-                  <SelectTrigger className="w-[220px]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-[220px]">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todas as áreas</SelectItem>
-                    {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    {SPECIALTIES.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -310,8 +412,14 @@ function AdminResumosPage() {
                       filteredStations.slice(0, 30).forEach((s) => next.add(s.id));
                       setSelected(next);
                     }}
-                  >Selecionar visíveis</button>
-                  <button type="button" className="text-muted-foreground hover:underline" onClick={() => setSelected(new Set())}>
+                  >
+                    Selecionar visíveis
+                  </button>
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:underline"
+                    onClick={() => setSelected(new Set())}
+                  >
                     Limpar
                   </button>
                 </div>
@@ -319,34 +427,51 @@ function AdminResumosPage() {
 
               <div className="mt-2 max-h-[360px] overflow-y-auto rounded-lg border border-border">
                 {filteredStations.length === 0 ? (
-                  <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma estação encontrada.</div>
-                ) : filteredStations.map((s) => {
-                  const checked = selected.has(s.id);
-                  return (
-                    <label key={s.id} className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-muted/40">
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(v) => {
-                          const next = new Set(selected);
-                          if (v) next.add(s.id); else next.delete(s.id);
-                          setSelected(next);
-                        }}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
-                        <div className="text-xs text-muted-foreground">{s.specialty} · {s.published ? "Publicada" : "Rascunho"}</div>
-                      </div>
-                    </label>
-                  );
-                })}
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    Nenhuma estação encontrada.
+                  </div>
+                ) : (
+                  filteredStations.map((s) => {
+                    const checked = selected.has(s.id);
+                    return (
+                      <label
+                        key={s.id}
+                        className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-muted/40"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(v) => {
+                            const next = new Set(selected);
+                            if (v) next.add(s.id);
+                            else next.delete(s.id);
+                            setSelected(next);
+                          }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{s.title}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {s.specialty} · {s.published ? "Publicada" : "Rascunho"}
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })
+                )}
               </div>
             </>
           ) : (
             <div className="max-h-[420px] space-y-2 overflow-y-auto">
               {batchResults.map((r) => (
-                <div key={r.station_id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+                <div
+                  key={r.station_id}
+                  className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
+                >
                   {r.status === "ok" ? (
-                    r.blocking ? <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                    r.blocking ? (
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                    ) : (
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                    )
                   ) : r.status === "skipped" ? (
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
                   ) : (
@@ -357,7 +482,7 @@ function AdminResumosPage() {
                     <div className="text-xs text-muted-foreground">
                       {r.status === "ok"
                         ? `Gerado · veredito IA: ${r.verdict}${r.blocking ? " · requer revisão antes de publicar" : ""}`
-                        : r.message ?? r.status}
+                        : (r.message ?? r.status)}
                     </div>
                   </div>
                 </div>
@@ -368,16 +493,28 @@ function AdminResumosPage() {
           <DialogFooter className="flex items-center justify-between gap-2">
             {running && progress ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Gerando lote... isso pode levar alguns minutos.
+                <Loader2 className="h-4 w-4 animate-spin" /> Gerando lote... isso pode levar alguns
+                minutos.
               </div>
-            ) : <span />}
+            ) : (
+              <span />
+            )}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setBatchOpen(false)} disabled={running}>
                 {batchResults.length > 0 ? "Fechar" : "Cancelar"}
               </Button>
               {batchResults.length === 0 && (
                 <Button variant="hero" onClick={runBatch} disabled={running || selected.size === 0}>
-                  {running ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar {selected.size > 0 ? `(${selected.size})` : ""}</>}
+                  {running ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Gerando...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" /> Gerar{" "}
+                      {selected.size > 0 ? `(${selected.size})` : ""}
+                    </>
+                  )}
                 </Button>
               )}
             </div>
