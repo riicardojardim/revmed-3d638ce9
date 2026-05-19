@@ -774,6 +774,8 @@ const TONE_CLASSES: Record<BadgeDef["tone"], { bg: string; text: string; ring: s
 function BadgesCard({ stats }: { stats: BadgeStats }) {
   const badges = useMemo(() => buildBadges(stats), [stats]);
   const unlockedCount = badges.filter((b) => b.unlocked).length;
+  const [showAll, setShowAll] = useState(false);
+  const MOBILE_LIMIT = 6;
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center justify-between gap-2">
