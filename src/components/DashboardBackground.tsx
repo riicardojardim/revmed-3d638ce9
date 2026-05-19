@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Stethoscope, HeartPulse, Activity, Pill, Syringe, Cross, Microscope, Brain } from "lucide-react";
+import { FallingMedicalIcons } from "./FallingMedicalIcons";
 
 /**
  * Ambient background for the Dashboard.
@@ -107,33 +107,10 @@ export function DashboardBackground() {
         />
       </svg>
 
-      {/* Ícones médicos flutuantes */}
-      <div className="absolute inset-0">
-        <FloatingIcon className="left-[5%] top-[8%]" color="mint" delay={0}>
-          <Stethoscope className="h-9 w-9" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[8%] top-[12%]" color="medical" delay={1}>
-          <HeartPulse className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="left-[12%] bottom-[14%]" color="mint" delay={2}>
-          <Activity className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[6%] bottom-[10%]" color="medical" delay={0.5}>
-          <Pill className="h-9 w-9" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="left-[44%] top-[6%]" color="medical" delay={2.5}>
-          <Syringe className="h-7 w-7" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[34%] bottom-[6%]" color="mint" delay={1.7}>
-          <Microscope className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="left-[3%] top-[46%]" color="medical" delay={3.1}>
-          <Brain className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[3%] top-[50%]" color="mint" delay={0.8}>
-          <Cross className="h-7 w-7" strokeWidth={1.75} />
-        </FloatingIcon>
-      </div>
+      {/* Chuva de ícones médicos */}
+      <FallingMedicalIcons count={20} seed={11} />
+
+
 
 
       <div
@@ -144,29 +121,5 @@ export function DashboardBackground() {
         }}
       />
     </div>
-  );
-}
-
-function FloatingIcon({
-  className,
-  children,
-  color,
-  delay,
-}: {
-  className: string;
-  children: React.ReactNode;
-  color: "mint" | "medical";
-  delay: number;
-}) {
-  const cssVar = color === "mint" ? "var(--mint)" : "var(--medical)";
-  return (
-    <motion.div
-      className={`absolute ${className}`}
-      style={{ color: cssVar, opacity: 0.5 }}
-      animate={{ y: [0, -14, 0], rotate: [0, 4, -4, 0] }}
-      transition={{ duration: 7 + delay, repeat: Infinity, ease: "easeInOut", delay }}
-    >
-      {children}
-    </motion.div>
   );
 }
