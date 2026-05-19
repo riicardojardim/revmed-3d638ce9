@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect, useState, useRef, useContext, createContext, type ComponentType, type ReactNode } from "react";
+import { useEffect, useState, useRef, useContext, createContext, lazy, Suspense, type ComponentType, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
