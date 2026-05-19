@@ -147,10 +147,15 @@ function LandingPage() {
         <Footer />
         <FloatingNotifications />
       </div>
-      <CheckoutModal plan={checkoutPlan} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+      {checkoutOpen && (
+        <Suspense fallback={null}>
+          <CheckoutModal plan={checkoutPlan} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+        </Suspense>
+      )}
     </CheckoutCtx.Provider>
   );
 }
+
 
 /* ---------------- Header ---------------- */
 function Header() {
