@@ -98,8 +98,8 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-card">
-      <div className="container mx-auto flex min-h-screen max-w-md flex-col px-4 py-8">
+    <div className="min-h-screen bg-gradient-card" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="container mx-auto flex min-h-screen max-w-md flex-col px-4 pb-8 pt-6 sm:pt-8">
         <Logo />
         <div className="mt-16 rounded-3xl border border-border bg-card p-8 shadow-elegant">
           <h1 className="font-display text-2xl font-bold">Entrar na sua conta</h1>
