@@ -15,6 +15,7 @@ import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
 import { Reveal } from "@/components/ui/reveal";
 import { Shimmer } from "@/components/ui/shimmer";
+import { motion } from "framer-motion";
 
 import { Users } from "lucide-react";
 import { toast } from "sonner";
@@ -172,11 +173,26 @@ function StationsPage() {
               Nenhum checklist encontrado{q ? ` para "${q}"` : ""}.
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {filtered.map((s, idx) => {
+            <motion.div
+              key={filtered.slice(0, 4).map((s) => s.id).join("|")}
+              variants={{
+                hidden: {},
+                show: { transition: { staggerChildren: 0.18, delayChildren: 0.1 } },
+              }}
+              initial="hidden"
+              animate="show"
+              className="grid gap-4 md:grid-cols-2"
+            >
+              {filtered.slice(0, 4).map((s) => {
                 const meta = getSpecialtyMeta(s.specialty);
                 return (
-                  <Reveal key={s.id} delay={Math.min(idx * 0.05, 0.4)} y={20}>
+                  <motion.div
+                    key={s.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 28, scale: 0.96 },
+                      show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+                    }}
+                  >
                     <div
                       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-5 shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
                     >
@@ -198,10 +214,23 @@ function StationsPage() {
                         Iniciar estação <ArrowRight className="h-4 w-4" />
                       </Button>
                     </div>
-                  </Reveal>
+                  </motion.div>
                 );
               })}
-            </div>
+              {filtered.length > 4 && (
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 16 },
+                    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+                  }}
+                  className="md:col-span-2 flex justify-center pt-2"
+                >
+                  <Button variant="outline" onClick={() => { setAllSearch(""); setAllOpen(true); }}>
+                    Ver todos os {filtered.length} checklists <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              )}
+            </motion.div>
           )}
         </div>
 
