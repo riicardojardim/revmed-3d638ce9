@@ -49,6 +49,8 @@ import {
   Play,
   Lock,
   Flame,
+  CreditCard,
+  QrCode,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { StaggerText, Magnetic, Tilt, Reveal } from "@/components/landing/motion-primitives";
