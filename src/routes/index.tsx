@@ -292,7 +292,7 @@ function HeroVisual() {
   const views = ["station", "dashboard"] as const;
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setIdx((i) => (i + 1) % views.length), 3500);
+    const t = setInterval(() => setIdx((i) => (i + 1) % views.length), 4000);
     return () => clearInterval(t);
   }, []);
   const view = views[idx];
