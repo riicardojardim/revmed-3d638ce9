@@ -284,6 +284,10 @@ function Dashboard() {
         <RecommendationCard rec={recommendation} />
       </div>
 
+      <BadgesCard stats={stats} />
+
+
+
 
 
       {/* Meu Desempenho */}
