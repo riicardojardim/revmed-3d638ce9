@@ -136,9 +136,7 @@ function ResumoPage() {
           <h1 className="mt-1 font-display text-2xl font-bold leading-tight md:text-4xl">{s.title}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <SpecialtyBadge specialty={s.specialty} />
-            <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ring-1 ring-white/20">
-              {s.difficulty}
-            </span>
+
             {s.high_yield && (
               <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                 Alta incidência
