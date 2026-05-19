@@ -1137,6 +1137,11 @@ function SimuladoRunner({ id }: { id: string }) {
                 <Play className="h-4 w-4" /> Iniciar cronômetro
               </button>
             )}
+            {isWaiting && (
+              <div className="mt-2 rounded-lg bg-white/10 px-3 py-2 text-[11px] leading-snug text-white/85">
+                📹 Confirme que todos os candidatos já entraram na <strong>videochamada</strong> antes de iniciar o cronômetro.
+              </div>
+            )}
             {running && (
               <button
                 type="button"
