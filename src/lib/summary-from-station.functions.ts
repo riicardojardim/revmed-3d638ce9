@@ -121,6 +121,8 @@ async function callGateway(apiKey: string, userText: string, model: string, time
           { role: "user", content: userText },
         ],
         response_format: { type: "json_object" },
+        max_tokens: 5000,
+        temperature: 0.2,
       }),
       signal: controller.signal,
     });
@@ -292,6 +294,8 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
           { role: "user", content: userText },
         ],
         response_format: { type: "json_object" },
+        max_tokens: 1800,
+        temperature: 0,
       }),
       signal: controller.signal,
     });
