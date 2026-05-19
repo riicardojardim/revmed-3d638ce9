@@ -614,7 +614,7 @@ function FlashcardsList({
       </div>
 
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
-        <DialogContent className="flex w-[calc(100vw-1.5rem)] max-w-3xl max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto p-4 sm:p-6">
+        <DialogContent className="flex w-[calc(100vw-2rem)] max-w-3xl max-h-[calc(100dvh-3rem)] flex-col overflow-y-auto rounded-2xl p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-mint" />
