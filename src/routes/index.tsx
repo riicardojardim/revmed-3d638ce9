@@ -251,11 +251,14 @@ function Hero() {
           </div>
 
           <h1 className="font-display font-extrabold leading-[1.08] tracking-tight text-primary text-[clamp(1.85rem,7vw,3.25rem)]">
-            Treine a prova prática do Revalida com{" "}
-            <span className="bg-gradient-to-br from-mint to-primary bg-clip-text text-transparent">
-              realismo de estação real.
-            </span>
+            <StaggerText text="Treine a prova prática do Revalida com " />
+            <StaggerText
+              text="realismo de estação real."
+              className="text-shimmer"
+              delay={0.45}
+            />
           </h1>
+
 
           <p className="max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:text-base">
             Estações clínicas com checklists oficiais, cronômetro e{" "}
