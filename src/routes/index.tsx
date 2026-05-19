@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type ComponentType, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -17,8 +17,10 @@ import {
   Scissors,
   HomeIcon,
   Siren,
+  MessageSquare,
   MessagesSquare,
   ClipboardList,
+  ListChecks,
   Star,
   ChevronDown,
   Instagram,
@@ -41,18 +43,18 @@ import {
   FileText,
   StickyNote,
   Inbox,
-  Hourglass,
+  Eye,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import doctor1 from "@/assets/doctor-1.jpg";
-import doctor2 from "@/assets/doctor-2.jpg";
-import doctor3 from "@/assets/doctor-3.jpg";
-import doctor4 from "@/assets/doctor-4.jpg";
-import doctor5 from "@/assets/doctor-5.jpg";
-import doctor6 from "@/assets/doctor-6.jpg";
-import doctor7 from "@/assets/doctor-7.jpg";
+import candidate1 from "@/assets/candidate-1.jpg";
+import candidate2 from "@/assets/candidate-2.jpg";
+import candidate3 from "@/assets/candidate-3.jpg";
+import candidate4 from "@/assets/candidate-4.jpg";
+import candidate5 from "@/assets/candidate-5.jpg";
+import candidate6 from "@/assets/candidate-6.jpg";
+import candidate7 from "@/assets/candidate-7.jpg";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -235,7 +237,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {[doctor3, doctor6, doctor5, doctor4].map((src, i) => (
+                {[candidate3, candidate6, candidate5, candidate4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
@@ -253,7 +255,7 @@ function Hero() {
                   ))}
                 </div>
                 <p className="mt-0.5 font-semibold text-foreground">
-                  +1.200 médicos treinando hoje
+                  +1.200 candidatos treinando hoje
                 </p>
               </div>
             </div>
@@ -274,154 +276,134 @@ function HeroVisual() {
       transition={{ duration: 0.6, delay: 0.15 }}
       className="relative"
     >
-      {/* Outer device frame — espelha a tela do candidato dentro da estação */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/20">
-        {/* Browser top bar */}
         <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+            <span className="h-2.5 w-2.5 rounded-full bg-success" />
           </div>
-          <div className="flex items-center gap-1.5 rounded-md bg-background px-2.5 py-0.5 text-[10px] text-muted-foreground">
+          <div className="flex max-w-[250px] items-center gap-1.5 truncate rounded-md bg-background px-2.5 py-0.5 text-[10px] text-muted-foreground sm:max-w-none">
             <ShieldCheck className="h-3 w-3 text-mint" />
-            estacaorevalida.com.br/app/sala/MX9K2
+            estacaorevalida.com.br/app/sala/MX9K2/candidato
           </div>
           <div className="w-12" />
         </div>
 
-        {/* App station header (igual ao real: voltar + título + role chip + timer) */}
-        <div className="flex items-center justify-between gap-2 border-b border-border bg-card/80 px-3 py-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md border border-border text-muted-foreground">
-              <ArrowLeft className="h-3 w-3" />
+        <div className="bg-background/70 p-3">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+              <ArrowLeft className="h-3.5 w-3.5" /> Sair
+            </button>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span className="rounded-full bg-mint/15 px-2 py-0.5 font-bold text-mint">Candidato</span>
+              <span>•</span>
+              <span>Clínica Médica</span>
             </div>
-            <span className="truncate text-[11px] font-bold text-foreground">
-              Estação 14 · Dor torácica em adulto jovem
-            </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="rounded-full bg-mint-soft/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary">
-              Candidato
-            </span>
-            <div className="flex items-center gap-1 rounded-full bg-night px-2 py-0.5 font-mono text-[11px] font-bold tabular-nums text-mint">
-              <Hourglass className="h-3 w-3" />
-              07:42
+
+          <div className="relative overflow-hidden rounded-xl border border-mint/20 bg-gradient-hero p-4 text-white shadow-elegant">
+            <div
+              className="pointer-events-none absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "linear-gradient(var(--mint) 1px, transparent 1px), linear-gradient(90deg, var(--mint) 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
+              }}
+            />
+            <div className="relative">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-mint">
+                <ShieldCheck className="h-2.5 w-2.5" /> Estação em andamento
+              </div>
+              <div className="mt-2 flex items-end justify-between gap-3">
+                <div>
+                  <h3 className="font-display text-base font-bold leading-tight md:text-lg">
+                    Estação de Clínica Médica
+                  </h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px] text-white/70">
+                    <span className="rounded-md bg-mint px-1.5 py-0.5 font-bold text-night">CLM</span>
+                    <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-mint" /> Dor torácica</span>
+                    <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> 10 min</span>
+                  </div>
+                </div>
+                <span className="rounded-md border border-white/20 bg-white/5 px-2 py-1 font-mono text-[10px] tracking-wider">
+                  MX9K2
+                </span>
+              </div>
             </div>
+          </div>
+
+          <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_176px]">
+            <div className="space-y-3">
+              <MockStationBlock icon={MessageSquare} title="Cenário de atuação">
+                Paciente chega ao pronto atendimento com dor torácica opressiva. Conduza anamnese, solicite exames e indique a conduta inicial.
+              </MockStationBlock>
+
+              <MockStationBlock icon={ListChecks} title="Nos 10 minutos, você deverá">
+                <ul className="space-y-1">
+                  <li>• Avaliar sinais de gravidade e fatores de risco.</li>
+                  <li>• Solicitar ECG, troponina e monitorização.</li>
+                  <li>• Explicar hipótese e conduta ao paciente.</li>
+                </ul>
+              </MockStationBlock>
+
+              <MockStationBlock
+                icon={Inbox}
+                title="Materiais recebidos"
+                right={<Badge variant="outline" className="border-white/30 text-white">2</Badge>}
+              >
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {["ECG de 12 derivações", "Troponina I — laudo"].map((name, i) => (
+                    <div key={name} className="rounded-lg border border-mint/35 bg-mint/5 p-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                        <FileText className="h-3 w-3 text-mint" /> {name}
+                      </div>
+                      <div className="mt-1 text-[9px] text-muted-foreground">
+                        {i === 0 ? "clique para ver a imagem" : "resultado entregue pelo ator"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </MockStationBlock>
+            </div>
+
+            <aside className="space-y-3">
+              <div className="rounded-xl border border-border bg-gradient-hero p-3 text-white shadow-elegant">
+                <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-white/70">
+                  <span>Em andamento</span>
+                  <Eye className="h-3 w-3" />
+                </div>
+                <div className="mt-2 rounded-lg bg-mint/15 px-3 py-4 text-center font-display text-3xl font-bold tabular-nums">
+                  07:42
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card p-3">
+                <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <StickyNote className="h-3 w-3 text-primary" /> Anotações
+                </div>
+                <div className="space-y-1.5 text-[9.5px] leading-snug text-foreground/80">
+                  <p>• Dor 7/10 há 40min</p>
+                  <p>• HAS, tabagismo prévio</p>
+                  <p className="rounded bg-mint/20 px-1 py-0.5 font-semibold text-primary">HD: SCA · AAS + ECG</p>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
 
-        <div className="grid grid-cols-[1.25fr_1fr] gap-3 bg-background/60 p-3">
-          {/* LEFT — caso + impressos (espelha o que o candidato vê) */}
-          <div className="space-y-3">
-            <div className="rounded-lg border border-border bg-card p-3">
-              <div className="flex items-center gap-1.5">
-                <FileText className="h-3 w-3 text-primary" />
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Caso clínico
-                </p>
-              </div>
-              <p className="mt-1.5 text-[11px] leading-snug text-foreground/85">
-                Paciente masculino, 35a, comparece ao PS com dor torácica
-                retroesternal opressiva há 40min, irradiando para mandíbula. Nega
-                trauma. Tabagista, HAS em uso irregular de losartana.
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {["PA 158x96", "FC 102", "SatO₂ 96%", "Tax 36,4°C"].map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-md bg-mint-soft/40 px-1.5 py-px font-mono text-[9px] text-primary"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Impressos / materiais entregues */}
-            <div className="rounded-lg border border-border bg-card p-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Inbox className="h-3 w-3 text-primary" />
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                    Impressos recebidos
-                  </p>
-                </div>
-                <span className="rounded-full bg-mint/15 px-1.5 text-[9px] font-bold text-primary">
-                  3
-                </span>
-              </div>
-              {[
-                { name: "ECG de 12 derivações", t: "imagem", hot: true },
-                { name: "Troponina I — laudo", t: "laudo" },
-                { name: "Radiografia de tórax PA", t: "imagem" },
-              ].map((d) => (
-                <div
-                  key={d.name}
-                  className="flex items-center justify-between border-t border-border/60 py-1.5 first:border-0"
-                >
-                  <div className="flex items-center gap-1.5">
-                    {d.hot && (
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-                    )}
-                    <span className="text-[10px] font-semibold text-foreground/85">
-                      {d.name}
-                    </span>
-                  </div>
-                  <span className="text-[9px] uppercase tracking-widest text-muted-foreground">
-                    {d.t}
-                  </span>
-                </div>
-              ))}
-            </div>
+        <div className="absolute bottom-3 right-3 w-[190px] overflow-hidden rounded-xl border border-border bg-background shadow-elegant">
+          <div className="flex items-center justify-between border-b border-border bg-muted/30 px-2 py-1 text-[10px] font-semibold">
+            <span className="inline-flex items-center gap-1"><Video className="h-3 w-3 text-primary" /> Vídeo</span>
+            <span className="text-muted-foreground">2 / 2</span>
           </div>
-
-          {/* RIGHT — anotações do candidato + mini videocall (2 papéis) */}
-          <div className="flex flex-col gap-3">
-            <div className="flex-1 rounded-lg border border-border bg-card p-3">
-              <div className="mb-1.5 flex items-center gap-1.5">
-                <StickyNote className="h-3 w-3 text-primary" />
-                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Minhas anotações
-                </p>
-              </div>
-              <ul className="space-y-1 text-[10px] leading-snug text-foreground/85">
-                <li>• Dor 7/10, contínua, sem fator de melhora</li>
-                <li>• HF: pai IAM aos 52a · ex-tabagista 20 maços/ano</li>
-                <li>
-                  <span className="rounded bg-mint/20 px-1 font-semibold text-primary">
-                    HD: SCA · pedir ECG + troponina + AAS 300mg
-                  </span>
-                </li>
-                <li className="text-muted-foreground">
-                  • Considerar dissecção (PA assimétrica?)
-                </li>
-              </ul>
-              <div className="mt-2 flex items-center gap-1 text-[9px] text-muted-foreground">
-                <span className="h-1 w-1 animate-pulse rounded-full bg-mint" />
-                salvo automaticamente
-              </div>
-            </div>
-
-            {/* Mini videocall flutuante — só 2 tiles (candidato + ator) */}
-            <div className="rounded-lg border border-border bg-night p-1.5">
-              <div className="mb-1 flex items-center justify-between px-1">
-                <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-white/70">
-                  <Video className="h-2.5 w-2.5 text-mint" />
-                  vídeo · ao vivo
-                </div>
-                <span className="text-[9px] text-white/50">2 / 2</span>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                <VideoTile src={doctor6} name="Você" role="Candidato" active />
-                <VideoTile src={doctor3} name="Ana C." role="Atriz" />
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-1.5 bg-night p-1.5">
+            <VideoTile src={candidate6} name="Você" role="Candidato" active />
+            <VideoTile src={candidate3} name="Ana" role="Atriz" />
           </div>
         </div>
       </div>
 
-      {/* Floating trophy badge */}
       <motion.div
         initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
@@ -437,7 +419,6 @@ function HeroVisual() {
         </div>
       </motion.div>
 
-      {/* Floating live indicator */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -451,6 +432,30 @@ function HeroVisual() {
         <span className="text-[11px] font-semibold">128 salas ao vivo</span>
       </motion.div>
     </motion.div>
+  );
+}
+
+function MockStationBlock({
+  icon: Icon,
+  title,
+  right,
+  children,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  right?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-xl border border-border bg-card">
+      <header className="flex items-center justify-between gap-2 bg-gradient-hero px-3 py-2 text-[10px] font-bold text-white shadow-elegant">
+        <span className="inline-flex items-center gap-1.5">
+          <Icon className="h-3.5 w-3.5 text-mint" /> {title}
+        </span>
+        {right}
+      </header>
+      <div className="p-3 text-[11px] leading-snug text-foreground/85">{children}</div>
+    </section>
   );
 }
 
@@ -528,7 +533,7 @@ function Stats() {
   const stats = [
     { value: 120, suffix: "+", label: "Estações clínicas" },
     { value: 600, suffix: "+", label: "Itens de checklist" },
-    { value: 1200, suffix: "+", label: "Médicos ativos" },
+    { value: 1200, suffix: "+", label: "Candidatos ativos" },
     { value: 8.4, suffix: "", label: "Nota média" },
   ];
   return (
@@ -889,40 +894,40 @@ function Plans() {
 /* ---------------- Testimonials ---------------- */
 const testimonials = [
   {
-    name: "Dra. Marina Lopes",
+    name: "Marina Lopes",
     role: "Aprovada · Revalida 2025",
     text: "Treinar por estação com cronômetro mudou meu desempenho. Cheguei na prova com a sensação de já ter passado por aquilo.",
-    avatar: doctor1,
+    avatar: candidate1,
   },
   {
-    name: "Dr. Rafael Santos",
+    name: "Rafael Santos",
     role: "Candidato · Revalida 2026",
     text: "Os checklists me ajudaram a estruturar o raciocínio e perder o medo do tempo. O feedback é o melhor da plataforma.",
-    avatar: doctor2,
+    avatar: candidate2,
   },
   {
-    name: "Dra. Camila Tavares",
+    name: "Camila Tavares",
     role: "Professora · mentoria",
     text: "Como mentora, consigo corrigir meus alunos com profundidade e acompanhar cada evolução. Recomendo demais.",
-    avatar: doctor3,
+    avatar: candidate3,
   },
   {
-    name: "Dr. Bruno Almeida",
+    name: "Bruno Almeida",
     role: "Aprovado · Revalida 2024.2",
     text: "A sala em dupla é o que mais se aproxima da prova real. Atuar como ator me fez enxergar tudo o que faltava na minha conduta.",
-    avatar: doctor4,
+    avatar: candidate4,
   },
   {
-    name: "Dra. Letícia Moura",
+    name: "Letícia Moura",
     role: "Candidata · Revalida 2026",
     text: "App leve, treino pelo celular no intervalo do plantão. Os flashcards salvam minha revisão.",
-    avatar: doctor5,
+    avatar: candidate5,
   },
   {
-    name: "Dr. Felipe Carvalho",
+    name: "Felipe Carvalho",
     role: "Aprovado · Revalida 2025.1",
     text: "Saí do achismo. O histórico mostra exatamente onde eu travo e o que treinar na próxima semana.",
-    avatar: doctor6,
+    avatar: candidate6,
   },
 ];
 
@@ -1137,14 +1142,14 @@ type FakeNotif = {
 };
 
 const FAKE_NOTIFS: FakeNotif[] = [
-  { kind: "compra", name: "Dr. Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: doctor2 },
-  { kind: "conquista", name: "Dra. Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: doctor5 },
-  { kind: "aprovado", name: "Dr. João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: doctor4 },
-  { kind: "online", name: "+128 médicos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: doctor3 },
-  { kind: "compra", name: "Dra. Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: doctor1 },
-  { kind: "conquista", name: "Dr. Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: doctor6 },
-  { kind: "aprovado", name: "Dra. Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: doctor7 },
-  { kind: "compra", name: "Dr. Pedro H.", action: "assinou o plano Ator", meta: "há 12 min", city: "Curitiba, PR", avatar: doctor2 },
+  { kind: "compra", name: "Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: candidate2 },
+  { kind: "conquista", name: "Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: candidate5 },
+  { kind: "aprovado", name: "João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: candidate4 },
+  { kind: "online", name: "+128 candidatos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: candidate3 },
+  { kind: "compra", name: "Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: candidate1 },
+  { kind: "conquista", name: "Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: candidate6 },
+  { kind: "aprovado", name: "Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: candidate7 },
+  { kind: "compra", name: "Pedro H.", action: "assinou o plano Ator", meta: "há 12 min", city: "Curitiba, PR", avatar: candidate2 },
 ];
 
 function FloatingNotifications() {
