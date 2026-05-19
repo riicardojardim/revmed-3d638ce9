@@ -264,7 +264,7 @@ function Dashboard() {
 
 
       {/* Top row: welcome + stats */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6">
           <h2 className="text-balance font-display text-lg font-bold leading-tight sm:text-xl md:text-2xl">
             <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}

@@ -295,7 +295,7 @@ function EvaluatorView() {
         })}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]">
         <section className="space-y-6">
 
           {/* === CENÁRIO === */}

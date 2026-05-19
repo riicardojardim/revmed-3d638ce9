@@ -605,7 +605,7 @@ function CandidateView() {
         </div>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-5 md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]">
         {/* LEFT */}
         <div className="space-y-4">
 
