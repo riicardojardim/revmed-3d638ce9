@@ -139,28 +139,11 @@ function StationsPage() {
 
 
           {/* Specialty filters */}
-          <div className="flex flex-wrap gap-2">
-            <div className="flex w-full flex-wrap items-center gap-2 lg:flex-nowrap">
-              <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small>
-                Todas as áreas
-              </FilterChip>
-              {SPECIALTIES.filter((s) => s !== "Medicina de Família e Comunidade").map((s) => {
-                const meta = getSpecialtyMeta(s);
-                return (
-                  <FilterChip
-                    key={s}
-                    active={spec === s}
-                    onClick={() => setSpec(s)}
-                    accentClass={meta.solid}
-                    small
-                  >
-                    <span className={`inline-block h-2 w-2 rounded-full ${meta.solid}`} />
-                    {s}
-                  </FilterChip>
-                );
-              })}
-            </div>
-            {SPECIALTIES.filter((s) => s === "Medicina de Família e Comunidade").map((s) => {
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
+            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small>
+              Todas
+            </FilterChip>
+            {SPECIALTIES.map((s) => {
               const meta = getSpecialtyMeta(s);
               return (
                 <FilterChip
@@ -170,12 +153,13 @@ function StationsPage() {
                   accentClass={meta.solid}
                   small
                 >
-                  <span className={`inline-block h-2 w-2 rounded-full ${meta.solid}`} />
-                  {s}
+                  <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
+                  <span className="whitespace-nowrap">{s}</span>
                 </FilterChip>
               );
             })}
           </div>
+
 
 
           {/* List */}
