@@ -972,7 +972,7 @@ function Testimonials() {
 /* ---------------- FAQ ---------------- */
 const faqs = [
   { q: "O app substitui um curso presencial?", a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
-  { q: "Como funciona a sala com 3 papéis?", a: "Você cria uma sala e compartilha o código. Cada participante entra como candidato, paciente ator ou banca — cada um vê apenas o conteúdo do seu papel, com vídeo integrado." },
+  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como paciente ator — cada um vê apenas o conteúdo do seu papel, com vídeo integrado. Se estiver sozinho, a IA assume o papel do ator." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
   { q: "Os checklists são oficiais?", a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
   { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único." },
