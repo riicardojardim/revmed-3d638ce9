@@ -36,18 +36,20 @@ const SYSTEM_PROMPT = `Você é um professor médico brasileiro, especialista em
 Sua tarefa: gerar um RESUMO CLÍNICO de altíssima qualidade a partir do contexto de uma ESTAÇÃO clínica (OSCE). Retorne SOMENTE JSON válido (sem markdown, sem cercas \`\`\`).
 
 REGRAS DE CONTEÚDO (não negociáveis — segurança do paciente vem primeiro):
-1. Use SOMENTE fontes oficiais e de altíssima confiabilidade:
-   - Ministério da Saúde (MS), PCDTs do SUS, Cadernos de Atenção Básica
-   - ANVISA (bulas, RDCs, medicamentos, doses, contraindicações)
-   - Diretrizes brasileiras vigentes: SBC, SBP, FEBRASGO, SBI, SBPT, SBN, SBD, SBEM, SBR, SBOT, SBU
-   - INEP / matriz oficial do Revalida
-   - Guidelines internacionais consagradas QUANDO aplicáveis e alinhadas ao SUS: WHO, CDC, NICE, AHA, ACOG, GINA, GOLD, ADA, KDIGO
-   - UpToDate / BMJ Best Practice / Cochrane como apoio
-2. NÃO invente doses, esquemas terapêuticos, critérios diagnósticos, valores de corte, nomes comerciais ou condutas.
-3. Se houver qualquer dúvida razoável sobre um dado específico, prefira uma orientação mais geral e segura — OMITIR é melhor que CHUTAR.
-4. SEMPRE que citar medicamento: dose com unidade explícita (mg, mg/kg/dia, UI, mL), via, intervalo e duração. Cite a fonte (MS/ANVISA/diretriz) entre parênteses quando relevante.
-5. NÃO cite o nome do paciente da estação — o resumo deve ser GENERALIZÁVEL sobre a condição clínica, NÃO sobre o caso específico.
-6. Tom direto, didático, em português do Brasil. Use terminologia padrão (CID-10/11, DeCS).
+1. FONTES PERMITIDAS (use SOMENTE estas — qualquer outra é PROIBIDA):
+   - Ministério da Saúde (MS): PCDTs, Cadernos de Atenção Básica, Protocolos Clínicos, manuais oficiais
+   - ANVISA: bulas oficiais, RDCs, alertas de farmacovigilância (doses, contraindicações, interações)
+   - Biblioteca Virtual em Saúde (BVS/BIREME) e Google Saúde (Google Health) como apoio de consulta
+   - Diretrizes brasileiras vigentes das sociedades médicas: SBC, SBP, FEBRASGO, SBI, SBPT, SBN, SBD, SBEM, SBR, SBOT, SBU, SBMFC, SBGG, ABP
+   - INEP / matriz oficial e provas anteriores do Revalida
+   - Guidelines internacionais consagradas QUANDO aplicáveis ao SUS: WHO/OMS, OPAS, CDC, NICE, AHA, ACOG, GINA, GOLD, ADA, KDIGO, IDSA
+   - Bases secundárias de apoio: UpToDate, BMJ Best Practice, Cochrane (apenas como confirmação)
+2. FONTES PROIBIDAS (NUNCA cite e NUNCA use como base): blogs, sites comerciais de farmácias, fóruns, ChatGPT/IA, Wikipedia, sites de notícias leigas, materiais de cursinhos sem referência primária, "minutos com seu médico", redes sociais.
+3. NÃO invente doses, esquemas terapêuticos, critérios diagnósticos, valores de corte, nomes comerciais ou condutas. Toda informação precisa ser RASTREÁVEL a uma das fontes permitidas acima.
+4. Se houver qualquer dúvida razoável sobre um dado específico, prefira uma orientação mais geral e segura — OMITIR é melhor que CHUTAR.
+5. SEMPRE que citar medicamento: dose com unidade explícita (mg, mg/kg/dia, UI, mL), via, intervalo e duração. Cite a fonte (MS/ANVISA/diretriz) entre parênteses quando relevante.
+6. NÃO cite o nome do paciente da estação — o resumo deve ser GENERALIZÁVEL sobre a condição clínica, NÃO sobre o caso específico.
+7. Tom direto, didático, em português do Brasil. Use terminologia padrão (CID-10/11, DeCS).
 
 REGRAS DE FORMATO (cada campo é uma string de texto, NÃO HTML, NÃO markdown):
 - "title": nome curto e didático do tema (3–7 palavras). NÃO copie o título da estação. Ex.: "Pneumonia adquirida na comunidade", "Crise hipertensiva na gestante".
@@ -335,6 +337,7 @@ export async function generateAndSaveSummary(
     .from("summaries")
     .insert({
       created_by: userId,
+      station_id: input.station_id ?? null,
       title: result.title.slice(0, 200),
       specialty: input.specialty,
       topic: result.topic ?? input.topic ?? null,
@@ -350,7 +353,7 @@ export async function generateAndSaveSummary(
       content_md: (sourcesBlock + auditBlock).trim(),
       published: false,
     })
-    .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md")
+    .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md, station_id")
     .single();
   if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");
 
