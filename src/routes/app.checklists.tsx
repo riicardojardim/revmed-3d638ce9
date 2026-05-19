@@ -159,7 +159,8 @@ function StationsPage() {
                     className="w-full justify-center lg:w-auto"
                   >
                     <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
-                    <span className="whitespace-nowrap">{meta.code}<span className="hidden lg:inline">{` ${s.replace(/^[A-Z]+\s/, "")}`}</span></span>
+                    <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
+                    <span className="hidden whitespace-nowrap lg:inline">{s}</span>
                   </FilterChip>
                 );
               })}
