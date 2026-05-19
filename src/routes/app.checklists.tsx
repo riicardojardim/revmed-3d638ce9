@@ -173,50 +173,63 @@ function StationsPage() {
               Nenhum checklist encontrado{q ? ` para "${q}"` : ""}.
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-              <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-2.5">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <ListChecks className="h-4 w-4 text-mint" />
-                  Todos os checklists
+            <div className="space-y-3">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-2.5">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <ListChecks className="h-4 w-4 text-mint" />
+                    Checklists
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}
-                </span>
-              </div>
-              <motion.ul
-                key={filtered.map((s) => s.id).join("|")}
-                variants={staggerContainer}
-                initial="hidden"
-                animate="show"
-                className="max-h-[60vh] divide-y divide-border overflow-y-auto"
-              >
-                {filtered.map((s) => {
-                  const m = getSpecialtyMeta(s.specialty);
-                  return (
-                    <motion.li
-                      key={s.id}
-                      variants={staggerItem}
-                      className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
-                    >
-                      <span className={cn("inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
-                        {m.code}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
-                        <div className="truncate text-xs text-muted-foreground">
-                          {s.specialty} • {s.checklistCount} itens
+                <motion.ul
+                  key={filtered.slice(0, 5).map((s) => s.id).join("|")}
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="divide-y divide-border"
+                >
+                  {filtered.slice(0, 5).map((s) => {
+                    const m = getSpecialtyMeta(s.specialty);
+                    return (
+                      <motion.li
+                        key={s.id}
+                        variants={staggerItem}
+                        className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
+                      >
+                        <span className={cn("inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
+                          {m.code}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{s.title}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {s.specialty} • {s.checklistCount} itens
+                          </div>
                         </div>
-                      </div>
-                      <Button size="sm" variant="hero" onClick={() => startStation(s)}>
-                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </motion.li>
-                  );
-                })}
-              </motion.ul>
+                        <Button size="sm" variant="hero" onClick={() => startStation(s)}>
+                          Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </motion.li>
+                    );
+                  })}
+                </motion.ul>
+              </div>
+              {filtered.length > 5 && (
+                <div className="flex justify-center pt-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}
+                  >
+                    Ver todos os {filtered.length} checklists <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
+
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
