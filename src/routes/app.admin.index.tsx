@@ -100,7 +100,7 @@ function AdminOverview() {
     { label: "Tentativas — 30 dias", value: stats.attempts30, icon: ClipboardList, color: "text-mint" },
     { label: "Checklists publicados", value: stats.stationsPublished, icon: CheckCircle2, color: "text-success" },
     { label: "Checklists rascunho", value: stats.stationsDraft, icon: Layers, color: "text-warning" },
-    { label: "Flashcards", value: stats.flashcards, icon: BookOpen, color: "text-mint" },
+    { label: "Decks de Flashcards", value: stats.flashcards, icon: BookOpen, color: "text-mint" },
     { label: "Resumos", value: stats.summaries, icon: FileText, color: "text-mint" },
   ];
 
