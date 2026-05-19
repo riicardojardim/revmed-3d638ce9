@@ -288,15 +288,7 @@ function Dashboard() {
         <RitmoCard title="Ritmo de Treinamento" value={String(last7.reduce((s, d) => s + d.count, 0))} suffix="" data={last7} dataKey="count" />
         <RitmoCard title="Ritmo de Notas" value={`${stats.avg ? Math.round((stats.avg / 10) * 100) : 0}%`} suffix="%" data={last7} dataKey="avg" />
 
-        <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
-          <h3 className="font-display font-bold text-mint">Motivação Estação Revalida</h3>
-          <p className="mt-3 text-sm font-medium text-foreground">
-            Seu esforço vai te levar além do que você imagina. Constância vence talento.
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Lembre-se: a aprovação é construída com constância, não com perfeição.
-          </p>
-        </div>
+        <DailyMotivationCard userId={user?.id ?? "anon"} />
       </div>
 
       {/* Ranking row */}
