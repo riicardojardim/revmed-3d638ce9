@@ -1260,7 +1260,10 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                       .from("station_checklist_items")
                       .update({ levels } as never)
                       .eq("id", item.id);
-                    if (error) return toast.error("Erro", { description: error.message });
+                    if (error) {
+                      toast.error("Erro", { description: error.message });
+                      return;
+                    }
                     await reload();
                   }}
                 />
