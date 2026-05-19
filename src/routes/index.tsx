@@ -1131,15 +1131,17 @@ function Areas() {
     <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
-        <div className="mt-10 grid grid-cols-3 gap-2.5 sm:gap-4 lg:grid-cols-5 lg:gap-5">
-          {areas.map((a, i) => (
+        <div className="mt-10 grid grid-cols-6 gap-2.5 sm:gap-4 lg:grid-cols-5 lg:gap-5">
+          {areas.map((a, i) => {
+            const isLastTwo = i >= 3;
+            return (
             <motion.div
               key={a.name}
               initial={{ opacity: 0, scale: 0.96 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.3, delay: (i % 4) * 0.05 }}
-              className="group flex items-center gap-2.5 rounded-xl border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-card sm:gap-3 sm:p-4"
+              className={`group flex items-center gap-2.5 rounded-xl border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-card sm:gap-3 sm:p-4 lg:col-span-1 ${isLastTwo ? "col-span-3" : "col-span-2"}`}
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-mint-soft/50 transition-colors group-hover:bg-mint/20 sm:h-10 sm:w-10">
                 <a.icon className="h-4.5 w-4.5 text-primary sm:h-5 sm:w-5" />
@@ -1149,7 +1151,8 @@ function Areas() {
                 <div className="text-[10px] text-muted-foreground sm:text-[11px]">{a.count}</div>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
