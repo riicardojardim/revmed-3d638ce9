@@ -335,6 +335,7 @@ export async function generateAndSaveSummary(
     .from("summaries")
     .insert({
       created_by: userId,
+      station_id: input.station_id ?? null,
       title: result.title.slice(0, 200),
       specialty: input.specialty,
       topic: result.topic ?? input.topic ?? null,
@@ -350,7 +351,7 @@ export async function generateAndSaveSummary(
       content_md: (sourcesBlock + auditBlock).trim(),
       published: false,
     })
-    .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md")
+    .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md, station_id")
     .single();
   if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");
 
