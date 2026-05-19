@@ -634,7 +634,7 @@ function CandidateView() {
                 Nenhum material ainda. Solicite exames e o ator entregará durante a estação.
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2 items-start">
                 {visibleDeliveries.map((d) => {
                   const isOpen = openDeliveries[d.id] ?? false;
                   return (
