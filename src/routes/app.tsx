@@ -222,7 +222,7 @@ function AppLayout() {
   return (
     <OnlinePresenceProvider>
     <DashboardBackground />
-    <div className="relative z-10 flex min-h-dvh w-full min-w-0 overflow-x-hidden">
+    <div className="relative z-10 flex min-h-dvh w-full min-w-0 overflow-x-clip">
       {/* Sidebar desktop removida — navegação fica apenas no dock inferior */}
 
 
