@@ -912,7 +912,7 @@ const plans = [
     bonuses: [
       { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
       { name: "E-book: Erros que reprovam na prática", value: "R$ 297" },
-      { name: "Checklist comentado por aprovados 2024", value: "R$ 147" },
+      { name: "Guia rápido de condutas para as 10 estações mais cobradas", value: "R$ 147" },
     ],
     totalValue: "R$ 1.138",
   },
