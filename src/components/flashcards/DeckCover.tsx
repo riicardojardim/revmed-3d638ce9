@@ -1,6 +1,6 @@
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
-import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.png";
+import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.webp";
 
 type Props = {
   title: string;
@@ -69,9 +69,13 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
             src={logoStackedUrl}
             alt=""
             draggable={false}
+            loading="eager"
+            decoding="sync"
+            fetchPriority="high"
             className="select-none object-contain opacity-95 drop-shadow"
             style={{ height: "18cqi", maxHeight: "72px" }}
           />
+
         </div>
 
         {/* Centro: título grande */}
