@@ -474,13 +474,7 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent
-          className="flex max-h-[calc(100dvh-1.25rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden"
-          style={{
-            marginTop: "env(safe-area-inset-top)",
-            marginBottom: "env(safe-area-inset-bottom)",
-          }}
-        >
+        <DialogContent className="flex max-h-[calc(100dvh-1.25rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
           <div
             className="pointer-events-none absolute right-4 z-50"
             style={{ top: "max(1rem, env(safe-area-inset-top))" }}
