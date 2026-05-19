@@ -760,10 +760,20 @@ export type Database = {
       }
       summaries: {
         Row: {
+          clinical_picture: string | null
+          conduct: string | null
           content_md: string
+          cover_image_url: string | null
           created_at: string
           created_by: string
+          definition: string | null
+          diagnosis: string | null
+          difficulty: string
+          high_yield: boolean
           id: string
+          key_points: string | null
+          pitfalls: string | null
+          position: number
           published: boolean
           read_time_minutes: number
           specialty: string
@@ -772,10 +782,20 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          clinical_picture?: string | null
+          conduct?: string | null
           content_md: string
+          cover_image_url?: string | null
           created_at?: string
           created_by: string
+          definition?: string | null
+          diagnosis?: string | null
+          difficulty?: string
+          high_yield?: boolean
           id?: string
+          key_points?: string | null
+          pitfalls?: string | null
+          position?: number
           published?: boolean
           read_time_minutes?: number
           specialty: string
@@ -784,10 +804,20 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          clinical_picture?: string | null
+          conduct?: string | null
           content_md?: string
+          cover_image_url?: string | null
           created_at?: string
           created_by?: string
+          definition?: string | null
+          diagnosis?: string | null
+          difficulty?: string
+          high_yield?: boolean
           id?: string
+          key_points?: string | null
+          pitfalls?: string | null
+          position?: number
           published?: boolean
           read_time_minutes?: number
           specialty?: string
