@@ -1297,6 +1297,14 @@ function ActorView() {
                     )}
                   </div>
 
+                  {/* Resumo de apoio (somente ator) */}
+                  <StationSummaryDialog
+                    specialty={station.specialty}
+                    title={room.station_title ?? station.title}
+                    stationId={station.id}
+                    triggerLabel="Ver resumo da estação"
+                  />
+
                   {/* Link de convite */}
                   <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
                     <div className="flex items-center justify-between">
