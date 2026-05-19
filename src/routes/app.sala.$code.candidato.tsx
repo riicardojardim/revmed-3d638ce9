@@ -443,8 +443,10 @@ function CandidateView() {
   // Lobby de espera — tela cheia, transita sozinha quando room.status virar "running"
   if (isWaiting) {
     return (
-      <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
+      <>
         {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
+        {introOverlay}
+        <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
         <button
           type="button"
           onClick={() => { if (typeof window !== "undefined" && window.history.length > 1) window.history.back(); else nav({ to: "/app" }); }}
@@ -498,13 +500,16 @@ function CandidateView() {
         <div className="mt-8 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
           💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o ator clicar em iniciar.
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4">
+    <>
       {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
+      {introOverlay}
+      <div className="mx-auto max-w-7xl space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
