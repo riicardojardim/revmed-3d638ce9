@@ -183,7 +183,7 @@ function Historico() {
             );
           })}
         </div>
-      </div>
+      </Reveal>
       <HistoricoDetailModal
         attemptId={detailId}
         open={!!detailId}
