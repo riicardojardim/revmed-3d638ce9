@@ -8,9 +8,10 @@ import {
   useTracks,
   useParticipants,
   useLocalParticipant,
+  useRoomContext,
   TrackRefContext,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { Track, RoomEvent, RemoteTrackPublication, RemoteParticipant } from "livekit-client";
 import "@livekit/components-styles";
 import { useServerFn } from "@tanstack/react-start";
 import { getLivekitToken, muteParticipant } from "@/lib/livekit.functions";
