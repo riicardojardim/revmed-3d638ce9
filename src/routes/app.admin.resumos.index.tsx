@@ -134,25 +134,55 @@ function AdminResumosPage() {
     setRunning(true);
     setBatchResults([]);
     setProgress({ done: 0, total: ids.length });
+    const titleById = new Map(stations.map((s) => [s.id, s.title]));
+
+    type BR = {
+      station_id: string;
+      title: string;
+      status: "ok" | "error" | "skipped";
+      message?: string;
+      verdict?: string;
+      blocking?: boolean;
+    };
+    const results: BR[] = [];
+
+    // Concorrência limitada para evitar saturar o AI Gateway
+    const CONCURRENCY = 2;
+    let cursor = 0;
+    let doneCount = 0;
+    async function worker() {
+      while (true) {
+        const idx = cursor++;
+        if (idx >= ids.length) return;
+        const id = ids[idx];
+        const title = titleById.get(id) ?? id.slice(0, 8);
+        try {
+          const out = await generateOne({ data: { station_id: id } });
+          results.push({ station_id: id, title, status: "ok", verdict: out.verdict, blocking: out.blocking });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          const isSkip = /checklist|PEP/i.test(msg);
+          results.push({
+            station_id: id,
+            title,
+            status: isSkip ? "skipped" : "error",
+            message: msg.slice(0, 240),
+          });
+        } finally {
+          doneCount++;
+          setProgress({ done: doneCount, total: ids.length });
+          setBatchResults([...results]);
+        }
+      }
+    }
+
     try {
-      const out = await batchFn({ data: { station_ids: ids } });
-      const titleById = new Map(stations.map((s) => [s.id, s.title]));
-      setBatchResults(
-        out.results.map((r) => ({
-          station_id: r.station_id,
-          title: titleById.get(r.station_id) ?? r.station_id.slice(0, 8),
-          status: r.status,
-          message: r.status === "error" ? r.message : r.status === "skipped" ? r.reason : undefined,
-          verdict: r.status === "ok" ? r.verdict : undefined,
-          blocking: r.status === "ok" ? r.blocking : undefined,
-        })),
-      );
-      setProgress({ done: ids.length, total: ids.length });
-      toast.success(`Lote concluído: ${out.summary.ok}/${out.summary.total} gerados${out.summary.errors ? ` · ${out.summary.errors} falha(s)` : ""}.`);
+      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, ids.length) }, () => worker()));
+      const ok = results.filter((r) => r.status === "ok").length;
+      const errors = results.filter((r) => r.status === "error").length;
+      const skipped = results.filter((r) => r.status === "skipped").length;
+      toast.success(`Lote concluído: ${ok}/${ids.length} gerados${errors ? ` · ${errors} falha(s)` : ""}${skipped ? ` · ${skipped} sem PEP` : ""}.`);
       void load();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      toast.error("Falha no lote", { description: msg.slice(0, 200) });
     } finally {
       setRunning(false);
     }
