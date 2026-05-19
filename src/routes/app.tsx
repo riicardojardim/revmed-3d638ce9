@@ -129,7 +129,7 @@ function AppLayout() {
           
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           
-          { to: "/app/progresso", label: "Progresso", icon: TrendingUp },
+          
           ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
