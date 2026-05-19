@@ -208,7 +208,7 @@ export function HistoricoDetailModal({
                   {deliveries.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Nenhum impresso entregue nesta estação.</p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-2 items-start">
                       {deliveries.map((d) => {
                         const isOpen = openDeliveries[d.id] ?? false;
                         const name = (d.material_name || "").trim();
