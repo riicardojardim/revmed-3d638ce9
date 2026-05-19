@@ -69,9 +69,13 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
             src={logoStackedUrl}
             alt=""
             draggable={false}
+            loading="eager"
+            decoding="sync"
+            fetchPriority="high"
             className="select-none object-contain opacity-95 drop-shadow"
             style={{ height: "18cqi", maxHeight: "72px" }}
           />
+
         </div>
 
         {/* Centro: título grande */}
