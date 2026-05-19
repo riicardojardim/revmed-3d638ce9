@@ -220,7 +220,7 @@ function LoginPage() {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="text-[11px] font-medium text-medical hover:underline"
+                className="text-[11px] text-muted-foreground hover:text-foreground hover:underline"
               >
                 Esqueceu sua senha?
               </button>
