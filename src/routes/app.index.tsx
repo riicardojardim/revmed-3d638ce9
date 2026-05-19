@@ -12,6 +12,10 @@ import {
   Target,
   Check,
   CalendarHeart,
+  Trophy,
+  Award,
+  Lock,
+  Stethoscope,
 } from "lucide-react";
 import {
   AlertDialog,
