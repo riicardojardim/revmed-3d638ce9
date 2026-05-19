@@ -514,6 +514,7 @@ function EditorBody({
       </Section>
 
       <SectionGenerateFlashcards station={station} />
+      <SectionGenerateSummary station={station} />
       <SectionPublish station={station} togglePublish={togglePublish} />
     </div>
   );
