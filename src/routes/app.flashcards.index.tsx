@@ -37,7 +37,7 @@ function FlashcardsPage() {
   const [cardCounts, setCardCounts] = useState<Map<string, number>>(new Map());
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
-  const [expandedSpecs, setExpandedSpecs] = useState<Set<string>>(new Set());
+  
   const [step, setStep] = useState<Step>("list");
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
@@ -88,17 +88,6 @@ function FlashcardsPage() {
     });
   }, [decks, specialty, search]);
 
-  // Agrupa por especialidade (ordem canônica)
-  const grouped = useMemo(() => {
-    const map = new Map<string, Deck[]>();
-    filtered.forEach((d) => {
-      const arr = map.get(d.specialty) ?? [];
-      arr.push(d);
-      map.set(d.specialty, arr);
-    });
-    const orderedSpecs = sortSpecialties(Array.from(map.keys()));
-    return orderedSpecs.map((s) => ({ specialty: s, decks: map.get(s)! }));
-  }, [filtered]);
 
   async function openDeck(d: Deck) {
     setActiveDeck(d);
