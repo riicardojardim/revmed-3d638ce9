@@ -143,14 +143,16 @@ export function PWAInstallBanner() {
           </p>
           <button
             onClick={handleInstallClick}
-            className="inline-flex h-2.5 shrink-0 items-center gap-0.5 rounded-full bg-mint px-1.5 py-0 text-[8px] font-semibold leading-none text-background hover:bg-mint/90"
+            className="inline-flex h-[18px] min-h-0 shrink-0 items-center gap-1 rounded-full bg-mint px-2 py-0 text-[9px] font-semibold leading-none text-background hover:bg-mint/90"
+            style={{ minHeight: "18px", maxHeight: "18px" }}
           >
-            <Download className="h-2 w-2" />
+            <Download className="h-2.5 w-2.5" />
             Baixar
           </button>
           <button
             onClick={dismiss}
-            className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex h-4 min-h-0 w-4 shrink-0 items-center justify-center rounded-full p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+            style={{ minHeight: "16px", maxHeight: "16px" }}
             aria-label="Fechar"
           >
             <X className="h-2.5 w-2.5" />
