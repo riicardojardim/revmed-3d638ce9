@@ -98,3 +98,29 @@ export const muteParticipant = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+const PresenceInput = z.object({
+  roomCode: z.string().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/),
+});
+
+/**
+ * Lista as identidades atualmente conectadas à sala LiveKit.
+ * Usado pelo ator para verificar que todos os candidatos entraram na
+ * videochamada antes de iniciar o cronômetro.
+ */
+export const listRoomPresence = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => PresenceInput.parse(input))
+  .handler(async ({ data }) => {
+    const { url, apiKey, apiSecret } = readEnv();
+    const httpUrl = url.replace(/^ws/, "http");
+    const svc = new RoomServiceClient(httpUrl, apiKey, apiSecret);
+    const roomName = `sala-${data.roomCode}`;
+    try {
+      const participants = await svc.listParticipants(roomName);
+      return { identities: participants.map((p) => p.identity) };
+    } catch {
+      // Sala ainda não existe no LiveKit (ninguém entrou) — presença vazia.
+      return { identities: [] as string[] };
+    }
+  });
