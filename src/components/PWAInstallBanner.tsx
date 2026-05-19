@@ -138,8 +138,8 @@ export function PWAInstallBanner() {
       >
         <div className="flex items-center gap-2">
           <span className="text-base leading-none">📲</span>
-          <p className="flex-1 text-[10.5px] font-medium leading-tight text-foreground sm:text-xs">
-            Baixe nosso app para a melhor experiência
+          <p className="flex-1 whitespace-nowrap text-[10px] font-medium leading-tight text-foreground sm:text-xs">
+            Baixe nosso app para melhor experiência
           </p>
           <button
             onClick={handleInstallClick}
