@@ -104,13 +104,6 @@ function AppLayout() {
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
-      {
-        label: "Desempenho",
-        items: [
-          { to: "/app/progresso", label: "Meus Desempenhos", icon: TrendingUp },
-          { to: "/app/historico", label: "Histórico", icon: Clock },
-        ],
-      },
       ...(isTeacher
         ? [{
             label: "Área da mentoria",
