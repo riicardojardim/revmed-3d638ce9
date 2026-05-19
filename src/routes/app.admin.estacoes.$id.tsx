@@ -1876,21 +1876,8 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               </PRBlock>
               <PRBlock icon={Inbox} title="Materiais recebidos" right={<Badge variant="outline">0</Badge>}>
                 <p className="text-sm text-muted-foreground">
-                  Os impressos cadastrados serão entregues pelo ator durante a estação.
+                  Nenhum material ainda. Solicite exames e o ator entregará durante a estação.
                 </p>
-                {materials.length > 0 && (
-                  <div className="mt-3 space-y-2 opacity-70">
-                    {materials.map((m, i) => (
-                      <div key={i} className="rounded-lg border border-dashed border-border p-2 text-xs">
-                        <span className="font-semibold">{m.name || `Impresso ${i + 1}`}</span>
-                        {m.type && <span className="ml-2 text-muted-foreground">· {m.type}</span>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </PRBlock>
-              <PRBlock icon={StickyNote} title="Anotações">
-                <Textarea rows={3} placeholder="O candidato anota aqui durante a estação…" disabled />
               </PRBlock>
             </div>
             <div className="space-y-4">
