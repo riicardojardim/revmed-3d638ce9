@@ -45,7 +45,8 @@ export function PWAInstallBanner() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (isStandalone()) return;
-    if (localStorage.getItem(DISMISS_KEY) === "1") return;
+    const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) || 0);
+    if (dismissedAt && Date.now() - dismissedAt < SNOOZE_DAYS * 24 * 60 * 60 * 1000) return;
 
     setPlatform(detectPlatform());
     setVisible(true);
@@ -57,7 +58,7 @@ export function PWAInstallBanner() {
     const onInstalled = () => {
       setVisible(false);
       setOpen(false);
-      localStorage.setItem(DISMISS_KEY, "1");
+      localStorage.setItem(DISMISS_KEY, String(Date.now()));
     };
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
     window.addEventListener("appinstalled", onInstalled);
@@ -68,7 +69,7 @@ export function PWAInstallBanner() {
   }, []);
 
   const dismiss = () => {
-    localStorage.setItem(DISMISS_KEY, "1");
+    localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setVisible(false);
   };
 
@@ -79,7 +80,7 @@ export function PWAInstallBanner() {
         const choice = await deferred.userChoice;
         if (choice.outcome === "accepted") {
           setVisible(false);
-          localStorage.setItem(DISMISS_KEY, "1");
+          localStorage.setItem(DISMISS_KEY, String(Date.now()));
         }
         setDeferred(null);
         return;
