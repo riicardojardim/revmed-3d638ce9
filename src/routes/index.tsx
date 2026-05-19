@@ -1093,8 +1093,10 @@ function Comparison() {
 const REVALIDA_EXAM_DATE = "2026-08-09T08:00:00-03:00"; // Revalida 2026.1 — Prova prática (ajuste conforme edital INEP)
 
 function useCountdown(targetIso: string) {
-  const [now, setNow] = useState(() => Date.now());
+  // Start at target time so SSR and first client render match (diff = 0).
+  const [now, setNow] = useState(() => new Date(targetIso).getTime());
   useEffect(() => {
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
@@ -1494,6 +1496,44 @@ function Footer() {
           </ul>
         </div>
       </div>
+
+      <div className="border-t border-white/10">
+        <div className="container mx-auto grid gap-6 px-4 py-6 md:grid-cols-2 lg:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-white/60 md:justify-start">
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-mint" /> Pagamento 100% seguro
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-mint" /> Certificado SSL
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4 text-mint" /> Garantia de 7 dias
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-4 w-4 text-mint" /> Empresa BR · CNPJ 00.000.000/0001-00
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 md:justify-end">
+            {[
+              { label: "Visa", abbr: "VISA" },
+              { label: "Mastercard", abbr: "MC" },
+              { label: "Elo", abbr: "ELO" },
+              { label: "Pix", abbr: "PIX" },
+              { label: "Boleto", abbr: "BOL" },
+              { label: "American Express", abbr: "AMEX" },
+            ].map((b) => (
+              <span
+                key={b.label}
+                title={b.label}
+                className="inline-flex h-7 min-w-[44px] items-center justify-center rounded-md border border-white/15 bg-white/5 px-2 text-[10px] font-bold tracking-wider text-white/70"
+              >
+                {b.abbr}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="border-t border-white/10 py-5 text-center text-[11px] text-white/40">
         © {new Date().getFullYear()} Estação Revalida · Conteúdo educacional autoral. Não
         afiliado ao INEP ou ao governo.
@@ -1501,6 +1541,7 @@ function Footer() {
     </footer>
   );
 }
+
 
 /* ---------------- Section title helper ---------------- */
 function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
