@@ -1036,6 +1036,7 @@ export type Database = {
         Args: { _room_id: string; _station_id: string; _to_user: string }
         Returns: string
       }
+      username_exists: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
       app_role: "aluno" | "professor" | "admin"
