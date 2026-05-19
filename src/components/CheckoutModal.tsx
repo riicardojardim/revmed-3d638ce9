@@ -239,17 +239,18 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
               <Input id="cm_last" autoComplete="family-name" className={inputCls} value={form.last_name} onChange={(e) => update("last_name", e.target.value)} required />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="cm_user" className="mb-1.5 block text-xs">Nick (como vai aparecer)</Label>
+              <Label htmlFor="cm_user" className="mb-1.5 block text-xs">Usuário (como vai aparecer)</Label>
               <Input
                 id="cm_user"
                 autoComplete="username"
                 className={inputCls}
                 value={form.username}
-                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/\s/g, ""))}
+                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
                 placeholder="ex: dra.ana"
                 maxLength={20}
                 required
               />
+              <p className="mt-1 text-[10px] text-muted-foreground">Sem espaços. Letras minúsculas, números, . ou _</p>
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="cm_email" className="mb-1.5 block text-xs">E-mail</Label>
