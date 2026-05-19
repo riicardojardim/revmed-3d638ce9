@@ -139,25 +139,32 @@ function StationsPage() {
 
 
           {/* Specialty filters */}
-          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
-            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small>
+          <div className="space-y-1.5 lg:space-y-0">
+            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="w-full justify-center lg:hidden">
               Todas
             </FilterChip>
-            {SPECIALTIES.map((s) => {
-              const meta = getSpecialtyMeta(s);
-              return (
-                <FilterChip
-                  key={s}
-                  active={spec === s}
-                  onClick={() => setSpec(s)}
-                  accentClass={meta.solid}
-                  small
-                >
-                  <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
-                  <span className="whitespace-nowrap">{s}</span>
-                </FilterChip>
-              );
-            })}
+            <div className="grid grid-cols-3 gap-1.5 lg:flex lg:flex-wrap lg:items-center">
+              <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="hidden lg:inline-flex">
+                Todas
+              </FilterChip>
+              {SPECIALTIES.map((s) => {
+                const meta = getSpecialtyMeta(s);
+                return (
+                  <FilterChip
+                    key={s}
+                    active={spec === s}
+                    onClick={() => setSpec(s)}
+                    accentClass={meta.solid}
+                    small
+                    className="w-full justify-center lg:w-auto"
+                  >
+                    <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
+                    <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
+                    <span className="hidden whitespace-nowrap lg:inline">{s}</span>
+                  </FilterChip>
+                );
+              })}
+            </div>
           </div>
 
 
@@ -237,19 +244,6 @@ function StationsPage() {
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-mint/10 to-card p-5 shadow-card">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
-              <ListChecks className="h-5 w-5" />
-            </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Catálogo</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Checklists oficiais publicados e prontos para treinar.
-            </p>
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="font-display text-3xl font-bold">{dbStations.length}</span>
-              <span className="text-xs text-muted-foreground">disponíveis</span>
-            </div>
-          </div>
 
           <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
@@ -364,17 +358,19 @@ function FilterChip({
   children,
   small,
   accentClass,
+  className,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
   small?: boolean;
   accentClass?: string;
+  className?: string;
 }) {
   const base = `inline-flex items-center gap-1.5 rounded-full border px-3.5 ${small ? "py-1 text-xs" : "py-1.5 text-sm"} font-medium transition-all`;
   if (active && accentClass) {
     return (
-      <button onClick={onClick} className={`${base} border-foreground/20 bg-card text-foreground shadow-sm`}>
+      <button onClick={onClick} className={cn(base, "border-foreground/20 bg-card text-foreground shadow-sm", className)}>
         {children}
       </button>
     );
@@ -382,11 +378,13 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className={`${base} ${
+      className={cn(
+        base,
         active
           ? "border-mint bg-mint/10 text-foreground"
-          : "border-border bg-background text-muted-foreground hover:border-mint/40"
-      }`}
+          : "border-border bg-background text-muted-foreground hover:border-mint/40",
+        className,
+      )}
     >
       {children}
     </button>
