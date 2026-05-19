@@ -907,6 +907,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_active_session: {
+        Row: {
+          device_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          device_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          device_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
