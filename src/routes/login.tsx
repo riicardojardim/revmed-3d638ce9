@@ -133,18 +133,18 @@ function LoginPage() {
           />
         </svg>
 
-        {/* Floating medical crosses */}
-        <div className="absolute left-[8%] top-[12%] text-mint/15 animate-float">
-          <PlusIcon size={28} />
+        {/* Floating medical icons */}
+        <div className="absolute left-[8%] top-[12%] text-mint/25 animate-float">
+          <Stethoscope className="h-7 w-7" strokeWidth={1.5} />
         </div>
-        <div className="absolute right-[12%] top-[20%] text-medical/20 animate-float [animation-delay:1s]">
-          <PlusIcon size={20} />
+        <div className="absolute right-[12%] top-[20%] text-medical/30 animate-float [animation-delay:1s]">
+          <HeartPulse className="h-6 w-6" strokeWidth={1.5} />
         </div>
-        <div className="absolute left-[18%] bottom-[18%] text-mint/15 animate-float [animation-delay:2s]">
-          <PlusIcon size={22} />
+        <div className="absolute left-[18%] bottom-[18%] text-mint/25 animate-float [animation-delay:2s]">
+          <Activity className="h-6 w-6" strokeWidth={1.5} />
         </div>
-        <div className="absolute right-[10%] bottom-[12%] text-medical/15 animate-float [animation-delay:0.5s]">
-          <PlusIcon size={32} />
+        <div className="absolute right-[10%] bottom-[12%] text-medical/25 animate-float [animation-delay:0.5s]">
+          <Pill className="h-7 w-7" strokeWidth={1.5} />
         </div>
       </div>
 
