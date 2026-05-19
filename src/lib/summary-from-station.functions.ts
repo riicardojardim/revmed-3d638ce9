@@ -2,6 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const ChecklistItemSchema = z.object({
+  description: z.string().min(1).max(2000),
+  category: z.string().max(120).optional().nullable(),
+  points: z.number().optional().nullable(),
+  helper_text: z.string().max(2000).optional().nullable(),
+});
+
 const InputSchema = z.object({
   station_id: z.string().uuid().optional().nullable(),
   title: z.string().min(1).max(300),
@@ -14,6 +21,7 @@ const InputSchema = z.object({
   common_mistakes: z.string().max(10_000).optional().nullable(),
   scoring_criteria: z.string().max(10_000).optional().nullable(),
   references: z.array(z.object({ label: z.string(), url: z.string().optional() })).max(40).optional(),
+  checklist_items: z.array(ChecklistItemSchema).min(1, "O checklist (PEP) precisa ter pelo menos 1 item preenchido para gerar o resumo.").max(200),
 });
 
 const ResultSchema = z.object({
