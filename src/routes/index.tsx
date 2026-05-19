@@ -330,7 +330,7 @@ function HeroVisual() {
           <div className="w-12" />
         </div>
 
-        <div className="relative min-h-[420px]">
+        <div className="relative h-[560px] overflow-hidden">
           <AnimatePresence mode="wait">
             {view === "station" ? (
               <motion.div
@@ -339,6 +339,7 @@ function HeroVisual() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 24 }}
                 transition={{ duration: 0.45, ease: "easeOut" }}
+                className="absolute inset-0 overflow-hidden"
               >
                 <StationMockup />
               </motion.div>
@@ -349,6 +350,7 @@ function HeroVisual() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -24 }}
                 transition={{ duration: 0.45, ease: "easeOut" }}
+                className="absolute inset-0 overflow-hidden"
               >
                 <DashboardMockup />
               </motion.div>
