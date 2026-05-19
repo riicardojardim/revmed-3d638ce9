@@ -235,14 +235,14 @@ function ResumosPage() {
               variants={staggerContainer}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+              className="grid w-full grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
             >
               {filtered.slice(0, 4).map((s) => (
-                <motion.div key={s.id} variants={staggerItem}>
+                <motion.div key={s.id} variants={staggerItem} className="min-w-0">
                   <button
                     type="button"
                     onClick={() => setSelectedId(s.id)}
-                    className="group flex h-full flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 text-left shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant sm:gap-3 sm:p-3"
+                    className="group flex h-full w-full min-w-0 flex-col gap-2 overflow-hidden rounded-2xl border border-border bg-card/80 p-2 text-left shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant sm:gap-3 sm:p-3"
                   >
                     <SummaryCover
                       title={s.title}
@@ -251,7 +251,7 @@ function ResumosPage() {
                       imageUrl={s.cover_image_url}
                       highYield={s.high_yield}
                     />
-                    <div className="flex flex-col gap-1.5 px-0.5 pb-1">
+                    <div className="flex min-w-0 flex-col gap-1.5 px-0.5 pb-1">
                       <div className="flex flex-wrap items-center gap-1">
                         <SpecialtyBadge specialty={s.specialty} />
                         {s.high_yield && (
@@ -270,6 +270,7 @@ function ResumosPage() {
               ))}
             </motion.div>
           )}
+
 
           {filtered.length > 4 && (
             <div className="flex justify-center pt-2">
