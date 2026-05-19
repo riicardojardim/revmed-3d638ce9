@@ -7,6 +7,7 @@ import {
   RoomAudioRenderer,
   useTracks,
   useParticipants,
+  useLocalParticipant,
   TrackRefContext,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
