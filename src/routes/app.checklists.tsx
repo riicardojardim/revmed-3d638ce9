@@ -200,9 +200,9 @@ function StationsPage() {
                       <motion.li
                         key={s.id}
                         variants={staggerItem}
-                        className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
+                        className="flex min-w-0 items-center gap-2 px-3 py-3 transition-colors hover:bg-muted/40 sm:gap-3 sm:px-4"
                       >
-                        <span className={cn("inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
+                        <span className={cn("inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
                           {m.code}
                         </span>
                         <div className="min-w-0 flex-1">
@@ -211,8 +211,9 @@ function StationsPage() {
                             {s.specialty} • {s.checklistCount} itens
                           </div>
                         </div>
-                        <Button size="sm" variant="hero" onClick={() => startStation(s)}>
-                          Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                        <Button size="sm" variant="hero" onClick={() => startStation(s)} className="shrink-0 px-2.5 sm:px-3">
+                          <span className="hidden sm:inline">Iniciar</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
                         </Button>
                       </motion.li>
                     );
