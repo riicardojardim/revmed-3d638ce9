@@ -13,7 +13,7 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
     return (
       <button
         onClick={() => { setOpen(true); setMinimized(false); }}
-        className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg hover:opacity-90"
+        className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg hover:opacity-90 md:bottom-4"
         aria-label="Abrir vídeo da sala"
       >
         <Video className="h-4 w-4" />
