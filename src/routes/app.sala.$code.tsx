@@ -1153,19 +1153,53 @@ function SimuladoRunner({ id }: { id: string }) {
             {isWaiting && (
               <button
                 type="button"
+                disabled={!allCandidatesPresent}
                 onClick={() => {
+                  if (!allCandidatesPresent) {
+                    const names = missingFromCall.map((c) => c.name).join(", ");
+                    toast.error(
+                      candidates.length === 0
+                        ? "Aguarde candidatos entrarem na sala."
+                        : `Aguardando entrar na videochamada: ${names}`,
+                    );
+                    return;
+                  }
                   if (!evaluatedCandidateId) { setSelectCandidateOpen(true); return; }
                   startTimer();
                 }}
-                style={{ color: "var(--medical)" }}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-white/90 hover:shadow active:scale-[0.98]"
+                style={allCandidatesPresent ? { color: "var(--medical)" } : undefined}
+                className={cn(
+                  "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
+                  allCandidatesPresent
+                    ? "bg-white hover:bg-white/90 hover:shadow"
+                    : "cursor-not-allowed bg-white/30 text-white/70",
+                )}
+                title={!allCandidatesPresent ? "Todos os candidatos precisam entrar na videochamada" : undefined}
               >
                 <Play className="h-4 w-4" /> Iniciar cronômetro
               </button>
             )}
             {isWaiting && (
-              <div className="mt-2 rounded-lg bg-white/10 px-3 py-2 text-[11px] leading-snug text-white/85">
-                📹 Confirme que todos os candidatos já entraram na <strong>videochamada</strong> antes de iniciar o cronômetro.
+              <div
+                className={cn(
+                  "mt-2 rounded-lg px-3 py-2 text-[11px] leading-snug",
+                  allCandidatesPresent
+                    ? "bg-mint/20 text-white"
+                    : "bg-white/10 text-white/85",
+                )}
+              >
+                {candidates.length === 0 ? (
+                  <>📹 Aguardando candidatos entrarem na sala...</>
+                ) : allCandidatesPresent ? (
+                  <>✅ Todos os candidatos estão na videochamada — pode iniciar o cronômetro.</>
+                ) : (
+                  <>
+                    📹 Aguardando entrar na <strong>videochamada</strong>:{" "}
+                    <span className="font-semibold text-white">
+                      {missingFromCall.map((c) => c.name).join(", ")}
+                    </span>
+                  </>
+                )}
               </div>
             )}
             {running && (
