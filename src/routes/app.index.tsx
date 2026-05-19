@@ -44,6 +44,7 @@ import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { DashboardCountdown } from "@/components/DashboardCountdown";
 import { motion, type Variants } from "framer-motion";
 
 // Stagger consistente para listas/cards filhos.
