@@ -241,7 +241,7 @@ function Hero() {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative z-10 order-1 space-y-5 sm:space-y-6"
+          className="relative z-10 order-1 space-y-5 sm:space-y-6 lg:order-none lg:col-start-1"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary sm:text-[11px]">
             <span className="relative flex h-1.5 w-1.5">
