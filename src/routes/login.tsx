@@ -213,17 +213,17 @@ function LoginPage() {
         </svg>
 
         {/* Floating medical icons */}
-        <div className="absolute left-[8%] top-[12%] text-mint/60 animate-float">
-          <Stethoscope className="h-8 w-8" strokeWidth={1.5} />
+        <div className="absolute left-[8%] top-[12%] animate-float" style={{ color: "var(--mint)", opacity: 0.7 }}>
+          <Stethoscope className="h-8 w-8" strokeWidth={1.75} />
         </div>
-        <div className="absolute right-[12%] top-[20%] text-medical/60 animate-float [animation-delay:1s]">
-          <HeartPulse className="h-7 w-7" strokeWidth={1.5} />
+        <div className="absolute right-[12%] top-[20%] animate-float [animation-delay:1s]" style={{ color: "var(--medical)", opacity: 0.7 }}>
+          <HeartPulse className="h-7 w-7" strokeWidth={1.75} />
         </div>
-        <div className="absolute left-[18%] bottom-[18%] text-mint/60 animate-float [animation-delay:2s]">
-          <Activity className="h-7 w-7" strokeWidth={1.5} />
+        <div className="absolute left-[18%] bottom-[18%] animate-float [animation-delay:2s]" style={{ color: "var(--mint)", opacity: 0.7 }}>
+          <Activity className="h-7 w-7" strokeWidth={1.75} />
         </div>
-        <div className="absolute right-[10%] bottom-[12%] text-medical/55 animate-float [animation-delay:0.5s]">
-          <Pill className="h-8 w-8" strokeWidth={1.5} />
+        <div className="absolute right-[10%] bottom-[12%] animate-float [animation-delay:0.5s]" style={{ color: "var(--medical)", opacity: 0.65 }}>
+          <Pill className="h-8 w-8" strokeWidth={1.75} />
         </div>
       </div>
 
