@@ -474,8 +474,11 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
-          <div className="pointer-events-none absolute right-4 top-4 z-50">
+        <DialogContent className="flex max-h-[calc(100dvh-1.25rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+          <div
+            className="pointer-events-none absolute right-4 z-50"
+            style={{ top: "max(1rem, env(safe-area-inset-top))" }}
+          >
             <DialogClose className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
               <X className="h-4 w-4" />
               <span className="sr-only">Fechar</span>
@@ -529,7 +532,10 @@ function ResumosPage() {
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 pt-7 text-white sm:px-6 sm:pb-7">
+              <div
+                className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 text-white sm:px-6 sm:pb-7"
+                style={{ paddingTop: "max(1.75rem, calc(env(safe-area-inset-top) + 0.75rem))" }}
+              >
                 {selectedSummary.cover_image_url && (
                   <>
                     <img
@@ -574,33 +580,37 @@ function ResumosPage() {
                     <section
                       key={section.title}
                       className={cn(
-                        "rounded-2xl border bg-card p-5 shadow-card",
-                        section.tone === "highlight" && "border-mint/30 bg-mint/[0.04]",
-                        section.tone === "warn" && "border-amber-400/30 bg-amber-400/[0.04]",
+                        "overflow-hidden rounded-2xl border bg-card shadow-card",
+                        section.tone === "highlight" && "border-mint/30",
+                        section.tone === "warn" && "border-amber-400/30",
                         section.tone === "default" && "border-border",
                       )}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-hero text-xs font-bold tabular-nums text-white shadow-elegant ring-1 ring-white/20">
+                      <header className="flex items-center gap-3 bg-gradient-hero px-4 py-3 text-white shadow-elegant">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/15 text-[11px] font-bold tabular-nums ring-1 ring-white/30">
                           {String(index + 1).padStart(2, "0")}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <section.icon
-                            className={cn(
-                              "h-4 w-4",
-                              section.tone === "highlight"
-                                ? "text-mint"
-                                : section.tone === "warn"
-                                  ? "text-amber-500"
-                                  : "text-muted-foreground",
-                            )}
-                          />
-                          <h3 className="font-display text-sm font-bold uppercase tracking-wide">
-                            {section.title}
-                          </h3>
-                        </div>
-                      </div>
-                      <div className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-foreground/90">
+                        <section.icon
+                          className={cn(
+                            "h-4 w-4 shrink-0",
+                            section.tone === "highlight"
+                              ? "text-mint"
+                              : section.tone === "warn"
+                                ? "text-amber-300"
+                                : "text-white/90",
+                          )}
+                        />
+                        <h3 className="min-w-0 truncate font-display text-sm font-bold uppercase tracking-wide">
+                          {section.title}
+                        </h3>
+                      </header>
+                      <div
+                        className={cn(
+                          "whitespace-pre-wrap p-5 text-[14px] leading-relaxed text-foreground/90",
+                          section.tone === "highlight" && "bg-mint/[0.04]",
+                          section.tone === "warn" && "bg-amber-400/[0.04]",
+                        )}
+                      >
                         {section.text}
                       </div>
                     </section>
