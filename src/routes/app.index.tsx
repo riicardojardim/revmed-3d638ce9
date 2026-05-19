@@ -45,17 +45,10 @@ import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
-// Stagger consistente para listas/cards filhos.
-const staggerContainer: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
-};
-const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
+import { STAGGER, staggerContainer, staggerItem } from "@/lib/stagger";
+
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
@@ -290,10 +283,7 @@ function Dashboard() {
     <div className="relative mx-auto max-w-7xl space-y-6">
 
       <motion.div
-        variants={{
-          hidden: {},
-          show: { transition: { staggerChildren: 0.16, delayChildren: 0.05 } },
-        }}
+        variants={staggerContainer}
         initial="hidden"
         animate={ready ? "show" : "hidden"}
         className="space-y-6"
