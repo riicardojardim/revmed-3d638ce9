@@ -777,6 +777,7 @@ export type Database = {
           published: boolean
           read_time_minutes: number
           specialty: string
+          station_id: string | null
           title: string
           topic: string | null
           updated_at: string
@@ -799,6 +800,7 @@ export type Database = {
           published?: boolean
           read_time_minutes?: number
           specialty: string
+          station_id?: string | null
           title: string
           topic?: string | null
           updated_at?: string
@@ -821,6 +823,7 @@ export type Database = {
           published?: boolean
           read_time_minutes?: number
           specialty?: string
+          station_id?: string | null
           title?: string
           topic?: string | null
           updated_at?: string
