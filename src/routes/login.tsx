@@ -4,7 +4,8 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Eye, EyeOff, Stethoscope, HeartPulse, Activity, Pill } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { LoginBackground } from "@/components/LoginBackground";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -172,60 +173,10 @@ function LoginPage() {
       style={{
         paddingTop: "env(safe-area-inset-top)",
         paddingBottom: "env(safe-area-inset-bottom)",
-        backgroundImage:
-          "radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--mint) 28%, transparent) 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, color-mix(in oklab, var(--medical) 22%, transparent) 0%, transparent 55%), linear-gradient(160deg, color-mix(in oklab, var(--mint-soft) 70%, white) 0%, white 55%, color-mix(in oklab, var(--medical) 12%, white) 100%)",
       }}
     >
-      {/* Animated medical background */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {/* Soft brand orbs */}
-        <div className="absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-mint/35 blur-3xl animate-pulse-slow" />
-        <div className="absolute -right-28 top-1/4 h-[26rem] w-[26rem] rounded-full bg-medical/25 blur-3xl animate-pulse-slow [animation-delay:1.5s]" />
-        <div className="absolute -bottom-32 left-1/3 h-[24rem] w-[24rem] rounded-full bg-mint/25 blur-3xl animate-pulse-slow [animation-delay:3s]" />
+      <LoginBackground />
 
-        {/* Subtle mint grid */}
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "linear-gradient(var(--mint) 1px, transparent 1px), linear-gradient(90deg, var(--mint) 1px, transparent 1px)",
-            backgroundSize: "44px 44px",
-            maskImage:
-              "radial-gradient(ellipse at center, black 40%, transparent 75%)",
-          }}
-        />
-
-        {/* ECG line */}
-        <svg
-          className="absolute left-0 right-0 top-1/2 h-24 w-full -translate-y-1/2 opacity-30"
-          viewBox="0 0 1200 100"
-          preserveAspectRatio="none"
-          fill="none"
-        >
-          <path
-            d="M0 50 L200 50 L230 50 L245 20 L260 80 L275 35 L290 50 L500 50 L530 50 L545 15 L560 85 L575 30 L590 50 L800 50 L830 50 L845 25 L860 75 L875 40 L890 50 L1200 50"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="text-mint animate-ecg"
-            strokeDasharray="1400"
-            strokeDashoffset="1400"
-          />
-        </svg>
-
-        {/* Floating medical icons */}
-        <div className="absolute left-[8%] top-[12%] animate-float" style={{ color: "var(--mint)", opacity: 0.7 }}>
-          <Stethoscope className="h-8 w-8" strokeWidth={1.75} />
-        </div>
-        <div className="absolute right-[12%] top-[20%] animate-float [animation-delay:1s]" style={{ color: "var(--medical)", opacity: 0.7 }}>
-          <HeartPulse className="h-7 w-7" strokeWidth={1.75} />
-        </div>
-        <div className="absolute left-[18%] bottom-[18%] animate-float [animation-delay:2s]" style={{ color: "var(--mint)", opacity: 0.7 }}>
-          <Activity className="h-7 w-7" strokeWidth={1.75} />
-        </div>
-        <div className="absolute right-[10%] bottom-[12%] animate-float [animation-delay:0.5s]" style={{ color: "var(--medical)", opacity: 0.65 }}>
-          <Pill className="h-8 w-8" strokeWidth={1.75} />
-        </div>
-      </div>
 
 
       <div className="container relative mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-6">
