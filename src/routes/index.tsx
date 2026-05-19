@@ -283,6 +283,14 @@ function Hero() {
 }
 
 function HeroVisual() {
+  const views = ["station", "dashboard"] as const;
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % views.length), 3500);
+    return () => clearInterval(t);
+  }, []);
+  const view = views[idx];
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -299,123 +307,60 @@ function HeroVisual() {
           </div>
           <div className="flex max-w-[250px] items-center gap-1.5 truncate rounded-md bg-background px-2.5 py-0.5 text-[10px] text-muted-foreground sm:max-w-none">
             <ShieldCheck className="h-3 w-3 text-mint" />
-            estacaorevalida.com.br/app/sala/MX9K2/candidato
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={view}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.25 }}
+              >
+                {view === "station"
+                  ? "estacaorevalida.com.br/app/sala/MX9K2/candidato"
+                  : "estacaorevalida.com.br/app"}
+              </motion.span>
+            </AnimatePresence>
           </div>
           <div className="w-12" />
         </div>
 
-        <div className="bg-background/70 p-3">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
-              <ArrowLeft className="h-3.5 w-3.5" /> Sair
-            </button>
-            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-              <span className="rounded-full bg-mint/15 px-2 py-0.5 font-bold text-mint">Candidato</span>
-              <span>•</span>
-              <span>Clínica Médica</span>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-xl border border-mint/20 bg-gradient-hero p-4 text-white shadow-elegant">
-            <div
-              className="pointer-events-none absolute inset-0 opacity-10"
-              style={{
-                backgroundImage:
-                  "linear-gradient(var(--mint) 1px, transparent 1px), linear-gradient(90deg, var(--mint) 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
-              }}
-            />
-            <div className="relative">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-mint">
-                <ShieldCheck className="h-2.5 w-2.5" /> Estação em andamento
-              </div>
-              <div className="mt-2 flex items-end justify-between gap-3">
-                <div>
-                  <h3 className="font-display text-base font-bold leading-tight md:text-lg">
-                    Estação de Clínica Médica
-                  </h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px] text-white/70">
-                    <span className="rounded-md bg-mint px-1.5 py-0.5 font-bold text-night">CLM</span>
-                    <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-mint" /> Dor torácica</span>
-                    <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> 10 min</span>
-                  </div>
-                </div>
-                <span className="rounded-md border border-white/20 bg-white/5 px-2 py-1 font-mono text-[10px] tracking-wider">
-                  MX9K2
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_176px]">
-            <div className="space-y-3">
-              <MockStationBlock icon={MessageSquare} title="Cenário de atuação">
-                Paciente chega ao pronto atendimento com dor torácica opressiva. Conduza anamnese, solicite exames e indique a conduta inicial.
-              </MockStationBlock>
-
-              <MockStationBlock icon={ListChecks} title="Nos 10 minutos, você deverá">
-                <ul className="space-y-1">
-                  <li>• Avaliar sinais de gravidade e fatores de risco.</li>
-                  <li>• Solicitar ECG, troponina e monitorização.</li>
-                  <li>• Explicar hipótese e conduta ao paciente.</li>
-                </ul>
-              </MockStationBlock>
-
-              <MockStationBlock
-                icon={Inbox}
-                title="Materiais recebidos"
-                right={<Badge variant="outline" className="border-white/30 text-white">2</Badge>}
+        <div className="relative min-h-[420px]">
+          <AnimatePresence mode="wait">
+            {view === "station" ? (
+              <motion.div
+                key="station"
+                initial={{ opacity: 0, x: -24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 24 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
               >
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {["ECG de 12 derivações", "Troponina I — laudo"].map((name, i) => (
-                    <div key={name} className="rounded-lg border border-mint/35 bg-mint/5 p-2">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
-                        <FileText className="h-3 w-3 text-mint" /> {name}
-                      </div>
-                      <div className="mt-1 text-[9px] text-muted-foreground">
-                        {i === 0 ? "clique para ver a imagem" : "resultado entregue pelo ator"}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </MockStationBlock>
-            </div>
-
-            <aside className="space-y-3">
-              <div className="rounded-xl border border-border bg-gradient-hero p-3 text-white shadow-elegant">
-                <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-white/70">
-                  <span>Em andamento</span>
-                  <Eye className="h-3 w-3" />
-                </div>
-                <div className="mt-2 rounded-lg bg-mint/15 px-3 py-4 text-center font-display text-3xl font-bold tabular-nums">
-                  07:42
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border bg-card p-3">
-                <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                  <StickyNote className="h-3 w-3 text-primary" /> Anotações
-                </div>
-                <div className="space-y-1.5 text-[9.5px] leading-snug text-foreground/80">
-                  <p>• Dor 7/10 há 40min</p>
-                  <p>• HAS, tabagismo prévio</p>
-                  <p className="rounded bg-mint/20 px-1 py-0.5 font-semibold text-primary">HD: SCA · AAS + ECG</p>
-                </div>
-              </div>
-            </aside>
-          </div>
+                <StationMockup />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="dashboard"
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+              >
+                <DashboardMockup />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+      </div>
 
-        <div className="absolute bottom-3 right-3 w-[190px] overflow-hidden rounded-xl border border-border bg-background shadow-elegant">
-          <div className="flex items-center justify-between border-b border-border bg-muted/30 px-2 py-1 text-[10px] font-semibold">
-            <span className="inline-flex items-center gap-1"><Video className="h-3 w-3 text-primary" /> Vídeo</span>
-            <span className="text-muted-foreground">2 / 2</span>
-          </div>
-          <div className="grid grid-cols-2 gap-1.5 bg-night p-1.5">
-            <VideoTile src={candidate6} name="Você" role="Candidato" active />
-            <VideoTile src={candidate3} name="Ana" role="Atriz" />
-          </div>
-        </div>
+      {/* Pagination dots */}
+      <div className="absolute -bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-1.5">
+        {views.map((v, i) => (
+          <button
+            key={v}
+            onClick={() => setIdx(i)}
+            aria-label={`Ver ${v}`}
+            className={`h-1.5 rounded-full transition-all ${i === idx ? "w-6 bg-mint" : "w-1.5 bg-border hover:bg-muted-foreground/50"}`}
+          />
+        ))}
       </div>
 
       <motion.div
@@ -448,6 +393,268 @@ function HeroVisual() {
     </motion.div>
   );
 }
+
+function StationMockup() {
+  return (
+    <div className="bg-background/70 p-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> Sair
+        </button>
+        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+          <span className="rounded-full bg-mint/15 px-2 py-0.5 font-bold text-mint">Candidato</span>
+          <span>•</span>
+          <span>Clínica Médica</span>
+        </div>
+      </div>
+
+      <div className="relative overflow-hidden rounded-xl border border-mint/20 bg-gradient-hero p-4 text-white shadow-elegant">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--mint) 1px, transparent 1px), linear-gradient(90deg, var(--mint) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="relative">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-mint">
+            <ShieldCheck className="h-2.5 w-2.5" /> Estação em andamento
+          </div>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <div>
+              <h3 className="font-display text-base font-bold leading-tight md:text-lg">
+                Estação de Clínica Médica
+              </h3>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px] text-white/70">
+                <span className="rounded-md bg-mint px-1.5 py-0.5 font-bold text-night">CLM</span>
+                <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-mint" /> Dor torácica</span>
+                <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" /> 10 min</span>
+              </div>
+            </div>
+            <span className="rounded-md border border-white/20 bg-white/5 px-2 py-1 font-mono text-[10px] tracking-wider">
+              MX9K2
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_176px]">
+        <div className="space-y-3">
+          <MockStationBlock icon={MessageSquare} title="Cenário de atuação">
+            Paciente chega ao pronto atendimento com dor torácica opressiva. Conduza anamnese, solicite exames e indique a conduta inicial.
+          </MockStationBlock>
+
+          <MockStationBlock icon={ListChecks} title="Nos 10 minutos, você deverá">
+            <ul className="space-y-1">
+              <li>• Avaliar sinais de gravidade e fatores de risco.</li>
+              <li>• Solicitar ECG, troponina e monitorização.</li>
+              <li>• Explicar hipótese e conduta ao paciente.</li>
+            </ul>
+          </MockStationBlock>
+
+          <MockStationBlock
+            icon={Inbox}
+            title="Materiais recebidos"
+            right={<Badge variant="outline" className="border-white/30 text-white">2</Badge>}
+          >
+            <div className="grid gap-2 sm:grid-cols-2">
+              {["ECG de 12 derivações", "Troponina I — laudo"].map((name, i) => (
+                <div key={name} className="rounded-lg border border-mint/35 bg-mint/5 p-2">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                    <FileText className="h-3 w-3 text-mint" /> {name}
+                  </div>
+                  <div className="mt-1 text-[9px] text-muted-foreground">
+                    {i === 0 ? "clique para ver a imagem" : "resultado entregue pelo ator"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MockStationBlock>
+        </div>
+
+        <aside className="space-y-3">
+          <div className="rounded-xl border border-border bg-gradient-hero p-3 text-white shadow-elegant">
+            <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-white/70">
+              <span>Em andamento</span>
+              <Eye className="h-3 w-3" />
+            </div>
+            <div className="mt-2 rounded-lg bg-mint/15 px-3 py-4 text-center font-display text-3xl font-bold tabular-nums">
+              07:42
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-3">
+            <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <StickyNote className="h-3 w-3 text-primary" /> Anotações
+            </div>
+            <div className="space-y-1.5 text-[9.5px] leading-snug text-foreground/80">
+              <p>• Dor 7/10 há 40min</p>
+              <p>• HAS, tabagismo prévio</p>
+              <p className="rounded bg-mint/20 px-1 py-0.5 font-semibold text-primary">HD: SCA · AAS + ECG</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div className="absolute bottom-3 right-3 w-[190px] overflow-hidden rounded-xl border border-border bg-background shadow-elegant">
+        <div className="flex items-center justify-between border-b border-border bg-muted/30 px-2 py-1 text-[10px] font-semibold">
+          <span className="inline-flex items-center gap-1"><Video className="h-3 w-3 text-primary" /> Vídeo</span>
+          <span className="text-muted-foreground">2 / 2</span>
+        </div>
+        <div className="grid grid-cols-2 gap-1.5 bg-night p-1.5">
+          <VideoTile src={candidate6} name="Você" role="Candidato" active />
+          <VideoTile src={candidate3} name="Ana" role="Atriz" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DashboardMockup() {
+  const weekBars = [55, 72, 40, 88, 65, 95, 78];
+  const days = ["S", "T", "Q", "Q", "S", "S", "D"];
+  const specialties = [
+    { code: "CLM", label: "Clínica Médica", pct: 92, color: "bg-mint" },
+    { code: "PED", label: "Pediatria", pct: 84, color: "bg-blue-400" },
+    { code: "GO", label: "Gineco/Obst.", pct: 76, color: "bg-pink-400" },
+    { code: "CIR", label: "Cirurgia", pct: 68, color: "bg-amber-400" },
+    { code: "MFC", label: "Med. Família", pct: 81, color: "bg-purple-400" },
+  ];
+  return (
+    <div className="bg-background/70 p-3">
+      {/* Greeting bar */}
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <img src={candidate6} alt="" className="h-9 w-9 rounded-full border-2 border-mint object-cover" />
+          <div>
+            <p className="text-[11px] font-bold leading-tight">Olá, Dr. João 👋</p>
+            <p className="text-[9px] text-muted-foreground">Faltam <span className="font-bold text-primary">37 dias</span> para a prova</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-bold text-mint">
+          <Sparkles className="h-3 w-3" /> Sequência de 12 dias
+        </div>
+      </div>
+
+      {/* Top stat cards */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { icon: ClipboardCheck, label: "Estações", value: "142", trend: "+18" },
+          { icon: TrendingUp, label: "Média", value: "8,4", trend: "+0,6" },
+          { icon: Trophy, label: "Ranking", value: "#27", trend: "↑ 9" },
+          { icon: Clock, label: "Horas", value: "63h", trend: "+4h" },
+        ].map(({ icon: Icon, label, value, trend }) => (
+          <div key={label} className="rounded-xl border border-border bg-card p-2.5">
+            <div className="flex items-center justify-between">
+              <Icon className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[8px] font-bold text-mint">{trend}</span>
+            </div>
+            <p className="mt-1 font-display text-lg font-bold leading-none">{value}</p>
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Weekly chart + Trophies */}
+      <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_176px]">
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <BarChart3 className="h-3 w-3 text-primary" /> Estações por dia
+            </div>
+            <span className="text-[9px] text-muted-foreground">últimos 7 dias</span>
+          </div>
+          <div className="flex h-20 items-end gap-1.5">
+            {weekBars.map((h, i) => (
+              <div key={i} className="flex flex-1 flex-col items-center gap-1">
+                <div className="flex w-full flex-1 items-end">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ duration: 0.6, delay: i * 0.05 }}
+                    className="w-full rounded-t bg-gradient-to-t from-mint/60 to-mint"
+                  />
+                </div>
+                <span className="text-[8px] text-muted-foreground">{days[i]}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 space-y-1.5">
+            <div className="mb-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <Layers className="h-3 w-3 text-primary" /> Desempenho por especialidade
+            </div>
+            {specialties.map((s, i) => (
+              <div key={s.code} className="flex items-center gap-2">
+                <span className="w-9 text-[9px] font-mono font-bold text-muted-foreground">{s.code}</span>
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${s.pct}%` }}
+                    transition={{ duration: 0.7, delay: 0.2 + i * 0.05 }}
+                    className={`h-full ${s.color}`}
+                  />
+                </div>
+                <span className="w-7 text-right text-[9px] font-bold tabular-nums">{s.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <aside className="space-y-2">
+          <div className="rounded-xl border border-mint/30 bg-gradient-hero p-3 text-white shadow-elegant">
+            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-white/70">
+              <Trophy className="h-3 w-3 text-mint" /> Conquistas
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
+              {[
+                { icon: Trophy, color: "text-amber-300", bg: "bg-amber-300/15" },
+                { icon: Star, color: "text-mint", bg: "bg-mint/20" },
+                { icon: Heart, color: "text-rose-300", bg: "bg-rose-300/15" },
+                { icon: Brain, color: "text-blue-300", bg: "bg-blue-300/15" },
+                { icon: ShieldCheck, color: "text-mint", bg: "bg-mint/20" },
+                { icon: Sparkles, color: "text-purple-300", bg: "bg-purple-300/15" },
+              ].map(({ icon: Ico, color, bg }, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 0, rotate: -20 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.05, type: "spring" }}
+                  className={`flex aspect-square items-center justify-center rounded-lg ${bg}`}
+                >
+                  <Ico className={`h-4 w-4 ${color}`} />
+                </motion.div>
+              ))}
+            </div>
+            <p className="mt-2 text-[9px] text-white/80">6 de 24 medalhas</p>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-3">
+            <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              <History className="h-3 w-3 text-primary" /> Recente
+            </div>
+            <div className="space-y-1.5 text-[9.5px]">
+              <div className="flex items-center justify-between">
+                <span className="truncate">Dor torácica</span>
+                <span className="font-bold text-mint">9,2</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="truncate">Febre na criança</span>
+                <span className="font-bold text-mint">8,7</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="truncate">Pré-natal</span>
+                <span className="font-bold text-amber-500">7,1</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
 
 function MockStationBlock({
   icon: Icon,
