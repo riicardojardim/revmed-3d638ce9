@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect, useState, useRef, type ComponentType, type ReactNode } from "react";
+import { useEffect, useState, useRef, useContext, createContext, type ComponentType, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -53,6 +53,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CheckoutModal, type CheckoutPlanSlug } from "@/components/CheckoutModal";
 import candidate1 from "@/assets/candidate-1.jpg";
 import candidate2 from "@/assets/candidate-2.jpg";
 import candidate3 from "@/assets/candidate-3.jpg";
@@ -95,35 +96,53 @@ const nav = [
   { label: "FAQ", href: "#faq" },
 ];
 
+/* ---------------- Landing helpers (scroll + checkout modal) ---------------- */
+function scrollToPlanos() {
+  const el = document.getElementById("planos");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  else window.location.hash = "planos";
+}
+
+const CheckoutCtx = createContext<(plan: CheckoutPlanSlug) => void>(() => {});
+const useOpenCheckout = () => useContext(CheckoutCtx);
+
 function LandingPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [checkoutPlan, setCheckoutPlan] = useState<CheckoutPlanSlug | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const openCheckout = (plan: CheckoutPlanSlug) => {
+    setCheckoutPlan(plan);
+    setCheckoutOpen(true);
+  };
   useEffect(() => {
     if (!loading && user) {
       navigate({ to: "/app", replace: true });
     }
   }, [loading, user, navigate]);
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <Hero />
-      <TrustBar />
-      <Stats />
-      <HowItWorks />
-      <BeforeAfter />
-      <Simulation />
-      <Resources />
-      <Areas />
-      
-      <Comparison />
-      <ExamCountdown />
-      <Plans />
-      <Testimonials />
-      <FAQ />
-      <FinalCTA />
-      <Footer />
-      <FloatingNotifications />
-    </div>
+    <CheckoutCtx.Provider value={openCheckout}>
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <Hero />
+        <TrustBar />
+        <Stats />
+        <HowItWorks />
+        <BeforeAfter />
+        <Simulation />
+        <Resources />
+        <Areas />
+        <Comparison />
+        <ExamCountdown />
+        <Plans />
+        <Testimonials />
+        <FAQ />
+        <FinalCTA />
+        <Footer />
+        <FloatingNotifications />
+      </div>
+      <CheckoutModal plan={checkoutPlan} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+    </CheckoutCtx.Provider>
   );
 }
 
@@ -145,11 +164,13 @@ function Header() {
           <Link to="/login">
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
-          <Link to="/cadastro">
-            <Button size="sm" className="rounded-full bg-mint text-night shadow-glow hover:bg-mint/90">
-              Começar agora <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            size="sm"
+            onClick={scrollToPlanos}
+            className="rounded-full bg-mint text-night shadow-glow hover:bg-mint/90"
+          >
+            Começar agora <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
         </div>
         <button
           className="rounded-md p-2 lg:hidden"
@@ -179,9 +200,12 @@ function Header() {
               <Link to="/login" onClick={() => setOpen(false)}>
                 <Button variant="outline" className="w-full">Entrar</Button>
               </Link>
-              <Link to="/cadastro" onClick={() => setOpen(false)}>
-                <Button className="w-full bg-mint text-night hover:bg-mint/90">Começar</Button>
-              </Link>
+              <Button
+                className="w-full bg-mint text-night hover:bg-mint/90"
+                onClick={() => { setOpen(false); scrollToPlanos(); }}
+              >
+                Começar
+              </Button>
             </div>
           </div>
         </div>
@@ -227,15 +251,14 @@ function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-3 pt-1">
-            <Link to="/cadastro">
-              <Button
-                size="lg"
-                className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
-              >
-                Quero treinar minha 1ª estação grátis
-                <ArrowRight className="ml-1.5 h-4 w-4" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={scrollToPlanos}
+              className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
+            >
+              Ver planos e começar
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
             <a href="#simulacao">
               <Button
                 size="lg"
@@ -249,7 +272,7 @@ function Hero() {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia incondicional</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Sem cartão pra começar</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em até 12x</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Cancele em 2 cliques</span>
           </div>
 
@@ -908,12 +931,13 @@ function BeforeAfter() {
           <p className="text-sm font-semibold text-primary">
             Pare de adivinhar como vai ser a prova. Faça a prova antes da prova.
           </p>
-          <Link to="/cadastro">
-            <Button className="h-10 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90">
-              Treinar minha 1ª estação grátis
-              <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            onClick={scrollToPlanos}
+            className="h-10 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90"
+          >
+            Ver planos
+            <ArrowRight className="ml-1.5 h-4 w-4" />
+          </Button>
         </div>
       </div>
     </section>
@@ -991,11 +1015,13 @@ function Simulation() {
             ))}
           </ul>
           <div className="flex flex-wrap gap-3 pt-3">
-            <Link to="/cadastro">
-              <Button size="lg" className="h-11 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90">
-                Criar minha sala
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={scrollToPlanos}
+              className="h-11 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90"
+            >
+              Ver planos e começar
+            </Button>
           </div>
         </div>
 
@@ -1334,6 +1360,8 @@ function ExamCountdown() {
 }
 
 function Plans() {
+  const openCheckout = useOpenCheckout();
+
 
 
   return (
@@ -1413,20 +1441,18 @@ function Plans() {
 
 
             <div className="mt-auto pt-6">
-              <Link to="/cadastro" search={{ plano: p.slug }}>
-
-                <Button
-                  size="lg"
-                  className={`w-full rounded-xl text-sm font-bold ${
-                    p.highlight
-                      ? "bg-mint text-night shadow-glow hover:bg-mint/90"
-                      : "bg-background text-foreground hover:bg-muted"
-                  }`}
-                  variant={p.highlight ? "default" : "outline"}
-                >
-                  {p.cta}
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                onClick={() => openCheckout(p.slug)}
+                className={`w-full rounded-xl text-sm font-bold ${
+                  p.highlight
+                    ? "bg-mint text-night shadow-glow hover:bg-mint/90"
+                    : "bg-background text-foreground hover:bg-muted"
+                }`}
+                variant={p.highlight ? "default" : "outline"}
+              >
+                {p.cta}
+              </Button>
               <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-mint" />
                 7 dias de garantia · 100% do dinheiro de volta
@@ -1599,15 +1625,14 @@ function FinalCTA() {
             Acesso imediato. Comece a treinar nos próximos 2 minutos.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/cadastro">
-              <Button
-                size="lg"
-                className="h-12 rounded-xl bg-mint px-8 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
-              >
-                Começar meu treino agora
-                <ArrowRight className="ml-1.5 h-4 w-4" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={scrollToPlanos}
+              className="h-12 rounded-xl bg-mint px-8 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
+            >
+              Começar meu treino agora
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
