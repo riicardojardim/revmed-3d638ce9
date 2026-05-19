@@ -34,8 +34,6 @@ type Step = "list" | "cover" | "play";
 
 function FlashcardsPage() {
   const { user } = useAuth();
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [cardCounts, setCardCounts] = useState<Map<string, number>>(new Map());
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
   
@@ -49,27 +47,31 @@ function FlashcardsPage() {
   const [perCardSeconds, setPerCardSeconds] = useState<number[]>([]);
   const [cardStartedAt, setCardStartedAt] = useState<number>(() => Date.now());
 
-  useEffect(() => {
-    (async () => {
+  const { data: decksData } = useQuery({
+    queryKey: ["flashcard-decks", "published"],
+    staleTime: 60_000,
+    queryFn: async () => {
       const { data: ds } = await supabase
         .from("flashcard_decks")
         .select("id, title, specialty, topic, cover_image_url")
         .eq("published", true)
         .order("created_at", { ascending: false });
       const list = (ds ?? []) as Deck[];
-      setDecks(list);
       const ids = list.map((d) => d.id);
+      const m = new Map<string, number>();
       if (ids.length) {
         const { data: fcs } = await supabase.from("flashcards").select("deck_id").in("deck_id", ids);
-        const m = new Map<string, number>();
         (fcs ?? []).forEach((f) => {
           const k = f.deck_id as string;
           if (k) m.set(k, (m.get(k) ?? 0) + 1);
         });
-        setCardCounts(m);
       }
-    })();
-  }, []);
+      return { decks: list, counts: m };
+    },
+  });
+  const decks = decksData?.decks ?? [];
+  const cardCounts = decksData?.counts ?? new Map<string, number>();
+
 
   const specialties = useMemo(
     () => ["Todas", ...sortSpecialties(Array.from(new Set(decks.map((d) => d.specialty))))],
