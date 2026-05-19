@@ -122,7 +122,7 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-px shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
+        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-0 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
         role="dialog"
         aria-label="Instalar aplicativo"
         onPointerDown={onPointerDown}
@@ -136,24 +136,24 @@ export function PWAInstallBanner() {
           transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
         }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-xs leading-none">📲</span>
-          <p className="flex-1 whitespace-nowrap text-[10px] font-medium leading-none text-foreground sm:text-[11px]">
+        <div className="flex h-5 items-center gap-1.5">
+          <span className="text-[10px] leading-none">📲</span>
+          <p className="flex-1 whitespace-nowrap text-[9px] font-medium leading-none text-foreground sm:text-[10px]">
             Baixe nosso app para melhor experiência
           </p>
           <button
             onClick={handleInstallClick}
-            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-mint px-2 py-[2px] text-[10px] font-semibold text-background hover:bg-mint/90"
+            className="inline-flex h-4 shrink-0 items-center gap-0.5 rounded-full bg-mint px-1.5 py-0 text-[9px] font-semibold leading-none text-background hover:bg-mint/90"
           >
-            <Download className="h-2.5 w-2.5" />
+            <Download className="h-2 w-2" />
             Baixar
           </button>
           <button
             onClick={dismiss}
-            className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label="Fechar"
           >
-            <X className="h-3 w-3" />
+            <X className="h-2.5 w-2.5" />
           </button>
         </div>
       </div>
