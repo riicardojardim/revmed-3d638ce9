@@ -10,7 +10,7 @@ import {
   Home,
   ClipboardList,
   Dumbbell,
-  TrendingUp,
+  
   User,
   Bell,
   LogOut,
@@ -27,7 +27,7 @@ import {
   DoorOpen,
   Video,
   Sparkles,
-  Clock,
+  
   MessageSquare,
   Headphones,
   ChevronDown,
@@ -104,13 +104,6 @@ function AppLayout() {
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
-      {
-        label: "Desempenho",
-        items: [
-          { to: "/app/progresso", label: "Meus Desempenhos", icon: TrendingUp },
-          { to: "/app/historico", label: "Histórico", icon: Clock },
-        ],
-      },
       ...(isTeacher
         ? [{
             label: "Área da mentoria",
@@ -136,7 +129,7 @@ function AppLayout() {
           
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           
-          { to: "/app/progresso", label: "Progresso", icon: TrendingUp },
+          
           ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
