@@ -234,14 +234,6 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
                   </ul>
                 </section>
               )}
-
-              <div className="flex justify-end pt-2">
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/app/resumos/$id" params={{ id: summary.id }} onClick={() => setOpen(false)}>
-                    Abrir resumo completo <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
-              </div>
             </div>
           </>
         )}
