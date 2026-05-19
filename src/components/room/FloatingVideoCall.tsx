@@ -84,8 +84,8 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
     return (
       <button
         onClick={() => { setOpen(true); setMinimized(false); }}
-        className="fixed bottom-24 right-3 z-[100] flex items-center gap-2 rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-elegant hover:opacity-90"
-        style={{ marginBottom: "max(env(safe-area-inset-bottom), 0px)" }}
+        className="fixed bottom-24 right-3 z-[100] flex items-center gap-2 rounded-full bg-primary px-3 py-2 text-xs font-medium text-primary-foreground shadow-elegant hover:opacity-90 sm:bottom-24"
+        style={{ marginBottom: "max(env(safe-area-inset-bottom), 0px)", right: "max(env(safe-area-inset-right), 0.75rem)" }}
         aria-label="Abrir vídeo da sala"
       >
         <Video className="h-3.5 w-3.5" />
@@ -97,7 +97,7 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
   // Posição: usa drag salvo, senão canto inferior direito
   const positioned = pos
     ? { left: pos.x, top: pos.y, right: "auto", bottom: "auto" }
-    : { right: 12, bottom: 96 };
+    : { right: 12, bottom: 112 };
 
   return (
     <div
