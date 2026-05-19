@@ -45,15 +45,16 @@ function ResumosPage() {
   const [allSpec, setAllSpec] = useState<string>("Todas");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: items = [], isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["resumos", "published"],
     staleTime: 60_000,
     queryFn: async (): Promise<Summary[]> => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("summaries")
         .select("id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at")
         .eq("published", true)
         .order("created_at", { ascending: false });
+      if (error) throw error;
       return (data ?? []) as Summary[];
     },
   });
