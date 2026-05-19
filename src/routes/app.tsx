@@ -334,33 +334,8 @@ function AppLayout() {
         </main>
 
         {/* Bottom dock — em todas as larguras */}
-        <nav
-          className="fixed bottom-3 left-1/2 z-40 w-[min(96vw,720px)] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/80 shadow-elegant backdrop-blur-xl"
-          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
-        >
-          <div className="flex items-stretch justify-around gap-1 px-2 py-1.5">
-            {flatNav.map((n) => {
-              const active = isActive(n.to, n.exact);
-              return (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className={`relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-[10px] font-semibold transition-all ${
-                    active
-                      ? "bg-mint/15 text-mint"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <n.icon className={`h-5 w-5 ${active ? "scale-110" : ""} transition-transform`} />
-                  <span className="truncate">{n.label}</span>
-                  {active && (
-                    <span className="absolute -top-1 h-1 w-6 rounded-full bg-mint" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+        <BottomDock items={flatNav} isActive={isActive} />
+
 
 
       </div>
