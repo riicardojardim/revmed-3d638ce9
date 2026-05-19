@@ -435,7 +435,7 @@ function DailyMotivationCard({ userId }: { userId: string }) {
   const m = useMemo(() => MOTIVATIONS[pickDailyIndex(userId, MOTIVATIONS.length)], [userId]);
   return (
     <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
-      <h3 className="font-display font-bold text-mint">Motivação Estação Revalida</h3>
+      <h3 className="font-display font-bold text-mint">Inspiração do dia</h3>
       <p className="mt-3 text-sm font-medium text-foreground">{m.title}</p>
       <p className="mt-2 text-xs text-muted-foreground">{m.sub}</p>
     </div>
