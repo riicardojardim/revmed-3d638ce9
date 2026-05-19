@@ -473,18 +473,12 @@ export async function generateAndSaveSummary(
   const hasBlockingError =
     verifier?.verdict === "reprovado" || structIssues.some((i) => i.severity === "error");
 
+  // Nas notas/referências mostramos APENAS as fontes utilizadas — sem nenhuma
+  // menção a validação por IA, veredito ou avisos automáticos (visível ao usuário).
   const sourcesBlock =
     result.sources && result.sources.length
-      ? `\n\nFontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
+      ? `Fontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
       : "";
-  const auditBlock = (() => {
-    if (allIssues.length === 0 && verifier?.verdict === "aprovado") {
-      return "\n\nValidação automática: APROVADO (checagem estrutural + revisão IA).";
-    }
-    const verdict = verifier ? `Veredito IA: ${verifier.verdict}` : "Veredito IA: indisponível";
-    const lines = allIssues.map((i) => `• [${i.severity.toUpperCase()}] ${i.field}: ${i.message}`);
-    return `\n\nValidação automática:\n${verdict}\n${lines.join("\n")}`;
-  })();
 
   const { data: row, error } = await supabase
     .from("summaries")
@@ -503,7 +497,7 @@ export async function generateAndSaveSummary(
       conduct: result.conduct,
       key_points: result.key_points,
       pitfalls: result.pitfalls,
-      content_md: (sourcesBlock + auditBlock).trim(),
+      content_md: sourcesBlock,
       published: false,
     })
     .select(
