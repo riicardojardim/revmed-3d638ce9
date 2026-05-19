@@ -56,7 +56,7 @@ function AdminResumoEdit() {
       high_yield: row.high_yield, cover_image_url: row.cover_image_url || null,
       definition: row.definition, clinical_picture: row.clinical_picture,
       diagnosis: row.diagnosis, conduct: row.conduct,
-      key_points: row.key_points, pitfalls: row.pitfalls, content_md: row.content_md,
+      key_points: row.key_points, pitfalls: row.pitfalls, content_md: row.content_md ?? "",
     }).eq("id", row.id);
     setSaving(false);
     if (error) return toast.error("Falha ao salvar", { description: error.message });

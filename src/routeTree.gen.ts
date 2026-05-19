@@ -63,6 +63,7 @@ import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$cod
 import { Route as AppSalaCodeBancaRouteImport } from './routes/app.sala.$code.banca'
 import { Route as AppProfessorEstacoesIdRouteImport } from './routes/app.professor.estacoes.$id'
 import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.professor.correcoes.$id'
+import { Route as AppAdminResumosIdRouteImport } from './routes/app.admin.resumos.$id'
 import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
 
@@ -336,6 +337,11 @@ const AppProfessorCorrecoesIdRoute = AppProfessorCorrecoesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppProfessorCorrecoesRoute,
 } as any)
+const AppAdminResumosIdRoute = AppAdminResumosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdminResumosRoute,
+} as any)
 const AppAdminFlashcardsIdRoute = AppAdminFlashcardsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -395,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
+  '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -446,6 +453,7 @@ export interface FileRoutesByTo {
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
+  '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -505,6 +513,7 @@ export interface FileRoutesById {
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
+  '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -565,6 +574,7 @@ export interface FileRouteTypes {
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
+    | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -616,6 +626,7 @@ export interface FileRouteTypes {
     | '/app/professor'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
+    | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -674,6 +685,7 @@ export interface FileRouteTypes {
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
+    | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -1075,6 +1087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfessorCorrecoesIdRouteImport
       parentRoute: typeof AppProfessorCorrecoesRoute
     }
+    '/app/admin/resumos/$id': {
+      id: '/app/admin/resumos/$id'
+      path: '/$id'
+      fullPath: '/app/admin/resumos/$id'
+      preLoaderRoute: typeof AppAdminResumosIdRouteImport
+      parentRoute: typeof AppAdminResumosRoute
+    }
     '/app/admin/flashcards/$id': {
       id: '/app/admin/flashcards/$id'
       path: '/$id'
@@ -1119,10 +1138,12 @@ const AppAdminFlashcardsRouteWithChildren =
   AppAdminFlashcardsRoute._addFileChildren(AppAdminFlashcardsRouteChildren)
 
 interface AppAdminResumosRouteChildren {
+  AppAdminResumosIdRoute: typeof AppAdminResumosIdRoute
   AppAdminResumosIndexRoute: typeof AppAdminResumosIndexRoute
 }
 
 const AppAdminResumosRouteChildren: AppAdminResumosRouteChildren = {
+  AppAdminResumosIdRoute: AppAdminResumosIdRoute,
   AppAdminResumosIndexRoute: AppAdminResumosIndexRoute,
 }
 
