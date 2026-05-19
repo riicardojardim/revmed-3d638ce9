@@ -86,6 +86,7 @@ function Dashboard() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
+  const [ready, setReady] = useState(false);
   useEffect(() => { setVisibleCount(5); }, [search]);
 
   const isAtorPlan = isAtorOnly;
