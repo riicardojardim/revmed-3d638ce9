@@ -446,6 +446,7 @@ function CandidateView() {
   if (isWaiting) {
     return (
       <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
+        {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
         <button
           type="button"
           onClick={() => { if (typeof window !== "undefined" && window.history.length > 1) window.history.back(); else nav({ to: "/app" }); }}
@@ -478,13 +479,25 @@ function CandidateView() {
           )}
         </p>
 
-        <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
+        <div className="mt-6 max-w-md rounded-xl border border-mint/40 bg-mint/10 px-4 py-3 text-sm text-foreground">
+          <div className="flex items-start gap-2">
+            <span className="text-base">📹</span>
+            <div className="text-left">
+              <div className="font-semibold text-mint">Entre na videochamada agora</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Clique no botão <span className="font-medium text-foreground">"Vídeo da sala"</span> no canto inferior direito e ative câmera e microfone. O ator só inicia o cronômetro quando todos já estão na chamada.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
           <LobbyStep icon={CheckCheck} label="Entrou na sala" done />
           <LobbyStep icon={Hourglass} label="Aguardando início" active />
           <LobbyStep icon={Play} label="Estação inicia" />
         </div>
 
-        <div className="mt-10 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
+        <div className="mt-8 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
           💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o ator clicar em iniciar.
         </div>
       </div>
