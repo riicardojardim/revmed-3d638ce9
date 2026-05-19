@@ -531,7 +531,7 @@ function Stats() {
   const stats = [
     { value: 120, suffix: "+", label: "Estações clínicas" },
     { value: 600, suffix: "+", label: "Itens de checklist" },
-    { value: 1200, suffix: "+", label: "Médicos ativos" },
+    { value: 1200, suffix: "+", label: "Candidatos ativos" },
     { value: 8.4, suffix: "", label: "Nota média" },
   ];
   return (
@@ -892,40 +892,40 @@ function Plans() {
 /* ---------------- Testimonials ---------------- */
 const testimonials = [
   {
-    name: "Dra. Marina Lopes",
+    name: "Marina Lopes",
     role: "Aprovada · Revalida 2025",
     text: "Treinar por estação com cronômetro mudou meu desempenho. Cheguei na prova com a sensação de já ter passado por aquilo.",
-    avatar: doctor1,
+    avatar: candidate1,
   },
   {
-    name: "Dr. Rafael Santos",
+    name: "Rafael Santos",
     role: "Candidato · Revalida 2026",
     text: "Os checklists me ajudaram a estruturar o raciocínio e perder o medo do tempo. O feedback é o melhor da plataforma.",
-    avatar: doctor2,
+    avatar: candidate2,
   },
   {
-    name: "Dra. Camila Tavares",
+    name: "Camila Tavares",
     role: "Professora · mentoria",
     text: "Como mentora, consigo corrigir meus alunos com profundidade e acompanhar cada evolução. Recomendo demais.",
-    avatar: doctor3,
+    avatar: candidate3,
   },
   {
-    name: "Dr. Bruno Almeida",
+    name: "Bruno Almeida",
     role: "Aprovado · Revalida 2024.2",
     text: "A sala em dupla é o que mais se aproxima da prova real. Atuar como ator me fez enxergar tudo o que faltava na minha conduta.",
-    avatar: doctor4,
+    avatar: candidate4,
   },
   {
-    name: "Dra. Letícia Moura",
+    name: "Letícia Moura",
     role: "Candidata · Revalida 2026",
     text: "App leve, treino pelo celular no intervalo do plantão. Os flashcards salvam minha revisão.",
-    avatar: doctor5,
+    avatar: candidate5,
   },
   {
-    name: "Dr. Felipe Carvalho",
+    name: "Felipe Carvalho",
     role: "Aprovado · Revalida 2025.1",
     text: "Saí do achismo. O histórico mostra exatamente onde eu travo e o que treinar na próxima semana.",
-    avatar: doctor6,
+    avatar: candidate6,
   },
 ];
 
@@ -1140,14 +1140,14 @@ type FakeNotif = {
 };
 
 const FAKE_NOTIFS: FakeNotif[] = [
-  { kind: "compra", name: "Dr. Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: doctor2 },
-  { kind: "conquista", name: "Dra. Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: doctor5 },
-  { kind: "aprovado", name: "Dr. João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: doctor4 },
-  { kind: "online", name: "+128 médicos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: doctor3 },
-  { kind: "compra", name: "Dra. Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: doctor1 },
-  { kind: "conquista", name: "Dr. Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: doctor6 },
-  { kind: "aprovado", name: "Dra. Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: doctor7 },
-  { kind: "compra", name: "Dr. Pedro H.", action: "assinou o plano Ator", meta: "há 12 min", city: "Curitiba, PR", avatar: doctor2 },
+  { kind: "compra", name: "Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: candidate2 },
+  { kind: "conquista", name: "Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: candidate5 },
+  { kind: "aprovado", name: "João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: candidate4 },
+  { kind: "online", name: "+128 candidatos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: candidate3 },
+  { kind: "compra", name: "Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: candidate1 },
+  { kind: "conquista", name: "Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: candidate6 },
+  { kind: "aprovado", name: "Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: candidate7 },
+  { kind: "compra", name: "Pedro H.", action: "assinou o plano Ator", meta: "há 12 min", city: "Curitiba, PR", avatar: candidate2 },
 ];
 
 function FloatingNotifications() {
