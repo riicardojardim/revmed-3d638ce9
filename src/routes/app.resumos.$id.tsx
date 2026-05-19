@@ -96,23 +96,52 @@ function ResumoPage() {
         <img src={s.cover_image_url} alt="" className="w-full rounded-2xl border border-border object-cover" />
       )}
 
-      {hasStructured ? (
-        <div className="space-y-4">
-          <Section icon={BookOpen} title="Definição" text={s.definition} />
-          <Section icon={Stethoscope} title="Quadro clínico" text={s.clinical_picture} />
-          <Section icon={Microscope} title="Diagnóstico" text={s.diagnosis} />
-          <Section icon={ClipboardCheck} title="Conduta" text={s.conduct} />
-          <Section icon={Star} title="Pontos-chave da prova" text={s.key_points} tone="highlight" />
-          <Section icon={AlertTriangle} title="Armadilhas e erros comuns" text={s.pitfalls} tone="warn" />
-          {s.content_md && s.content_md.trim() && (
-            <Section icon={FileText} title="Notas adicionais" text={s.content_md} />
-          )}
-        </div>
-      ) : (
-        <div className="prose prose-sm max-w-none whitespace-pre-wrap rounded-2xl border border-border bg-card p-6 leading-relaxed">
-          {s.content_md}
-        </div>
-      )}
+      {(() => {
+        // Extrai bloco "Fontes utilizadas:" do content_md para renderizar como Referências
+        const raw = s.content_md ?? "";
+        const marker = "Fontes utilizadas:";
+        const idx = raw.indexOf(marker);
+        const sourcesBlock = idx >= 0 ? raw.slice(idx + marker.length).trim() : "";
+        const notes = idx >= 0 ? raw.slice(0, idx).trim() : raw.trim();
+        const sources = sourcesBlock
+          ? sourcesBlock.split("\n").map((l) => l.replace(/^[•\-\*]\s*/, "").trim()).filter(Boolean)
+          : [];
+
+        return hasStructured ? (
+          <div className="space-y-4">
+            <Section icon={BookOpen} title="Definição" text={s.definition} />
+            <Section icon={Stethoscope} title="Quadro clínico" text={s.clinical_picture} />
+            <Section icon={Microscope} title="Diagnóstico" text={s.diagnosis} />
+            <Section icon={ClipboardCheck} title="Conduta" text={s.conduct} />
+            <Section icon={Star} title="Pontos-chave da prova" text={s.key_points} tone="highlight" />
+            <Section icon={AlertTriangle} title="Armadilhas e erros comuns" text={s.pitfalls} tone="warn" />
+            {notes && <Section icon={FileText} title="Notas adicionais" text={notes} />}
+            {sources.length > 0 && (
+              <section className="rounded-2xl border border-border bg-muted/30 p-5">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <h2 className="font-display text-sm font-bold uppercase tracking-wide">Referências</h2>
+                </div>
+                <ol className="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
+                  {sources.map((src, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="shrink-0 font-mono text-xs text-muted-foreground">[{i + 1}]</span>
+                      <span>{src}</span>
+                    </li>
+                  ))}
+                </ol>
+                <p className="mt-3 text-[11px] text-muted-foreground">
+                  Resumo gerado por IA com base em fontes oficiais brasileiras (MS, ANVISA, PCDTs, diretrizes das sociedades e matriz INEP/Revalida). Sempre confirme condutas e doses na fonte original.
+                </p>
+              </section>
+            )}
+          </div>
+        ) : (
+          <div className="prose prose-sm max-w-none whitespace-pre-wrap rounded-2xl border border-border bg-card p-6 leading-relaxed">
+            {s.content_md}
+          </div>
+        );
+      })()}
     </article>
   );
 }
