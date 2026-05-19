@@ -1360,6 +1360,8 @@ function ExamCountdown() {
 }
 
 function Plans() {
+  const openCheckout = useOpenCheckout();
+
 
 
   return (
