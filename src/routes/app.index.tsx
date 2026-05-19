@@ -524,13 +524,163 @@ function pickDailyIndex(seed: string, len: number) {
   return h % len;
 }
 
-function DailyMotivationCard({ userId }: { userId: string }) {
+function DailyMotivationCard({ userId, streak, didToday }: { userId: string; streak: number; didToday: boolean }) {
   const m = useMemo(() => MOTIVATIONS[pickDailyIndex(userId, MOTIVATIONS.length)], [userId]);
   return (
-    <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
       <h3 className="font-display font-bold text-mint">Versículo do dia</h3>
-      <p className="mt-3 text-sm font-medium text-foreground">{m.title}</p>
-      <p className="mt-2 text-xs text-muted-foreground">{m.sub}</p>
+      <p className="mt-3 text-sm font-medium italic text-foreground">{m.title}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{m.sub}</p>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <Flame className="h-3 w-3 text-orange-500" /> Sequência
+          </div>
+          <div className="mt-1 font-display text-2xl font-bold">
+            {streak}
+            <span className="ml-1 text-xs font-normal text-muted-foreground">{streak === 1 ? "dia" : "dias"}</span>
+          </div>
+        </div>
+        <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <Target className="h-3 w-3 text-mint" /> Meta de hoje
+          </div>
+          <div className="mt-1 flex items-center gap-2">
+            <div className={`flex h-5 w-5 items-center justify-center rounded-md border ${didToday ? "border-mint bg-mint text-white" : "border-border bg-background"}`}>
+              {didToday && <Check className="h-3.5 w-3.5" />}
+            </div>
+            <span className="text-xs font-medium">{didToday ? "Concluída!" : "1 estação"}</span>
+          </div>
+        </div>
+      </div>
+
+      {!didToday && (
+        <Link to="/app/estacoes" className="mt-3 inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-mint/90">
+          Treinar agora <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function ActivityHeatmap({ cells, activeDays }: { cells: { date: Date; key: string; count: number }[]; activeDays: number }) {
+  // organiza em colunas (semanas) x 7 linhas (dias)
+  const weeks: { date: Date; key: string; count: number }[][] = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(cells.slice(i, i + 7));
+  }
+  const intensity = (c: number) => {
+    if (c === 0) return "bg-muted/40";
+    if (c === 1) return "bg-mint/30";
+    if (c === 2) return "bg-mint/55";
+    if (c === 3) return "bg-mint/75";
+    return "bg-mint";
+  };
+  const monthLabels: { col: number; label: string }[] = [];
+  let lastMonth = -1;
+  weeks.forEach((w, i) => {
+    const first = w[0];
+    if (first && first.date.getMonth() !== lastMonth) {
+      lastMonth = first.date.getMonth();
+      monthLabels.push({ col: i, label: first.date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "") });
+    }
+  });
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-card lg:col-span-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <CalendarHeart className="h-5 w-5 text-mint" />
+          <h3 className="font-display text-lg font-bold">Constância</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">{activeDays}</span> dias ativos nas últimas 12 semanas
+        </span>
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <div className="inline-block">
+          <div className="mb-1 flex gap-[3px] pl-7 text-[10px] text-muted-foreground">
+            {weeks.map((_, i) => {
+              const ml = monthLabels.find((m) => m.col === i);
+              return (
+                <div key={i} className="w-[14px]">{ml ? ml.label : ""}</div>
+              );
+            })}
+          </div>
+          <div className="flex gap-[3px]">
+            <div className="flex flex-col gap-[3px] pr-1 text-[10px] text-muted-foreground">
+              {["", "Seg", "", "Qua", "", "Sex", ""].map((d, i) => (
+                <div key={i} className="h-[14px] leading-[14px]">{d}</div>
+              ))}
+            </div>
+            {weeks.map((w, wi) => (
+              <div key={wi} className="flex flex-col gap-[3px]">
+                {Array.from({ length: 7 }).map((_, di) => {
+                  const cell = w[di];
+                  if (!cell) return <div key={di} className="h-[14px] w-[14px]" />;
+                  return (
+                    <div
+                      key={di}
+                      className={`h-[14px] w-[14px] rounded-[3px] ${intensity(cell.count)}`}
+                      title={`${cell.date.toLocaleDateString("pt-BR")} — ${cell.count} ${cell.count === 1 ? "estação" : "estações"}`}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground">
+        <span>Menos</span>
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-muted/40" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint/30" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint/55" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint/75" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint" />
+        <span>Mais</span>
+      </div>
+    </div>
+  );
+}
+
+function RecommendationCard({ rec }: { rec: { key: string; label: string; avg: number; n: number; reason: "nunca treinada" | "média mais baixa" } | null }) {
+  if (!rec) {
+    return (
+      <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-mint" />
+          <h3 className="font-display text-lg font-bold">Próxima ação</h3>
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">Comece sua primeira estação para receber recomendações personalizadas.</p>
+        <Link to="/app/estacoes" className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90">
+          Treinar agora <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
+    );
+  }
+  const meta = getSpecialtyMeta(rec.key);
+  return (
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-5 shadow-card">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-5 w-5 text-mint" />
+        <h3 className="font-display text-lg font-bold">Próxima ação recomendada</h3>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">Foque na sua especialidade mais fraca para subir a média geral.</p>
+      <div className={`mt-4 rounded-xl border p-3 ${meta.card}`}>
+        <div className={`text-[11px] font-bold uppercase tracking-wider ${meta.text}`}>{rec.reason}</div>
+        <div className="mt-1 font-display text-lg font-bold">{rec.label}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {rec.n === 0 ? "Nenhuma estação ainda" : `Média atual: ${rec.avg.toFixed(1)} (${rec.n} ${rec.n === 1 ? "estação" : "estações"})`}
+        </div>
+      </div>
+      <Link
+        to="/app/estacoes"
+        search={{ esp: rec.key } as never}
+        className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90"
+      >
+        Treinar {rec.label} <ChevronRight className="h-4 w-4" />
+      </Link>
     </div>
   );
 }
