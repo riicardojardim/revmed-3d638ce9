@@ -357,7 +357,7 @@ export async function generateAndSaveSummary(
     .insert({
       created_by: userId,
       station_id: input.station_id ?? null,
-      title: result.title.slice(0, 200),
+      title: input.title.slice(0, 200),
       specialty: input.specialty,
       topic: result.topic ?? input.topic ?? null,
       difficulty: result.difficulty,
