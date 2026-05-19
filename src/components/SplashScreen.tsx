@@ -59,8 +59,8 @@ export function SplashScreen({
           className="animate-in fade-in slide-in-from-bottom-2 duration-700"
           style={{ animationDelay: "200ms", animationFillMode: "both" }}
         >
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">
-            Preparando sua banca
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.35em] text-mint">
+            Entrando na estação
           </p>
         </div>
 
