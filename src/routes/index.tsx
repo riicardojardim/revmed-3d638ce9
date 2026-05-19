@@ -891,19 +891,26 @@ function Plans() {
               ))}
             </ul>
 
-            <Link to="/cadastro" className="mt-auto pt-6">
-              <Button
-                size="lg"
-                className={`w-full rounded-xl text-sm font-bold ${
-                  p.highlight
-                    ? "bg-mint text-night shadow-glow hover:bg-mint/90"
-                    : "bg-background text-foreground hover:bg-muted"
-                }`}
-                variant={p.highlight ? "default" : "outline"}
-              >
-                {p.cta}
-              </Button>
-            </Link>
+            <div className="mt-auto pt-6">
+              <Link to="/cadastro">
+                <Button
+                  size="lg"
+                  className={`w-full rounded-xl text-sm font-bold ${
+                    p.highlight
+                      ? "bg-mint text-night shadow-glow hover:bg-mint/90"
+                      : "bg-background text-foreground hover:bg-muted"
+                  }`}
+                  variant={p.highlight ? "default" : "outline"}
+                >
+                  {p.cta}
+                </Button>
+              </Link>
+              <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-mint" />
+                7 dias de garantia · 100% do dinheiro de volta
+              </p>
+            </div>
+
           </motion.div>
         ))}
       </div>
