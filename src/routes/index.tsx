@@ -1500,7 +1500,7 @@ const FAKE_NOTIFS: FakeNotif[] = [
   { kind: "compra", name: "Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: candidate2 },
   { kind: "conquista", name: "Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: candidate5 },
   { kind: "aprovado", name: "João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: candidate4 },
-  { kind: "online", name: "+128 candidatos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: candidate3 },
+  { kind: "online", name: "+128 candidatos", action: "estudando agora", meta: "salas abertas", avatar: candidate3 },
   { kind: "compra", name: "Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: candidate1 },
   { kind: "conquista", name: "Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: candidate6 },
   { kind: "aprovado", name: "Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: candidate7 },
@@ -1537,7 +1537,7 @@ function FloatingNotifications() {
     n.kind === "aprovado"
       ? { label: "Aprovação", chip: "bg-mint text-night" }
       : n.kind === "online"
-      ? { label: "Ao vivo", chip: "bg-primary text-white" }
+      ? { label: "Online", chip: "bg-primary text-white" }
       : n.kind === "conquista"
       ? { label: "Conquista", chip: "bg-mint-soft text-primary" }
       : { label: "Nova assinatura", chip: "bg-mint text-night" };
