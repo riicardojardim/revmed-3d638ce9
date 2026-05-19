@@ -347,13 +347,12 @@ function StationsPage() {
                     <div className="grid grid-cols-3 gap-2">{row1.map(renderMobile)}</div>
                     <div className="grid grid-cols-2 gap-2">{row2.map(renderMobile)}</div>
                   </div>
-                  <div className="hidden lg:flex lg:flex-nowrap lg:items-center lg:gap-1.5 lg:overflow-x-auto">
-
+                  <div className="hidden lg:flex lg:flex-nowrap lg:items-center lg:gap-1">
                     <button
                       type="button"
                       onClick={() => setAllSpec("Todas")}
                       className={cn(
-                        "shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                        "shrink-0 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors",
                         allSpec === "Todas"
                           ? "border-mint bg-mint/10 text-foreground"
                           : "border-border bg-background text-muted-foreground hover:border-mint/40",
@@ -371,18 +370,19 @@ function StationsPage() {
                           onClick={() => setAllSpec(s)}
                           title={s}
                           className={cn(
-                            "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                            "inline-flex min-w-0 flex-1 items-center justify-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium leading-tight transition-colors",
                             active
                               ? "border-foreground/20 bg-card text-foreground shadow-sm"
                               : "border-border bg-background text-muted-foreground hover:border-mint/40",
                           )}
                         >
-                          <span className={cn("inline-block h-1.5 w-1.5 rounded-full", m.solid)} />
-                          {s}
+                          <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", m.solid)} />
+                          <span className="truncate">{s}</span>
                         </button>
                       );
                     })}
                   </div>
+
                 </div>
               );
             })()}
