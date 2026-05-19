@@ -110,6 +110,7 @@ function LandingPage() {
       <Areas />
       <FounderVideo />
       <Comparison />
+      <ExamCountdown />
       <Plans />
       <Testimonials />
       <FAQ />
@@ -1088,7 +1089,85 @@ function Comparison() {
   );
 }
 
+/* ---------------- Exam Countdown ---------------- */
+const REVALIDA_EXAM_DATE = "2026-08-09T08:00:00-03:00"; // Revalida 2026.1 — Prova prática (ajuste conforme edital INEP)
+
+function useCountdown(targetIso: string) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, new Date(targetIso).getTime() - now);
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  const seconds = Math.floor((diff % 60000) / 1000);
+  return { days, hours, minutes, seconds };
+}
+
+function ExamCountdown() {
+  const { days, hours, minutes, seconds } = useCountdown(REVALIDA_EXAM_DATE);
+  const examDate = new Date(REVALIDA_EXAM_DATE).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  const Box = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex min-w-[64px] flex-col items-center rounded-xl bg-night/40 px-3 py-2.5 backdrop-blur-sm">
+      <span className="font-display text-2xl font-extrabold text-mint tabular-nums md:text-3xl">
+        {String(value).padStart(2, "0")}
+      </span>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">{label}</span>
+    </div>
+  );
+
+  return (
+    <section className="container mx-auto px-4 lg:px-8">
+      <div className="relative overflow-hidden rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-primary p-6 shadow-glow md:p-8">
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: "radial-gradient(circle, var(--mint) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-mint/20 blur-3xl" />
+
+        <div className="relative flex flex-col items-center gap-6 text-white md:flex-row md:justify-between">
+          <div className="text-center md:text-left">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-mint-soft">
+              <Clock className="h-3 w-3" />
+              Próxima prova prática
+            </div>
+            <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight md:text-3xl">
+              Revalida 2026.1 · <span className="text-mint">{examDate}</span>
+            </h3>
+            <p className="mt-1.5 text-sm text-white/70">
+              Cada dia que passa é uma estação a menos que você treina.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Box value={days} label="dias" />
+            <span className="font-display text-2xl font-extrabold text-mint/50">:</span>
+            <Box value={hours} label="hrs" />
+            <span className="font-display text-2xl font-extrabold text-mint/50">:</span>
+            <Box value={minutes} label="min" />
+            <span className="hidden font-display text-2xl font-extrabold text-mint/50 sm:inline">:</span>
+            <div className="hidden sm:block">
+              <Box value={seconds} label="seg" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Plans() {
+
 
   return (
     <section id="planos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
@@ -1278,13 +1357,18 @@ function Testimonials() {
 
 /* ---------------- FAQ ---------------- */
 const faqs = [
-  { q: "O app substitui um curso presencial?", a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
-  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como paciente ator — cada um vê apenas o conteúdo do seu papel, com vídeo integrado. Se estiver sozinho, a IA assume o papel do ator." },
+  { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece treinando sozinho com a IA fazendo o papel do ator. Quando estiver confortável, entra em sala com colegas só pra ouvir. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
+  { q: "Já comprei outro curso (Medway, Hardwork, etc). Vale a pena assinar mesmo assim?", a: "Sim, justamente porque eles ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
+  { q: "Tô começando agora, ainda não estudei nada. Devo entrar já?", a: "Pode entrar — mas comece pelas estações de dificuldade básica e use os resumos e flashcards. Quanto antes você treinar em voz alta, melhor. Decorar checklist não substitui executar." },
+  { q: "Não tenho com quem treinar. Como funciona sozinho?", a: "A IA assume o papel do paciente ator: responde com base no roteiro, reage às suas perguntas e marca o checklist no fim. Você também pode entrar em salas abertas da comunidade pra parear com outros candidatos." },
+  { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
+  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como ator — cada um vê só o conteúdo do seu papel, com vídeo integrado." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
-  { q: "Os checklists são oficiais?", a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
-  { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único." },
-  { q: "Existe correção humana?", a: "Sim, para alunos do plano de mentoria. Professores avaliam tentativas, dão nota e escrevem feedback individual." },
+  { q: "Os checklists são oficiais?", a: "Construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
+  { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único, com 7 dias de garantia." },
+  { q: "E se eu não gostar?", a: "Devolvemos 100% do valor em até 7 dias, sem perguntas, sem burocracia. É só responder o email da compra." },
 ];
+
 
 function FAQ() {
   return (
