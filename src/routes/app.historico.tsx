@@ -86,13 +86,13 @@ function Historico() {
   }, [items, search]);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div>
+    <div className="relative mx-auto max-w-6xl space-y-6">
+      <Reveal>
         <h1 className="font-display text-2xl font-bold md:text-3xl">Histórico</h1>
         <p className="text-sm text-muted-foreground">Seus treinos anteriores.</p>
-      </div>
+      </Reveal>
 
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+      <Reveal delay={0.08} className="rounded-2xl border border-border bg-card p-5 shadow-card">
         <h3 className="font-display text-lg font-bold text-medical">Histórico de Estações</h3>
         <input
           value={search}
@@ -103,7 +103,7 @@ function Historico() {
 
         <div className="mt-5 space-y-3">
           {loading ? (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">Carregando...</p>
+            <Shimmer rows={4} className="h-14 rounded-xl" />
           ) : rows.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum treinamento.</p>
           ) : rows.map((row) => {
