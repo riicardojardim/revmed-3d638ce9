@@ -283,3 +283,73 @@ function CameraSync({ shouldPublish }: { shouldPublish: boolean }) {
   return null;
 }
 
+/**
+ * Controla a assinatura de tracks de VÍDEO remotos: só assina câmera de
+ * participantes permitidos (ator + candidato avaliado da vez). Streams de
+ * espectadores nem chegam a ser decodificados, eliminando o custo de CPU/GPU
+ * com salas grandes. Áudio continua assinado normalmente (gerenciado pelo
+ * RoomAudioRenderer) para preservar a fala de todos.
+ */
+function VideoSubscriptionManager({ allowedIdentities }: { allowedIdentities: Set<string> | null }) {
+  const room = useRoomContext();
+  // Identidades estáveis em ref para evitar re-bind de listeners a cada render.
+  const allowedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    allowedRef.current = allowedIdentities ?? new Set();
+  }, [allowedIdentities]);
+
+  useEffect(() => {
+    if (!room) return;
+
+    const isVideo = (pub: RemoteTrackPublication) =>
+      pub.kind === Track.Kind.Video &&
+      (pub.source === Track.Source.Camera || pub.source === Track.Source.ScreenShare);
+
+    const apply = (participant: RemoteParticipant) => {
+      const allow = allowedRef.current.has(participant.identity);
+      participant.videoTrackPublications.forEach((pub) => {
+        if (!isVideo(pub)) return;
+        try {
+          if (pub.isSubscribed !== allow) pub.setSubscribed(allow);
+        } catch {
+          /* alguns publishers podem rejeitar durante negociação — ignoramos */
+        }
+      });
+    };
+
+    const applyAll = () => {
+      room.remoteParticipants.forEach((p) => apply(p));
+    };
+
+    const onPublished = (_pub: RemoteTrackPublication, p: RemoteParticipant) => apply(p);
+    const onParticipantConnected = (p: RemoteParticipant) => apply(p);
+
+    applyAll();
+    room.on(RoomEvent.TrackPublished, onPublished);
+    room.on(RoomEvent.ParticipantConnected, onParticipantConnected);
+
+    return () => {
+      room.off(RoomEvent.TrackPublished, onPublished);
+      room.off(RoomEvent.ParticipantConnected, onParticipantConnected);
+    };
+  }, [room]);
+
+  // Reaplica sempre que a whitelist mudar (ex.: ator selecionou outro candidato).
+  useEffect(() => {
+    if (!room) return;
+    room.remoteParticipants.forEach((p) => {
+      const allow = (allowedIdentities ?? new Set<string>()).has(p.identity);
+      p.videoTrackPublications.forEach((pub) => {
+        if (pub.kind !== Track.Kind.Video) return;
+        try {
+          if (pub.isSubscribed !== allow) pub.setSubscribed(allow);
+        } catch {
+          /* ignore */
+        }
+      });
+    });
+  }, [allowedIdentities, room]);
+
+  return null;
+}
+
