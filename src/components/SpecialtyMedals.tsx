@@ -54,7 +54,7 @@ export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
             <div
               key={s.key}
               className={
-                "rounded-2xl border p-4 text-center transition " +
+                "rounded-xl border p-2 text-center transition " +
                 (unlocked
                   ? `${meta.card} shadow-card`
                   : "border-dashed border-border bg-muted/20 opacity-70")
@@ -62,16 +62,16 @@ export function SpecialtyMedals({ stats }: { stats: SpecStats }) {
             >
               <div
                 className={
-                  "mx-auto flex h-14 w-14 items-center justify-center rounded-full " +
+                  "mx-auto flex h-8 w-8 items-center justify-center rounded-full " +
                   (unlocked ? `${meta.solid} text-white shadow-elegant` : "bg-muted text-muted-foreground")
                 }
               >
-                {unlocked ? <Trophy className="h-7 w-7" /> : <Lock className="h-5 w-5" />}
+                {unlocked ? <Trophy className="h-4 w-4" /> : <Lock className="h-3 w-3" />}
               </div>
-              <div className={"mt-2 text-xs font-bold tracking-wider " + (unlocked ? meta.text : "text-muted-foreground")}>
+              <div className={"mt-1 text-[10px] font-bold tracking-wider " + (unlocked ? meta.text : "text-muted-foreground")}>
                 {s.short}
               </div>
-              <div className="text-[11px] leading-tight text-muted-foreground">{s.label}</div>
+              <div className="text-[9px] leading-tight text-muted-foreground">{s.label}</div>
             </div>
           );
         })}
