@@ -9,8 +9,13 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
+    // Prefetch on hover/touchstart de qualquer <Link/>, com latência mínima.
+    defaultPreload: "intent",
+    defaultPreloadDelay: 30,
+    // Mantém dado pré-carregado fresco por 30s para evitar refetch ao entrar.
+    defaultPreloadStaleTime: 30_000,
   });
+
 
   return router;
 };
