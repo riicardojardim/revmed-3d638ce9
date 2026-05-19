@@ -83,7 +83,7 @@ function SignupPage() {
   }, [user, loading, nav]);
 
   if (!plano) return null;
-  const meta = PLAN_META[plano];
+  const meta = PLAN_META[plano as PlanSlug];
   const Icon = meta.icon;
 
   function update<K extends keyof typeof form>(k: K, v: string) {
