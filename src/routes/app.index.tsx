@@ -336,6 +336,12 @@ function Dashboard() {
 
 
       {/* Meu Desempenho */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        whileHover={{ y: -2 }}
+      >
       <Link
         to="/app/progresso"
         className="group block rounded-2xl border border-border bg-card p-4 shadow-card transition-colors hover:border-mint/60 sm:p-6"
