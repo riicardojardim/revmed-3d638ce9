@@ -27,8 +27,8 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
       className={cn(
         "fixed z-50 overflow-hidden rounded-xl border border-border bg-background shadow-2xl transition-all",
         minimized
-          ? "bottom-4 right-4 h-14 w-64"
-          : "bottom-4 right-4 h-[420px] w-[640px] max-w-[calc(100vw-2rem)]",
+          ? "bottom-20 right-4 h-14 w-64 md:bottom-4"
+          : "bottom-20 right-4 h-[420px] w-[640px] max-w-[calc(100vw-2rem)] md:bottom-4",
       )}
     >
       <div className="flex items-center justify-between border-b border-border bg-muted/30 px-3 py-1.5 text-xs">
