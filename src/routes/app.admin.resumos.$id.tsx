@@ -18,7 +18,7 @@ const SPECIALTIES = [
   "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade", "Preventiva",
 ];
-const DIFFICULTIES = ["Básico", "Intermediário", "Avançado"];
+
 
 type SummaryRow = {
   id: string; title: string; specialty: string; topic: string | null;
