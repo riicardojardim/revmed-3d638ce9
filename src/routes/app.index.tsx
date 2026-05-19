@@ -8,6 +8,10 @@ import {
   Clock,
   ListOrdered,
   RotateCcw,
+  Flame,
+  Target,
+  Check,
+  CalendarHeart,
 } from "lucide-react";
 import {
   AlertDialog,
