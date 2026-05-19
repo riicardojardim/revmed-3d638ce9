@@ -684,7 +684,7 @@ function DailyMotivationCard({ userId, streak, didToday }: { userId: string; str
             <Flame className="h-3 w-3 text-orange-500" /> Sequência
           </div>
           <div className="mt-1 font-display text-2xl font-bold">
-            {streak}
+            <AnimatedNumber value={streak} />
             <span className="ml-1 text-xs font-normal text-muted-foreground">{streak === 1 ? "dia" : "dias"}</span>
           </div>
         </div>
@@ -910,7 +910,7 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
           <h3 className="font-display text-lg font-bold">Conquistas</h3>
         </div>
         <span className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">{unlockedCount}</span> de {badges.length} desbloqueadas
+          <AnimatedNumber value={unlockedCount} className="font-semibold text-foreground" /> de {badges.length} desbloqueadas
         </span>
       </div>
       <motion.div
@@ -934,13 +934,16 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
               }`}
               title={b.description}
             >
-              <div
+              <motion.div
+                initial={{ scale: 0, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 320, damping: 16, delay: 0.15 + i * 0.04 }}
                 className={`flex h-10 w-10 items-center justify-center rounded-full ${
                   b.unlocked ? `${tone.bg} text-white shadow-elegant` : "bg-muted text-muted-foreground"
                 }`}
               >
                 {b.unlocked ? <Icon className="h-5 w-5" /> : <Lock className="h-4 w-4" />}
-              </div>
+              </motion.div>
               <div className={`mt-2 text-[11px] font-bold leading-tight ${b.unlocked ? tone.text : "text-muted-foreground"}`}>
                 {b.title}
               </div>
@@ -948,9 +951,16 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
               {b.progress && !b.unlocked && (
                 <div className="mt-2 w-full">
                   <div className="h-1 overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full rounded-full ${tone.bg}`} style={{ width: `${pct}%` }} />
+                    <motion.div
+                      className={`h-full rounded-full ${tone.bg}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 + i * 0.04 }}
+                    />
                   </div>
-                  <div className="mt-0.5 text-[9px] text-muted-foreground">{b.progress.current}/{b.progress.goal}</div>
+                  <div className="mt-0.5 text-[9px] text-muted-foreground">
+                    <AnimatedNumber value={b.progress.current} />/{b.progress.goal}
+                  </div>
                 </div>
               )}
             </motion.div>
