@@ -2449,6 +2449,44 @@ function SectionGenerateSummary({ station }: { station: Station }) {
         Sempre revise doses, contraindicações e critérios antes de publicar para os alunos.
       </p>
 
+      {validation && (
+        <div className={cn(
+          "rounded-xl border p-4 text-sm",
+          validation.blocking
+            ? "border-rose-400/40 bg-rose-500/5"
+            : (validation.issues.length > 0 ? "border-amber-400/40 bg-amber-500/5" : "border-mint/40 bg-mint/5")
+        )}>
+          <div className="flex items-center gap-2 font-display font-bold">
+            {validation.blocking ? (
+              <><AlertTriangle className="h-4 w-4 text-rose-500" /> Validação automática: erros críticos</>
+            ) : validation.issues.length > 0 ? (
+              <><AlertTriangle className="h-4 w-4 text-amber-500" /> Validação automática: avisos</>
+            ) : (
+              <><ClipboardCheck className="h-4 w-4 text-mint" /> Validação automática: aprovado</>
+            )}
+            <span className="ml-auto text-xs font-normal text-muted-foreground">Veredito IA: {validation.verdict}</span>
+          </div>
+          {validation.issues.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs">
+              {validation.issues.map((i, idx) => (
+                <li key={idx} className="flex gap-2">
+                  <span className={cn(
+                    "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
+                    i.severity === "error" ? "bg-rose-500/15 text-rose-600" : "bg-amber-500/15 text-amber-700"
+                  )}>{i.severity}</span>
+                  <span><strong>{i.field}:</strong> {i.message}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {validation.blocking && (
+            <p className="mt-2 text-[11px] text-rose-600">
+              Publicação bloqueada. Edite manualmente o resumo na aba Resumos para corrigir antes de publicar.
+            </p>
+          )}
+        </div>
+      )}
+
       {summary && (
         <InlineSummaryPreview
           summary={summary}
