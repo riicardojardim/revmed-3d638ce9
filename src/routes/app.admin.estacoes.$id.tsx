@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { parseStationPdfs, parseStationText } from "@/lib/stations-ai.functions";
 import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
 import { generateDeckFromStation } from "@/lib/deck-from-station.functions";
+import { generateSummaryFromStation } from "@/lib/summary-from-station.functions";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { DeckPreview } from "@/components/flashcards/DeckPreview";
