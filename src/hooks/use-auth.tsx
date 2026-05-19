@@ -46,10 +46,6 @@ function getDeviceId(): string {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 }
-  } catch {
-    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  }
-}
 
 async function claimActiveSession(userId: string) {
   const device_id = getDeviceId();
