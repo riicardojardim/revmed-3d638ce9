@@ -204,16 +204,7 @@ function LoginPage() {
               <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 !text-xs placeholder:text-xs" />
             </div>
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-xs font-medium">Senha</Label>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-[11px] font-medium text-medical hover:underline"
-                >
-                  Esqueceu sua senha?
-                </button>
-              </div>
+              <Label htmlFor="password" className="text-xs font-medium">Senha</Label>
               <div className="relative">
                 <Input ref={passwordRef} id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-9 pr-9 !text-xs placeholder:text-xs" />
                 <button
@@ -226,6 +217,13 @@ function LoginPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-[11px] font-medium text-medical hover:underline"
+              >
+                Esqueceu sua senha?
+              </button>
             </div>
             <Button type="button" variant="hero" size="default" className="w-full text-sm" disabled={submitting} onClick={submitLogin}>
               {submitting ? "Entrando..." : (<>Entrar <ArrowRight className="h-4 w-4" /></>)}
