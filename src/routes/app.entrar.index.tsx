@@ -114,12 +114,11 @@ function EntrarCodigo() {
 
               <Button
                 variant="hero"
-                size="lg"
                 onClick={submit}
-                className="group relative overflow-hidden sm:w-auto"
+                className="group relative h-[60px] overflow-hidden px-6 sm:w-auto"
               >
                 <Search className="h-4 w-4 transition-transform group-hover:scale-110" />
-                Entrar na estação
+                Entrar
               </Button>
             </div>
 
