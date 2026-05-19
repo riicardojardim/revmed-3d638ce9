@@ -53,7 +53,10 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
         {/* Top: badge especialidade + logo */}
         <div className="flex items-start justify-between gap-[2cqi]">
           <span
-            className="inline-flex items-center justify-center rounded-md font-bold tracking-wider bg-white/15 ring-1 ring-white/25 text-white backdrop-blur-sm"
+            className={cn(
+              "inline-flex items-center justify-center rounded-md font-bold tracking-wider text-white ring-1 ring-white/30 shadow-sm",
+              meta.solid,
+            )}
             style={{
               padding: "1.2cqi 2.2cqi",
               fontSize: "max(8px, 4.2cqi)",
