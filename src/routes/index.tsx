@@ -251,15 +251,14 @@ function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-3 pt-1">
-            <Link to="/cadastro">
-              <Button
-                size="lg"
-                className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
-              >
-                Quero treinar minha 1ª estação grátis
-                <ArrowRight className="ml-1.5 h-4 w-4" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={scrollToPlanos}
+              className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
+            >
+              Ver planos e começar
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
             <a href="#simulacao">
               <Button
                 size="lg"
@@ -273,7 +272,7 @@ function Hero() {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia incondicional</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Sem cartão pra começar</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em até 12x</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Cancele em 2 cliques</span>
           </div>
 
