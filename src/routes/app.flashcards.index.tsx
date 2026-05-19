@@ -465,56 +465,77 @@ function FlashcardsList({
           </div>
 
           {/* Specialty filters */}
-          <div className="space-y-2 lg:space-y-0">
-            <button
-              type="button"
-              onClick={() => setSpecialty("Todas")}
-              className={cn(
-                "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-all lg:hidden",
-                specialty === "Todas"
-                  ? "border-mint bg-mint/10 text-foreground"
-                  : "border-border bg-background text-muted-foreground hover:border-mint/40",
-              )}
-            >
-              Todas
-            </button>
-            <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
-              <button
-                type="button"
-                onClick={() => setSpecialty("Todas")}
-                className={cn(
-                  "hidden lg:inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
-                  specialty === "Todas"
-                    ? "border-mint bg-mint/10 text-foreground"
-                    : "border-border bg-background text-muted-foreground hover:border-mint/40",
-                )}
-              >
-                Todas
-              </button>
-              {specialties.filter((s) => s !== "Todas").map((s) => {
-                const meta = getSpecialtyMeta(s);
-                const active = specialty === s;
-                return (
+          {(() => {
+            const order = ["Cirurgia", "Pediatria", "Clínica Médica", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade"];
+            const others = specialties.filter((s) => s !== "Todas");
+            const row1 = order.slice(0, 3).filter((s) => others.includes(s));
+            const row2 = order.slice(3).filter((s) => others.includes(s));
+            const renderChip = (s: string, mobile: boolean) => {
+              const meta = getSpecialtyMeta(s);
+              const active = specialty === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpecialty(s)}
+                  title={s}
+                  className={cn(
+                    mobile
+                      ? "inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-full border px-2 text-[11px] font-medium leading-tight transition-all"
+                      : "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
+                    active
+                      ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                      : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                  )}
+                >
+                  <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", meta.solid)} />
+                  <span className="truncate text-center">{s}</span>
+                </button>
+              );
+            };
+            return (
+              <div className="space-y-2 lg:space-y-0">
+                {/* Mobile/Tablet */}
+                <div className="space-y-2 lg:hidden">
                   <button
-                    key={s}
                     type="button"
-                    onClick={() => setSpecialty(s)}
-                    title={s}
+                    onClick={() => setSpecialty("Todas")}
                     className={cn(
-                      "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-all lg:h-auto lg:w-auto lg:px-3 lg:py-1 lg:text-xs",
-                      active
-                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                      "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-all",
+                      specialty === "Todas"
+                        ? "border-mint bg-mint/10 text-foreground"
                         : "border-border bg-background text-muted-foreground hover:border-mint/40",
                     )}
                   >
-                    <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full lg:h-1.5 lg:w-1.5", meta.solid)} />
-                    <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
-                    <span className="hidden whitespace-nowrap lg:inline">{s}</span>
+                    Todas
                   </button>
-                );
-              })}
-            </div>
-          </div>
+                  {row1.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2">{row1.map((s) => renderChip(s, true))}</div>
+                  )}
+                  {row2.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2">{row2.map((s) => renderChip(s, true))}</div>
+                  )}
+                </div>
+                {/* Desktop */}
+                <div className="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSpecialty("Todas")}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
+                      specialty === "Todas"
+                        ? "border-mint bg-mint/10 text-foreground"
+                        : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                    )}
+                  >
+                    Todas
+                  </button>
+                  {others.map((s) => renderChip(s, false))}
+                </div>
+              </div>
+            );
+          })()}
+
 
 
 
