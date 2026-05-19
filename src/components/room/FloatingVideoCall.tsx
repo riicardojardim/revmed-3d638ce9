@@ -103,7 +103,7 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
     <div
       ref={panelRef}
       className={cn(
-        "fixed z-30 overflow-hidden rounded-xl border border-border bg-background shadow-elegant",
+        "fixed z-[100] overflow-hidden rounded-xl border border-border bg-background shadow-elegant",
         minimized ? "h-10 w-40" : "h-52 w-52 sm:h-60 sm:w-60",
       )}
       style={{
