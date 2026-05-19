@@ -2,6 +2,7 @@ import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-route
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import { SplashScreen } from "@/components/SplashScreen";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
@@ -156,6 +157,7 @@ function AppLayout() {
   // Mobile bottom nav: flatten top-level
   const flatNav: NavItem[] = sections.flatMap((s) => s.items);
 
+  const [showSplash, setShowSplash] = useState(true);
   const [activeRoom, setActiveRoom] = useState<{ code: string; title: string; path?: string; parent?: "treinar" | "estacoes" } | null>(null);
   useEffect(() => {
     const read = () => {
@@ -209,6 +211,7 @@ function AppLayout() {
 
   return (
     <OnlinePresenceProvider>
+    {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
     <div className="flex min-h-dvh w-full min-w-0 overflow-x-hidden bg-background">
       {/* Desktop sidebar — fixa */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar">
