@@ -425,7 +425,7 @@ function ResumosPage() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                   </>
                 )}
-                <div className="relative space-y-3 pr-14">
+                <div className="relative space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <SpecialtyBadge specialty={selectedSummary.specialty} short />
