@@ -118,13 +118,18 @@ function LoginPage() {
   }
 
   async function handleForgotPassword() {
-    const normalizedEmail = (emailRef.current?.value || email).trim();
-    if (!normalizedEmail) {
-      toast.error("Informe seu e-mail", { description: "Digite seu e-mail no campo acima para receber o link de redefinição." });
+    const raw = (emailRef.current?.value || email).trim();
+    if (!raw) {
+      toast.error("Informe seu e-mail, usuário, CPF ou telefone", { description: "Preencha o primeiro campo para receber o link de redefinição." });
       emailRef.current?.focus();
       return;
     }
-    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+    const targetEmail = await resolveLoginEmail(raw);
+    if (!targetEmail) {
+      toast.error("Conta não encontrada", { description: "Não localizamos uma conta com esse identificador." });
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) {
