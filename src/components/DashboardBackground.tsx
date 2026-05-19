@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Stethoscope, HeartPulse, Activity, Pill, Syringe, Cross, Microscope, Brain } from "lucide-react";
+import { FallingMedicalIcons } from "./FallingMedicalIcons";
 
 /**
  * Ambient background for the Dashboard.
