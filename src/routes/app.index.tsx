@@ -270,7 +270,7 @@ function Dashboard() {
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Carregando...</p>
           ) : rows.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum treinamento ainda.</p>
-          ) : rows.map((row) => {
+          ) : rows.slice(0, visibleCount).map((row) => {
             if (row.kind === "single") {
               const a = row.attempt;
               return (
