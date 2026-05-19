@@ -44,7 +44,7 @@ type Summary = {
 type StationRow = { id: string; title: string; specialty: string; published: boolean };
 
 function AdminResumosPage() {
-  const batchFn = useServerFn(batchGenerateSummariesFromStations);
+  const generateOne = useServerFn(generateOneSummaryByStationId);
   const [items, setItems] = useState<Summary[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
