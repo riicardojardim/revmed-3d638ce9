@@ -1126,15 +1126,12 @@ function Areas() {
     { icon: Baby, name: "Pediatria", count: "22 estações" },
     { icon: Heart, name: "Ginecologia & Obstetrícia", count: "24 estações" },
     { icon: HomeIcon, name: "Medicina de Família", count: "20 estações" },
-    { icon: MessagesSquare, name: "Comunicação", count: "12 estações" },
-    { icon: Siren, name: "Emergência", count: "10 estações" },
-    { icon: ClipboardList, name: "Exames e condutas", count: "14 estações" },
   ];
   return (
     <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 lg:gap-5">
           {areas.map((a, i) => (
             <motion.div
               key={a.name}
