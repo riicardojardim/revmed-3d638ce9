@@ -343,3 +343,76 @@ function AppLayout() {
     </OnlinePresenceProvider>
   );
 }
+
+function BottomDock({
+  items,
+  isActive,
+}: {
+  items: NavItem[];
+  isActive: (to: string, exact?: boolean) => boolean;
+}) {
+  const isMobile = useIsMobile();
+  // Em mobile mostramos no máximo 4 atalhos + botão "Mais" com o restante.
+  const MAX_VISIBLE = 4;
+  const showOverflow = isMobile && items.length > MAX_VISIBLE;
+  const visible = showOverflow ? items.slice(0, MAX_VISIBLE) : items;
+  const overflow = showOverflow ? items.slice(MAX_VISIBLE) : [];
+
+  return (
+    <nav
+      className="fixed bottom-3 left-1/2 z-40 w-[min(96vw,720px)] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/80 shadow-elegant backdrop-blur-xl"
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)" }}
+    >
+      <div className="flex items-stretch justify-around gap-1 px-2 py-1.5">
+        {visible.map((n) => {
+          const active = isActive(n.to, n.exact);
+          return (
+            <Link
+              key={n.to}
+              to={n.to}
+              className={`relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-[10px] font-semibold transition-all ${
+                active ? "bg-mint/15 text-mint" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <n.icon className={`h-5 w-5 ${active ? "scale-110" : ""} transition-transform`} />
+              <span className="max-w-full truncate">{n.label}</span>
+              {active && <span className="absolute -top-1 h-1 w-6 rounded-full bg-mint" />}
+            </Link>
+          );
+        })}
+        {showOverflow && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="relative flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-all hover:text-foreground"
+                aria-label="Mais opções"
+              >
+                <MoreHorizontal className="h-5 w-5" />
+                <span>Mais</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" className="w-56 p-1">
+              <div className="flex flex-col">
+                {overflow.map((n) => {
+                  const active = isActive(n.to, n.exact);
+                  return (
+                    <Link
+                      key={n.to}
+                      to={n.to}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                        active ? "bg-mint/15 text-mint" : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <n.icon className="h-4 w-4" />
+                      <span className="flex-1 truncate">{n.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+    </nav>
+  );
+}
