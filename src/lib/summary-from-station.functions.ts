@@ -126,7 +126,7 @@ async function callGateway(apiKey: string, userText: string, model: string, time
           { role: "user", content: userText },
         ],
         response_format: { type: "json_object" },
-        max_tokens: 5000,
+        max_tokens: 3800,
         temperature: 0.2,
       }),
       signal: controller.signal,
@@ -287,7 +287,7 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
   ].join("\n");
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 45_000);
+  const timer = setTimeout(() => controller.abort(), 25_000);
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -299,7 +299,7 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
           { role: "user", content: userText },
         ],
         response_format: { type: "json_object" },
-        max_tokens: 1800,
+        max_tokens: 1400,
         temperature: 0,
       }),
       signal: controller.signal,
@@ -336,12 +336,12 @@ export async function generateAndSaveSummary(
   const prompt = buildUserPrompt(input);
   let result: z.infer<typeof ResultSchema>;
   try {
-    result = await callGateway(apiKey, prompt, "google/gemini-3-flash-preview", 90_000);
+    result = await callGateway(apiKey, prompt, "google/gemini-3-flash-preview", 65_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const isRecoverable = /abort|timeout|504|502|503|upstream|rate/i.test(msg);
     if (!isRecoverable) throw err;
-    result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 90_000);
+    result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 45_000);
   }
 
   let structIssues = structuralCheck(result);
