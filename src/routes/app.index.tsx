@@ -234,8 +234,16 @@ function Dashboard() {
           </div>
         </div>
 
-        <DailyMotivationCard userId={user?.id ?? "anon"} />
+        <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
       </div>
+
+      {/* Heatmap + Próxima ação */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <ActivityHeatmap cells={stats.heatCells} activeDays={stats.activeDays} />
+        <RecommendationCard rec={recommendation} />
+      </div>
+
+
 
       {/* Meu Desempenho */}
       <Link
