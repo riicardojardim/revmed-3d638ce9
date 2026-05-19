@@ -29,6 +29,8 @@ import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
+import { useServerFn } from "@tanstack/react-start";
+import { listRoomPresence } from "@/lib/livekit.functions";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
