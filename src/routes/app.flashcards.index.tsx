@@ -502,7 +502,7 @@ function FlashcardsList({
               variants={staggerContainer}
               initial="hidden"
               animate="show"
-              className="grid gap-4 sm:grid-cols-2"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
             >
               {filtered.slice(0, 4).map((d) => (
                 <motion.button
@@ -512,20 +512,20 @@ function FlashcardsList({
                   onClick={() => openDeck(d)}
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                  className="group relative flex flex-col gap-3 rounded-2xl border border-border bg-card/80 p-4 text-left shadow-card backdrop-blur-sm transition-all hover:shadow-elegant"
+                  className="group relative flex flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2.5 text-left shadow-card backdrop-blur-sm transition-all hover:shadow-elegant sm:gap-3 sm:p-3"
                 >
                   <div className="aspect-square w-full overflow-hidden rounded-xl">
                     <DeckCover title={d.title} specialty={d.specialty} topic={d.topic} />
                   </div>
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-1.5">
                     <div className="min-w-0">
-                      <div className="truncate font-display text-sm font-bold leading-tight">{d.title}</div>
-                      <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                      <div className="truncate font-display text-xs font-bold leading-tight sm:text-sm">{d.title}</div>
+                      <div className="mt-0.5 truncate text-[10px] text-muted-foreground sm:text-[11px]">
                         {d.specialty}{d.topic ? ` · ${d.topic}` : ""}
                       </div>
                     </div>
-                    <span className="shrink-0 rounded-full bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint">
-                      {cardCounts.get(d.id) ?? 0} cards
+                    <span className="shrink-0 rounded-full bg-mint/10 px-1.5 py-0.5 text-[9px] font-semibold text-mint sm:px-2 sm:text-[10px]">
+                      {cardCounts.get(d.id) ?? 0}
                     </span>
                   </div>
                 </motion.button>
@@ -533,7 +533,7 @@ function FlashcardsList({
               {filtered.length > 4 && (
                 <motion.div
                   variants={staggerItem}
-                  className="sm:col-span-2 flex justify-center pt-2"
+                  className="col-span-2 flex justify-center pt-2 sm:col-span-3 lg:col-span-4"
                 >
                   <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
                     Ver todos os {filtered.length} flashcards <ArrowRight className="h-4 w-4" />
