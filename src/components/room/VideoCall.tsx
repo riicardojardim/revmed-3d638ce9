@@ -236,6 +236,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
         style={{ height: "100%", borderRadius: "0.5rem", overflow: "hidden", display: "flex", flexDirection: "column" }}
       >
         <CameraSync shouldPublish={isHost || isCurrentEvaluated} />
+        <VideoSubscriptionManager allowedIdentities={allowed} />
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           <Stage
             isHost={isHost}
