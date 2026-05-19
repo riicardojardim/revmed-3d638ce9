@@ -140,10 +140,27 @@ function StationsPage() {
 
           {/* Specialty filters */}
           <div className="flex flex-wrap gap-2">
-            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")}>
-              Todas as áreas
-            </FilterChip>
-            {SPECIALTIES.map((s) => {
+            <div className="flex w-full flex-wrap items-center gap-2 lg:flex-nowrap">
+              <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small>
+                Todas as áreas
+              </FilterChip>
+              {SPECIALTIES.filter((s) => s !== "Medicina de Família e Comunidade").map((s) => {
+                const meta = getSpecialtyMeta(s);
+                return (
+                  <FilterChip
+                    key={s}
+                    active={spec === s}
+                    onClick={() => setSpec(s)}
+                    accentClass={meta.solid}
+                    small
+                  >
+                    <span className={`inline-block h-2 w-2 rounded-full ${meta.solid}`} />
+                    {s}
+                  </FilterChip>
+                );
+              })}
+            </div>
+            {SPECIALTIES.filter((s) => s === "Medicina de Família e Comunidade").map((s) => {
               const meta = getSpecialtyMeta(s);
               return (
                 <FilterChip
@@ -151,6 +168,7 @@ function StationsPage() {
                   active={spec === s}
                   onClick={() => setSpec(s)}
                   accentClass={meta.solid}
+                  small
                 >
                   <span className={`inline-block h-2 w-2 rounded-full ${meta.solid}`} />
                   {s}
@@ -158,6 +176,7 @@ function StationsPage() {
               );
             })}
           </div>
+
 
           {/* List */}
           {loading ? (
