@@ -938,14 +938,14 @@ const plans = [
 /* ---------------- Comparison ---------------- */
 function Comparison() {
   const rows = [
-    { feat: "Vídeo-chamada nativa candidato + ator", us: true, medway: false, hardwork: false },
-    { feat: "Estações com checklist oficial INEP", us: true, medway: true, hardwork: true },
-    { feat: "Banco de roteiros de ator detalhado", us: true, medway: false, hardwork: false },
-    { feat: "IA assume papel do ator (treino sozinho)", us: true, medway: false, hardwork: false },
-    { feat: "Histórico de desempenho por estação", us: true, medway: true, hardwork: false },
-    { feat: "Flashcards e resumos integrados", us: true, medway: true, hardwork: true },
-    { feat: "Pagamento único até a prova", us: true, medway: false, hardwork: false },
-    { feat: "Comunidade ativa no WhatsApp", us: true, medway: false, hardwork: true },
+    { feat: "Vídeo-chamada nativa candidato + ator", us: true, others: false },
+    { feat: "Estações com checklist oficial INEP", us: true, others: true },
+    { feat: "Banco de roteiros de ator detalhado", us: true, others: false },
+    { feat: "Treino em dupla pelo código de sala", us: true, others: false },
+    { feat: "Histórico de desempenho por estação", us: true, others: true },
+    { feat: "Flashcards e resumos integrados", us: true, others: true },
+    { feat: "Pagamento único até a prova", us: true, others: false },
+    { feat: "Comunidade ativa no WhatsApp", us: true, others: false },
   ];
 
   const Cell = ({ ok }: { ok: boolean }) =>
@@ -984,10 +984,7 @@ function Comparison() {
                   </div>
                 </th>
                 <th className="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Medway
-                </th>
-                <th className="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Hardwork
+                  Outros preparatórios
                 </th>
               </tr>
             </thead>
@@ -1004,10 +1001,7 @@ function Comparison() {
                     <Cell ok={r.us} />
                   </td>
                   <td className="px-3 py-3">
-                    <Cell ok={r.medway} />
-                  </td>
-                  <td className="px-3 py-3">
-                    <Cell ok={r.hardwork} />
+                    <Cell ok={r.others} />
                   </td>
                 </tr>
               ))}
@@ -1017,8 +1011,7 @@ function Comparison() {
       </div>
 
       <p className="mx-auto mt-4 max-w-3xl text-center text-[11px] text-muted-foreground">
-        Comparação baseada em informações públicas dos sites dos concorrentes (atualizada em 2026).
-        Marcas citadas pertencem aos seus respectivos donos.
+        Comparação genérica com a média dos principais preparatórios do Revalida disponíveis no mercado.
       </p>
     </section>
   );
@@ -1294,10 +1287,10 @@ function Testimonials() {
 
 /* ---------------- FAQ ---------------- */
 const faqs = [
-  { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece treinando sozinho com a IA fazendo o papel do ator. Quando estiver confortável, entra em sala com colegas só pra ouvir. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
-  { q: "Já comprei outro curso (Medway, Hardwork, etc). Vale a pena assinar mesmo assim?", a: "Sim, justamente porque eles ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
+  { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece entrando em salas só pra observar outros candidatos. Depois pega o roteiro de ator, que é mais 'guiado'. Quando estiver pronto, faz o papel de candidato. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
+  { q: "Já comprei outro curso. Vale a pena assinar mesmo assim?", a: "Sim, justamente porque outros cursos ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
   { q: "Tô começando agora, ainda não estudei nada. Devo entrar já?", a: "Pode entrar — mas comece pelas estações de dificuldade básica e use os resumos e flashcards. Quanto antes você treinar em voz alta, melhor. Decorar checklist não substitui executar." },
-  { q: "Não tenho com quem treinar. Como funciona sozinho?", a: "A IA assume o papel do paciente ator: responde com base no roteiro, reage às suas perguntas e marca o checklist no fim. Você também pode entrar em salas abertas da comunidade pra parear com outros candidatos." },
+  { q: "Não tenho com quem treinar. Como faço?", a: "Entra nas salas abertas da comunidade — sempre tem candidato procurando par. Você também pode marcar treino com colegas pelo grupo do WhatsApp." },
   { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
   { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como ator — cada um vê só o conteúdo do seu papel, com vídeo integrado." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
