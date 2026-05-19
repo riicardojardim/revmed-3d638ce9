@@ -8,6 +8,10 @@ import {
   Clock,
   ListOrdered,
   RotateCcw,
+  Flame,
+  Target,
+  Check,
+  CalendarHeart,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -89,17 +93,66 @@ function Dashboard() {
 
   const stats = useMemo(() => {
     const bySpec = new Map<string, { sum: number; n: number }>();
+    const dayCounts = new Map<string, number>();
+    const toKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     attempts.forEach((a) => {
       const k = a.specialty ?? "Outras";
       const cur = bySpec.get(k) ?? { sum: 0, n: 0 };
       cur.sum += Number(a.score) || 0;
       cur.n += 1;
       bySpec.set(k, cur);
+      const dk = toKey(new Date(a.created_at));
+      dayCounts.set(dk, (dayCounts.get(dk) ?? 0) + 1);
     });
     const total = attempts.length;
     const avg = total ? attempts.reduce((s, a) => s + Number(a.score), 0) / total : 0;
-    return { bySpec, total, avg };
+
+    // streak (dias consecutivos com ao menos 1 tentativa, terminando hoje ou ontem)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayKey = toKey(today);
+    const didToday = dayCounts.has(todayKey);
+    let streak = 0;
+    const cursor = new Date(today);
+    if (!didToday) cursor.setDate(cursor.getDate() - 1); // permite manter streak se ainda não estudou hoje
+    while (dayCounts.has(toKey(cursor))) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    // heatmap: últimas 12 semanas (84 dias) em colunas semanais
+    const HEAT_DAYS = 84;
+    const heatStart = new Date(today);
+    heatStart.setDate(heatStart.getDate() - (HEAT_DAYS - 1));
+    // ajusta para domingo
+    heatStart.setDate(heatStart.getDate() - heatStart.getDay());
+    const heatCells: { date: Date; key: string; count: number }[] = [];
+    const totalCells = Math.ceil((today.getTime() - heatStart.getTime()) / 86400000) + 1;
+    for (let i = 0; i < totalCells; i++) {
+      const d = new Date(heatStart);
+      d.setDate(d.getDate() + i);
+      const k = toKey(d);
+      heatCells.push({ date: d, key: k, count: dayCounts.get(k) ?? 0 });
+    }
+    const activeDays = Array.from(dayCounts.keys()).filter((k) => {
+      const [y, m, day] = k.split("-").map(Number);
+      const d = new Date(y, m - 1, day);
+      return d >= heatStart && d <= today;
+    }).length;
+
+    return { bySpec, total, avg, streak, didToday, heatCells, activeDays };
   }, [attempts]);
+
+  // Próxima ação recomendada: especialidade mais fraca entre as medalhas
+  const recommendation = useMemo(() => {
+    let weakest: { key: string; label: string; avg: number; n: number } | null = null;
+    for (const s of MEDAL_SPECIALTIES) {
+      const { avg, n } = getSpecAvg(stats.bySpec, s.key);
+      if (n === 0) return { key: s.key, label: s.label, avg: 0, n: 0, reason: "nunca treinada" as const };
+      if (!weakest || avg < weakest.avg) weakest = { key: s.key, label: s.label, avg, n };
+    }
+    return weakest ? { ...weakest, reason: "média mais baixa" as const } : null;
+  }, [stats.bySpec]);
 
   type SimGroup = { kind: "sim"; id: string; name: string; lastAt: string; total: number; stations: AttemptRow[]; avg: number };
   type SingleRow = { kind: "single"; id: string; lastAt: string; attempt: AttemptRow };
@@ -185,8 +238,16 @@ function Dashboard() {
           </div>
         </div>
 
-        <DailyMotivationCard userId={user?.id ?? "anon"} />
+        <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
       </div>
+
+      {/* Heatmap + Próxima ação */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <ActivityHeatmap cells={stats.heatCells} activeDays={stats.activeDays} />
+        <RecommendationCard rec={recommendation} />
+      </div>
+
+
 
       {/* Meu Desempenho */}
       <Link
@@ -467,13 +528,162 @@ function pickDailyIndex(seed: string, len: number) {
   return h % len;
 }
 
-function DailyMotivationCard({ userId }: { userId: string }) {
+function DailyMotivationCard({ userId, streak, didToday }: { userId: string; streak: number; didToday: boolean }) {
   const m = useMemo(() => MOTIVATIONS[pickDailyIndex(userId, MOTIVATIONS.length)], [userId]);
   return (
-    <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
       <h3 className="font-display font-bold text-mint">Versículo do dia</h3>
-      <p className="mt-3 text-sm font-medium text-foreground">{m.title}</p>
-      <p className="mt-2 text-xs text-muted-foreground">{m.sub}</p>
+      <p className="mt-3 text-sm font-medium italic text-foreground">{m.title}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{m.sub}</p>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <Flame className="h-3 w-3 text-orange-500" /> Sequência
+          </div>
+          <div className="mt-1 font-display text-2xl font-bold">
+            {streak}
+            <span className="ml-1 text-xs font-normal text-muted-foreground">{streak === 1 ? "dia" : "dias"}</span>
+          </div>
+        </div>
+        <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <Target className="h-3 w-3 text-mint" /> Meta de hoje
+          </div>
+          <div className="mt-1 flex items-center gap-2">
+            <div className={`flex h-5 w-5 items-center justify-center rounded-md border ${didToday ? "border-mint bg-mint text-white" : "border-border bg-background"}`}>
+              {didToday && <Check className="h-3.5 w-3.5" />}
+            </div>
+            <span className="text-xs font-medium">{didToday ? "Concluída!" : "1 estação"}</span>
+          </div>
+        </div>
+      </div>
+
+      {!didToday && (
+        <Link to="/app/checklists" className="mt-3 inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-mint/90">
+          Treinar agora <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function ActivityHeatmap({ cells, activeDays }: { cells: { date: Date; key: string; count: number }[]; activeDays: number }) {
+  // organiza em colunas (semanas) x 7 linhas (dias)
+  const weeks: { date: Date; key: string; count: number }[][] = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(cells.slice(i, i + 7));
+  }
+  const intensity = (c: number) => {
+    if (c === 0) return "bg-muted/40";
+    if (c === 1) return "bg-mint/30";
+    if (c === 2) return "bg-mint/55";
+    if (c === 3) return "bg-mint/75";
+    return "bg-mint";
+  };
+  const monthLabels: { col: number; label: string }[] = [];
+  let lastMonth = -1;
+  weeks.forEach((w, i) => {
+    const first = w[0];
+    if (first && first.date.getMonth() !== lastMonth) {
+      lastMonth = first.date.getMonth();
+      monthLabels.push({ col: i, label: first.date.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "") });
+    }
+  });
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 shadow-card lg:col-span-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <CalendarHeart className="h-5 w-5 text-mint" />
+          <h3 className="font-display text-lg font-bold">Constância</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">{activeDays}</span> dias ativos nas últimas 12 semanas
+        </span>
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <div className="inline-block">
+          <div className="mb-1 flex gap-[3px] pl-7 text-[10px] text-muted-foreground">
+            {weeks.map((_, i) => {
+              const ml = monthLabels.find((m) => m.col === i);
+              return (
+                <div key={i} className="w-[14px]">{ml ? ml.label : ""}</div>
+              );
+            })}
+          </div>
+          <div className="flex gap-[3px]">
+            <div className="flex flex-col gap-[3px] pr-1 text-[10px] text-muted-foreground">
+              {["", "Seg", "", "Qua", "", "Sex", ""].map((d, i) => (
+                <div key={i} className="h-[14px] leading-[14px]">{d}</div>
+              ))}
+            </div>
+            {weeks.map((w, wi) => (
+              <div key={wi} className="flex flex-col gap-[3px]">
+                {Array.from({ length: 7 }).map((_, di) => {
+                  const cell = w[di];
+                  if (!cell) return <div key={di} className="h-[14px] w-[14px]" />;
+                  return (
+                    <div
+                      key={di}
+                      className={`h-[14px] w-[14px] rounded-[3px] ${intensity(cell.count)}`}
+                      title={`${cell.date.toLocaleDateString("pt-BR")} — ${cell.count} ${cell.count === 1 ? "estação" : "estações"}`}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground">
+        <span>Menos</span>
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-muted/40" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint/30" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint/55" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint/75" />
+        <div className="h-[10px] w-[10px] rounded-[2px] bg-mint" />
+        <span>Mais</span>
+      </div>
+    </div>
+  );
+}
+
+function RecommendationCard({ rec }: { rec: { key: string; label: string; avg: number; n: number; reason: "nunca treinada" | "média mais baixa" } | null }) {
+  if (!rec) {
+    return (
+      <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-mint" />
+          <h3 className="font-display text-lg font-bold">Próxima ação</h3>
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">Comece sua primeira estação para receber recomendações personalizadas.</p>
+        <Link to="/app/checklists" className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90">
+          Treinar agora <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
+    );
+  }
+  const meta = getSpecialtyMeta(rec.key);
+  return (
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-5 shadow-card">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-5 w-5 text-mint" />
+        <h3 className="font-display text-lg font-bold">Próxima ação recomendada</h3>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">Foque na sua especialidade mais fraca para subir a média geral.</p>
+      <div className={`mt-4 rounded-xl border p-3 ${meta.card}`}>
+        <div className={`text-[11px] font-bold uppercase tracking-wider ${meta.text}`}>{rec.reason}</div>
+        <div className="mt-1 font-display text-lg font-bold">{rec.label}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {rec.n === 0 ? "Nenhuma estação ainda" : `Média atual: ${rec.avg.toFixed(1)} (${rec.n} ${rec.n === 1 ? "estação" : "estações"})`}
+        </div>
+      </div>
+      <Link
+        to="/app/checklists"
+        className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90"
+      >
+        Treinar {rec.label} <ChevronRight className="h-4 w-4" />
+      </Link>
     </div>
   );
 }
