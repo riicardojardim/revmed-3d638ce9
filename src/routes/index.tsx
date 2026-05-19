@@ -108,7 +108,7 @@ function LandingPage() {
       <Simulation />
       <Resources />
       <Areas />
-      <FounderVideo />
+      
       <Comparison />
       <ExamCountdown />
       <Plans />
@@ -443,7 +443,7 @@ function HeroVisual() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-mint" />
         </span>
-        <span className="text-[11px] font-semibold">128 salas ao vivo</span>
+        <span className="text-[11px] font-semibold">128 salas abertas agora</span>
       </motion.div>
     </motion.div>
   );
@@ -575,7 +575,7 @@ function HowItWorks() {
   const steps = [
     { icon: ClipboardList, title: "Escolha a estação", desc: "Filtre por especialidade, dificuldade e tempo." },
     { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da prova." },
-    { icon: ClipboardCheck, title: "Treine o checklist", desc: "O ator marca cada item — ou a IA, se você estiver sozinho." },
+    { icon: ClipboardCheck, title: "Treine o checklist", desc: "O ator marca cada item enquanto você conduz a estação." },
     { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
@@ -619,7 +619,7 @@ function BeforeAfter() {
     "Conduz a estação em voz alta, igual no dia da prova",
     "Já passou pelo nervosismo dezenas de vezes — calejado",
     "Cronômetro real, divisão de tempo treinada na prática",
-    "Ator (ou IA) marca cada erro na hora, com feedback",
+    "Ator marca cada erro na hora, com feedback humano",
     "Sai de cada simulado sabendo exatamente o que revisar",
   ];
 
@@ -747,7 +747,7 @@ function Simulation() {
               "Vídeo nativo — sem Zoom, sem Meet, sem instalar nada",
               "Código de sala pra treinar com qualquer colega",
               "Cada papel vê só o conteúdo do seu perfil",
-              "Treine sozinho também: IA assume o papel do ator",
+              "Comunidade ativa pra parear com outros candidatos",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
@@ -800,7 +800,7 @@ function Resources() {
   const features = [
     { icon: ClipboardCheck, title: "Checklists oficiais", desc: "Itens avaliativos por categoria, alinhados ao INEP." },
     { icon: Clock, title: "Cronômetro integrado", desc: "Tempo real da prova, com alerta no minuto final." },
-    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo entre candidato e ator, sem instalar nada." },
+    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala em vídeo entre candidato e ator, sem instalar nada." },
     { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
     { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
     { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
@@ -911,7 +911,7 @@ const plans = [
     ],
     bonuses: [
       { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
-      { name: "Aula ao vivo: Erros que reprovam na prática", value: "R$ 297" },
+      { name: "E-book: Erros que reprovam na prática", value: "R$ 297" },
       { name: "Checklist comentado por aprovados 2024", value: "R$ 147" },
     ],
     totalValue: "R$ 1.138",
@@ -933,84 +933,19 @@ const plans = [
   },
 ];
 
-/* ---------------- Founder Video ---------------- */
-function FounderVideo() {
-  return (
-    <section className="bg-night py-16 text-white lg:py-24">
-      <div className="container mx-auto grid items-center gap-10 px-4 lg:grid-cols-2 lg:px-8">
-        <div className="space-y-5">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-mint-soft">
-            <Sparkles className="h-3 w-3" />
-            Do fundador
-          </div>
-          <h2 className="font-display text-3xl font-extrabold leading-tight md:text-4xl">
-            Por que eu criei a{" "}
-            <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
-              Estação Revalida.
-            </span>
-          </h2>
-          <p className="text-base leading-relaxed text-white/70">
-            Tomei bomba na prova prática em 2023 — sabia toda a teoria, mas
-            travei na hora de falar com o ator. Vi que faltava um lugar pra
-            treinar de verdade, em voz alta, com gente do outro lado. Construí
-            o que eu queria ter tido. Hoje é o que mais aprova.
-          </p>
-          <div className="flex items-center gap-4 pt-2">
-            <img
-              src={candidate2}
-              alt="Fundador"
-              className="h-14 w-14 rounded-full border-2 border-mint object-cover"
-            />
-            <div>
-              <p className="font-display text-base font-bold">Dr. Rafael Mendes</p>
-              <p className="text-xs text-white/60">Fundador · Aprovado Revalida 2024</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="relative">
-          <button
-            type="button"
-            className="group relative block aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-mint/20 to-night shadow-glow transition-transform hover:scale-[1.01]"
-            aria-label="Reproduzir vídeo do fundador"
-          >
-            <img
-              src={candidate7}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-40 transition-opacity group-hover:opacity-50"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/20 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-mint shadow-glow transition-transform group-hover:scale-110">
-                <Play className="ml-1 h-8 w-8 fill-night text-night" />
-              </span>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
-              <p className="text-xs font-bold uppercase tracking-wider text-mint">
-                2 minutos · Sem enrolação
-              </p>
-              <p className="mt-1 font-display text-lg font-bold">
-                "O que mudou depois que troquei flashcard por simulado em voz alta"
-              </p>
-            </div>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ---------------- Comparison ---------------- */
 function Comparison() {
   const rows = [
-    { feat: "Vídeo-chamada nativa candidato + ator", us: true, medway: false, hardwork: false },
-    { feat: "Estações com checklist oficial INEP", us: true, medway: true, hardwork: true },
-    { feat: "Banco de roteiros de ator detalhado", us: true, medway: false, hardwork: false },
-    { feat: "IA assume papel do ator (treino sozinho)", us: true, medway: false, hardwork: false },
-    { feat: "Histórico de desempenho por estação", us: true, medway: true, hardwork: false },
-    { feat: "Flashcards e resumos integrados", us: true, medway: true, hardwork: true },
-    { feat: "Pagamento único até a prova", us: true, medway: false, hardwork: false },
-    { feat: "Comunidade ativa no WhatsApp", us: true, medway: false, hardwork: true },
+    { feat: "Vídeo-chamada nativa candidato + ator", us: true, others: false },
+    { feat: "Estações com checklist oficial INEP", us: true, others: true },
+    { feat: "Banco de roteiros de ator detalhado", us: true, others: false },
+    { feat: "Treino em dupla pelo código de sala", us: true, others: false },
+    { feat: "Histórico de desempenho por estação", us: true, others: true },
+    { feat: "Flashcards e resumos integrados", us: true, others: true },
+    { feat: "Pagamento único até a prova", us: true, others: false },
+    { feat: "Comunidade ativa no WhatsApp", us: true, others: false },
   ];
 
   const Cell = ({ ok }: { ok: boolean }) =>
@@ -1049,10 +984,7 @@ function Comparison() {
                   </div>
                 </th>
                 <th className="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Medway
-                </th>
-                <th className="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Hardwork
+                  Outros preparatórios
                 </th>
               </tr>
             </thead>
@@ -1069,10 +1001,7 @@ function Comparison() {
                     <Cell ok={r.us} />
                   </td>
                   <td className="px-3 py-3">
-                    <Cell ok={r.medway} />
-                  </td>
-                  <td className="px-3 py-3">
-                    <Cell ok={r.hardwork} />
+                    <Cell ok={r.others} />
                   </td>
                 </tr>
               ))}
@@ -1082,8 +1011,7 @@ function Comparison() {
       </div>
 
       <p className="mx-auto mt-4 max-w-3xl text-center text-[11px] text-muted-foreground">
-        Comparação baseada em informações públicas dos sites dos concorrentes (atualizada em 2026).
-        Marcas citadas pertencem aos seus respectivos donos.
+        Comparação genérica com a média dos principais preparatórios do Revalida disponíveis no mercado.
       </p>
     </section>
   );
@@ -1359,10 +1287,10 @@ function Testimonials() {
 
 /* ---------------- FAQ ---------------- */
 const faqs = [
-  { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece treinando sozinho com a IA fazendo o papel do ator. Quando estiver confortável, entra em sala com colegas só pra ouvir. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
-  { q: "Já comprei outro curso (Medway, Hardwork, etc). Vale a pena assinar mesmo assim?", a: "Sim, justamente porque eles ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
+  { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece entrando em salas só pra observar outros candidatos. Depois pega o roteiro de ator, que é mais 'guiado'. Quando estiver pronto, faz o papel de candidato. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
+  { q: "Já comprei outro curso. Vale a pena assinar mesmo assim?", a: "Sim, justamente porque outros cursos ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
   { q: "Tô começando agora, ainda não estudei nada. Devo entrar já?", a: "Pode entrar — mas comece pelas estações de dificuldade básica e use os resumos e flashcards. Quanto antes você treinar em voz alta, melhor. Decorar checklist não substitui executar." },
-  { q: "Não tenho com quem treinar. Como funciona sozinho?", a: "A IA assume o papel do paciente ator: responde com base no roteiro, reage às suas perguntas e marca o checklist no fim. Você também pode entrar em salas abertas da comunidade pra parear com outros candidatos." },
+  { q: "Não tenho com quem treinar. Como faço?", a: "Entra nas salas abertas da comunidade — sempre tem candidato procurando par. Você também pode marcar treino com colegas pelo grupo do WhatsApp." },
   { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
   { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como ator — cada um vê só o conteúdo do seu papel, com vídeo integrado." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
@@ -1572,7 +1500,7 @@ const FAKE_NOTIFS: FakeNotif[] = [
   { kind: "compra", name: "Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: candidate2 },
   { kind: "conquista", name: "Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: candidate5 },
   { kind: "aprovado", name: "João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: candidate4 },
-  { kind: "online", name: "+128 candidatos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: candidate3 },
+  { kind: "online", name: "+128 candidatos", action: "estudando agora", meta: "salas abertas", avatar: candidate3 },
   { kind: "compra", name: "Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: candidate1 },
   { kind: "conquista", name: "Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: candidate6 },
   { kind: "aprovado", name: "Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: candidate7 },
@@ -1609,7 +1537,7 @@ function FloatingNotifications() {
     n.kind === "aprovado"
       ? { label: "Aprovação", chip: "bg-mint text-night" }
       : n.kind === "online"
-      ? { label: "Ao vivo", chip: "bg-primary text-white" }
+      ? { label: "Online", chip: "bg-primary text-white" }
       : n.kind === "conquista"
       ? { label: "Conquista", chip: "bg-mint-soft text-primary" }
       : { label: "Nova assinatura", chip: "bg-mint text-night" };
