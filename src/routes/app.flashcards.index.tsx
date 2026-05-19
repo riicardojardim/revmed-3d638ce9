@@ -36,6 +36,7 @@ function FlashcardsPage() {
   const [cardCounts, setCardCounts] = useState<Map<string, number>>(new Map());
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
+  const [expandedSpecs, setExpandedSpecs] = useState<Set<string>>(new Set());
   const [step, setStep] = useState<Step>("list");
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
