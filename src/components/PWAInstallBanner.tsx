@@ -184,17 +184,21 @@ export function PWAInstallBanner() {
               <p className="text-muted-foreground">No Safari (iOS/iPadOS):</p>
               <ol className="space-y-2 pl-1">
                 <Step n={1}>
-                  Toque no ícone <Share className="inline h-4 w-4 align-text-bottom text-mint" /> <strong>Compartilhar</strong> na barra inferior do Safari.
+                  Toque no ícone <Share className="inline h-4 w-4 align-text-bottom text-mint" />{" "}
+                  <strong>Compartilhar</strong> na barra inferior do Safari.
                 </Step>
                 <Step n={2}>
-                  Role e toque em <strong>"Adicionar à Tela de Início"</strong> <Plus className="inline h-4 w-4 align-text-bottom text-mint" />.
+                  Role e toque em <strong>"Adicionar à Tela de Início"</strong>{" "}
+                  <Plus className="inline h-4 w-4 align-text-bottom text-mint" />.
                 </Step>
                 <Step n={3}>
-                  Confirme em <strong>"Adicionar"</strong>. Pronto — o ícone aparece na sua tela inicial.
+                  Confirme em <strong>"Adicionar"</strong>. Pronto — o ícone aparece na sua tela
+                  inicial.
                 </Step>
               </ol>
               <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-                Importante: no iPhone/iPad só funciona pelo <strong>Safari</strong> (não pelo Chrome).
+                Importante: no iPhone/iPad só funciona pelo <strong>Safari</strong> (não pelo
+                Chrome).
               </p>
             </TabsContent>
 
@@ -202,31 +206,42 @@ export function PWAInstallBanner() {
               <p className="text-muted-foreground">No Chrome para Android:</p>
               <ol className="space-y-2 pl-1">
                 <Step n={1}>
-                  Toque no menu <MoreVertical className="inline h-4 w-4 align-text-bottom text-mint" /> <strong>(3 pontinhos)</strong> no canto superior direito.
+                  Toque no menu{" "}
+                  <MoreVertical className="inline h-4 w-4 align-text-bottom text-mint" />{" "}
+                  <strong>(3 pontinhos)</strong> no canto superior direito.
                 </Step>
                 <Step n={2}>
-                  Escolha <strong>"Instalar app"</strong> ou <strong>"Adicionar à tela inicial"</strong>.
+                  Escolha <strong>"Instalar app"</strong> ou{" "}
+                  <strong>"Adicionar à tela inicial"</strong>.
                 </Step>
                 <Step n={3}>
                   Confirme em <strong>"Instalar"</strong>. O app aparece na sua gaveta de apps.
                 </Step>
               </ol>
               <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-                Dica: se aparecer o banner de instalação automático, é só tocar em <strong>Instalar</strong>.
+                Dica: se aparecer o banner de instalação automático, é só tocar em{" "}
+                <strong>Instalar</strong>.
               </p>
             </TabsContent>
 
             <TabsContent value="desktop" className="space-y-3 pt-3 text-sm">
-              <p className="text-muted-foreground">No Chrome, Edge ou Brave (Windows, Mac e Linux):</p>
+              <p className="text-muted-foreground">
+                No Chrome, Edge ou Brave (Windows, Mac e Linux):
+              </p>
               <ol className="space-y-2 pl-1">
                 <Step n={1}>
-                  Procure o ícone <Download className="inline h-4 w-4 align-text-bottom text-mint" /> <strong>de instalação</strong> no canto direito da barra de endereço.
+                  Procure o ícone{" "}
+                  <Download className="inline h-4 w-4 align-text-bottom text-mint" />{" "}
+                  <strong>de instalação</strong> no canto direito da barra de endereço.
                 </Step>
                 <Step n={2}>
-                  Ou abra o menu <MoreVertical className="inline h-4 w-4 align-text-bottom text-mint" /> e escolha <strong>"Instalar Estação Revalida"</strong>.
+                  Ou abra o menu{" "}
+                  <MoreVertical className="inline h-4 w-4 align-text-bottom text-mint" /> e escolha{" "}
+                  <strong>"Instalar Estação Revalida"</strong>.
                 </Step>
                 <Step n={3}>
-                  Clique em <strong>"Instalar"</strong>. O app abre em uma janela própria, sem abas do navegador.
+                  Clique em <strong>"Instalar"</strong>. O app abre em uma janela própria, sem abas
+                  do navegador.
                 </Step>
               </ol>
               <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
