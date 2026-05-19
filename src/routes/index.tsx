@@ -51,6 +51,7 @@ import {
   Flame,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { StaggerText, Magnetic, Tilt, Reveal } from "@/components/landing/motion-primitives";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckoutModal, type CheckoutPlanSlug } from "@/components/CheckoutModal";
