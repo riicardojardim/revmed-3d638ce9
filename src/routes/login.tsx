@@ -56,19 +56,38 @@ function LoginPage() {
     }
   }, [user, loading, submitting]);
 
+  async function resolveLoginEmail(identifier: string): Promise<string | null> {
+    const id = identifier.trim();
+    if (!id) return null;
+    if (id.includes("@")) return id.toLowerCase();
+    try {
+      const { data, error } = await supabase.rpc("lookup_login_email", { _identifier: id });
+      if (error) return null;
+      return (data as string | null) ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async function submitLogin() {
     if (submitting) return;
-    const normalizedEmail = (emailRef.current?.value || email).trim();
+    const rawIdentifier = (emailRef.current?.value || email).trim();
     const currentPassword = passwordRef.current?.value || password;
-    if (!normalizedEmail || !currentPassword) {
-      toast.error("Preencha e-mail e senha para entrar.");
+    if (!rawIdentifier || !currentPassword) {
+      toast.error("Preencha e-mail/usuário e senha para entrar.");
       return;
     }
 
     try {
       setSubmitting(true);
+      const loginEmail = await resolveLoginEmail(rawIdentifier);
+      if (!loginEmail) {
+        setSubmitting(false);
+        toast.error("Conta não encontrada", { description: "Verifique seu e-mail, usuário, CPF ou telefone." });
+        return;
+      }
       const { data, error } = await withTimeout(
-        supabase.auth.signInWithPassword({ email: normalizedEmail, password: currentPassword }),
+        supabase.auth.signInWithPassword({ email: loginEmail, password: currentPassword }),
         10000,
       );
       if (error) {
