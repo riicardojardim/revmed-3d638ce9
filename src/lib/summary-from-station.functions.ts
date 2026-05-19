@@ -2,6 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const ChecklistItemSchema = z.object({
+  description: z.string().min(1).max(2000),
+  category: z.string().max(120).optional().nullable(),
+  points: z.number().optional().nullable(),
+  helper_text: z.string().max(2000).optional().nullable(),
+});
+
 const InputSchema = z.object({
   station_id: z.string().uuid().optional().nullable(),
   title: z.string().min(1).max(300),
@@ -14,6 +21,7 @@ const InputSchema = z.object({
   common_mistakes: z.string().max(10_000).optional().nullable(),
   scoring_criteria: z.string().max(10_000).optional().nullable(),
   references: z.array(z.object({ label: z.string(), url: z.string().optional() })).max(40).optional(),
+  checklist_items: z.array(ChecklistItemSchema).min(1, "O checklist (PEP) precisa ter pelo menos 1 item preenchido para gerar o resumo.").max(200),
 });
 
 const ResultSchema = z.object({
@@ -126,13 +134,24 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
   const refs = (input.references ?? [])
     .map((r) => `- ${r.label}${r.url ? ` (${r.url})` : ""}`)
     .join("\n");
+  const checklistBlock = input.checklist_items
+    .map((it, idx) => {
+      const cat = it.category ? ` [${it.category}]` : "";
+      const pts = typeof it.points === "number" ? ` (${it.points} pt)` : "";
+      const helper = it.helper_text ? `\n     ↳ ${it.helper_text}` : "";
+      return `  ${idx + 1}.${cat} ${it.description}${pts}${helper}`;
+    })
+    .join("\n");
   return [
     `Gere um RESUMO CLÍNICO completo e confiável para a estação abaixo.`,
+    `O CHECKLIST (PEP) abaixo é a FONTE PRIMÁRIA do conteúdo: cubra TODOS os tópicos que ele cobra, na ordem clínica adequada. O resumo deve ensinar o aluno a executar cada item do PEP com segurança.`,
     `Use SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras das sociedades (SBC, SBP, FEBRASGO, SBPT, SBN, etc.), matriz do Revalida/INEP e guidelines internacionais consagradas quando alinhadas ao SUS.`,
     "",
-    `TÍTULO DA ESTAÇÃO: ${input.title}`,
+    `TÍTULO DA ESTAÇÃO (use EXATAMENTE este texto no campo "title" do JSON — não reescreva, não encurte): ${input.title}`,
     `ÁREA: ${input.specialty}`,
     input.topic ? `TÓPICO: ${input.topic}` : "",
+    "",
+    `CHECKLIST / PEP (cada item é um critério avaliado — o resumo deve dar base científica a TODOS):\n${checklistBlock}`,
     "",
     input.educational_goal ? `OBJETIVO EDUCACIONAL:\n${input.educational_goal}` : "",
     input.candidate_task ? `\nTAREFA DO CANDIDATO:\n${input.candidate_task}` : "",
@@ -142,7 +161,7 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
     input.scoring_criteria ? `\nCRITÉRIOS DE AVALIAÇÃO:\n${input.scoring_criteria.slice(0, 2000)}` : "",
     refs ? `\nREFERÊNCIAS DECLARADAS NA ESTAÇÃO:\n${refs}` : "",
     "",
-    "Retorne SOMENTE o JSON do schema. Verifique cada dose, valor de corte e critério antes de gerar — se houver dúvida, generalize com segurança.",
+    `Retorne SOMENTE o JSON do schema. O campo "title" deve ser EXATAMENTE "${input.title}". Verifique cada dose, valor de corte e critério antes de gerar — se houver dúvida, generalize com segurança.`,
   ].filter(Boolean).join("\n");
 }
 
@@ -338,7 +357,7 @@ export async function generateAndSaveSummary(
     .insert({
       created_by: userId,
       station_id: input.station_id ?? null,
-      title: result.title.slice(0, 200),
+      title: input.title.slice(0, 200),
       specialty: input.specialty,
       topic: result.topic ?? input.topic ?? null,
       difficulty: result.difficulty,

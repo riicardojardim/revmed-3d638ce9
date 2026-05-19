@@ -30,6 +30,7 @@ import { DeckPreview } from "@/components/flashcards/DeckPreview";
 import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 import { suggestStationTitle } from "@/lib/title-suggest.functions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Loader2, Wand2, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
@@ -2351,10 +2352,12 @@ function SectionGenerateSummary({ station }: { station: Station }) {
   const generate = useServerFn(generateSummaryFromStation);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<GeneratedSummary | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [published, setPublished] = useState(false);
   const [pubLoading, setPubLoading] = useState(false);
   const [validation, setValidation] = useState<{ verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } | null>(null);
   const [linked, setLinked] = useState<Array<{ id: string; title: string; published: boolean; created_at: string }>>([]);
+  const [checklistItems, setChecklistItems] = useState<Array<{ description: string; category: string | null; points: number | null; helper_text: string | null }>>([]);
 
   async function loadLinked() {
     const { data } = await supabase
@@ -2365,11 +2368,26 @@ function SectionGenerateSummary({ station }: { station: Station }) {
       .limit(8);
     setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
   }
-  useEffect(() => { void loadLinked(); }, [station.id, station.specialty]);
+  async function loadChecklist() {
+    const { data } = await supabase
+      .from("station_checklist_items")
+      .select("description, category, points, helper_text, order_index")
+      .eq("station_id", station.id)
+      .order("order_index");
+    setChecklistItems((data ?? []) as Array<{ description: string; category: string | null; points: number | null; helper_text: string | null }>);
+  }
+  useEffect(() => { void loadLinked(); void loadChecklist(); }, [station.id, station.specialty]);
+
+  const checklistCount = checklistItems.length;
+  const canGenerate = checklistCount > 0 && !!station.title?.trim() && !!station.specialty?.trim();
 
   async function run() {
     if (!station.title?.trim() || !station.specialty?.trim()) {
       toast.error("Preencha pelo menos o título e a área da estação.");
+      return;
+    }
+    if (checklistCount === 0) {
+      toast.error("O checklist (PEP) está vazio. Preencha os itens do PEP antes de gerar o resumo — a IA usa o checklist como base.");
       return;
     }
     setLoading(true);
@@ -2390,9 +2408,11 @@ function SectionGenerateSummary({ station }: { station: Station }) {
           common_mistakes: station.common_mistakes ?? null,
           scoring_criteria: station.scoring_criteria ?? null,
           references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+          checklist_items: checklistItems.slice(0, 200),
         },
       });
       setSummary(res.summary as GeneratedSummary);
+      setModalOpen(true);
       const v = (res as { validation?: { verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } }).validation ?? null;
       setValidation(v);
       if (v?.blocking) toast.warning("Resumo gerado com alertas críticos — revise antes de publicar.");
@@ -2425,7 +2445,7 @@ function SectionGenerateSummary({ station }: { station: Station }) {
   return (
     <Section
       title="Gerar Resumo desta estação"
-      hint="A IA cria um resumo estruturado (Definição, Quadro clínico, Diagnóstico, Conduta, Pontos-chave, Armadilhas) usando SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras (SBC, SBP, FEBRASGO…), matriz do Revalida/INEP e guidelines internacionais consagradas."
+      hint="A IA cria um resumo estruturado (Definição, Quadro clínico, Diagnóstico, Conduta, Pontos-chave, Armadilhas) com base no CHECKLIST (PEP) preenchido + descrição da estação, usando SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras (SBC, SBP, FEBRASGO…), matriz do Revalida/INEP e guidelines internacionais consagradas. O título do resumo é o mesmo título da estação/checklist."
     >
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
         <div className="flex items-center gap-3">
@@ -2433,14 +2453,16 @@ function SectionGenerateSummary({ station }: { station: Station }) {
             <BookOpen className="h-5 w-5" />
           </div>
           <div>
-            <div className="font-semibold">Resumo clínico baseado em evidências</div>
+            <div className="font-semibold">Resumo clínico baseado no PEP desta estação</div>
             <div className="text-xs text-muted-foreground">
-              Fontes oficiais MS / ANVISA / SUS / sociedades brasileiras. A IA cita as fontes usadas.
+              {checklistCount > 0
+                ? <>Usará os <strong>{checklistCount}</strong> {checklistCount === 1 ? "item" : "itens"} do checklist + descrição da estação. Fontes oficiais MS / ANVISA / SUS / sociedades.</>
+                : <span className="text-rose-600 font-semibold">Checklist vazio — preencha o PEP acima antes de gerar o resumo.</span>}
             </div>
           </div>
         </div>
         <div className="ml-auto">
-          <Button variant="hero" onClick={run} disabled={loading}>
+          <Button variant="hero" onClick={run} disabled={loading || !canGenerate}>
             {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar Resumo</>}
           </Button>
         </div>
@@ -2449,50 +2471,15 @@ function SectionGenerateSummary({ station }: { station: Station }) {
         Sempre revise doses, contraindicações e critérios antes de publicar para os alunos.
       </p>
 
-      {validation && (
-        <div className={cn(
-          "rounded-xl border p-4 text-sm",
-          validation.blocking
-            ? "border-rose-400/40 bg-rose-500/5"
-            : (validation.issues.length > 0 ? "border-amber-400/40 bg-amber-500/5" : "border-mint/40 bg-mint/5")
-        )}>
-          <div className="flex items-center gap-2 font-display font-bold">
-            {validation.blocking ? (
-              <><AlertTriangle className="h-4 w-4 text-rose-500" /> Validação automática: erros críticos</>
-            ) : validation.issues.length > 0 ? (
-              <><AlertTriangle className="h-4 w-4 text-amber-500" /> Validação automática: avisos</>
-            ) : (
-              <><ClipboardCheck className="h-4 w-4 text-mint" /> Validação automática: aprovado</>
-            )}
-            <span className="ml-auto text-xs font-normal text-muted-foreground">Veredito IA: {validation.verdict}</span>
-          </div>
-          {validation.issues.length > 0 && (
-            <ul className="mt-2 space-y-1 text-xs">
-              {validation.issues.map((i, idx) => (
-                <li key={idx} className="flex gap-2">
-                  <span className={cn(
-                    "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
-                    i.severity === "error" ? "bg-rose-500/15 text-rose-600" : "bg-amber-500/15 text-amber-700"
-                  )}>{i.severity}</span>
-                  <span><strong>{i.field}:</strong> {i.message}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {validation.blocking && (
-            <p className="mt-2 text-[11px] text-rose-600">
-              Publicação bloqueada. Edite manualmente o resumo na aba Resumos para corrigir antes de publicar.
-            </p>
-          )}
-        </div>
-      )}
-
       {summary && (
-        <InlineSummaryPreview
+        <SummaryModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
           summary={summary}
           published={published}
           pubLoading={pubLoading}
           onTogglePublish={togglePublish}
+          validation={validation}
         />
       )}
 
@@ -2527,6 +2514,71 @@ function SectionGenerateSummary({ station }: { station: Station }) {
         </div>
       )}
     </Section>
+  );
+}
+
+function SummaryModal({
+  open, onOpenChange, summary, published, pubLoading, onTogglePublish, validation,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  summary: GeneratedSummary;
+  published: boolean;
+  pubLoading: boolean;
+  onTogglePublish: () => void;
+  validation: { verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } | null;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">{summary.title}</DialogTitle>
+          <DialogDescription>
+            Resumo clínico gerado a partir do checklist (PEP) desta estação.
+          </DialogDescription>
+        </DialogHeader>
+
+        {validation && (
+          <div className={cn(
+            "rounded-xl border p-3 text-sm",
+            validation.blocking
+              ? "border-rose-400/40 bg-rose-500/5"
+              : (validation.issues.length > 0 ? "border-amber-400/40 bg-amber-500/5" : "border-mint/40 bg-mint/5")
+          )}>
+            <div className="flex items-center gap-2 font-display font-bold">
+              {validation.blocking ? (
+                <><AlertTriangle className="h-4 w-4 text-rose-500" /> Validação: erros críticos</>
+              ) : validation.issues.length > 0 ? (
+                <><AlertTriangle className="h-4 w-4 text-amber-500" /> Validação: avisos</>
+              ) : (
+                <><ClipboardCheck className="h-4 w-4 text-mint" /> Validação: aprovado</>
+              )}
+              <span className="ml-auto text-xs font-normal text-muted-foreground">Veredito IA: {validation.verdict}</span>
+            </div>
+            {validation.issues.length > 0 && (
+              <ul className="mt-2 space-y-1 text-xs">
+                {validation.issues.map((i, idx) => (
+                  <li key={idx} className="flex gap-2">
+                    <span className={cn(
+                      "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
+                      i.severity === "error" ? "bg-rose-500/15 text-rose-600" : "bg-amber-500/15 text-amber-700"
+                    )}>{i.severity}</span>
+                    <span><strong>{i.field}:</strong> {i.message}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        <InlineSummaryPreview
+          summary={summary}
+          published={published}
+          pubLoading={pubLoading}
+          onTogglePublish={onTogglePublish}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
 

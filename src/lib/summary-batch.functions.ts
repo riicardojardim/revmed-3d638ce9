@@ -27,11 +27,29 @@ export const batchGenerateSummariesFromStations = createServerFn({ method: "POST
     if (error) throw new Error(error.message);
     const byId = new Map((stations ?? []).map((s) => [s.id as string, s] as const));
 
+    // Carrega itens de checklist (PEP) de TODAS as estações em uma query
+    const { data: allItems } = await supabase
+      .from("station_checklist_items")
+      .select("station_id, description, category, points, helper_text, order_index")
+      .in("station_id", data.station_ids)
+      .order("order_index");
+    const itemsByStation = new Map<string, Array<{ description: string; category: string | null; points: number | null; helper_text: string | null }>>();
+    for (const it of (allItems ?? []) as Array<{ station_id: string; description: string; category: string | null; points: number | null; helper_text: string | null }>) {
+      const arr = itemsByStation.get(it.station_id) ?? [];
+      arr.push({ description: it.description, category: it.category, points: it.points, helper_text: it.helper_text });
+      itemsByStation.set(it.station_id, arr);
+    }
+
     // Sequencial para evitar saturar o gateway/rate limit
     for (const id of data.station_ids) {
       const s = byId.get(id);
       if (!s) {
         results.push({ station_id: id, status: "skipped", reason: "Estação não encontrada." });
+        continue;
+      }
+      const checklist = itemsByStation.get(id) ?? [];
+      if (checklist.length === 0) {
+        results.push({ station_id: id, status: "skipped", reason: "Checklist (PEP) vazio — preencha os itens antes de gerar o resumo." });
         continue;
       }
       try {
@@ -54,6 +72,7 @@ export const batchGenerateSummariesFromStations = createServerFn({ method: "POST
             common_mistakes: s.common_mistakes ?? null,
             scoring_criteria: s.scoring_criteria ?? null,
             references: refs.slice(0, 40),
+            checklist_items: checklist.slice(0, 200),
           },
           supabase as never,
           userId,
