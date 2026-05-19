@@ -450,7 +450,7 @@ function FlashcardsList({
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main column */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           {/* Search */}
           <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
             <div className="relative">
