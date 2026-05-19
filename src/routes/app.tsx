@@ -1,4 +1,4 @@
-import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState, useNavigate, useRouter } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -314,11 +314,31 @@ function BottomDock({
   isActive: (to: string, exact?: boolean) => boolean;
 }) {
   const isMobile = useIsMobile();
+  const router = useRouter();
   // Em mobile mostramos no máximo 4 atalhos + botão "Mais" com o restante.
   const MAX_VISIBLE = 4;
   const showOverflow = isMobile && items.length > MAX_VISIBLE;
   const visible = showOverflow ? items.slice(0, MAX_VISIBLE) : items;
   const overflow = showOverflow ? items.slice(MAX_VISIBLE) : [];
+
+  // Pré-carrega TODAS as rotas do dock assim que ele monta — evita qualquer
+  // espera (e a tela anterior reaparecendo) ao clicar em Checklists, Flashcards
+  // ou outros atalhos. Usa requestIdleCallback p/ não disputar com a 1ª pintura.
+  useEffect(() => {
+    const run = () => {
+      items.forEach((n) => {
+        router.preloadRoute({ to: n.to } as Parameters<typeof router.preloadRoute>[0]).catch(() => {});
+      });
+    };
+    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(run);
+    } else {
+      window.setTimeout(run, 200);
+    }
+  }, [items, router]);
+
+
 
   return (
     <nav
