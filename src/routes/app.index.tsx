@@ -44,6 +44,7 @@ import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { DashboardCountdown } from "@/components/DashboardCountdown";
 import { motion, type Variants } from "framer-motion";
 
 // Stagger consistente para listas/cards filhos.
@@ -286,6 +287,9 @@ function Dashboard() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
+      <DashboardCountdown seconds={3} />
+
+
 
       {/* Top row: welcome + stats */}
       <motion.div
