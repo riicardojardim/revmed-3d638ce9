@@ -106,7 +106,6 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   const [selfIdentity, setSelfIdentity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connect, setConnect] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
 
   const refresh = useCallback(() => {
     setError(null);
@@ -124,31 +123,14 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
       .then((r) => { if (!cancelled) setCreds(r); })
       .catch((e: Error) => { if (!cancelled) setError(e.message ?? "Falha ao conectar à sala"); });
     return () => { cancelled = true; };
-  }, [roomCode, displayName, fetchToken, reloadKey]);
+  }, [roomCode, displayName, fetchToken]);
 
   // Captura identity do usuário logado (para distinguir tiles "eu" vs outros)
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setSelfIdentity(data.user?.id ?? null));
   }, []);
 
-  // Re-emite token quando o ator troca o candidato avaliado (mudança em training_rooms)
-  useEffect(() => {
-    const ch = supabase
-      .channel(`lk-room-perms-${roomCode}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "training_rooms", filter: `code=eq.${roomCode}` },
-        (payload) => {
-          const oldRow = payload.old as { evaluated_candidate_id?: string | null };
-          const newRow = payload.new as { evaluated_candidate_id?: string | null };
-          if (oldRow.evaluated_candidate_id !== newRow.evaluated_candidate_id) {
-            setReloadKey((k) => k + 1);
-          }
-        },
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [roomCode]);
+
 
   if (error) {
     return (
@@ -176,7 +158,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
     const roleMsg =
       creds.role === "host" ? "Você é o ator (controle total)."
       : creds.role === "evaluated" ? "Você é o candidato avaliado — pode falar."
-      : "Você participará apenas como ouvinte/espectador (mic desativado pelo ator).";
+      : "Você entrará como espectador. Mic começa desligado; você pode se desmutar quando quiser.";
     return (
       <div className={className}>
         <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-border bg-muted/20 p-4 text-center">
@@ -194,17 +176,18 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   }
 
   const isHost = creds.role === "host";
-  const canPublish = creds.role === "host" || creds.role === "evaluated";
+  // Espectador entra com câmera/mic desligados mas tem permissão de publicar — pode
+  // ativar mic/cam pela ControlBar (ex: tirar dúvidas após o cronômetro acabar).
+  const autoPublish = creds.role === "host" || creds.role === "evaluated";
 
   return (
     <div className={className}>
       <LiveKitRoom
-        key={reloadKey}
         serverUrl={creds.url}
         token={creds.token}
         connect
-        video={canPublish}
-        audio={canPublish}
+        video={autoPublish}
+        audio={autoPublish}
         data-lk-theme="default"
         style={{ height: "100%", borderRadius: "0.5rem", overflow: "hidden", display: "flex", flexDirection: "column" }}
       >
@@ -213,19 +196,13 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
             isHost={isHost}
             roomCode={roomCode}
             selfIdentity={selfIdentity ?? ""}
-            allowedIdentities={
-              creds.role === "spectator"
-                ? new Set([creds.hostId, creds.evaluatedId].filter((v): v is string => !!v))
-                : null
-            }
+            allowedIdentities={null}
           />
         </div>
         <RoomAudioRenderer />
-        {canPublish && (
-          <div style={{ flexShrink: 0 }}>
-            <ControlBar variation="minimal" controls={{ leave: false, screenShare: isHost, microphone: true, camera: true }} />
-          </div>
-        )}
+        <div style={{ flexShrink: 0 }}>
+          <ControlBar variation="minimal" controls={{ leave: false, screenShare: isHost, microphone: true, camera: true }} />
+        </div>
       </LiveKitRoom>
     </div>
   );
