@@ -753,6 +753,7 @@ function buildBadges(s: BadgeStats): BadgeDef[] {
     { key: "perfect", title: "Nota 10", description: "Tire nota 10 em uma estação", icon: Award, unlocked: s.maxScore >= 10, tone: "gold" },
     { key: "above", title: "Acima da corte", description: `Nota ≥ ${NOTA_DE_CORTE_ESCALA10.toFixed(2)}`, icon: Target, unlocked: s.aboveCut, tone: "mint" },
     { key: "marathon", title: "Maratonista", description: "5+ estações em um dia", icon: Flame, unlocked: s.maxDayCount >= 5, progress: { current: Math.min(s.maxDayCount, 5), goal: 5 }, tone: "orange" },
+    { key: "streak3", title: "3 dias seguidos", description: "Sequência de 3 dias", icon: Flame, unlocked: s.bestStreak >= 3, progress: { current: Math.min(s.bestStreak, 3), goal: 3 }, tone: "orange" },
     { key: "streak7", title: "7 dias seguidos", description: "Sequência de 7 dias", icon: Flame, unlocked: s.bestStreak >= 7, progress: { current: Math.min(s.bestStreak, 7), goal: 7 }, tone: "orange" },
     { key: "streak30", title: "30 dias seguidos", description: "Sequência de 30 dias", icon: Flame, unlocked: s.bestStreak >= 30, progress: { current: Math.min(s.bestStreak, 30), goal: 30 }, tone: "gold" },
     { key: "sim1", title: "Primeiro simulado", description: "Conclua 1 simulado completo", icon: ListOrdered, unlocked: s.simulatedCompleted >= 1, progress: { current: Math.min(s.simulatedCompleted, 1), goal: 1 }, tone: "blue" },
