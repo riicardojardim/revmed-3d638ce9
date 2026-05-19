@@ -44,7 +44,17 @@ import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+
+// Stagger consistente para listas/cards filhos.
+const staggerContainer: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+};
+const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
@@ -397,23 +407,29 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="mt-4 grid grid-cols-3 gap-2 sm:gap-4"
+        >
+          <motion.div variants={staggerItem} className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Tentativas</div>
             <div className="mt-1 font-display text-xl font-bold sm:text-3xl"><AnimatedNumber value={stats.total} /></div>
-          </div>
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
+          </motion.div>
+          <motion.div variants={staggerItem} className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Nota média</div>
             <div className="mt-1 font-display text-xl font-bold text-medical sm:text-3xl"><AnimatedNumber value={stats.avg} decimals={1} /></div>
-          </div>
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
+          </motion.div>
+          <motion.div variants={staggerItem} className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Corte INEP</div>
             <div className="mt-1 font-display text-xl font-bold text-mint sm:text-3xl">{stats.total > 0 ? NOTA_DE_CORTE_ESCALA10.toFixed(2) : NOTA_DE_CORTE.toFixed(3)}</div>
             <div className="mt-1 hidden text-[10px] text-muted-foreground sm:block">
               {NOTA_DE_CORTE_EDICAO} · {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
+
 
         <div className="mt-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -422,7 +438,12 @@ function Dashboard() {
               Meta: ≥ <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span>
             </span>
           </div>
-          <ul className="mt-3 space-y-3">
+          <motion.ul
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="mt-3 space-y-3"
+          >
             {MEDAL_SPECIALTIES.map((s) => {
               const meta = getSpecialtyMeta(s.key);
               const { avg, n } = getSpecAvg(stats.bySpec, s.key);
@@ -430,7 +451,7 @@ function Dashboard() {
               const target = NOTA_DE_CORTE;
               const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
               return (
-                <li key={s.key} className="space-y-1.5">
+                <motion.li key={s.key} variants={staggerItem} className="space-y-1.5">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <div className="flex min-w-0 items-center gap-2">
                       <span className={`inline-flex h-6 min-w-[2rem] shrink-0 items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
@@ -446,17 +467,23 @@ function Dashboard() {
                     </div>
                   </div>
                   <div className="relative h-2 overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full rounded-full ${meta.solid} transition-all`} style={{ width: `${pct}%` }} />
+                    <motion.div
+                      className={`h-full rounded-full ${meta.solid}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                    />
                     <div
                       className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-foreground/60"
                       style={{ left: `${target}%` }}
                       title={`Nota de corte INEP — ${NOTA_DE_CORTE.toFixed(3)} pts`}
                     />
                   </div>
-                </li>
+                </motion.li>
               );
             })}
-          </ul>
+          </motion.ul>
+
         </div>
       </Link>
       </motion.div>
@@ -479,7 +506,13 @@ function Dashboard() {
           className="mt-3 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint"
         />
 
-        <div className="mt-5 space-y-3">
+        <motion.div
+          key={loading ? "loading" : `rows-${rows.length}`}
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="mt-5 space-y-3"
+        >
           {loading ? (
             <div className="space-y-2.5" aria-label="Carregando histórico">
               {[0, 1, 2].map((i) => (
@@ -498,7 +531,7 @@ function Dashboard() {
             if (row.kind === "single") {
               const a = row.attempt;
               return (
-                <div key={a.id} className="overflow-hidden rounded-xl border border-border">
+                <motion.div key={a.id} variants={staggerItem} className="overflow-hidden rounded-xl border border-border">
                   <button
                     type="button"
                     onClick={() => setDetailId(a.id)}
@@ -516,14 +549,14 @@ function Dashboard() {
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </button>
-                </div>
+                </motion.div>
               );
             }
             const g = row;
             const open = !!openSim[g.id];
             const totalStations = g.total || g.stations.length;
             return (
-              <div key={g.id} className="overflow-hidden rounded-xl border border-border">
+              <motion.div key={g.id} variants={staggerItem} className="overflow-hidden rounded-xl border border-border">
                 <button
                   type="button"
                   onClick={() => setOpenSim((s) => ({ ...s, [g.id]: !open }))}
@@ -567,10 +600,11 @@ function Dashboard() {
                     </tbody>
                   </table>
                 )}
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
+
         {rows.length > visibleCount && (
           <div className="mt-4 flex justify-center">
             <Button variant="outline" size="sm" onClick={() => setVisibleCount((n) => n + 5)}>
@@ -855,16 +889,24 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
           <span className="font-semibold text-foreground">{unlockedCount}</span> de {badges.length} desbloqueadas
         </span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+      >
         {badges.map((b, i) => {
           const tone = TONE_CLASSES[b.tone];
           const Icon = b.icon;
           const pct = b.progress ? Math.round((b.progress.current / b.progress.goal) * 100) : 0;
           const hideOnMobile = !showAll && i >= MOBILE_LIMIT;
           return (
-            <div
+            <motion.div
               key={b.key}
-              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center transition ${
+              variants={staggerItem}
+              whileHover={{ y: -2, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center ${
                 hideOnMobile ? "hidden sm:flex" : ""
               } ${
                 b.unlocked ? `border-border bg-background shadow-sm ring-1 ${tone.ring}` : "border-dashed border-border bg-muted/20"
@@ -890,10 +932,11 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
                   <div className="mt-0.5 text-[9px] text-muted-foreground">{b.progress.current}/{b.progress.goal}</div>
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
+
       {badges.length > MOBILE_LIMIT && (
         <button
           type="button"
