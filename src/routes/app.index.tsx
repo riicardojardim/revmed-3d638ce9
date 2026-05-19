@@ -45,6 +45,7 @@ import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
+import { FlashcardsPerformanceCard } from "@/components/FlashcardsPerformanceCard";
 
 import { motion } from "framer-motion";
 
@@ -317,8 +318,9 @@ function Dashboard() {
       </motion.div>
 
 
-      <motion.div variants={staggerItem}>
+      <motion.div variants={staggerItem} className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <BadgesCard stats={stats} />
+        <FlashcardsPerformanceCard />
       </motion.div>
 
       {/* Meu Desempenho */}
@@ -854,9 +856,9 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
   const badges = useMemo(() => buildBadges(stats), [stats]);
   const unlockedCount = badges.filter((b) => b.unlocked).length;
   const [showAll, setShowAll] = useState(false);
-  const MOBILE_LIMIT = 6;   // 2 cols x 3 rows
-  const TABLET_LIMIT = 8;   // 4 cols x 2 rows
-  const DESKTOP_LIMIT = 14; // 7 cols x 2 rows
+  const MOBILE_LIMIT = 4;   // 2 cols x 2 rows
+  const TABLET_LIMIT = 6;   // 3 cols x 2 rows
+  const DESKTOP_LIMIT = 8;  // 4 cols x 2 rows
 
   // Determine per-item visibility class based on its index when "showAll" is off
   function hideClass(i: number) {
@@ -894,7 +896,7 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
         variants={staggerContainer}
         initial="hidden"
         animate="show"
-        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
       >
         {badges.map((b, i) => {
           const tone = TONE_CLASSES[b.tone];
