@@ -265,13 +265,13 @@ function Dashboard() {
 
       {/* Top row: welcome + stats */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-6 shadow-card">
-          <h2 className="font-display text-xl font-bold md:text-2xl">
+        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6">
+          <h2 className="text-balance font-display text-lg font-bold leading-tight sm:text-xl md:text-2xl">
             <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
             <span className="text-mint">{stats.avg.toFixed(1)}</span>
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
             Com nossos treinamentos vamos trabalhar para manter sua média sempre acima da última nota de corte do Revalida.
           </p>
           <div className="mt-5">
