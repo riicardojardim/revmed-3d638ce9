@@ -1175,6 +1175,9 @@ const plans = [
       "Atuação como paciente ator",
       "Banco de roteiros do paciente",
       "Impressos e materiais liberados",
+      "Vídeo-chamada integrada com o candidato",
+      "Avaliação por checklist oficial",
+      "Histórico das salas em que atuou",
     ],
   },
   {
@@ -1214,7 +1217,10 @@ const plans = [
     features: [
       "Acesso a tudo enquanto estiver ativo",
       "Treine como candidato e como ator",
+      "+120 estações clínicas",
       "+600 checklists e flashcards",
+      "Cronograma e histórico completo",
+      "Vídeo-chamada integrada",
       "Cancele quando quiser",
     ],
   },
