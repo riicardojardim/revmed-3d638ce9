@@ -164,11 +164,13 @@ function Header() {
           <Link to="/login">
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
-          <Link to="/cadastro">
-            <Button size="sm" className="rounded-full bg-mint text-night shadow-glow hover:bg-mint/90">
-              Começar agora <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            size="sm"
+            onClick={scrollToPlanos}
+            className="rounded-full bg-mint text-night shadow-glow hover:bg-mint/90"
+          >
+            Começar agora <ArrowRight className="ml-1 h-4 w-4" />
+          </Button>
         </div>
         <button
           className="rounded-md p-2 lg:hidden"
