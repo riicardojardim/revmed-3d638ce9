@@ -24,6 +24,35 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  function formatIdentifier(raw: string): string {
+    const v = raw.trim();
+    if (!v) return "";
+    // Email ou username (tem @ ou letras) — não mascara
+    if (/[@a-zA-Z]/.test(v)) return raw;
+    const startsWithPlus = v.startsWith("+");
+    const digits = v.replace(/\D/g, "");
+    if (!digits) return raw;
+    // Telefone: começa com + ou tem mais de 11 dígitos
+    if (startsWithPlus || digits.length > 11) {
+      const d = digits.slice(0, 13);
+      if (d.length <= 2) return `+${d}`;
+      if (d.length <= 4) return `+${d.slice(0, 2)} (${d.slice(2)}`;
+      if (d.length <= 9) return `+${d.slice(0, 2)} (${d.slice(2, 4)}) ${d.slice(4)}`;
+      return `+${d.slice(0, 2)} (${d.slice(2, 4)}) ${d.slice(4, 9)}-${d.slice(9)}`;
+    }
+    // CPF: até 11 dígitos -> XXX.XXX.XXX-XX
+    const d = digits.slice(0, 11);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+    if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+    return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+  }
+
+  function handleIdentifierChange(value: string) {
+    setEmail(formatIdentifier(value));
+  }
+
+
   function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
     return Promise.race([
       promise,
@@ -225,7 +254,7 @@ function LoginPage() {
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-medium">E-mail, usuário, CPF ou telefone</Label>
-              <Input ref={emailRef} id="email" type="text" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} required className="h-9 !text-xs placeholder:text-xs" />
+              <Input ref={emailRef} id="email" type="text" inputMode="text" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={email} onChange={(e) => handleIdentifierChange(e.target.value)} required className="h-9 !text-xs placeholder:text-xs" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs font-medium">Senha</Label>
