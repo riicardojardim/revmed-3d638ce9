@@ -28,23 +28,22 @@ export function StaggerText({
   className,
   delay = 0,
   stagger = 0.06,
-  as: Tag = "span",
 }: {
   text: string;
   className?: string;
   delay?: number;
   stagger?: number;
-  as?: keyof JSX.IntrinsicElements;
 }) {
   const reduced = usePrefersReducedMotion();
   const words = text.split(/(\s+)/);
 
   if (reduced) {
-    return <Tag className={className}>{text}</Tag>;
+    return <span className={className}>{text}</span>;
   }
 
   return (
-    <Tag className={className}>
+    <span className={className}>
+
       {words.map((w, i) =>
         /^\s+$/.test(w) ? (
           <span key={i}>{w}</span>
