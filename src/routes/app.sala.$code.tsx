@@ -103,6 +103,26 @@ function SimuladoRunner({ id }: { id: string }) {
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
   const [presentIdentities, setPresentIdentities] = useState<Set<string>>(new Set());
+  const fetchPresence = useServerFn(listRoomPresence);
+
+  // Poll de presença na videochamada — usado para liberar o "Iniciar cronômetro"
+  // apenas quando todos os candidatos já estão conectados ao LiveKit.
+  useEffect(() => {
+    if (!sim?.roomCode) return;
+    if (roomStatus !== "waiting") return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const r = await fetchPresence({ data: { roomCode: sim.roomCode! } });
+        if (!cancelled) setPresentIdentities(new Set(r.identities));
+      } catch { /* silencioso — só usado para liberar botão */ }
+    };
+    void tick();
+    const id = setInterval(tick, 3000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [sim?.roomCode, roomStatus, fetchPresence]);
+
+
 
 
   // Load simulado
