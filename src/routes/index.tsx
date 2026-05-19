@@ -68,7 +68,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Checklists oficiais, simulação com 3 papéis, flashcards e correção de professores. Domine a prova prática.",
+          "Checklists oficiais, simulação entre candidato e ator, flashcards e correção de professores. Domine a prova prática.",
       },
     ],
   }),
