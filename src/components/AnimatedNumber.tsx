@@ -50,7 +50,7 @@ export function AnimatedNumber({ value, duration = 900, decimals = 0, className,
     };
     timer = setTimeout(() => {
       raf = requestAnimationFrame(step);
-    }, Math.max(0, delay));
+    }, Math.max(0, effectiveDelay));
     return () => {
       if (timer) clearTimeout(timer);
       cancelAnimationFrame(raf);
