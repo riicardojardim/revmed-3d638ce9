@@ -67,7 +67,8 @@ function ProgressPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <div className="flex items-start justify-between gap-3">
+    <div className="relative mx-auto max-w-5xl space-y-6">
+      <Reveal className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold md:text-3xl">Sua evolução</h1>
           <p className="mt-1 text-muted-foreground">
@@ -75,20 +76,20 @@ function ProgressPage() {
           </p>
         </div>
         <ResetStatsButton scope="attempts" onDone={load} />
-      </div>
+      </Reveal>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+      <Reveal delay={0.08} className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Tentativas</div>
-          <div className="mt-2 font-display text-3xl font-bold">{attempts.length}</div>
+          <div className="mt-2 font-display text-3xl font-bold"><AnimatedNumber value={attempts.length} /></div>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota média</div>
           <div className="mt-2 font-display text-3xl font-bold text-medical">
-            {avg.toFixed(1)}
+            <AnimatedNumber value={avg} decimals={1} />
           </div>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota de corte INEP</div>
           <div className="mt-2 font-display text-3xl font-bold text-mint">
             {NOTA_DE_CORTE.toFixed(3)}
@@ -97,9 +98,9 @@ function ProgressPage() {
             {NOTA_DE_CORTE_EDICAO} · equivale a {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
           </div>
         </div>
-      </div>
+      </Reveal>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+      <Reveal delay={0.16} className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="font-display font-bold">Média por especialidade</h3>
           <span className="text-xs text-muted-foreground">
@@ -131,7 +132,7 @@ function ProgressPage() {
                 </div>
                 <div className="relative h-2 overflow-hidden rounded-full bg-muted">
                   <div
-                    className={`h-full rounded-full ${meta.solid} transition-all`}
+                    className={`h-full rounded-full ${meta.solid} transition-all duration-700`}
                     style={{ width: `${pct}%` }}
                   />
                   <div
@@ -144,16 +145,16 @@ function ProgressPage() {
             );
           })}
         </ul>
-      </div>
+      </Reveal>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+      <Reveal delay={0.24} className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <SpecialtyMedals stats={specStats} />
-      </div>
+      </Reveal>
 
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+      <Reveal delay={0.32} className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <h3 className="font-semibold">Histórico recente</h3>
         {loading ? (
-          <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
+          <div className="mt-4"><Shimmer rows={4} className="h-14 rounded-xl" /></div>
         ) : attempts.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
             Você ainda não realizou nenhuma estação.
