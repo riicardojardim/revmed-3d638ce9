@@ -465,7 +465,7 @@ function FlashcardsList({
           </div>
 
           {/* Specialty filters */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
             {specialties.map((s) => {
               const meta = s === "Todas" ? null : getSpecialtyMeta(s);
               const active = specialty === s;
@@ -475,7 +475,7 @@ function FlashcardsList({
                   type="button"
                   onClick={() => setSpecialty(s)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
                     active
                       ? meta
                         ? "border-foreground/20 bg-card text-foreground shadow-sm"
@@ -483,12 +483,13 @@ function FlashcardsList({
                       : "border-border bg-background text-muted-foreground hover:border-mint/40",
                   )}
                 >
-                  {meta && <span className={cn("inline-block h-2 w-2 rounded-full", meta.solid)} />}
-                  {s === "Todas" ? "Todas as áreas" : s}
+                  {meta && <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", meta.solid)} />}
+                  <span className="whitespace-nowrap">{s === "Todas" ? "Todas" : s}</span>
                 </button>
               );
             })}
           </div>
+
 
           {/* Deck covers grid */}
           {filtered.length === 0 ? (
