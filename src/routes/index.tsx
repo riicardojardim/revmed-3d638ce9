@@ -841,7 +841,7 @@ function Plans() {
       <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
         Comece hoje. Cancele quando quiser no plano mensal — sem fidelidade.
       </p>
-      <div className="mt-10 grid items-stretch gap-5 lg:grid-cols-3">
+      <div className="mt-10 grid items-center gap-5 lg:grid-cols-3">
         {plans.map((p, i) => (
           <motion.div
             key={p.name}
@@ -851,7 +851,7 @@ function Plans() {
             transition={{ duration: 0.45, delay: i * 0.08 }}
             className={`relative flex flex-col rounded-2xl border bg-card p-6 transition-all ${
               p.highlight
-                ? "border-2 border-mint shadow-glow lg:-translate-y-3 lg:scale-[1.03]"
+                ? "border-2 border-mint shadow-glow lg:-my-8 lg:px-7 lg:py-10 lg:scale-[1.03]"
                 : "border-border shadow-card hover:border-mint/40"
             }`}
           >
