@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Clock, ChevronRight, ChevronDown, ListOrdered } from "lucide-react";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
+import { Reveal } from "@/components/ui/reveal";
+import { Shimmer } from "@/components/ui/shimmer";
 
 
 export const Route = createFileRoute("/app/historico")({
