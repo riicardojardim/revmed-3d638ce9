@@ -153,7 +153,7 @@ function ProgressPage() {
           <p className="mt-4 text-sm text-muted-foreground">Carregando...</p>
         ) : attempts.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            Você ainda não realizou nenhuma estação. Vá em "Estações" e comece pela primeira.
+            Você ainda não realizou nenhuma estação.
           </p>
         ) : (
           <div className="mt-4 divide-y divide-border">
