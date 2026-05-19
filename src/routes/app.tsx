@@ -342,9 +342,13 @@ function BottomDock({
 
   return (
     <nav
-      className="fixed bottom-2 left-1/2 z-40 w-[calc(100vw-1rem)] max-w-[720px] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/90 shadow-elegant backdrop-blur-xl sm:bottom-3 sm:w-[min(96vw,720px)]"
-      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0px)", left: "calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2)" }}
+      className="fixed left-1/2 z-40 w-[calc(100vw-1rem)] max-w-[720px] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/90 shadow-elegant backdrop-blur-xl sm:w-[min(96vw,720px)]"
+      style={{
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)",
+        left: "calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2)",
+      }}
     >
+
       <div className="flex items-stretch justify-around gap-0.5 px-1.5 py-1.5 sm:gap-1 sm:px-2">
         {visible.map((n) => {
           const active = isActive(n.to, n.exact);
