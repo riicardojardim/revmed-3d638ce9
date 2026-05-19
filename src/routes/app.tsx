@@ -202,10 +202,17 @@ function AppLayout() {
   if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="text-sm text-muted-foreground">Carregando...</div>
+        <div className="flex flex-col items-center gap-3">
+          <Logo className="h-10 w-auto opacity-80" />
+          <div className="h-1 w-32 overflow-hidden rounded-full bg-muted/50">
+            <div className="h-full w-1/2 animate-[loading_1.2s_ease-in-out_infinite] rounded-full bg-mint" />
+          </div>
+        </div>
+        <style>{`@keyframes loading {0%{transform:translateX(-100%)}100%{transform:translateX(220%)}}`}</style>
       </div>
     );
   }
+
 
   const initial = (profile?.full_name || user.email || "?").charAt(0).toUpperCase();
 
