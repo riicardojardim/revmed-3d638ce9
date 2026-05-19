@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Estação Revalida — Treine a prova prática com método" },
       { name: "description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
       { name: "author", content: "Estação Revalida" },
