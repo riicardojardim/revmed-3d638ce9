@@ -43,29 +43,23 @@ export function StaggerText({
 
   return (
     <span className={className}>
-
       {words.map((w, i) =>
         /^\s+$/.test(w) ? (
           <span key={i}>{w}</span>
         ) : (
-          <span
+          <motion.span
             key={i}
-            className="inline-block overflow-hidden align-bottom"
-            style={{ lineHeight: "inherit" }}
+            className="inline-block"
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{
+              duration: 0.6,
+              delay: delay + i * stagger,
+              ease: PREMIUM_EASE,
+            }}
           >
-            <motion.span
-              className="inline-block"
-              initial={{ y: "110%", opacity: 0 }}
-              animate={{ y: "0%", opacity: 1 }}
-              transition={{
-                duration: 0.7,
-                delay: delay + i * stagger,
-                ease: PREMIUM_EASE,
-              }}
-            >
-              {w}
-            </motion.span>
-          </span>
+            {w}
+          </motion.span>
         ),
       )}
     </span>
