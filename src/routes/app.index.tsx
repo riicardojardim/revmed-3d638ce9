@@ -2,31 +2,27 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
-  Flame,
-  
   Sparkles,
-  Trophy,
-  TrendingUp,
+  ChevronRight,
+  ChevronDown,
+  Clock,
+  ListOrdered,
 } from "lucide-react";
-import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import {
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
+  SpecialtyMedals,
+  NOTA_DE_CORTE,
+  NOTA_DE_CORTE_EDICAO,
+  NOTA_DE_CORTE_ESCALA10,
+  MEDAL_SPECIALTIES,
+  getSpecAvg,
+} from "@/components/SpecialtyMedals";
+import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
+import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
