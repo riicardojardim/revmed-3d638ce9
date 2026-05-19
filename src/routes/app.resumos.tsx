@@ -2,16 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText } from "lucide-react";
+import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, X } from "lucide-react";
 import { SummaryCover } from "@/components/SummaryCover";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
+
 
 export const Route = createFileRoute("/app/resumos")({
   component: ResumosPage,
