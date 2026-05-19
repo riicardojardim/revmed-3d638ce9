@@ -433,7 +433,7 @@ function ResumosPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <SpecialtyBadge specialty={selectedSummary.specialty} short />
                     <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
-                      {getSpecialtyMeta(selectedSummary.specialty).label}
+                      {selectedSummary.specialty}
                     </span>
                   </div>
                   <DialogTitle className="mt-2 font-display text-xl font-bold leading-tight text-white sm:text-2xl">
