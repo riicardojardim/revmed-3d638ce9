@@ -934,13 +934,16 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
               }`}
               title={b.description}
             >
-              <div
+              <motion.div
+                initial={{ scale: 0, rotate: -30 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 320, damping: 16, delay: 0.15 + i * 0.04 }}
                 className={`flex h-10 w-10 items-center justify-center rounded-full ${
                   b.unlocked ? `${tone.bg} text-white shadow-elegant` : "bg-muted text-muted-foreground"
                 }`}
               >
                 {b.unlocked ? <Icon className="h-5 w-5" /> : <Lock className="h-4 w-4" />}
-              </div>
+              </motion.div>
               <div className={`mt-2 text-[11px] font-bold leading-tight ${b.unlocked ? tone.text : "text-muted-foreground"}`}>
                 {b.title}
               </div>
