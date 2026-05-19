@@ -130,16 +130,13 @@ export function InviteUserDialog({ open, onOpenChange, roomId, stationId }: Prop
             const isAtorOnly = u.allows_candidato === false;
             return (
               <li key={u.id} className="flex items-center gap-3 px-3 py-2.5">
-                <div className="relative">
-                  <UserAvatar avatarUrl={u.avatar_url} name={u.full_name ?? u.username ?? "?"} size="sm" />
-                  <span
-                    className={cn(
-                      "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card",
-                      isOnline ? "bg-emerald-500" : "bg-muted-foreground/40",
-                    )}
-                    title={isOnline ? "Online" : "Offline"}
-                  />
-                </div>
+                <UserAvatar
+                  avatarUrl={u.avatar_url}
+                  name={u.full_name ?? u.username ?? "?"}
+                  size="sm"
+                  online={isOnline}
+                />
+
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium">{u.full_name ?? "—"}</div>
                   <div className="truncate text-xs text-muted-foreground">

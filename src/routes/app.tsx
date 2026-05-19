@@ -267,7 +267,9 @@ function AppLayout() {
                     avatarUrl={profile?.avatar_url}
                     name={profile?.full_name ?? user.email}
                     size="md"
+                    online
                   />
+
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
