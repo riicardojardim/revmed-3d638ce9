@@ -1134,7 +1134,7 @@ function Areas() {
     <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
-        <div className="mt-10 grid grid-cols-6 gap-2.5 sm:gap-4 lg:grid-cols-5 lg:gap-5">
+        <div className="mt-10 grid grid-cols-6 gap-2.5 sm:gap-4 lg:grid-cols-6 lg:gap-5">
           {areas.map((a, i) => {
             const isLastTwo = i >= 3;
             return (
@@ -1144,7 +1144,7 @@ function Areas() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.3, delay: (i % 4) * 0.05 }}
-                className={`group flex items-center gap-2.5 rounded-xl border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-card sm:gap-3 sm:p-4 lg:col-span-1 ${isLastTwo ? "col-span-3" : "col-span-2"}`}
+                className={`group flex items-center gap-2.5 rounded-xl border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-card sm:gap-3 sm:p-4 ${isLastTwo ? "col-span-3 lg:col-span-3" : "col-span-2 lg:col-span-2"}`}
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-mint-soft/50 transition-colors group-hover:bg-mint/20 sm:h-10 sm:w-10">
                   <a.icon className="h-5 w-5 text-primary" />
