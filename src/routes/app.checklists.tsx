@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
+import { Reveal } from "@/components/ui/reveal";
+import { Shimmer } from "@/components/ui/shimmer";
 
 import { Users } from "lucide-react";
 import { toast } from "sonner";
