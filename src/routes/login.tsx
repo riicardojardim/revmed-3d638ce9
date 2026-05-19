@@ -56,19 +56,38 @@ function LoginPage() {
     }
   }, [user, loading, submitting]);
 
+  async function resolveLoginEmail(identifier: string): Promise<string | null> {
+    const id = identifier.trim();
+    if (!id) return null;
+    if (id.includes("@")) return id.toLowerCase();
+    try {
+      const { data, error } = await supabase.rpc("lookup_login_email", { _identifier: id });
+      if (error) return null;
+      return (data as string | null) ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async function submitLogin() {
     if (submitting) return;
-    const normalizedEmail = (emailRef.current?.value || email).trim();
+    const rawIdentifier = (emailRef.current?.value || email).trim();
     const currentPassword = passwordRef.current?.value || password;
-    if (!normalizedEmail || !currentPassword) {
-      toast.error("Preencha e-mail e senha para entrar.");
+    if (!rawIdentifier || !currentPassword) {
+      toast.error("Preencha e-mail/usuário e senha para entrar.");
       return;
     }
 
     try {
       setSubmitting(true);
+      const loginEmail = await resolveLoginEmail(rawIdentifier);
+      if (!loginEmail) {
+        setSubmitting(false);
+        toast.error("Conta não encontrada", { description: "Verifique seu e-mail, usuário, CPF ou telefone." });
+        return;
+      }
       const { data, error } = await withTimeout(
-        supabase.auth.signInWithPassword({ email: normalizedEmail, password: currentPassword }),
+        supabase.auth.signInWithPassword({ email: loginEmail, password: currentPassword }),
         10000,
       );
       if (error) {
@@ -99,13 +118,18 @@ function LoginPage() {
   }
 
   async function handleForgotPassword() {
-    const normalizedEmail = (emailRef.current?.value || email).trim();
-    if (!normalizedEmail) {
-      toast.error("Informe seu e-mail", { description: "Digite seu e-mail no campo acima para receber o link de redefinição." });
+    const raw = (emailRef.current?.value || email).trim();
+    if (!raw) {
+      toast.error("Informe seu e-mail, usuário, CPF ou telefone", { description: "Preencha o primeiro campo para receber o link de redefinição." });
       emailRef.current?.focus();
       return;
     }
-    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+    const targetEmail = await resolveLoginEmail(raw);
+    if (!targetEmail) {
+      toast.error("Conta não encontrada", { description: "Não localizamos uma conta com esse identificador." });
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) {
@@ -200,8 +224,8 @@ function LoginPage() {
 
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-medium">E-mail</Label>
-              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 !text-xs placeholder:text-xs" />
+              <Label htmlFor="email" className="text-xs font-medium">E-mail, usuário, CPF ou telefone</Label>
+              <Input ref={emailRef} id="email" type="text" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 !text-xs placeholder:text-xs" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs font-medium">Senha</Label>
