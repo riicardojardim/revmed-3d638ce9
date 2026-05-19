@@ -49,6 +49,8 @@ import {
   Play,
   Lock,
   Flame,
+  CreditCard,
+  QrCode,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { StaggerText, Magnetic, Tilt, Reveal } from "@/components/landing/motion-primitives";
@@ -1746,22 +1748,20 @@ function Footer() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2 md:justify-end">
             {[
-              { label: "Visa", abbr: "VISA" },
-              { label: "Mastercard", abbr: "MC" },
-              { label: "Elo", abbr: "ELO" },
-              { label: "Pix", abbr: "PIX" },
-              { label: "Boleto", abbr: "BOL" },
-              { label: "American Express", abbr: "AMEX" },
+              { label: "Cartão de crédito", icon: CreditCard },
+              { label: "Pix", icon: QrCode },
             ].map((b) => (
               <span
                 key={b.label}
                 title={b.label}
-                className="inline-flex h-7 min-w-[44px] items-center justify-center rounded-md border border-white/15 bg-white/5 px-2 text-[10px] font-bold tracking-wider text-white/70"
+                className="inline-flex h-8 items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-3 text-[11px] font-bold tracking-wide text-white/80"
               >
-                {b.abbr}
+                <b.icon className="h-3.5 w-3.5 text-mint" />
+                {b.label}
               </span>
             ))}
           </div>
+
         </div>
       </div>
 
