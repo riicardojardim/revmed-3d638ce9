@@ -102,23 +102,51 @@ function FlashcardsPage() {
     setStep("cover");
     setIndex(0);
     setRevealed(false);
-    const { data } = await supabase
-      .from("flashcards")
-      .select("id, front, back, position")
-      .eq("deck_id", d.id)
-      .eq("published", true)
-      .order("position", { ascending: true });
-    setCards((data ?? []) as Card[]);
+    setSuggestedStation(null);
+    const [{ data: cardData }, stationRes] = await Promise.all([
+      supabase
+        .from("flashcards")
+        .select("id, front, back, position")
+        .eq("deck_id", d.id)
+        .eq("published", true)
+        .order("position", { ascending: true }),
+      d.station_id
+        ? supabase
+            .from("custom_stations")
+            .select("id, title, specialty, published")
+            .eq("id", d.station_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null as null | { id: string; title: string; specialty: string; published: boolean } }),
+    ]);
+    setCards((cardData ?? []) as Card[]);
+    const st = stationRes?.data;
+    if (st && st.published) {
+      const { count } = await supabase
+        .from("station_checklist_items")
+        .select("id", { count: "exact", head: true })
+        .eq("station_id", st.id);
+      setSuggestedStation({ id: st.id, title: st.title, specialty: st.specialty, checklistCount: count ?? 0 });
+    }
   }
 
   function close() {
     setStep("list");
     setActiveDeck(null);
     setCards([]);
+    setSuggestedStation(null);
     setIndex(0);
     setRevealed(false);
     setOutcomes([]);
     setPerCardSeconds([]);
+  }
+
+  function startSuggestedStation() {
+    if (!suggestedStation) return;
+    if (!user) { toast.error("Faça login para iniciar."); return; }
+    const sim = createSimulado(user.id, suggestedStation.title, [
+      { id: suggestedStation.id, title: suggestedStation.title, specialty: suggestedStation.specialty },
+    ]);
+    nav({ to: "/app/sala/$code", params: { code: sim.id } });
   }
 
   function startSession() {
