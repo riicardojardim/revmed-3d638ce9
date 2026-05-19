@@ -1413,7 +1413,8 @@ function Plans() {
 
 
             <div className="mt-auto pt-6">
-              <Link to="/cadastro">
+              <Link to="/cadastro" search={{ plano: p.slug }}>
+
                 <Button
                   size="lg"
                   className={`w-full rounded-xl text-sm font-bold ${
