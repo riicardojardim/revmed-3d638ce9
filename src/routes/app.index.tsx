@@ -948,9 +948,16 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
               {b.progress && !b.unlocked && (
                 <div className="mt-2 w-full">
                   <div className="h-1 overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full rounded-full ${tone.bg}`} style={{ width: `${pct}%` }} />
+                    <motion.div
+                      className={`h-full rounded-full ${tone.bg}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 + i * 0.04 }}
+                    />
                   </div>
-                  <div className="mt-0.5 text-[9px] text-muted-foreground">{b.progress.current}/{b.progress.goal}</div>
+                  <div className="mt-0.5 text-[9px] text-muted-foreground">
+                    <AnimatedNumber value={b.progress.current} />/{b.progress.goal}
+                  </div>
                 </div>
               )}
             </motion.div>
