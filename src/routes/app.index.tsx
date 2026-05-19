@@ -401,15 +401,15 @@ function Dashboard() {
         </div>
 
         <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Tentativas</div>
-            <div className="mt-1 font-display text-xl font-bold sm:text-3xl">{stats.total}</div>
+            <div className="mt-1 font-display text-xl font-bold sm:text-3xl"><AnimatedNumber value={stats.total} /></div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Nota média</div>
-            <div className="mt-1 font-display text-xl font-bold text-medical sm:text-3xl">{stats.avg.toFixed(1)}</div>
+            <div className="mt-1 font-display text-xl font-bold text-medical sm:text-3xl"><AnimatedNumber value={stats.avg} decimals={1} /></div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Corte INEP</div>
             <div className="mt-1 font-display text-xl font-bold text-mint sm:text-3xl">{stats.total > 0 ? NOTA_DE_CORTE_ESCALA10.toFixed(2) : NOTA_DE_CORTE.toFixed(3)}</div>
             <div className="mt-1 hidden text-[10px] text-muted-foreground sm:block">
