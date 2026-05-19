@@ -106,12 +106,15 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   const [selfIdentity, setSelfIdentity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connect, setConnect] = useState(false);
+  // ID do candidato avaliado AGORA — atualiza em tempo real quando o ator
+  // troca de candidato, sem precisar reconectar a chamada.
+  const [currentEvaluatedId, setCurrentEvaluatedId] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     setError(null);
     setCreds(null);
     fetchToken({ data: { roomCode, displayName } })
-      .then((r) => setCreds(r))
+      .then((r) => { setCreds(r); setCurrentEvaluatedId(r.evaluatedId); })
       .catch((e: Error) => setError(e.message ?? "Falha ao conectar à sala"));
   }, [roomCode, displayName, fetchToken]);
 
@@ -120,7 +123,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
     setError(null);
     setCreds(null);
     fetchToken({ data: { roomCode, displayName } })
-      .then((r) => { if (!cancelled) setCreds(r); })
+      .then((r) => { if (!cancelled) { setCreds(r); setCurrentEvaluatedId(r.evaluatedId); } })
       .catch((e: Error) => { if (!cancelled) setError(e.message ?? "Falha ao conectar à sala"); });
     return () => { cancelled = true; };
   }, [roomCode, displayName, fetchToken]);
@@ -130,7 +133,23 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
     supabase.auth.getUser().then(({ data }) => setSelfIdentity(data.user?.id ?? null));
   }, []);
 
-
+  // Assina mudanças em training_rooms.evaluated_candidate_id em tempo real.
+  // Quando o ator troca o candidato avaliado, o vídeo da pessoa selecionada
+  // entra em cena automaticamente sem reconectar a sala LiveKit.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`room-evaluated-${roomCode}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "training_rooms", filter: `code=eq.${roomCode}` },
+        (payload) => {
+          const next = (payload.new as { evaluated_candidate_id: string | null } | null)?.evaluated_candidate_id ?? null;
+          setCurrentEvaluatedId(next);
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [roomCode]);
 
   if (error) {
     return (
@@ -157,8 +176,8 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   if (!connect) {
     const roleMsg =
       creds.role === "host" ? "Você é o ator (controle total)."
-      : creds.role === "evaluated" ? "Você é o candidato avaliado — pode falar."
-      : "Você entrará como espectador. Mic começa desligado; você pode se desmutar quando quiser.";
+      : creds.role === "evaluated" ? "Você é o candidato avaliado — sua câmera aparecerá em tela."
+      : "Você entrará como espectador (somente áudio). Mic começa desligado; você pode se desmutar quando quiser.";
     return (
       <div className={className}>
         <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-border bg-muted/20 p-4 text-center">
@@ -168,7 +187,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
             onClick={() => setConnect(true)}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
-            Entrar com câmera e microfone
+            {creds.role === "spectator" ? "Entrar com microfone" : "Entrar com câmera e microfone"}
           </button>
         </div>
       </div>
@@ -176,9 +195,18 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   }
 
   const isHost = creds.role === "host";
-  // Espectador entra com câmera/mic desligados mas tem permissão de publicar — pode
-  // ativar mic/cam pela ControlBar (ex: tirar dúvidas após o cronômetro acabar).
-  const autoPublish = creds.role === "host" || creds.role === "evaluated";
+  const isSpectator = creds.role === "spectator";
+  // Espectadores entram só com áudio (sem câmera). Ator e candidato avaliado
+  // publicam câmera + microfone automaticamente.
+  const autoVideo = !isSpectator;
+  const autoAudio = isHost || creds.role === "evaluated";
+
+  // Apenas 2 vídeos podem aparecer na tela: o ator (host) e o candidato avaliado da vez.
+  // O ID do avaliado vem do estado reativo — quando o ator troca de candidato,
+  // o novo vídeo entra automaticamente no lugar.
+  const allowed = new Set<string>();
+  if (creds.hostId) allowed.add(creds.hostId);
+  if (currentEvaluatedId) allowed.add(currentEvaluatedId);
 
   return (
     <div className={className}>
@@ -186,8 +214,8 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
         serverUrl={creds.url}
         token={creds.token}
         connect
-        video={autoPublish}
-        audio={autoPublish}
+        video={autoVideo}
+        audio={autoAudio}
         data-lk-theme="default"
         style={{ height: "100%", borderRadius: "0.5rem", overflow: "hidden", display: "flex", flexDirection: "column" }}
       >
@@ -196,14 +224,24 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
             isHost={isHost}
             roomCode={roomCode}
             selfIdentity={selfIdentity ?? ""}
-            allowedIdentities={null}
+            allowedIdentities={allowed}
           />
         </div>
         <RoomAudioRenderer />
         <div style={{ flexShrink: 0 }}>
-          <ControlBar variation="minimal" controls={{ leave: false, screenShare: isHost, microphone: true, camera: true }} />
+          <ControlBar
+            variation="minimal"
+            controls={{
+              leave: false,
+              screenShare: isHost,
+              microphone: true,
+              // Espectadores não publicam vídeo — só ator/candidato têm câmera.
+              camera: !isSpectator,
+            }}
+          />
         </div>
       </LiveKitRoom>
     </div>
   );
 }
+
