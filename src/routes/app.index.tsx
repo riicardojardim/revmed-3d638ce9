@@ -383,3 +383,61 @@ function RitmoCard({
     </div>
   );
 }
+
+const MOTIVATIONS: { title: string; sub: string }[] = [
+  { title: "Constância vence talento.", sub: "Pequenos passos diários constroem grandes aprovações." },
+  { title: "Hoje é mais um tijolo na sua aprovação.", sub: "Cada estação treinada conta. Não subestime o acúmulo." },
+  { title: "Você não precisa ser perfeito, precisa ser presente.", sub: "Disciplina supera motivação. Apareça todos os dias." },
+  { title: "A aprovação se constrói no silêncio do estudo.", sub: "Enquanto outros descansam, você se prepara." },
+  { title: "Foque no processo, o resultado virá.", sub: "Cada checklist é uma vitória silenciosa." },
+  { title: "Quem treina diferente, prova diferente.", sub: "Você está fazendo o que poucos têm coragem de fazer." },
+  { title: "Repetição é a mãe da maestria.", sub: "Refaça, refine, repita. A excelência é um hábito." },
+  { title: "Sua próxima estação é a mais importante.", sub: "Esqueça os erros de ontem, foque no agora." },
+  { title: "Cansaço passa, aprovação fica.", sub: "Lembre por que começou e siga." },
+  { title: "Acredite no plano, mesmo quando não vê resultado.", sub: "Toda evolução é invisível antes de ser inevitável." },
+  { title: "A pressão revela o preparo.", sub: "Treine sob pressão para prosperar na prova." },
+  { title: "Errar treinando é proteger seu futuro.", sub: "Cada erro hoje é um acerto na hora certa." },
+  { title: "Disciplina é liberdade.", sub: "O preço da aprovação é menor do que o do arrependimento." },
+  { title: "Não compare seu capítulo 3 com o capítulo 30 de outro.", sub: "Seu ritmo é seu. Confie nele." },
+  { title: "Você é capaz. Sempre foi.", sub: "Lembre da sua história até aqui." },
+  { title: "Um dia de cada vez, uma estação de cada vez.", sub: "É assim que se constrói um médico aprovado." },
+  { title: "Treine como se a prova fosse amanhã.", sub: "Quando ela chegar, vai parecer mais uma estação." },
+  { title: "Sua dedicação é sua maior vantagem.", sub: "Talento abre portas, esforço mantém você dentro." },
+  { title: "O Revalida recompensa quem persiste.", sub: "Persistir é o seu superpoder." },
+  { title: "Não pare quando estiver cansado, pare quando terminar.", sub: "Mais uma estação. Só mais uma." },
+  { title: "A excelência é um detalhe repetido.", sub: "Cuide do checklist, o checklist cuida da nota." },
+  { title: "Você está mais perto hoje do que ontem.", sub: "Cada dia de estudo encurta a distância." },
+  { title: "A prova premia rotina, não milagre.", sub: "Mantenha o ritmo, confie no método." },
+  { title: "Cada paciente simulado é um real no futuro.", sub: "Treine com respeito, atenda com excelência." },
+  { title: "Foco no controlável: seu esforço hoje.", sub: "O resto se resolve com tempo e técnica." },
+  { title: "Você já fez coisas mais difíceis.", sub: "Olhe para trás e veja o quanto já caminhou." },
+  { title: "Cada minuto investido aqui vale uma hora na prova.", sub: "Prepare-se agora, brilhe depois." },
+  { title: "Aprovação não é sorte, é matemática de esforço.", sub: "Some os dias. O resultado é inevitável." },
+  { title: "Respire, refoque e refaça.", sub: "Estações ruins fazem parte. Levante e siga." },
+  { title: "Quem treina o básico bem, faz o avançado fácil.", sub: "Domine o checklist. Vença a prova." },
+  { title: "O médico que você quer ser começa aqui.", sub: "Cada estação é um passo nessa direção." },
+];
+
+function pickDailyIndex(seed: string, len: number) {
+  // Hash (FNV-1a) com base no userId + data local (yyyy-mm-dd)
+  const today = new Date();
+  const day = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const str = `${seed}|${day}`;
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h % len;
+}
+
+function DailyMotivationCard({ userId }: { userId: string }) {
+  const m = useMemo(() => MOTIVATIONS[pickDailyIndex(userId, MOTIVATIONS.length)], [userId]);
+  return (
+    <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
+      <h3 className="font-display font-bold text-mint">Motivação Estação Revalida</h3>
+      <p className="mt-3 text-sm font-medium text-foreground">{m.title}</p>
+      <p className="mt-2 text-xs text-muted-foreground">{m.sub}</p>
+    </div>
+  );
+}
