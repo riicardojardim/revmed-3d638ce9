@@ -1,126 +1,127 @@
-## Visão geral
+## Painel Admin Completo
 
-Adicionar um sistema social leve estilo Instagram, integrado ao fluxo de Sala de Treino que já existe. O anfitrião escolhe um checklist do banco, convida um amigo, e a sala abre com ele como **ator** e o amigo como **candidato** — respeitando a regra de que o candidato só vê a **especialidade**, nunca o título do checklist.
+Reorganização e expansão do painel `/app/admin` para que o administrador tenha controle total sobre o site, planos, usuários, pagamentos, integrações de tracking e aparência — tudo direto pela UI, sem precisar mexer em código.
 
-## 1. Username público (@handle)
+### Visão geral das novas abas
 
-- Cada perfil ganha um `username` único (ex: `fernandojardim`), exibido como `@fernandojardim`.
-- Campo editável em **Perfil** (com validação: 3–20 chars, `a-z0-9._`, único, case-insensitive).
-- Em todo lugar onde aparece o nome do usuário (avatar, lista de participantes da sala, crachá), passa a aparecer também o `@username` discreto.
-
-## 2. Adicionar amigos
-
-Nova página **`/app/amigos`** (com item no menu lateral) com 3 abas:
-
-- **Meus amigos** — lista com avatar, nome, @username, botão "Convidar pra sala" e menu (remover).
-- **Solicitações** — pendentes recebidas (aceitar / recusar) e enviadas (cancelar).
-- **Buscar** — campo único que casa por nome, e-mail ou @username; botão "Adicionar" envia pedido.
-
-Toda relação começa como **pedido** → o outro lado precisa **aceitar** pra virar amizade.
-
-## 3. Convite pra sala (fluxo top)
-
-A partir de **Meus amigos** ou do **Banco de Checklists**:
-
-1. Anfitrião clica "Convidar amigo" → modal escolhe **checklist** (busca + filtro por especialidade, reaproveitando o modal "Todos os checklists" que acabamos de fazer) e **amigo**.
-2. Sistema cria a `training_room` em modo `dupla`, com o anfitrião como **ator** (host) e gera convite pendente pro amigo.
-3. Amigo recebe notificação **dentro do app** (sino no topo + badge + página `/app/amigos` → aba **Convites**).
-4. Amigo clica "Entrar" → cai direto na sala como **candidato**.
-5. Na tela do candidato, ele vê **apenas a especialidade** (chip colorido) — exatamente como o fluxo atual de `/app/sala/$code/candidato`. O ator vê tudo.
-
-## 4. Notificações in-app
-
-- Componente **sino** no header do app (`src/routes/app.tsx`) com badge de não-lidos.
-- Tabela `notifications` simples; eventos: `friend_request_received`, `friend_request_accepted`, `room_invite_received`, `room_invite_cancelled`.
-- Realtime via Supabase Channels — chega na hora.
-
-## Detalhes técnicos
-
-### Banco (migration)
-
-```sql
--- 1. Username em profiles
-ALTER TABLE profiles ADD COLUMN username citext UNIQUE;
-ALTER TABLE profiles ADD CONSTRAINT username_format
-  CHECK (username IS NULL OR username ~ '^[a-z0-9._]{3,20}$');
-
--- 2. Amizades (par único, qualquer ordem)
-CREATE TABLE friendships (
-  id uuid PK,
-  user_a uuid NOT NULL,  -- sempre o menor uuid
-  user_b uuid NOT NULL,  -- sempre o maior uuid
-  created_at timestamptz,
-  UNIQUE(user_a, user_b),
-  CHECK (user_a < user_b)
-);
-
--- 3. Solicitações de amizade
-CREATE TABLE friend_requests (
-  id uuid PK,
-  from_user uuid NOT NULL,
-  to_user uuid NOT NULL,
-  status text DEFAULT 'pending',  -- pending|accepted|declined|cancelled
-  created_at timestamptz,
-  responded_at timestamptz,
-  UNIQUE(from_user, to_user)
-);
-
--- 4. Convites pra sala
-CREATE TABLE room_invites (
-  id uuid PK,
-  room_id uuid NOT NULL REFERENCES training_rooms,
-  from_user uuid NOT NULL,
-  to_user uuid NOT NULL,
-  station_id uuid NOT NULL,
-  status text DEFAULT 'pending',  -- pending|accepted|declined|cancelled|expired
-  created_at timestamptz,
-  responded_at timestamptz
-);
-
--- 5. Notificações
-CREATE TABLE notifications (
-  id uuid PK,
-  user_id uuid NOT NULL,
-  type text NOT NULL,
-  payload jsonb,
-  read_at timestamptz,
-  created_at timestamptz
-);
+```text
+/app/admin
+ ├─ Visão geral        (dashboard com gráficos)
+ ├─ Usuários           (gestão completa de contas)
+ ├─ Planos             (CRUD de planos)
+ ├─ Pagamentos         (assinaturas + financeiro)
+ ├─ Conteúdo           (checklists, flashcards, resumos — já existe)
+ ├─ Aparência          (logo, cores, identidade visual)
+ ├─ Integrações        (Pixel Facebook, TikTok, GA4, etc.)
+ └─ Configurações      (nome do site, textos legais, etc.)
 ```
 
-Mais: RLS estrito (cada usuário só vê o que lhe diz respeito), realtime habilitado em `notifications`, `room_invites` e `friend_requests`, e índices nas FKs.
+### 1. Dashboard (Visão geral) com gráficos
 
-### Frontend
+KPIs e gráficos no topo do painel:
+- Total de usuários · Ativos hoje · Novos nos últimos 7/30 dias
+- MRR estimado (soma das assinaturas ativas pagas)
+- Conversão: cadastrados vs. assinantes pagos
+- Gráfico de barras: **assinaturas por plano** (qual plano vende mais)
+- Gráfico de linha: **novas assinaturas por dia** (últimos 30 dias)
+- Pizza: **pagos vs. trial vs. free**
+- Top especialidades treinadas, top estações, engajamento (já existe parcial)
 
-- **Nova rota:** `src/routes/app.amigos.tsx` (3 abas).
-- **Edição em:** `src/routes/app.perfil.tsx` (campo @username com validação ao vivo).
-- **Componentes novos:**
-  - `NotificationBell.tsx` (sino + dropdown) — montado em `src/routes/app.tsx`.
-  - `InviteFriendToRoomDialog.tsx` (passo checklist → passo amigo → envia).
-  - `FriendSearchInput.tsx`.
-- **Banco de Checklists:** botão extra "Convidar amigo" nos cards e no modal "Ver todas".
-- **Sala do candidato:** já oculta o título; só garantir que a especialidade aparece com o chip colorido (e nada além disso).
+### 2. Usuários — gestão completa
 
-### Sincronização
+Listagem (busca + filtros por plano, status, role) com ações por linha:
+- Ver perfil completo (estatísticas, histórico)
+- **Mudar e-mail** (via server function admin)
+- **Resetar senha** (envia link de recuperação OU define senha temporária)
+- **Mudar role** (aluno / professor / admin)
+- **Adicionar dias** ao plano atual ("+30 dias grátis")
+- **Remover dias** do plano
+- **Atribuir plano** (escolher plano + duração em dias)
+- **Cancelar assinatura**
+- **Excluir usuário**
+- Mostrar: data de criação, último login, plano atual, data de expiração, status de pagamento
 
-- Sino: subscription em `notifications` (filtro `user_id=eq.{me}`).
-- Lista de convites: subscription em `room_invites`.
-- Quando o convidado aceita, ele é navegado pra `/app/sala/$code/candidato`, e a sala (já com realtime existente) atualiza pro ator automaticamente.
+Criar usuário manualmente (modal): e-mail, nome, senha temporária, role, plano inicial.
 
-## Fora de escopo (deixado pra depois)
+### 3. Planos — CRUD completo
 
-- Notificações por WhatsApp / e-mail (você escolheu "só in-app").
-- Convite com agendamento futuro.
-- Convite em massa / grupos de estudo.
-- Bloquear usuário.
+Lista de planos com:
+- Criar novo plano (nome, slug, preço, descrição, features, dias de trial, permissões `allows_candidato` / `allows_ator`, ativo)
+- Editar plano existente
+- Arquivar/desativar
+- Excluir (com checagem se há assinaturas ativas)
+- Reordenar para exibição
 
-## Entrega
+### 4. Pagamentos / Assinaturas
 
-1. Migration (tabelas + RLS + realtime).
-2. Username em perfil.
-3. Página `/app/amigos` (3 abas + ações).
-4. Sino de notificações no header.
-5. Botão "Convidar amigo" no Banco de Checklists + diálogo do fluxo.
-6. Rota de aceite → sala como candidato (com checklist invisível, só especialidade).
+Aba dedicada com:
+- Tabela de **todas as assinaturas**: usuário, plano, status (active/trialing/canceled), início, fim, valor
+- Filtros: pagos, em trial, expirados, cancelados
+- Export CSV
+- Resumo financeiro: receita do mês, projeção, churn
+- Histórico por usuário (clica e abre detalhe)
 
-Posso seguir?
+> Observação: como ainda não há gateway de pagamento conectado, "pago" hoje significa "assinatura ativa cadastrada manualmente pelo admin". Quando integrar Stripe/Paddle no futuro, os webhooks alimentam essa mesma tabela.
+
+### 5. Aparência — identidade visual editável
+
+Editar via UI e salvar em uma tabela `site_settings`:
+- **Logo** (upload para storage bucket público `site-assets`)
+- **Favicon**
+- **Cores principais** (color pickers — primary, mint, accent, background)
+- **Nome do site** e tagline
+- Preview em tempo real
+
+As cores são aplicadas via CSS variables injetadas no `<head>` a partir das settings (override sobre `src/styles.css`).
+
+### 6. Integrações — Pixels e analytics
+
+Aba para colar IDs/scripts:
+- **Facebook Pixel ID**
+- **TikTok Pixel ID**
+- **Google Analytics 4 (GA4)** — measurement ID
+- **Google Tag Manager**
+- **Meta Conversions API** (token opcional)
+- Campo livre "Scripts customizados no `<head>`" e "no `</body>`"
+
+Os snippets são injetados no `__root.tsx` carregando as settings, sem rebuild.
+
+### 7. Configurações gerais
+
+- Nome do site, descrição padrão (SEO), e-mail de contato
+- Textos legais (termos, privacidade) — editor markdown
+- Mensagens do sistema (boas-vindas, e-mails)
+
+---
+
+### O que vai mudar no banco
+
+Novas tabelas e ajustes:
+- `site_settings` (singleton): logo_url, favicon_url, colors jsonb, site_name, tagline, fb_pixel_id, tiktok_pixel_id, ga4_id, gtm_id, custom_head_html, custom_body_html, terms_md, privacy_md
+- Bucket de storage `site-assets` (público) para logo/favicon
+- Coluna `last_sign_in_at` lida da `auth.users` via server function admin (já existe nativamente)
+- RLS: leitura pública de `site_settings` (campos públicos), escrita só para admin
+
+### O que vai mudar no código
+
+- `src/routes/app.admin.tsx` — refatorar como layout com sub-rotas + sidebar de navegação interna
+- Novas rotas: `app.admin.usuarios.tsx` (já existe — turbinada), `app.admin.planos.tsx`, `app.admin.pagamentos.tsx`, `app.admin.aparencia.tsx`, `app.admin.integracoes.tsx`, `app.admin.configuracoes.tsx`
+- `app.admin.index.tsx` — virar dashboard real com gráficos (usar `recharts`, já comum no projeto)
+- Server functions admin (`*.functions.ts`) usando `supabaseAdmin` para: criar usuário, mudar e-mail, resetar senha, ajustar dias de plano, atribuir plano, etc. — todas protegidas por checagem de `has_role(uid, 'admin')`
+- `__root.tsx` — carregar `site_settings` no SSR e injetar cores + pixels + scripts
+- Hook `useSiteSettings()` para componentes que precisam do logo/cores
+
+### Entrega em fases
+
+Para não virar uma PR monstruosa, sugiro entregar em 3 etapas (cada uma já útil sozinha):
+
+1. **Fase 1 — Fundação + Usuários + Planos**
+   Tabela `site_settings`, refator da navegação do admin, gestão completa de usuários (todas as ações) e CRUD de planos.
+
+2. **Fase 2 — Pagamentos + Dashboard com gráficos**
+   Aba de pagamentos/assinaturas e dashboard rico com gráficos.
+
+3. **Fase 3 — Aparência + Integrações + Configurações**
+   Editor de logo/cores, pixels (FB/TikTok/GA4) e textos legais.
+
+Se aprovar, começo já pela **Fase 1**. Quer assim, ou prefere uma ordem diferente?
