@@ -1232,7 +1232,7 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-[2fr,160px,140px]">
+              <div className="grid gap-3 md:grid-cols-[1fr,220px]">
                 <div>
                   <Label>Descrição</Label>
                   <Textarea rows={8} className="min-h-[180px] font-mono text-sm leading-relaxed whitespace-pre-wrap"
@@ -1243,11 +1243,9 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                   <Label>Categoria</Label>
                   <Input defaultValue={item.category}
                     onBlur={(e) => e.target.value.trim() !== item.category && patchItem(item, { category: e.target.value.trim() || "Anamnese" })} />
-                </div>
-                <div>
-                  <Label>Pontos máximos</Label>
-                  <Input type="number" step="0.1" min={0} max={20} defaultValue={item.points}
-                    onBlur={(e) => Number(e.target.value) !== Number(item.points) && patchItem(item, { points: Number(e.target.value) })} />
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    A pontuação máxima é definida automaticamente pela soma dos níveis abaixo.
+                  </p>
                 </div>
               </div>
 
