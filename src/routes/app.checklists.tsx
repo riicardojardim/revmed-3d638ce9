@@ -139,25 +139,31 @@ function StationsPage() {
 
 
           {/* Specialty filters */}
-          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
-            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small>
+          <div className="space-y-1.5 lg:space-y-0">
+            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="w-full justify-center lg:hidden">
               Todas
             </FilterChip>
-            {SPECIALTIES.map((s) => {
-              const meta = getSpecialtyMeta(s);
-              return (
-                <FilterChip
-                  key={s}
-                  active={spec === s}
-                  onClick={() => setSpec(s)}
-                  accentClass={meta.solid}
-                  small
-                >
-                  <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
-                  <span className="whitespace-nowrap">{s}</span>
-                </FilterChip>
-              );
-            })}
+            <div className="grid grid-cols-3 gap-1.5 lg:flex lg:flex-wrap lg:items-center">
+              <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="hidden lg:inline-flex">
+                Todas
+              </FilterChip>
+              {SPECIALTIES.map((s) => {
+                const meta = getSpecialtyMeta(s);
+                return (
+                  <FilterChip
+                    key={s}
+                    active={spec === s}
+                    onClick={() => setSpec(s)}
+                    accentClass={meta.solid}
+                    small
+                    className="w-full justify-center lg:w-auto"
+                  >
+                    <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
+                    <span className="whitespace-nowrap">{meta.code}<span className="hidden lg:inline">{` ${s.replace(/^[A-Z]+\s/, "")}`}</span></span>
+                  </FilterChip>
+                );
+              })}
+            </div>
           </div>
 
 
