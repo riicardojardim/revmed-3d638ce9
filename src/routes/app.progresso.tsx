@@ -66,7 +66,6 @@ function ProgressPage() {
       : 0;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
     <div className="relative mx-auto max-w-5xl space-y-6">
       <Reveal className="flex items-start justify-between gap-3">
         <div>
