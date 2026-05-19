@@ -265,13 +265,13 @@ function Dashboard() {
 
       {/* Top row: welcome + stats */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-6 shadow-card">
-          <h2 className="font-display text-xl font-bold md:text-2xl">
+        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6">
+          <h2 className="text-balance font-display text-lg font-bold leading-tight sm:text-xl md:text-2xl">
             <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
             <span className="text-mint">{stats.avg.toFixed(1)}</span>
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
             Com nossos treinamentos vamos trabalhar para manter sua média sempre acima da última nota de corte do Revalida.
           </p>
           <div className="mt-5">
@@ -292,22 +292,24 @@ function Dashboard() {
       {/* Meu Desempenho */}
       <Link
         to="/app/progresso"
-        className="group block rounded-2xl border border-border bg-card p-6 shadow-card transition-colors hover:border-mint/60"
+        className="group block rounded-2xl border border-border bg-card p-4 shadow-card transition-colors hover:border-mint/60 sm:p-6"
       >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-mint" />
-            <h3 className="font-display text-lg font-bold">Meu Desempenho</h3>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <BarChart3 className="h-5 w-5 shrink-0 text-mint" />
+            <h3 className="truncate font-display text-base font-bold sm:text-lg">Meu Desempenho</h3>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5">
             <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
               <AlertDialogTrigger asChild>
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setResetOpen(true); }}
-                  className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-destructive hover:text-destructive"
+                  className="inline-flex items-center gap-1 rounded-md border border-border p-1.5 text-xs text-muted-foreground transition-colors hover:border-destructive hover:text-destructive sm:px-2 sm:py-1"
+                  aria-label="Resetar desempenho"
                 >
-                  <RotateCcw className="h-3.5 w-3.5" /> Resetar
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Resetar</span>
                 </button>
               </AlertDialogTrigger>
               <AlertDialogContent onClick={(e) => e.stopPropagation()}>
@@ -339,25 +341,26 @@ function Dashboard() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-mint">
-              Ver detalhes <ChevronRight className="h-3.5 w-3.5" />
+            <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground transition-colors group-hover:text-mint">
+              <span className="hidden sm:inline">Ver detalhes</span>
+              <ChevronRight className="h-4 w-4" />
             </span>
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl border border-border/60 bg-background p-4">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Tentativas</div>
-            <div className="mt-1 font-display text-3xl font-bold">{stats.total}</div>
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Tentativas</div>
+            <div className="mt-1 font-display text-xl font-bold sm:text-3xl">{stats.total}</div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background p-4">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Nota média</div>
-            <div className="mt-1 font-display text-3xl font-bold text-medical">{stats.avg.toFixed(1)}</div>
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Nota média</div>
+            <div className="mt-1 font-display text-xl font-bold text-medical sm:text-3xl">{stats.avg.toFixed(1)}</div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background p-4">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Nota de corte INEP</div>
-            <div className="mt-1 font-display text-3xl font-bold text-mint">{NOTA_DE_CORTE.toFixed(3)}</div>
-            <div className="mt-1 text-[10px] text-muted-foreground">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Corte INEP</div>
+            <div className="mt-1 font-display text-xl font-bold text-mint sm:text-3xl">{stats.total > 0 ? NOTA_DE_CORTE_ESCALA10.toFixed(2) : NOTA_DE_CORTE.toFixed(3)}</div>
+            <div className="mt-1 hidden text-[10px] text-muted-foreground sm:block">
               {NOTA_DE_CORTE_EDICAO} · {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
             </div>
           </div>
@@ -379,15 +382,15 @@ function Dashboard() {
               const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
               return (
                 <li key={s.key} className="space-y-1.5">
-                  <div className="flex items-baseline justify-between gap-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className={`inline-flex h-6 min-w-[2rem] shrink-0 items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
                         {s.short}
                       </span>
-                      <span className="font-medium">{s.label}</span>
+                      <span className="truncate font-medium">{s.label}</span>
                     </div>
-                    <div className="flex items-baseline gap-2 text-xs text-muted-foreground">
-                      <span>{n} est.</span>
+                    <div className="flex shrink-0 items-baseline gap-2 text-xs text-muted-foreground">
+                      <span className="whitespace-nowrap">{n} est.</span>
                       <span className={`font-display text-base font-bold ${hit ? meta.text : "text-foreground"}`}>
                         {avg.toFixed(1)}
                       </span>
