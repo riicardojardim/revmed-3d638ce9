@@ -1093,8 +1093,10 @@ function Comparison() {
 const REVALIDA_EXAM_DATE = "2026-08-09T08:00:00-03:00"; // Revalida 2026.1 — Prova prática (ajuste conforme edital INEP)
 
 function useCountdown(targetIso: string) {
-  const [now, setNow] = useState(() => Date.now());
+  // Start at target time so SSR and first client render match (diff = 0).
+  const [now, setNow] = useState(() => new Date(targetIso).getTime());
   useEffect(() => {
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
