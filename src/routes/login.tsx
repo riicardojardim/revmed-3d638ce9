@@ -184,11 +184,22 @@ function LoginPage() {
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs">E-mail</Label>
-              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-10 text-sm" />
+              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 text-xs md:text-xs" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs">Senha</Label>
-              <Input ref={passwordRef} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-10 text-sm" />
+              <div className="relative">
+                <Input ref={passwordRef} id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-9 pr-9 text-xs md:text-xs" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="button" variant="hero" size="default" className="w-full text-sm" disabled={submitting} onClick={submitLogin}>
               {submitting ? "Entrando..." : (<>Entrar <ArrowRight className="h-4 w-4" /></>)}
