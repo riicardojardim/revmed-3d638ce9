@@ -1,18 +1,26 @@
 import { useEffect, useRef, useState } from "react";
+import { DASHBOARD_COUNTDOWN_SESSION_KEY } from "@/components/DashboardCountdown";
 
 type Props = {
   value: number;
   duration?: number;
   decimals?: number;
   className?: string;
-  /** Delay em ms antes de iniciar a contagem (ex.: esperar overlay sumir). */
+  /** Delay em ms antes de iniciar a contagem (default: aguarda o countdown do dashboard se ativo). */
   delay?: number;
 };
 
 /**
  * Conta de 0 até `value` com easing suave. Ideal pra métricas do dashboard.
+ * Por padrão, se o countdown de entrada do dashboard ainda não rolou nesta sessão,
+ * adia a contagem ~3.2s pra começar quando o overlay sumir.
  */
-export function AnimatedNumber({ value, duration = 900, decimals = 0, className, delay = 0 }: Props) {
+export function AnimatedNumber({ value, duration = 900, decimals = 0, className, delay }: Props) {
+  const effectiveDelay =
+    delay ??
+    (typeof window !== "undefined" && sessionStorage.getItem(DASHBOARD_COUNTDOWN_SESSION_KEY) !== "1"
+      ? 3200
+      : 0);
   const [display, setDisplay] = useState(0);
   const startRef = useRef<number | null>(null);
   const fromRef = useRef(0);
