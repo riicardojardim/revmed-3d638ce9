@@ -65,7 +65,7 @@ function StationsPage() {
         .from("custom_stations")
         .select("id, title, specialty, difficulty, duration_minutes, clinical_case, published, created_by")
         .eq("published", true)
-        .order("updated_at", { ascending: false });
+        .order("created_at", { ascending: false });
       if (!rows) { setLoading(false); return; }
 
       const creatorIds = Array.from(new Set(rows.map((r) => r.created_by)));
