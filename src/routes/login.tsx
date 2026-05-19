@@ -98,6 +98,23 @@ function LoginPage() {
     if (result.error) toast.error("Erro no Google", { description: String(result.error) });
   }
 
+  async function handleForgotPassword() {
+    const normalizedEmail = (emailRef.current?.value || email).trim();
+    if (!normalizedEmail) {
+      toast.error("Informe seu e-mail", { description: "Digite seu e-mail no campo acima para receber o link de redefinição." });
+      emailRef.current?.focus();
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      toast.error("Não foi possível enviar o e-mail", { description: error.message });
+      return;
+    }
+    toast.success("E-mail enviado", { description: "Confira sua caixa de entrada para redefinir a senha." });
+  }
+
   async function handleApple() {
     const result = await lovable.auth.signInWithOAuth("apple", {
       redirect_uri: window.location.origin + "/app",
@@ -183,13 +200,22 @@ function LoginPage() {
 
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs">E-mail</Label>
-              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 text-xs md:text-xs" />
+              <Label htmlFor="email" className="text-xs font-medium">E-mail</Label>
+              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 !text-xs placeholder:text-xs" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-xs">Senha</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-xs font-medium">Senha</Label>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-[11px] font-medium text-medical hover:underline"
+                >
+                  Esqueceu sua senha?
+                </button>
+              </div>
               <div className="relative">
-                <Input ref={passwordRef} id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-9 pr-9 text-xs md:text-xs" />
+                <Input ref={passwordRef} id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-9 pr-9 !text-xs placeholder:text-xs" />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
@@ -207,7 +233,7 @@ function LoginPage() {
           </form>
           <p className="mt-4 text-center text-xs text-muted-foreground">
             Ainda não tem conta?{" "}
-            <Link to="/cadastro" className="font-semibold text-medical hover:underline">Criar conta</Link>
+            <Link to="/" hash="planos" className="font-semibold text-medical hover:underline">Criar conta</Link>
           </p>
         </div>
       </div>
