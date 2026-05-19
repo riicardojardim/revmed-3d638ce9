@@ -1,13 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Search, ArrowRight, ListChecks, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { SPECIALTIES, type Specialty, type Station } from "@/data/stations";
-import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,9 +14,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { Shimmer } from "@/components/ui/shimmer";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
-
-import { Users } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/app/checklists")({
   component: StationsPage,
@@ -48,9 +44,8 @@ function StationsPage() {
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
-  const [allOpen, setAllOpen] = useState(false);
-  const [allSearch, setAllSearch] = useState("");
-  const [allSpec, setAllSpec] = useState<Specialty | "Todas">("Todas");
+
+
   
 
   function startStation(s: ListStation) {
@@ -103,16 +98,14 @@ function StationsPage() {
     })();
   }, []);
 
-  const countsByOrigin = useMemo(() => ({
-    revalida: dbStations.filter((s) => s.origin === "revalida").length,
-    parceiros: dbStations.filter((s) => s.origin === "parceiros").length,
-  }), [dbStations]);
 
-  const filtered = dbStations.filter(
-    (s) =>
-      (spec === "Todas" || s.specialty === spec) &&
-      s.title.toLowerCase().includes(q.toLowerCase()),
-  );
+
+  const filtered = dbStations.filter((s) => {
+    if (spec !== "Todas" && s.specialty !== spec) return false;
+    const term = q.trim().toLowerCase();
+    if (!term) return true;
+    return s.title.toLowerCase().includes(term) || s.specialty.toLowerCase().includes(term);
+  });
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
@@ -131,7 +124,7 @@ function StationsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Buscar por tema, sintoma ou estação..."
+                placeholder="Buscar por tema ou especialidade..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 className="h-11 pl-9 text-base"
@@ -161,68 +154,62 @@ function StationsPage() {
             })}
           </div>
 
-          {/* Cards */}
+          {/* List */}
           {loading ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              <Shimmer className="h-36 rounded-2xl" />
-              <Shimmer className="h-36 rounded-2xl" />
-              <Shimmer className="h-36 rounded-2xl" />
-              <Shimmer className="h-36 rounded-2xl" />
+            <div className="space-y-2">
+              <Shimmer className="h-14 rounded-xl" />
+              <Shimmer className="h-14 rounded-xl" />
+              <Shimmer className="h-14 rounded-xl" />
+              <Shimmer className="h-14 rounded-xl" />
+              <Shimmer className="h-14 rounded-xl" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
               Nenhum checklist encontrado{q ? ` para "${q}"` : ""}.
             </div>
           ) : (
-            <motion.div
-              key={filtered.slice(0, 4).map((s) => s.id).join("|")}
-              variants={staggerContainer}
-              initial="hidden"
-              animate="show"
-              className="grid gap-4 md:grid-cols-2"
-            >
-              {filtered.slice(0, 4).map((s) => {
-                const meta = getSpecialtyMeta(s.specialty);
-                return (
-                  <motion.div key={s.id} variants={staggerItem}>
-                    <div
-                      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-5 shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
+            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+              <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-2.5">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <ListChecks className="h-4 w-4 text-mint" />
+                  Todos os checklists
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}
+                </span>
+              </div>
+              <motion.ul
+                key={filtered.map((s) => s.id).join("|")}
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+                className="max-h-[60vh] divide-y divide-border overflow-y-auto"
+              >
+                {filtered.map((s) => {
+                  const m = getSpecialtyMeta(s.specialty);
+                  return (
+                    <motion.li
+                      key={s.id}
+                      variants={staggerItem}
+                      className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
                     >
-                      <div className={`absolute inset-x-0 top-0 h-1 ${meta.solid}`} aria-hidden />
-                      <div className="flex items-start justify-between gap-3">
-                        <SpecialtyBadge specialty={s.specialty} />
-                        {s.tag && (
-                          <Badge className="bg-mint/15 text-foreground hover:bg-mint/15">{s.tag}</Badge>
-                        )}
+                      <span className={cn("inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
+                        {m.code}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          {s.specialty} • {s.checklistCount} itens
+                        </div>
                       </div>
-                      <h3 className="mt-4 font-display text-lg font-bold leading-tight">{s.title}</h3>
-                      <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                        <span>{s.checklistCount} itens</span>
-                      </div>
-                      <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
-                        {s.clinicalCase}
-                      </p>
-                      <Button variant="hero" className="mt-5 w-full" onClick={() => startStation(s)}>
-                        Iniciar estação <ArrowRight className="h-4 w-4" />
+                      <Button size="sm" variant="hero" onClick={() => startStation(s)}>
+                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-              {filtered.length > 4 && (
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0, y: 16 },
-                    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
-                  }}
-                  className="md:col-span-2 flex justify-center pt-2"
-                >
-                  <Button variant="outline" onClick={() => { setAllSearch(""); setAllOpen(true); }}>
-                    Ver todos os {filtered.length} checklists <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </motion.div>
-              )}
-            </motion.div>
+                    </motion.li>
+                  );
+                })}
+              </motion.ul>
+            </div>
           )}
         </div>
 
@@ -232,21 +219,14 @@ function StationsPage() {
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
               <ListChecks className="h-5 w-5" />
             </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Todos os Checklists</h3>
+            <h3 className="mt-3 font-display text-lg font-bold">Catálogo</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Explore o catálogo completo de checklists disponíveis.
+              Checklists oficiais publicados e prontos para treinar.
             </p>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display text-3xl font-bold">{dbStations.length}</span>
-              <span className="text-xs text-muted-foreground">checklists publicados</span>
+              <span className="text-xs text-muted-foreground">disponíveis</span>
             </div>
-            <Button
-              variant="outline"
-              className="mt-4 w-full"
-              onClick={() => { setAllSearch(""); setAllOpen(true); }}
-            >
-              Ver todas <ArrowRight className="h-4 w-4" />
-            </Button>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card">
@@ -265,110 +245,11 @@ function StationsPage() {
       </div>
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
 
-      <Dialog open={allOpen} onOpenChange={setAllOpen}>
-        <DialogContent className="max-w-3xl overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ListChecks className="h-5 w-5 text-mint" />
-              Todos os checklists
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={allSearch}
-                onChange={(e) => setAllSearch(e.target.value)}
-                placeholder="Buscar checklist..."
-                className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
-              />
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <button
-                type="button"
-                onClick={() => setAllSpec("Todas")}
-                className={cn(
-                  "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                  allSpec === "Todas"
-                    ? "border-mint bg-mint/10 text-foreground"
-                    : "border-border bg-background text-muted-foreground hover:border-mint/40",
-                )}
-              >
-                Todas
-              </button>
-              {SPECIALTIES.map((s) => {
-                const m = getSpecialtyMeta(s);
-                const active = allSpec === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setAllSpec(s)}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                      active
-                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
-                        : "border-border bg-background text-muted-foreground hover:border-mint/40",
-                    )}
-                  >
-                    <span className={cn("inline-block h-1.5 w-1.5 rounded-full", m.solid)} />
-                    {s}
-                  </button>
-                );
-              })}
-            </div>
-            <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
-              {dbStations
-                .filter((s) => (allSpec === "Todas" || s.specialty === allSpec) && s.title.toLowerCase().includes(allSearch.toLowerCase()))
-                .map((s) => {
-                  const m = getSpecialtyMeta(s.specialty);
-                  return (
-                    <li key={s.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
-                      <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
-                        <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
-                      </div>
-                      <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); startStation(s); }}>
-                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </li>
-                  );
-                })}
-              {dbStations.length === 0 && (
-                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum checklist publicado.</li>
-              )}
-            </ul>
-          </div>
-        </DialogContent>
-      </Dialog>
 
     </div>
   );
 }
 
-function OriginTab({
-  active,
-  onClick,
-  label,
-  count,
-}: { active: boolean; onClick: () => void; label: string; count: number }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-        active
-          ? "bg-foreground text-background shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {label}
-      <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${active ? "bg-background/15" : "bg-muted"}`}>
-        {count}
-      </span>
-    </button>
-  );
-}
 
 function FilterChip({
   active,
