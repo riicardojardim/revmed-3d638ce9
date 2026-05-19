@@ -43,31 +43,21 @@ function StationsPage() {
   const { user } = useAuth();
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState<Specialty | "Todas">("Todas");
-  const [dbStations, setDbStations] = useState<ListStation[]>([]);
-  const [loading, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpec, setAllSpec] = useState<Specialty | "Todas">("Todas");
 
-
-
-  
-
-  function startStation(s: ListStation) {
-    if (!user) { toast.error("Faça login para iniciar."); return; }
-    const sim = createSimulado(user.id, s.title, [{ id: s.id, title: s.title, specialty: s.specialty }]);
-    nav({ to: "/app/sala/$code", params: { code: sim.id } });
-  }
-
-  useEffect(() => {
-    (async () => {
+  const { data: dbStations = [], isLoading: loading } = useQuery({
+    queryKey: ["checklists", "published"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<ListStation[]> => {
       const { data: rows } = await supabase
         .from("custom_stations")
         .select("id, title, specialty, difficulty, duration_minutes, clinical_case, published, created_by")
         .eq("published", true)
         .order("created_at", { ascending: false });
-      if (!rows) { setLoading(false); return; }
+      if (!rows) return [];
 
       const creatorIds = Array.from(new Set(rows.map((r) => r.created_by)));
       const adminIds = new Set<string>();
@@ -90,7 +80,7 @@ function StationsPage() {
         (items ?? []).forEach((it) => { counts[it.station_id] = (counts[it.station_id] ?? 0) + 1; });
       }
 
-      setDbStations(rows.map((r) => ({
+      return rows.map((r) => ({
         id: r.id,
         title: r.title,
         specialty: r.specialty as Specialty,
@@ -99,10 +89,10 @@ function StationsPage() {
         clinicalCase: r.clinical_case ?? "",
         checklistCount: counts[r.id] ?? 0,
         origin: adminIds.has(r.created_by) ? "revalida" : "parceiros",
-      })));
-      setLoading(false);
-    })();
-  }, []);
+      }));
+    },
+  });
+
 
 
 
