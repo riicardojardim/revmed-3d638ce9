@@ -384,7 +384,11 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+        <DialogContent className="relative flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+          <DialogClose className="absolute right-3 top-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white ring-1 ring-white/40 backdrop-blur-md transition-all hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Fechar</span>
+          </DialogClose>
           {!selectedSummary ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
               {error ? (
@@ -414,7 +418,7 @@ function ResumosPage() {
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="relative overflow-hidden bg-gradient-hero p-6 text-white">
+              <div className="relative overflow-hidden bg-gradient-hero px-6 pb-6 pt-7 text-white">
                 {selectedSummary.cover_image_url && (
                   <>
                     <img
@@ -425,17 +429,17 @@ function ResumosPage() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                   </>
                 )}
-                <DialogClose className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur-md transition-all hover:bg-white/25 hover:ring-white/50 focus:outline-none focus:ring-2 focus:ring-white">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Fechar</span>
-                </DialogClose>
-                <div className="relative pr-12">
-                  <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">Resumo clínico</div>
-                  <DialogTitle className="mt-1 font-display text-2xl font-bold leading-tight text-white">
+                <div className="relative pr-14">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SpecialtyBadge specialty={selectedSummary.specialty} short />
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                      {selectedSummary.specialty}
+                    </span>
+                  </div>
+                  <DialogTitle className="mt-2 font-display text-xl font-bold leading-tight text-white sm:text-2xl">
                     {selectedSummary.title}
                   </DialogTitle>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <SpecialtyBadge specialty={selectedSummary.specialty} />
                     {selectedSummary.high_yield && (
                       <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                         Alta incidência
@@ -448,6 +452,7 @@ function ResumosPage() {
                   </div>
                 </div>
               </div>
+
 
 
               <div className="space-y-4 p-5 sm:p-6">
@@ -510,14 +515,6 @@ function ResumosPage() {
                     </ul>
                   </section>
                 )}
-
-                <div className="flex justify-end pt-2">
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/app/resumos/$id" params={{ id: selectedSummary.id }} onClick={() => setSelectedId(null)}>
-                      Abrir resumo completo <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
-                </div>
               </div>
             </div>
 
