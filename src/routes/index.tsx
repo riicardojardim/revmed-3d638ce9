@@ -150,8 +150,8 @@ function LandingPage() {
 function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl pt-safe">
+      <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between gap-2 px-4 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground lg:flex">
           {nav.map((n) => (
@@ -172,44 +172,56 @@ function Header() {
             Começar agora <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
-        <button
-          className="rounded-md p-2 lg:hidden"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Menu"
-        >
-          <div className="flex flex-col gap-1.5">
-            <span className="h-0.5 w-5 bg-foreground" />
-            <span className="h-0.5 w-5 bg-foreground" />
-          </div>
-        </button>
-      </div>
-      {open && (
-        <div className="border-t border-border bg-background lg:hidden">
-          <div className="container mx-auto flex flex-col gap-1 px-4 py-3">
-            {nav.map((n) => (
-              <a
-                key={n.href}
-                href={n.href}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
-              >
-                {n.label}
-              </a>
-            ))}
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Link to="/login" onClick={() => setOpen(false)}>
-                <Button variant="outline" className="w-full">Entrar</Button>
-              </Link>
-              <Button
-                className="w-full bg-mint text-night hover:bg-mint/90"
-                onClick={() => { setOpen(false); scrollToPlanos(); }}
-              >
-                Começar
-              </Button>
+        {/* Mobile CTA + menu */}
+        <div className="flex items-center gap-1.5 lg:hidden">
+          <Button
+            size="sm"
+            onClick={scrollToPlanos}
+            className="h-9 rounded-full bg-mint px-3.5 text-[12px] font-bold text-night shadow-glow hover:bg-mint/90"
+          >
+            Começar
+          </Button>
+          <button
+            className="-mr-1 rounded-md p-2 active:bg-muted"
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Menu"
+            aria-expanded={open}
+          >
+            <div className="flex flex-col gap-1.5">
+              <span className={`block h-0.5 w-5 bg-foreground transition-transform ${open ? "translate-y-2 rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 bg-foreground transition-opacity ${open ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 bg-foreground transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`} />
             </div>
-          </div>
+          </button>
         </div>
-      )}
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="overflow-hidden border-t border-border bg-background lg:hidden"
+          >
+            <div className="container mx-auto flex flex-col gap-1 px-4 py-3">
+              {nav.map((n) => (
+                <a
+                  key={n.href}
+                  href={n.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 text-[15px] font-medium hover:bg-muted"
+                >
+                  {n.label}
+                </a>
+              ))}
+              <Link to="/login" onClick={() => setOpen(false)} className="mt-1">
+                <Button variant="outline" className="w-full h-11">Já tenho conta · Entrar</Button>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
