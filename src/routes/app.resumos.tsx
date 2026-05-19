@@ -416,7 +416,7 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="max-h-[85vh] w-[calc(100vw-1.5rem)] max-w-3xl overflow-y-auto p-0">
+        <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
           {!selectedSummary ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
               {error ? (
@@ -445,8 +445,8 @@ function ResumosPage() {
               )}
             </div>
           ) : (
-            <>
-              <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero p-6 text-white">
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="relative overflow-hidden bg-gradient-hero p-6 text-white">
                 {selectedSummary.cover_image_url && (
                   <>
                     <img
@@ -457,16 +457,17 @@ function ResumosPage() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                   </>
                 )}
-                <div className="relative pr-8">
+                <DialogClose className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur-md transition-all hover:bg-white/25 hover:ring-white/50 focus:outline-none focus:ring-2 focus:ring-white">
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Fechar</span>
+                </DialogClose>
+                <div className="relative pr-12">
                   <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">Resumo clínico</div>
                   <DialogTitle className="mt-1 font-display text-2xl font-bold leading-tight text-white">
                     {selectedSummary.title}
                   </DialogTitle>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <SpecialtyBadge specialty={selectedSummary.specialty} />
-                    <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ring-1 ring-white/20">
-                      {selectedSummary.difficulty}
-                    </span>
                     {selectedSummary.high_yield && (
                       <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                         Alta incidência
@@ -479,6 +480,7 @@ function ResumosPage() {
                   </div>
                 </div>
               </div>
+
 
               <div className="space-y-4 p-5 sm:p-6">
                 {selectedSections.length > 0 ? (
