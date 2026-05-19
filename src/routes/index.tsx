@@ -822,9 +822,9 @@ function Stats() {
     { value: 8.4, suffix: "", label: "Nota média" },
   ];
   return (
-    <section className="container mx-auto px-4 py-14 lg:px-8">
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+    <section className="container mx-auto px-4 py-10 sm:py-14 lg:px-8">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6 md:p-8">
+        <div className="grid grid-cols-2 gap-5 sm:gap-6 lg:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <p className="font-display text-2xl font-extrabold text-primary md:text-3xl">
