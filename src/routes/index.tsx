@@ -268,7 +268,9 @@ function Hero() {
         </motion.div>
 
         <div className="order-2 w-full lg:order-none lg:col-start-2 lg:row-span-2 lg:self-center">
-          <HeroVisual />
+          <Tilt max={5} scale={1.015}>
+            <HeroVisual />
+          </Tilt>
         </div>
 
         <motion.div
