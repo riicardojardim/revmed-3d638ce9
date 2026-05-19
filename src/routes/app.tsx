@@ -368,7 +368,7 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-32 pt-6 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-32 pt-6 md:px-6 lg:px-8">
           <Outlet />
         </main>
 
