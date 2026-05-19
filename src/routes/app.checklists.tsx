@@ -98,10 +98,7 @@ function StationsPage() {
     })();
   }, []);
 
-  const countsByOrigin = useMemo(() => ({
-    revalida: dbStations.filter((s) => s.origin === "revalida").length,
-    parceiros: dbStations.filter((s) => s.origin === "parceiros").length,
-  }), [dbStations]);
+
 
   const filtered = dbStations.filter((s) => {
     if (spec !== "Todas" && s.specialty !== spec) return false;
