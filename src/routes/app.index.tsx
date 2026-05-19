@@ -684,7 +684,7 @@ function DailyMotivationCard({ userId, streak, didToday }: { userId: string; str
             <Flame className="h-3 w-3 text-orange-500" /> Sequência
           </div>
           <div className="mt-1 font-display text-2xl font-bold">
-            {streak}
+            <AnimatedNumber value={streak} />
             <span className="ml-1 text-xs font-normal text-muted-foreground">{streak === 1 ? "dia" : "dias"}</span>
           </div>
         </div>
