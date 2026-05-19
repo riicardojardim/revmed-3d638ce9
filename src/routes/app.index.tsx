@@ -235,9 +235,9 @@ function Dashboard() {
   const titlePrefix = profile?.title && profile.title !== "Sem título" ? `${profile.title} ` : "";
   const greetingName = `${titlePrefix}${displayName}`;
 
-  if (subLoading) {
-    return <div className="text-sm text-muted-foreground">Carregando...</div>;
-  }
+  // Não bloqueamos o render esperando subscription — o conteúdo do plano
+  // entra assim que resolve; o resto do dashboard já aparece.
+
   if (isAtorPlan) return <AtorDashboard />;
   if (!isCompleto) {
     // free user — keep simple welcome
