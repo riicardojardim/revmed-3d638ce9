@@ -289,7 +289,7 @@ function StationsPage() {
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
 
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
-        <DialogContent className="max-w-3xl overflow-hidden">
+        <DialogContent className="flex w-[calc(100vw-1rem)] max-w-3xl max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ListChecks className="h-5 w-5 text-mint" />
