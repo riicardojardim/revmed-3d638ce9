@@ -183,7 +183,7 @@ function AdminOverview() {
         />
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <c.icon className={`h-5 w-5 ${c.color}`} />
