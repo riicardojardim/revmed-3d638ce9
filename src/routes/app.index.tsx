@@ -43,6 +43,9 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
+import { DashboardBackground } from "@/components/DashboardBackground";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
@@ -273,16 +276,34 @@ function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="relative mx-auto max-w-7xl space-y-6">
+      <DashboardBackground />
 
 
       {/* Top row: welcome + stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+      >
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 280, damping: 24 }}
+          className="lg:col-span-2 relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6"
+        >
+          {/* Shine sutil passando por cima */}
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-mint/15 to-transparent"
+            initial={{ x: "-50%" }}
+            animate={{ x: "400%" }}
+            transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 6, ease: "easeInOut" }}
+          />
           <h2 className="text-balance font-display text-lg font-bold leading-tight sm:text-xl md:text-2xl">
             <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
-            <span className="text-mint">{stats.avg.toFixed(1)}</span>
+            <span className="text-mint"><AnimatedNumber value={stats.avg} decimals={1} /></span>
           </h2>
           <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
             Com nossos treinamentos vamos trabalhar para manter sua média sempre acima da última nota de corte do Revalida.
@@ -290,19 +311,37 @@ function Dashboard() {
           <div className="mt-5">
             <SpecialtyMedals stats={stats.bySpec} />
           </div>
-        </div>
+        </motion.div>
 
-        <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
-      </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
+        </motion.div>
+      </motion.div>
 
 
-      <BadgesCard stats={stats} />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <BadgesCard stats={stats} />
+      </motion.div>
 
 
 
 
 
       {/* Meu Desempenho */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        whileHover={{ y: -2 }}
+      >
       <Link
         to="/app/progresso"
         className="group block rounded-2xl border border-border bg-card p-4 shadow-card transition-colors hover:border-mint/60 sm:p-6"
@@ -362,15 +401,15 @@ function Dashboard() {
         </div>
 
         <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Tentativas</div>
-            <div className="mt-1 font-display text-xl font-bold sm:text-3xl">{stats.total}</div>
+            <div className="mt-1 font-display text-xl font-bold sm:text-3xl"><AnimatedNumber value={stats.total} /></div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Nota média</div>
-            <div className="mt-1 font-display text-xl font-bold text-medical sm:text-3xl">{stats.avg.toFixed(1)}</div>
+            <div className="mt-1 font-display text-xl font-bold text-medical sm:text-3xl"><AnimatedNumber value={stats.avg} decimals={1} /></div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-background p-2.5 sm:p-4">
+          <div className="rounded-xl border border-border/60 bg-background p-2.5 transition-colors hover:border-mint/40 sm:p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground sm:text-[11px]">Corte INEP</div>
             <div className="mt-1 font-display text-xl font-bold text-mint sm:text-3xl">{stats.total > 0 ? NOTA_DE_CORTE_ESCALA10.toFixed(2) : NOTA_DE_CORTE.toFixed(3)}</div>
             <div className="mt-1 hidden text-[10px] text-muted-foreground sm:block">
@@ -423,9 +462,15 @@ function Dashboard() {
           </ul>
         </div>
       </Link>
+      </motion.div>
 
       {/* Histórico */}
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className="rounded-2xl border border-border bg-card p-5 shadow-card"
+      >
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-mint" />
           <h3 className="font-display text-lg font-bold">Histórico de Estações</h3>
@@ -439,7 +484,17 @@ function Dashboard() {
 
         <div className="mt-5 space-y-3">
           {loading ? (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">Carregando...</p>
+            <div className="space-y-2.5" aria-label="Carregando histórico">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="relative h-14 overflow-hidden rounded-xl border border-border/60 bg-muted/30"
+                >
+                  <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.6s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-mint/15 to-transparent" />
+                </div>
+              ))}
+              <style>{`@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
+            </div>
           ) : rows.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum treinamento ainda.</p>
           ) : rows.slice(0, visibleCount).map((row) => {
@@ -526,7 +581,7 @@ function Dashboard() {
             </Button>
           </div>
         )}
-      </div>
+      </motion.div>
 
       <HistoricoDetailModal
         attemptId={detailId}
