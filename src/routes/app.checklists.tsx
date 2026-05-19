@@ -173,31 +173,32 @@ function StationsPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {filtered.map((s) => {
+              {filtered.map((s, idx) => {
                 const meta = getSpecialtyMeta(s.specialty);
                 return (
-                  <div
-                    key={s.id}
-                    className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
-                  >
-                    <div className={`absolute inset-x-0 top-0 h-1 ${meta.solid}`} aria-hidden />
-                    <div className="flex items-start justify-between gap-3">
-                      <SpecialtyBadge specialty={s.specialty} />
-                      {s.tag && (
-                        <Badge className="bg-mint/15 text-foreground hover:bg-mint/15">{s.tag}</Badge>
-                      )}
+                  <Reveal key={s.id} delay={Math.min(idx * 0.05, 0.4)} y={20}>
+                    <div
+                      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-5 shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
+                    >
+                      <div className={`absolute inset-x-0 top-0 h-1 ${meta.solid}`} aria-hidden />
+                      <div className="flex items-start justify-between gap-3">
+                        <SpecialtyBadge specialty={s.specialty} />
+                        {s.tag && (
+                          <Badge className="bg-mint/15 text-foreground hover:bg-mint/15">{s.tag}</Badge>
+                        )}
+                      </div>
+                      <h3 className="mt-4 font-display text-lg font-bold leading-tight">{s.title}</h3>
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        <span>{s.checklistCount} itens</span>
+                      </div>
+                      <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
+                        {s.clinicalCase}
+                      </p>
+                      <Button variant="hero" className="mt-5 w-full" onClick={() => startStation(s)}>
+                        Iniciar estação <ArrowRight className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <h3 className="mt-4 font-display text-lg font-bold leading-tight">{s.title}</h3>
-                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span>{s.checklistCount} itens</span>
-                    </div>
-                    <p className="mt-3 line-clamp-2 flex-1 text-sm text-muted-foreground">
-                      {s.clinicalCase}
-                    </p>
-                    <Button variant="hero" className="mt-5 w-full" onClick={() => startStation(s)}>
-                      Iniciar estação <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  </Reveal>
                 );
               })}
             </div>

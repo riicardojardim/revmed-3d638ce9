@@ -1,6 +1,7 @@
 import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { DashboardBackground } from "@/components/DashboardBackground";
 import { Logo } from "@/components/Logo";
 
@@ -220,9 +221,10 @@ function AppLayout() {
   return (
     <OnlinePresenceProvider>
     <DashboardBackground />
-    <div className="flex min-h-dvh w-full min-w-0 overflow-x-hidden bg-background">
+    <div className="relative flex min-h-dvh w-full min-w-0 overflow-x-hidden">
       {/* Desktop sidebar — fixa */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border/60 bg-sidebar/70 backdrop-blur-xl">
+
 
         <div className="px-6 py-5">
           <Logo />
@@ -380,7 +382,17 @@ function AppLayout() {
         </header>
 
         <main className="mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-hidden px-3 pb-32 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 8, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* Bottom dock — em todas as larguras */}
