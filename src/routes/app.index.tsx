@@ -680,7 +680,6 @@ function RecommendationCard({ rec }: { rec: { key: string; label: string; avg: n
       </div>
       <Link
         to="/app/checklists"
-        search={{ esp: rec.key } as never}
         className="mt-auto inline-flex items-center justify-center gap-1 rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white hover:bg-mint/90"
       >
         Treinar {rec.label} <ChevronRight className="h-4 w-4" />
