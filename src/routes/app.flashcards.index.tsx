@@ -417,3 +417,250 @@ function FlashcardModalShell({ title, onClose, children }: { title: string; onCl
     </div>
   );
 }
+
+type FlashcardsListProps = {
+  decks: Deck[];
+  filtered: Deck[];
+  cardCounts: Map<string, number>;
+  specialties: string[];
+  search: string;
+  setSearch: (v: string) => void;
+  specialty: string;
+  setSpecialty: (v: string) => void;
+  openDeck: (d: Deck) => void;
+};
+
+function FlashcardsList({
+  decks, filtered, cardCounts, specialties, search, setSearch, specialty, setSpecialty, openDeck,
+}: FlashcardsListProps) {
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
+  const [allSpec, setAllSpec] = useState<string>("Todas");
+
+  const allFiltered = useMemo(() => {
+    const q = allSearch.trim().toLowerCase();
+    return decks.filter((d) => {
+      if (allSpec !== "Todas" && d.specialty !== allSpec) return false;
+      if (!q) return true;
+      return (
+        d.title.toLowerCase().includes(q) ||
+        d.specialty.toLowerCase().includes(q) ||
+        (d.topic ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [decks, allSpec, allSearch]);
+
+  return (
+    <div className="relative mx-auto max-w-7xl space-y-6">
+      <div>
+        <h1 className="font-display text-2xl font-bold md:text-3xl">Banco de Flashcards</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Escolha um deck e treine com cards no estilo Pense Revalida.
+        </p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        {/* Main column */}
+        <div className="space-y-5">
+          {/* Search */}
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por título, tema ou especialidade..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-11 pl-9 text-base"
+              />
+            </div>
+          </div>
+
+          {/* Specialty filters */}
+          <div className="flex flex-wrap gap-2">
+            {specialties.map((s) => {
+              const meta = s === "Todas" ? null : getSpecialtyMeta(s);
+              const active = specialty === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpecialty(s)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                    active
+                      ? meta
+                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                        : "border-mint bg-mint/10 text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                  )}
+                >
+                  {meta && <span className={cn("inline-block h-2 w-2 rounded-full", meta.solid)} />}
+                  {s === "Todas" ? "Todas as áreas" : s}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Deck covers grid */}
+          {filtered.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
+              Nenhum flashcard encontrado{search ? ` para "${search}"` : ""}.
+            </div>
+          ) : (
+            <motion.div
+              key={filtered.slice(0, 4).map((d) => d.id).join("|")}
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+              className="grid gap-4 sm:grid-cols-2"
+            >
+              {filtered.slice(0, 4).map((d) => (
+                <motion.button
+                  key={d.id}
+                  variants={staggerItem}
+                  type="button"
+                  onClick={() => openDeck(d)}
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                  className="group relative flex flex-col gap-3 rounded-2xl border border-border bg-card/80 p-4 text-left shadow-card backdrop-blur-sm transition-all hover:shadow-elegant"
+                >
+                  <div className="aspect-square w-full overflow-hidden rounded-xl">
+                    <DeckCover title={d.title} specialty={d.specialty} topic={d.topic} />
+                  </div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="truncate font-display text-sm font-bold leading-tight">{d.title}</div>
+                      <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                        {d.specialty}{d.topic ? ` · ${d.topic}` : ""}
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint">
+                      {cardCounts.get(d.id) ?? 0} cards
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+              {filtered.length > 4 && (
+                <motion.div
+                  variants={staggerItem}
+                  className="sm:col-span-2 flex justify-center pt-2"
+                >
+                  <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
+                    Ver todos os {filtered.length} flashcards <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+          <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-mint/10 to-card p-5 shadow-card">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
+              <Brain className="h-5 w-5" />
+            </div>
+            <h3 className="mt-3 font-display text-lg font-bold">Todos os Flashcards</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Explore o catálogo completo de decks disponíveis.
+            </p>
+            <div className="mt-4 flex items-baseline gap-1">
+              <span className="font-display text-3xl font-bold">{decks.length}</span>
+              <span className="text-xs text-muted-foreground">decks publicados</span>
+            </div>
+            <Button
+              variant="outline"
+              className="mt-4 w-full"
+              onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}
+            >
+              Ver todos <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <Link
+            to="/app/flashcards/desempenho"
+            className="block overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/60"
+          >
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <h3 className="mt-3 font-display text-lg font-bold">Meu Desempenho</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Veja suas estatísticas e evolução nos flashcards.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-mint">
+              Ver detalhes <ChevronRight className="h-4 w-4" />
+            </div>
+          </Link>
+        </aside>
+      </div>
+
+      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+        <DialogContent className="max-w-3xl overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-mint" />
+              Todos os flashcards
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={allSearch}
+                onChange={(e) => setAllSearch(e.target.value)}
+                placeholder="Buscar flashcard..."
+                className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {specialties.map((s) => {
+                const meta = s === "Todas" ? null : getSpecialtyMeta(s);
+                const active = allSpec === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setAllSpec(s)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      active
+                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                    )}
+                  >
+                    {meta && <span className={cn("inline-block h-1.5 w-1.5 rounded-full", meta.solid)} />}
+                    {s === "Todas" ? "Todas" : s}
+                  </button>
+                );
+              })}
+            </div>
+            <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
+              {allFiltered.map((d) => {
+                const m = getSpecialtyMeta(d.specialty);
+                return (
+                  <li key={d.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
+                    <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{d.title}</div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        {d.specialty}{d.topic ? ` • ${d.topic}` : ""} • {cardCounts.get(d.id) ?? 0} cards
+                      </div>
+                    </div>
+                    <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); openDeck(d); }}>
+                      Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </li>
+                );
+              })}
+              {allFiltered.length === 0 && (
+                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum flashcard encontrado.</li>
+              )}
+            </ul>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
