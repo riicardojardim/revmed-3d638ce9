@@ -1253,18 +1253,17 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
 
               <div className="rounded-lg border border-border bg-card p-3">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Níveis de avaliação</div>
-                <div className="space-y-2">
-                  {(item.levels ?? defaultLevels(Number(item.points) || 1)).map((lv, lvIdx) => (
-                    <div key={lvIdx} className="grid gap-2 md:grid-cols-[160px,80px,1fr]">
-                      <Input defaultValue={lv.label}
-                        onBlur={(e) => e.target.value !== lv.label && patchLevel(item, lvIdx, { label: e.target.value })} />
-                      <Input type="number" step="0.05" min={0} defaultValue={lv.points}
-                        onBlur={(e) => Number(e.target.value) !== lv.points && patchLevel(item, lvIdx, { points: Number(e.target.value) })} />
-                      <Input placeholder="Descrição do critério" defaultValue={lv.description ?? ""}
-                        onBlur={(e) => (e.target.value || "") !== (lv.description ?? "") && patchLevel(item, lvIdx, { description: e.target.value })} />
-                    </div>
-                  ))}
-                </div>
+                <LevelsEditor
+                  item={item}
+                  onSet={async (levels) => {
+                    const { error } = await supabase
+                      .from("station_checklist_items")
+                      .update({ levels } as never)
+                      .eq("id", item.id);
+                    if (error) return toast.error("Erro", { description: error.message });
+                    await reload();
+                  }}
+                />
               </div>
             </div>
           ))}
