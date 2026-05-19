@@ -65,18 +65,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
     enabled: open,
     staleTime: 60_000,
     queryFn: async (): Promise<Summary | null> => {
-      // 1) Try direct station link
-      if (stationId) {
-        const { data } = await supabase
-          .from("summaries")
-          .select("*")
-          .eq("published", true)
-          .eq("station_id", stationId)
-          .limit(1)
-          .maybeSingle();
-        if (data) return data as Summary;
-      }
-      // 2) Fallback by specialty + title similarity
+      // Match by specialty + title similarity
       const { data: list } = await supabase
         .from("summaries")
         .select("*")
