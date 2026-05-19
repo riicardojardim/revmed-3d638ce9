@@ -129,8 +129,8 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
         </button>
       </DialogTrigger>
 
-      <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-y-auto rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
-        <DialogClose className="absolute right-3 top-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white ring-1 ring-white/40 backdrop-blur-md transition-all hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white">
+      <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button:last-child]:hidden">
+        <DialogClose className="absolute right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
           <X className="h-4 w-4" />
           <span className="sr-only">Fechar</span>
         </DialogClose>
@@ -147,9 +147,9 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
             </p>
           </div>
         ) : (
-          <>
-            <div className="relative overflow-hidden rounded-t-3xl bg-gradient-hero px-6 pb-6 pt-7 text-white">
-              <div className="pr-14">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+            <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-5 pt-7 text-white sm:px-6 sm:pb-6">
+              <div className="pr-16">
                 <div className="flex flex-wrap items-center gap-2">
                   <SpecialtyBadge specialty={summary.specialty} short />
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
@@ -157,7 +157,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
                   </span>
                 </div>
                 <DialogTitle className="mt-2 font-display text-xl font-bold leading-tight text-white sm:text-2xl">
-                  {summary.title}
+                  {summary.title || title}
                 </DialogTitle>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {summary.high_yield && (
@@ -174,7 +174,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
             </div>
 
 
-            <div className="space-y-4 p-6">
+            <div className="space-y-4 p-5 sm:p-6">
               {hasStructured ? (
                 sections.map((sec, i) => (
                   <section
@@ -187,14 +187,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={cn(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold tabular-nums",
-                          sec.tone === "highlight" && "bg-mint/15 text-mint",
-                          sec.tone === "warn" && "bg-amber-400/15 text-amber-600",
-                          sec.tone === "default" && "bg-muted text-muted-foreground",
-                        )}
-                      >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-hero text-xs font-bold tabular-nums text-white shadow-elegant ring-1 ring-white/20">
                         {String(i + 1).padStart(2, "0")}
                       </div>
                       <div className="flex items-center gap-2">
@@ -235,7 +228,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
                 </section>
               )}
             </div>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>
