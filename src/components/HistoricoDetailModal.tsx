@@ -180,9 +180,9 @@ export function HistoricoDetailModal({
               </div>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+            <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-5">
               {/* LEFT */}
-              <div className="space-y-4">
+              <div className="min-w-0 space-y-4">
                 <PRBlock icon={MessageSquare} title="Cenário de atuação">
                   <ScriptText text={station.clinicalCase} />
                 </PRBlock>
@@ -272,7 +272,7 @@ export function HistoricoDetailModal({
                             <li
                               key={it.id}
                               className={cn(
-                                "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3",
+                                "grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 rounded-xl border px-3 py-3 sm:gap-x-4 sm:px-4",
                                 typeof current === "number" ? "border-mint/30 bg-mint/5" : "border-border bg-background/30",
                               )}
                             >
