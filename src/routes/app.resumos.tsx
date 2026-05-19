@@ -1,8 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain } from "lucide-react";
+import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText } from "lucide-react";
 import { SummaryCover } from "@/components/SummaryCover";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
@@ -23,21 +23,27 @@ type Summary = {
   title: string;
   specialty: string;
   topic: string | null;
+  content_md: string | null;
   read_time_minutes: number;
   difficulty: string;
   high_yield: boolean;
   cover_image_url: string | null;
   definition: string | null;
+  clinical_picture: string | null;
+  diagnosis: string | null;
+  conduct: string | null;
+  key_points: string | null;
+  pitfalls: string | null;
   created_at: string;
 };
 
 function ResumosPage() {
-  const nav = useNavigate();
   const [search, setSearch] = useState("");
   const [specialty, setSpecialty] = useState<string>("Todas");
   const [allOpen, setAllOpen] = useState(false);
   const [allSearch, setAllSearch] = useState("");
   const [allSpec, setAllSpec] = useState<string>("Todas");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ["resumos", "published"],
@@ -45,12 +51,41 @@ function ResumosPage() {
     queryFn: async (): Promise<Summary[]> => {
       const { data } = await supabase
         .from("summaries")
-        .select("id, title, specialty, topic, read_time_minutes, difficulty, high_yield, cover_image_url, definition, created_at")
+        .select("id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at")
         .eq("published", true)
         .order("created_at", { ascending: false });
       return (data ?? []) as Summary[];
     },
   });
+
+  const selectedSummary = useMemo(
+    () => items.find((item) => item.id === selectedId) ?? null,
+    [items, selectedId],
+  );
+
+  const selectedSections = selectedSummary
+    ? [
+        { icon: BookOpen, title: "Definição", text: selectedSummary.definition, tone: "default" as const },
+        { icon: Stethoscope, title: "Quadro clínico", text: selectedSummary.clinical_picture, tone: "default" as const },
+        { icon: Microscope, title: "Diagnóstico", text: selectedSummary.diagnosis, tone: "default" as const },
+        { icon: ClipboardCheck, title: "Conduta", text: selectedSummary.conduct, tone: "default" as const },
+        { icon: Star, title: "Pontos-chave", text: selectedSummary.key_points, tone: "highlight" as const },
+        { icon: AlertTriangle, title: "Armadilhas", text: selectedSummary.pitfalls, tone: "warn" as const },
+      ].filter((section) => section.text && section.text.trim())
+    : [];
+
+  const selectedRaw = selectedSummary?.content_md ?? "";
+  const selectedMarker = "Fontes utilizadas:";
+  const selectedMarkerIdx = selectedRaw.indexOf(selectedMarker);
+  const selectedNotes = selectedMarkerIdx >= 0 ? selectedRaw.slice(0, selectedMarkerIdx).trim() : selectedRaw.trim();
+  const selectedSources = selectedMarkerIdx >= 0
+    ? selectedRaw
+        .slice(selectedMarkerIdx + selectedMarker.length)
+        .trim()
+        .split("\n")
+        .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
+        .filter(Boolean)
+    : [];
 
   const specialties = useMemo(
     () => ["Todas", ...sortSpecialties(Array.from(new Set(items.map((i) => i.specialty))))],
