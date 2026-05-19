@@ -282,11 +282,6 @@ function Dashboard() {
         <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
       </div>
 
-      {/* Heatmap + Próxima ação */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <ActivityHeatmap cells={stats.heatCells} activeDays={stats.activeDays} />
-        <RecommendationCard rec={recommendation} />
-      </div>
 
       <BadgesCard stats={stats} />
 
