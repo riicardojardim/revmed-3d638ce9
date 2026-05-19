@@ -788,14 +788,17 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
         </span>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
-        {badges.map((b) => {
+        {badges.map((b, i) => {
           const tone = TONE_CLASSES[b.tone];
           const Icon = b.icon;
           const pct = b.progress ? Math.round((b.progress.current / b.progress.goal) * 100) : 0;
+          const hideOnMobile = !showAll && i >= MOBILE_LIMIT;
           return (
             <div
               key={b.key}
               className={`group relative flex flex-col items-center rounded-xl border p-3 text-center transition ${
+                hideOnMobile ? "hidden sm:flex" : ""
+              } ${
                 b.unlocked ? `border-border bg-background shadow-sm ring-1 ${tone.ring}` : "border-dashed border-border bg-muted/20"
               }`}
               title={b.description}
@@ -823,6 +826,15 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
           );
         })}
       </div>
+      {badges.length > MOBILE_LIMIT && (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          className="mt-3 w-full rounded-xl border border-border bg-background py-2 text-xs font-semibold text-mint hover:bg-muted sm:hidden"
+        >
+          {showAll ? "Ver menos" : `Ver mais (${badges.length - MOBILE_LIMIT})`}
+        </button>
+      )}
     </div>
   );
 }
