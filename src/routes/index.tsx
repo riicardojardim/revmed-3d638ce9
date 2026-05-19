@@ -849,7 +849,7 @@ function HowItWorks() {
     { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
-    <section id="como-funciona" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section id="como-funciona" className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Metodologia" title="Quatro passos para a aprovação" />
       <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {steps.map((s, i) => (
@@ -894,7 +894,7 @@ function BeforeAfter() {
   ];
 
   return (
-    <section className="bg-gradient-to-b from-background to-mint-soft/30 py-16 lg:py-24">
+    <section className="bg-gradient-to-b from-background to-mint-soft/30 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle
           eyebrow="A diferença"
@@ -987,7 +987,7 @@ function Simulation() {
   ];
 
   return (
-    <section id="simulacao" className="relative overflow-hidden bg-night py-20 text-white lg:py-28">
+    <section id="simulacao" className="relative overflow-hidden bg-night py-14 text-white sm:py-20 lg:py-28">
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -1082,7 +1082,7 @@ function Resources() {
     { icon: Smartphone, title: "App instalável (PWA)", desc: "Treine pelo celular como app nativo." },
   ];
   return (
-    <section id="recursos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section id="recursos" className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Recursos" title="Tudo que você precisa para treinar com método" />
       <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {features.map((f, i) => (
@@ -1119,7 +1119,7 @@ function Areas() {
     { icon: ClipboardList, name: "Exames e condutas", count: "14 estações" },
   ];
   return (
-    <section className="bg-card/40 py-16 lg:py-24">
+    <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
@@ -1231,7 +1231,7 @@ function Comparison() {
     );
 
   return (
-    <section className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle
         eyebrow="Comparativo"
         title="Por que candidatos estão migrando pra cá"
@@ -1545,7 +1545,7 @@ function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
 
 function Testimonials() {
   return (
-    <section className="bg-card/40 py-16 lg:py-24">
+    <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina com a gente" />
 
@@ -1586,7 +1586,7 @@ const faqs = [
 
 function FAQ() {
   return (
-    <section id="faq" className="container mx-auto max-w-5xl px-4 py-16 lg:px-8 lg:py-24">
+    <section id="faq" className="container mx-auto max-w-5xl px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="FAQ" title="Perguntas frequentes" />
       <div className="mt-10 grid gap-3 md:grid-cols-2">
         {faqs.map((f, i) => (
@@ -1630,7 +1630,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 /* ---------------- Final CTA ---------------- */
 function FinalCTA() {
   return (
-    <section className="container mx-auto px-4 py-16 lg:px-8">
+    <section className="container mx-auto px-4 py-12 sm:py-16 lg:px-8">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-night p-8 text-center text-white md:p-14">
         <div className="pointer-events-none absolute -right-20 -top-20 h-[380px] w-[380px] rounded-full bg-mint/20 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-[280px] w-[280px] rounded-full bg-mint/15 blur-[100px]" />
@@ -1764,7 +1764,10 @@ function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
         <span className="h-1 w-1 rounded-full bg-mint" />
         {eyebrow}
       </div>
-      <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl lg:text-[2rem]">
+      <h2
+        className="mt-3 text-balance font-display font-extrabold leading-[1.12] tracking-tight"
+        style={{ fontSize: "clamp(1.35rem, 5.5vw, 2rem)" }}
+      >
         {title}
       </h2>
     </div>
