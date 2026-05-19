@@ -89,7 +89,8 @@ const ResultSchema = z.object({
 });
 
 function normalizeGatewayResult(value: unknown) {
-  const data = typeof value === "object" && value !== null ? { ...(value as Record<string, unknown>) } : {};
+  const data =
+    typeof value === "object" && value !== null ? { ...(value as Record<string, unknown>) } : {};
 
   if (typeof data.read_time_minutes === "string") {
     const match = data.read_time_minutes.match(/\d+/);
