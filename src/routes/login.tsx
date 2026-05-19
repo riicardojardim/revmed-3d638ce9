@@ -4,7 +4,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Stethoscope, HeartPulse, Activity, Pill } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -22,6 +22,7 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
     return Promise.race([
@@ -132,18 +133,18 @@ function LoginPage() {
           />
         </svg>
 
-        {/* Floating medical crosses */}
-        <div className="absolute left-[8%] top-[12%] text-mint/15 animate-float">
-          <PlusIcon size={28} />
+        {/* Floating medical icons */}
+        <div className="absolute left-[8%] top-[12%] text-mint/25 animate-float">
+          <Stethoscope className="h-7 w-7" strokeWidth={1.5} />
         </div>
-        <div className="absolute right-[12%] top-[20%] text-medical/20 animate-float [animation-delay:1s]">
-          <PlusIcon size={20} />
+        <div className="absolute right-[12%] top-[20%] text-medical/30 animate-float [animation-delay:1s]">
+          <HeartPulse className="h-6 w-6" strokeWidth={1.5} />
         </div>
-        <div className="absolute left-[18%] bottom-[18%] text-mint/15 animate-float [animation-delay:2s]">
-          <PlusIcon size={22} />
+        <div className="absolute left-[18%] bottom-[18%] text-mint/25 animate-float [animation-delay:2s]">
+          <Activity className="h-6 w-6" strokeWidth={1.5} />
         </div>
-        <div className="absolute right-[10%] bottom-[12%] text-medical/15 animate-float [animation-delay:0.5s]">
-          <PlusIcon size={32} />
+        <div className="absolute right-[10%] bottom-[12%] text-medical/25 animate-float [animation-delay:0.5s]">
+          <Pill className="h-7 w-7" strokeWidth={1.5} />
         </div>
       </div>
 
@@ -183,11 +184,22 @@ function LoginPage() {
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs">E-mail</Label>
-              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-10 text-sm" />
+              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 text-xs md:text-xs" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs">Senha</Label>
-              <Input ref={passwordRef} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-10 text-sm" />
+              <div className="relative">
+                <Input ref={passwordRef} id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-9 pr-9 text-xs md:text-xs" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="button" variant="hero" size="default" className="w-full text-sm" disabled={submitting} onClick={submitLogin}>
               {submitting ? "Entrando..." : (<>Entrar <ArrowRight className="h-4 w-4" /></>)}
@@ -203,10 +215,3 @@ function LoginPage() {
   );
 }
 
-function PlusIcon({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z" />
-    </svg>
-  );
-}
