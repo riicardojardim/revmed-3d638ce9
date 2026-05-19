@@ -20,13 +20,29 @@ import { toast } from "sonner";
 function HostMuteButton({ roomCode, targetIdentity, isMuted }: { roomCode: string; targetIdentity: string; isMuted: boolean }) {
   const mute = useServerFn(muteParticipant);
   const [pending, setPending] = useState(false);
+  if (isMuted) {
+    // O LiveKit não permite "remote unmute" — só o próprio participante pode se desmutar.
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          toast.info("O participante precisa se desmutar (regra de privacidade do LiveKit).");
+        }}
+        className="absolute right-2 top-2 z-10 rounded-md bg-black/60 p-1.5 text-white/60 backdrop-blur hover:bg-black/80"
+        title="Mutado — o participante precisa se desmutar"
+      >
+        <MicOff className="h-3.5 w-3.5" />
+      </button>
+    );
+  }
   return (
     <button
       onClick={async (e) => {
         e.stopPropagation();
         setPending(true);
         try {
-          await mute({ data: { roomCode, targetIdentity, muted: !isMuted } });
+          await mute({ data: { roomCode, targetIdentity, muted: true } });
         } catch (err: unknown) {
           toast.error(err instanceof Error ? err.message : "Falha ao mutar");
         } finally {
@@ -35,9 +51,9 @@ function HostMuteButton({ roomCode, targetIdentity, isMuted }: { roomCode: strin
       }}
       disabled={pending}
       className="absolute right-2 top-2 z-10 rounded-md bg-black/60 p-1.5 text-white backdrop-blur hover:bg-black/80 disabled:opacity-50"
-      title={isMuted ? "Desmutar (ator)" : "Mutar (ator)"}
+      title="Mutar participante"
     >
-      {isMuted ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+      <Mic className="h-3.5 w-3.5" />
     </button>
   );
 }
