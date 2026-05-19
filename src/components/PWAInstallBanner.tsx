@@ -96,20 +96,20 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 top-3 z-50 w-[min(96vw,560px)] -translate-x-1/2 rounded-2xl border border-mint/40 bg-background/95 px-3 py-2 shadow-elegant backdrop-blur-xl"
+        className="fixed left-1/2 top-3 z-50 w-[min(96vw,720px)] -translate-x-1/2 rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl"
         role="dialog"
         aria-label="Instalar aplicativo"
       >
         <div className="flex items-center gap-2">
-          <span className="text-base">📲</span>
-          <p className="flex-1 text-xs font-medium text-foreground sm:text-sm">
+          <span className="text-sm leading-none">📲</span>
+          <p className="flex-1 truncate whitespace-nowrap text-[11px] font-medium text-foreground sm:text-xs">
             Faça o download do nosso aplicativo para uma experiência ainda melhor!
           </p>
           <button
             onClick={handleInstallClick}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-mint px-3 py-1 text-[11px] font-semibold text-background hover:bg-mint/90"
           >
-            <Download className="h-3.5 w-3.5" />
+            <Download className="h-3 w-3" />
             Download
           </button>
           <button
