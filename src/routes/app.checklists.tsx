@@ -327,7 +327,7 @@ function StationsPage() {
                     )}
                   >
                     <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", m.solid)} />
-                    <span className="truncate text-center">{s}</span>
+                    <span className="truncate text-center">{m.code}</span>
                   </button>
                 );
               };
