@@ -287,6 +287,9 @@ function Dashboard() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
+      <DashboardCountdown seconds={3} />
+
+
 
       {/* Top row: welcome + stats */}
       <motion.div
