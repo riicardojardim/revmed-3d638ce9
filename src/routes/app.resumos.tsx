@@ -551,7 +551,8 @@ function ResumosPage() {
                   </Button>
                 </div>
               </div>
-            </>
+            </div>
+
           )}
         </DialogContent>
       </Dialog>
