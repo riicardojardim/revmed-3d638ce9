@@ -43,7 +43,7 @@ export function PWAInstallBanner() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const dragStartRef = useState<{ x: number; id: number } | null>(null as { x: number; id: number } | null)[0] as unknown as { current: { x: number; id: number } | null };
+  const dragStartRef = useRef<{ x: number; id: number } | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
