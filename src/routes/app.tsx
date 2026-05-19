@@ -7,6 +7,14 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Home,
   ClipboardList,
   Dumbbell,
