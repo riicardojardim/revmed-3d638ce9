@@ -532,7 +532,10 @@ function ResumosPage() {
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 pt-7 text-white sm:px-6 sm:pb-7">
+              <div
+                className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 text-white sm:px-6 sm:pb-7"
+                style={{ paddingTop: "max(1.75rem, calc(env(safe-area-inset-top) + 0.75rem))" }}
+              >
                 {selectedSummary.cover_image_url && (
                   <>
                     <img
