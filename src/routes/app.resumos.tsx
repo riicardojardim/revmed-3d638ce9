@@ -281,39 +281,7 @@ function ResumosPage() {
           )}
         </div>
 
-        {/* Sidebar */}
-        <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <Link
-            to="/app/checklists"
-            className="block overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/60"
-          >
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
-              <ListChecks className="h-5 w-5" />
-            </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Banco de Checklists</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Treine com os checklists oficiais relacionados aos resumos.
-            </p>
-            <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-mint">
-              Abrir <ArrowRight className="h-4 w-4" />
-            </div>
-          </Link>
-          <Link
-            to="/app/flashcards"
-            className="block overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/60"
-          >
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
-              <Brain className="h-5 w-5" />
-            </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Flashcards</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Fixe o conteúdo do resumo com cards de revisão espaçada.
-            </p>
-            <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-mint">
-              Abrir <ArrowRight className="h-4 w-4" />
-            </div>
-          </Link>
-        </aside>
+
       </div>
 
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
