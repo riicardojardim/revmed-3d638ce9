@@ -45,15 +45,16 @@ function ResumosPage() {
   const [allSpec, setAllSpec] = useState<string>("Todas");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: items = [], isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ["resumos", "published"],
     staleTime: 60_000,
     queryFn: async (): Promise<Summary[]> => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("summaries")
         .select("id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at")
         .eq("published", true)
         .order("created_at", { ascending: false });
+      if (error) throw error;
       return (data ?? []) as Summary[];
     },
   });
@@ -415,7 +416,32 @@ function ResumosPage() {
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
         <DialogContent className="max-h-[85vh] w-[calc(100vw-1.5rem)] max-w-3xl overflow-y-auto p-0">
           {!selectedSummary ? (
-            <div className="p-8 text-sm text-muted-foreground">Carregando resumo...</div>
+            <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+              {error ? (
+                <>
+                  <AlertTriangle className="h-8 w-8 text-destructive" />
+                  <p className="text-sm font-medium text-foreground">Não foi possível carregar o resumo</p>
+                  <p className="text-xs text-muted-foreground">{(error as Error)?.message ?? "Erro inesperado."}</p>
+                  <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+                    {isFetching ? "Tentando..." : "Tentar novamente"}
+                  </Button>
+                </>
+              ) : isLoading || isFetching ? (
+                <>
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <p className="text-sm text-muted-foreground">Carregando resumo...</p>
+                </>
+              ) : (
+                <>
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm font-medium text-foreground">Resumo indisponível</p>
+                  <p className="text-xs text-muted-foreground">Este resumo pode ter sido despublicado. Atualize a lista e tente novamente.</p>
+                  <Button size="sm" variant="outline" onClick={() => { setSelectedId(null); refetch(); }}>
+                    Atualizar lista
+                  </Button>
+                </>
+              )}
+            </div>
           ) : (
             <>
               <div className="relative overflow-hidden rounded-t-lg bg-gradient-hero p-6 text-white">
