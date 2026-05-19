@@ -34,6 +34,28 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T | null> 
   ]);
 }
 
+const DEVICE_KEY = "er_device_id";
+function getDeviceId(): string {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY);
+    if (!id) {
+      id = (crypto as any)?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(DEVICE_KEY, id);
+    }
+    return id;
+  } catch {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+async function claimActiveSession(userId: string) {
+  const device_id = getDeviceId();
+  try {
+    await supabase
+      .from("user_active_session")
+      .upsert({ user_id: userId, device_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  } catch {}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
