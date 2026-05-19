@@ -7,6 +7,14 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Home,
   ClipboardList,
   Dumbbell,
@@ -321,12 +329,35 @@ function AppLayout() {
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <NotificationBell />
-            <UserAvatar
-              avatarUrl={profile?.avatar_url}
-              name={profile?.full_name ?? user.email}
-              size="md"
-              className="hidden sm:inline-flex"
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="hidden rounded-full outline-none ring-offset-background transition-shadow focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 sm:inline-flex"
+                  aria-label="Abrir menu do usuário"
+                >
+                  <UserAvatar
+                    avatarUrl={profile?.avatar_url}
+                    name={profile?.full_name ?? user.email}
+                    size="md"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="truncate">
+                  {profile?.full_name ?? user.email}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => nav({ to: "/app/perfil" })}>
+                  <User className="mr-2 h-4 w-4" />
+                  Perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
