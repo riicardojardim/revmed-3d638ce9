@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, List, X, Pencil, Clock, Timer, Search, Brain, ArrowRight, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, X, Pencil, Clock, Timer, Search, Brain, ArrowRight, TrendingUp, ListChecks } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
+import { createSimulado } from "@/lib/simulado";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
@@ -26,9 +27,11 @@ type Deck = {
   specialty: string;
   topic: string | null;
   cover_image_url: string | null;
+  station_id: string | null;
 };
 type Card = { id: string; front: string; back: string; position: number };
 type Review = { card_id: string; ease: number; interval_days: number; reviews_count: number };
+type SuggestedStation = { id: string; title: string; specialty: string; checklistCount: number };
 
 type Step = "list" | "cover" | "play";
 
