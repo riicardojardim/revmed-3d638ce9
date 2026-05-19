@@ -587,12 +587,21 @@ function HowItWorks() {
   );
 }
 
-/* ---------------- Simulation (3 roles) ---------------- */
+/* ---------------- Simulation (2 roles: candidato + ator) ---------------- */
 function Simulation() {
   const roles = [
-    { icon: UserRound, title: "Candidato", desc: "Atua no caso clínico sem ver o checklist — como na prova.", highlight: false },
-    { icon: Theater, title: "Paciente ator", desc: "Recebe roteiro com história, emoções e gatilhos de fala.", highlight: false },
-    { icon: ClipboardCheck, title: "Banca examinadora", desc: "Corrige pelo checklist oficial e devolve feedback no fim.", highlight: true },
+    {
+      icon: UserRound,
+      title: "Candidato",
+      desc: "Atua no caso clínico sem ver o checklist — exatamente como na prova real. Vê impressos, faz anotações e conduz a estação.",
+      highlight: true,
+    },
+    {
+      icon: Theater,
+      title: "Paciente ator",
+      desc: "Recebe roteiro com história, emoções, gatilhos de fala e marca o checklist oficial enquanto o candidato conduz.",
+      highlight: false,
+    },
   ];
 
   return (
@@ -613,13 +622,14 @@ function Simulation() {
             Diferencial exclusivo
           </div>
           <h2 className="font-display text-3xl font-extrabold leading-tight md:text-4xl">
-            Treine em equipe,{" "}
+            Treine em dupla,{" "}
             <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
-              aprenda em 3 dimensões.
+              aprenda dos dois lados.
             </span>
           </h2>
           <p className="max-w-lg text-base leading-relaxed text-white/70">
-            Vídeo nativo na plataforma: troque de papel e entenda exatamente o que a banca procura.
+            Vídeo nativo na plataforma. Hoje você é candidato, amanhã é ator —
+            ver o checklist por trás muda como você responde na prova.
           </p>
           <ul className="space-y-2.5 pt-1">
             {[
