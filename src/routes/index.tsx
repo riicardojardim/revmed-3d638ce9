@@ -278,14 +278,19 @@ function Hero() {
           className="relative z-10 order-3 w-full space-y-5 sm:space-y-6 lg:order-none lg:col-start-1"
         >
           <div className="flex flex-col gap-2.5 pt-1 sm:flex-row sm:flex-wrap sm:gap-3">
-            <Button
-              size="lg"
-              onClick={scrollToPlanos}
-              className="h-12 w-full rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90 sm:w-auto"
-            >
-              Ver planos e começar
-              <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
+            <Magnetic strength={0.35} className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                onClick={scrollToPlanos}
+                className="group relative h-12 w-full overflow-hidden rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90 sm:w-auto"
+              >
+                <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                <span className="relative inline-flex items-center">
+                  Ver planos e começar
+                  <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+              </Button>
+            </Magnetic>
           </div>
 
           <div className="flex flex-nowrap items-center gap-x-3 gap-y-2 overflow-x-auto pt-1 text-[11px] text-muted-foreground sm:flex-wrap sm:text-xs">
