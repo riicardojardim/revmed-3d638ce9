@@ -217,13 +217,8 @@ function ResumoPage() {
         </div>
       )}
 
-      <RelatedResources
-        specialty={s.specialty}
-        title={s.title}
-        show={{ checklist: true, flashcard: true }}
-        excludeResumoId={s.id}
-        heading="Continue estudando este tema"
-      />
+
+
     </article>
   );
 }
