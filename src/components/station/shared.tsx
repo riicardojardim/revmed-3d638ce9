@@ -231,7 +231,7 @@ export function ScriptText({ text, className, strikeable, prefix, struck, toggle
   };
   const lines = safe.split("\n");
   return (
-    <div className={cn("whitespace-pre-wrap leading-relaxed", className)}>
+    <div className={cn("min-w-0 whitespace-pre-wrap break-words leading-relaxed", className)}>
       {lines.map((ln, i) => {
         if (ln.trim() === "") return <div key={i} className="h-4" aria-hidden />;
         return <div key={i}>{renderLine(ln, `l${i}`)}</div>;
