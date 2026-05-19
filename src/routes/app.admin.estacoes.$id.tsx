@@ -2327,3 +2327,253 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
     </div>
   );
 }
+
+// ============= Resumo gerado por IA =============
+
+type GeneratedSummary = {
+  id: string;
+  title: string;
+  specialty: string;
+  topic: string | null;
+  difficulty: string;
+  read_time_minutes: number;
+  high_yield: boolean;
+  definition: string | null;
+  clinical_picture: string | null;
+  diagnosis: string | null;
+  conduct: string | null;
+  key_points: string | null;
+  pitfalls: string | null;
+  content_md: string | null;
+};
+
+function SectionGenerateSummary({ station }: { station: Station }) {
+  const generate = useServerFn(generateSummaryFromStation);
+  const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState<GeneratedSummary | null>(null);
+  const [published, setPublished] = useState(false);
+  const [pubLoading, setPubLoading] = useState(false);
+  const [linked, setLinked] = useState<Array<{ id: string; title: string; published: boolean; created_at: string }>>([]);
+
+  async function loadLinked() {
+    const { data } = await supabase
+      .from("summaries")
+      .select("id,title,published,created_at")
+      .eq("specialty", station.specialty)
+      .order("created_at", { ascending: false })
+      .limit(8);
+    setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
+  }
+  useEffect(() => { void loadLinked(); }, [station.id, station.specialty]);
+
+  async function run() {
+    if (!station.title?.trim() || !station.specialty?.trim()) {
+      toast.error("Preencha pelo menos o título e a área da estação.");
+      return;
+    }
+    setLoading(true);
+    setSummary(null);
+    setPublished(false);
+    try {
+      const res = await generate({
+        data: {
+          station_id: station.id,
+          title: station.title,
+          specialty: station.specialty,
+          topic: null,
+          clinical_case: station.clinical_case ?? null,
+          candidate_task: station.candidate_task ?? null,
+          educational_goal: station.educational_goal ?? null,
+          expected_conduct: station.expected_conduct ?? null,
+          common_mistakes: station.common_mistakes ?? null,
+          scoring_criteria: station.scoring_criteria ?? null,
+          references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+        },
+      });
+      setSummary(res.summary as GeneratedSummary);
+      toast.success("Resumo pronto!");
+      void loadLinked();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error("Falha ao gerar resumo", { description: msg });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function togglePublish() {
+    if (!summary) return;
+    setPubLoading(true);
+    const next = !published;
+    const { error } = await supabase.from("summaries").update({ published: next }).eq("id", summary.id);
+    setPubLoading(false);
+    if (error) return toast.error("Falha ao publicar", { description: error.message });
+    setPublished(next);
+    toast.success(next ? "Resumo publicado para os alunos" : "Resumo despublicado");
+  }
+
+  return (
+    <Section
+      title="Gerar Resumo desta estação"
+      hint="A IA cria um resumo estruturado (Definição, Quadro clínico, Diagnóstico, Conduta, Pontos-chave, Armadilhas) usando SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras (SBC, SBP, FEBRASGO…), matriz do Revalida/INEP e guidelines internacionais consagradas."
+    >
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-mint/20 p-2 text-mint">
+            <BookOpen className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="font-semibold">Resumo clínico baseado em evidências</div>
+            <div className="text-xs text-muted-foreground">
+              Fontes oficiais MS / ANVISA / SUS / sociedades brasileiras. A IA cita as fontes usadas.
+            </div>
+          </div>
+        </div>
+        <div className="ml-auto">
+          <Button variant="hero" onClick={run} disabled={loading}>
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar Resumo</>}
+          </Button>
+        </div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Sempre revise doses, contraindicações e critérios antes de publicar para os alunos.
+      </p>
+
+      {summary && (
+        <InlineSummaryPreview
+          summary={summary}
+          published={published}
+          pubLoading={pubLoading}
+          onTogglePublish={togglePublish}
+        />
+      )}
+
+      {linked.length > 0 && (
+        <div className="mt-3 rounded-xl border border-border bg-card p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-sm font-display font-bold">Resumos recentes ({station.specialty})</div>
+            <Badge variant="outline">{linked.length}</Badge>
+          </div>
+          <div className="divide-y divide-border">
+            {linked.map((s) => (
+              <div key={s.id} className="flex flex-wrap items-center gap-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{s.title}</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    {new Date(s.created_at).toLocaleDateString("pt-BR")}
+                  </div>
+                </div>
+                {s.published
+                  ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
+                  : <Badge variant="outline">Rascunho</Badge>}
+                <Link
+                  to="/app/resumos/$id"
+                  params={{ id: s.id }}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
+                >
+                  Abrir →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Section>
+  );
+}
+
+function InlineSummaryPreview({
+  summary, published, pubLoading, onTogglePublish,
+}: {
+  summary: GeneratedSummary;
+  published: boolean;
+  pubLoading: boolean;
+  onTogglePublish: () => void;
+}) {
+  const meta = getSpecialtyMeta(summary.specialty);
+  const Block = ({
+    icon: Icon, title, text, tone = "default",
+  }: { icon: ComponentType<{ className?: string }>; title: string; text: string | null; tone?: "default" | "highlight" | "warn" }) => {
+    if (!text || !text.trim()) return null;
+    const toneCls =
+      tone === "highlight" ? "border-mint/30 bg-mint/5"
+      : tone === "warn" ? "border-amber-400/30 bg-amber-400/5"
+      : "border-border bg-background";
+    const iconCls =
+      tone === "highlight" ? "text-mint"
+      : tone === "warn" ? "text-amber-500"
+      : "text-muted-foreground";
+    return (
+      <section className={cn("rounded-2xl border p-4", toneCls)}>
+        <div className="flex items-center gap-2">
+          <Icon className={cn("h-4 w-4", iconCls)} />
+          <h4 className="font-display text-xs font-bold uppercase tracking-wide">{title}</h4>
+        </div>
+        <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{text}</div>
+      </section>
+    );
+  };
+
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex items-center gap-2 text-sm">
+          <Eye className="h-4 w-4 text-mint" />
+          <span className="font-display font-bold">Pré-visualização do aluno</span>
+          {published && (
+            <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={onTogglePublish} disabled={pubLoading}>
+            {pubLoading
+              ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</>
+              : published
+                ? <><EyeOff className="h-4 w-4" /> Despublicar</>
+                : <><Eye className="h-4 w-4" /> Publicar</>}
+          </Button>
+          <Link
+            to="/app/resumos/$id"
+            params={{ id: summary.id }}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+          >
+            Abrir página completa →
+          </Link>
+        </div>
+      </div>
+
+      <header className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cn("rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white", meta.solid)}>
+            {meta.code}
+          </span>
+          <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {summary.difficulty}
+          </span>
+          {summary.high_yield && (
+            <span className="rounded-md bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 ring-1 ring-amber-400/30">
+              Alta incidência
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Clock className="h-3 w-3" /> {summary.read_time_minutes} min
+          </span>
+        </div>
+        <h3 className="font-display text-2xl font-bold leading-tight">{summary.title}</h3>
+        {summary.topic && <div className="text-xs text-muted-foreground">{summary.topic}</div>}
+      </header>
+
+      <div className="space-y-3">
+        <Block icon={BookOpen} title="Definição" text={summary.definition} />
+        <Block icon={Stethoscope} title="Quadro clínico" text={summary.clinical_picture} />
+        <Block icon={FileText} title="Diagnóstico" text={summary.diagnosis} />
+        <Block icon={ClipboardCheck} title="Conduta" text={summary.conduct} />
+        <Block icon={Target} title="Pontos-chave da prova" text={summary.key_points} tone="highlight" />
+        <Block icon={AlertTriangle} title="Armadilhas e erros comuns" text={summary.pitfalls} tone="warn" />
+        {summary.content_md && summary.content_md.trim() && (
+          <Block icon={StickyNote} title="Fontes" text={summary.content_md} />
+        )}
+      </div>
+    </div>
+  );
+}
