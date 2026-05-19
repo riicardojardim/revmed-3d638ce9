@@ -20,40 +20,72 @@ const InputSchema = z.object({
   expected_conduct: z.string().max(10_000).optional().nullable(),
   common_mistakes: z.string().max(10_000).optional().nullable(),
   scoring_criteria: z.string().max(10_000).optional().nullable(),
-  references: z.array(z.object({ label: z.string(), url: z.string().optional() })).max(40).optional(),
-  checklist_items: z.array(ChecklistItemSchema).min(1, "O checklist (PEP) precisa ter pelo menos 1 item preenchido para gerar o resumo.").max(200),
+  references: z
+    .array(z.object({ label: z.string(), url: z.string().optional() }))
+    .max(40)
+    .optional(),
+  checklist_items: z
+    .array(ChecklistItemSchema)
+    .min(1, "O checklist (PEP) precisa ter pelo menos 1 item preenchido para gerar o resumo.")
+    .max(200),
 });
 
-const coerceText = (max: number, min = 10) => z.preprocess((value) => {
-  if (value == null) return "";
-  if (Array.isArray(value)) return value.map((v) => String(v ?? "")).join("\n").trim().slice(0, max);
-  return String(value).trim().slice(0, max);
-}, z.string().min(min).max(max));
+const coerceText = (max: number, min = 10) =>
+  z.preprocess((value) => {
+    if (value == null) return "";
+    if (Array.isArray(value))
+      return value
+        .map((v) => String(v ?? ""))
+        .join("\n")
+        .trim()
+        .slice(0, max);
+    return String(value).trim().slice(0, max);
+  }, z.string().min(min).max(max));
 
 const ResultSchema = z.object({
   title: coerceText(200, 3),
-  topic: z.preprocess((value) => (value == null ? null : String(value).trim().slice(0, 200)), z.string().max(200).nullable()).optional(),
-  difficulty: z.preprocess((value) => {
-    const v = String(value ?? "").toLowerCase();
-    if (v.includes("av")) return "Avançado";
-    if (v.includes("b")) return "Básico";
-    return "Intermediário";
-  }, z.enum(["Básico", "Intermediário", "Avançado"])).default("Intermediário"),
+  topic: z
+    .preprocess(
+      (value) => (value == null ? null : String(value).trim().slice(0, 200)),
+      z.string().max(200).nullable(),
+    )
+    .optional(),
+  difficulty: z
+    .preprocess(
+      (value) => {
+        const v = String(value ?? "").toLowerCase();
+        if (v.includes("av")) return "Avançado";
+        if (v.includes("b")) return "Básico";
+        return "Intermediário";
+      },
+      z.enum(["Básico", "Intermediário", "Avançado"]),
+    )
+    .default("Intermediário"),
   read_time_minutes: z.coerce.number().int().min(2).max(30).catch(7),
-  high_yield: z.preprocess((value) => {
-    if (typeof value === "string") return /^(true|sim|yes|1|alta)/i.test(value.trim());
-    return value;
-  }, z.boolean()).catch(false),
+  high_yield: z
+    .preprocess((value) => {
+      if (typeof value === "string") return /^(true|sim|yes|1|alta)/i.test(value.trim());
+      return value;
+    }, z.boolean())
+    .catch(false),
   definition: coerceText(3500, 20),
   clinical_picture: coerceText(4500, 20),
   diagnosis: coerceText(5000, 20),
   conduct: coerceText(7000, 20),
   key_points: coerceText(3500, 10),
   pitfalls: coerceText(3500, 10),
-  sources: z.preprocess((value) => {
-    const list = Array.isArray(value) ? value : value ? [value] : [];
-    return list.map((s) => String(s).trim().slice(0, 200)).filter(Boolean).slice(0, 15);
-  }, z.array(z.string().max(200)).max(15)).default([]),
+  sources: z
+    .preprocess(
+      (value) => {
+        const list = Array.isArray(value) ? value : value ? [value] : [];
+        return list
+          .map((s) => String(s).trim().slice(0, 200))
+          .filter(Boolean)
+          .slice(0, 15);
+      },
+      z.array(z.string().max(200)).max(15),
+    )
+    .default([]),
 });
 
 const SYSTEM_PROMPT = `Você é um professor médico brasileiro, especialista em preparação para o Revalida/INEP, com domínio profundo de medicina baseada em evidências.
@@ -136,7 +168,8 @@ async function callGateway(apiKey: string, userText: string, model: string, time
   }
   if (!res.ok) {
     const txt = await res.text();
-    if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
+    if (res.status === 429)
+      throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
     throw new Error(`AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
   }
@@ -146,8 +179,9 @@ async function callGateway(apiKey: string, userText: string, model: string, time
   }
   const content = json.choices?.[0]?.message?.content ?? "{}";
   let parsed: unknown;
-  try { parsed = JSON.parse(content); }
-  catch {
+  try {
+    parsed = JSON.parse(content);
+  } catch {
     const m = content.match(/\{[\s\S]*\}/);
     parsed = m ? JSON.parse(m[0]) : {};
   }
@@ -179,14 +213,20 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
     "",
     input.educational_goal ? `OBJETIVO EDUCACIONAL:\n${input.educational_goal}` : "",
     input.candidate_task ? `\nTAREFA DO CANDIDATO:\n${input.candidate_task}` : "",
-    input.clinical_case ? `\nCASO CLÍNICO (use apenas para inferir o tema; NÃO cite o paciente no resumo):\n${input.clinical_case.slice(0, 4000)}` : "",
+    input.clinical_case
+      ? `\nCASO CLÍNICO (use apenas para inferir o tema; NÃO cite o paciente no resumo):\n${input.clinical_case.slice(0, 4000)}`
+      : "",
     input.expected_conduct ? `\nCONDUTA ESPERADA:\n${input.expected_conduct.slice(0, 3000)}` : "",
     input.common_mistakes ? `\nERROS COMUNS:\n${input.common_mistakes.slice(0, 2000)}` : "",
-    input.scoring_criteria ? `\nCRITÉRIOS DE AVALIAÇÃO:\n${input.scoring_criteria.slice(0, 2000)}` : "",
+    input.scoring_criteria
+      ? `\nCRITÉRIOS DE AVALIAÇÃO:\n${input.scoring_criteria.slice(0, 2000)}`
+      : "",
     refs ? `\nREFERÊNCIAS DECLARADAS NA ESTAÇÃO:\n${refs}` : "",
     "",
     `Retorne SOMENTE o JSON do schema. O campo "title" deve ser EXATAMENTE "${input.title}". Verifique cada dose, valor de corte e critério antes de gerar — se houver dúvida, generalize com segurança.`,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 // ============================================================
@@ -195,9 +235,11 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
 type StructIssue = { field: string; severity: "error" | "warn"; message: string };
 
 const CITATION_RE = /\[[^\]\n]{3,120}\]/;
-const DOSE_NO_UNIT_RE = /\b\d+(?:[.,]\d+)?\s*(?!mg|mcg|µg|g\b|kg|ml|mL|L\b|UI|U\b|gotas|cp|cps|comprimid|%|mmHg|mEq|mmol|mol|h\b|dia|min|sem|°C|x\/dia|\/dia|\/kg|\/m²|anos?|meses)[a-zA-Zµ]{1,4}\b/;
+const DOSE_NO_UNIT_RE =
+  /\b\d+(?:[.,]\d+)?\s*(?!mg|mcg|µg|g\b|kg|ml|mL|L\b|UI|U\b|gotas|cp|cps|comprimid|%|mmHg|mEq|mmol|mol|h\b|dia|min|sem|°C|x\/dia|\/dia|\/kg|\/m²|anos?|meses)[a-zA-Zµ]{1,4}\b/;
 const PLACEHOLDER_RE = /\b(xxx+|\?\?\?+|TODO|FIXME|lorem ipsum|placeholder)\b/i;
-const LOW_CONFIDENCE_RE = /\b(talvez|possivelmente|pode ser que|acredito que|n[aã]o tenho certeza)\b/i;
+const LOW_CONFIDENCE_RE =
+  /\b(talvez|possivelmente|pode ser que|acredito que|n[aã]o tenho certeza)\b/i;
 
 function structuralCheck(r: z.infer<typeof ResultSchema>): StructIssue[] {
   const issues: StructIssue[] = [];
@@ -211,22 +253,41 @@ function structuralCheck(r: z.infer<typeof ResultSchema>): StructIssue[] {
   ];
   for (const [key, label, requireCit] of fields) {
     const text = String(r[key] ?? "");
-    if (!text.trim()) { issues.push({ field: label, severity: "error", message: "Seção vazia." }); continue; }
+    if (!text.trim()) {
+      issues.push({ field: label, severity: "error", message: "Seção vazia." });
+      continue;
+    }
     if (requireCit && !CITATION_RE.test(text)) {
-      issues.push({ field: label, severity: "error", message: "Falta citação inline (ex.: [MS — PCDT ...])." });
+      issues.push({
+        field: label,
+        severity: "error",
+        message: "Falta citação inline (ex.: [MS — PCDT ...]).",
+      });
     }
     if (PLACEHOLDER_RE.test(text)) {
       issues.push({ field: label, severity: "error", message: "Placeholder não preenchido." });
     }
     if (LOW_CONFIDENCE_RE.test(text)) {
-      issues.push({ field: label, severity: "warn", message: "Linguagem de baixa confiança — generalize ou cite a fonte." });
+      issues.push({
+        field: label,
+        severity: "warn",
+        message: "Linguagem de baixa confiança — generalize ou cite a fonte.",
+      });
     }
   }
   if (DOSE_NO_UNIT_RE.test(r.conduct)) {
-    issues.push({ field: "Conduta", severity: "warn", message: "Possível número sem unidade clara (mg, mg/kg, UI, mL...)." });
+    issues.push({
+      field: "Conduta",
+      severity: "warn",
+      message: "Possível número sem unidade clara (mg, mg/kg, UI, mL...).",
+    });
   }
   if (!r.sources || r.sources.length < 2) {
-    issues.push({ field: "Referências", severity: "error", message: "Menos de 2 fontes oficiais declaradas." });
+    issues.push({
+      field: "Referências",
+      severity: "error",
+      message: "Menos de 2 fontes oficiais declaradas.",
+    });
   }
   return issues;
 }
@@ -236,19 +297,26 @@ function structuralCheck(r: z.infer<typeof ResultSchema>): StructIssue[] {
 // ============================================================
 const VerifierResultSchema = z.object({
   verdict: z.enum(["aprovado", "aprovado_com_correcoes", "reprovado"]),
-  issues: z.array(z.object({
-    field: z.string().max(60),
-    severity: z.enum(["error", "warn"]),
-    message: z.string().max(400),
-  })).max(20).default([]),
-  corrections: z.object({
-    definition: z.string().optional(),
-    clinical_picture: z.string().optional(),
-    diagnosis: z.string().optional(),
-    conduct: z.string().optional(),
-    key_points: z.string().optional(),
-    pitfalls: z.string().optional(),
-  }).default({}),
+  issues: z
+    .array(
+      z.object({
+        field: z.string().max(60),
+        severity: z.enum(["error", "warn"]),
+        message: z.string().max(400),
+      }),
+    )
+    .max(20)
+    .default([]),
+  corrections: z
+    .object({
+      definition: z.string().optional(),
+      clinical_picture: z.string().optional(),
+      diagnosis: z.string().optional(),
+      conduct: z.string().optional(),
+      key_points: z.string().optional(),
+      pitfalls: z.string().optional(),
+    })
+    .default({}),
 });
 
 const VERIFIER_SYSTEM = `Você é um REVISOR médico sênior brasileiro, especialista em medicina baseada em evidências e na matriz do Revalida/INEP.
@@ -291,7 +359,11 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "X-Lovable-AIG-SDK": "vercel-ai-sdk",
+      },
       body: JSON.stringify({
         model: "google/gemini-2.5-pro",
         messages: [
@@ -308,8 +380,12 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const content = json.choices?.[0]?.message?.content ?? "{}";
     let parsed: unknown;
-    try { parsed = JSON.parse(content); }
-    catch { const m = content.match(/\{[\s\S]*\}/); parsed = m ? JSON.parse(m[0]) : {}; }
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      parsed = m ? JSON.parse(m[0]) : {};
+    }
     return VerifierResultSchema.parse(parsed);
   } finally {
     clearTimeout(timer);
@@ -321,7 +397,11 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
 // ============================================================
 type SupabaseClientLike = {
   from: (table: string) => {
-    insert: (row: Record<string, unknown>) => { select: (cols: string) => { single: () => Promise<{ data: unknown; error: { message: string } | null }> } };
+    insert: (row: Record<string, unknown>) => {
+      select: (cols: string) => {
+        single: () => Promise<{ data: unknown; error: { message: string } | null }>;
+      };
+    };
   };
 };
 
@@ -366,9 +446,10 @@ export async function generateAndSaveSummary(
   const hasBlockingError =
     verifier?.verdict === "reprovado" || structIssues.some((i) => i.severity === "error");
 
-  const sourcesBlock = result.sources && result.sources.length
-    ? `\n\nFontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
-    : "";
+  const sourcesBlock =
+    result.sources && result.sources.length
+      ? `\n\nFontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
+      : "";
   const auditBlock = (() => {
     if (allIssues.length === 0 && verifier?.verdict === "aprovado") {
       return "\n\nValidação automática: APROVADO (checagem estrutural + revisão IA).";
@@ -398,7 +479,9 @@ export async function generateAndSaveSummary(
       content_md: (sourcesBlock + auditBlock).trim(),
       published: false,
     })
-    .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md, station_id")
+    .select(
+      "id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md, station_id",
+    )
     .single();
   if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");
 
@@ -416,6 +499,9 @@ export const generateSummaryFromStation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    return generateAndSaveSummary(data, context.supabase as unknown as SupabaseClientLike, context.userId);
+    return generateAndSaveSummary(
+      data,
+      context.supabase as unknown as SupabaseClientLike,
+      context.userId,
+    );
   });
-
