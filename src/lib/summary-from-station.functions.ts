@@ -211,7 +211,7 @@ async function callGateway(apiKey: string, userText: string, model: string, time
     const m = content.match(/\{[\s\S]*\}/);
     parsed = m ? JSON.parse(m[0]) : {};
   }
-  return ResultSchema.parse(parsed);
+  return ResultSchema.parse(normalizeGatewayResult(parsed));
 }
 
 function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
