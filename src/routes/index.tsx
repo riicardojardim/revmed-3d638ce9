@@ -1536,7 +1536,7 @@ const testimonials = [
 
 function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
   return (
-    <div className="w-[78vw] max-w-[320px] shrink-0 rounded-2xl border border-border bg-card p-5 shadow-card sm:w-auto sm:max-w-none">
+    <div className="w-[78vw] max-w-[320px] shrink-0 rounded-2xl border border-border bg-card p-5 shadow-card sm:w-[44vw] sm:max-w-[360px] lg:w-auto lg:max-w-none">
       <div className="flex gap-0.5 text-mint">
         {Array.from({ length: 5 }).map((_, k) => (
           <Star key={k} className="h-3.5 w-3.5 fill-current" />
@@ -1567,8 +1567,8 @@ function Testimonials() {
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina com a gente" />
 
-        {/* Mobile: marquee em 1 linha */}
-        <div className="relative mt-8 overflow-hidden sm:hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+        {/* Mobile + tablet: marquee horizontal */}
+        <div className="relative mt-8 overflow-hidden lg:hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
           <div className="flex w-max gap-4 animate-marquee">
             {[...testimonials, ...testimonials].map((t, i) => (
               <TestimonialCard key={`${t.name}-${i}`} t={t} />
@@ -1576,8 +1576,8 @@ function Testimonials() {
           </div>
         </div>
 
-        {/* sm+: grid */}
-        <div className="mt-10 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+        {/* lg+: grid */}
+        <div className="mt-10 hidden gap-4 lg:grid lg:grid-cols-3">
           {testimonials.map((t) => (
             <TestimonialCard key={t.name} t={t} />
           ))}
