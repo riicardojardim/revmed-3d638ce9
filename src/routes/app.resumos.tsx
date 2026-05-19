@@ -515,14 +515,6 @@ function ResumosPage() {
                     </ul>
                   </section>
                 )}
-
-                <div className="flex justify-end pt-2">
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/app/resumos/$id" params={{ id: selectedSummary.id }} onClick={() => setSelectedId(null)}>
-                      Abrir resumo completo <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
-                </div>
               </div>
             </div>
 
