@@ -384,11 +384,7 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button:last-child]:hidden">
-          <DialogClose className="absolute right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Fechar</span>
-          </DialogClose>
+        <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
           {!selectedSummary ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
               {error ? (
@@ -418,7 +414,7 @@ function ResumosPage() {
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-5 pt-7 text-white sm:px-6 sm:pb-6">
+              <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 pt-7 text-white sm:px-6 sm:pb-7">
                 {selectedSummary.cover_image_url && (
                   <>
                     <img
@@ -429,17 +425,23 @@ function ResumosPage() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                   </>
                 )}
-                <div className="relative pr-16">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <SpecialtyBadge specialty={selectedSummary.specialty} short />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
-                      {selectedSummary.specialty}
-                    </span>
+                <div className="relative space-y-3 pr-14">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <SpecialtyBadge specialty={selectedSummary.specialty} short />
+                      <span className="min-w-0 text-[11px] font-semibold uppercase tracking-wider text-white/75">
+                        {selectedSummary.specialty}
+                      </span>
+                    </div>
+                    <DialogClose className="-mr-1 -mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Fechar</span>
+                    </DialogClose>
                   </div>
-                  <DialogTitle className="mt-2 font-display text-xl font-bold leading-tight text-white sm:text-2xl">
+                  <DialogTitle className="font-display text-xl font-bold leading-tight text-white sm:text-2xl">
                     {selectedSummary.title || "Resumo clínico"}
                   </DialogTitle>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {selectedSummary.high_yield && (
                       <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                         Alta incidência
