@@ -385,37 +385,37 @@ function RitmoCard({
 }
 
 const MOTIVATIONS: { title: string; sub: string }[] = [
-  { title: "Constância vence talento.", sub: "Pequenos passos diários constroem grandes aprovações." },
-  { title: "Hoje é mais um tijolo na sua aprovação.", sub: "Cada estação treinada conta. Não subestime o acúmulo." },
-  { title: "Você não precisa ser perfeito, precisa ser presente.", sub: "Disciplina supera motivação. Apareça todos os dias." },
-  { title: "A aprovação se constrói no silêncio do estudo.", sub: "Enquanto outros descansam, você se prepara." },
-  { title: "Foque no processo, o resultado virá.", sub: "Cada checklist é uma vitória silenciosa." },
-  { title: "Quem treina diferente, prova diferente.", sub: "Você está fazendo o que poucos têm coragem de fazer." },
-  { title: "Repetição é a mãe da maestria.", sub: "Refaça, refine, repita. A excelência é um hábito." },
-  { title: "Sua próxima estação é a mais importante.", sub: "Esqueça os erros de ontem, foque no agora." },
-  { title: "Cansaço passa, aprovação fica.", sub: "Lembre por que começou e siga." },
-  { title: "Acredite no plano, mesmo quando não vê resultado.", sub: "Toda evolução é invisível antes de ser inevitável." },
-  { title: "A pressão revela o preparo.", sub: "Treine sob pressão para prosperar na prova." },
-  { title: "Errar treinando é proteger seu futuro.", sub: "Cada erro hoje é um acerto na hora certa." },
-  { title: "Disciplina é liberdade.", sub: "O preço da aprovação é menor do que o do arrependimento." },
-  { title: "Não compare seu capítulo 3 com o capítulo 30 de outro.", sub: "Seu ritmo é seu. Confie nele." },
-  { title: "Você é capaz. Sempre foi.", sub: "Lembre da sua história até aqui." },
-  { title: "Um dia de cada vez, uma estação de cada vez.", sub: "É assim que se constrói um médico aprovado." },
-  { title: "Treine como se a prova fosse amanhã.", sub: "Quando ela chegar, vai parecer mais uma estação." },
-  { title: "Sua dedicação é sua maior vantagem.", sub: "Talento abre portas, esforço mantém você dentro." },
-  { title: "O Revalida recompensa quem persiste.", sub: "Persistir é o seu superpoder." },
-  { title: "Não pare quando estiver cansado, pare quando terminar.", sub: "Mais uma estação. Só mais uma." },
-  { title: "A excelência é um detalhe repetido.", sub: "Cuide do checklist, o checklist cuida da nota." },
-  { title: "Você está mais perto hoje do que ontem.", sub: "Cada dia de estudo encurta a distância." },
-  { title: "A prova premia rotina, não milagre.", sub: "Mantenha o ritmo, confie no método." },
-  { title: "Cada paciente simulado é um real no futuro.", sub: "Treine com respeito, atenda com excelência." },
-  { title: "Foco no controlável: seu esforço hoje.", sub: "O resto se resolve com tempo e técnica." },
-  { title: "Você já fez coisas mais difíceis.", sub: "Olhe para trás e veja o quanto já caminhou." },
-  { title: "Cada minuto investido aqui vale uma hora na prova.", sub: "Prepare-se agora, brilhe depois." },
-  { title: "Aprovação não é sorte, é matemática de esforço.", sub: "Some os dias. O resultado é inevitável." },
-  { title: "Respire, refoque e refaça.", sub: "Estações ruins fazem parte. Levante e siga." },
-  { title: "Quem treina o básico bem, faz o avançado fácil.", sub: "Domine o checklist. Vença a prova." },
-  { title: "O médico que você quer ser começa aqui.", sub: "Cada estação é um passo nessa direção." },
+  { title: "“Tudo posso naquele que me fortalece.”", sub: "Filipenses 4:13" },
+  { title: "“O Senhor é o meu pastor, nada me faltará.”", sub: "Salmos 23:1" },
+  { title: "“Posso todas as coisas em Cristo que me fortalece.”", sub: "Filipenses 4:13" },
+  { title: "“Entrega o teu caminho ao Senhor; confia nele, e ele tudo fará.”", sub: "Salmos 37:5" },
+  { title: "“Não temas, porque eu sou contigo; não te assombres, porque eu sou o teu Deus.”", sub: "Isaías 41:10" },
+  { title: "“Os que esperam no Senhor renovarão as suas forças.”", sub: "Isaías 40:31" },
+  { title: "“Buscai primeiro o Reino de Deus e a sua justiça, e tudo o mais vos será acrescentado.”", sub: "Mateus 6:33" },
+  { title: "“Bem-aventurados os que choram, porque serão consolados.”", sub: "Mateus 5:4" },
+  { title: "“Aquietai-vos e sabei que eu sou Deus.”", sub: "Salmos 46:10" },
+  { title: "“O Senhor é a minha luz e a minha salvação; a quem temerei?”", sub: "Salmos 27:1" },
+  { title: "“Lança o teu cuidado sobre o Senhor, e ele te susterá.”", sub: "Salmos 55:22" },
+  { title: "“Confia no Senhor de todo o teu coração e não te estribes no teu próprio entendimento.”", sub: "Provérbios 3:5" },
+  { title: "“Sede fortes e corajosos; não temais.”", sub: "Deuteronômio 31:6" },
+  { title: "“Tudo tem o seu tempo determinado.”", sub: "Eclesiastes 3:1" },
+  { title: "“A alegria do Senhor é a vossa força.”", sub: "Neemias 8:10" },
+  { title: "“O amor é paciente, o amor é bondoso.”", sub: "1 Coríntios 13:4" },
+  { title: "“Mas os que esperam no Senhor renovarão as forças, subirão com asas como águias.”", sub: "Isaías 40:31" },
+  { title: "“Deus é o nosso refúgio e fortaleza, socorro bem presente nas tribulações.”", sub: "Salmos 46:1" },
+  { title: "“Não andeis ansiosos por coisa alguma.”", sub: "Filipenses 4:6" },
+  { title: "“E conhecereis a verdade, e a verdade vos libertará.”", sub: "João 8:32" },
+  { title: "“Pedi, e dar-se-vos-á; buscai, e encontrareis.”", sub: "Mateus 7:7" },
+  { title: "“O Senhor pelejará por vós, e vós vos calareis.”", sub: "Êxodo 14:14" },
+  { title: "“Eu sou o caminho, a verdade e a vida.”", sub: "João 14:6" },
+  { title: "“Tudo coopera para o bem daqueles que amam a Deus.”", sub: "Romanos 8:28" },
+  { title: "“Sê forte e corajoso; o Senhor, teu Deus, é contigo por onde quer que andares.”", sub: "Josué 1:9" },
+  { title: "“Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho.”", sub: "Salmos 119:105" },
+  { title: "“Onde está o teu tesouro, aí estará também o teu coração.”", sub: "Mateus 6:21" },
+  { title: "“Bem-aventurado o homem que confia no Senhor.”", sub: "Jeremias 17:7" },
+  { title: "“Se Deus é por nós, quem será contra nós?”", sub: "Romanos 8:31" },
+  { title: "“A paz vos deixo, a minha paz vos dou.”", sub: "João 14:27" },
+  { title: "“Examinai tudo. Retende o bem.”", sub: "1 Tessalonicenses 5:21" },
 ];
 
 function pickDailyIndex(seed: string, len: number) {
@@ -435,7 +435,7 @@ function DailyMotivationCard({ userId }: { userId: string }) {
   const m = useMemo(() => MOTIVATIONS[pickDailyIndex(userId, MOTIVATIONS.length)], [userId]);
   return (
     <div className="rounded-2xl border border-border bg-gradient-to-br from-mint/10 via-card to-card p-5 shadow-card">
-      <h3 className="font-display font-bold text-mint">Inspiração do dia</h3>
+      <h3 className="font-display font-bold text-mint">Versículo do dia</h3>
       <p className="mt-3 text-sm font-medium text-foreground">{m.title}</p>
       <p className="mt-2 text-xs text-muted-foreground">{m.sub}</p>
     </div>
