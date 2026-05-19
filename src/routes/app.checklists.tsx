@@ -15,6 +15,7 @@ import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
 import { Reveal } from "@/components/ui/reveal";
 import { Shimmer } from "@/components/ui/shimmer";
+import { motion } from "framer-motion";
 
 import { Users } from "lucide-react";
 import { toast } from "sonner";
