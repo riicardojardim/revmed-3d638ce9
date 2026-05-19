@@ -359,7 +359,7 @@ function FlashcardsPage() {
                       <button
                         onClick={() => rate(5)}
                         title="Acertei — intervalo maior"
-                        className="rounded-xl border-2 border-medical bg-card px-2 py-3 text-center font-display font-bold text-medical transition hover:bg-medical/10 active:scale-[0.97]"
+                        className="rounded-xl border-2 border-mint bg-card px-2 py-3 text-center font-display font-bold text-mint transition hover:bg-mint/10 active:scale-[0.97]"
                       >
                         <div className="text-[15px]">Acertei</div>
                       </button>
