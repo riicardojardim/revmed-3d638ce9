@@ -85,9 +85,9 @@ export function LoginBackground() {
         ))}
       </motion.div>
 
-      {/* ECG line */}
+      {/* ECG / heartbeat line */}
       <svg
-        className="absolute left-0 right-0 top-1/2 h-28 w-full -translate-y-1/2 opacity-40"
+        className="absolute left-0 right-0 top-1/2 h-32 w-full -translate-y-1/2 opacity-80"
         viewBox="0 0 1200 100"
         preserveAspectRatio="none"
         fill="none"
@@ -95,18 +95,38 @@ export function LoginBackground() {
         <defs>
           <linearGradient id="ecg-grad" x1="0" x2="1">
             <stop offset="0%" stopColor="var(--mint)" stopOpacity="0" />
-            <stop offset="50%" stopColor="var(--mint)" stopOpacity="1" />
+            <stop offset="20%" stopColor="var(--mint)" stopOpacity="0.9" />
+            <stop offset="60%" stopColor="var(--medical)" stopOpacity="1" />
             <stop offset="100%" stopColor="var(--medical)" stopOpacity="0" />
           </linearGradient>
+          <filter id="ecg-glow" x="-10%" y="-50%" width="120%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
+        {/* Static baseline trace, brand colors, soft */}
+        <path
+          d="M0 50 L200 50 L230 50 L245 20 L260 80 L275 35 L290 50 L500 50 L530 50 L545 15 L560 85 L575 30 L590 50 L800 50 L830 50 L845 25 L860 75 L875 40 L890 50 L1200 50"
+          stroke="var(--mint)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.35"
+        />
+        {/* Animated bright pulse traveling along the trace */}
         <motion.path
           d="M0 50 L200 50 L230 50 L245 20 L260 80 L275 35 L290 50 L500 50 L530 50 L545 15 L560 85 L575 30 L590 50 L800 50 L830 50 L845 25 L860 75 L875 40 L890 50 L1200 50"
           stroke="url(#ecg-grad)"
-          strokeWidth="2.5"
+          strokeWidth="3.5"
           strokeLinecap="round"
+          strokeLinejoin="round"
+          filter="url(#ecg-glow)"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: [0, 1, 1], opacity: [0, 1, 0] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         />
       </svg>
 
