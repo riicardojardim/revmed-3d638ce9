@@ -1,15 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
-  Stethoscope,
   Clock,
   Brain,
   TrendingUp,
   Users,
   Smartphone,
-  GraduationCap,
   Sparkles,
   Heart,
   Baby,
@@ -26,12 +26,17 @@ import {
   Theater,
   UserRound,
   ClipboardCheck,
+  Video,
+  Calendar,
+  BarChart3,
+  Layers,
+  Trophy,
+  Bell,
+  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import heroImage from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -41,17 +46,22 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Simule casos clínicos, pratique com checklists, controle o tempo e receba feedback. A plataforma premium para sua aprovação no Revalida.",
+          "Simule estações clínicas com checklists oficiais, cronômetro e vídeo-chamada integrada. A plataforma premium para sua aprovação no Revalida.",
+      },
+      { property: "og:title", content: "Estação Revalida — Treine a prova prática do Revalida" },
+      {
+        property: "og:description",
+        content:
+          "Checklists oficiais, simulação com 3 papéis, flashcards e correção de professores. Domine a prova prática.",
       },
     ],
   }),
 });
 
 const nav = [
-  { label: "Início", href: "#inicio" },
   { label: "Como funciona", href: "#como-funciona" },
-  { label: "Estações", href: "#areas" },
-  { label: "Professores", href: "#professores" },
+  { label: "Simulação", href: "#simulacao" },
+  { label: "Recursos", href: "#recursos" },
   { label: "Planos", href: "#planos" },
   { label: "FAQ", href: "#faq" },
 ];
@@ -65,51 +75,57 @@ function LandingPage() {
     }
   }, [loading, user, navigate]);
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <Hero />
-      <Trust />
+      <Stats />
       <HowItWorks />
-      <Differentials />
-      <RolesSimulation />
+      <Simulation />
+      <Resources />
       <Areas />
-      <ForStudents />
-      <ForTeachers />
       <Plans />
       <Testimonials />
       <FAQ />
+      <FinalCTA />
       <Footer />
+      <FloatingNotifications />
     </div>
   );
 }
 
+/* ---------------- Header ---------------- */
 function Header() {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <Logo />
-        <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground lg:flex">
+        <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground lg:flex">
           {nav.map((n) => (
-            <a key={n.href} href={n.href} className="transition-colors hover:text-foreground">
+            <a key={n.href} href={n.href} className="transition-colors hover:text-primary">
               {n.label}
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <Link to="/login">
-            <Button variant="ghost">Entrar</Button>
+            <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
           <Link to="/cadastro">
-            <Button variant="hero">Começar agora</Button>
+            <Button size="sm" className="rounded-full bg-mint text-night shadow-glow hover:bg-mint/90">
+              Começar agora <ArrowRight className="ml-1 h-4 w-4" />
+            </Button>
           </Link>
         </div>
         <button
+          className="rounded-md p-2 lg:hidden"
           onClick={() => setOpen((o) => !o)}
-          className="lg:hidden rounded-lg p-2 text-foreground"
           aria-label="Menu"
         >
-          <ChevronDown className={`h-5 w-5 transition-transform ${open ? "rotate-180" : ""}`} />
+          <div className="flex flex-col gap-1.5">
+            <span className="h-0.5 w-5 bg-foreground" />
+            <span className="h-0.5 w-5 bg-foreground" />
+          </div>
         </button>
       </div>
       {open && (
@@ -119,18 +135,18 @@ function Header() {
               <a
                 key={n.href}
                 href={n.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted"
                 onClick={() => setOpen(false)}
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
               >
                 {n.label}
               </a>
             ))}
-            <div className="mt-2 flex gap-2">
-              <Link to="/login" className="flex-1">
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Link to="/login" onClick={() => setOpen(false)}>
                 <Button variant="outline" className="w-full">Entrar</Button>
               </Link>
-              <Link to="/cadastro" className="flex-1">
-                <Button variant="hero" className="w-full">Começar</Button>
+              <Link to="/cadastro" onClick={() => setOpen(false)}>
+                <Button className="w-full bg-mint text-night hover:bg-mint/90">Começar</Button>
               </Link>
             </div>
           </div>
@@ -140,54 +156,84 @@ function Header() {
   );
 }
 
+/* ---------------- Hero ---------------- */
 function Hero() {
   return (
-    <section id="inicio" className="relative overflow-hidden">
-      <div
-        className="absolute inset-0 -z-10 opacity-90"
-        style={{
-          backgroundImage: `radial-gradient(900px 500px at 80% -10%, color-mix(in oklab, var(--mint) 18%, transparent), transparent), radial-gradient(700px 400px at -10% 50%, color-mix(in oklab, var(--medical) 14%, transparent), transparent)`,
-        }}
-      />
-      <div className="container mx-auto grid gap-12 px-4 py-16 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:py-28">
-        <div className="flex flex-col justify-center">
-          <Badge className="w-fit border-mint/30 bg-mint/10 text-foreground hover:bg-mint/10">
-            <Sparkles className="mr-1.5 h-3.5 w-3.5 text-mint" />
-            Treino por estação · Evolução por competência
-          </Badge>
-          <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
-            Treine a prova prática do Revalida{" "}
-            <span className="text-gradient">como se estivesse na estação real.</span>
+    <section className="relative overflow-hidden px-4 pb-24 pt-12 lg:px-8 lg:pt-20">
+      {/* Decorative blobs */}
+      <div className="pointer-events-none absolute -right-32 -top-32 h-[600px] w-[600px] rounded-full bg-mint/20 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[400px] w-[400px] rounded-full bg-mint-soft/30 blur-[120px]" />
+
+      <div className="container mx-auto grid items-center gap-16 lg:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative z-10 space-y-7"
+        >
+          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/40 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-mint" />
+            </span>
+            Simulador Premium · Revalida 2026
+          </div>
+
+          <h1 className="font-display text-4xl font-extrabold leading-[1.05] text-primary md:text-6xl lg:text-7xl">
+            Domine a prova prática com{" "}
+            <span className="bg-gradient-to-br from-mint to-primary bg-clip-text text-transparent">
+              realismo total.
+            </span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Simule casos clínicos, pratique com checklists, controle o tempo, receba feedback
-            inteligente e acompanhe sua evolução até o dia da prova.
+
+          <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Simule estações clínicas com checklists oficiais, cronômetro de prova e{" "}
+            <strong className="text-foreground">vídeo-chamada integrada para 3 papéis</strong> —
+            candidato, paciente ator e banca. Treine como se já estivesse no dia.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+
+          <div className="flex flex-wrap gap-3 pt-2">
             <Link to="/cadastro">
-              <Button variant="hero" size="xl" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                className="h-14 rounded-2xl bg-mint px-8 text-base font-bold text-night shadow-glow hover:scale-[1.02] hover:bg-mint/90"
+              >
                 Começar meu treino
-                <ArrowRight className="ml-1 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <a href="#como-funciona">
-              <Button variant="outline" size="xl" className="w-full sm:w-auto">
+            <a href="#simulacao">
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-14 rounded-2xl border-2 px-8 text-base font-bold"
+              >
                 Ver como funciona
               </Button>
             </a>
           </div>
-          <div className="mt-10 flex items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4].map((i) => (
+
+          <div className="flex items-center gap-4 pt-4">
+            <div className="flex -space-x-3">
+              {[
+                "from-mint to-mint-soft",
+                "from-primary to-mint",
+                "from-mint-soft to-primary",
+              ].map((g, i) => (
                 <div
                   key={i}
-                  className="h-8 w-8 rounded-full border-2 border-background bg-gradient-mint"
+                  className={`h-10 w-10 rounded-full border-2 border-background bg-gradient-to-br ${g}`}
                 />
               ))}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-background bg-mint-soft text-[10px] font-bold text-primary">
+                +1k
+              </div>
             </div>
-            <span>+1.200 médicos treinando hoje</span>
+            <p className="text-sm font-semibold text-muted-foreground">
+              <span className="text-foreground">+1.200 médicos</span> treinando hoje
+            </p>
           </div>
-        </div>
+        </motion.div>
 
         <HeroVisual />
       </div>
@@ -197,136 +243,161 @@ function Hero() {
 
 function HeroVisual() {
   return (
-    <div className="relative">
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero shadow-elegant">
-        <img
-          src={heroImage}
-          alt="Plataforma Estação Revalida"
-          width={1536}
-          height={1024}
-          className="h-full w-full object-cover opacity-60 mix-blend-screen"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-night/80 via-night/30 to-transparent" />
-
-        {/* Floating cards */}
-        <div className="absolute left-4 top-6 w-44 rounded-2xl border border-white/10 bg-night/70 p-4 text-white shadow-elegant backdrop-blur md:left-6 md:top-8 md:w-52">
-          <div className="text-xs font-medium uppercase tracking-wider text-mint">Cronômetro</div>
-          <div className="mt-1 font-display text-3xl font-bold tabular-nums">07:42</div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
-            <div className="h-full w-3/4 rounded-full bg-mint" />
-          </div>
-        </div>
-
-        <div className="absolute right-4 top-24 w-52 rounded-2xl border border-white/10 bg-night/70 p-4 text-white shadow-elegant backdrop-blur md:right-6 md:top-32 md:w-60">
-          <div className="text-xs font-medium uppercase tracking-wider text-mint">Nota da estação</div>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-display text-4xl font-bold">8,7</span>
-            <span className="text-sm text-white/60">/ 10</span>
-          </div>
-          <div className="mt-1 text-xs text-white/70">Dor torácica · Emergência</div>
-        </div>
-
-        <div className="absolute bottom-5 left-4 right-4 rounded-2xl border border-white/10 bg-night/70 p-4 text-white shadow-elegant backdrop-blur md:left-6 md:right-6">
-          <div className="text-xs font-medium uppercase tracking-wider text-mint">Pontos</div>
-          <div className="mt-2 grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <div className="flex items-center gap-1.5 text-success">
-                <CheckCircle2 className="h-4 w-4" /> Fortes
-              </div>
-              <div className="mt-1 text-white/80">Anamnese, comunicação</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5 text-warning">
-                <TrendingUp className="h-4 w-4" /> A melhorar
-              </div>
-              <div className="mt-1 text-white/80">Conduta, prescrição</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Trust() {
-  return (
-    <section className="border-y border-border bg-card/40 py-8">
-      <div className="container mx-auto grid grid-cols-2 gap-6 px-4 text-center md:grid-cols-4 lg:px-8">
-        {[
-          { v: "120+", l: "estações clínicas" },
-          { v: "6", l: "áreas médicas" },
-          { v: "1.200+", l: "médicos ativos" },
-          { v: "8,4", l: "nota média de evolução" },
-        ].map((s) => (
-          <div key={s.l}>
-            <div className="font-display text-2xl font-bold text-foreground md:text-3xl">{s.v}</div>
-            <div className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{s.l}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-const steps = [
-  { icon: Stethoscope, title: "Escolha uma estação", desc: "Selecione uma área, dificuldade e tempo de treino." },
-  { icon: Clock, title: "Inicie o cronômetro", desc: "Leia o caso clínico e a tarefa do candidato." },
-  { icon: ClipboardList, title: "Treine e responda", desc: "Marque o checklist sozinho, com um colega ou professor." },
-  { icon: TrendingUp, title: "Receba feedback", desc: "Veja nota, pontos fortes, fracos e plano de melhoria." },
-];
-
-function HowItWorks() {
-  return (
-    <section id="como-funciona" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
-      <SectionTitle eyebrow="Como funciona" title="Quatro passos para treinar como na prova real" />
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {steps.map((s, i) => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.7, delay: 0.2 }}
+      className="relative"
+    >
+      {/* Outer frame */}
+      <div className="relative rounded-[32px] bg-night p-2 shadow-2xl shadow-primary/30">
+        <div className="relative aspect-[5/4] overflow-hidden rounded-[24px] bg-gradient-to-br from-primary via-primary to-night">
+          {/* Grid pattern */}
           <div
-            key={s.title}
-            className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-card transition-all hover:-translate-y-1 hover:shadow-elegant"
-          >
-            <div className="absolute right-4 top-4 font-display text-5xl font-bold text-mint/10">
-              0{i + 1}
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-mint">
-              <s.icon className="h-6 w-6 text-night" />
-            </div>
-            <h3 className="mt-5 text-lg font-semibold">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, var(--mint) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+
+          {/* Top cards */}
+          <div className="absolute left-5 right-5 top-5 flex justify-between gap-3">
+            <motion.div
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-xl"
+            >
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">
+                Cronômetro
+              </p>
+              <p className="mt-1 font-display text-3xl font-bold tabular-nums text-white">
+                07:42
+              </p>
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              className="rounded-2xl border border-mint/40 bg-mint/20 p-4 text-center backdrop-blur-xl"
+            >
+              <p className="text-[10px] font-bold uppercase tracking-widest text-mint-soft">
+                Nota
+              </p>
+              <p className="mt-1 font-display text-3xl font-bold text-mint">8.7</p>
+            </motion.div>
           </div>
-        ))}
+
+          {/* Center label */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 backdrop-blur-sm">
+              <Video className="h-4 w-4 text-mint" />
+              <span className="text-xs font-semibold text-white">Sala ao vivo · 3 papéis</span>
+            </div>
+          </div>
+
+          {/* Bottom checklist card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+            className="absolute bottom-5 left-5 right-5 rounded-2xl border border-border bg-card p-5 shadow-2xl"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-destructive" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Checklist oficial
+                </span>
+              </div>
+              <span className="text-[10px] font-bold text-mint">85%</span>
+            </div>
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2 text-xs">
+                <CheckCircle2 className="h-4 w-4 text-mint" />
+                <span className="text-foreground/80">Anamnese completa</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <CheckCircle2 className="h-4 w-4 text-mint" />
+                <span className="text-foreground/80">Exame físico dirigido</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <div className="h-4 w-4 rounded-full border-2 border-mint" />
+                <span className="text-muted-foreground">Hipótese diagnóstica</span>
+              </div>
+            </div>
+            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "85%" }}
+                transition={{ delay: 1, duration: 1.2, ease: "easeOut" }}
+                className="h-full rounded-full bg-gradient-to-r from-mint to-primary"
+              />
+            </div>
+          </motion.div>
+        </div>
       </div>
-    </section>
+
+      {/* Floating side badge */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.9, duration: 0.5 }}
+        className="absolute -right-4 top-1/2 hidden -translate-y-1/2 rounded-2xl border border-border bg-card p-4 shadow-elegant md:block"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mint-soft">
+            <Trophy className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-xs font-bold">+42 estações</p>
+            <p className="text-[10px] text-muted-foreground">esta semana</p>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
-const diffs = [
-  { icon: ClipboardList, t: "Checklists de prova prática", d: "Itens avaliativos pontuados por categoria." },
-  { icon: Clock, t: "Cronômetro integrado", d: "Treine no tempo real de cada estação." },
-  { icon: Brain, t: "Feedback inteligente", d: "Texto educacional baseado no seu desempenho." },
-  { icon: TrendingUp, t: "Evolução por competência", d: "Acompanhe seu progresso por área." },
-  { icon: Users, t: "Treino em dupla", d: "Ator e candidato em uma sala compartilhada." },
-  { icon: GraduationCap, t: "Área do professor", d: "Crie estações e corrija seus alunos." },
-  { icon: Smartphone, t: "PWA instalável", d: "Treine pelo celular como em um app nativo." },
-  { icon: Heart, t: "Conteúdo autoral", d: "Casos clínicos elaborados por médicos." },
-];
-
-function Differentials() {
+/* ---------------- Stats with animated counters ---------------- */
+function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const mv = useMotionValue(0);
+  const spring = useSpring(mv, { duration: 1.5, bounce: 0 });
+  const display = useTransform(spring, (v) =>
+    value >= 100 ? Math.round(v).toLocaleString("pt-BR") : v.toFixed(1).replace(".", ",")
+  );
+  useEffect(() => {
+    if (inView) mv.set(value);
+  }, [inView, mv, value]);
   return (
-    <section className="bg-card/30 py-20 lg:py-28">
-      <div className="container mx-auto px-4 lg:px-8">
-        <SectionTitle eyebrow="Diferenciais" title="Tudo que você precisa para treinar com método" />
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {diffs.map((d) => (
-            <div
-              key={d.t}
-              className="rounded-2xl border border-border bg-card p-5 transition-all hover:border-mint/40 hover:shadow-card"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-mint/10">
-                <d.icon className="h-5 w-5 text-medical" />
-              </div>
-              <div className="mt-4 font-semibold">{d.t}</div>
-              <div className="mt-1.5 text-sm text-muted-foreground">{d.d}</div>
+    <span ref={ref}>
+      <motion.span>{display}</motion.span>
+      {suffix}
+    </span>
+  );
+}
+
+function Stats() {
+  const stats = [
+    { value: 120, suffix: "+", label: "Estações clínicas" },
+    { value: 600, suffix: "+", label: "Itens de checklist" },
+    { value: 1200, suffix: "+", label: "Médicos ativos" },
+    { value: 8.4, suffix: "", label: "Nota média de evolução" },
+  ];
+  return (
+    <section className="container mx-auto px-4 pb-20 lg:px-8">
+      <div className="rounded-3xl border border-border bg-card p-8 shadow-card md:p-12">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <p className="font-display text-4xl font-extrabold text-primary md:text-5xl">
+                <AnimatedNumber value={s.value} suffix={s.suffix} />
+              </p>
+              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                {s.label}
+              </p>
             </div>
           ))}
         </div>
@@ -335,79 +406,159 @@ function Differentials() {
   );
 }
 
-function RolesSimulation() {
-  const roles = [
+/* ---------------- How it works ---------------- */
+function HowItWorks() {
+  const steps = [
     {
-      icon: Stethoscope,
-      title: "Candidato",
-      desc: "Vê o caso clínico, a tarefa e o cronômetro. Não vê o checklist — exatamente como na prova real.",
-      accent: "from-mint/20 to-medical/10",
+      icon: ClipboardList,
+      title: "Escolha a estação",
+      desc: "Filtre por especialidade, dificuldade e tempo para focar no seu ponto fraco.",
     },
     {
-      icon: UserRound,
-      title: "Paciente / ator",
-      desc: "Recebe um roteiro: queixa, história, emoções e o que só revelar se for perguntado.",
-      accent: "from-rose-200/30 to-amber-100/20",
+      icon: Clock,
+      title: "Ative o cronômetro",
+      desc: "Leia o caso e simule o tempo real da banca. Sem checklist à vista, igual à prova.",
     },
     {
       icon: ClipboardCheck,
-      title: "Médico ator",
-      desc: "Corrige o candidato pelo checklist oficial, pontua, comenta cada item e dá o feedback final.",
-      accent: "from-indigo-200/30 to-mint/10",
+      title: "Treine o checklist",
+      desc: "Sua banca (ou IA) marca o que você fez ou deixou de fazer durante a estação.",
+    },
+    {
+      icon: BarChart3,
+      title: "Receba feedback",
+      desc: "Veja sua nota, pontos fortes e fracos, e o plano de revisão para a próxima.",
     },
   ];
   return (
-    <section id="papeis" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
-      <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
-        <div>
-          <Badge className="border-mint/30 bg-mint/10 text-foreground hover:bg-mint/10">
-            <Theater className="mr-1.5 h-3.5 w-3.5 text-mint" /> Simulação com papéis reais
-          </Badge>
-          <h2 className="mt-4 font-display text-3xl font-bold leading-tight md:text-4xl">
-            Simulação com paciente e ator.{" "}
-            <span className="text-gradient">Sinta a pressão de uma estação real.</span>
+    <section id="como-funciona" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+      <SectionTitle eyebrow="Metodologia" title="Quatro passos para a aprovação" />
+      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {steps.map((s, i) => (
+          <motion.div
+            key={s.title}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="group relative rounded-3xl border border-border bg-card p-7 transition-all hover:-translate-y-1 hover:border-mint/50 hover:shadow-elegant"
+          >
+            <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-muted/30 transition-colors group-hover:text-mint-soft/60">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-mint-soft/50">
+              <s.icon className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="font-display text-lg font-bold">{s.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Simulation (3 roles) ---------------- */
+function Simulation() {
+  const roles = [
+    {
+      icon: UserRound,
+      title: "Candidato",
+      desc: "Você atua no caso clínico sem ver o checklist — exatamente como na prova real.",
+      highlight: false,
+    },
+    {
+      icon: Theater,
+      title: "Paciente ator",
+      desc: "Recebe um roteiro com história, emoções e o que só revelar se for perguntado.",
+      highlight: false,
+    },
+    {
+      icon: ClipboardCheck,
+      title: "Banca examinadora",
+      desc: "Corrige o candidato pelo checklist oficial, pontua e devolve feedback no fim.",
+      highlight: true,
+    },
+  ];
+
+  return (
+    <section id="simulacao" className="relative overflow-hidden bg-night py-24 text-white lg:py-32">
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: "radial-gradient(circle, var(--mint) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
+      <div className="pointer-events-none absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-mint/10 blur-[120px]" />
+
+      <div className="container relative mx-auto grid gap-16 px-4 lg:grid-cols-2 lg:px-8">
+        <div className="space-y-7">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-mint-soft">
+            <Sparkles className="h-3.5 w-3.5" />
+            Diferencial exclusivo
+          </div>
+          <h2 className="font-display text-4xl font-extrabold leading-tight md:text-5xl">
+            Treine em equipe,{" "}
+            <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
+              aprenda em 3 dimensões.
+            </span>
           </h2>
-          <p className="mt-5 text-muted-foreground">
-            O candidato vê o caso, o paciente segue o roteiro e o ator corrige pelo checklist.
-            Crie uma sala, compartilhe o código e treine como se já estivesse na prova.
+          <p className="max-w-lg text-lg leading-relaxed text-white/70">
+            Nossa sala de vídeo integrada permite que você troque de perspectiva. Ao atuar como
+            banca, você entende exatamente o que o avaliador procura no Revalida.
           </p>
-          <ul className="mt-6 space-y-3 text-sm">
+          <ul className="space-y-3 pt-2">
             {[
-              "Treine com paciente simulado e ator.",
-              "Cada papel vê apenas o conteúdo do seu perfil.",
-              "Ideal para professores, mentorias, turmas e cursos preparatórios.",
-              "Funciona no celular — chame seu colega por chamada de vídeo e abra a sala aqui.",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-2">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" /> <span>{t}</span>
+              "Vídeo-chamada nativa, sem precisar de Zoom ou Meet",
+              "Compartilhe um código e treine com qualquer colega",
+              "Cada papel vê apenas o conteúdo do seu perfil",
+              "Feedback consolidado no fim da sala",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-mint" />
+                <span className="text-white/80">{item}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-7 flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 pt-4">
             <Link to="/cadastro">
-              <Button variant="hero" size="lg">Criar uma sala agora <ArrowRight className="ml-1 h-4 w-4" /></Button>
+              <Button
+                size="lg"
+                className="h-12 rounded-xl bg-mint px-6 font-bold text-night hover:bg-mint/90"
+              >
+                Criar minha sala
+              </Button>
             </Link>
-            <a href="#planos">
-              <Button variant="outline" size="lg">Ver planos</Button>
-            </a>
           </div>
         </div>
 
-        <div className="grid gap-4">
-          {roles.map((r) => (
-            <div key={r.title} className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-card">
-              <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${r.accent} opacity-60`} />
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-mint">
-                  <r.icon className="h-6 w-6 text-night" />
-                </div>
-                <div>
-                  <div className="text-xs font-medium uppercase tracking-wider text-medical">{r.title}</div>
-                  <div className="mt-1 font-display text-lg font-bold">{`Sou ${r.title.toLowerCase()}`}</div>
-                  <p className="mt-2 text-sm text-muted-foreground">{r.desc}</p>
-                </div>
+        <div className="space-y-5">
+          {roles.map((r, i) => (
+            <motion.div
+              key={r.title}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, delay: i * 0.15 }}
+              className={`flex items-center gap-5 rounded-3xl border p-6 transition-colors ${
+                r.highlight
+                  ? "border-mint/40 bg-mint/15"
+                  : "border-white/10 bg-white/5 hover:bg-white/10"
+              }`}
+            >
+              <div
+                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
+                  r.highlight ? "bg-mint text-night" : "bg-white/10 text-mint"
+                }`}
+              >
+                <r.icon className="h-7 w-7" />
               </div>
-            </div>
+              <div>
+                <h4 className="font-display text-xl font-bold">{r.title}</h4>
+                <p className="mt-1 text-sm text-white/60">{r.desc}</p>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -415,250 +566,250 @@ function RolesSimulation() {
   );
 }
 
-const areas = [
-  { icon: Activity, name: "Clínica Médica", count: 28 },
-  { icon: Scissors, name: "Cirurgia", count: 18 },
-  { icon: Baby, name: "Pediatria", count: 22 },
-  { icon: Heart, name: "Ginecologia e Obstetrícia", count: 24 },
-  { icon: HomeIcon, name: "Medicina de Família e Comunidade", count: 20 },
-  { icon: MessagesSquare, name: "Comunicação médico-paciente", count: 12 },
-  { icon: Stethoscope, name: "Exames e condutas", count: 14 },
-];
-
-function Areas() {
+/* ---------------- Resources (real features) ---------------- */
+function Resources() {
+  const features = [
+    {
+      icon: ClipboardCheck,
+      title: "Checklists oficiais",
+      desc: "Itens avaliativos por categoria, alinhados aos critérios do INEP.",
+    },
+    {
+      icon: Clock,
+      title: "Cronômetro integrado",
+      desc: "Treine no tempo real da prova, com alerta no minuto final.",
+    },
+    {
+      icon: Video,
+      title: "Vídeo-chamada nativa",
+      desc: "Sala ao vivo com 3 papéis, sem instalar nada extra.",
+    },
+    {
+      icon: Brain,
+      title: "Flashcards",
+      desc: "Revisão espaçada para fixar critérios e condutas que mais caem.",
+    },
+    {
+      icon: Layers,
+      title: "Resumos",
+      desc: "Conteúdo objetivo escrito por médicos, com foco no que cai na prova.",
+    },
+    {
+      icon: TrendingUp,
+      title: "Histórico e desempenho",
+      desc: "Gráficos por competência e evolução por especialidade ao longo do tempo.",
+    },
+    {
+      icon: Calendar,
+      title: "Cronograma de estudos",
+      desc: "Plano semanal personalizável para você não perder o ritmo.",
+    },
+    {
+      icon: Users,
+      title: "Correção do professor",
+      desc: "Feedback humano detalhado para alunos de mentoria.",
+    },
+    {
+      icon: Smartphone,
+      title: "App instalável (PWA)",
+      desc: "Treine pelo celular como se fosse um aplicativo nativo.",
+    },
+  ];
   return (
-    <section id="areas" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
-      <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
-      <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {areas.map((a) => (
-          <div
-            key={a.name}
-            className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-card p-6 transition-all hover:shadow-elegant"
+    <section id="recursos" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+      <SectionTitle eyebrow="Recursos" title="Tudo que você precisa para treinar com método" />
+      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {features.map((f, i) => (
+          <motion.div
+            key={f.title}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: (i % 3) * 0.08 }}
+            className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card"
           >
-            <a.icon className="h-7 w-7 text-medical" />
-            <div className="mt-5 font-semibold leading-tight">{a.name}</div>
-            <div className="mt-2 text-sm text-muted-foreground">{a.count} estações</div>
-            <ArrowRight className="absolute bottom-5 right-5 h-4 w-4 text-mint opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
-          </div>
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
+              <f.icon className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="font-display font-bold">{f.title}</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+          </motion.div>
         ))}
       </div>
     </section>
   );
 }
 
-function ForStudents() {
+/* ---------------- Areas ---------------- */
+function Areas() {
+  const areas = [
+    { icon: Activity, name: "Clínica Médica", count: "28 estações" },
+    { icon: Scissors, name: "Cirurgia", count: "18 estações" },
+    { icon: Baby, name: "Pediatria", count: "22 estações" },
+    { icon: Heart, name: "Ginecologia & Obstetrícia", count: "24 estações" },
+    { icon: HomeIcon, name: "Medicina de Família", count: "20 estações" },
+    { icon: MessagesSquare, name: "Comunicação médico-paciente", count: "12 estações" },
+    { icon: Siren, name: "Emergência", count: "10 estações" },
+    { icon: ClipboardList, name: "Exames e condutas", count: "14 estações" },
+  ];
   return (
-    <section className="bg-night text-white py-20 lg:py-28">
-      <div className="container mx-auto grid gap-12 px-4 lg:grid-cols-2 lg:px-8">
-        <div>
-          <Badge className="border-mint/30 bg-mint/10 text-mint hover:bg-mint/10">Para alunos</Badge>
-          <h2 className="mt-4 font-display text-3xl font-bold md:text-4xl">
-            Estude com método, treine com tempo, evolua com dado.
-          </h2>
-          <p className="mt-5 text-white/70">
-            Cada item do checklist pode fazer diferença na sua aprovação. Você treina, vê histórico,
-            acompanha notas e sabe exatamente onde precisa melhorar.
-          </p>
-          <ul className="mt-7 space-y-3 text-white/85">
-            {[
-              "Biblioteca crescente de estações por especialidade",
-              "Cronômetro com alerta visual no minuto final",
-              "Histórico completo com nota e tempo gasto",
-              "Plano de revisão automático após cada estação",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-mint" />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur md:p-8">
-          <div className="text-xs font-medium uppercase tracking-wider text-mint">Seu progresso</div>
-          <div className="mt-4 space-y-4">
-            {[
-              { l: "Anamnese", v: 82 },
-              { l: "Exame físico", v: 68 },
-              { l: "Conduta", v: 61 },
-              { l: "Comunicação", v: 88 },
-            ].map((c) => (
-              <div key={c.l}>
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/80">{c.l}</span>
-                  <span className="font-medium text-mint">{c.v}%</span>
-                </div>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-gradient-mint"
-                    style={{ width: `${c.v}%` }}
-                  />
-                </div>
+    <section className="bg-card/40 py-20 lg:py-28">
+      <div className="container mx-auto px-4 lg:px-8">
+        <SectionTitle
+          eyebrow="Áreas de treino"
+          title="Estações organizadas por especialidade"
+        />
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {areas.map((a, i) => (
+            <motion.div
+              key={a.name}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.35, delay: (i % 4) * 0.05 }}
+              className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
+                <a.icon className="h-6 w-6 text-primary" />
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ForTeachers() {
-  return (
-    <section id="professores" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-        <div className="order-2 lg:order-1">
-          <div className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-            <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Painel</div>
-                <div className="font-display text-2xl font-bold">Professor</div>
+                <div className="font-semibold leading-tight">{a.name}</div>
+                <div className="text-xs text-muted-foreground">{a.count}</div>
               </div>
-              <GraduationCap className="h-8 w-8 text-medical" />
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              {[
-                { l: "Alunos ativos", v: "84" },
-                { l: "Estações criadas", v: "32" },
-                { l: "Correções pendentes", v: "7" },
-                { l: "Média geral", v: "7,9" },
-              ].map((s) => (
-                <div key={s.l} className="rounded-xl border border-border bg-background p-4">
-                  <div className="font-display text-xl font-bold">{s.v}</div>
-                  <div className="text-xs text-muted-foreground">{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="order-1 lg:order-2">
-          <Badge>Para professores</Badge>
-          <h2 className="mt-4 font-display text-3xl font-bold md:text-4xl">
-            Crie estações, corrija alunos e acompanhe cada evolução.
-          </h2>
-          <p className="mt-5 text-muted-foreground">
-            Estruture suas próprias estações com checklists, libere materiais e ofereça feedback
-            individual com a profundidade que só um professor pode dar.
-          </p>
-          <ul className="mt-7 space-y-3">
-            {[
-              "Editor de estação com checklist por categoria e peso",
-              "Painel de correção com nota e comentário",
-              "Turmas e mentorias com acompanhamento por aluno",
-              "Liberação de materiais de apoio e resumos",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-mint" />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
+/* ---------------- Plans ---------------- */
 const plans = [
   {
     name: "Ator",
+    badge: "Iniciante",
+    desc: "Atue como paciente em salas e avalie candidatos.",
     price: "R$ 97",
-    period: "até o dia da prova",
-    desc: "Exclusivo para atuar como paciente simulado e avaliar candidatos.",
+    period: "/até a prova",
+    cta: "Quero ser Ator",
+    highlight: false,
     features: [
       "Acesso até o dia da prova",
-      "Banca de checklists completa",
-      "Atue como ator em salas de treino",
+      "Atuação como paciente ator",
+      "Banco de checklists do paciente",
       "Libere impressos e materiais",
-      "Avalie pelo PEP em tempo real",
     ],
-    cta: "Quero ser Ator",
   },
   {
     name: "Completo",
+    badge: "Mais escolhido",
+    desc: "Plataforma completa, pagamento único até a prova.",
     price: "R$ 497",
     originalPrice: "R$ 597",
-    period: "até o dia da prova",
-    desc: "Tudo da plataforma, pagamento único até a prova.",
-    features: [
-      "Acesso até o dia da prova",
-      "Treine como candidato e como ator",
-      "+600 checklists e +450 flashcards",
-      "Cronograma, desempenho e correção por IA",
-      "Grupo de WhatsApp e suporte por chat",
-      "Crie checklists com IA",
-    ],
-    highlight: true,
+    period: "/até a prova",
     cta: "Quero o Completo",
+    highlight: true,
+    features: [
+      "Treine como candidato, ator e banca",
+      "+120 estações clínicas",
+      "+600 itens de checklist",
+      "Flashcards e resumos",
+      "Cronograma e histórico completo",
+      "Vídeo-chamada integrada",
+      "Grupo de WhatsApp + suporte",
+    ],
   },
   {
     name: "Completo Mensal",
-    price: "R$ 147",
-    period: "/ mês",
+    badge: "Recorrente",
     desc: "Mesmo acesso do Completo, cobrado mês a mês.",
+    price: "R$ 347",
+    period: "/mês",
+    cta: "Assinar mensal",
+    highlight: false,
     features: [
-      "Acesso enquanto a assinatura estiver ativa",
+      "Acesso a tudo enquanto estiver ativo",
       "Treine como candidato e como ator",
-      "+600 checklists e +450 flashcards",
-      "Cronograma, desempenho e correção por IA",
+      "+600 checklists e flashcards",
       "Cancele quando quiser",
     ],
-    cta: "Assinar mensal",
   },
 ];
 
 function Plans() {
   return (
-    <section id="planos" className="bg-card/30 py-20 lg:py-28">
-      <div className="container mx-auto px-4 lg:px-8">
-        <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
-        <div className="mt-12 grid items-stretch gap-6 lg:grid-cols-3">
-          {plans.map((p) => (
-            <div
-              key={p.name}
-              className={`relative flex flex-col rounded-3xl border transition-all ${
-                p.highlight
-                  ? "border-mint/50 bg-card shadow-elegant p-8 lg:-translate-y-4 lg:scale-105"
-                  : "border-border bg-card shadow-card p-7"
-              }`}
-            >
-              {p.highlight && (
-                <Badge className="absolute right-6 top-6 bg-gradient-mint text-night hover:bg-gradient-mint">
-                  Mais escolhido
-                </Badge>
+    <section id="planos" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+      <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
+      <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
+        Comece hoje. Cancele quando quiser no plano mensal — sem fidelidade.
+      </p>
+      <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-3">
+        {plans.map((p, i) => (
+          <motion.div
+            key={p.name}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className={`relative flex flex-col rounded-3xl border bg-card p-8 transition-all ${
+              p.highlight
+                ? "border-2 border-mint shadow-glow lg:-translate-y-4 lg:scale-105"
+                : "border-border shadow-card hover:border-mint/40"
+            }`}
+          >
+            {p.highlight && (
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-mint px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-night hover:bg-mint">
+                {p.badge}
+              </Badge>
+            )}
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              {!p.highlight && p.badge}
+              {p.highlight && "Formação completa"}
+            </span>
+            <h3 className="mt-1 font-display text-2xl font-bold">{p.name}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
+
+            <div className="mt-6 flex items-baseline gap-2">
+              {p.originalPrice && (
+                <span className="text-base text-muted-foreground line-through">
+                  {p.originalPrice}
+                </span>
               )}
-              <div className="font-display text-xl font-bold">{p.name}</div>
-              <div className="mt-1 text-sm text-muted-foreground">{p.desc}</div>
-              <div className="mt-5 flex items-baseline gap-2">
-                {p.originalPrice && (
-                  <span className="text-base text-muted-foreground line-through">{p.originalPrice}</span>
-                )}
-                <span className="font-display text-4xl font-bold">{p.price}</span>
-                <span className="text-sm text-muted-foreground">{p.period}</span>
-              </div>
-              <ul className="mt-6 space-y-3 text-sm">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/cadastro" className="mt-auto pt-8">
-                <Button variant={p.highlight ? "hero" : "outline"} className="w-full">
-                  {p.cta}
-                </Button>
-              </Link>
+              <span className="font-display text-4xl font-extrabold text-primary">{p.price}</span>
+              <span className="text-sm text-muted-foreground">{p.period}</span>
             </div>
-          ))}
-        </div>
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          Valores ilustrativos para demonstração. Integração de pagamento em breve.
-        </p>
+
+            <ul className="mt-6 space-y-3 text-sm">
+              {p.features.map((f) => (
+                <li key={f} className="flex items-start gap-2.5">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Link to="/cadastro" className="mt-auto pt-8">
+              <Button
+                size="lg"
+                className={`w-full rounded-xl font-bold ${
+                  p.highlight
+                    ? "bg-mint text-night shadow-glow hover:bg-mint/90"
+                    : "bg-background text-foreground hover:bg-muted"
+                }`}
+                variant={p.highlight ? "default" : "outline"}
+              >
+                {p.cta}
+              </Button>
+            </Link>
+          </motion.div>
+        ))}
       </div>
     </section>
   );
 }
 
+/* ---------------- Testimonials ---------------- */
 const testimonials = [
   {
     name: "Dra. Marina L.",
@@ -679,50 +830,76 @@ const testimonials = [
 
 function Testimonials() {
   return (
-    <section className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
-      <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina conosco" />
-      <p className="-mt-2 text-center text-xs text-muted-foreground">
-        Depoimentos fictícios para demonstração — serão substituídos por reais.
-      </p>
-      <div className="mt-12 grid gap-5 md:grid-cols-3">
-        {testimonials.map((t) => (
-          <div key={t.name} className="rounded-2xl border border-border bg-card p-6 shadow-card">
-            <div className="flex gap-0.5 text-mint">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-current" />
-              ))}
-            </div>
-            <p className="mt-4 leading-relaxed text-foreground/90">"{t.text}"</p>
-            <div className="mt-5 border-t border-border pt-4">
-              <div className="font-semibold">{t.name}</div>
-              <div className="text-xs text-muted-foreground">{t.role}</div>
-            </div>
-          </div>
-        ))}
+    <section className="bg-card/40 py-20 lg:py-28">
+      <div className="container mx-auto px-4 lg:px-8">
+        <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina conosco" />
+        <div className="mt-14 grid gap-5 md:grid-cols-3">
+          {testimonials.map((t, i) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="rounded-2xl border border-border bg-card p-6 shadow-card"
+            >
+              <div className="flex gap-0.5 text-mint">
+                {Array.from({ length: 5 }).map((_, k) => (
+                  <Star key={k} className="h-4 w-4 fill-current" />
+                ))}
+              </div>
+              <p className="mt-4 leading-relaxed text-foreground/90">"{t.text}"</p>
+              <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-mint to-primary" />
+                <div>
+                  <div className="font-semibold">{t.name}</div>
+                  <div className="text-xs text-muted-foreground">{t.role}</div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
+/* ---------------- FAQ ---------------- */
 const faqs = [
-  { q: "O app substitui um curso presencial?", a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro e feedback que dificilmente se replicam fora da prova." },
-  { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como um app nativo no seu celular." },
-  { q: "Os checklists são editáveis?", a: "Professores e administradores podem criar e editar estações e checklists na área do professor." },
-  { q: "Professores podem corrigir alunos?", a: "Sim. O painel do professor permite ver tentativas enviadas, dar nota e escrever feedback individual." },
-  { q: "Tem IA?", a: "Sim. O feedback inteligente é gerado automaticamente com base no seu desempenho, e novos recursos com paciente virtual estão no roadmap." },
-  { q: "Posso usar com meus alunos?", a: "Sim. O plano Mentoria inclui ferramentas para acompanhar turmas e corrigir alunos." },
+  {
+    q: "O app substitui um curso presencial?",
+    a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova.",
+  },
+  {
+    q: "Como funciona a sala com 3 papéis?",
+    a: "Você cria uma sala e compartilha o código. Cada participante entra como candidato, paciente ator ou banca — cada um vê apenas o conteúdo do seu papel, com vídeo integrado.",
+  },
+  {
+    q: "Posso treinar pelo celular?",
+    a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular.",
+  },
+  {
+    q: "Os checklists são oficiais?",
+    a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações.",
+  },
+  {
+    q: "Posso cancelar quando quiser?",
+    a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único.",
+  },
+  {
+    q: "Existe correção humana?",
+    a: "Sim, para alunos do plano de mentoria. Professores avaliam tentativas, dão nota e escrevem feedback individual.",
+  },
 ];
 
 function FAQ() {
   return (
-    <section id="faq" className="bg-card/30 py-20 lg:py-28">
-      <div className="container mx-auto max-w-3xl px-4 lg:px-8">
-        <SectionTitle eyebrow="FAQ" title="Perguntas frequentes" />
-        <div className="mt-10 space-y-3">
-          {faqs.map((f, i) => (
-            <FAQItem key={i} q={f.q} a={f.a} />
-          ))}
-        </div>
+    <section id="faq" className="container mx-auto max-w-3xl px-4 py-20 lg:px-8 lg:py-28">
+      <SectionTitle eyebrow="FAQ" title="Perguntas frequentes" />
+      <div className="mt-12 space-y-3">
+        {faqs.map((f, i) => (
+          <FAQItem key={i} q={f.q} a={f.a} />
+        ))}
       </div>
     </section>
   );
@@ -731,7 +908,7 @@ function FAQ() {
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-2xl border border-border bg-card transition-all">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card transition-all">
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between gap-4 p-5 text-left font-medium"
@@ -741,11 +918,48 @@ function FAQItem({ q, a }: { q: string; a: string }) {
           className={`h-5 w-5 shrink-0 text-mint transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
-      {open && <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{a}</div>}
+      {open && (
+        <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{a}</div>
+      )}
     </div>
   );
 }
 
+/* ---------------- Final CTA ---------------- */
+function FinalCTA() {
+  return (
+    <section className="container mx-auto px-4 py-20 lg:px-8">
+      <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-primary via-primary to-night p-10 text-center text-white md:p-16">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-[400px] w-[400px] rounded-full bg-mint/20 blur-[100px]" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-[300px] w-[300px] rounded-full bg-mint/15 blur-[100px]" />
+        <div className="relative">
+          <h2 className="mx-auto max-w-2xl font-display text-3xl font-extrabold leading-tight md:text-5xl">
+            Pronto pra treinar como na{" "}
+            <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
+              estação real?
+            </span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-white/70">
+            Acesso imediato. Comece a treinar nos próximos 2 minutos.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to="/cadastro">
+              <Button
+                size="lg"
+                className="h-14 rounded-2xl bg-mint px-10 text-base font-bold text-night shadow-glow hover:scale-[1.02] hover:bg-mint/90"
+              >
+                Começar meu treino agora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Footer ---------------- */
 function Footer() {
   return (
     <footer className="border-t border-border bg-night text-white/80">
@@ -753,20 +967,20 @@ function Footer() {
         <div className="md:col-span-2">
           <Logo variant="light" />
           <p className="mt-5 max-w-sm text-sm text-white/60">
-            Plataforma premium de preparação para a prova prática do Revalida. Treine, corrija, repita
-            e evolua.
+            Plataforma premium de preparação para a prova prática do Revalida. Treine, corrija,
+            repita e evolua.
           </p>
           <div className="mt-6 flex gap-3">
             <a
               href="https://wa.me/5500000000000"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 hover:bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
               aria-label="WhatsApp"
             >
               <MessageCircle className="h-5 w-5" />
             </a>
             <a
               href="#"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 hover:bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
               aria-label="Instagram"
             >
               <Instagram className="h-5 w-5" />
@@ -777,7 +991,8 @@ function Footer() {
           <div className="text-sm font-semibold text-white">Produto</div>
           <ul className="mt-4 space-y-2 text-sm text-white/60">
             <li><a href="#como-funciona">Como funciona</a></li>
-            <li><a href="#areas">Estações</a></li>
+            <li><a href="#simulacao">Simulação</a></li>
+            <li><a href="#recursos">Recursos</a></li>
             <li><a href="#planos">Planos</a></li>
             <li><a href="#faq">FAQ</a></li>
           </ul>
@@ -792,20 +1007,106 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-white/10 py-6 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} Estação Revalida · Conteúdo educacional autoral. Não afiliado ao INEP ou ao governo.
+        © {new Date().getFullYear()} Estação Revalida · Conteúdo educacional autoral. Não
+        afiliado ao INEP ou ao governo.
       </div>
     </footer>
   );
 }
 
+/* ---------------- Section title helper ---------------- */
 function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium uppercase tracking-wider text-medical">
+      <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/40 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
         <span className="h-1.5 w-1.5 rounded-full bg-mint" />
         {eyebrow}
       </div>
-      <h2 className="mt-4 font-display text-3xl font-bold leading-tight md:text-4xl">{title}</h2>
+      <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight md:text-4xl lg:text-5xl">
+        {title}
+      </h2>
     </div>
+  );
+}
+
+/* ---------------- Floating social-proof notifications ---------------- */
+type FakeNotif = {
+  kind: "compra" | "conquista" | "aprovado" | "online";
+  title: string;
+  subtitle: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const FAKE_NOTIFS: FakeNotif[] = [
+  { kind: "compra", title: "Dr. Lucas R. assinou o plano Completo", subtitle: "há 2 minutos · São Paulo", icon: Sparkles },
+  { kind: "conquista", title: "Ana acabou de completar 50 estações", subtitle: "Clínica Médica · há 4 min", icon: Trophy },
+  { kind: "aprovado", title: "João foi aprovado no Revalida 2025.1", subtitle: "Treinou 142 estações", icon: CheckCircle2 },
+  { kind: "online", title: "+128 médicos estudando agora", subtitle: "Salas ao vivo abertas", icon: Users },
+  { kind: "compra", title: "Dra. Marina P. assinou o Completo Mensal", subtitle: "há 7 minutos · Recife", icon: Sparkles },
+  { kind: "conquista", title: "Bruno bateu 90% no checklist de Pediatria", subtitle: "há 9 min", icon: Trophy },
+  { kind: "aprovado", title: "Camila foi aprovada · Revalida 2024.2", subtitle: "Treinou 98 estações", icon: CheckCircle2 },
+  { kind: "compra", title: "Dr. Pedro H. assinou o Ator", subtitle: "há 12 min · Curitiba", icon: Sparkles },
+];
+
+function FloatingNotifications() {
+  const [index, setIndex] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (dismissed) return;
+    const showT = setTimeout(() => setVisible(true), 3500);
+    return () => clearTimeout(showT);
+  }, [dismissed]);
+
+  useEffect(() => {
+    if (dismissed || !visible) return;
+    const id = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % FAKE_NOTIFS.length);
+        setVisible(true);
+      }, 400);
+    }, 6500);
+    return () => clearInterval(id);
+  }, [dismissed, visible]);
+
+  if (dismissed) return null;
+
+  const n = FAKE_NOTIFS[index];
+  const Icon = n.icon;
+  const tone =
+    n.kind === "aprovado"
+      ? "bg-mint text-night"
+      : n.kind === "online"
+      ? "bg-primary text-white"
+      : n.kind === "conquista"
+      ? "bg-mint-soft text-primary"
+      : "bg-mint text-night";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="fixed bottom-4 left-4 z-[60] max-w-xs sm:bottom-6 sm:left-6"
+    >
+      <div className="relative flex items-center gap-3 rounded-2xl border border-border bg-card p-3 pr-9 shadow-elegant">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${tone}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-xs font-bold text-foreground">{n.title}</p>
+          <p className="mt-0.5 truncate text-[10px] text-muted-foreground">{n.subtitle}</p>
+        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Fechar"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </motion.div>
   );
 }
