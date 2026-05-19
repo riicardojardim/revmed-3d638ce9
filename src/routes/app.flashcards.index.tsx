@@ -37,12 +37,14 @@ type Step = "list" | "cover" | "play";
 
 function FlashcardsPage() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
   
   const [step, setStep] = useState<Step>("list");
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
+  const [suggestedStation, setSuggestedStation] = useState<SuggestedStation | null>(null);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   // Stats da sessão
@@ -56,7 +58,7 @@ function FlashcardsPage() {
     queryFn: async () => {
       const { data: ds } = await supabase
         .from("flashcard_decks")
-        .select("id, title, specialty, topic, cover_image_url")
+        .select("id, title, specialty, topic, cover_image_url, station_id")
         .eq("published", true)
         .order("created_at", { ascending: false });
       const list = (ds ?? []) as Deck[];
