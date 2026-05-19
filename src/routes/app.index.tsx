@@ -438,7 +438,12 @@ function Dashboard() {
               Meta: ≥ <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span>
             </span>
           </div>
-          <ul className="mt-3 space-y-3">
+          <motion.ul
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="mt-3 space-y-3"
+          >
             {MEDAL_SPECIALTIES.map((s) => {
               const meta = getSpecialtyMeta(s.key);
               const { avg, n } = getSpecAvg(stats.bySpec, s.key);
@@ -446,7 +451,7 @@ function Dashboard() {
               const target = NOTA_DE_CORTE;
               const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
               return (
-                <li key={s.key} className="space-y-1.5">
+                <motion.li key={s.key} variants={staggerItem} className="space-y-1.5">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <div className="flex min-w-0 items-center gap-2">
                       <span className={`inline-flex h-6 min-w-[2rem] shrink-0 items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
@@ -462,17 +467,23 @@ function Dashboard() {
                     </div>
                   </div>
                   <div className="relative h-2 overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full rounded-full ${meta.solid} transition-all`} style={{ width: `${pct}%` }} />
+                    <motion.div
+                      className={`h-full rounded-full ${meta.solid}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                    />
                     <div
                       className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-foreground/60"
                       style={{ left: `${target}%` }}
                       title={`Nota de corte INEP — ${NOTA_DE_CORTE.toFixed(3)} pts`}
                     />
                   </div>
-                </li>
+                </motion.li>
               );
             })}
-          </ul>
+          </motion.ul>
+
         </div>
       </Link>
       </motion.div>
