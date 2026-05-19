@@ -2375,6 +2375,7 @@ function SectionGenerateSummary({ station }: { station: Station }) {
     setLoading(true);
     setSummary(null);
     setPublished(false);
+    setValidation(null);
     try {
       const res = await generate({
         data: {
