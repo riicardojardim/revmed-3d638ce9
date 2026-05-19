@@ -44,6 +44,7 @@ import {
   StickyNote,
   Inbox,
   Eye,
+  History,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
