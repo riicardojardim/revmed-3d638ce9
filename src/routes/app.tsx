@@ -36,6 +36,7 @@ import {
   DollarSign,
   Stethoscope,
   FileStack,
+  FileText,
   Calendar,
   DoorOpen,
   Video,
