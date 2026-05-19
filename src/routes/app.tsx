@@ -209,7 +209,7 @@ function AppLayout() {
 
   return (
     <OnlinePresenceProvider>
-    <div className="flex min-h-screen w-full bg-background">
+    <div className="flex min-h-dvh w-full min-w-0 overflow-x-hidden bg-background">
       {/* Desktop sidebar — fixa */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar">
 
@@ -306,11 +306,11 @@ function AppLayout() {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
         {/* Topbar */}
         <header
-          className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl md:px-6 lg:px-8"
-          style={{ paddingTop: "max(env(safe-area-inset-top), 0px)" }}
+          className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-2 border-b border-border bg-background/80 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:px-6 lg:px-8"
+          style={{ paddingTop: "max(env(safe-area-inset-top), 10px)", paddingLeft: "max(env(safe-area-inset-left), 0.75rem)", paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
         >
           <div className="flex items-center gap-2">
             <Logo />
@@ -368,7 +368,7 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-32 pt-6 md:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-hidden px-3 pb-32 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
           <Outlet />
         </main>
 
