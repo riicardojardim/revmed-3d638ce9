@@ -931,12 +931,13 @@ function BeforeAfter() {
           <p className="text-sm font-semibold text-primary">
             Pare de adivinhar como vai ser a prova. Faça a prova antes da prova.
           </p>
-          <Link to="/cadastro">
-            <Button className="h-10 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90">
-              Treinar minha 1ª estação grátis
-              <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
-          </Link>
+          <Button
+            onClick={scrollToPlanos}
+            className="h-10 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90"
+          >
+            Ver planos
+            <ArrowRight className="ml-1.5 h-4 w-4" />
+          </Button>
         </div>
       </div>
     </section>
