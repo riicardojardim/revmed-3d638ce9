@@ -55,7 +55,7 @@ function EntrarCodigo() {
             <Sparkles className="h-3 w-3" /> Acesso rápido
           </div>
           <h1 className="mt-3 font-display text-3xl font-bold leading-tight md:text-4xl">
-            Entrar em uma <span className="bg-gradient-to-r from-mint to-medical bg-clip-text text-transparent">estação</span>
+            Entrar em uma <span className="bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-mint dark:to-medical bg-clip-text text-transparent">estação</span>
           </h1>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground md:text-base">
             Digite ou cole o código compartilhado pelo seu mentor ou colega de treino.
