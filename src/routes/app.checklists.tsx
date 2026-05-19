@@ -139,33 +139,60 @@ function StationsPage() {
 
 
           {/* Specialty filters */}
-          <div className="space-y-1.5 lg:space-y-0">
-            <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="w-full justify-center lg:hidden">
-              Todas
-            </FilterChip>
-            <div className="grid grid-cols-3 gap-1.5 lg:flex lg:flex-wrap lg:items-center">
-              <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="hidden lg:inline-flex">
-                Todas
-              </FilterChip>
-              {SPECIALTIES.map((s) => {
-                const meta = getSpecialtyMeta(s);
-                return (
-                  <FilterChip
-                    key={s}
-                    active={spec === s}
-                    onClick={() => setSpec(s)}
-                    accentClass={meta.solid}
-                    small
-                    className="w-full justify-center lg:w-auto"
-                  >
-                    <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
-                    <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
-                    <span className="hidden whitespace-nowrap lg:inline">{s}</span>
+          {(() => {
+            const order: Specialty[] = ["Cirurgia", "Pediatria", "Clínica Médica", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade"];
+            const row1 = order.slice(0, 3);
+            const row2 = order.slice(3);
+            const renderMobile = (s: Specialty) => {
+              const meta = getSpecialtyMeta(s);
+              const active = spec === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpec(s)}
+                  title={s}
+                  className={cn(
+                    "inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-full border px-2 text-[11px] font-medium leading-tight transition-all",
+                    active
+                      ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                      : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                  )}
+                >
+                  <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", meta.solid)} />
+                  <span className="truncate text-center">{s}</span>
+                </button>
+              );
+            };
+            return (
+              <div className="space-y-2 lg:space-y-0">
+                {/* Mobile/Tablet */}
+                <div className="space-y-2 lg:hidden">
+                  <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small className="h-10 w-full justify-center">
+                    Todas
                   </FilterChip>
-                );
-              })}
-            </div>
-          </div>
+                  <div className="grid grid-cols-3 gap-2">{row1.map(renderMobile)}</div>
+                  <div className="grid grid-cols-2 gap-2">{row2.map(renderMobile)}</div>
+                </div>
+                {/* Desktop */}
+                <div className="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
+                  <FilterChip active={spec === "Todas"} onClick={() => setSpec("Todas")} small>
+                    Todas
+                  </FilterChip>
+                  {SPECIALTIES.map((s) => {
+                    const meta = getSpecialtyMeta(s);
+                    return (
+                      <FilterChip key={s} active={spec === s} onClick={() => setSpec(s)} accentClass={meta.solid} small>
+                        <span className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${meta.solid}`} />
+                        <span className="whitespace-nowrap">{s}</span>
+                      </FilterChip>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+
 
 
 
