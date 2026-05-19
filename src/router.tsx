@@ -9,11 +9,11 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
-    // Prefetch on hover/touchstart de qualquer <Link/>, com latência mínima.
-    defaultPreload: "intent",
-    defaultPreloadDelay: 30,
-    // Mantém dado pré-carregado fresco por 30s para evitar refetch ao entrar.
-    defaultPreloadStaleTime: 30_000,
+    // Preload desativado: a versão atual do @tanstack/router-core estoura
+    // "Cannot read properties of undefined (reading '_nonReactive')" durante
+    // preloadRoute, o que engasga cliques em <Link>. Reativar quando atualizarmos.
+    defaultPreload: false,
+    defaultPreloadStaleTime: 0,
   });
 
 
