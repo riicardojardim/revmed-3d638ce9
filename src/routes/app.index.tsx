@@ -288,15 +288,21 @@ function Dashboard() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
-      <DashboardCountdown seconds={3} />
+      <DashboardCountdown seconds={3} onDone={() => setReady(true)} />
 
-
+      <motion.div
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.16, delayChildren: 0.05 } },
+        }}
+        initial="hidden"
+        animate={ready ? "show" : "hidden"}
+        className="space-y-6"
+      >
 
       {/* Top row: welcome + stats */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        variants={staggerItem}
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
       >
         <motion.div
@@ -325,33 +331,19 @@ function Dashboard() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div>
           <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
-        </motion.div>
+        </div>
       </motion.div>
 
 
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-      >
+      <motion.div variants={staggerItem}>
         <BadgesCard stats={stats} />
       </motion.div>
 
-
-
-
-
       {/* Meu Desempenho */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        variants={staggerItem}
         whileHover={{ y: -2 }}
       >
       <Link
