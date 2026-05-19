@@ -1764,7 +1764,10 @@ function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
         <span className="h-1 w-1 rounded-full bg-mint" />
         {eyebrow}
       </div>
-      <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl lg:text-[2rem]">
+      <h2
+        className="mt-3 text-balance font-display font-extrabold leading-[1.12] tracking-tight"
+        style={{ fontSize: "clamp(1.35rem, 5.5vw, 2rem)" }}
+      >
         {title}
       </h2>
     </div>
