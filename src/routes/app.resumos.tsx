@@ -580,33 +580,37 @@ function ResumosPage() {
                     <section
                       key={section.title}
                       className={cn(
-                        "rounded-2xl border bg-card p-5 shadow-card",
-                        section.tone === "highlight" && "border-mint/30 bg-mint/[0.04]",
-                        section.tone === "warn" && "border-amber-400/30 bg-amber-400/[0.04]",
+                        "overflow-hidden rounded-2xl border bg-card shadow-card",
+                        section.tone === "highlight" && "border-mint/30",
+                        section.tone === "warn" && "border-amber-400/30",
                         section.tone === "default" && "border-border",
                       )}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-hero text-xs font-bold tabular-nums text-white shadow-elegant ring-1 ring-white/20">
+                      <header className="flex items-center gap-3 bg-gradient-hero px-4 py-3 text-white shadow-elegant">
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/15 text-[11px] font-bold tabular-nums ring-1 ring-white/30">
                           {String(index + 1).padStart(2, "0")}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <section.icon
-                            className={cn(
-                              "h-4 w-4",
-                              section.tone === "highlight"
-                                ? "text-mint"
-                                : section.tone === "warn"
-                                  ? "text-amber-500"
-                                  : "text-muted-foreground",
-                            )}
-                          />
-                          <h3 className="font-display text-sm font-bold uppercase tracking-wide">
-                            {section.title}
-                          </h3>
-                        </div>
-                      </div>
-                      <div className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-foreground/90">
+                        <section.icon
+                          className={cn(
+                            "h-4 w-4 shrink-0",
+                            section.tone === "highlight"
+                              ? "text-mint"
+                              : section.tone === "warn"
+                                ? "text-amber-300"
+                                : "text-white/90",
+                          )}
+                        />
+                        <h3 className="min-w-0 truncate font-display text-sm font-bold uppercase tracking-wide">
+                          {section.title}
+                        </h3>
+                      </header>
+                      <div
+                        className={cn(
+                          "whitespace-pre-wrap p-5 text-[14px] leading-relaxed text-foreground/90",
+                          section.tone === "highlight" && "bg-mint/[0.04]",
+                          section.tone === "warn" && "bg-amber-400/[0.04]",
+                        )}
+                      >
                         {section.text}
                       </div>
                     </section>
