@@ -24,19 +24,36 @@ const InputSchema = z.object({
   checklist_items: z.array(ChecklistItemSchema).min(1, "O checklist (PEP) precisa ter pelo menos 1 item preenchido para gerar o resumo.").max(200),
 });
 
+const coerceText = (max: number, min = 10) => z.preprocess((value) => {
+  if (value == null) return "";
+  if (Array.isArray(value)) return value.map((v) => String(v ?? "")).join("\n").trim().slice(0, max);
+  return String(value).trim().slice(0, max);
+}, z.string().min(min).max(max));
+
 const ResultSchema = z.object({
-  title: z.string().min(3).max(200),
-  topic: z.string().max(200).optional().nullable(),
-  difficulty: z.enum(["Básico", "Intermediário", "Avançado"]).default("Intermediário"),
-  read_time_minutes: z.number().int().min(2).max(30).default(7),
-  high_yield: z.boolean().default(false),
-  definition: z.string().min(20).max(2500),
-  clinical_picture: z.string().min(20).max(3000),
-  diagnosis: z.string().min(20).max(3500),
-  conduct: z.string().min(20).max(4000),
-  key_points: z.string().min(10).max(2500),
-  pitfalls: z.string().min(10).max(2500),
-  sources: z.array(z.string().max(200)).max(15).default([]),
+  title: coerceText(200, 3),
+  topic: z.preprocess((value) => (value == null ? null : String(value).trim().slice(0, 200)), z.string().max(200).nullable()).optional(),
+  difficulty: z.preprocess((value) => {
+    const v = String(value ?? "").toLowerCase();
+    if (v.includes("av")) return "Avançado";
+    if (v.includes("b")) return "Básico";
+    return "Intermediário";
+  }, z.enum(["Básico", "Intermediário", "Avançado"])).default("Intermediário"),
+  read_time_minutes: z.coerce.number().int().min(2).max(30).catch(7),
+  high_yield: z.preprocess((value) => {
+    if (typeof value === "string") return /^(true|sim|yes|1|alta)/i.test(value.trim());
+    return value;
+  }, z.boolean()).catch(false),
+  definition: coerceText(3500, 20),
+  clinical_picture: coerceText(4500, 20),
+  diagnosis: coerceText(5000, 20),
+  conduct: coerceText(7000, 20),
+  key_points: coerceText(3500, 10),
+  pitfalls: coerceText(3500, 10),
+  sources: z.preprocess((value) => {
+    const list = Array.isArray(value) ? value : value ? [value] : [];
+    return list.map((s) => String(s).trim().slice(0, 200)).filter(Boolean).slice(0, 15);
+  }, z.array(z.string().max(200)).max(15)).default([]),
 });
 
 const SYSTEM_PROMPT = `Você é um professor médico brasileiro, especialista em preparação para o Revalida/INEP, com domínio profundo de medicina baseada em evidências.
