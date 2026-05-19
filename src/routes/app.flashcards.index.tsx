@@ -465,7 +465,7 @@ function FlashcardsList({
           </div>
 
           {/* Specialty filters */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible">
             {specialties.map((s) => {
               const meta = s === "Todas" ? null : getSpecialtyMeta(s);
               const active = specialty === s;
@@ -475,7 +475,7 @@ function FlashcardsList({
                   type="button"
                   onClick={() => setSpecialty(s)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
                     active
                       ? meta
                         ? "border-foreground/20 bg-card text-foreground shadow-sm"
@@ -483,12 +483,13 @@ function FlashcardsList({
                       : "border-border bg-background text-muted-foreground hover:border-mint/40",
                   )}
                 >
-                  {meta && <span className={cn("inline-block h-2 w-2 rounded-full", meta.solid)} />}
-                  {s === "Todas" ? "Todas as áreas" : s}
+                  {meta && <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", meta.solid)} />}
+                  <span className="whitespace-nowrap">{s === "Todas" ? "Todas" : s}</span>
                 </button>
               );
             })}
           </div>
+
 
           {/* Deck covers grid */}
           {filtered.length === 0 ? (
@@ -602,7 +603,7 @@ function FlashcardsList({
                 className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
               />
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1">
               {specialties.map((s) => {
                 const meta = s === "Todas" ? null : getSpecialtyMeta(s);
                 const active = allSpec === s;
@@ -611,19 +612,21 @@ function FlashcardsList({
                     key={s}
                     type="button"
                     onClick={() => setAllSpec(s)}
+                    title={s === "Todas" ? "Todas" : s}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                       active
                         ? "border-foreground/20 bg-card text-foreground shadow-sm"
                         : "border-border bg-background text-muted-foreground hover:border-mint/40",
                     )}
                   >
                     {meta && <span className={cn("inline-block h-1.5 w-1.5 rounded-full", meta.solid)} />}
-                    {s === "Todas" ? "Todas" : s}
+                    {s === "Todas" ? "Todas" : meta?.code ?? s}
                   </button>
                 );
               })}
             </div>
+
             <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
               {allFiltered.map((d) => {
                 const m = getSpecialtyMeta(d.specialty);
