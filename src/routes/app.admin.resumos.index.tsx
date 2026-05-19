@@ -146,8 +146,8 @@ function AdminResumosPage() {
     };
     const results: BR[] = [];
 
-    // Concorrência limitada para evitar saturar o AI Gateway
-    const CONCURRENCY = 2;
+    // Um por vez para evitar saturar a IA e reduzir timeouts em estações longas.
+    const CONCURRENCY = 1;
     let cursor = 0;
     let doneCount = 0;
     async function worker() {
@@ -279,7 +279,7 @@ function AdminResumosPage() {
               <Sparkles className="h-5 w-5 text-mint" /> Gerar resumos em lote
             </DialogTitle>
             <DialogDescription>
-              Selecione as estações. Cada resumo é gerado por IA (GPT‑5 com fallback Gemini 2.5 Pro), validado e salvo como rascunho.
+              Selecione as estações. Cada resumo é gerado por IA, validado e salvo como rascunho.
             </DialogDescription>
           </DialogHeader>
 
