@@ -147,10 +147,8 @@ function AppLayout() {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
           { to: "/app/checklists", label: "Checklists", icon: ClipboardList },
-          
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
-          
-          
+          { to: "/app/resumos", label: "Resumos", icon: BookOpen },
           ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
