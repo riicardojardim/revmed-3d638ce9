@@ -263,8 +263,91 @@ function StationsPage() {
       </div>
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
 
+      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+        <DialogContent className="max-w-3xl overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-mint" />
+              Todos os checklists
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={allSearch}
+                onChange={(e) => setAllSearch(e.target.value)}
+                placeholder="Buscar por tema ou especialidade..."
+                className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setAllSpec("Todas")}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                  allSpec === "Todas"
+                    ? "border-mint bg-mint/10 text-foreground"
+                    : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                )}
+              >
+                Todas
+              </button>
+              {SPECIALTIES.map((s) => {
+                const m = getSpecialtyMeta(s);
+                const active = allSpec === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setAllSpec(s)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      active
+                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                    )}
+                  >
+                    <span className={cn("inline-block h-1.5 w-1.5 rounded-full", m.solid)} />
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+            <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
+              {dbStations
+                .filter((s) => {
+                  if (allSpec !== "Todas" && s.specialty !== allSpec) return false;
+                  const term = allSearch.trim().toLowerCase();
+                  if (!term) return true;
+                  return s.title.toLowerCase().includes(term) || s.specialty.toLowerCase().includes(term);
+                })
+                .map((s) => {
+                  const m = getSpecialtyMeta(s.specialty);
+                  return (
+                    <li key={s.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
+                      <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
+                      </div>
+                      <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); startStation(s); }}>
+                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </li>
+                  );
+                })}
+              {dbStations.length === 0 && (
+                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum checklist publicado.</li>
+              )}
+            </ul>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
+
   );
 }
 
