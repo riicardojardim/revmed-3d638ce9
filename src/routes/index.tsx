@@ -689,7 +689,7 @@ function Resources() {
   const features = [
     { icon: ClipboardCheck, title: "Checklists oficiais", desc: "Itens avaliativos por categoria, alinhados ao INEP." },
     { icon: Clock, title: "Cronômetro integrado", desc: "Tempo real da prova, com alerta no minuto final." },
-    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo com 3 papéis, sem instalar nada." },
+    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo entre candidato e ator, sem instalar nada." },
     { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
     { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
     { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
