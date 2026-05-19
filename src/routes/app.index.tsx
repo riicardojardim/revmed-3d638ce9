@@ -86,8 +86,6 @@ function Dashboard() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
-  const [countdownActive, setCountdownActive] = useState(true);
-  const numDelay = countdownActive ? 3200 : 0;
   useEffect(() => { setVisibleCount(5); }, [search]);
 
   const isAtorPlan = isAtorOnly;
