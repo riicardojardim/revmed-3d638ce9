@@ -94,6 +94,11 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
   const [method, setMethod] = useState<PaymentMethod>("pix");
   const [submitting, setSubmitting] = useState(false);
 
+  const cpfDigits = form.cpf.replace(/\D/g, "");
+  const cpfInvalid = cpfDigits.length === 11 && !isValidCPF(form.cpf);
+  const cpfValid = cpfDigits.length === 11 && isValidCPF(form.cpf);
+  const confirmMismatch = form.confirm.length > 0 && form.password !== form.confirm;
+
   if (!plan) return null;
   const meta = PLAN_META[plan];
   const Icon = meta.icon;
@@ -289,13 +294,24 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
               <Input
                 id="cm_cpf"
                 inputMode="numeric"
-                className={inputCls}
+                className={cn(
+                  inputCls,
+                  cpfInvalid && "border-destructive focus-visible:ring-destructive",
+                  cpfValid && "border-mint",
+                )}
                 placeholder="000.000.000-00"
                 maxLength={14}
                 value={form.cpf}
                 onChange={(e) => update("cpf", formatCPF(e.target.value))}
+                aria-invalid={cpfInvalid}
                 required
               />
+              {cpfInvalid && (
+                <p className="mt-1 text-[11px] font-medium text-destructive">CPF inválido. Confira os dígitos.</p>
+              )}
+              {cpfValid && (
+                <p className="mt-1 text-[11px] font-medium text-mint">CPF válido ✓</p>
+              )}
             </div>
             <div>
               <Label htmlFor="cm_pwd" className="mb-1.5 block text-xs">Senha</Label>
@@ -303,7 +319,20 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
             </div>
             <div>
               <Label htmlFor="cm_pwd2" className="mb-1.5 block text-xs">Confirmar senha</Label>
-              <Input id="cm_pwd2" type="password" autoComplete="new-password" className={inputCls} value={form.confirm} onChange={(e) => update("confirm", e.target.value)} minLength={6} required />
+              <Input
+                id="cm_pwd2"
+                type="password"
+                autoComplete="new-password"
+                className={cn(inputCls, confirmMismatch && "border-destructive focus-visible:ring-destructive")}
+                value={form.confirm}
+                onChange={(e) => update("confirm", e.target.value)}
+                aria-invalid={confirmMismatch}
+                minLength={6}
+                required
+              />
+              {confirmMismatch && (
+                <p className="mt-1 text-[11px] font-medium text-destructive">As senhas não conferem.</p>
+              )}
             </div>
 
             {/* Payment method */}
@@ -353,7 +382,7 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
             form="checkout-form"
             size="lg"
             className="h-12 w-full rounded-xl bg-mint text-sm font-bold text-night shadow-glow hover:bg-mint/90"
-            disabled={submitting}
+            disabled={submitting || cpfInvalid || confirmMismatch}
           >
             {submitting ? (
               "Processando..."
