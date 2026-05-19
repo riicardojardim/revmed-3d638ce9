@@ -739,6 +739,8 @@ function SimuladoRunner({ id }: { id: string }) {
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
   const isWaiting = !running && !finishedStation;
+  const missingFromCall = candidates.filter((c) => !presentIdentities.has(c.id));
+  const allCandidatesPresent = candidates.length > 0 && missingFromCall.length === 0;
   const totalSec = Math.max(0, Math.floor(remaining));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
   const ss = String(totalSec % 60).padStart(2, "0");
