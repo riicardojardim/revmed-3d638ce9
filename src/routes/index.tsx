@@ -907,7 +907,6 @@ const plans = [
       "Flashcards e resumos",
       "Cronograma e histórico completo",
       "Vídeo-chamada integrada",
-      "Grupo de WhatsApp + suporte",
     ],
     bonuses: [
       { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
