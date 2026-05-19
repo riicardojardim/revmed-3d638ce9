@@ -647,12 +647,12 @@ function FlashcardsList({
               >
                 Todas
               </button>
-              <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-nowrap lg:items-center lg:gap-1.5 lg:overflow-x-auto">
+              <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-nowrap lg:items-center lg:gap-1">
                 <button
                   type="button"
                   onClick={() => setAllSpec("Todas")}
                   className={cn(
-                    "hidden lg:inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                    "hidden lg:inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-colors",
                     allSpec === "Todas"
                       ? "border-foreground/20 bg-card text-foreground shadow-sm"
                       : "border-border bg-background text-muted-foreground hover:border-mint/40",
@@ -670,7 +670,7 @@ function FlashcardsList({
                       onClick={() => setAllSpec(s)}
                       title={s}
                       className={cn(
-                        "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors lg:h-auto lg:w-auto lg:shrink-0 lg:px-2.5 lg:py-1 lg:text-xs",
+                        "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors lg:h-auto lg:w-auto lg:min-w-0 lg:flex-1 lg:px-2 lg:py-1 lg:text-[11px] lg:leading-tight",
                         active
                           ? "border-foreground/20 bg-card text-foreground shadow-sm"
                           : "border-border bg-background text-muted-foreground hover:border-mint/40",
@@ -678,11 +678,12 @@ function FlashcardsList({
                     >
                       <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full lg:h-1.5 lg:w-1.5", meta.solid)} />
                       <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
-                      <span className="hidden whitespace-nowrap lg:inline">{s}</span>
+                      <span className="hidden truncate lg:inline">{s}</span>
                     </button>
                   );
                 })}
               </div>
+
             </div>
 
 
