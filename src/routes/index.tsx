@@ -200,9 +200,12 @@ function Header() {
               <Link to="/login" onClick={() => setOpen(false)}>
                 <Button variant="outline" className="w-full">Entrar</Button>
               </Link>
-              <Link to="/cadastro" onClick={() => setOpen(false)}>
-                <Button className="w-full bg-mint text-night hover:bg-mint/90">Começar</Button>
-              </Link>
+              <Button
+                className="w-full bg-mint text-night hover:bg-mint/90"
+                onClick={() => { setOpen(false); scrollToPlanos(); }}
+              >
+                Começar
+              </Button>
             </div>
           </div>
         </div>
