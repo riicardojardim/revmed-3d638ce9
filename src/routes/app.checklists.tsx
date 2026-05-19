@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { createSimulado } from "@/lib/simulado";
 import { SimuladoBuilder } from "@/components/SimuladoBuilder";
+import { Reveal } from "@/components/ui/reveal";
+import { Shimmer } from "@/components/ui/shimmer";
 
 import { Users } from "lucide-react";
 import { toast } from "sonner";
@@ -111,13 +113,13 @@ function StationsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <div>
+    <div className="relative mx-auto max-w-7xl space-y-6">
+      <Reveal>
         <h1 className="font-display text-2xl font-bold md:text-3xl">Banco de Checklists</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Busque por tema, escolha uma estação e treine com o checklist oficial.
         </p>
-      </div>
+      </Reveal>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main column */}
@@ -159,8 +161,11 @@ function StationsPage() {
 
           {/* Cards */}
           {loading ? (
-            <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-              Carregando checklists...
+            <div className="grid gap-4 md:grid-cols-2">
+              <Shimmer className="h-36 rounded-2xl" />
+              <Shimmer className="h-36 rounded-2xl" />
+              <Shimmer className="h-36 rounded-2xl" />
+              <Shimmer className="h-36 rounded-2xl" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">

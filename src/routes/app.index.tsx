@@ -43,7 +43,6 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
-import { DashboardBackground } from "@/components/DashboardBackground";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { motion } from "framer-motion";
 
@@ -277,8 +276,6 @@ function Dashboard() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
-      <DashboardBackground />
-
 
       {/* Top row: welcome + stats */}
       <motion.div

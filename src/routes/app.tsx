@@ -1,6 +1,7 @@
 import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { DashboardBackground } from "@/components/DashboardBackground";
 import { Logo } from "@/components/Logo";
 
 import { UserAvatar } from "@/components/UserAvatar";
@@ -218,6 +219,7 @@ function AppLayout() {
 
   return (
     <OnlinePresenceProvider>
+    <DashboardBackground />
     <div className="flex min-h-dvh w-full min-w-0 overflow-x-hidden bg-background">
       {/* Desktop sidebar — fixa */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-sidebar">
