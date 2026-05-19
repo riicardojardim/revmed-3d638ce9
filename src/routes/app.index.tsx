@@ -7,7 +7,19 @@ import {
   ChevronDown,
   Clock,
   ListOrdered,
+  RotateCcw,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   SpecialtyMedals,
   NOTA_DE_CORTE,
