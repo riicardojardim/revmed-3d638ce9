@@ -889,16 +889,24 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
           <span className="font-semibold text-foreground">{unlockedCount}</span> de {badges.length} desbloqueadas
         </span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+      >
         {badges.map((b, i) => {
           const tone = TONE_CLASSES[b.tone];
           const Icon = b.icon;
           const pct = b.progress ? Math.round((b.progress.current / b.progress.goal) * 100) : 0;
           const hideOnMobile = !showAll && i >= MOBILE_LIMIT;
           return (
-            <div
+            <motion.div
               key={b.key}
-              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center transition ${
+              variants={staggerItem}
+              whileHover={{ y: -2, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 320, damping: 22 }}
+              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center ${
                 hideOnMobile ? "hidden sm:flex" : ""
               } ${
                 b.unlocked ? `border-border bg-background shadow-sm ring-1 ${tone.ring}` : "border-dashed border-border bg-muted/20"
@@ -924,10 +932,11 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
                   <div className="mt-0.5 text-[9px] text-muted-foreground">{b.progress.current}/{b.progress.goal}</div>
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
+
       {badges.length > MOBILE_LIMIT && (
         <button
           type="button"
