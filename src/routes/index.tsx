@@ -1122,7 +1122,7 @@ function Areas() {
     <section className="bg-card/40 py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
-        <div className="mt-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
           {areas.map((a, i) => (
             <motion.div
               key={a.name}
