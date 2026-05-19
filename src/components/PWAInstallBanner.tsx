@@ -122,7 +122,7 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-2xl border border-mint/40 bg-background/95 px-2.5 py-2 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
+        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-1 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
         role="dialog"
         aria-label="Instalar aplicativo"
         onPointerDown={onPointerDown}
