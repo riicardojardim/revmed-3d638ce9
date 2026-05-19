@@ -175,27 +175,3 @@ export function LoginBackground() {
     </div>
   );
 }
-
-function FloatingIcon({
-  className,
-  children,
-  color,
-  delay,
-}: {
-  className: string;
-  children: React.ReactNode;
-  color: "mint" | "medical";
-  delay: number;
-}) {
-  const cssVar = color === "mint" ? "var(--mint)" : "var(--medical)";
-  return (
-    <motion.div
-      className={`absolute ${className}`}
-      style={{ color: cssVar, opacity: 0.55 }}
-      animate={{ y: [0, -14, 0], rotate: [0, 4, -4, 0] }}
-      transition={{ duration: 7 + delay, repeat: Infinity, ease: "easeInOut", delay }}
-    >
-      {children}
-    </motion.div>
-  );
-}
