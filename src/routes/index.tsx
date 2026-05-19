@@ -1128,7 +1128,7 @@ function Areas() {
     { icon: Scissors, name: "Cirurgia", count: "18 estações" },
     { icon: Baby, name: "Pediatria", count: "22 estações" },
     { icon: Heart, name: "Ginecologia & Obstetrícia", count: "24 estações" },
-    { icon: HomeIcon, name: "Medicina de Família", count: "20 estações" },
+    { icon: HomeIcon, name: "Medicina de Família e Comunidade", count: "20 estações" },
   ];
   return (
     <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
