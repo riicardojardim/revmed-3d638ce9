@@ -89,17 +89,66 @@ function Dashboard() {
 
   const stats = useMemo(() => {
     const bySpec = new Map<string, { sum: number; n: number }>();
+    const dayCounts = new Map<string, number>();
+    const toKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     attempts.forEach((a) => {
       const k = a.specialty ?? "Outras";
       const cur = bySpec.get(k) ?? { sum: 0, n: 0 };
       cur.sum += Number(a.score) || 0;
       cur.n += 1;
       bySpec.set(k, cur);
+      const dk = toKey(new Date(a.created_at));
+      dayCounts.set(dk, (dayCounts.get(dk) ?? 0) + 1);
     });
     const total = attempts.length;
     const avg = total ? attempts.reduce((s, a) => s + Number(a.score), 0) / total : 0;
-    return { bySpec, total, avg };
+
+    // streak (dias consecutivos com ao menos 1 tentativa, terminando hoje ou ontem)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayKey = toKey(today);
+    const didToday = dayCounts.has(todayKey);
+    let streak = 0;
+    const cursor = new Date(today);
+    if (!didToday) cursor.setDate(cursor.getDate() - 1); // permite manter streak se ainda não estudou hoje
+    while (dayCounts.has(toKey(cursor))) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    // heatmap: últimas 12 semanas (84 dias) em colunas semanais
+    const HEAT_DAYS = 84;
+    const heatStart = new Date(today);
+    heatStart.setDate(heatStart.getDate() - (HEAT_DAYS - 1));
+    // ajusta para domingo
+    heatStart.setDate(heatStart.getDate() - heatStart.getDay());
+    const heatCells: { date: Date; key: string; count: number }[] = [];
+    const totalCells = Math.ceil((today.getTime() - heatStart.getTime()) / 86400000) + 1;
+    for (let i = 0; i < totalCells; i++) {
+      const d = new Date(heatStart);
+      d.setDate(d.getDate() + i);
+      const k = toKey(d);
+      heatCells.push({ date: d, key: k, count: dayCounts.get(k) ?? 0 });
+    }
+    const activeDays = Array.from(dayCounts.keys()).filter((k) => {
+      const [y, m, day] = k.split("-").map(Number);
+      const d = new Date(y, m - 1, day);
+      return d >= heatStart && d <= today;
+    }).length;
+
+    return { bySpec, total, avg, streak, didToday, heatCells, activeDays };
   }, [attempts]);
+
+  // Próxima ação recomendada: especialidade mais fraca entre as medalhas
+  const recommendation = useMemo(() => {
+    let weakest: { key: string; label: string; avg: number; n: number } | null = null;
+    for (const s of MEDAL_SPECIALTIES) {
+      const { avg, n } = getSpecAvg(stats.bySpec, s.key);
+      if (n === 0) return { key: s.key, label: s.label, avg: 0, n: 0, reason: "nunca treinada" as const };
+      if (!weakest || avg < weakest.avg) weakest = { key: s.key, label: s.label, avg, n };
+    }
+    return weakest ? { ...weakest, reason: "média mais baixa" as const } : null;
+  }, [stats.bySpec]);
 
   type SimGroup = { kind: "sim"; id: string; name: string; lastAt: string; total: number; stations: AttemptRow[]; avg: number };
   type SingleRow = { kind: "single"; id: string; lastAt: string; attempt: AttemptRow };
