@@ -1516,42 +1516,52 @@ const testimonials = [
   },
 ];
 
+function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
+  return (
+    <div className="w-[78vw] max-w-[320px] shrink-0 rounded-2xl border border-border bg-card p-5 shadow-card sm:w-auto sm:max-w-none">
+      <div className="flex gap-0.5 text-mint">
+        {Array.from({ length: 5 }).map((_, k) => (
+          <Star key={k} className="h-3.5 w-3.5 fill-current" />
+        ))}
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-foreground/90">"{t.text}"</p>
+      <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
+        <img
+          src={t.avatar}
+          alt={t.name}
+          width={40}
+          height={40}
+          loading="lazy"
+          className="h-10 w-10 rounded-full object-cover"
+        />
+        <div>
+          <div className="text-sm font-semibold">{t.name}</div>
+          <div className="text-[11px] text-muted-foreground">{t.role}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Testimonials() {
   return (
     <section className="bg-card/40 py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina com a gente" />
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.name}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: (i % 3) * 0.08 }}
-              className="rounded-2xl border border-border bg-card p-5 shadow-card"
-            >
-              <div className="flex gap-0.5 text-mint">
-                {Array.from({ length: 5 }).map((_, k) => (
-                  <Star key={k} className="h-3.5 w-3.5 fill-current" />
-                ))}
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-foreground/90">"{t.text}"</p>
-              <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
-                <img
-                  src={t.avatar}
-                  alt={t.name}
-                  width={40}
-                  height={40}
-                  loading="lazy"
-                  className="h-10 w-10 rounded-full object-cover"
-                />
-                <div>
-                  <div className="text-sm font-semibold">{t.name}</div>
-                  <div className="text-[11px] text-muted-foreground">{t.role}</div>
-                </div>
-              </div>
-            </motion.div>
+
+        {/* Mobile: marquee em 1 linha */}
+        <div className="relative mt-8 overflow-hidden sm:hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <div className="flex w-max gap-4 animate-marquee">
+            {[...testimonials, ...testimonials].map((t, i) => (
+              <TestimonialCard key={`${t.name}-${i}`} t={t} />
+            ))}
+          </div>
+        </div>
+
+        {/* sm+: grid */}
+        <div className="mt-10 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+          {testimonials.map((t) => (
+            <TestimonialCard key={t.name} t={t} />
           ))}
         </div>
       </div>
