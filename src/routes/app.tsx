@@ -1,6 +1,7 @@
 import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { DashboardBackground } from "@/components/DashboardBackground";
 import { Logo } from "@/components/Logo";
 
