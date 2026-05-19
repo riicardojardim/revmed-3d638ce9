@@ -50,6 +50,8 @@ function Dashboard() {
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
   const [detailId, setDetailId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(5);
+  useEffect(() => { setVisibleCount(5); }, [search]);
 
   const isAtorPlan = isAtorOnly;
   const isCompleto = isCompletoLike;
