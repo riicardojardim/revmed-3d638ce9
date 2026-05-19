@@ -76,6 +76,29 @@ export function PWAInstallBanner() {
     setVisible(false);
   };
 
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // ignore drags starting on buttons (let clicks work)
+    if ((e.target as HTMLElement).closest("button")) return;
+    dragStartRef.current = { x: e.clientX, id: e.pointerId };
+    setDragging(true);
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current || dragStartRef.current.id !== e.pointerId) return;
+    setDragX(e.clientX - dragStartRef.current.x);
+  };
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    dragStartRef.current = null;
+    setDragging(false);
+    if (Math.abs(dx) > 100) {
+      dismiss();
+    } else {
+      setDragX(0);
+    }
+  };
+
   const handleInstallClick = async () => {
     if (deferred) {
       try {
