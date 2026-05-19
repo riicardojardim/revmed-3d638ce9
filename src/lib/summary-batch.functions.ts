@@ -7,6 +7,70 @@ const InputSchema = z.object({
   station_ids: z.array(z.string().uuid()).min(1).max(30),
 });
 
+const SingleInputSchema = z.object({
+  station_id: z.string().uuid(),
+});
+
+// Gera UM resumo por chamada — desenhada para ser invocada em paralelo (com
+// concorrência limitada) pelo cliente, evitando timeouts de gateway em lotes
+// grandes. Cada chamada carrega a estação + checklist no servidor e retorna o
+// resultado da geração + validação automática.
+export const generateOneSummaryByStationId = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => SingleInputSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: station, error: sErr } = await supabase
+      .from("custom_stations")
+      .select("id, title, specialty, clinical_case, candidate_task, educational_goal, expected_conduct, common_mistakes, scoring_criteria, bibliographic_references")
+      .eq("id", data.station_id)
+      .single();
+    if (sErr || !station) throw new Error(sErr?.message || "Estação não encontrada");
+
+    const { data: items } = await supabase
+      .from("station_checklist_items")
+      .select("description, category, points, helper_text, order_index")
+      .eq("station_id", data.station_id)
+      .order("order_index");
+    const checklist = (items ?? []) as Array<{ description: string; category: string | null; points: number | null; helper_text: string | null }>;
+    if (checklist.length === 0) {
+      throw new Error("Checklist (PEP) vazio — preencha os itens antes de gerar o resumo.");
+    }
+
+    const refs = Array.isArray(station.bibliographic_references)
+      ? (station.bibliographic_references as Array<{ label?: string; url?: string }>).map((r) => ({
+          label: String(r?.label ?? r?.url ?? "Fonte"),
+          url: r?.url,
+        }))
+      : [];
+
+    const out = await generateAndSaveSummary(
+      {
+        station_id: station.id as string,
+        title: String(station.title ?? "Estação"),
+        specialty: String(station.specialty ?? "Clínica Médica"),
+        topic: null,
+        clinical_case: station.clinical_case ?? null,
+        candidate_task: station.candidate_task ?? null,
+        educational_goal: station.educational_goal ?? null,
+        expected_conduct: station.expected_conduct ?? null,
+        common_mistakes: station.common_mistakes ?? null,
+        scoring_criteria: station.scoring_criteria ?? null,
+        references: refs.slice(0, 40),
+        checklist_items: checklist.slice(0, 200),
+      },
+      supabase as never,
+      userId,
+    );
+
+    return {
+      summary_id: (out.summary as { id: string }).id,
+      title: (out.summary as { title: string }).title,
+      verdict: out.validation.verdict,
+      blocking: out.validation.blocking,
+    };
+  });
+
 type ItemResult =
   | { station_id: string; status: "ok"; summary_id: string; title: string; verdict: string; blocking: boolean }
   | { station_id: string; status: "error"; message: string }
