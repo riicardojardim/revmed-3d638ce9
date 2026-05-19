@@ -56,7 +56,10 @@ import { Logo } from "@/components/Logo";
 import { StaggerText, Magnetic, Tilt, Reveal } from "@/components/landing/motion-primitives";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckoutModal, type CheckoutPlanSlug } from "@/components/CheckoutModal";
+import type { CheckoutPlanSlug } from "@/components/CheckoutModal";
+const CheckoutModal = lazy(() =>
+  import("@/components/CheckoutModal").then((m) => ({ default: m.CheckoutModal })),
+);
 import candidate1 from "@/assets/candidate-1.jpg";
 import candidate2 from "@/assets/candidate-2.jpg";
 import candidate3 from "@/assets/candidate-3.jpg";
