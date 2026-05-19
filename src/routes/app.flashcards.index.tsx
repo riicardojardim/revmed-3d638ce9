@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, ChevronRight, List, X, Pencil, Clock, Timer, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight, List, X, Pencil, Clock, Timer, Search, Brain, ArrowRight, TrendingUp } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
@@ -37,7 +37,7 @@ function FlashcardsPage() {
   const [cardCounts, setCardCounts] = useState<Map<string, number>>(new Map());
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
-  const [expandedSpecs, setExpandedSpecs] = useState<Set<string>>(new Set());
+  
   const [step, setStep] = useState<Step>("list");
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
@@ -88,17 +88,6 @@ function FlashcardsPage() {
     });
   }, [decks, specialty, search]);
 
-  // Agrupa por especialidade (ordem canônica)
-  const grouped = useMemo(() => {
-    const map = new Map<string, Deck[]>();
-    filtered.forEach((d) => {
-      const arr = map.get(d.specialty) ?? [];
-      arr.push(d);
-      map.set(d.specialty, arr);
-    });
-    const orderedSpecs = sortSpecialties(Array.from(map.keys()));
-    return orderedSpecs.map((s) => ({ specialty: s, decks: map.get(s)! }));
-  }, [filtered]);
 
   async function openDeck(d: Deck) {
     setActiveDeck(d);
@@ -170,126 +159,19 @@ function FlashcardsPage() {
 
   // ===== LIST =====
   if (step === "list") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-            <List className="h-4 w-4" />
-            <span className="font-display font-bold text-foreground">Todos os Flashcards</span>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {filtered.length} flashcard{filtered.length === 1 ? "" : "s"}
-          </div>
-        </div>
-
-        {/* Filtros: busca + especialidade */}
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por título, especialidade ou tema…"
-              className="pl-9"
-            />
-          </div>
-          <Select value={specialty} onValueChange={setSpecialty}>
-            <SelectTrigger className="sm:w-[260px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {specialties.map((s) => <SelectItem key={s} value={s}>{s === "Todas" ? "Todas as Áreas" : s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-            Nenhum flashcard encontrado com esses filtros.
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {grouped.map(({ specialty: spec, decks: list }) => {
-              const meta = getSpecialtyMeta(spec);
-              const isExpanded = expandedSpecs.has(spec);
-              const PREVIEW = 2;
-              const visibleList = isExpanded ? list : list.slice(0, PREVIEW);
-              const remaining = list.length - PREVIEW;
-              return (
-                <section key={spec} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className={cn("inline-flex h-6 w-9 items-center justify-center rounded-md text-[11px] font-bold", meta.badge)}>
-                      {meta.code}
-                    </span>
-                    <h2 className="font-display text-lg font-bold">{spec}</h2>
-                    <span className="text-xs text-muted-foreground">· {list.length} deck{list.length === 1 ? "" : "s"}</span>
-                  </div>
-                  <div className="rounded-2xl border border-border bg-card overflow-hidden">
-                    <div className="hidden sm:grid grid-cols-[1fr_80px_120px] gap-4 px-5 py-3 text-xs uppercase tracking-wide text-muted-foreground border-b border-border">
-                      <div>Flashcard</div>
-                      <div className="text-center">Cards</div>
-                      <div className="text-right">Treinar</div>
-                    </div>
-                    <motion.div
-                      variants={staggerContainer}
-                      initial="hidden"
-                      animate="show"
-                    >
-                      <AnimatePresence initial={false}>
-                        {visibleList.map((d) => (
-                          <motion.div
-                            key={d.id}
-                            layout
-                            variants={staggerItem}
-                            initial="hidden"
-                            animate="show"
-                            exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
-                            className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_80px_120px] gap-3 sm:gap-4 items-center px-4 sm:px-5 py-3 border-b border-border/60 last:border-0 hover:bg-muted/20"
-                          >
-                            <div className="flex min-w-0 flex-col gap-0.5">
-                              <span className="truncate font-medium">{d.title}</span>
-                              {d.topic && (
-                                <span className="truncate text-[11px] text-muted-foreground">{d.topic}</span>
-                              )}
-                              <span className="text-[11px] text-muted-foreground sm:hidden">
-                                {cardCounts.get(d.id) ?? 0} cards
-                              </span>
-                            </div>
-                            <div className="hidden sm:block text-center text-sm text-muted-foreground tabular-nums">
-                              {cardCounts.get(d.id) ?? 0}
-                            </div>
-                            <div className="text-right">
-                              <Button size="sm" variant="hero" onClick={() => openDeck(d)}>Iniciar</Button>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </motion.div>
-                    {remaining > 0 && (
-                      <div className="flex justify-center border-t border-border/60 bg-muted/10 px-5 py-2.5">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            setExpandedSpecs((prev) => {
-                              const next = new Set(prev);
-                              if (isExpanded) next.delete(spec);
-                              else next.add(spec);
-                              return next;
-                            })
-                          }
-                        >
-                          {isExpanded ? "Ver menos" : `Ver mais ${remaining} flashcard${remaining === 1 ? "" : "s"}`}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
+    return <FlashcardsList
+      decks={decks}
+      filtered={filtered}
+      cardCounts={cardCounts}
+      specialties={specialties}
+      search={search}
+      setSearch={setSearch}
+      specialty={specialty}
+      setSpecialty={setSpecialty}
+      openDeck={openDeck}
+    />;
   }
+
 
 
   // ===== COVER =====
@@ -524,3 +406,250 @@ function FlashcardModalShell({ title, onClose, children }: { title: string; onCl
     </div>
   );
 }
+
+type FlashcardsListProps = {
+  decks: Deck[];
+  filtered: Deck[];
+  cardCounts: Map<string, number>;
+  specialties: string[];
+  search: string;
+  setSearch: (v: string) => void;
+  specialty: string;
+  setSpecialty: (v: string) => void;
+  openDeck: (d: Deck) => void;
+};
+
+function FlashcardsList({
+  decks, filtered, cardCounts, specialties, search, setSearch, specialty, setSpecialty, openDeck,
+}: FlashcardsListProps) {
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
+  const [allSpec, setAllSpec] = useState<string>("Todas");
+
+  const allFiltered = useMemo(() => {
+    const q = allSearch.trim().toLowerCase();
+    return decks.filter((d) => {
+      if (allSpec !== "Todas" && d.specialty !== allSpec) return false;
+      if (!q) return true;
+      return (
+        d.title.toLowerCase().includes(q) ||
+        d.specialty.toLowerCase().includes(q) ||
+        (d.topic ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [decks, allSpec, allSearch]);
+
+  return (
+    <div className="relative mx-auto max-w-7xl space-y-6">
+      <div>
+        <h1 className="font-display text-2xl font-bold md:text-3xl">Banco de Flashcards</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Escolha um deck e treine com cards no estilo Pense Revalida.
+        </p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        {/* Main column */}
+        <div className="space-y-5">
+          {/* Search */}
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por título, tema ou especialidade..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-11 pl-9 text-base"
+              />
+            </div>
+          </div>
+
+          {/* Specialty filters */}
+          <div className="flex flex-wrap gap-2">
+            {specialties.map((s) => {
+              const meta = s === "Todas" ? null : getSpecialtyMeta(s);
+              const active = specialty === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSpecialty(s)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all",
+                    active
+                      ? meta
+                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                        : "border-mint bg-mint/10 text-foreground"
+                      : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                  )}
+                >
+                  {meta && <span className={cn("inline-block h-2 w-2 rounded-full", meta.solid)} />}
+                  {s === "Todas" ? "Todas as áreas" : s}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Deck covers grid */}
+          {filtered.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
+              Nenhum flashcard encontrado{search ? ` para "${search}"` : ""}.
+            </div>
+          ) : (
+            <motion.div
+              key={filtered.slice(0, 4).map((d) => d.id).join("|")}
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+              className="grid gap-4 sm:grid-cols-2"
+            >
+              {filtered.slice(0, 4).map((d) => (
+                <motion.button
+                  key={d.id}
+                  variants={staggerItem}
+                  type="button"
+                  onClick={() => openDeck(d)}
+                  whileHover={{ y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                  className="group relative flex flex-col gap-3 rounded-2xl border border-border bg-card/80 p-4 text-left shadow-card backdrop-blur-sm transition-all hover:shadow-elegant"
+                >
+                  <div className="aspect-square w-full overflow-hidden rounded-xl">
+                    <DeckCover title={d.title} specialty={d.specialty} topic={d.topic} />
+                  </div>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="truncate font-display text-sm font-bold leading-tight">{d.title}</div>
+                      <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                        {d.specialty}{d.topic ? ` · ${d.topic}` : ""}
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint">
+                      {cardCounts.get(d.id) ?? 0} cards
+                    </span>
+                  </div>
+                </motion.button>
+              ))}
+              {filtered.length > 4 && (
+                <motion.div
+                  variants={staggerItem}
+                  className="sm:col-span-2 flex justify-center pt-2"
+                >
+                  <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
+                    Ver todos os {filtered.length} flashcards <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+          <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-mint/10 to-card p-5 shadow-card">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
+              <Brain className="h-5 w-5" />
+            </div>
+            <h3 className="mt-3 font-display text-lg font-bold">Todos os Flashcards</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Explore o catálogo completo de decks disponíveis.
+            </p>
+            <div className="mt-4 flex items-baseline gap-1">
+              <span className="font-display text-3xl font-bold">{decks.length}</span>
+              <span className="text-xs text-muted-foreground">decks publicados</span>
+            </div>
+            <Button
+              variant="outline"
+              className="mt-4 w-full"
+              onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}
+            >
+              Ver todos <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <Link
+            to="/app/flashcards/desempenho"
+            className="block overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/60"
+          >
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
+              <TrendingUp className="h-5 w-5" />
+            </div>
+            <h3 className="mt-3 font-display text-lg font-bold">Meu Desempenho</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Veja suas estatísticas e evolução nos flashcards.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-mint">
+              Ver detalhes <ChevronRight className="h-4 w-4" />
+            </div>
+          </Link>
+        </aside>
+      </div>
+
+      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+        <DialogContent className="max-w-3xl overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-mint" />
+              Todos os flashcards
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={allSearch}
+                onChange={(e) => setAllSearch(e.target.value)}
+                placeholder="Buscar flashcard..."
+                className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {specialties.map((s) => {
+                const meta = s === "Todas" ? null : getSpecialtyMeta(s);
+                const active = allSpec === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setAllSpec(s)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      active
+                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                    )}
+                  >
+                    {meta && <span className={cn("inline-block h-1.5 w-1.5 rounded-full", meta.solid)} />}
+                    {s === "Todas" ? "Todas" : s}
+                  </button>
+                );
+              })}
+            </div>
+            <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
+              {allFiltered.map((d) => {
+                const m = getSpecialtyMeta(d.specialty);
+                return (
+                  <li key={d.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
+                    <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">{d.title}</div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        {d.specialty}{d.topic ? ` • ${d.topic}` : ""} • {cardCounts.get(d.id) ?? 0} cards
+                      </div>
+                    </div>
+                    <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); openDeck(d); }}>
+                      Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </li>
+                );
+              })}
+              {allFiltered.length === 0 && (
+                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum flashcard encontrado.</li>
+              )}
+            </ul>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
