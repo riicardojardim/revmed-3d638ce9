@@ -120,6 +120,22 @@ function Dashboard() {
       cursor.setDate(cursor.getDate() - 1);
     }
 
+    // melhor sequência (qualquer período)
+    const sortedKeys = Array.from(dayCounts.keys()).sort();
+    let bestStreak = 0;
+    let curBest = 0;
+    let prev: Date | null = null;
+    for (const k of sortedKeys) {
+      const [y, mo, da] = k.split("-").map(Number);
+      const d = new Date(y, mo - 1, da);
+      if (prev) {
+        const diff = Math.round((d.getTime() - prev.getTime()) / 86400000);
+        curBest = diff === 1 ? curBest + 1 : 1;
+      } else curBest = 1;
+      if (curBest > bestStreak) bestStreak = curBest;
+      prev = d;
+    }
+
     // heatmap: últimas 12 semanas (84 dias) em colunas semanais
     const HEAT_DAYS = 84;
     const heatStart = new Date(today);
@@ -140,7 +156,28 @@ function Dashboard() {
       return d >= heatStart && d <= today;
     }).length;
 
-    return { bySpec, total, avg, streak, didToday, heatCells, activeDays };
+    // métricas para badges
+    const maxScore = attempts.reduce((m, a) => Math.max(m, Number(a.score) || 0), 0);
+    const maxDayCount = Array.from(dayCounts.values()).reduce((m, n) => Math.max(m, n), 0);
+    const simGroups = new Map<string, { total: number; stations: number }>();
+    for (const a of attempts) {
+      if (!a.simulado_id || (a.simulado_total_stations ?? 0) <= 1) continue;
+      const g = simGroups.get(a.simulado_id) ?? { total: a.simulado_total_stations ?? 0, stations: 0 };
+      g.stations += 1;
+      simGroups.set(a.simulado_id, g);
+    }
+    const simulatedCompleted = Array.from(simGroups.values()).filter((g) => g.stations >= g.total && g.total > 0).length;
+    const specialtiesTouched = new Set(MEDAL_SPECIALTIES.filter((s) => getSpecAvg(bySpec, s.key).n > 0).map((s) => s.key)).size;
+    const specialtiesMastered = MEDAL_SPECIALTIES.filter((s) => {
+      const { avg, n } = getSpecAvg(bySpec, s.key);
+      return n >= 5 && avg >= 7;
+    }).length;
+    const aboveCut = attempts.some((a) => Number(a.score) >= NOTA_DE_CORTE_ESCALA10);
+
+    return {
+      bySpec, total, avg, streak, didToday, heatCells, activeDays,
+      bestStreak, maxScore, maxDayCount, simulatedCompleted, specialtiesTouched, specialtiesMastered, aboveCut,
+    };
   }, [attempts]);
 
   // Próxima ação recomendada: especialidade mais fraca entre as medalhas
