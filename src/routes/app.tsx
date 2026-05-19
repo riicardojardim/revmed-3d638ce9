@@ -27,7 +27,7 @@ import {
   DoorOpen,
   Video,
   Sparkles,
-  Clock,
+  
   MessageSquare,
   Headphones,
   ChevronDown,
