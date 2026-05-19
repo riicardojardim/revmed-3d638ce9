@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Crown, Repeat, Users, CreditCard, QrCode, ShieldCheck } from "lucide-react";
+import { ArrowRight, Crown, Repeat, Users, CreditCard, QrCode, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
+import { cn } from "@/lib/utils";
 
 export type CheckoutPlanSlug = "completo" | "mensal" | "ator";
 
@@ -44,6 +46,42 @@ interface Props {
   plan: CheckoutPlanSlug | null;
   open: boolean;
   onOpenChange: (v: boolean) => void;
+}
+
+/**
+ * Sheet-style content para mobile + dialog centralizado a partir de sm.
+ * Substitui o DialogContent padrão para conseguir o comportamento responsivo
+ * sem mexer no shadcn/Dialog global.
+ */
+function SheetContent({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        className={cn(
+          // mobile: bottom sheet
+          "fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] w-full flex-col rounded-t-3xl border border-border bg-background shadow-2xl outline-none",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          // sm+: dialog centralizado
+          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[92vh] sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
+          "sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=closed]:slide-out-to-bottom-0",
+          className,
+        )}
+      >
+        {/* Drag handle (mobile) */}
+        <div className="flex justify-center pt-2 sm:hidden">
+          <span className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
+        </div>
+        {children}
+        <DialogPrimitive.Close
+          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/70 text-foreground/80 transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:right-4 sm:top-4"
+          aria-label="Fechar"
+        >
+          <X className="h-4 w-4" />
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  );
 }
 
 export function CheckoutModal({ plan, open, onOpenChange }: Props) {
@@ -139,147 +177,188 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
     onOpenChange(false);
   }
 
+  const inputCls =
+    "h-11 rounded-xl text-[16px]"; // 16px evita zoom no iOS
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl">
-        <DialogHeader>
-          <DialogTitle className="font-display text-xl">Finalizar assinatura</DialogTitle>
-          <DialogDescription>Crie sua conta e escolha como pagar. Acesso liberado após confirmação.</DialogDescription>
-        </DialogHeader>
+      <SheetContent>
+        {/* Header fixo */}
+        <div className="shrink-0 border-b border-border/60 px-4 pb-3 pt-3 sm:px-6 sm:pt-5">
+          <DialogPrimitive.Title className="font-display text-lg font-bold sm:text-xl">
+            Finalizar assinatura
+          </DialogPrimitive.Title>
+          <DialogPrimitive.Description className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+            Crie sua conta e escolha como pagar. Acesso liberado após a confirmação.
+          </DialogPrimitive.Description>
 
-        {/* Plan summary */}
-        <div className="flex items-center justify-between rounded-2xl border border-mint/30 bg-mint/5 px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <Icon className="h-5 w-5 text-mint" />
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Plano</div>
-              <div className="font-display text-base font-bold">{meta.name}</div>
+          {/* Plan summary */}
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-mint/30 bg-gradient-to-br from-mint/10 to-mint-soft/40 px-3.5 py-2.5 sm:px-4 sm:py-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mint/20">
+                <Icon className="h-4.5 w-4.5 text-primary" />
+              </span>
+              <div className="min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Plano</div>
+                <div className="truncate font-display text-sm font-bold sm:text-base">{meta.name}</div>
+              </div>
             </div>
-          </div>
-          <div className="text-right">
-            <div className="font-display text-lg font-extrabold text-primary">{meta.price}</div>
-            <div className="text-[11px] text-muted-foreground">{meta.period}</div>
+            <div className="text-right">
+              <div className="font-display text-lg font-extrabold leading-none text-primary sm:text-xl">
+                {meta.price}
+              </div>
+              <div className="mt-1 text-[10px] text-muted-foreground sm:text-[11px]">{meta.period}</div>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="cm_first">Nome</Label>
-            <Input id="cm_first" value={form.first_name} onChange={(e) => update("first_name", e.target.value)} required />
-          </div>
-          <div>
-            <Label htmlFor="cm_last">Sobrenome</Label>
-            <Input id="cm_last" value={form.last_name} onChange={(e) => update("last_name", e.target.value)} required />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="cm_user">Nick (como vai aparecer)</Label>
-            <Input
-              id="cm_user"
-              value={form.username}
-              onChange={(e) => update("username", e.target.value.toLowerCase().replace(/\s/g, ""))}
-              placeholder="ex: dra.ana"
-              maxLength={20}
-              required
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="cm_email">E-mail</Label>
-            <Input id="cm_email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} required />
-          </div>
-          <div>
-            <Label htmlFor="cm_wpp">WhatsApp</Label>
-            <Input
-              id="cm_wpp"
-              type="tel"
-              inputMode="numeric"
-              placeholder="(11) 99999-9999"
-              maxLength={16}
-              value={form.whatsapp}
-              onChange={(e) => update("whatsapp", formatWhatsapp(e.target.value))}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="cm_birth">Data de nascimento</Label>
-            <Input
-              id="cm_birth"
-              type="date"
-              value={form.birth_date}
-              onChange={(e) => update("birth_date", e.target.value)}
-              max={new Date().toISOString().slice(0, 10)}
-              required
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="cm_cpf">CPF</Label>
-            <Input
-              id="cm_cpf"
-              inputMode="numeric"
-              placeholder="000.000.000-00"
-              maxLength={14}
-              value={form.cpf}
-              onChange={(e) => update("cpf", formatCPF(e.target.value))}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="cm_pwd">Senha</Label>
-            <Input id="cm_pwd" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} minLength={6} required />
-          </div>
-          <div>
-            <Label htmlFor="cm_pwd2">Confirmar senha</Label>
-            <Input id="cm_pwd2" type="password" value={form.confirm} onChange={(e) => update("confirm", e.target.value)} minLength={6} required />
-          </div>
+        {/* Form scrollável */}
+        <form
+          id="checkout-form"
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="cm_first" className="mb-1.5 block text-xs">Nome</Label>
+              <Input id="cm_first" autoComplete="given-name" className={inputCls} value={form.first_name} onChange={(e) => update("first_name", e.target.value)} required />
+            </div>
+            <div>
+              <Label htmlFor="cm_last" className="mb-1.5 block text-xs">Sobrenome</Label>
+              <Input id="cm_last" autoComplete="family-name" className={inputCls} value={form.last_name} onChange={(e) => update("last_name", e.target.value)} required />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="cm_user" className="mb-1.5 block text-xs">Nick (como vai aparecer)</Label>
+              <Input
+                id="cm_user"
+                autoComplete="username"
+                className={inputCls}
+                value={form.username}
+                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/\s/g, ""))}
+                placeholder="ex: dra.ana"
+                maxLength={20}
+                required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="cm_email" className="mb-1.5 block text-xs">E-mail</Label>
+              <Input id="cm_email" type="email" inputMode="email" autoComplete="email" className={inputCls} value={form.email} onChange={(e) => update("email", e.target.value)} required />
+            </div>
+            <div>
+              <Label htmlFor="cm_wpp" className="mb-1.5 block text-xs">WhatsApp</Label>
+              <Input
+                id="cm_wpp"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                className={inputCls}
+                placeholder="(11) 99999-9999"
+                maxLength={16}
+                value={form.whatsapp}
+                onChange={(e) => update("whatsapp", formatWhatsapp(e.target.value))}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="cm_birth" className="mb-1.5 block text-xs">Data de nascimento</Label>
+              <Input
+                id="cm_birth"
+                type="date"
+                autoComplete="bday"
+                className={inputCls}
+                value={form.birth_date}
+                onChange={(e) => update("birth_date", e.target.value)}
+                max={new Date().toISOString().slice(0, 10)}
+                required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="cm_cpf" className="mb-1.5 block text-xs">CPF</Label>
+              <Input
+                id="cm_cpf"
+                inputMode="numeric"
+                className={inputCls}
+                placeholder="000.000.000-00"
+                maxLength={14}
+                value={form.cpf}
+                onChange={(e) => update("cpf", formatCPF(e.target.value))}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="cm_pwd" className="mb-1.5 block text-xs">Senha</Label>
+              <Input id="cm_pwd" type="password" autoComplete="new-password" className={inputCls} value={form.password} onChange={(e) => update("password", e.target.value)} minLength={6} required />
+            </div>
+            <div>
+              <Label htmlFor="cm_pwd2" className="mb-1.5 block text-xs">Confirmar senha</Label>
+              <Input id="cm_pwd2" type="password" autoComplete="new-password" className={inputCls} value={form.confirm} onChange={(e) => update("confirm", e.target.value)} minLength={6} required />
+            </div>
 
-          {/* Payment method */}
-          <div className="sm:col-span-2">
-            <Label className="mb-2 block">Forma de pagamento</Label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setMethod("pix")}
-                className={`flex items-center gap-2 rounded-xl border-2 p-3 text-left transition-all ${
-                  method === "pix" ? "border-mint bg-mint/10" : "border-border hover:border-mint/40"
-                }`}
-              >
-                <QrCode className="h-5 w-5 text-mint" />
-                <div>
-                  <div className="text-sm font-bold">Pix</div>
-                  <div className="text-[11px] text-muted-foreground">Aprovação na hora</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setMethod("card")}
-                className={`flex items-center gap-2 rounded-xl border-2 p-3 text-left transition-all ${
-                  method === "card" ? "border-mint bg-mint/10" : "border-border hover:border-mint/40"
-                }`}
-              >
-                <CreditCard className="h-5 w-5 text-mint" />
-                <div>
-                  <div className="text-sm font-bold">Cartão de crédito</div>
-                  <div className="text-[11px] text-muted-foreground">Até 12x</div>
-                </div>
-              </button>
+            {/* Payment method */}
+            <div className="sm:col-span-2">
+              <Label className="mb-2 block text-xs">Forma de pagamento</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMethod("pix")}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-xl border-2 p-3 text-left transition-all min-h-12",
+                    method === "pix" ? "border-mint bg-mint/10 shadow-sm" : "border-border hover:border-mint/40",
+                  )}
+                >
+                  <QrCode className={cn("h-5 w-5", method === "pix" ? "text-mint" : "text-muted-foreground")} />
+                  <div>
+                    <div className="text-sm font-bold leading-tight">Pix</div>
+                    <div className="text-[11px] text-muted-foreground">Aprovação na hora</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMethod("card")}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-xl border-2 p-3 text-left transition-all min-h-12",
+                    method === "card" ? "border-mint bg-mint/10 shadow-sm" : "border-border hover:border-mint/40",
+                  )}
+                >
+                  <CreditCard className={cn("h-5 w-5", method === "card" ? "text-mint" : "text-muted-foreground")} />
+                  <div>
+                    <div className="text-sm font-bold leading-tight">Cartão</div>
+                    <div className="text-[11px] text-muted-foreground">Até 12x</div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="sm:col-span-2 space-y-2 pt-2">
-            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
-              {submitting ? "Processando..." : (
-                <>
-                  Finalizar e pagar com {method === "pix" ? "Pix" : "cartão"}
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
-            <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-              <ShieldCheck className="h-3.5 w-3.5 text-mint" />
-              7 dias de garantia incondicional · 100% do valor de volta
-            </p>
-          </div>
         </form>
-      </DialogContent>
+
+        {/* Footer sticky com CTA */}
+        <div
+          className="shrink-0 border-t border-border/60 bg-background/95 px-4 pb-4 pt-3 backdrop-blur-md sm:px-6"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
+        >
+          <Button
+            type="submit"
+            form="checkout-form"
+            size="lg"
+            className="h-12 w-full rounded-xl bg-mint text-sm font-bold text-night shadow-glow hover:bg-mint/90"
+            disabled={submitting}
+          >
+            {submitting ? (
+              "Processando..."
+            ) : (
+              <>
+                Finalizar e pagar com {method === "pix" ? "Pix" : "cartão"}
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </>
+            )}
+          </Button>
+          <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 text-mint" />
+            7 dias de garantia · 100% do valor de volta
+          </p>
+        </div>
+      </SheetContent>
     </Dialog>
   );
 }

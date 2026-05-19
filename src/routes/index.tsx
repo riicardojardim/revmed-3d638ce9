@@ -150,8 +150,8 @@ function LandingPage() {
 function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl pt-safe">
+      <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between gap-2 px-4 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground lg:flex">
           {nav.map((n) => (
@@ -172,44 +172,56 @@ function Header() {
             Começar agora <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
-        <button
-          className="rounded-md p-2 lg:hidden"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Menu"
-        >
-          <div className="flex flex-col gap-1.5">
-            <span className="h-0.5 w-5 bg-foreground" />
-            <span className="h-0.5 w-5 bg-foreground" />
-          </div>
-        </button>
-      </div>
-      {open && (
-        <div className="border-t border-border bg-background lg:hidden">
-          <div className="container mx-auto flex flex-col gap-1 px-4 py-3">
-            {nav.map((n) => (
-              <a
-                key={n.href}
-                href={n.href}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
-              >
-                {n.label}
-              </a>
-            ))}
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Link to="/login" onClick={() => setOpen(false)}>
-                <Button variant="outline" className="w-full">Entrar</Button>
-              </Link>
-              <Button
-                className="w-full bg-mint text-night hover:bg-mint/90"
-                onClick={() => { setOpen(false); scrollToPlanos(); }}
-              >
-                Começar
-              </Button>
+        {/* Mobile CTA + menu */}
+        <div className="flex items-center gap-1.5 lg:hidden">
+          <Button
+            size="sm"
+            onClick={scrollToPlanos}
+            className="h-9 rounded-full bg-mint px-3.5 text-[12px] font-bold text-night shadow-glow hover:bg-mint/90"
+          >
+            Começar
+          </Button>
+          <button
+            className="-mr-1 rounded-md p-2 active:bg-muted"
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Menu"
+            aria-expanded={open}
+          >
+            <div className="flex flex-col gap-1.5">
+              <span className={`block h-0.5 w-5 bg-foreground transition-transform ${open ? "translate-y-2 rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 bg-foreground transition-opacity ${open ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 bg-foreground transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`} />
             </div>
-          </div>
+          </button>
         </div>
-      )}
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="overflow-hidden border-t border-border bg-background lg:hidden"
+          >
+            <div className="container mx-auto flex flex-col gap-1 px-4 py-3">
+              {nav.map((n) => (
+                <a
+                  key={n.href}
+                  href={n.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-3 py-3 text-[15px] font-medium hover:bg-muted"
+                >
+                  {n.label}
+                </a>
+              ))}
+              <Link to="/login" onClick={() => setOpen(false)} className="mt-1">
+                <Button variant="outline" className="w-full h-11">Já tenho conta · Entrar</Button>
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -217,19 +229,19 @@ function Header() {
 /* ---------------- Hero ---------------- */
 function Hero() {
   return (
-    <section className="relative overflow-hidden px-4 pb-20 pt-10 lg:px-8 lg:pt-16">
+    <section className="relative overflow-hidden px-4 pb-14 pt-6 sm:pb-20 sm:pt-10 lg:px-8 lg:pt-16">
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -right-32 -top-32 h-[560px] w-[560px] rounded-full bg-mint/15 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[380px] w-[380px] rounded-full bg-mint-soft/25 blur-[120px]" />
+      <div className="pointer-events-none absolute -right-32 -top-32 h-[360px] w-[360px] rounded-full bg-mint/15 blur-[120px] sm:h-[560px] sm:w-[560px]" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[260px] w-[260px] rounded-full bg-mint-soft/25 blur-[120px] sm:h-[380px] sm:w-[380px]" />
 
-      <div className="container mx-auto grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+      <div className="container mx-auto grid items-center gap-8 sm:gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative z-10 space-y-6"
+          className="relative z-10 space-y-5 sm:space-y-6"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary sm:text-[11px]">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-mint" />
@@ -237,47 +249,47 @@ function Hero() {
             Simulador oficial · Revalida 2026
           </div>
 
-          <h1 className="font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-primary sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+          <h1 className="font-display font-extrabold leading-[1.08] tracking-tight text-primary text-[clamp(1.85rem,7vw,3.25rem)]">
             Treine a prova prática do Revalida com{" "}
             <span className="bg-gradient-to-br from-mint to-primary bg-clip-text text-transparent">
               realismo de estação real.
             </span>
           </h1>
 
-          <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
+          <p className="max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:text-base">
             Estações clínicas com checklists oficiais, cronômetro e{" "}
             <strong className="text-foreground">vídeo-chamada nativa entre candidato e ator</strong>.
             Chegue na prova já tendo feito a prova.
           </p>
 
-          <div className="flex flex-wrap gap-3 pt-1">
+          <div className="flex flex-col gap-2.5 pt-1 sm:flex-row sm:flex-wrap sm:gap-3">
             <Button
               size="lg"
               onClick={scrollToPlanos}
-              className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
+              className="h-12 w-full rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90 sm:w-auto"
             >
               Ver planos e começar
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
-            <a href="#simulacao">
+            <a href="#simulacao" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 rounded-xl border-2 px-6 text-sm font-bold"
+                className="h-12 w-full rounded-xl border-2 px-6 text-sm font-bold sm:w-auto"
               >
                 Ver como funciona
               </Button>
             </a>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia incondicional</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em até 12x</span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-[11px] text-muted-foreground sm:text-xs">
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em 12x</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Cancele em 2 cliques</span>
           </div>
 
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
                 {[social1, social2, social3, social4].map((src, i) => (
@@ -287,6 +299,7 @@ function Hero() {
                     alt=""
                     width={36}
                     height={36}
+                    loading="lazy"
                     className="h-9 w-9 rounded-full border-2 border-background object-cover"
                   />
                 ))}
@@ -353,7 +366,7 @@ function HeroVisual() {
           <div className="w-12" />
         </div>
 
-        <div className="relative h-[560px] overflow-hidden">
+        <div className="relative h-[440px] sm:h-[520px] lg:h-[560px] overflow-hidden">
           <AnimatePresence mode="sync">
             {view === "station" ? (
               <motion.div
@@ -809,9 +822,9 @@ function Stats() {
     { value: 8.4, suffix: "", label: "Nota média" },
   ];
   return (
-    <section className="container mx-auto px-4 py-14 lg:px-8">
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+    <section className="container mx-auto px-4 py-10 sm:py-14 lg:px-8">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6 md:p-8">
+        <div className="grid grid-cols-2 gap-5 sm:gap-6 lg:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <p className="font-display text-2xl font-extrabold text-primary md:text-3xl">
@@ -1308,17 +1321,17 @@ function ExamCountdown() {
   });
 
   const Box = ({ value, label }: { value: number; label: string }) => (
-    <div className="flex min-w-[64px] flex-col items-center rounded-xl bg-night/40 px-3 py-2.5 backdrop-blur-sm">
-      <span className="font-display text-2xl font-extrabold text-mint tabular-nums md:text-3xl">
+    <div className="flex min-w-[58px] flex-1 flex-col items-center rounded-xl bg-night/40 px-2.5 py-2 backdrop-blur-sm sm:min-w-[64px] sm:px-3 sm:py-2.5">
+      <span className="font-display text-[1.6rem] font-extrabold text-mint tabular-nums leading-none sm:text-3xl">
         {String(value).padStart(2, "0")}
       </span>
-      <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">{label}</span>
+      <span className="mt-1 text-[9px] font-bold uppercase tracking-widest text-white/60 sm:text-[10px]">{label}</span>
     </div>
   );
 
   return (
     <section className="container mx-auto px-4 lg:px-8">
-      <div className="relative overflow-hidden rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-primary p-6 shadow-glow md:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-primary p-5 shadow-glow sm:p-6 md:p-8">
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -1328,30 +1341,28 @@ function ExamCountdown() {
         />
         <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-mint/20 blur-3xl" />
 
-        <div className="relative flex flex-col items-center gap-6 text-white md:flex-row md:justify-between">
+        <div className="relative flex flex-col items-center gap-5 text-white sm:gap-6 md:flex-row md:justify-between">
           <div className="text-center md:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-mint-soft">
               <Clock className="h-3 w-3" />
               Próxima prova prática
             </div>
-            <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight md:text-3xl">
+            <h3 className="mt-3 font-display text-xl font-extrabold leading-tight sm:text-2xl md:text-3xl">
               Revalida 2026.1 · <span className="text-mint">{examDate}</span>
             </h3>
-            <p className="mt-1.5 text-sm text-white/70">
+            <p className="mt-1.5 text-[13px] text-white/70 sm:text-sm">
               Cada dia que passa é uma estação a menos que você treina.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-1.5 sm:w-auto sm:gap-2">
             <Box value={days} label="dias" />
-            <span className="font-display text-2xl font-extrabold text-mint/50">:</span>
+            <span className="font-display text-xl font-extrabold text-mint/50 sm:text-2xl">:</span>
             <Box value={hours} label="hrs" />
-            <span className="font-display text-2xl font-extrabold text-mint/50">:</span>
+            <span className="font-display text-xl font-extrabold text-mint/50 sm:text-2xl">:</span>
             <Box value={minutes} label="min" />
-            <span className="hidden font-display text-2xl font-extrabold text-mint/50 sm:inline">:</span>
-            <div className="hidden sm:block">
-              <Box value={seconds} label="seg" />
-            </div>
+            <span className="font-display text-xl font-extrabold text-mint/50 sm:text-2xl">:</span>
+            <Box value={seconds} label="seg" />
           </div>
         </div>
       </div>
@@ -1365,12 +1376,12 @@ function Plans() {
 
 
   return (
-    <section id="planos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section id="planos" className="container mx-auto scroll-mt-20 px-4 py-14 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
       <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
         Comece hoje. Cancele quando quiser no plano mensal — sem fidelidade.
       </p>
-      <div className="mt-20 grid items-center gap-5 lg:grid-cols-3">
+      <div className="mt-10 grid items-stretch gap-5 sm:mt-14 lg:mt-20 lg:grid-cols-3">
         {plans.map((p, i) => (
           <motion.div
             key={p.name}
@@ -1378,7 +1389,7 @@ function Plans() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.45, delay: i * 0.08 }}
-            className={`relative flex flex-col rounded-2xl border bg-card p-6 transition-all ${
+            className={`relative flex flex-col rounded-2xl border bg-card p-5 transition-all sm:p-6 ${
               p.highlight
                 ? "border-2 border-mint shadow-glow lg:-my-8 lg:px-7 lg:py-10 lg:scale-[1.03]"
                 : "border-border shadow-card hover:border-mint/40"
@@ -1812,7 +1823,7 @@ function FloatingNotifications() {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="fixed bottom-4 left-4 z-[60] w-[300px] max-w-[calc(100vw-2rem)] sm:bottom-6 sm:left-6"
+      className="fixed bottom-3 left-3 z-[60] hidden w-[300px] max-w-[calc(100vw-1.5rem)] [margin-bottom:env(safe-area-inset-bottom)] sm:bottom-6 sm:left-6 sm:block"
     >
       <div className="relative flex items-start gap-3 rounded-2xl border border-border bg-card p-3 pr-8 shadow-elegant">
         <div className="relative shrink-0">
