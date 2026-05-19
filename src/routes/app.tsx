@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { DashboardBackground } from "@/components/DashboardBackground";
+import { RouteProgress } from "@/components/RouteProgress";
 import { Logo } from "@/components/Logo";
 
 import { UserAvatar } from "@/components/UserAvatar";
@@ -287,9 +288,11 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-hidden px-3 pb-32 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
+        <main className="relative mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-hidden px-3 pb-32 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
+          <RouteProgress />
           <Outlet />
         </main>
+
 
 
         {/* Bottom dock — em todas as larguras */}
