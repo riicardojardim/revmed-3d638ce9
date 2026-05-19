@@ -610,12 +610,12 @@ function FlashcardsList({
                 className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
               />
             </div>
-            <div className="space-y-1.5 lg:space-y-0">
+            <div className="space-y-2 lg:space-y-0">
               <button
                 type="button"
                 onClick={() => setAllSpec("Todas")}
                 className={cn(
-                  "inline-flex w-full items-center justify-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors lg:hidden",
+                  "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors lg:hidden",
                   allSpec === "Todas"
                     ? "border-foreground/20 bg-card text-foreground shadow-sm"
                     : "border-border bg-background text-muted-foreground hover:border-mint/40",
@@ -623,7 +623,7 @@ function FlashcardsList({
               >
                 Todas
               </button>
-              <div className="grid grid-cols-3 gap-1.5 lg:flex lg:flex-wrap lg:items-center">
+              <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
                 <button
                   type="button"
                   onClick={() => setAllSpec("Todas")}
@@ -646,13 +646,13 @@ function FlashcardsList({
                       onClick={() => setAllSpec(s)}
                       title={s}
                       className={cn(
-                        "inline-flex w-full lg:w-auto items-center justify-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                        "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors lg:h-auto lg:w-auto lg:px-2.5 lg:py-1 lg:text-xs",
                         active
                           ? "border-foreground/20 bg-card text-foreground shadow-sm"
                           : "border-border bg-background text-muted-foreground hover:border-mint/40",
                       )}
                     >
-                      <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", meta.solid)} />
+                      <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full lg:h-1.5 lg:w-1.5", meta.solid)} />
                       <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
                       <span className="hidden whitespace-nowrap lg:inline">{s}</span>
                     </button>
@@ -660,6 +660,7 @@ function FlashcardsList({
                 })}
               </div>
             </div>
+
 
             <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
               {allFiltered.map((d) => {
