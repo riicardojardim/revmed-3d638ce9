@@ -44,7 +44,7 @@ import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
-import { DashboardCountdown } from "@/components/DashboardCountdown";
+
 import { motion, type Variants } from "framer-motion";
 
 // Stagger consistente para listas/cards filhos.
@@ -86,7 +86,7 @@ function Dashboard() {
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true);
   useEffect(() => { setVisibleCount(5); }, [search]);
 
   const isAtorPlan = isAtorOnly;
@@ -288,7 +288,6 @@ function Dashboard() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
-      <DashboardCountdown seconds={3} onDone={() => setReady(true)} />
 
       <motion.div
         variants={{
