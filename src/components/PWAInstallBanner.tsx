@@ -122,7 +122,7 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-1 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
+        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-px shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
         role="dialog"
         aria-label="Instalar aplicativo"
         onPointerDown={onPointerDown}
@@ -131,29 +131,29 @@ export function PWAInstallBanner() {
         onPointerCancel={endDrag}
         style={{
           transform: `translateX(calc(-50% + ${dragX}px))`,
-          top: "max(env(safe-area-inset-top), 0.75rem)",
+          top: "max(env(safe-area-inset-top), 0.5rem)",
           opacity: Math.max(0, 1 - Math.abs(dragX) / 200),
           transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
         }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-base leading-none">📲</span>
-          <p className="flex-1 whitespace-nowrap text-[10px] font-medium leading-tight text-foreground sm:text-xs">
+          <span className="text-xs leading-none">📲</span>
+          <p className="flex-1 whitespace-nowrap text-[10px] font-medium leading-none text-foreground sm:text-[11px]">
             Baixe nosso app para melhor experiência
           </p>
           <button
             onClick={handleInstallClick}
-            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-mint px-2.5 py-0.5 text-[11px] font-semibold text-background hover:bg-mint/90"
+            className="inline-flex shrink-0 items-center gap-1 rounded-full bg-mint px-2 py-[2px] text-[10px] font-semibold text-background hover:bg-mint/90"
           >
-            <Download className="h-3 w-3" />
+            <Download className="h-2.5 w-2.5" />
             Baixar
           </button>
           <button
             onClick={dismiss}
-            className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label="Fechar"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3 w-3" />
           </button>
         </div>
       </div>
