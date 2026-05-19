@@ -404,7 +404,8 @@ function HeroVisual() {
 
 function StationMockup() {
   return (
-    <div className="bg-background/70 p-3">
+    <div className="h-full w-full overflow-hidden bg-background/70 p-3">
+
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Sair
@@ -532,7 +533,7 @@ function DashboardMockup() {
     { code: "MFC", label: "Med. Família", avg: 5.8, n: 31, color: "bg-purple-400" },
   ];
   return (
-    <div className="bg-background/70 p-3">
+    <div className="h-full w-full overflow-hidden bg-background/70 p-3">
       {/* Greeting + média geral */}
       <div className="rounded-xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-3">
         <div className="flex items-start justify-between gap-2">
