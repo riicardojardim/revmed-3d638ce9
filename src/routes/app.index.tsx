@@ -45,7 +45,7 @@ import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { STAGGER, staggerContainer, staggerItem } from "@/lib/stagger";
 
@@ -283,10 +283,7 @@ function Dashboard() {
     <div className="relative mx-auto max-w-7xl space-y-6">
 
       <motion.div
-        variants={{
-          hidden: {},
-          show: { transition: { staggerChildren: 0.16, delayChildren: 0.05 } },
-        }}
+        variants={staggerContainer}
         initial="hidden"
         animate={ready ? "show" : "hidden"}
         className="space-y-6"

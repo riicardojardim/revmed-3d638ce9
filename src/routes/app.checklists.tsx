@@ -175,10 +175,7 @@ function StationsPage() {
           ) : (
             <motion.div
               key={filtered.slice(0, 4).map((s) => s.id).join("|")}
-              variants={{
-                hidden: {},
-                show: { transition: { staggerChildren: 0.18, delayChildren: 0.1 } },
-              }}
+              variants={staggerContainer}
               initial="hidden"
               animate="show"
               className="grid gap-4 md:grid-cols-2"
@@ -186,13 +183,7 @@ function StationsPage() {
               {filtered.slice(0, 4).map((s) => {
                 const meta = getSpecialtyMeta(s.specialty);
                 return (
-                  <motion.div
-                    key={s.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 28, scale: 0.96 },
-                      show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
-                    }}
-                  >
+                  <motion.div key={s.id} variants={staggerItem}>
                     <div
                       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-5 shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant ${meta.card}`}
                     >

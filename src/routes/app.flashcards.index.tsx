@@ -228,10 +228,7 @@ function FlashcardsPage() {
                       <div className="text-right">Treinar</div>
                     </div>
                     <motion.div
-                      variants={{
-                        hidden: {},
-                        show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-                      }}
+                      variants={staggerContainer}
                       initial="hidden"
                       animate="show"
                     >
@@ -240,10 +237,7 @@ function FlashcardsPage() {
                           <motion.div
                             key={d.id}
                             layout
-                            variants={{
-                              hidden: { opacity: 0, y: 18 },
-                              show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-                            }}
+                            variants={staggerItem}
                             initial="hidden"
                             animate="show"
                             exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
