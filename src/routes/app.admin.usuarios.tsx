@@ -189,6 +189,7 @@ function AdminUsers() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       <CreateUserDialog
