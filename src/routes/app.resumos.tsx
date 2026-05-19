@@ -2,17 +2,34 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, Clock, Search, ArrowRight, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, X } from "lucide-react";
+import {
+  BookOpen,
+  Clock,
+  Search,
+  ArrowRight,
+  Stethoscope,
+  Microscope,
+  ClipboardCheck,
+  Star,
+  AlertTriangle,
+  FileText,
+  X,
+} from "lucide-react";
 import { SummaryCover } from "@/components/SummaryCover";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
-
 
 export const Route = createFileRoute("/app/resumos")({
   component: ResumosPage,
@@ -46,13 +63,21 @@ function ResumosPage() {
   const [allSpec, setAllSpec] = useState<string>("Todas");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data: items = [], isLoading, error, refetch, isFetching } = useQuery({
+  const {
+    data: items = [],
+    isLoading,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["resumos", "published"],
     staleTime: 60_000,
     queryFn: async (): Promise<Summary[]> => {
       const { data, error } = await supabase
         .from("summaries")
-        .select("id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at")
+        .select(
+          "id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at",
+        )
         .eq("published", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -67,27 +92,59 @@ function ResumosPage() {
 
   const selectedSections = selectedSummary
     ? [
-        { icon: BookOpen, title: "Definição", text: selectedSummary.definition, tone: "default" as const },
-        { icon: Stethoscope, title: "Quadro clínico", text: selectedSummary.clinical_picture, tone: "default" as const },
-        { icon: Microscope, title: "Diagnóstico", text: selectedSummary.diagnosis, tone: "default" as const },
-        { icon: ClipboardCheck, title: "Conduta", text: selectedSummary.conduct, tone: "default" as const },
-        { icon: Star, title: "Pontos-chave", text: selectedSummary.key_points, tone: "highlight" as const },
-        { icon: AlertTriangle, title: "Armadilhas", text: selectedSummary.pitfalls, tone: "warn" as const },
+        {
+          icon: BookOpen,
+          title: "Definição",
+          text: selectedSummary.definition,
+          tone: "default" as const,
+        },
+        {
+          icon: Stethoscope,
+          title: "Quadro clínico",
+          text: selectedSummary.clinical_picture,
+          tone: "default" as const,
+        },
+        {
+          icon: Microscope,
+          title: "Diagnóstico",
+          text: selectedSummary.diagnosis,
+          tone: "default" as const,
+        },
+        {
+          icon: ClipboardCheck,
+          title: "Conduta",
+          text: selectedSummary.conduct,
+          tone: "default" as const,
+        },
+        {
+          icon: Star,
+          title: "Pontos-chave",
+          text: selectedSummary.key_points,
+          tone: "highlight" as const,
+        },
+        {
+          icon: AlertTriangle,
+          title: "Armadilhas",
+          text: selectedSummary.pitfalls,
+          tone: "warn" as const,
+        },
       ].filter((section) => section.text && section.text.trim())
     : [];
 
   const selectedRaw = selectedSummary?.content_md ?? "";
   const selectedMarker = "Fontes utilizadas:";
   const selectedMarkerIdx = selectedRaw.indexOf(selectedMarker);
-  const selectedNotes = selectedMarkerIdx >= 0 ? selectedRaw.slice(0, selectedMarkerIdx).trim() : selectedRaw.trim();
-  const selectedSources = selectedMarkerIdx >= 0
-    ? selectedRaw
-        .slice(selectedMarkerIdx + selectedMarker.length)
-        .trim()
-        .split("\n")
-        .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
-        .filter(Boolean)
-    : [];
+  const selectedNotes =
+    selectedMarkerIdx >= 0 ? selectedRaw.slice(0, selectedMarkerIdx).trim() : selectedRaw.trim();
+  const selectedSources =
+    selectedMarkerIdx >= 0
+      ? selectedRaw
+          .slice(selectedMarkerIdx + selectedMarker.length)
+          .trim()
+          .split("\n")
+          .map((line) => line.replace(/^[•\-\*]\s*/, "").trim())
+          .filter(Boolean)
+      : [];
 
   const specialties = useMemo(
     () => ["Todas", ...sortSpecialties(Array.from(new Set(items.map((i) => i.specialty))))],
@@ -120,7 +177,13 @@ function ResumosPage() {
     });
   }, [items, allSpec, allSearch]);
 
-  const order = ["Cirurgia", "Pediatria", "Clínica Médica", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade"];
+  const order = [
+    "Cirurgia",
+    "Pediatria",
+    "Clínica Médica",
+    "Ginecologia e Obstetrícia",
+    "Medicina de Família e Comunidade",
+  ];
   const others = specialties.filter((s) => s !== "Todas");
   const row1 = order.slice(0, 3).filter((s) => others.includes(s));
   const row2 = order.slice(3).filter((s) => others.includes(s));
@@ -231,7 +294,10 @@ function ResumosPage() {
             </div>
           ) : (
             <motion.div
-              key={filtered.slice(0, 4).map((s) => s.id).join("|")}
+              key={filtered
+                .slice(0, 4)
+                .map((s) => s.id)
+                .join("|")}
               variants={staggerContainer}
               initial="hidden"
               animate="show"
@@ -260,7 +326,9 @@ function ResumosPage() {
                           </span>
                         )}
                       </div>
-                      <div className="truncate font-display text-xs font-bold leading-tight sm:text-sm">{s.title}</div>
+                      <div className="truncate font-display text-xs font-bold leading-tight sm:text-sm">
+                        {s.title}
+                      </div>
                       <div className="inline-flex items-center gap-1 text-[10px] text-muted-foreground sm:text-[11px]">
                         <Clock className="h-3 w-3" /> {s.read_time_minutes} min
                       </div>
@@ -271,17 +339,21 @@ function ResumosPage() {
             </motion.div>
           )}
 
-
           {filtered.length > 4 && (
             <div className="flex justify-center pt-2">
-              <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAllSearch("");
+                  setAllSpec("Todas");
+                  setAllOpen(true);
+                }}
+              >
                 Ver todos os {filtered.length} resumos <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           )}
         </div>
-
-
       </div>
 
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
@@ -344,7 +416,12 @@ function ResumosPage() {
                           : "border-border bg-background text-muted-foreground hover:border-mint/40",
                       )}
                     >
-                      <span className={cn("inline-block h-2 w-2 shrink-0 rounded-full lg:h-1.5 lg:w-1.5", meta.solid)} />
+                      <span
+                        className={cn(
+                          "inline-block h-2 w-2 shrink-0 rounded-full lg:h-1.5 lg:w-1.5",
+                          meta.solid,
+                        )}
+                      />
                       <span className="whitespace-nowrap lg:hidden">{meta.code}</span>
                       <span className="hidden truncate lg:inline">{s}</span>
                     </button>
@@ -358,17 +435,28 @@ function ResumosPage() {
                 const m = getSpecialtyMeta(s.specialty);
                 return (
                   <li key={s.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
-                    <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
+                    <span
+                      className={cn(
+                        "inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold",
+                        m.badge,
+                      )}
+                    >
+                      {m.code}
+                    </span>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">{s.title}</div>
                       <div className="truncate text-xs text-muted-foreground">
-                        {s.specialty}{s.topic ? ` • ${s.topic}` : ""} • {s.read_time_minutes} min
+                        {s.specialty}
+                        {s.topic ? ` • ${s.topic}` : ""} • {s.read_time_minutes} min
                       </div>
                     </div>
                     <Button
                       size="sm"
                       variant="hero"
-                      onClick={() => { setAllOpen(false); setSelectedId(s.id); }}
+                      onClick={() => {
+                        setAllOpen(false);
+                        setSelectedId(s.id);
+                      }}
                     >
                       Abrir <ArrowRight className="h-3.5 w-3.5" />
                     </Button>
@@ -376,7 +464,9 @@ function ResumosPage() {
                 );
               })}
               {allFiltered.length === 0 && (
-                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum resumo encontrado.</li>
+                <li className="px-3 py-10 text-center text-xs text-muted-foreground">
+                  Nenhum resumo encontrado.
+                </li>
               )}
             </ul>
           </div>
@@ -384,19 +474,31 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
-          <DialogClose className="absolute right-3 top-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white ring-1 ring-white/40 backdrop-blur-md transition-all hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Fechar</span>
-          </DialogClose>
+        <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+          <div className="pointer-events-none absolute right-4 top-4 z-50">
+            <DialogClose className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Fechar</span>
+            </DialogClose>
+          </div>
+
           {!selectedSummary ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
               {error ? (
                 <>
                   <AlertTriangle className="h-8 w-8 text-destructive" />
-                  <p className="text-sm font-medium text-foreground">Não foi possível carregar o resumo</p>
-                  <p className="text-xs text-muted-foreground">{(error as Error)?.message ?? "Erro inesperado."}</p>
-                  <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>
+                  <p className="text-sm font-medium text-foreground">
+                    Não foi possível carregar o resumo
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {(error as Error)?.message ?? "Erro inesperado."}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                  >
                     {isFetching ? "Tentando..." : "Tentar novamente"}
                   </Button>
                 </>
@@ -409,8 +511,17 @@ function ResumosPage() {
                 <>
                   <FileText className="h-8 w-8 text-muted-foreground" />
                   <p className="text-sm font-medium text-foreground">Resumo indisponível</p>
-                  <p className="text-xs text-muted-foreground">Este resumo pode ter sido despublicado. Atualize a lista e tente novamente.</p>
-                  <Button size="sm" variant="outline" onClick={() => { setSelectedId(null); refetch(); }}>
+                  <p className="text-xs text-muted-foreground">
+                    Este resumo pode ter sido despublicado. Atualize a lista e tente novamente.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedId(null);
+                      refetch();
+                    }}
+                  >
                     Atualizar lista
                   </Button>
                 </>
@@ -418,7 +529,7 @@ function ResumosPage() {
             </div>
           ) : (
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-              <div className="relative overflow-hidden bg-gradient-hero px-6 pb-6 pt-7 text-white">
+              <div className="relative shrink-0 overflow-hidden bg-gradient-hero px-5 pb-6 pt-7 text-white sm:px-6 sm:pb-7">
                 {selectedSummary.cover_image_url && (
                   <>
                     <img
@@ -429,17 +540,19 @@ function ResumosPage() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                   </>
                 )}
-                <div className="relative pr-14">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <SpecialtyBadge specialty={selectedSummary.specialty} short />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
-                      {selectedSummary.specialty}
-                    </span>
+                <div className="relative space-y-3 pr-14">
+                  <div className="flex items-start gap-3">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <SpecialtyBadge specialty={selectedSummary.specialty} short />
+                      <span className="min-w-0 text-[11px] font-semibold uppercase tracking-wider text-white/75">
+                        {selectedSummary.specialty}
+                      </span>
+                    </div>
                   </div>
-                  <DialogTitle className="mt-2 font-display text-xl font-bold leading-tight text-white sm:text-2xl">
-                    {selectedSummary.title}
+                  <DialogTitle className="font-display text-xl font-bold leading-tight text-white sm:text-2xl">
+                    {selectedSummary.title || "Resumo clínico"}
                   </DialogTitle>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {selectedSummary.high_yield && (
                       <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                         Alta incidência
@@ -448,12 +561,12 @@ function ResumosPage() {
                     <span className="inline-flex items-center gap-1 text-xs text-white/80">
                       <Clock className="h-3.5 w-3.5" /> {selectedSummary.read_time_minutes} min
                     </span>
-                    {selectedSummary.topic && <span className="text-xs text-white/70">· {selectedSummary.topic}</span>}
+                    {selectedSummary.topic && (
+                      <span className="text-xs text-white/70">· {selectedSummary.topic}</span>
+                    )}
                   </div>
                 </div>
               </div>
-
-
 
               <div className="space-y-4 p-5 sm:p-6">
                 {selectedSections.length > 0 ? (
@@ -468,27 +581,28 @@ function ResumosPage() {
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold tabular-nums",
-                            section.tone === "highlight" && "bg-mint/15 text-mint",
-                            section.tone === "warn" && "bg-amber-400/15 text-amber-600",
-                            section.tone === "default" && "bg-muted text-muted-foreground",
-                          )}
-                        >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-hero text-xs font-bold tabular-nums text-white shadow-elegant ring-1 ring-white/20">
                           {String(index + 1).padStart(2, "0")}
                         </div>
                         <div className="flex items-center gap-2">
                           <section.icon
                             className={cn(
                               "h-4 w-4",
-                              section.tone === "highlight" ? "text-mint" : section.tone === "warn" ? "text-amber-500" : "text-muted-foreground",
+                              section.tone === "highlight"
+                                ? "text-mint"
+                                : section.tone === "warn"
+                                  ? "text-amber-500"
+                                  : "text-muted-foreground",
                             )}
                           />
-                          <h3 className="font-display text-sm font-bold uppercase tracking-wide">{section.title}</h3>
+                          <h3 className="font-display text-sm font-bold uppercase tracking-wide">
+                            {section.title}
+                          </h3>
                         </div>
                       </div>
-                      <div className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-foreground/90">{section.text}</div>
+                      <div className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-foreground/90">
+                        {section.text}
+                      </div>
                     </section>
                   ))
                 ) : selectedNotes ? (
@@ -496,14 +610,18 @@ function ResumosPage() {
                     {selectedNotes}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Este resumo ainda não tem conteúdo estruturado.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Este resumo ainda não tem conteúdo estruturado.
+                  </p>
                 )}
 
                 {selectedSources.length > 0 && (
                   <section className="rounded-2xl border border-border bg-muted/30 p-5">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="font-display text-sm font-bold uppercase tracking-wide">Referências</h3>
+                      <h3 className="font-display text-sm font-bold uppercase tracking-wide">
+                        Referências
+                      </h3>
                     </div>
                     <ul className="mt-3 space-y-1.5 text-sm text-foreground/80">
                       {selectedSources.map((source, index) => (
@@ -517,7 +635,6 @@ function ResumosPage() {
                 )}
               </div>
             </div>
-
           )}
         </DialogContent>
       </Dialog>
