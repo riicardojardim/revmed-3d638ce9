@@ -35,22 +35,12 @@ type AttemptRow = {
   station_title: string | null;
   score: number;
   created_at: string;
+  used_seconds: number;
+  simulado_id: string | null;
+  simulado_name: string | null;
+  simulado_station_index: number | null;
+  simulado_total_stations: number | null;
 };
-
-const SPECIALTIES: { key: string; label: string; color: string; aliases?: string[] }[] = [
-  { key: "Clínica Médica", label: "Clínica", color: "text-blue-400" },
-  { key: "Cirurgia", label: "Cirurgia", color: "text-violet-400" },
-  { key: "Pediatria", label: "Pediatria", color: "text-amber-400" },
-  { key: "Ginecologia e Obstetrícia", label: "GO", color: "text-pink-400" },
-  {
-    key: "Medicina de Família e Comunidade",
-    label: "MFC",
-    color: "text-emerald-400",
-    aliases: ["Preventiva", "Medicina Preventiva", "Saúde Coletiva"],
-  },
-];
-
-const CATEGORIES = ["Anamnese", "E. Físico", "Lab", "Imagem", "Dx", "Conduta"];
 
 function Dashboard() {
   const { user, profile } = useAuth();
