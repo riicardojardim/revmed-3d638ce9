@@ -417,14 +417,14 @@ function PRBlock({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <header className="flex items-center justify-between gap-3 bg-gradient-hero px-4 py-3 text-sm font-medium text-white shadow-elegant">
-        <span className="inline-flex items-center gap-2">
+    <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card">
+      <header className="flex min-w-0 items-center justify-between gap-2 bg-gradient-hero px-3 py-3 text-sm font-medium text-white shadow-elegant sm:gap-3 sm:px-4">
+        <span className="inline-flex min-w-0 items-center gap-2 leading-snug">
           <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
         {right}
       </header>
-      <div className="p-5 text-sm">{children}</div>
+      <div className="min-w-0 p-4 text-sm sm:p-5">{children}</div>
     </section>
   );
 }
