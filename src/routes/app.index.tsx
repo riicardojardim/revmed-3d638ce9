@@ -276,8 +276,6 @@ function Dashboard() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
-      <DashboardBackground />
-
 
       {/* Top row: welcome + stats */}
       <motion.div
