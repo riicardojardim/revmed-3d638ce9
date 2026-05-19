@@ -161,55 +161,75 @@ export function PWAInstallBanner() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] w-[calc(100vw-1.5rem)] max-w-lg overflow-y-auto rounded-2xl p-4 sm:p-6">
+        <DialogContent
+          className="w-[calc(100vw-1.5rem)] max-w-lg overflow-y-auto rounded-2xl p-4 sm:p-6"
+          style={{
+            maxHeight: "calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1.5rem)",
+            marginTop: "env(safe-area-inset-top, 0px)",
+            marginBottom: "env(safe-area-inset-bottom, 0px)",
+          }}
+        >
           <DialogHeader className="space-y-1.5 text-left">
-            <DialogTitle className="text-base sm:text-lg">Instalar o aplicativo</DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm">
+            <DialogTitle className="pr-8 text-base sm:text-lg">Instalar o aplicativo</DialogTitle>
+            <DialogDescription className="text-xs leading-relaxed sm:text-sm">
               Tenha acesso rápido, notificações e uma experiência em tela cheia, como um app nativo.
             </DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue={platform} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1">
-              <TabsTrigger value="ios" className="flex-col gap-0.5 px-1 py-1.5 text-[10px] sm:flex-row sm:gap-1.5 sm:text-sm">
-                <Smartphone className="h-3.5 w-3.5" /> iPhone/iPad
+            <TabsList className="grid h-auto w-full grid-cols-3 gap-1 p-1">
+              <TabsTrigger
+                value="ios"
+                className="flex flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] leading-tight sm:text-xs"
+              >
+                <Smartphone className="h-4 w-4 shrink-0" />
+                <span>iPhone/iPad</span>
               </TabsTrigger>
-              <TabsTrigger value="android" className="flex-col gap-0.5 px-1 py-1.5 text-[10px] sm:flex-row sm:gap-1.5 sm:text-sm">
-                <Tablet className="h-3.5 w-3.5" /> Android
+              <TabsTrigger
+                value="android"
+                className="flex flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] leading-tight sm:text-xs"
+              >
+                <Tablet className="h-4 w-4 shrink-0" />
+                <span>Android</span>
               </TabsTrigger>
-              <TabsTrigger value="desktop" className="flex-col gap-0.5 px-1 py-1.5 text-[10px] sm:flex-row sm:gap-1.5 sm:text-sm">
-                <Monitor className="h-3.5 w-3.5" /> Computador
+              <TabsTrigger
+                value="desktop"
+                className="flex flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] leading-tight sm:text-xs"
+              >
+                <Monitor className="h-4 w-4 shrink-0" />
+                <span>Computador</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="ios" className="space-y-3 pt-3 text-sm">
+            <TabsContent value="ios" className="space-y-3 pt-4 text-xs sm:text-sm">
               <p className="text-muted-foreground">No Safari (iOS/iPadOS):</p>
-              <ol className="space-y-2 pl-1">
+              <ol className="space-y-2.5">
                 <Step n={1}>
-                  Toque no ícone <Share className="inline h-4 w-4 align-text-bottom text-mint" />{" "}
+                  Toque no ícone{" "}
+                  <Share className="inline-block h-4 w-4 align-[-3px] text-mint" />{" "}
                   <strong>Compartilhar</strong> na barra inferior do Safari.
                 </Step>
                 <Step n={2}>
                   Role e toque em <strong>"Adicionar à Tela de Início"</strong>{" "}
-                  <Plus className="inline h-4 w-4 align-text-bottom text-mint" />.
+                  <Plus className="inline-block h-4 w-4 align-[-3px] text-mint" />.
                 </Step>
                 <Step n={3}>
                   Confirme em <strong>"Adicionar"</strong>. Pronto — o ícone aparece na sua tela
                   inicial.
                 </Step>
               </ol>
-              <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              <p className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
                 Importante: no iPhone/iPad só funciona pelo <strong>Safari</strong> (não pelo
                 Chrome).
               </p>
             </TabsContent>
 
-            <TabsContent value="android" className="space-y-3 pt-3 text-sm">
+            <TabsContent value="android" className="space-y-3 pt-4 text-xs sm:text-sm">
               <p className="text-muted-foreground">No Chrome para Android:</p>
-              <ol className="space-y-2 pl-1">
+              <ol className="space-y-2.5">
                 <Step n={1}>
                   Toque no menu{" "}
-                  <MoreVertical className="inline h-4 w-4 align-text-bottom text-mint" />{" "}
+                  <MoreVertical className="inline-block h-4 w-4 align-[-3px] text-mint" />{" "}
                   <strong>(3 pontinhos)</strong> no canto superior direito.
                 </Step>
                 <Step n={2}>
@@ -220,25 +240,25 @@ export function PWAInstallBanner() {
                   Confirme em <strong>"Instalar"</strong>. O app aparece na sua gaveta de apps.
                 </Step>
               </ol>
-              <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              <p className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
                 Dica: se aparecer o banner de instalação automático, é só tocar em{" "}
                 <strong>Instalar</strong>.
               </p>
             </TabsContent>
 
-            <TabsContent value="desktop" className="space-y-3 pt-3 text-sm">
+            <TabsContent value="desktop" className="space-y-3 pt-4 text-xs sm:text-sm">
               <p className="text-muted-foreground">
                 No Chrome, Edge ou Brave (Windows, Mac e Linux):
               </p>
-              <ol className="space-y-2 pl-1">
+              <ol className="space-y-2.5">
                 <Step n={1}>
                   Procure o ícone{" "}
-                  <Download className="inline h-4 w-4 align-text-bottom text-mint" />{" "}
+                  <Download className="inline-block h-4 w-4 align-[-3px] text-mint" />{" "}
                   <strong>de instalação</strong> no canto direito da barra de endereço.
                 </Step>
                 <Step n={2}>
                   Ou abra o menu{" "}
-                  <MoreVertical className="inline h-4 w-4 align-text-bottom text-mint" /> e escolha{" "}
+                  <MoreVertical className="inline-block h-4 w-4 align-[-3px] text-mint" /> e escolha{" "}
                   <strong>"Instalar Estação Revalida"</strong>.
                 </Step>
                 <Step n={3}>
@@ -246,7 +266,7 @@ export function PWAInstallBanner() {
                   do navegador.
                 </Step>
               </ol>
-              <p className="rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+              <p className="rounded-lg bg-muted/50 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
                 No <strong>Safari (Mac)</strong>: menu <strong>Arquivo → Adicionar ao Dock</strong>.
               </p>
             </TabsContent>
@@ -259,8 +279,8 @@ export function PWAInstallBanner() {
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
-    <li className="flex gap-2.5">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-mint/15 text-[11px] font-bold text-mint">
+    <li className="flex items-start gap-2.5">
+      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-mint/15 text-[11px] font-bold text-mint">
         {n}
       </span>
       <span className="flex-1 leading-relaxed">{children}</span>
