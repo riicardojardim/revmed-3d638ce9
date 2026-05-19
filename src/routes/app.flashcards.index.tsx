@@ -536,26 +536,6 @@ function FlashcardsList({
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-mint/10 to-card p-5 shadow-card">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
-              <Brain className="h-5 w-5" />
-            </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Todos os Flashcards</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Explore o catálogo completo de decks disponíveis.
-            </p>
-            <div className="mt-4 flex items-baseline gap-1">
-              <span className="font-display text-3xl font-bold">{decks.length}</span>
-              <span className="text-xs text-muted-foreground">decks publicados</span>
-            </div>
-            <Button
-              variant="outline"
-              className="mt-4 w-full"
-              onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}
-            >
-              Ver todos <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
 
           <Link
             to="/app/flashcards/desempenho"
