@@ -942,7 +942,7 @@ function SimuladoRunner({ id }: { id: string }) {
                     key={it.id}
                     onClick={() => { if (isBlocked) toast.error("Você tem que terminar o checklist primeiro.."); }}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
+                      "grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 rounded-xl border px-3 py-3 transition-colors sm:gap-x-4 sm:px-4",
                       typeof cur === "number" ? "border-mint/30 bg-mint/5" : "border-border bg-background/30",
                       isBlocked && "cursor-not-allowed",
                     )}
@@ -1125,14 +1125,14 @@ function SimuladoRunner({ id }: { id: string }) {
         </div>
 
         {/* RIGHT: control panel */}
-        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
+        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
           {/* Timer */}
           <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
             <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
               {running ? "Em andamento" : finishedStation ? "Encerrada" : "Aguardando início"}
             </div>
             <div className={cn("mt-2 rounded-xl px-5 py-6 text-center transition-colors", running ? "bg-mint/15" : "bg-white/5")}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">{mm}:{ss}</div>
+              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
               {isWaiting && (
                 <div className="mt-3">
                   <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
