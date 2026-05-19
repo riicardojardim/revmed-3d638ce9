@@ -347,7 +347,8 @@ function StationsPage() {
                     <div className="grid grid-cols-3 gap-2">{row1.map(renderMobile)}</div>
                     <div className="grid grid-cols-2 gap-2">{row2.map(renderMobile)}</div>
                   </div>
-                  <div className="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
+                  <div className="hidden lg:flex lg:flex-nowrap lg:items-center lg:gap-1.5 lg:overflow-x-auto">
+
                     <button
                       type="button"
                       onClick={() => setAllSpec("Todas")}
