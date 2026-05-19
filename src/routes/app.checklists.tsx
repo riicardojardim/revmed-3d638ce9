@@ -357,17 +357,19 @@ function FilterChip({
   children,
   small,
   accentClass,
+  className,
 }: {
   active: boolean;
   onClick: () => void;
   children: React.ReactNode;
   small?: boolean;
   accentClass?: string;
+  className?: string;
 }) {
   const base = `inline-flex items-center gap-1.5 rounded-full border px-3.5 ${small ? "py-1 text-xs" : "py-1.5 text-sm"} font-medium transition-all`;
   if (active && accentClass) {
     return (
-      <button onClick={onClick} className={`${base} border-foreground/20 bg-card text-foreground shadow-sm`}>
+      <button onClick={onClick} className={cn(base, "border-foreground/20 bg-card text-foreground shadow-sm", className)}>
         {children}
       </button>
     );
@@ -375,11 +377,13 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className={`${base} ${
+      className={cn(
+        base,
         active
           ? "border-mint bg-mint/10 text-foreground"
-          : "border-border bg-background text-muted-foreground hover:border-mint/40"
-      }`}
+          : "border-border bg-background text-muted-foreground hover:border-mint/40",
+        className,
+      )}
     >
       {children}
     </button>
