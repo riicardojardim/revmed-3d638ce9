@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
 import { createSimulado } from "@/lib/simulado";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
