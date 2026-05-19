@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Search, ArrowRight, ListChecks, Wand2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { SPECIALTIES, type Specialty, type Station } from "@/data/stations";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
@@ -44,6 +45,10 @@ function StationsPage() {
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
+  const [allSpec, setAllSpec] = useState<Specialty | "Todas">("Todas");
+
 
 
   
@@ -168,50 +173,63 @@ function StationsPage() {
               Nenhum checklist encontrado{q ? ` para "${q}"` : ""}.
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-              <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-2.5">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <ListChecks className="h-4 w-4 text-mint" />
-                  Todos os checklists
+            <div className="space-y-3">
+              <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/30 px-4 py-2.5">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <ListChecks className="h-4 w-4 text-mint" />
+                    Checklists
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {filtered.length} {filtered.length === 1 ? "resultado" : "resultados"}
-                </span>
-              </div>
-              <motion.ul
-                key={filtered.map((s) => s.id).join("|")}
-                variants={staggerContainer}
-                initial="hidden"
-                animate="show"
-                className="max-h-[60vh] divide-y divide-border overflow-y-auto"
-              >
-                {filtered.map((s) => {
-                  const m = getSpecialtyMeta(s.specialty);
-                  return (
-                    <motion.li
-                      key={s.id}
-                      variants={staggerItem}
-                      className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
-                    >
-                      <span className={cn("inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
-                        {m.code}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
-                        <div className="truncate text-xs text-muted-foreground">
-                          {s.specialty} • {s.checklistCount} itens
+                <motion.ul
+                  key={filtered.slice(0, 5).map((s) => s.id).join("|")}
+                  variants={staggerContainer}
+                  initial="hidden"
+                  animate="show"
+                  className="divide-y divide-border"
+                >
+                  {filtered.slice(0, 5).map((s) => {
+                    const m = getSpecialtyMeta(s.specialty);
+                    return (
+                      <motion.li
+                        key={s.id}
+                        variants={staggerItem}
+                        className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
+                      >
+                        <span className={cn("inline-flex h-7 min-w-7 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
+                          {m.code}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium">{s.title}</div>
+                          <div className="truncate text-xs text-muted-foreground">
+                            {s.specialty} • {s.checklistCount} itens
+                          </div>
                         </div>
-                      </div>
-                      <Button size="sm" variant="hero" onClick={() => startStation(s)}>
-                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </motion.li>
-                  );
-                })}
-              </motion.ul>
+                        <Button size="sm" variant="hero" onClick={() => startStation(s)}>
+                          Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </motion.li>
+                    );
+                  })}
+                </motion.ul>
+              </div>
+              {filtered.length > 5 && (
+                <div className="flex justify-center pt-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}
+                  >
+                    Ver todos os {filtered.length} checklists <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>
+
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
@@ -245,8 +263,91 @@ function StationsPage() {
       </div>
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
 
+      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+        <DialogContent className="max-w-3xl overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-mint" />
+              Todos os checklists
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={allSearch}
+                onChange={(e) => setAllSearch(e.target.value)}
+                placeholder="Buscar por tema ou especialidade..."
+                className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setAllSpec("Todas")}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                  allSpec === "Todas"
+                    ? "border-mint bg-mint/10 text-foreground"
+                    : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                )}
+              >
+                Todas
+              </button>
+              {SPECIALTIES.map((s) => {
+                const m = getSpecialtyMeta(s);
+                const active = allSpec === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setAllSpec(s)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      active
+                        ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                    )}
+                  >
+                    <span className={cn("inline-block h-1.5 w-1.5 rounded-full", m.solid)} />
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+            <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
+              {dbStations
+                .filter((s) => {
+                  if (allSpec !== "Todas" && s.specialty !== allSpec) return false;
+                  const term = allSearch.trim().toLowerCase();
+                  if (!term) return true;
+                  return s.title.toLowerCase().includes(term) || s.specialty.toLowerCase().includes(term);
+                })
+                .map((s) => {
+                  const m = getSpecialtyMeta(s.specialty);
+                  return (
+                    <li key={s.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
+                      <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
+                      </div>
+                      <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); startStation(s); }}>
+                        Iniciar <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </li>
+                  );
+                })}
+              {dbStations.length === 0 && (
+                <li className="px-3 py-10 text-center text-xs text-muted-foreground">Nenhum checklist publicado.</li>
+              )}
+            </ul>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
+
   );
 }
 
