@@ -1112,6 +1112,7 @@ function Areas() {
 /* ---------------- Plans ---------------- */
 const plans = [
   {
+    slug: "ator" as const,
     name: "Ator",
     badge: "Iniciante",
     desc: "Atue como paciente em salas e avalie candidatos.",
@@ -1127,6 +1128,7 @@ const plans = [
     ],
   },
   {
+    slug: "completo" as const,
     name: "Completo",
     badge: "Mais escolhido",
     desc: "Plataforma completa, pagamento único até a prova.",
@@ -1151,6 +1153,7 @@ const plans = [
     totalValue: "R$ 1.138",
   },
   {
+    slug: "mensal" as const,
     name: "Completo Mensal",
     badge: "Recorrente",
     desc: "Mesmo acesso do Completo, cobrado mês a mês.",
@@ -1410,7 +1413,8 @@ function Plans() {
 
 
             <div className="mt-auto pt-6">
-              <Link to="/cadastro">
+              <Link to="/cadastro" search={{ plano: p.slug }}>
+
                 <Button
                   size="lg"
                   className={`w-full rounded-xl text-sm font-bold ${
