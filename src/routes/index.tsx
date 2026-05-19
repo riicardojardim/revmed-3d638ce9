@@ -932,7 +932,164 @@ const plans = [
   },
 ];
 
+/* ---------------- Founder Video ---------------- */
+function FounderVideo() {
+  return (
+    <section className="bg-night py-16 text-white lg:py-24">
+      <div className="container mx-auto grid items-center gap-10 px-4 lg:grid-cols-2 lg:px-8">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-mint-soft">
+            <Sparkles className="h-3 w-3" />
+            Do fundador
+          </div>
+          <h2 className="font-display text-3xl font-extrabold leading-tight md:text-4xl">
+            Por que eu criei a{" "}
+            <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
+              Estação Revalida.
+            </span>
+          </h2>
+          <p className="text-base leading-relaxed text-white/70">
+            Tomei bomba na prova prática em 2023 — sabia toda a teoria, mas
+            travei na hora de falar com o ator. Vi que faltava um lugar pra
+            treinar de verdade, em voz alta, com gente do outro lado. Construí
+            o que eu queria ter tido. Hoje é o que mais aprova.
+          </p>
+          <div className="flex items-center gap-4 pt-2">
+            <img
+              src={candidate2}
+              alt="Fundador"
+              className="h-14 w-14 rounded-full border-2 border-mint object-cover"
+            />
+            <div>
+              <p className="font-display text-base font-bold">Dr. Rafael Mendes</p>
+              <p className="text-xs text-white/60">Fundador · Aprovado Revalida 2024</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
+            className="group relative block aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-mint/20 to-night shadow-glow transition-transform hover:scale-[1.01]"
+            aria-label="Reproduzir vídeo do fundador"
+          >
+            <img
+              src={candidate7}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover opacity-40 transition-opacity group-hover:opacity-50"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/20 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-mint shadow-glow transition-transform group-hover:scale-110">
+                <Play className="ml-1 h-8 w-8 fill-night text-night" />
+              </span>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
+              <p className="text-xs font-bold uppercase tracking-wider text-mint">
+                2 minutos · Sem enrolação
+              </p>
+              <p className="mt-1 font-display text-lg font-bold">
+                "O que mudou depois que troquei flashcard por simulado em voz alta"
+              </p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- Comparison ---------------- */
+function Comparison() {
+  const rows = [
+    { feat: "Vídeo-chamada nativa candidato + ator", us: true, medway: false, hardwork: false },
+    { feat: "Estações com checklist oficial INEP", us: true, medway: true, hardwork: true },
+    { feat: "Banco de roteiros de ator detalhado", us: true, medway: false, hardwork: false },
+    { feat: "IA assume papel do ator (treino sozinho)", us: true, medway: false, hardwork: false },
+    { feat: "Histórico de desempenho por estação", us: true, medway: true, hardwork: false },
+    { feat: "Flashcards e resumos integrados", us: true, medway: true, hardwork: true },
+    { feat: "Pagamento único até a prova", us: true, medway: false, hardwork: false },
+    { feat: "Comunidade ativa no WhatsApp", us: true, medway: false, hardwork: true },
+  ];
+
+  const Cell = ({ ok }: { ok: boolean }) =>
+    ok ? (
+      <CheckCircle2 className="mx-auto h-5 w-5 text-mint" />
+    ) : (
+      <X className="mx-auto h-4 w-4 text-muted-foreground/50" />
+    );
+
+  return (
+    <section className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+      <SectionTitle
+        eyebrow="Comparativo"
+        title="Por que candidatos estão migrando pra cá"
+      />
+      <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
+        Comparação honesta com os principais preparatórios do Revalida.
+      </p>
+
+      <div className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Recurso
+                </th>
+                <th className="px-3 py-4 text-center">
+                  <div className="inline-flex flex-col items-center gap-1">
+                    <span className="rounded-full bg-mint px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-night">
+                      Nós
+                    </span>
+                    <span className="font-display text-sm font-bold text-primary">
+                      Estação Revalida
+                    </span>
+                  </div>
+                </th>
+                <th className="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Medway
+                </th>
+                <th className="px-3 py-4 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Hardwork
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr
+                  key={r.feat}
+                  className={`border-b border-border last:border-0 ${
+                    i % 2 === 1 ? "bg-muted/10" : ""
+                  }`}
+                >
+                  <td className="px-4 py-3 text-xs text-foreground">{r.feat}</td>
+                  <td className="bg-mint-soft/30 px-3 py-3">
+                    <Cell ok={r.us} />
+                  </td>
+                  <td className="px-3 py-3">
+                    <Cell ok={r.medway} />
+                  </td>
+                  <td className="px-3 py-3">
+                    <Cell ok={r.hardwork} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p className="mx-auto mt-4 max-w-3xl text-center text-[11px] text-muted-foreground">
+        Comparação baseada em informações públicas dos sites dos concorrentes (atualizada em 2026).
+        Marcas citadas pertencem aos seus respectivos donos.
+      </p>
+    </section>
+  );
+}
+
 function Plans() {
+
   return (
     <section id="planos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
