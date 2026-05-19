@@ -159,32 +159,9 @@ export function LoginBackground() {
         </motion.g>
       </svg>
 
-      {/* Floating medical icons (fast parallax + eased float) */}
+      {/* Chuva de ícones médicos */}
       <motion.div className="absolute inset-0" style={layerFast}>
-        <FloatingIcon className="left-[6%] top-[10%]" color="mint" delay={0}>
-          <Stethoscope className="h-9 w-9" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[10%] top-[16%]" color="medical" delay={1}>
-          <HeartPulse className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="left-[14%] bottom-[18%]" color="mint" delay={2}>
-          <Activity className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[8%] bottom-[14%]" color="medical" delay={0.5}>
-          <Pill className="h-9 w-9" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="left-[42%] top-[8%]" color="medical" delay={2.5}>
-          <Syringe className="h-7 w-7" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[36%] bottom-[8%]" color="mint" delay={1.7}>
-          <Microscope className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="left-[4%] top-[48%]" color="medical" delay={3.1}>
-          <Brain className="h-8 w-8" strokeWidth={1.75} />
-        </FloatingIcon>
-        <FloatingIcon className="right-[4%] top-[52%]" color="mint" delay={0.8}>
-          <Cross className="h-7 w-7" strokeWidth={1.75} />
-        </FloatingIcon>
+        <FallingMedicalIcons count={22} seed={3} />
       </motion.div>
 
       {/* Soft vignette to focus the card */}
