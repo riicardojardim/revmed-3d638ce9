@@ -877,7 +877,31 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
   const badges = useMemo(() => buildBadges(stats), [stats]);
   const unlockedCount = badges.filter((b) => b.unlocked).length;
   const [showAll, setShowAll] = useState(false);
-  const MOBILE_LIMIT = 6;
+  const MOBILE_LIMIT = 6;   // 2 cols x 3 rows
+  const TABLET_LIMIT = 8;   // 4 cols x 2 rows
+  const DESKTOP_LIMIT = 14; // 7 cols x 2 rows
+
+  // Determine per-item visibility class based on its index when "showAll" is off
+  function hideClass(i: number) {
+    if (showAll) return "";
+    if (i < MOBILE_LIMIT) return "";
+    if (i < TABLET_LIMIT) return "hidden sm:flex"; // visible from tablet up
+    if (i < DESKTOP_LIMIT) return "hidden lg:flex"; // visible from desktop up
+    return "hidden"; // only when expanded
+  }
+
+  // "Ver mais" button visibility per breakpoint (only show where there are hidden items)
+  const showOnMobile = badges.length > MOBILE_LIMIT;
+  const showOnTablet = badges.length > TABLET_LIMIT;
+  const showOnDesktop = badges.length > DESKTOP_LIMIT;
+  const btnVisibility = showOnDesktop
+    ? "" // always visible
+    : showOnTablet
+    ? "lg:hidden"
+    : showOnMobile
+    ? "sm:hidden"
+    : "hidden";
+
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex items-center justify-between gap-2">
@@ -893,22 +917,19 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
         variants={staggerContainer}
         initial="hidden"
         animate="show"
-        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7"
       >
         {badges.map((b, i) => {
           const tone = TONE_CLASSES[b.tone];
           const Icon = b.icon;
           const pct = b.progress ? Math.round((b.progress.current / b.progress.goal) * 100) : 0;
-          const hideOnMobile = !showAll && i >= MOBILE_LIMIT;
           return (
             <motion.div
               key={b.key}
               variants={staggerItem}
               whileHover={{ y: -2, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 320, damping: 22 }}
-              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center ${
-                hideOnMobile ? "hidden sm:flex" : ""
-              } ${
+              className={`group relative flex flex-col items-center rounded-xl border p-3 text-center ${hideClass(i)} ${
                 b.unlocked ? `border-border bg-background shadow-sm ring-1 ${tone.ring}` : "border-dashed border-border bg-muted/20"
               }`}
               title={b.description}
@@ -937,15 +958,16 @@ function BadgesCard({ stats }: { stats: BadgeStats }) {
         })}
       </motion.div>
 
-      {badges.length > MOBILE_LIMIT && (
+      {btnVisibility !== "hidden" && (
         <button
           type="button"
           onClick={() => setShowAll((v) => !v)}
-          className="mt-3 w-full rounded-xl border border-border bg-background py-2 text-xs font-semibold text-mint hover:bg-muted sm:hidden"
+          className={`mt-3 w-full rounded-xl border border-border bg-background py-2 text-xs font-semibold text-mint hover:bg-muted ${btnVisibility}`}
         >
-          {showAll ? "Ver menos" : `Ver mais (${badges.length - MOBILE_LIMIT})`}
+          {showAll ? "Ver menos" : "Ver mais"}
         </button>
       )}
     </div>
   );
 }
+
