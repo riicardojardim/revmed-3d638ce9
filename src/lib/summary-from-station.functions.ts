@@ -497,7 +497,7 @@ export async function generateAndSaveSummary(
       conduct: result.conduct,
       key_points: result.key_points,
       pitfalls: result.pitfalls,
-      content_md: (sourcesBlock + auditBlock).trim(),
+      content_md: sourcesBlock,
       published: false,
     })
     .select(
