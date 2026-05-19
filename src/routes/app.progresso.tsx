@@ -7,6 +7,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10, MEDAL_SPECIALTIES, getSpecAvg } from "@/components/SpecialtyMedals";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { ResetStatsButton } from "@/components/ResetStatsButton";
+import { Reveal } from "@/components/ui/reveal";
+import { Shimmer } from "@/components/ui/shimmer";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
