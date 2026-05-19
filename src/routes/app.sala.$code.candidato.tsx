@@ -408,22 +408,20 @@ function CandidateView() {
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
-  // Overlay institucional de entrada (3..2..1). Bloqueia toda a tela.
-  if (showIntro && user) {
-    const startAtMs = room.starting_at ? new Date(room.starting_at).getTime() : undefined;
-    return (
-      <StationIntroOverlay
-        role={"candidato" as IntroRole}
-        stationTitle={room.station_title ?? station.title}
-        specialty={station.specialty}
-        displayName={formatDoctorName(profile?.full_name, profile?.title, "Candidato")}
-        avatarUrl={profile?.avatar_url}
-        startAtMs={startAtMs}
-        nowMs={serverNow}
-        onComplete={() => { setShowIntro(false); setIntroDone(true); }}
-      />
-    );
-  }
+  // Overlay institucional de entrada (3..2..1). Renderizado COMO OVERLAY (não substitui a árvore)
+  // para que a FloatingVideoCall continue montada e a chamada não caia ao iniciar a estação.
+  const introOverlay = showIntro && user ? (
+    <StationIntroOverlay
+      role={"candidato" as IntroRole}
+      stationTitle={room.station_title ?? station.title}
+      specialty={station.specialty}
+      displayName={formatDoctorName(profile?.full_name, profile?.title, "Candidato")}
+      avatarUrl={profile?.avatar_url}
+      startAtMs={room.starting_at ? new Date(room.starting_at).getTime() : undefined}
+      nowMs={serverNow}
+      onComplete={() => { setShowIntro(false); setIntroDone(true); }}
+    />
+  ) : null;
 
   // Espectador: outro candidato foi selecionado para ser avaliado.
   // Ele acompanha a estação (vê cenário, tarefa, materiais) mas não recebe PEP nem resultado,
