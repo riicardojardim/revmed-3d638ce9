@@ -659,26 +659,26 @@ function ActorView() {
   const ss = String(remaining % 60).padStart(2, "0");
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4">
+    <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <FloatingVideoCall roomCode={code} displayName={user?.email?.split("@")[0] || "Ator"} />
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
         <Link to="/app/checklists" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 font-medium text-foreground">
             <Theater className="h-3 w-3" /> Painel do Ator
           </span>
           <span>•</span>
-          <span>{station.specialty}</span>
+          <span className="min-w-0 truncate">{station.specialty}</span>
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]">
+      <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
         {/* LEFT: station content */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {/* Title bar like Pense Revalida */}
-          <div className="relative overflow-hidden rounded-3xl border border-mint/20 bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
+          <div className="relative min-w-0 overflow-hidden rounded-2xl border border-mint/20 bg-gradient-hero p-4 text-white shadow-elegant sm:rounded-3xl sm:p-6 md:p-8">
             <div
               className="pointer-events-none absolute inset-0 opacity-10"
               style={{
@@ -687,12 +687,12 @@ function ActorView() {
                 backgroundSize: "32px 32px",
               }}
             />
-            <div className="relative flex flex-wrap items-start justify-between gap-3">
+            <div className="relative flex min-w-0 flex-wrap items-start justify-between gap-2 sm:gap-3">
               <div className="min-w-0 flex-1">
                 <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mint">
                   <ShieldCheck className="h-3 w-3" /> Painel do ator
                 </div>
-                <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
+                <h1 className="mt-3 break-words font-display text-xl font-bold leading-tight sm:text-2xl md:text-3xl">
                   {room.station_title ?? station.title}
                 </h1>
                 <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/70">
@@ -907,7 +907,7 @@ function ActorView() {
                       if (isBlocked) toast.error("Você tem que terminar o checklist primeiro..");
                     }}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
+                      "grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 rounded-xl border px-3 py-3 transition-colors sm:gap-x-4 sm:px-4",
                       typeof current === "number"
                         ? "border-mint/30 bg-mint/5"
                         : "border-border bg-background/30",
@@ -1151,7 +1151,7 @@ function ActorView() {
         </div>
 
         {/* RIGHT: control panel (timer, participantes, convite) */}
-        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
+        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
                   {/* Timer */}
                   <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
                     <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
@@ -1161,7 +1161,7 @@ function ActorView() {
                       "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
                       isRunning ? "bg-mint/15" : "bg-white/5",
                     )}>
-                      <div className="font-display text-5xl font-bold tabular-nums text-white">
+                      <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
                         {mm}:{ss}
                       </div>
                       {isWaiting && (
@@ -1381,14 +1381,14 @@ function PRBlock({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-      <header className="flex items-center justify-between gap-3 bg-gradient-hero px-4 py-3 text-sm font-medium text-white shadow-elegant">
-        <span className="inline-flex items-center gap-2">
+    <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+      <header className="flex min-w-0 items-center justify-between gap-2 bg-gradient-hero px-3 py-3 text-sm font-medium text-white shadow-elegant sm:gap-3 sm:px-4">
+        <span className="inline-flex min-w-0 items-center gap-2 leading-snug">
           <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
         {right}
       </header>
-      <div className="p-5 text-sm">{children}</div>
+      <div className="min-w-0 p-4 text-sm sm:p-5">{children}</div>
     </section>
   );
 }

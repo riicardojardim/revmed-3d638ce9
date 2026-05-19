@@ -122,7 +122,7 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 top-3 z-50 w-[min(96vw,720px)] rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none"
+        className="fixed left-1/2 z-50 w-[calc(100vw-1rem)] max-w-[720px] rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:w-[min(96vw,720px)]"
         role="dialog"
         aria-label="Instalar aplicativo"
         onPointerDown={onPointerDown}
@@ -131,6 +131,7 @@ export function PWAInstallBanner() {
         onPointerCancel={endDrag}
         style={{
           transform: `translateX(calc(-50% + ${dragX}px))`,
+          top: "max(env(safe-area-inset-top), 0.75rem)",
           opacity: Math.max(0, 1 - Math.abs(dragX) / 200),
           transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
         }}

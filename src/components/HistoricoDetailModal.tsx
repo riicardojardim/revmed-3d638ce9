@@ -180,9 +180,9 @@ export function HistoricoDetailModal({
               </div>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+            <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-5">
               {/* LEFT */}
-              <div className="space-y-4">
+              <div className="min-w-0 space-y-4">
                 <PRBlock icon={MessageSquare} title="Cenário de atuação">
                   <ScriptText text={station.clinicalCase} />
                 </PRBlock>
@@ -272,7 +272,7 @@ export function HistoricoDetailModal({
                             <li
                               key={it.id}
                               className={cn(
-                                "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3",
+                                "grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 rounded-xl border px-3 py-3 sm:gap-x-4 sm:px-4",
                                 typeof current === "number" ? "border-mint/30 bg-mint/5" : "border-border bg-background/30",
                               )}
                             >
@@ -417,14 +417,14 @@ function PRBlock({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <header className="flex items-center justify-between gap-3 bg-gradient-hero px-4 py-3 text-sm font-medium text-white shadow-elegant">
-        <span className="inline-flex items-center gap-2">
+    <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-card">
+      <header className="flex min-w-0 items-center justify-between gap-2 bg-gradient-hero px-3 py-3 text-sm font-medium text-white shadow-elegant sm:gap-3 sm:px-4">
+        <span className="inline-flex min-w-0 items-center gap-2 leading-snug">
           <Icon className="h-4 w-4 text-mint" /> {title}
         </span>
         {right}
       </header>
-      <div className="p-5 text-sm">{children}</div>
+      <div className="min-w-0 p-4 text-sm sm:p-5">{children}</div>
     </section>
   );
 }

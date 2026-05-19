@@ -760,7 +760,7 @@ function SimuladoRunner({ id }: { id: string }) {
           onComplete={onIntroComplete}
         />
       )}
-    <div className="mx-auto max-w-7xl space-y-4">
+    <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       {sim.roomCode && (
         <FloatingVideoCall
           roomCode={sim.roomCode}
@@ -769,7 +769,7 @@ function SimuladoRunner({ id }: { id: string }) {
       )}
       {/* Progress header */}
       {sim.stations.length >= 2 && (
-        <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/95 px-4 py-3 backdrop-blur-xl lg:-mx-8 lg:px-8">
+        <div className="sticky top-16 z-20 -mx-3 border-y border-border bg-background/95 px-3 py-3 backdrop-blur-xl sm:-mx-4 sm:px-4 lg:-mx-8 lg:px-8">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
             <div className="text-sm font-semibold">{sim.name}</div>
             <Badge variant="outline" className="ml-auto">
@@ -782,11 +782,11 @@ function SimuladoRunner({ id }: { id: string }) {
         </div>
       )}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[1fr_360px]">
+      <div className="grid min-w-0 items-start gap-4 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
         {/* LEFT */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {/* Title bar — gradient institucional (igual ao painel do candidato) */}
-          <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-hero px-5 py-4 text-white shadow-elegant">
+          <div className="relative min-w-0 overflow-hidden rounded-2xl border border-mint/20 bg-gradient-hero px-4 py-4 text-white shadow-elegant sm:px-5">
             <div
               className="pointer-events-none absolute inset-0 opacity-10"
               style={{
@@ -795,14 +795,14 @@ function SimuladoRunner({ id }: { id: string }) {
                 backgroundSize: "32px 32px",
               }}
             />
-            <div className="relative flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 min-w-0">
+            <div className="relative flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
                 <Link to="/app/checklists" className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[11px] font-medium text-white/90 transition hover:bg-white/20 hover:text-white">
                   <ArrowLeft className="h-3 w-3" /> Sair
                 </Link>
                 <span className="h-5 w-px bg-white/20" />
                 <span className={cn("inline-flex h-7 items-center rounded-md px-2 text-xs font-bold", meta.badge)}>{meta.code}</span>
-                <h1 className="truncate font-display text-lg font-bold text-white md:text-xl">{station.title}</h1>
+                <h1 className="min-w-0 truncate font-display text-base font-bold text-white sm:text-lg md:text-xl">{station.title}</h1>
               </div>
               <span className="inline-flex items-center gap-1.5 text-xs text-white/80">
                 <span className="h-1.5 w-1.5 rounded-full bg-mint" /> {station.specialty}
@@ -942,7 +942,7 @@ function SimuladoRunner({ id }: { id: string }) {
                     key={it.id}
                     onClick={() => { if (isBlocked) toast.error("Você tem que terminar o checklist primeiro.."); }}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
+                      "grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 rounded-xl border px-3 py-3 transition-colors sm:gap-x-4 sm:px-4",
                       typeof cur === "number" ? "border-mint/30 bg-mint/5" : "border-border bg-background/30",
                       isBlocked && "cursor-not-allowed",
                     )}
@@ -1125,14 +1125,14 @@ function SimuladoRunner({ id }: { id: string }) {
         </div>
 
         {/* RIGHT: control panel */}
-        <aside className="lg:sticky lg:top-20 lg:self-start space-y-3">
+        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
           {/* Timer */}
           <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
             <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
               {running ? "Em andamento" : finishedStation ? "Encerrada" : "Aguardando início"}
             </div>
             <div className={cn("mt-2 rounded-xl px-5 py-6 text-center transition-colors", running ? "bg-mint/15" : "bg-white/5")}>
-              <div className="font-display text-5xl font-bold tabular-nums text-white">{mm}:{ss}</div>
+              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
               {isWaiting && (
                 <div className="mt-3">
                   <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
