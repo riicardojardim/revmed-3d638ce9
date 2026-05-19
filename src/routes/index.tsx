@@ -53,6 +53,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { CheckoutModal, type CheckoutPlanSlug } from "@/components/CheckoutModal";
 import candidate1 from "@/assets/candidate-1.jpg";
 import candidate2 from "@/assets/candidate-2.jpg";
 import candidate3 from "@/assets/candidate-3.jpg";
