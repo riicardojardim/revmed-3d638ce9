@@ -450,7 +450,7 @@ function FlashcardsList({
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main column */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           {/* Search */}
           <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
             <div className="relative">
@@ -512,7 +512,7 @@ function FlashcardsList({
                   onClick={() => openDeck(d)}
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                  className="group relative flex flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2.5 text-left shadow-card backdrop-blur-sm transition-all hover:shadow-elegant sm:gap-3 sm:p-3"
+                  className="group relative flex min-w-0 flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 text-left shadow-card backdrop-blur-sm transition-all hover:shadow-elegant sm:gap-3 sm:p-3"
                 >
                   <div className="aspect-square w-full overflow-hidden rounded-xl">
                     <DeckCover title={d.title} specialty={d.specialty} topic={d.topic} />
