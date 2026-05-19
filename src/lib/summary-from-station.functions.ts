@@ -176,7 +176,7 @@ export const generateSummaryFromStation = createServerFn({ method: "POST" })
         conduct: result.conduct,
         key_points: result.key_points,
         pitfalls: result.pitfalls,
-        content_md: sourcesBlock.trim() || null,
+        content_md: sourcesBlock.trim(),
         published: false,
       })
       .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md")
