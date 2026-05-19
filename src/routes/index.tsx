@@ -906,6 +906,12 @@ const plans = [
       "Vídeo-chamada integrada",
       "Grupo de WhatsApp + suporte",
     ],
+    bonuses: [
+      { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
+      { name: "Aula ao vivo: Erros que reprovam na prática", value: "R$ 297" },
+      { name: "Checklist comentado por aprovados 2024", value: "R$ 147" },
+    ],
+    totalValue: "R$ 1.138",
   },
   {
     name: "Completo Mensal",
