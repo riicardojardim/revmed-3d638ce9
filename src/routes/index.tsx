@@ -110,6 +110,7 @@ function LandingPage() {
       <Areas />
       <FounderVideo />
       <Comparison />
+      <ExamCountdown />
       <Plans />
       <Testimonials />
       <FAQ />
