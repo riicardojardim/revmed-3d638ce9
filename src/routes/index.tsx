@@ -175,13 +175,14 @@ function Header() {
         </div>
         {/* Mobile CTA + menu */}
         <div className="flex items-center gap-1.5 lg:hidden">
-          <Button
-            size="sm"
-            onClick={scrollToPlanos}
-            className="h-9 rounded-full bg-mint px-3.5 text-[12px] font-bold text-night shadow-glow hover:bg-mint/90"
-          >
-            Começar
-          </Button>
+          <Link to="/login">
+            <Button
+              size="sm"
+              className="h-9 rounded-full bg-mint px-3.5 text-[12px] font-bold text-night shadow-glow hover:bg-mint/90"
+            >
+              Login
+            </Button>
+          </Link>
           <button
             className="-mr-1 rounded-md p-2 active:bg-muted"
             onClick={() => setOpen((o) => !o)}
