@@ -47,6 +47,8 @@ import {
   History,
   Gift,
   Play,
+  Lock,
+  Flame,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,10 @@ import candidate4 from "@/assets/candidate-4.jpg";
 import candidate5 from "@/assets/candidate-5.jpg";
 import candidate6 from "@/assets/candidate-6.jpg";
 import candidate7 from "@/assets/candidate-7.jpg";
+import social1 from "@/assets/social-1.jpg";
+import social2 from "@/assets/social-2.jpg";
+import social3 from "@/assets/social-3.jpg";
+import social4 from "@/assets/social-4.jpg";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -251,7 +257,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {[candidate3, candidate6, candidate5, candidate4].map((src, i) => (
+                {[social1, social2, social3, social4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
@@ -512,144 +518,163 @@ function StationMockup() {
 }
 
 function DashboardMockup() {
-  const weekBars = [55, 72, 40, 88, 65, 95, 78];
-  const days = ["S", "T", "Q", "Q", "S", "S", "D"];
-  const specialties = [
-    { code: "CLM", label: "Clínica Médica", pct: 92, color: "bg-mint" },
-    { code: "PED", label: "Pediatria", pct: 84, color: "bg-blue-400" },
-    { code: "GO", label: "Gineco/Obst.", pct: 76, color: "bg-pink-400" },
-    { code: "CIR", label: "Cirurgia", pct: 68, color: "bg-amber-400" },
-    { code: "MFC", label: "Med. Família", pct: 81, color: "bg-purple-400" },
+  // Mirrors the real /app dashboard (greeting + média geral, medalhas por
+  // especialidade, Meu Desempenho com 3 cards + barras + nota de corte INEP,
+  // Histórico). Sem inventar nada — só preenchido com dados realistas.
+  const NOTA_CORTE = 6.217; // escala 0–10, mesma do app
+  const specs = [
+    { code: "CLM", label: "Clínica Médica", avg: 8.4, n: 38, color: "bg-blue-400" },
+    { code: "CIR", label: "Cirurgia", avg: 7.6, n: 22, color: "bg-amber-400" },
+    { code: "GO", label: "Gineco/Obst.", avg: 6.9, n: 27, color: "bg-pink-400" },
+    { code: "PED", label: "Pediatria", avg: 8.1, n: 24, color: "bg-mint" },
+    { code: "MFC", label: "Med. Família", avg: 5.8, n: 31, color: "bg-purple-400" },
   ];
   return (
     <div className="bg-background/70 p-3">
-      {/* Greeting bar */}
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <img src={candidate6} alt="" className="h-9 w-9 rounded-full border-2 border-mint object-cover" />
-          <div>
-            <p className="text-[11px] font-bold leading-tight">Olá, Dr. João 👋</p>
-            <p className="text-[9px] text-muted-foreground">Faltam <span className="font-bold text-primary">37 dias</span> para a prova</p>
+      {/* Greeting + média geral */}
+      <div className="rounded-xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <img src={candidate6} alt="" className="h-8 w-8 rounded-full border-2 border-mint object-cover" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold leading-tight">
+                <span className="text-mint">Dr. João</span>{" "}
+                <span className="text-foreground">sua média geral está em </span>
+                <span className="text-mint">8,4</span>
+              </p>
+              <p className="mt-0.5 text-[9px] leading-tight text-muted-foreground">
+                Mantenha a média acima da nota de corte do Revalida.
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-1 rounded-full bg-mint/15 px-2 py-0.5 text-[9px] font-bold text-mint">
+            <Flame className="h-2.5 w-2.5" /> 12 dias
           </div>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-mint/15 px-2.5 py-1 text-[10px] font-bold text-mint">
-          <Sparkles className="h-3 w-3" /> Sequência de 12 dias
+
+        {/* Medalhas por especialidade */}
+        <div className="mt-2.5 grid grid-cols-5 gap-1.5">
+          {specs.map((s) => {
+            const unlocked = s.avg >= NOTA_CORTE && s.n >= 5;
+            return (
+              <div
+                key={s.code}
+                className={`flex flex-col items-center gap-0.5 rounded-lg border px-1 py-1.5 text-center ${
+                  unlocked
+                    ? "border-mint/40 bg-mint/10"
+                    : "border-border bg-muted/40"
+                }`}
+              >
+                {unlocked ? (
+                  <Trophy className="h-3 w-3 text-mint" />
+                ) : (
+                  <Lock className="h-3 w-3 text-muted-foreground" />
+                )}
+                <span className="text-[8px] font-mono font-bold text-muted-foreground">{s.code}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Top stat cards */}
-      <div className="grid grid-cols-4 gap-2">
-        {[
-          { icon: ClipboardCheck, label: "Estações", value: "142", trend: "+18" },
-          { icon: TrendingUp, label: "Média", value: "8,4", trend: "+0,6" },
-          { icon: Trophy, label: "Ranking", value: "#27", trend: "↑ 9" },
-          { icon: Clock, label: "Horas", value: "63h", trend: "+4h" },
-        ].map(({ icon: Icon, label, value, trend }) => (
-          <div key={label} className="rounded-xl border border-border bg-card p-2.5">
-            <div className="flex items-center justify-between">
-              <Icon className="h-3.5 w-3.5 text-primary" />
-              <span className="text-[8px] font-bold text-mint">{trend}</span>
-            </div>
-            <p className="mt-1 font-display text-lg font-bold leading-none">{value}</p>
-            <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</p>
-          </div>
-        ))}
-      </div>
+      {/* Meu Desempenho */}
+      <div className="mt-2.5 rounded-xl border border-border bg-card p-3">
+        <div className="mb-2 flex items-center gap-1.5">
+          <BarChart3 className="h-3 w-3 text-mint" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">Meu Desempenho</span>
+        </div>
 
-      {/* Weekly chart + Trophies */}
-      <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_176px]">
-        <div className="rounded-xl border border-border bg-card p-3">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <BarChart3 className="h-3 w-3 text-primary" /> Estações por dia
-            </div>
-            <span className="text-[9px] text-muted-foreground">últimos 7 dias</span>
+        <div className="grid grid-cols-3 gap-1.5">
+          <div className="rounded-lg border border-border/60 bg-background p-2">
+            <div className="text-[8px] uppercase tracking-wider text-muted-foreground">Tentativas</div>
+            <div className="mt-0.5 font-display text-lg font-bold leading-none">142</div>
           </div>
-          <div className="flex h-20 items-end gap-1.5">
-            {weekBars.map((h, i) => (
-              <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                <div className="flex w-full flex-1 items-end">
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ duration: 0.6, delay: i * 0.05 }}
-                    className="w-full rounded-t bg-gradient-to-t from-mint/60 to-mint"
-                  />
-                </div>
-                <span className="text-[8px] text-muted-foreground">{days[i]}</span>
-              </div>
-            ))}
+          <div className="rounded-lg border border-border/60 bg-background p-2">
+            <div className="text-[8px] uppercase tracking-wider text-muted-foreground">Nota média</div>
+            <div className="mt-0.5 font-display text-lg font-bold leading-none text-medical">8,4</div>
           </div>
-
-          <div className="mt-3 space-y-1.5">
-            <div className="mb-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <Layers className="h-3 w-3 text-primary" /> Desempenho por especialidade
-            </div>
-            {specialties.map((s, i) => (
-              <div key={s.code} className="flex items-center gap-2">
-                <span className="w-9 text-[9px] font-mono font-bold text-muted-foreground">{s.code}</span>
-                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${s.pct}%` }}
-                    transition={{ duration: 0.7, delay: 0.2 + i * 0.05 }}
-                    className={`h-full ${s.color}`}
-                  />
-                </div>
-                <span className="w-7 text-right text-[9px] font-bold tabular-nums">{s.pct}%</span>
-              </div>
-            ))}
+          <div className="rounded-lg border border-border/60 bg-background p-2">
+            <div className="text-[8px] uppercase tracking-wider text-muted-foreground">Corte INEP</div>
+            <div className="mt-0.5 font-display text-lg font-bold leading-none text-mint">6,217</div>
+            <div className="mt-0.5 text-[7px] text-muted-foreground">Revalida 2025/2</div>
           </div>
         </div>
 
-        <aside className="space-y-2">
-          <div className="rounded-xl border border-mint/30 bg-gradient-hero p-3 text-white shadow-elegant">
-            <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-white/70">
-              <Trophy className="h-3 w-3 text-mint" /> Conquistas
-            </div>
-            <div className="mt-2 grid grid-cols-3 gap-1.5">
-              {[
-                { icon: Trophy, color: "text-amber-300", bg: "bg-amber-300/15" },
-                { icon: Star, color: "text-mint", bg: "bg-mint/20" },
-                { icon: Heart, color: "text-rose-300", bg: "bg-rose-300/15" },
-                { icon: Brain, color: "text-blue-300", bg: "bg-blue-300/15" },
-                { icon: ShieldCheck, color: "text-mint", bg: "bg-mint/20" },
-                { icon: Sparkles, color: "text-purple-300", bg: "bg-purple-300/15" },
-              ].map(({ icon: Ico, color, bg }, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.05, type: "spring" }}
-                  className={`flex aspect-square items-center justify-center rounded-lg ${bg}`}
-                >
-                  <Ico className={`h-4 w-4 ${color}`} />
-                </motion.div>
-              ))}
-            </div>
-            <p className="mt-2 text-[9px] text-white/80">6 de 24 medalhas</p>
+        {/* Média por especialidade */}
+        <div className="mt-2.5">
+          <div className="mb-1 flex items-baseline justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Média por especialidade</span>
+            <span className="text-[8px] text-muted-foreground">Meta ≥ <span className="font-bold text-foreground">6,22</span></span>
           </div>
+          <ul className="space-y-1.5">
+            {specs.map((s, i) => {
+              const pct = Math.max(0, Math.min(100, (s.avg / 10) * 100));
+              const hit = s.avg >= NOTA_CORTE;
+              return (
+                <li key={s.code} className="space-y-0.5">
+                  <div className="flex items-baseline justify-between gap-2 text-[9.5px]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex h-3.5 min-w-[1.8rem] items-center justify-center rounded px-1 text-[7.5px] font-bold tracking-wider text-night bg-mint/80">
+                        {s.code}
+                      </span>
+                      <span className="font-medium">{s.label}</span>
+                    </div>
+                    <div className="flex items-baseline gap-1.5 text-[8.5px] text-muted-foreground">
+                      <span>{s.n} est.</span>
+                      <span className={`font-display text-[11px] font-bold ${hit ? "text-mint" : "text-foreground"}`}>
+                        {s.avg.toFixed(1).replace(".", ",")}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="relative h-1.5 overflow-hidden rounded-full bg-muted">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.7, delay: 0.1 + i * 0.05 }}
+                      className={`h-full rounded-full ${s.color}`}
+                    />
+                    {/* Marker da nota de corte INEP */}
+                    <div
+                      className="absolute top-1/2 h-2.5 w-0.5 -translate-y-1/2 bg-foreground/70"
+                      style={{ left: `${NOTA_CORTE * 10}%` }}
+                      title="Nota de corte INEP"
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
 
-          <div className="rounded-xl border border-border bg-card p-3">
-            <div className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              <History className="h-3 w-3 text-primary" /> Recente
-            </div>
-            <div className="space-y-1.5 text-[9.5px]">
-              <div className="flex items-center justify-between">
-                <span className="truncate">Dor torácica</span>
-                <span className="font-bold text-mint">9,2</span>
+      {/* Histórico recente */}
+      <div className="mt-2.5 rounded-xl border border-border bg-card p-3">
+        <div className="mb-1.5 flex items-center gap-1.5">
+          <History className="h-3 w-3 text-mint" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">Histórico de Estações</span>
+        </div>
+        <ul className="space-y-1">
+          {[
+            { title: "Dor torácica · Clínica Médica", min: 10, score: 9.2 },
+            { title: "Febre na criança · Pediatria", min: 10, score: 8.7 },
+            { title: "Pré-natal de baixo risco · GO", min: 10, score: 7.1 },
+          ].map((a) => (
+            <li key={a.title} className="flex items-center justify-between rounded-lg border border-border/50 px-2 py-1.5">
+              <div className="min-w-0">
+                <div className="truncate text-[10px] font-semibold">{a.title}</div>
+                <div className="text-[8px] text-muted-foreground inline-flex items-center gap-1">
+                  <Clock className="h-2.5 w-2.5" /> {a.min} min
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="truncate">Febre na criança</span>
-                <span className="font-bold text-mint">8,7</span>
+              <div className="text-right">
+                <div className="font-display text-[12px] font-bold text-medical leading-none">
+                  {a.score.toFixed(1).replace(".", ",")}
+                </div>
+                <div className="text-[7.5px] uppercase tracking-wider text-muted-foreground">nota</div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="truncate">Pré-natal</span>
-                <span className="font-bold text-amber-500">7,1</span>
-              </div>
-            </div>
-          </div>
-        </aside>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -1557,7 +1582,7 @@ function FinalCTA() {
         <div className="pointer-events-none absolute -right-20 -top-20 h-[380px] w-[380px] rounded-full bg-mint/20 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-[280px] w-[280px] rounded-full bg-mint/15 blur-[100px]" />
         <div className="relative">
-          <h2 className="mx-auto max-w-2xl font-display text-2xl font-extrabold leading-tight md:text-4xl">
+          <h2 className="font-display text-xl font-extrabold leading-tight sm:text-2xl md:whitespace-nowrap md:text-3xl lg:text-4xl">
             Pronto para treinar como na{" "}
             <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
               estação real?
