@@ -224,8 +224,8 @@ function LoginPage() {
 
           <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-medium">E-mail</Label>
-              <Input ref={emailRef} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 !text-xs placeholder:text-xs" />
+              <Label htmlFor="email" className="text-xs font-medium">E-mail, usuário, CPF ou telefone</Label>
+              <Input ref={emailRef} id="email" type="text" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" required className="h-9 !text-xs placeholder:text-xs" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs font-medium">Senha</Label>
