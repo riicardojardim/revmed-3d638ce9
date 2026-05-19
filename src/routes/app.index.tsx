@@ -487,9 +487,7 @@ function Dashboard() {
 
       {/* Histórico */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        variants={staggerItem}
         className="rounded-2xl border border-border bg-card p-5 shadow-card"
       >
         <div className="flex items-center gap-2">
