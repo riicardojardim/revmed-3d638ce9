@@ -1187,14 +1187,16 @@ function SimuladoRunner({ id }: { id: string }) {
                       <button
                         type="button"
                         onClick={() => setEvaluatedCandidate(c.id)}
-                        disabled={running && !isEvaluated}
+                        disabled={!isWaiting}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
                           isEvaluated
                             ? "border-mint/50 bg-mint/10 text-foreground"
                             : "border-border bg-background/40 text-foreground hover:border-mint/40",
-                          running && !isEvaluated && "opacity-50 cursor-not-allowed",
+                          !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
+                          !isWaiting && isEvaluated && "cursor-default",
                         )}
+                        title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
                       >
                         <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
                         <span className="flex-1 truncate font-medium">{c.name}</span>
