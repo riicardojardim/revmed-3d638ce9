@@ -11,6 +11,7 @@ import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
@@ -35,6 +36,7 @@ function FlashcardsPage() {
   const [cardCounts, setCardCounts] = useState<Map<string, number>>(new Map());
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
+  const [expandedSpecs, setExpandedSpecs] = useState<Set<string>>(new Set());
   const [step, setStep] = useState<Step>("list");
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
@@ -206,6 +208,10 @@ function FlashcardsPage() {
           <div className="space-y-6">
             {grouped.map(({ specialty: spec, decks: list }) => {
               const meta = getSpecialtyMeta(spec);
+              const isExpanded = expandedSpecs.has(spec);
+              const PREVIEW = 2;
+              const visibleList = isExpanded ? list : list.slice(0, PREVIEW);
+              const remaining = list.length - PREVIEW;
               return (
                 <section key={spec} className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -221,28 +227,65 @@ function FlashcardsPage() {
                       <div className="text-center">Cards</div>
                       <div className="text-right">Treinar</div>
                     </div>
-                    {list.map((d) => (
-                      <div
-                        key={d.id}
-                        className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_80px_120px] gap-3 sm:gap-4 items-center px-4 sm:px-5 py-3 border-b border-border/60 last:border-0 hover:bg-muted/20"
-                      >
-                        <div className="flex min-w-0 flex-col gap-0.5">
-                          <span className="truncate font-medium">{d.title}</span>
-                          {d.topic && (
-                            <span className="truncate text-[11px] text-muted-foreground">{d.topic}</span>
-                          )}
-                          <span className="text-[11px] text-muted-foreground sm:hidden">
-                            {cardCounts.get(d.id) ?? 0} cards
-                          </span>
-                        </div>
-                        <div className="hidden sm:block text-center text-sm text-muted-foreground tabular-nums">
-                          {cardCounts.get(d.id) ?? 0}
-                        </div>
-                        <div className="text-right">
-                          <Button size="sm" variant="hero" onClick={() => openDeck(d)}>Iniciar</Button>
-                        </div>
+                    <motion.div
+                      variants={{
+                        hidden: {},
+                        show: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+                      }}
+                      initial="hidden"
+                      animate="show"
+                    >
+                      <AnimatePresence initial={false}>
+                        {visibleList.map((d) => (
+                          <motion.div
+                            key={d.id}
+                            layout
+                            variants={{
+                              hidden: { opacity: 0, y: 18 },
+                              show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+                            }}
+                            initial="hidden"
+                            animate="show"
+                            exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
+                            className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_80px_120px] gap-3 sm:gap-4 items-center px-4 sm:px-5 py-3 border-b border-border/60 last:border-0 hover:bg-muted/20"
+                          >
+                            <div className="flex min-w-0 flex-col gap-0.5">
+                              <span className="truncate font-medium">{d.title}</span>
+                              {d.topic && (
+                                <span className="truncate text-[11px] text-muted-foreground">{d.topic}</span>
+                              )}
+                              <span className="text-[11px] text-muted-foreground sm:hidden">
+                                {cardCounts.get(d.id) ?? 0} cards
+                              </span>
+                            </div>
+                            <div className="hidden sm:block text-center text-sm text-muted-foreground tabular-nums">
+                              {cardCounts.get(d.id) ?? 0}
+                            </div>
+                            <div className="text-right">
+                              <Button size="sm" variant="hero" onClick={() => openDeck(d)}>Iniciar</Button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                    {remaining > 0 && (
+                      <div className="flex justify-center border-t border-border/60 bg-muted/10 px-5 py-2.5">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            setExpandedSpecs((prev) => {
+                              const next = new Set(prev);
+                              if (isExpanded) next.delete(spec);
+                              else next.add(spec);
+                              return next;
+                            })
+                          }
+                        >
+                          {isExpanded ? "Ver menos" : `Ver mais ${remaining} flashcard${remaining === 1 ? "" : "s"}`}
+                        </Button>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </section>
               );
