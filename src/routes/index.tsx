@@ -274,7 +274,7 @@ function HeroVisual() {
       transition={{ duration: 0.6, delay: 0.15 }}
       className="relative"
     >
-      {/* Outer device frame */}
+      {/* Outer device frame — espelha a tela do candidato dentro da estação */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/20">
         {/* Browser top bar */}
         <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2">
@@ -285,85 +285,137 @@ function HeroVisual() {
           </div>
           <div className="flex items-center gap-1.5 rounded-md bg-background px-2.5 py-0.5 text-[10px] text-muted-foreground">
             <ShieldCheck className="h-3 w-3 text-mint" />
-            estacaorevalida.com.br/sala/MX9K2
+            estacaorevalida.com.br/app/sala/MX9K2
           </div>
           <div className="w-12" />
         </div>
 
-        {/* Station header */}
-        <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2.5">
-          <div className="flex items-center gap-2">
-            <div className="rounded-md bg-mint-soft/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-              Estação 14
+        {/* App station header (igual ao real: voltar + título + role chip + timer) */}
+        <div className="flex items-center justify-between gap-2 border-b border-border bg-card/80 px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md border border-border text-muted-foreground">
+              <ArrowLeft className="h-3 w-3" />
             </div>
-            <span className="text-xs font-semibold text-foreground">Dor torácica · 35a</span>
+            <span className="truncate text-[11px] font-bold text-foreground">
+              Estação 14 · Dor torácica em adulto jovem
+            </span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-night px-2.5 py-1 font-mono text-xs font-bold tabular-nums text-mint">
-            <Clock className="h-3 w-3" />
-            07:42
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full bg-mint-soft/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary">
+              Candidato
+            </span>
+            <div className="flex items-center gap-1 rounded-full bg-night px-2 py-0.5 font-mono text-[11px] font-bold tabular-nums text-mint">
+              <Hourglass className="h-3 w-3" />
+              07:42
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[1.3fr_1fr] gap-3 bg-background/60 p-3">
-          {/* LEFT — case + video tiles */}
+        <div className="grid grid-cols-[1.25fr_1fr] gap-3 bg-background/60 p-3">
+          {/* LEFT — caso + impressos (espelha o que o candidato vê) */}
           <div className="space-y-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                Caso clínico
-              </p>
-              <p className="mt-1 text-[11px] leading-snug text-foreground/85">
-                Paciente masculino, 35a, comparece ao PS referindo dor torácica retroesternal
-                opressiva há 40min, irradiando para mandíbula…
-              </p>
-            </div>
-
-            {/* Video tiles */}
-            <div className="grid grid-cols-2 gap-2">
-              <VideoTile src={doctor2} name="Você" role="Candidato" active />
-              <VideoTile src={doctor5} name="Ana C." role="Atriz" />
-            </div>
-            <VideoTile src={doctor7} name="Dra. Lúcia M." role="Banca" wide />
-          </div>
-
-          {/* RIGHT — checklist */}
-          <div className="flex flex-col rounded-lg border border-border bg-card p-3">
-            <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Checklist · banca
+                <FileText className="h-3 w-3 text-primary" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Caso clínico
+                </p>
+              </div>
+              <p className="mt-1.5 text-[11px] leading-snug text-foreground/85">
+                Paciente masculino, 35a, comparece ao PS com dor torácica
+                retroesternal opressiva há 40min, irradiando para mandíbula. Nega
+                trauma. Tabagista, HAS em uso irregular de losartana.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1">
+                {["PA 158x96", "FC 102", "SatO₂ 96%", "Tax 36,4°C"].map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md bg-mint-soft/40 px-1.5 py-px font-mono text-[9px] text-primary"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Impressos / materiais entregues */}
+            <div className="rounded-lg border border-border bg-card p-3">
+              <div className="mb-1.5 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Inbox className="h-3 w-3 text-primary" />
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Impressos recebidos
+                  </p>
+                </div>
+                <span className="rounded-full bg-mint/15 px-1.5 text-[9px] font-bold text-primary">
+                  3
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-mint">85%</span>
-            </div>
-            <div className="flex-1 space-y-1.5">
               {[
-                { ok: true, t: "Se apresenta ao paciente" },
-                { ok: true, t: "Identifica queixa principal" },
-                { ok: true, t: "Caracteriza dor (OPQRST)" },
-                { ok: true, t: "Investiga fatores de risco" },
-                { ok: false, t: "Hipótese diagnóstica" },
-                { ok: false, t: "Solicita ECG + tropo" },
-              ].map((i) => (
-                <div key={i.t} className="flex items-start gap-1.5 text-[10px] leading-tight">
-                  {i.ok ? (
-                    <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-mint" />
-                  ) : (
-                    <div className="mt-0.5 h-3 w-3 shrink-0 rounded-full border-2 border-muted-foreground/40" />
-                  )}
-                  <span className={i.ok ? "text-foreground/80" : "text-muted-foreground"}>
-                    {i.t}
+                { name: "ECG de 12 derivações", t: "imagem", hot: true },
+                { name: "Troponina I — laudo", t: "laudo" },
+                { name: "Radiografia de tórax PA", t: "imagem" },
+              ].map((d) => (
+                <div
+                  key={d.name}
+                  className="flex items-center justify-between border-t border-border/60 py-1.5 first:border-0"
+                >
+                  <div className="flex items-center gap-1.5">
+                    {d.hot && (
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+                    )}
+                    <span className="text-[10px] font-semibold text-foreground/85">
+                      {d.name}
+                    </span>
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-muted-foreground">
+                    {d.t}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "85%" }}
-                transition={{ delay: 0.8, duration: 1.2, ease: "easeOut" }}
-                className="h-full rounded-full bg-gradient-to-r from-mint to-primary"
-              />
+          </div>
+
+          {/* RIGHT — anotações do candidato + mini videocall (2 papéis) */}
+          <div className="flex flex-col gap-3">
+            <div className="flex-1 rounded-lg border border-border bg-card p-3">
+              <div className="mb-1.5 flex items-center gap-1.5">
+                <StickyNote className="h-3 w-3 text-primary" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Minhas anotações
+                </p>
+              </div>
+              <ul className="space-y-1 text-[10px] leading-snug text-foreground/85">
+                <li>• Dor 7/10, contínua, sem fator de melhora</li>
+                <li>• HF: pai IAM aos 52a · ex-tabagista 20 maços/ano</li>
+                <li>
+                  <span className="rounded bg-mint/20 px-1 font-semibold text-primary">
+                    HD: SCA · pedir ECG + troponina + AAS 300mg
+                  </span>
+                </li>
+                <li className="text-muted-foreground">
+                  • Considerar dissecção (PA assimétrica?)
+                </li>
+              </ul>
+              <div className="mt-2 flex items-center gap-1 text-[9px] text-muted-foreground">
+                <span className="h-1 w-1 animate-pulse rounded-full bg-mint" />
+                salvo automaticamente
+              </div>
+            </div>
+
+            {/* Mini videocall flutuante — só 2 tiles (candidato + ator) */}
+            <div className="rounded-lg border border-border bg-night p-1.5">
+              <div className="mb-1 flex items-center justify-between px-1">
+                <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-white/70">
+                  <Video className="h-2.5 w-2.5 text-mint" />
+                  vídeo · ao vivo
+                </div>
+                <span className="text-[9px] text-white/50">2 / 2</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <VideoTile src={doctor6} name="Você" role="Candidato" active />
+                <VideoTile src={doctor3} name="Ana C." role="Atriz" />
+              </div>
             </div>
           </div>
         </div>
