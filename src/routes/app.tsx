@@ -29,6 +29,7 @@ import {
   LayoutDashboard,
   Users,
   CreditCard,
+  DollarSign,
   Stethoscope,
   FileStack,
   Calendar,
