@@ -170,126 +170,19 @@ function FlashcardsPage() {
 
   // ===== LIST =====
   if (step === "list") {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-            <List className="h-4 w-4" />
-            <span className="font-display font-bold text-foreground">Todos os Flashcards</span>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {filtered.length} flashcard{filtered.length === 1 ? "" : "s"}
-          </div>
-        </div>
-
-        {/* Filtros: busca + especialidade */}
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por título, especialidade ou tema…"
-              className="pl-9"
-            />
-          </div>
-          <Select value={specialty} onValueChange={setSpecialty}>
-            <SelectTrigger className="sm:w-[260px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {specialties.map((s) => <SelectItem key={s} value={s}>{s === "Todas" ? "Todas as Áreas" : s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-            Nenhum flashcard encontrado com esses filtros.
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {grouped.map(({ specialty: spec, decks: list }) => {
-              const meta = getSpecialtyMeta(spec);
-              const isExpanded = expandedSpecs.has(spec);
-              const PREVIEW = 2;
-              const visibleList = isExpanded ? list : list.slice(0, PREVIEW);
-              const remaining = list.length - PREVIEW;
-              return (
-                <section key={spec} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className={cn("inline-flex h-6 w-9 items-center justify-center rounded-md text-[11px] font-bold", meta.badge)}>
-                      {meta.code}
-                    </span>
-                    <h2 className="font-display text-lg font-bold">{spec}</h2>
-                    <span className="text-xs text-muted-foreground">· {list.length} deck{list.length === 1 ? "" : "s"}</span>
-                  </div>
-                  <div className="rounded-2xl border border-border bg-card overflow-hidden">
-                    <div className="hidden sm:grid grid-cols-[1fr_80px_120px] gap-4 px-5 py-3 text-xs uppercase tracking-wide text-muted-foreground border-b border-border">
-                      <div>Flashcard</div>
-                      <div className="text-center">Cards</div>
-                      <div className="text-right">Treinar</div>
-                    </div>
-                    <motion.div
-                      variants={staggerContainer}
-                      initial="hidden"
-                      animate="show"
-                    >
-                      <AnimatePresence initial={false}>
-                        {visibleList.map((d) => (
-                          <motion.div
-                            key={d.id}
-                            layout
-                            variants={staggerItem}
-                            initial="hidden"
-                            animate="show"
-                            exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
-                            className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_80px_120px] gap-3 sm:gap-4 items-center px-4 sm:px-5 py-3 border-b border-border/60 last:border-0 hover:bg-muted/20"
-                          >
-                            <div className="flex min-w-0 flex-col gap-0.5">
-                              <span className="truncate font-medium">{d.title}</span>
-                              {d.topic && (
-                                <span className="truncate text-[11px] text-muted-foreground">{d.topic}</span>
-                              )}
-                              <span className="text-[11px] text-muted-foreground sm:hidden">
-                                {cardCounts.get(d.id) ?? 0} cards
-                              </span>
-                            </div>
-                            <div className="hidden sm:block text-center text-sm text-muted-foreground tabular-nums">
-                              {cardCounts.get(d.id) ?? 0}
-                            </div>
-                            <div className="text-right">
-                              <Button size="sm" variant="hero" onClick={() => openDeck(d)}>Iniciar</Button>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </motion.div>
-                    {remaining > 0 && (
-                      <div className="flex justify-center border-t border-border/60 bg-muted/10 px-5 py-2.5">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            setExpandedSpecs((prev) => {
-                              const next = new Set(prev);
-                              if (isExpanded) next.delete(spec);
-                              else next.add(spec);
-                              return next;
-                            })
-                          }
-                        >
-                          {isExpanded ? "Ver menos" : `Ver mais ${remaining} flashcard${remaining === 1 ? "" : "s"}`}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
+    return <FlashcardsList
+      decks={decks}
+      filtered={filtered}
+      cardCounts={cardCounts}
+      specialties={specialties}
+      search={search}
+      setSearch={setSearch}
+      specialty={specialty}
+      setSpecialty={setSpecialty}
+      openDeck={openDeck}
+    />;
   }
+
 
 
   // ===== COVER =====
