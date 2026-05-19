@@ -122,7 +122,7 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
         <span className="flex items-center gap-1.5 font-medium">
           <GripVertical className="h-3 w-3 text-muted-foreground" />
           {minimized ? <Mic className="h-3 w-3 text-mint" /> : <Video className="h-3 w-3" />}
-          {minimized ? "Em chamada" : "Vídeo"}
+          {minimized ? "Call" : "Vídeo"}
         </span>
         <div className="flex items-center gap-0.5">
           <button
