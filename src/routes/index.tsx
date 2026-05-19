@@ -849,7 +849,7 @@ function HowItWorks() {
     { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
-    <section id="como-funciona" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section id="como-funciona" className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Metodologia" title="Quatro passos para a aprovação" />
       <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {steps.map((s, i) => (
@@ -1082,7 +1082,7 @@ function Resources() {
     { icon: Smartphone, title: "App instalável (PWA)", desc: "Treine pelo celular como app nativo." },
   ];
   return (
-    <section id="recursos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section id="recursos" className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Recursos" title="Tudo que você precisa para treinar com método" />
       <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {features.map((f, i) => (
@@ -1231,7 +1231,7 @@ function Comparison() {
     );
 
   return (
-    <section className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle
         eyebrow="Comparativo"
         title="Por que candidatos estão migrando pra cá"
@@ -1586,7 +1586,7 @@ const faqs = [
 
 function FAQ() {
   return (
-    <section id="faq" className="container mx-auto max-w-5xl px-4 py-16 lg:px-8 lg:py-24">
+    <section id="faq" className="container mx-auto max-w-5xl px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="FAQ" title="Perguntas frequentes" />
       <div className="mt-10 grid gap-3 md:grid-cols-2">
         {faqs.map((f, i) => (
@@ -1630,7 +1630,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 /* ---------------- Final CTA ---------------- */
 function FinalCTA() {
   return (
-    <section className="container mx-auto px-4 py-16 lg:px-8">
+    <section className="container mx-auto px-4 py-12 sm:py-16 lg:px-8">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-night p-8 text-center text-white md:p-14">
         <div className="pointer-events-none absolute -right-20 -top-20 h-[380px] w-[380px] rounded-full bg-mint/20 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-[280px] w-[280px] rounded-full bg-mint/15 blur-[100px]" />
