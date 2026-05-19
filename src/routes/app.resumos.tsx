@@ -384,7 +384,7 @@ function ResumosPage() {
       </Dialog>
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
-        <DialogContent className="relative flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+        <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
           <DialogClose className="absolute right-3 top-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white ring-1 ring-white/40 backdrop-blur-md transition-all hover:bg-black/60 focus:outline-none focus:ring-2 focus:ring-white">
             <X className="h-4 w-4" />
             <span className="sr-only">Fechar</span>
