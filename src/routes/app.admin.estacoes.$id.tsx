@@ -1253,24 +1253,147 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
 
               <div className="rounded-lg border border-border bg-card p-3">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Níveis de avaliação</div>
-                <div className="space-y-2">
-                  {(item.levels ?? defaultLevels(Number(item.points) || 1)).map((lv, lvIdx) => (
-                    <div key={lvIdx} className="grid gap-2 md:grid-cols-[160px,80px,1fr]">
-                      <Input defaultValue={lv.label}
-                        onBlur={(e) => e.target.value !== lv.label && patchLevel(item, lvIdx, { label: e.target.value })} />
-                      <Input type="number" step="0.05" min={0} defaultValue={lv.points}
-                        onBlur={(e) => Number(e.target.value) !== lv.points && patchLevel(item, lvIdx, { points: Number(e.target.value) })} />
-                      <Input placeholder="Descrição do critério" defaultValue={lv.description ?? ""}
-                        onBlur={(e) => (e.target.value || "") !== (lv.description ?? "") && patchLevel(item, lvIdx, { description: e.target.value })} />
-                    </div>
-                  ))}
-                </div>
+                <LevelsEditor
+                  item={item}
+                  onSet={async (levels) => {
+                    const { error } = await supabase
+                      .from("station_checklist_items")
+                      .update({ levels } as never)
+                      .eq("id", item.id);
+                    if (error) {
+                      toast.error("Erro", { description: error.message });
+                      return;
+                    }
+                    await reload();
+                  }}
+                />
               </div>
             </div>
           ))}
         </div>
       )}
     </Section>
+  );
+}
+
+type LevelKind = "Inadequado" | "Parcialmente adequado" | "Adequado";
+
+function classifyLevel(label: string): LevelKind {
+  const v = (label ?? "").toLowerCase().trim();
+  if (v.startsWith("parcial")) return "Parcialmente adequado";
+  if (v.startsWith("inadequ") || v.startsWith("não") || v.startsWith("nao")) return "Inadequado";
+  return "Adequado";
+}
+
+function LevelsEditor({
+  item,
+  onSet,
+}: {
+  item: Item;
+  onSet: (levels: ChecklistLevel[]) => void | Promise<void>;
+}) {
+  const current = (item.levels?.length ? item.levels : defaultLevels(Number(item.points) || 1));
+  const max = Number(item.points) || 1;
+
+  const byKind = new Map<LevelKind, ChecklistLevel>();
+  current.forEach((lv) => {
+    const k = classifyLevel(lv.label);
+    if (!byKind.has(k)) byKind.set(k, lv);
+  });
+  // Ensure Adequado always exists (required)
+  const adequado: ChecklistLevel = byKind.get("Adequado") ?? { label: "Adequado", points: max, description: "Realiza completamente." };
+  const parcial = byKind.get("Parcialmente adequado");
+  const inadequado = byKind.get("Inadequado");
+
+  function persist(next: { adequado: ChecklistLevel; parcial?: ChecklistLevel | null; inadequado?: ChecklistLevel | null }) {
+    const out: ChecklistLevel[] = [];
+    if (next.inadequado) out.push({ ...next.inadequado, label: "Inadequado" });
+    if (next.parcial) out.push({ ...next.parcial, label: "Parcialmente adequado" });
+    out.push({ ...next.adequado, label: "Adequado" });
+    void onSet(out);
+  }
+
+  const rows: Array<{
+    kind: LevelKind;
+    level: ChecklistLevel | undefined;
+    locked?: boolean;
+    defaultPts: number;
+    placeholder: string;
+  }> = [
+    { kind: "Inadequado", level: inadequado, defaultPts: 0, placeholder: "Não realiza." },
+    { kind: "Parcialmente adequado", level: parcial, defaultPts: Math.round((max / 2) * 100) / 100, placeholder: "Realiza parcialmente." },
+    { kind: "Adequado", level: adequado, locked: true, defaultPts: max, placeholder: "Realiza completamente." },
+  ];
+
+  return (
+    <div className="space-y-2">
+      {rows.map((row) => {
+        const checked = row.locked || !!row.level;
+        const lv = row.level ?? { label: row.kind, points: row.defaultPts, description: "" };
+        const tone =
+          row.kind === "Adequado" ? "border-mint/40 bg-mint/5"
+            : row.kind === "Parcialmente adequado" ? "border-warning/30 bg-warning/5"
+              : "border-destructive/30 bg-destructive/5";
+        return (
+          <div key={row.kind} className={cn("grid items-center gap-2 rounded-lg border p-2 md:grid-cols-[200px,110px,1fr]", tone, !checked && "opacity-60")}>
+            <label className="flex items-center gap-2 text-sm font-medium">
+              {row.locked ? (
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-mint text-white" title="Obrigatório">
+                  <Check className="h-3.5 w-3.5" />
+                </span>
+              ) : (
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-mint"
+                  checked={checked}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      const newLv = { label: row.kind, points: row.defaultPts, description: row.placeholder };
+                      if (row.kind === "Inadequado") persist({ adequado, parcial, inadequado: newLv });
+                      else persist({ adequado, parcial: newLv, inadequado });
+                    } else {
+                      if (row.kind === "Inadequado") persist({ adequado, parcial, inadequado: null });
+                      else persist({ adequado, parcial: null, inadequado });
+                    }
+                  }}
+                />
+              )}
+              <span>{row.kind}</span>
+            </label>
+            <Input
+              type="number"
+              step="0.05"
+              min={0}
+              disabled={!checked}
+              defaultValue={lv.points}
+              key={`${row.kind}-${lv.points}-${checked}`}
+              onBlur={(e) => {
+                const n = Number(e.target.value);
+                if (!checked || n === lv.points) return;
+                const upd = { ...lv, points: n };
+                if (row.kind === "Adequado") persist({ adequado: upd, parcial, inadequado });
+                else if (row.kind === "Parcialmente adequado") persist({ adequado, parcial: upd, inadequado });
+                else persist({ adequado, parcial, inadequado: upd });
+              }}
+            />
+            <Input
+              placeholder={row.placeholder}
+              disabled={!checked}
+              defaultValue={lv.description ?? ""}
+              key={`${row.kind}-desc-${checked}`}
+              onBlur={(e) => {
+                const val = e.target.value;
+                if (!checked || val === (lv.description ?? "")) return;
+                const upd = { ...lv, description: val };
+                if (row.kind === "Adequado") persist({ adequado: upd, parcial, inadequado });
+                else if (row.kind === "Parcialmente adequado") persist({ adequado, parcial: upd, inadequado });
+                else persist({ adequado, parcial, inadequado: upd });
+              }}
+            />
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
