@@ -108,6 +108,8 @@ function LandingPage() {
       <Simulation />
       <Resources />
       <Areas />
+      <FounderVideo />
+      <Comparison />
       <Plans />
       <Testimonials />
       <FAQ />
