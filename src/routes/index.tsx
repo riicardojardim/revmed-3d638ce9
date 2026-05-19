@@ -851,7 +851,7 @@ function HowItWorks() {
   return (
     <section id="como-funciona" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Metodologia" title="Quatro passos para a aprovação" />
-      <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {steps.map((s, i) => (
           <motion.div
             key={s.title}
