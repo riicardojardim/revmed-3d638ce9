@@ -108,11 +108,12 @@ function StationsPage() {
     parceiros: dbStations.filter((s) => s.origin === "parceiros").length,
   }), [dbStations]);
 
-  const filtered = dbStations.filter(
-    (s) =>
-      (spec === "Todas" || s.specialty === spec) &&
-      s.title.toLowerCase().includes(q.toLowerCase()),
-  );
+  const filtered = dbStations.filter((s) => {
+    if (spec !== "Todas" && s.specialty !== spec) return false;
+    const term = q.trim().toLowerCase();
+    if (!term) return true;
+    return s.title.toLowerCase().includes(term) || s.specialty.toLowerCase().includes(term);
+  });
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
