@@ -27,21 +27,11 @@ function LoginPage() {
   function formatIdentifier(raw: string): string {
     const v = raw.trim();
     if (!v) return "";
-    // Email ou username (tem @ ou letras) — não mascara
+    // E-mail ou usuário (tem @ ou letras) — sem máscara
     if (/[@a-zA-Z]/.test(v)) return raw;
-    const startsWithPlus = v.startsWith("+");
-    const digits = v.replace(/\D/g, "");
-    if (!digits) return raw;
-    // Telefone: começa com + ou tem mais de 11 dígitos
-    if (startsWithPlus || digits.length > 11) {
-      const d = digits.slice(0, 13);
-      if (d.length <= 2) return `+${d}`;
-      if (d.length <= 4) return `+${d.slice(0, 2)} (${d.slice(2)}`;
-      if (d.length <= 9) return `+${d.slice(0, 2)} (${d.slice(2, 4)}) ${d.slice(4)}`;
-      return `+${d.slice(0, 2)} (${d.slice(2, 4)}) ${d.slice(4, 9)}-${d.slice(9)}`;
-    }
-    // CPF: até 11 dígitos -> XXX.XXX.XXX-XX
-    const d = digits.slice(0, 11);
+    // Só dígitos → assume CPF e aplica máscara
+    const d = v.replace(/\D/g, "").slice(0, 11);
+    if (!d) return raw;
     if (d.length <= 3) return d;
     if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
     if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
@@ -51,6 +41,7 @@ function LoginPage() {
   function handleIdentifierChange(value: string) {
     setEmail(formatIdentifier(value));
   }
+
 
 
   function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
