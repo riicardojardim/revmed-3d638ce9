@@ -122,7 +122,7 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-0 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
+        className="fixed left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-2.5 py-0.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:max-w-[440px]"
         role="dialog"
         aria-label="Instalar aplicativo"
         onPointerDown={onPointerDown}
@@ -136,7 +136,7 @@ export function PWAInstallBanner() {
           transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
         }}
       >
-        <div className="flex h-5 items-center gap-1.5">
+        <div className="flex h-6 items-center gap-1.5">
           <span className="text-[10px] leading-none">📲</span>
           <p className="flex-1 whitespace-nowrap text-[9px] font-medium leading-none text-foreground sm:text-[10px]">
             Baixe nosso app para melhor experiência
