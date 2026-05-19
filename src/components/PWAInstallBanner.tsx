@@ -161,23 +161,23 @@ export function PWAInstallBanner() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Instalar o aplicativo</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-h-[90vh] w-[calc(100vw-1.5rem)] max-w-lg overflow-y-auto rounded-2xl p-4 sm:p-6">
+          <DialogHeader className="space-y-1.5 text-left">
+            <DialogTitle className="text-base sm:text-lg">Instalar o aplicativo</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Tenha acesso rápido, notificações e uma experiência em tela cheia, como um app nativo.
             </DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue={platform} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="ios" className="gap-1.5">
+            <TabsList className="grid w-full grid-cols-3 gap-1 h-auto p-1">
+              <TabsTrigger value="ios" className="flex-col gap-0.5 px-1 py-1.5 text-[10px] sm:flex-row sm:gap-1.5 sm:text-sm">
                 <Smartphone className="h-3.5 w-3.5" /> iPhone/iPad
               </TabsTrigger>
-              <TabsTrigger value="android" className="gap-1.5">
+              <TabsTrigger value="android" className="flex-col gap-0.5 px-1 py-1.5 text-[10px] sm:flex-row sm:gap-1.5 sm:text-sm">
                 <Tablet className="h-3.5 w-3.5" /> Android
               </TabsTrigger>
-              <TabsTrigger value="desktop" className="gap-1.5">
+              <TabsTrigger value="desktop" className="flex-col gap-0.5 px-1 py-1.5 text-[10px] sm:flex-row sm:gap-1.5 sm:text-sm">
                 <Monitor className="h-3.5 w-3.5" /> Computador
               </TabsTrigger>
             </TabsList>
