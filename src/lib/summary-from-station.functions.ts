@@ -144,6 +144,131 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
   ].filter(Boolean).join("\n");
 }
 
+// ============================================================
+// CAMADA 1 — Validação estrutural determinística
+// ============================================================
+type StructIssue = { field: string; severity: "error" | "warn"; message: string };
+
+const CITATION_RE = /\[[^\]\n]{3,120}\]/;
+const DOSE_NO_UNIT_RE = /\b\d+(?:[.,]\d+)?\s*(?!mg|mcg|µg|g\b|kg|ml|mL|L\b|UI|U\b|gotas|cp|cps|comprimid|%|mmHg|mEq|mmol|mol|h\b|dia|min|sem|°C|x\/dia|\/dia|\/kg|\/m²|anos?|meses)[a-zA-Zµ]{1,4}\b/;
+const PLACEHOLDER_RE = /\b(xxx+|\?\?\?+|TODO|FIXME|lorem ipsum|placeholder)\b/i;
+const LOW_CONFIDENCE_RE = /\b(talvez|possivelmente|pode ser que|acredito que|n[aã]o tenho certeza)\b/i;
+
+function structuralCheck(r: z.infer<typeof ResultSchema>): StructIssue[] {
+  const issues: StructIssue[] = [];
+  const fields: Array<[keyof z.infer<typeof ResultSchema>, string, boolean]> = [
+    ["definition", "Definição", false],
+    ["clinical_picture", "Quadro clínico", false],
+    ["diagnosis", "Diagnóstico", true],
+    ["conduct", "Conduta", true],
+    ["key_points", "Pontos-chave", true],
+    ["pitfalls", "Armadilhas", false],
+  ];
+  for (const [key, label, requireCit] of fields) {
+    const text = String(r[key] ?? "");
+    if (!text.trim()) { issues.push({ field: label, severity: "error", message: "Seção vazia." }); continue; }
+    if (requireCit && !CITATION_RE.test(text)) {
+      issues.push({ field: label, severity: "error", message: "Falta citação inline (ex.: [MS — PCDT ...])." });
+    }
+    if (PLACEHOLDER_RE.test(text)) {
+      issues.push({ field: label, severity: "error", message: "Placeholder não preenchido." });
+    }
+    if (LOW_CONFIDENCE_RE.test(text)) {
+      issues.push({ field: label, severity: "warn", message: "Linguagem de baixa confiança — generalize ou cite a fonte." });
+    }
+  }
+  if (DOSE_NO_UNIT_RE.test(r.conduct)) {
+    issues.push({ field: "Conduta", severity: "warn", message: "Possível número sem unidade clara (mg, mg/kg, UI, mL...)." });
+  }
+  if (!r.sources || r.sources.length < 2) {
+    issues.push({ field: "Referências", severity: "error", message: "Menos de 2 fontes oficiais declaradas." });
+  }
+  return issues;
+}
+
+// ============================================================
+// CAMADA 2 — Fact-check IA (segundo modelo como revisor)
+// ============================================================
+const VerifierResultSchema = z.object({
+  verdict: z.enum(["aprovado", "aprovado_com_correcoes", "reprovado"]),
+  issues: z.array(z.object({
+    field: z.string().max(60),
+    severity: z.enum(["error", "warn"]),
+    message: z.string().max(400),
+  })).max(20).default([]),
+  corrections: z.object({
+    definition: z.string().optional(),
+    clinical_picture: z.string().optional(),
+    diagnosis: z.string().optional(),
+    conduct: z.string().optional(),
+    key_points: z.string().optional(),
+    pitfalls: z.string().optional(),
+  }).default({}),
+});
+
+const VERIFIER_SYSTEM = `Você é um REVISOR médico sênior brasileiro, especialista em medicina baseada em evidências e na matriz do Revalida/INEP.
+
+Sua tarefa: AUDITAR um resumo clínico já gerado por outra IA, validando cada DOSE, CRITÉRIO DIAGNÓSTICO, VALOR DE CORTE e CONDUTA contra fontes brasileiras oficiais (MS/PCDTs, ANVISA, diretrizes SBC/SBP/FEBRASGO/SBPT/SBN/SBD/SBI/SBEM) e guidelines internacionais consagradas alinhadas ao SUS.
+
+Retorne SOMENTE JSON válido:
+{
+  "verdict": "aprovado" | "aprovado_com_correcoes" | "reprovado",
+  "issues": [{ "field": "Conduta|Diagnóstico|...", "severity": "error|warn", "message": "explicação curta" }],
+  "corrections": { "conduct": "...", "diagnosis": "...", ... }
+}
+
+CRITÉRIOS:
+- "error" = informação INCORRETA, perigosa ao paciente ou inventada (dose errada, critério inexistente, fármaco contraindicado, conduta fora do protocolo brasileiro, ausência de citação em afirmação crítica).
+- "warn" = correto mas impreciso, sem unidade, desatualizado ou sem citação.
+- "reprovado" = ≥1 error grave que não pode ser corrigido sem reescrita completa.
+- "aprovado_com_correcoes" = errors corrigíveis — em "corrections" forneça o texto INTEIRO da seção corrigida (mantendo formato bullets "• ", citações inline entre colchetes, doses com unidade explícita).
+- "aprovado" = sem errors, apenas warns leves.
+
+Na dúvida sobre uma dose ou critério: marque como error e generalize com segurança na correção.`;
+
+async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, specialty: string) {
+  const userText = [
+    `ESPECIALIDADE: ${specialty}`,
+    `TÍTULO: ${r.title}`,
+    `\nDEFINIÇÃO:\n${r.definition}`,
+    `\nQUADRO CLÍNICO:\n${r.clinical_picture}`,
+    `\nDIAGNÓSTICO:\n${r.diagnosis}`,
+    `\nCONDUTA:\n${r.conduct}`,
+    `\nPONTOS-CHAVE:\n${r.key_points}`,
+    `\nARMADILHAS:\n${r.pitfalls}`,
+    `\nFONTES DECLARADAS:\n${(r.sources ?? []).map((s) => `- ${s}`).join("\n")}`,
+    "",
+    "Audite rigorosamente. Retorne SOMENTE o JSON do schema.",
+  ].join("\n");
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 120_000);
+  try {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-pro",
+        messages: [
+          { role: "system", content: VERIFIER_SYSTEM },
+          { role: "user", content: userText },
+        ],
+        response_format: { type: "json_object" },
+      }),
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`Verifier ${res.status}`);
+    const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    const content = json.choices?.[0]?.message?.content ?? "{}";
+    let parsed: unknown;
+    try { parsed = JSON.parse(content); }
+    catch { const m = content.match(/\{[\s\S]*\}/); parsed = m ? JSON.parse(m[0]) : {}; }
+    return VerifierResultSchema.parse(parsed);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export const generateSummaryFromStation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
@@ -152,8 +277,7 @@ export const generateSummaryFromStation = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
     const prompt = buildUserPrompt(data);
-    // Modelo principal: GPT-5 (mais preciso em dados clínicos: doses, critérios, condutas)
-    // Fallback: Gemini 2.5 Pro (forte raciocínio + contexto grande) em caso de timeout/indisponibilidade
+    // Geração principal: GPT-5 → fallback Gemini 2.5 Pro
     let result: z.infer<typeof ResultSchema>;
     try {
       result = await callGateway(apiKey, prompt, "openai/gpt-5", 150_000);
@@ -164,11 +288,46 @@ export const generateSummaryFromStation = createServerFn({ method: "POST" })
       result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000);
     }
 
+    // ===== Camada 1: estrutural =====
+    let structIssues = structuralCheck(result);
+
+    // ===== Camada 2: fact-check IA (best-effort) =====
+    let verifier: z.infer<typeof VerifierResultSchema> | null = null;
+    try {
+      verifier = await verifySummary(apiKey, result, data.specialty);
+      const c = verifier.corrections ?? {};
+      if (c.definition) result.definition = c.definition;
+      if (c.clinical_picture) result.clinical_picture = c.clinical_picture;
+      if (c.diagnosis) result.diagnosis = c.diagnosis;
+      if (c.conduct) result.conduct = c.conduct;
+      if (c.key_points) result.key_points = c.key_points;
+      if (c.pitfalls) result.pitfalls = c.pitfalls;
+      // Re-roda estrutural após correções
+      structIssues = structuralCheck(result);
+    } catch (err) {
+      console.warn("[summary-verifier] falhou, seguindo com checagem estrutural apenas:", err);
+    }
+
+    const verifierIssues = verifier?.issues ?? [];
+    const allIssues = [...structIssues, ...verifierIssues];
+    const hasBlockingError =
+      verifier?.verdict === "reprovado" ||
+      structIssues.some((i) => i.severity === "error");
+
     const { supabase, userId } = context;
 
     const sourcesBlock = result.sources && result.sources.length
       ? `\n\nFontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
       : "";
+
+    const auditBlock = (() => {
+      if (allIssues.length === 0 && verifier?.verdict === "aprovado") {
+        return "\n\nValidação automática: APROVADO (checagem estrutural + revisão IA).";
+      }
+      const verdict = verifier ? `Veredito IA: ${verifier.verdict}` : "Veredito IA: indisponível";
+      const lines = allIssues.map((i) => `• [${i.severity.toUpperCase()}] ${i.field}: ${i.message}`);
+      return `\n\nValidação automática:\n${verdict}\n${lines.join("\n")}`;
+    })();
 
     const { data: row, error } = await supabase
       .from("summaries")
@@ -179,19 +338,26 @@ export const generateSummaryFromStation = createServerFn({ method: "POST" })
         topic: result.topic ?? data.topic ?? null,
         difficulty: result.difficulty,
         read_time_minutes: result.read_time_minutes,
-        high_yield: result.high_yield,
+        high_yield: result.high_yield && !hasBlockingError,
         definition: result.definition,
         clinical_picture: result.clinical_picture,
         diagnosis: result.diagnosis,
         conduct: result.conduct,
         key_points: result.key_points,
         pitfalls: result.pitfalls,
-        content_md: sourcesBlock.trim(),
-        published: false,
+        content_md: (sourcesBlock + auditBlock).trim(),
+        published: false, // sempre draft — professor revisa antes de publicar
       })
       .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md")
       .single();
     if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");
 
-    return { summary: row };
+    return {
+      summary: row,
+      validation: {
+        verdict: verifier?.verdict ?? "indisponivel",
+        blocking: hasBlockingError,
+        issues: allIssues,
+      },
+    };
   });
