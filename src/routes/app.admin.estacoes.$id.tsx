@@ -2393,7 +2393,11 @@ function SectionGenerateSummary({ station }: { station: Station }) {
         },
       });
       setSummary(res.summary as GeneratedSummary);
-      toast.success("Resumo pronto!");
+      const v = (res as { validation?: { verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } }).validation ?? null;
+      setValidation(v);
+      if (v?.blocking) toast.warning("Resumo gerado com alertas críticos — revise antes de publicar.");
+      else if ((v?.issues ?? []).length > 0) toast.message("Resumo gerado com avisos da validação automática.");
+      else toast.success("Resumo pronto e aprovado pela validação automática!");
       void loadLinked();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
