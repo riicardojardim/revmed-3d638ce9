@@ -61,14 +61,18 @@ function HostMuteButton({ roomCode, targetIdentity, isMuted }: { roomCode: strin
 }
 
 function Stage({ isHost, roomCode, selfIdentity, allowedIdentities }: { isHost: boolean; roomCode: string; selfIdentity: string; allowedIdentities: Set<string> | null }) {
+  // onlySubscribed: true → o GridLayout só recebe tracks de vídeo realmente
+  // baixadas. Combinado com SubscriptionManager abaixo, os streams de
+  // espectadores nunca são decodificados (poupa CPU/GPU/banda).
   const allTracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
-    { onlySubscribed: false },
+    { onlySubscribed: true },
   );
-  // Espectadores só veem participantes permitidos (ator + candidato avaliado)
+  // Filtro de UI: extra defesa caso o servidor entregue alguma track fora
+  // da whitelist (ex.: durante a janela de troca de candidato).
   const tracks = allowedIdentities
     ? allTracks.filter((t) => t.participant && allowedIdentities.has(t.participant.identity))
     : allTracks;
