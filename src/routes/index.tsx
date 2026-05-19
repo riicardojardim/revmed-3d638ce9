@@ -404,7 +404,8 @@ function HeroVisual() {
 
 function StationMockup() {
   return (
-    <div className="bg-background/70 p-3">
+    <div className="h-full w-full overflow-hidden bg-background/70 p-3">
+
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <button className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Sair
