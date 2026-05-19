@@ -101,7 +101,7 @@ function AppLayout() {
       {
         items: [
           { to: "/app", label: "Início", icon: Home, exact: true },
-          { to: "/app/checklists", label: "Banco de checklists", icon: ClipboardList },
+          { to: "/app/checklists", label: "Checklists", icon: ClipboardList },
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
       },
@@ -113,7 +113,7 @@ function AppLayout() {
       {
         label: "Checklist & Flashcard",
         items: [
-          { to: "/app/checklists", label: "Banco de checklists", icon: ClipboardList },
+          { to: "/app/checklists", label: "Checklists", icon: ClipboardList },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain, children: [
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/desempenho", label: "Desempenho" },
