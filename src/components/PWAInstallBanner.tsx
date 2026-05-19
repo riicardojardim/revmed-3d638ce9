@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-const DISMISS_KEY = "pwa:install-banner-dismissed";
+const DISMISS_KEY = "pwa:install-banner-dismissed-v2";
+const SNOOZE_DAYS = 3;
 
 type Platform = "ios" | "android" | "desktop";
 
