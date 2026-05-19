@@ -102,6 +102,7 @@ function LandingPage() {
       <TrustBar />
       <Stats />
       <HowItWorks />
+      <BeforeAfter />
       <Simulation />
       <Resources />
       <Areas />
@@ -220,7 +221,7 @@ function Hero() {
                 size="lg"
                 className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
               >
-                Começar meu treino
+                Quero treinar minha 1ª estação grátis
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
@@ -234,6 +235,13 @@ function Hero() {
               </Button>
             </a>
           </div>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia incondicional</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Sem cartão pra começar</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Cancele em 2 cliques</span>
+          </div>
+
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
@@ -593,6 +601,86 @@ function HowItWorks() {
   );
 }
 
+/* ---------------- Before / After ---------------- */
+function BeforeAfter() {
+  const before = [
+    "Lê checklist 10x, decora itens soltos e nunca diz em voz alta",
+    "Chega na estação e congela na hora de conduzir o paciente",
+    "Não sabe se tá no tempo certo — perde ponto por timing",
+    "Estuda sozinho, sem ninguém pra apontar o que tá errado",
+    "Descobre o que esqueceu só DEPOIS da prova",
+  ];
+  const after = [
+    "Conduz a estação em voz alta, igual no dia da prova",
+    "Já passou pelo nervosismo dezenas de vezes — calejado",
+    "Cronômetro real, divisão de tempo treinada na prática",
+    "Ator (ou IA) marca cada erro na hora, com feedback",
+    "Sai de cada simulado sabendo exatamente o que revisar",
+  ];
+
+  return (
+    <section className="bg-gradient-to-b from-background to-mint-soft/30 py-16 lg:py-24">
+      <div className="container mx-auto px-4 lg:px-8">
+        <SectionTitle
+          eyebrow="A diferença"
+          title="Estudar sozinho vs. treinar na Estação Revalida"
+        />
+        <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-2">
+          <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/15">
+                <X className="h-5 w-5 text-destructive" />
+              </div>
+              <h3 className="font-display text-lg font-bold text-foreground">Estudando sozinho</h3>
+            </div>
+            <ul className="space-y-2.5">
+              {before.map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                  <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive/70" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="relative rounded-2xl border-2 border-mint bg-card p-6 shadow-glow">
+            <Badge className="absolute -top-2.5 left-5 rounded-full bg-mint px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-night hover:bg-mint">
+              Com a Estação
+            </Badge>
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-mint/15">
+                <CheckCircle2 className="h-5 w-5 text-mint" />
+              </div>
+              <h3 className="font-display text-lg font-bold text-primary">Treinando aqui</h3>
+            </div>
+            <ul className="space-y-2.5">
+              {after.map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-sm">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
+                  <span className="text-foreground">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-8 flex max-w-5xl flex-col items-center justify-between gap-4 rounded-2xl border border-mint/30 bg-mint-soft/40 p-5 sm:flex-row">
+          <p className="text-sm font-semibold text-primary">
+            Pare de adivinhar como vai ser a prova. Faça a prova antes da prova.
+          </p>
+          <Link to="/cadastro">
+            <Button className="h-10 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90">
+              Treinar minha 1ª estação grátis
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 /* ---------------- Simulation (2 roles: candidato + ator) ---------------- */
 function Simulation() {
   const roles = [
@@ -884,19 +972,26 @@ function Plans() {
               ))}
             </ul>
 
-            <Link to="/cadastro" className="mt-auto pt-6">
-              <Button
-                size="lg"
-                className={`w-full rounded-xl text-sm font-bold ${
-                  p.highlight
-                    ? "bg-mint text-night shadow-glow hover:bg-mint/90"
-                    : "bg-background text-foreground hover:bg-muted"
-                }`}
-                variant={p.highlight ? "default" : "outline"}
-              >
-                {p.cta}
-              </Button>
-            </Link>
+            <div className="mt-auto pt-6">
+              <Link to="/cadastro">
+                <Button
+                  size="lg"
+                  className={`w-full rounded-xl text-sm font-bold ${
+                    p.highlight
+                      ? "bg-mint text-night shadow-glow hover:bg-mint/90"
+                      : "bg-background text-foreground hover:bg-muted"
+                  }`}
+                  variant={p.highlight ? "default" : "outline"}
+                >
+                  {p.cta}
+                </Button>
+              </Link>
+              <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-mint" />
+                7 dias de garantia · 100% do dinheiro de volta
+              </p>
+            </div>
+
           </motion.div>
         ))}
       </div>
