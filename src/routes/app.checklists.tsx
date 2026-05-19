@@ -44,6 +44,10 @@ function StationsPage() {
   const [dbStations, setDbStations] = useState<ListStation[]>([]);
   const [loading, setLoading] = useState(true);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [allOpen, setAllOpen] = useState(false);
+  const [allSearch, setAllSearch] = useState("");
+  const [allSpec, setAllSpec] = useState<Specialty | "Todas">("Todas");
+
 
 
   
