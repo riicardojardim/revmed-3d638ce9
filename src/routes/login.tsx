@@ -168,18 +168,36 @@ function LoginPage() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-gradient-card"
-      style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="relative min-h-screen overflow-hidden"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        backgroundImage:
+          "radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--mint) 28%, transparent) 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, color-mix(in oklab, var(--medical) 22%, transparent) 0%, transparent 55%), linear-gradient(160deg, color-mix(in oklab, var(--mint-soft) 70%, white) 0%, white 55%, color-mix(in oklab, var(--medical) 12%, white) 100%)",
+      }}
     >
       {/* Animated medical background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-mint/20 blur-3xl animate-pulse-slow" />
-        <div className="absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-medical/20 blur-3xl animate-pulse-slow [animation-delay:1.5s]" />
-        <div className="absolute -bottom-24 left-1/4 h-72 w-72 rounded-full bg-mint/15 blur-3xl animate-pulse-slow [animation-delay:3s]" />
+        {/* Soft brand orbs */}
+        <div className="absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-mint/35 blur-3xl animate-pulse-slow" />
+        <div className="absolute -right-28 top-1/4 h-[26rem] w-[26rem] rounded-full bg-medical/25 blur-3xl animate-pulse-slow [animation-delay:1.5s]" />
+        <div className="absolute -bottom-32 left-1/3 h-[24rem] w-[24rem] rounded-full bg-mint/25 blur-3xl animate-pulse-slow [animation-delay:3s]" />
+
+        {/* Subtle mint grid */}
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(var(--mint) 1px, transparent 1px), linear-gradient(90deg, var(--mint) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            maskImage:
+              "radial-gradient(ellipse at center, black 40%, transparent 75%)",
+          }}
+        />
 
         {/* ECG line */}
         <svg
-          className="absolute left-0 right-0 top-1/2 h-24 w-full -translate-y-1/2 opacity-[0.12]"
+          className="absolute left-0 right-0 top-1/2 h-24 w-full -translate-y-1/2 opacity-30"
           viewBox="0 0 1200 100"
           preserveAspectRatio="none"
           fill="none"
@@ -195,19 +213,20 @@ function LoginPage() {
         </svg>
 
         {/* Floating medical icons */}
-        <div className="absolute left-[8%] top-[12%] text-mint/25 animate-float">
-          <Stethoscope className="h-7 w-7" strokeWidth={1.5} />
+        <div className="absolute left-[8%] top-[12%] text-mint/60 animate-float">
+          <Stethoscope className="h-8 w-8" strokeWidth={1.5} />
         </div>
-        <div className="absolute right-[12%] top-[20%] text-medical/30 animate-float [animation-delay:1s]">
-          <HeartPulse className="h-6 w-6" strokeWidth={1.5} />
+        <div className="absolute right-[12%] top-[20%] text-medical/60 animate-float [animation-delay:1s]">
+          <HeartPulse className="h-7 w-7" strokeWidth={1.5} />
         </div>
-        <div className="absolute left-[18%] bottom-[18%] text-mint/25 animate-float [animation-delay:2s]">
-          <Activity className="h-6 w-6" strokeWidth={1.5} />
+        <div className="absolute left-[18%] bottom-[18%] text-mint/60 animate-float [animation-delay:2s]">
+          <Activity className="h-7 w-7" strokeWidth={1.5} />
         </div>
-        <div className="absolute right-[10%] bottom-[12%] text-medical/25 animate-float [animation-delay:0.5s]">
-          <Pill className="h-7 w-7" strokeWidth={1.5} />
+        <div className="absolute right-[10%] bottom-[12%] text-medical/55 animate-float [animation-delay:0.5s]">
+          <Pill className="h-8 w-8" strokeWidth={1.5} />
         </div>
       </div>
+
 
       <div className="container relative mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-6">
         <div className="mb-4 flex justify-center">
