@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/stagger";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,

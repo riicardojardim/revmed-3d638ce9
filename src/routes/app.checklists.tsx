@@ -16,6 +16,7 @@ import { SimuladoBuilder } from "@/components/SimuladoBuilder";
 import { Reveal } from "@/components/ui/reveal";
 import { Shimmer } from "@/components/ui/shimmer";
 import { motion } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/stagger";
 
 import { Users } from "lucide-react";
 import { toast } from "sonner";
