@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { DashboardBackground } from "@/components/DashboardBackground";
+import { RouteProgress } from "@/components/RouteProgress";
 import { Logo } from "@/components/Logo";
 
 import { UserAvatar } from "@/components/UserAvatar";
