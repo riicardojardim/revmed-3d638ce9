@@ -1625,15 +1625,14 @@ function FinalCTA() {
             Acesso imediato. Comece a treinar nos próximos 2 minutos.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/cadastro">
-              <Button
-                size="lg"
-                className="h-12 rounded-xl bg-mint px-8 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
-              >
-                Começar meu treino agora
-                <ArrowRight className="ml-1.5 h-4 w-4" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={scrollToPlanos}
+              className="h-12 rounded-xl bg-mint px-8 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
+            >
+              Começar meu treino agora
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
