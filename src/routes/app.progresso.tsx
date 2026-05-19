@@ -193,7 +193,7 @@ function ProgressPage() {
             })}
           </div>
         )}
-      </div>
+      </Reveal>
     </div>
   );
 }
