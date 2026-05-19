@@ -215,10 +215,3 @@ function LoginPage() {
   );
 }
 
-function PlusIcon({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z" />
-    </svg>
-  );
-}
