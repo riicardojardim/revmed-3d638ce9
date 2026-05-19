@@ -1183,7 +1183,7 @@ const plans = [
     name: "Completo Mensal",
     badge: "Recorrente",
     desc: "Mesmo acesso do Completo, cobrado mês a mês.",
-    price: "R$ 347",
+    price: "R$ 197",
     period: "/mês",
     cta: "Assinar mensal",
     highlight: false,
