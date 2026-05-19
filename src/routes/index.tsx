@@ -44,6 +44,7 @@ import {
   StickyNote,
   Inbox,
   Eye,
+  History,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -605,6 +606,18 @@ function Simulation() {
       icon: Theater,
       title: "Paciente ator",
       desc: "Recebe roteiro com história, emoções, gatilhos de fala e marca o checklist oficial enquanto o candidato conduz.",
+      highlight: false,
+    },
+    {
+      icon: Video,
+      title: "Vídeo chamada integrada",
+      desc: "Áudio e vídeo nativos na plataforma — sem Zoom, sem Meet, sem instalar nada. Entrou no código, já tá em estação.",
+      highlight: false,
+    },
+    {
+      icon: History,
+      title: "Histórico de estações",
+      desc: "Cada simulação fica salva com checklist, anotações e desempenho. Reveja o que errou e acompanhe sua evolução semana a semana.",
       highlight: false,
     },
   ];
