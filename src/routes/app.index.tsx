@@ -276,16 +276,34 @@ function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="relative mx-auto max-w-7xl space-y-6">
+      <DashboardBackground />
 
 
       {/* Top row: welcome + stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+      >
+        <motion.div
+          whileHover={{ y: -2 }}
+          transition={{ type: "spring", stiffness: 280, damping: 24 }}
+          className="lg:col-span-2 relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-4 shadow-card sm:p-6"
+        >
+          {/* Shine sutil passando por cima */}
+          <motion.div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-mint/15 to-transparent"
+            initial={{ x: "-50%" }}
+            animate={{ x: "400%" }}
+            transition={{ duration: 3.2, repeat: Infinity, repeatDelay: 6, ease: "easeInOut" }}
+          />
           <h2 className="text-balance font-display text-lg font-bold leading-tight sm:text-xl md:text-2xl">
             <span className="text-mint">{profile?.title && profile.title !== "Sem título" ? greetingName : `Olá, ${displayName}`}</span>{" "}
             <span className="text-foreground">sua média geral está em </span>
-            <span className="text-mint">{stats.avg.toFixed(1)}</span>
+            <span className="text-mint"><AnimatedNumber value={stats.avg} decimals={1} /></span>
           </h2>
           <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
             Com nossos treinamentos vamos trabalhar para manter sua média sempre acima da última nota de corte do Revalida.
@@ -293,13 +311,25 @@ function Dashboard() {
           <div className="mt-5">
             <SpecialtyMedals stats={stats.bySpec} />
           </div>
-        </div>
+        </motion.div>
 
-        <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
-      </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <DailyMotivationCard userId={user?.id ?? "anon"} streak={stats.streak} didToday={stats.didToday} />
+        </motion.div>
+      </motion.div>
 
 
-      <BadgesCard stats={stats} />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <BadgesCard stats={stats} />
+      </motion.div>
 
 
 
