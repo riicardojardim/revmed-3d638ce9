@@ -540,6 +540,9 @@ function FlashcardsList({
               </Button>
             </div>
           )}
+        </div>
+
+
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
