@@ -843,6 +843,18 @@ function CandidateView() {
 
         </aside>
       </div>
+      {isFinished && (
+        <div className="mt-4">
+          <RelatedResources
+            specialty={station.specialty}
+            title={room.station_title ?? station.title}
+            stationId={station.id}
+            show={{ resumo: true }}
+            excludeStationId={station.id}
+            heading="Resumo desta estação"
+          />
+        </div>
+      )}
       <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
       </div>
     </>
