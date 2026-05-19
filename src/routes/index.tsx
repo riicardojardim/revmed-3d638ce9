@@ -1397,9 +1397,11 @@ function Footer() {
               <MessageCircle className="h-4 w-4" />
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/estacaorevalida_"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
-              aria-label="Instagram"
+              aria-label="Instagram @estacaorevalida_"
             >
               <Instagram className="h-4 w-4" />
             </a>
