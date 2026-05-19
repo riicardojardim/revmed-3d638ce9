@@ -94,6 +94,11 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
   const [method, setMethod] = useState<PaymentMethod>("pix");
   const [submitting, setSubmitting] = useState(false);
 
+  const cpfDigits = form.cpf.replace(/\D/g, "");
+  const cpfInvalid = cpfDigits.length === 11 && !isValidCPF(form.cpf);
+  const cpfValid = cpfDigits.length === 11 && isValidCPF(form.cpf);
+  const confirmMismatch = form.confirm.length > 0 && form.password !== form.confirm;
+
   if (!plan) return null;
   const meta = PLAN_META[plan];
   const Icon = meta.icon;
