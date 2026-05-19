@@ -1254,9 +1254,10 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                 <LevelsEditor
                   item={item}
                   onSet={async (levels) => {
+                    const maxPts = levels.reduce((m, l) => Math.max(m, Number(l.points) || 0), 0);
                     const { error } = await supabase
                       .from("station_checklist_items")
-                      .update({ levels } as never)
+                      .update({ levels, points: maxPts } as never)
                       .eq("id", item.id);
                     if (error) {
                       toast.error("Erro", { description: error.message });
