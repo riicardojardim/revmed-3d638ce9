@@ -1000,6 +1000,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      lookup_login_email: { Args: { _identifier: string }; Returns: string }
       recent_invited_users: {
         Args: { _limit?: number }
         Returns: {
