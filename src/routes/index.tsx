@@ -1094,6 +1094,7 @@ function Resources() {
     
     { icon: Users, title: "Correção do professor", desc: "Feedback humano para alunos de mentoria." },
     { icon: Smartphone, title: "App instalável (PWA)", desc: "Treine pelo celular como app nativo." },
+    { icon: ShieldCheck, title: "Banco atualizado", desc: "Estações revisadas conforme as últimas provas do Revalida.", desktopOnly: true },
   ];
   return (
     <section id="recursos" className="container mx-auto px-4 py-12 sm:py-16 lg:px-8 lg:py-24">
@@ -1106,7 +1107,7 @@ function Resources() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.35, delay: (i % 3) * 0.07 }}
-            className="group rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card"
+            className={`group rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card ${f.desktopOnly ? "hidden lg:block" : ""}`}
           >
             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
               <f.icon className="h-5 w-5 text-primary" />
