@@ -1,6 +1,6 @@
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
-import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.png";
+import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.webp";
 
 type Props = {
   title: string;
