@@ -294,13 +294,24 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
               <Input
                 id="cm_cpf"
                 inputMode="numeric"
-                className={inputCls}
+                className={cn(
+                  inputCls,
+                  cpfInvalid && "border-destructive focus-visible:ring-destructive",
+                  cpfValid && "border-mint",
+                )}
                 placeholder="000.000.000-00"
                 maxLength={14}
                 value={form.cpf}
                 onChange={(e) => update("cpf", formatCPF(e.target.value))}
+                aria-invalid={cpfInvalid}
                 required
               />
+              {cpfInvalid && (
+                <p className="mt-1 text-[11px] font-medium text-destructive">CPF inválido. Confira os dígitos.</p>
+              )}
+              {cpfValid && (
+                <p className="mt-1 text-[11px] font-medium text-mint">CPF válido ✓</p>
+              )}
             </div>
             <div>
               <Label htmlFor="cm_pwd" className="mb-1.5 block text-xs">Senha</Label>
@@ -308,7 +319,20 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
             </div>
             <div>
               <Label htmlFor="cm_pwd2" className="mb-1.5 block text-xs">Confirmar senha</Label>
-              <Input id="cm_pwd2" type="password" autoComplete="new-password" className={inputCls} value={form.confirm} onChange={(e) => update("confirm", e.target.value)} minLength={6} required />
+              <Input
+                id="cm_pwd2"
+                type="password"
+                autoComplete="new-password"
+                className={cn(inputCls, confirmMismatch && "border-destructive focus-visible:ring-destructive")}
+                value={form.confirm}
+                onChange={(e) => update("confirm", e.target.value)}
+                aria-invalid={confirmMismatch}
+                minLength={6}
+                required
+              />
+              {confirmMismatch && (
+                <p className="mt-1 text-[11px] font-medium text-destructive">As senhas não conferem.</p>
+              )}
             </div>
 
             {/* Payment method */}
