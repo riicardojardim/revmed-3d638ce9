@@ -450,6 +450,19 @@ function BottomDock({
                     </Link>
                   );
                 })}
+                <div className="my-1 h-px bg-border" />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { supabase } = await import("@/integrations/supabase/client");
+                    await supabase.auth.signOut();
+                    window.location.href = "/login";
+                  }}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="flex-1 truncate text-left">Sair</span>
+                </button>
               </div>
             </PopoverContent>
           </Popover>
