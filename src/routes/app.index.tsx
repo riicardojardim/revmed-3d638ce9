@@ -611,6 +611,8 @@ function Dashboard() {
         )}
       </motion.div>
 
+      </motion.div>
+
       <HistoricoDetailModal
         attemptId={detailId}
         open={!!detailId}
