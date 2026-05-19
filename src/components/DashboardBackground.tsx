@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
  */
 export function DashboardBackground() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-background">
       {/* Aurora mint blobs */}
       <motion.div
         className="absolute -top-32 -left-24 h-[520px] w-[520px] rounded-full bg-mint/20 blur-3xl"
