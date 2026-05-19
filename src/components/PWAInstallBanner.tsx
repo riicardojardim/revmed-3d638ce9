@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, X, Share, MoreVertical, Plus, Monitor, Smartphone, Tablet } from "lucide-react";
 import {
   Dialog,
@@ -41,6 +41,9 @@ export function PWAInstallBanner() {
   const [open, setOpen] = useState(false);
   const [platform, setPlatform] = useState<Platform>("desktop");
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number; id: number } | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -73,6 +76,29 @@ export function PWAInstallBanner() {
     setVisible(false);
   };
 
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // ignore drags starting on buttons (let clicks work)
+    if ((e.target as HTMLElement).closest("button")) return;
+    dragStartRef.current = { x: e.clientX, id: e.pointerId };
+    setDragging(true);
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current || dragStartRef.current.id !== e.pointerId) return;
+    setDragX(e.clientX - dragStartRef.current.x);
+  };
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragStartRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    dragStartRef.current = null;
+    setDragging(false);
+    if (Math.abs(dx) > 100) {
+      dismiss();
+    } else {
+      setDragX(0);
+    }
+  };
+
   const handleInstallClick = async () => {
     if (deferred) {
       try {
@@ -96,9 +122,18 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 top-3 z-50 w-[min(96vw,720px)] -translate-x-1/2 rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl"
+        className="fixed left-1/2 top-3 z-50 w-[min(96vw,720px)] rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none"
         role="dialog"
         aria-label="Instalar aplicativo"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        style={{
+          transform: `translateX(calc(-50% + ${dragX}px))`,
+          opacity: Math.max(0, 1 - Math.abs(dragX) / 200),
+          transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
+        }}
       >
         <div className="flex items-center gap-2">
           <span className="text-sm leading-none">📲</span>
