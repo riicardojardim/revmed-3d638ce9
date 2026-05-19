@@ -2353,6 +2353,7 @@ function SectionGenerateSummary({ station }: { station: Station }) {
   const [summary, setSummary] = useState<GeneratedSummary | null>(null);
   const [published, setPublished] = useState(false);
   const [pubLoading, setPubLoading] = useState(false);
+  const [validation, setValidation] = useState<{ verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } | null>(null);
   const [linked, setLinked] = useState<Array<{ id: string; title: string; published: boolean; created_at: string }>>([]);
 
   async function loadLinked() {
@@ -2374,6 +2375,7 @@ function SectionGenerateSummary({ station }: { station: Station }) {
     setLoading(true);
     setSummary(null);
     setPublished(false);
+    setValidation(null);
     try {
       const res = await generate({
         data: {
@@ -2391,7 +2393,11 @@ function SectionGenerateSummary({ station }: { station: Station }) {
         },
       });
       setSummary(res.summary as GeneratedSummary);
-      toast.success("Resumo pronto!");
+      const v = (res as { validation?: { verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } }).validation ?? null;
+      setValidation(v);
+      if (v?.blocking) toast.warning("Resumo gerado com alertas críticos — revise antes de publicar.");
+      else if ((v?.issues ?? []).length > 0) toast.message("Resumo gerado com avisos da validação automática.");
+      else toast.success("Resumo pronto e aprovado pela validação automática!");
       void loadLinked();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -2403,8 +2409,12 @@ function SectionGenerateSummary({ station }: { station: Station }) {
 
   async function togglePublish() {
     if (!summary) return;
-    setPubLoading(true);
     const next = !published;
+    if (next && validation?.blocking) {
+      toast.error("Não é possível publicar: a validação automática encontrou erros críticos. Edite manualmente o resumo na área de Resumos antes de publicar.");
+      return;
+    }
+    setPubLoading(true);
     const { error } = await supabase.from("summaries").update({ published: next }).eq("id", summary.id);
     setPubLoading(false);
     if (error) return toast.error("Falha ao publicar", { description: error.message });
@@ -2438,6 +2448,44 @@ function SectionGenerateSummary({ station }: { station: Station }) {
       <p className="text-[11px] text-muted-foreground">
         Sempre revise doses, contraindicações e critérios antes de publicar para os alunos.
       </p>
+
+      {validation && (
+        <div className={cn(
+          "rounded-xl border p-4 text-sm",
+          validation.blocking
+            ? "border-rose-400/40 bg-rose-500/5"
+            : (validation.issues.length > 0 ? "border-amber-400/40 bg-amber-500/5" : "border-mint/40 bg-mint/5")
+        )}>
+          <div className="flex items-center gap-2 font-display font-bold">
+            {validation.blocking ? (
+              <><AlertTriangle className="h-4 w-4 text-rose-500" /> Validação automática: erros críticos</>
+            ) : validation.issues.length > 0 ? (
+              <><AlertTriangle className="h-4 w-4 text-amber-500" /> Validação automática: avisos</>
+            ) : (
+              <><ClipboardCheck className="h-4 w-4 text-mint" /> Validação automática: aprovado</>
+            )}
+            <span className="ml-auto text-xs font-normal text-muted-foreground">Veredito IA: {validation.verdict}</span>
+          </div>
+          {validation.issues.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs">
+              {validation.issues.map((i, idx) => (
+                <li key={idx} className="flex gap-2">
+                  <span className={cn(
+                    "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase",
+                    i.severity === "error" ? "bg-rose-500/15 text-rose-600" : "bg-amber-500/15 text-amber-700"
+                  )}>{i.severity}</span>
+                  <span><strong>{i.field}:</strong> {i.message}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {validation.blocking && (
+            <p className="mt-2 text-[11px] text-rose-600">
+              Publicação bloqueada. Edite manualmente o resumo na aba Resumos para corrigir antes de publicar.
+            </p>
+          )}
+        </div>
+      )}
 
       {summary && (
         <InlineSummaryPreview
