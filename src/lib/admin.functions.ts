@@ -30,7 +30,7 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
     if (authErr) throw new Error(authErr.message);
 
     const ids = authData.users.map((u) => u.id);
-    if (ids.length === 0) return { users: [], total: authData.total ?? 0 };
+    if (ids.length === 0) return { users: [], total: ("total" in authData ? (authData.total ?? 0) : 0) };
 
     const [{ data: profiles }, { data: roles }, { data: subs }, { data: plans }] = await Promise.all([
       supabaseAdmin.from("profiles").select("id, full_name, avatar_url, whatsapp, exam_year").in("id", ids),
@@ -87,7 +87,7 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
         );
       });
 
-    return { users, total: authData.total ?? users.length };
+    return { users, total: ("total" in authData ? (authData.total ?? users.length) : users.length) };
   });
 
 // ───────────── Criar usuário manualmente ─────────────
@@ -302,7 +302,7 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       .map(([day, count]) => ({ day, count }));
 
     return {
-      total_users: users.data.total ?? 0,
+      total_users: ("total" in users.data ? (users.data.total ?? 0) : 0),
       new_subs_7d: subsArr.filter((s) => s.created_at && s.created_at >= d7).length,
       new_subs_30d: subsArr.filter((s) => s.created_at && s.created_at >= d30).length,
       paying_users: activePaid.length,
