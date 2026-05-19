@@ -71,7 +71,7 @@ export function AtorDashboard() {
       </div>
 
       {/* Como funciona */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <h3 className="font-semibold">Como funciona seu papel</h3>
           <ol className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">

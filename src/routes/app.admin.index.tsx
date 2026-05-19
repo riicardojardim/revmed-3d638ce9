@@ -183,7 +183,7 @@ function AdminOverview() {
         />
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <c.icon className={`h-5 w-5 ${c.color}`} />
@@ -206,7 +206,7 @@ function AdminOverview() {
       )}
 
       {/* Charts row 1: signups + attempts */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
           <h3 className="font-display font-semibold mb-2">Novos cadastros (30 dias)</h3>
           <div className="h-64">
@@ -245,7 +245,7 @@ function AdminOverview() {
       </div>
 
       {/* Charts row 2: plan distribution + paid vs free */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
           <h3 className="font-display font-semibold mb-2">Distribuição de assinantes por plano</h3>
           {planBuckets.length === 0 ? (

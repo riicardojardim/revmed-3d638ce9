@@ -309,7 +309,7 @@ function AppLayout() {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Topbar */}
         <header
-          className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl lg:px-8"
+          className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl md:px-6 lg:px-8"
           style={{ paddingTop: "max(env(safe-area-inset-top), 0px)" }}
         >
           <div className="flex items-center gap-2">
@@ -368,7 +368,7 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 pb-32 pt-6 lg:px-8">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-32 pt-6 md:px-6 lg:px-8">
           <Outlet />
         </main>
 
