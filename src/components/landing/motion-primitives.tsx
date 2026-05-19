@@ -68,7 +68,7 @@ export function StaggerText({
           </span>
         ),
       )}
-    </Tag>
+    </span>
   );
 }
 
