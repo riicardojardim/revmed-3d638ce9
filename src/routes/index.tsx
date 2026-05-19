@@ -841,7 +841,7 @@ function Plans() {
       <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
         Comece hoje. Cancele quando quiser no plano mensal — sem fidelidade.
       </p>
-      <div className="mt-10 grid items-stretch gap-5 lg:grid-cols-3">
+      <div className="mt-10 grid items-center gap-5 lg:grid-cols-3">
         {plans.map((p, i) => (
           <motion.div
             key={p.name}
