@@ -58,7 +58,7 @@ export function AnimatedNumber({ value, duration = 900, decimals = 0, className,
       fromRef.current = display;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, duration, delay]);
+  }, [value, duration, effectiveDelay]);
 
   return <span className={className}>{display.toFixed(decimals)}</span>;
 }
