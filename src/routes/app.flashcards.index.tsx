@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, List, X, Pencil, Clock, Timer, Search, Brain, ArrowRight, TrendingUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, X, Pencil, Clock, Timer, Search, Brain, ArrowRight, TrendingUp, ListChecks } from "lucide-react";
 import { DeckCover } from "@/components/flashcards/DeckCover";
 import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
+import { createSimulado } from "@/lib/simulado";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
@@ -26,20 +27,24 @@ type Deck = {
   specialty: string;
   topic: string | null;
   cover_image_url: string | null;
+  station_id: string | null;
 };
 type Card = { id: string; front: string; back: string; position: number };
 type Review = { card_id: string; ease: number; interval_days: number; reviews_count: number };
+type SuggestedStation = { id: string; title: string; specialty: string; checklistCount: number };
 
 type Step = "list" | "cover" | "play";
 
 function FlashcardsPage() {
   const { user } = useAuth();
+  const nav = useNavigate();
   const [specialty, setSpecialty] = useState("Todas");
   const [search, setSearch] = useState("");
   
   const [step, setStep] = useState<Step>("list");
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
+  const [suggestedStation, setSuggestedStation] = useState<SuggestedStation | null>(null);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   // Stats da sessão
@@ -53,7 +58,7 @@ function FlashcardsPage() {
     queryFn: async () => {
       const { data: ds } = await supabase
         .from("flashcard_decks")
-        .select("id, title, specialty, topic, cover_image_url")
+        .select("id, title, specialty, topic, cover_image_url, station_id")
         .eq("published", true)
         .order("created_at", { ascending: false });
       const list = (ds ?? []) as Deck[];
@@ -97,23 +102,51 @@ function FlashcardsPage() {
     setStep("cover");
     setIndex(0);
     setRevealed(false);
-    const { data } = await supabase
-      .from("flashcards")
-      .select("id, front, back, position")
-      .eq("deck_id", d.id)
-      .eq("published", true)
-      .order("position", { ascending: true });
-    setCards((data ?? []) as Card[]);
+    setSuggestedStation(null);
+    const [{ data: cardData }, stationRes] = await Promise.all([
+      supabase
+        .from("flashcards")
+        .select("id, front, back, position")
+        .eq("deck_id", d.id)
+        .eq("published", true)
+        .order("position", { ascending: true }),
+      d.station_id
+        ? supabase
+            .from("custom_stations")
+            .select("id, title, specialty, published")
+            .eq("id", d.station_id)
+            .maybeSingle()
+        : Promise.resolve({ data: null as null | { id: string; title: string; specialty: string; published: boolean } }),
+    ]);
+    setCards((cardData ?? []) as Card[]);
+    const st = stationRes?.data;
+    if (st && st.published) {
+      const { count } = await supabase
+        .from("station_checklist_items")
+        .select("id", { count: "exact", head: true })
+        .eq("station_id", st.id);
+      setSuggestedStation({ id: st.id, title: st.title, specialty: st.specialty, checklistCount: count ?? 0 });
+    }
   }
 
   function close() {
     setStep("list");
     setActiveDeck(null);
     setCards([]);
+    setSuggestedStation(null);
     setIndex(0);
     setRevealed(false);
     setOutcomes([]);
     setPerCardSeconds([]);
+  }
+
+  function startSuggestedStation() {
+    if (!suggestedStation) return;
+    if (!user) { toast.error("Faça login para iniciar."); return; }
+    const sim = createSimulado(user.id, suggestedStation.title, [
+      { id: suggestedStation.id, title: suggestedStation.title, specialty: suggestedStation.specialty },
+    ]);
+    nav({ to: "/app/sala/$code", params: { code: sim.id } });
   }
 
   function startSession() {
@@ -200,6 +233,23 @@ function FlashcardsPage() {
             >
               {cards.length === 0 ? "Sem cards publicados" : "Iniciar Flashcard"}
             </Button>
+
+            {suggestedStation && (
+              <div className="mt-4 rounded-2xl border border-mint/30 bg-mint/5 p-4 shadow-card">
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-medical">
+                  <ListChecks className="h-3.5 w-3.5" /> Checklist sugerido
+                </div>
+                <div className="mt-2 line-clamp-2 font-display text-sm font-bold leading-snug">
+                  {suggestedStation.title}
+                </div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  {suggestedStation.specialty} · {suggestedStation.checklistCount} {suggestedStation.checklistCount === 1 ? "item" : "itens"}
+                </div>
+                <Button size="sm" variant="hero" className="mt-3 w-full" onClick={startSuggestedStation}>
+                  Treinar checklist <ArrowRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </FlashcardModalShell>
