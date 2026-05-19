@@ -55,6 +55,9 @@ async function claimActiveSession(userId: string) {
       .from("user_active_session")
       .upsert({ user_id: userId, device_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
   } catch {}
+}
+
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
