@@ -59,22 +59,17 @@ function SheetContent({ children, className }: { children: React.ReactNode; clas
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          // mobile: bottom sheet
-          "fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] w-full flex-col rounded-t-3xl border border-border bg-background shadow-2xl outline-none",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-          // sm+: dialog centralizado
-          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[92vh] sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
-          "sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=closed]:slide-out-to-bottom-0",
+          // mobile: modal centralizado com margens (não cola nas bordas)
+          "fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-border bg-background shadow-2xl outline-none",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
+          // sm+: dialog maior centralizado
+          "sm:max-h-[92vh] sm:w-full sm:max-w-2xl",
           className,
         )}
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-2 sm:hidden">
-          <span className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
-        </div>
         {children}
         <DialogPrimitive.Close
-          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/70 text-foreground/80 transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:right-4 sm:top-4"
+          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted/70 text-foreground/80 transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:right-4 sm:top-4 sm:h-9 sm:w-9"
           aria-label="Fechar"
         >
           <X className="h-4 w-4" />
