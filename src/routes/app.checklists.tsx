@@ -93,6 +93,13 @@ function StationsPage() {
     },
   });
 
+  function startStation(s: ListStation) {
+    if (!user) { toast.error("Faça login para iniciar."); return; }
+    const sim = createSimulado(user.id, s.title, [{ id: s.id, title: s.title, specialty: s.specialty }]);
+    nav({ to: "/app/sala/$code", params: { code: sim.id } });
+  }
+
+
 
 
 
