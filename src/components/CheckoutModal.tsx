@@ -382,7 +382,7 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
             form="checkout-form"
             size="lg"
             className="h-12 w-full rounded-xl bg-mint text-sm font-bold text-night shadow-glow hover:bg-mint/90"
-            disabled={submitting}
+            disabled={submitting || cpfInvalid || confirmMismatch}
           >
             {submitting ? (
               "Processando..."
