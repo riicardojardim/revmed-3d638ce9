@@ -112,7 +112,7 @@ function ProfessorSummaries() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs text-muted-foreground">
-                  {s.specialty}{s.topic ? ` · ${s.topic}` : ""} · {s.difficulty} · {s.read_time_minutes} min
+                  {s.specialty}{s.topic ? ` · ${s.topic}` : ""} · {s.read_time_minutes} min
                   {s.high_yield && <span className="ml-2 font-semibold text-amber-600">· Alta incidência</span>}
                 </div>
                 <div className="mt-1 font-medium">{s.title}</div>
