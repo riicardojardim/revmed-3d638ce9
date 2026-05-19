@@ -781,12 +781,12 @@ function PanelSection({
   }[accent];
   const [bgClass, iconClass] = accents.split(" text-");
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-      <div className={cn("flex items-center gap-2 border-b border-border/60 bg-gradient-to-r px-5 py-3", bgClass)}>
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
+      <div className={cn("flex min-w-0 items-center gap-2 border-b border-border/60 bg-gradient-to-r px-3 py-3 sm:px-5", bgClass)}>
         <Icon className={cn("h-4 w-4", `text-${iconClass}`)} />
-        <h3 className="text-sm font-semibold tracking-wide">{title}</h3>
+        <h3 className="min-w-0 text-sm font-semibold leading-snug tracking-wide">{title}</h3>
       </div>
-      <div className="px-5 py-4 text-sm text-foreground/90">{children}</div>
+      <div className="min-w-0 px-4 py-4 text-sm text-foreground/90 sm:px-5">{children}</div>
     </div>
   );
 }
