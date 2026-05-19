@@ -62,6 +62,8 @@ function Dashboard() {
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
   const [detailId, setDetailId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   useEffect(() => { setVisibleCount(5); }, [search]);
 
