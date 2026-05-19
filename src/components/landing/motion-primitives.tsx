@@ -42,14 +42,14 @@ export function StaggerText({
   }
 
   return (
-    <span className={className}>
+    <span>
       {words.map((w, i) =>
         /^\s+$/.test(w) ? (
           <span key={i}>{w}</span>
         ) : (
           <motion.span
             key={i}
-            className="inline-block"
+            className={["inline-block", className].filter(Boolean).join(" ")}
             initial={{ y: 12, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{
