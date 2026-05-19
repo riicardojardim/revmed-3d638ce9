@@ -316,7 +316,8 @@ function SimuladoRunner({ id }: { id: string }) {
 
   async function setEvaluatedCandidate(candId: string) {
     if (!sim?.roomId) return;
-    if (running) return toast.error("Encerre a estação atual antes de trocar o avaliado.");
+    if (running) return toast.error("Estação em andamento — o candidato avaliado não pode ser alterado.");
+    if (finishedStation) return toast.error("Estação encerrada — não é possível trocar o candidato avaliado.");
     const { error } = await supabase.from("training_rooms")
       .update({ evaluated_candidate_id: candId }).eq("id", sim.roomId);
     if (error) return toast.error(error.message);
@@ -1136,6 +1137,11 @@ function SimuladoRunner({ id }: { id: string }) {
                 <Play className="h-4 w-4" /> Iniciar cronômetro
               </button>
             )}
+            {isWaiting && (
+              <div className="mt-2 rounded-lg bg-white/10 px-3 py-2 text-[11px] leading-snug text-white/85">
+                📹 Confirme que todos os candidatos já entraram na <strong>videochamada</strong> antes de iniciar o cronômetro.
+              </div>
+            )}
             {running && (
               <button
                 type="button"
@@ -1186,14 +1192,16 @@ function SimuladoRunner({ id }: { id: string }) {
                       <button
                         type="button"
                         onClick={() => setEvaluatedCandidate(c.id)}
-                        disabled={running && !isEvaluated}
+                        disabled={!isWaiting}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
                           isEvaluated
                             ? "border-mint/50 bg-mint/10 text-foreground"
                             : "border-border bg-background/40 text-foreground hover:border-mint/40",
-                          running && !isEvaluated && "opacity-50 cursor-not-allowed",
+                          !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
+                          !isWaiting && isEvaluated && "cursor-default",
                         )}
+                        title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
                       >
                         <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
                         <span className="flex-1 truncate font-medium">{c.name}</span>
