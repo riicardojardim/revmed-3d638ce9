@@ -44,10 +44,12 @@ type AttemptRow = {
 
 function Dashboard() {
   const { user, profile } = useAuth();
-  const { plan, isPrivileged, isCompletoLike, isAtorOnly, loading: subLoading } = useSubscription();
+  const { isCompletoLike, isAtorOnly, loading: subLoading } = useSubscription();
   const [attempts, setAttempts] = useState<AttemptRow[]>([]);
-  const [ranking, setRanking] = useState<{ name: string; score: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   const isAtorPlan = isAtorOnly;
   const isCompleto = isCompletoLike;
@@ -55,43 +57,18 @@ function Dashboard() {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
-    Promise.all([
-      supabase
-        .from("attempts")
-        .select("id, specialty, station_title, score, created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(500),
-      supabase
-        .from("attempts")
-        .select("user_id, score")
-        .order("score", { ascending: false })
-        .limit(200),
-    ]).then(async ([attemptsRes, rankRes]) => {
-      setAttempts((attemptsRes.data ?? []) as AttemptRow[]);
-      const byUser = new Map<string, { sum: number; n: number }>();
-      ((rankRes.data ?? []) as { user_id: string; score: number }[]).forEach((r) => {
-        const cur = byUser.get(r.user_id) ?? { sum: 0, n: 0 };
-        cur.sum += Number(r.score) || 0;
-        cur.n += 1;
-        byUser.set(r.user_id, cur);
+    supabase
+      .from("attempts")
+      .select(
+        "id, specialty, station_title, score, created_at, used_seconds, simulado_id, simulado_name, simulado_station_index, simulado_total_stations",
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(500)
+      .then(({ data }) => {
+        setAttempts((data ?? []) as AttemptRow[]);
+        setLoading(false);
       });
-      const top = Array.from(byUser.entries())
-        .map(([id, v]) => ({ id, score: v.sum / v.n }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
-      if (top.length > 0) {
-        const { data: profs } = await supabase
-          .from("profiles")
-          .select("id, full_name")
-          .in("id", top.map((t) => t.id));
-        const nameById = new Map((profs ?? []).map((p: { id: string; full_name: string | null }) => [p.id, p.full_name ?? "—"]));
-        setRanking(top.map((t) => ({ name: nameById.get(t.id) ?? "—", score: Number(t.score.toFixed(2)) })));
-      } else {
-        setRanking([]);
-      }
-      setLoading(false);
-    });
   }, [user]);
 
   const stats = useMemo(() => {
@@ -108,41 +85,41 @@ function Dashboard() {
     return { bySpec, total, avg };
   }, [attempts]);
 
-  // Last 7 days ritmo
-  const last7 = useMemo(() => {
-    const days: { day: string; count: number; avg: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - i);
-      const next = new Date(d);
-      next.setDate(next.getDate() + 1);
-      const inDay = attempts.filter((a) => {
-        const t = new Date(a.created_at).getTime();
-        return t >= d.getTime() && t < next.getTime();
-      });
-      const avg = inDay.length ? inDay.reduce((s, a) => s + Number(a.score), 0) / inDay.length : 0;
-      days.push({ day: String(d.getDate()).padStart(2, "0"), count: inDay.length, avg: Number(avg.toFixed(2)) });
-    }
-    return days;
-  }, [attempts]);
+  type SimGroup = { kind: "sim"; id: string; name: string; lastAt: string; total: number; stations: AttemptRow[]; avg: number };
+  type SingleRow = { kind: "single"; id: string; lastAt: string; attempt: AttemptRow };
+  type Row = SimGroup | SingleRow;
 
-  const specialtyRadar = useMemo(() => {
-    return SPECIALTIES.map((s) => {
-      const keys = [s.key, ...(s.aliases ?? [])];
-      let sum = 0;
-      let n = 0;
-      keys.forEach((k) => {
-        const cur = stats.bySpec.get(k);
-        if (cur) {
-          sum += cur.sum;
-          n += cur.n;
-        }
-      });
-      const avg = n ? sum / n : 0;
-      return { category: s.label, value: Number(avg.toFixed(2)) };
+  const rows = useMemo<Row[]>(() => {
+    const simMap = new Map<string, SimGroup>();
+    const singles: SingleRow[] = [];
+    for (const a of attempts) {
+      const isSim = !!a.simulado_id && (a.simulado_total_stations ?? 0) > 1;
+      if (isSim && a.simulado_id) {
+        const g = simMap.get(a.simulado_id) ?? { kind: "sim" as const, id: a.simulado_id, name: a.simulado_name ?? "Simulado", lastAt: a.created_at, total: a.simulado_total_stations ?? 0, stations: [], avg: 0 };
+        g.stations.push(a);
+        if (new Date(a.created_at) > new Date(g.lastAt)) g.lastAt = a.created_at;
+        simMap.set(a.simulado_id, g);
+      } else {
+        singles.push({ kind: "single", id: a.id, lastAt: a.created_at, attempt: a });
+      }
+    }
+    const sims: Row[] = Array.from(simMap.values()).map((g) => {
+      g.stations.sort((a, b) => (a.simulado_station_index ?? 0) - (b.simulado_station_index ?? 0));
+      g.avg = g.stations.reduce((s, a) => s + Number(a.score || 0), 0) / Math.max(1, g.stations.length);
+      return g;
     });
-  }, [stats.bySpec]);
+    const all: Row[] = [...sims, ...singles];
+    const q = search.trim().toLowerCase();
+    const filtered = q
+      ? all.filter((r) =>
+          r.kind === "sim"
+            ? r.name.toLowerCase().includes(q) || r.stations.some((s) => (s.station_title ?? "").toLowerCase().includes(q))
+            : (r.attempt.station_title ?? "").toLowerCase().includes(q),
+        )
+      : all;
+    filtered.sort((a, b) => new Date(b.lastAt).getTime() - new Date(a.lastAt).getTime());
+    return filtered;
+  }, [attempts, search]);
 
   const displayName = profile?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "estudante";
   const titlePrefix = profile?.title && profile.title !== "Sem título" ? `${profile.title} ` : "";
