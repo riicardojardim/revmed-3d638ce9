@@ -121,6 +121,7 @@ function AppLayout() {
             { to: "/app/flashcards", label: "Flashcards" },
             { to: "/app/flashcards/desempenho", label: "Desempenho" },
           ]},
+          { to: "/app/resumos", label: "Resumos", icon: BookOpen },
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
