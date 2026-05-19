@@ -11,6 +11,7 @@ import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
 import { toast } from "sonner";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
