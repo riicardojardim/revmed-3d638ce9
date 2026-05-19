@@ -46,13 +46,13 @@ import {
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import doctor1 from "@/assets/doctor-1.jpg";
-import doctor2 from "@/assets/doctor-2.jpg";
-import doctor3 from "@/assets/doctor-3.jpg";
-import doctor4 from "@/assets/doctor-4.jpg";
-import doctor5 from "@/assets/doctor-5.jpg";
-import doctor6 from "@/assets/doctor-6.jpg";
-import doctor7 from "@/assets/doctor-7.jpg";
+import candidate1 from "@/assets/candidate-1.jpg";
+import candidate2 from "@/assets/candidate-2.jpg";
+import candidate3 from "@/assets/candidate-3.jpg";
+import candidate4 from "@/assets/candidate-4.jpg";
+import candidate5 from "@/assets/candidate-5.jpg";
+import candidate6 from "@/assets/candidate-6.jpg";
+import candidate7 from "@/assets/candidate-7.jpg";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -235,7 +235,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {[doctor3, doctor6, doctor5, doctor4].map((src, i) => (
+                {[candidate3, candidate6, candidate5, candidate4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
@@ -253,7 +253,7 @@ function Hero() {
                   ))}
                 </div>
                 <p className="mt-0.5 font-semibold text-foreground">
-                  +1.200 médicos treinando hoje
+                  +1.200 candidatos treinando hoje
                 </p>
               </div>
             </div>
