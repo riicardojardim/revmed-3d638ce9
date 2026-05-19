@@ -269,95 +269,105 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
   }
 }
 
+// ============================================================
+// Helper exportado para reuso (geração única + batch)
+// ============================================================
+type SupabaseClientLike = {
+  from: (table: string) => {
+    insert: (row: Record<string, unknown>) => { select: (cols: string) => { single: () => Promise<{ data: unknown; error: { message: string } | null }> } };
+  };
+};
+
+export async function generateAndSaveSummary(
+  input: z.infer<typeof InputSchema>,
+  supabase: SupabaseClientLike,
+  userId: string,
+) {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
+
+  const prompt = buildUserPrompt(input);
+  let result: z.infer<typeof ResultSchema>;
+  try {
+    result = await callGateway(apiKey, prompt, "openai/gpt-5", 150_000);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const isRecoverable = /abort|timeout|504|502|503|upstream|rate/i.test(msg);
+    if (!isRecoverable) throw err;
+    result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000);
+  }
+
+  let structIssues = structuralCheck(result);
+
+  let verifier: z.infer<typeof VerifierResultSchema> | null = null;
+  try {
+    verifier = await verifySummary(apiKey, result, input.specialty);
+    const c = verifier.corrections ?? {};
+    if (c.definition) result.definition = c.definition;
+    if (c.clinical_picture) result.clinical_picture = c.clinical_picture;
+    if (c.diagnosis) result.diagnosis = c.diagnosis;
+    if (c.conduct) result.conduct = c.conduct;
+    if (c.key_points) result.key_points = c.key_points;
+    if (c.pitfalls) result.pitfalls = c.pitfalls;
+    structIssues = structuralCheck(result);
+  } catch (err) {
+    console.warn("[summary-verifier] falhou, seguindo com checagem estrutural apenas:", err);
+  }
+
+  const verifierIssues = verifier?.issues ?? [];
+  const allIssues = [...structIssues, ...verifierIssues];
+  const hasBlockingError =
+    verifier?.verdict === "reprovado" || structIssues.some((i) => i.severity === "error");
+
+  const sourcesBlock = result.sources && result.sources.length
+    ? `\n\nFontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
+    : "";
+  const auditBlock = (() => {
+    if (allIssues.length === 0 && verifier?.verdict === "aprovado") {
+      return "\n\nValidação automática: APROVADO (checagem estrutural + revisão IA).";
+    }
+    const verdict = verifier ? `Veredito IA: ${verifier.verdict}` : "Veredito IA: indisponível";
+    const lines = allIssues.map((i) => `• [${i.severity.toUpperCase()}] ${i.field}: ${i.message}`);
+    return `\n\nValidação automática:\n${verdict}\n${lines.join("\n")}`;
+  })();
+
+  const { data: row, error } = await supabase
+    .from("summaries")
+    .insert({
+      created_by: userId,
+      title: result.title.slice(0, 200),
+      specialty: input.specialty,
+      topic: result.topic ?? input.topic ?? null,
+      difficulty: result.difficulty,
+      read_time_minutes: result.read_time_minutes,
+      high_yield: result.high_yield && !hasBlockingError,
+      definition: result.definition,
+      clinical_picture: result.clinical_picture,
+      diagnosis: result.diagnosis,
+      conduct: result.conduct,
+      key_points: result.key_points,
+      pitfalls: result.pitfalls,
+      content_md: (sourcesBlock + auditBlock).trim(),
+      published: false,
+    })
+    .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md")
+    .single();
+  if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");
+
+  return {
+    summary: row,
+    validation: {
+      verdict: verifier?.verdict ?? "indisponivel",
+      blocking: hasBlockingError,
+      issues: allIssues,
+    },
+  };
+}
+
 export const generateSummaryFromStation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
-
-    const prompt = buildUserPrompt(data);
-    // Geração principal: GPT-5 → fallback Gemini 2.5 Pro
-    let result: z.infer<typeof ResultSchema>;
-    try {
-      result = await callGateway(apiKey, prompt, "openai/gpt-5", 150_000);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      const isRecoverable = /abort|timeout|504|502|503|upstream|rate/i.test(msg);
-      if (!isRecoverable) throw err;
-      result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000);
-    }
-
-    // ===== Camada 1: estrutural =====
-    let structIssues = structuralCheck(result);
-
-    // ===== Camada 2: fact-check IA (best-effort) =====
-    let verifier: z.infer<typeof VerifierResultSchema> | null = null;
-    try {
-      verifier = await verifySummary(apiKey, result, data.specialty);
-      const c = verifier.corrections ?? {};
-      if (c.definition) result.definition = c.definition;
-      if (c.clinical_picture) result.clinical_picture = c.clinical_picture;
-      if (c.diagnosis) result.diagnosis = c.diagnosis;
-      if (c.conduct) result.conduct = c.conduct;
-      if (c.key_points) result.key_points = c.key_points;
-      if (c.pitfalls) result.pitfalls = c.pitfalls;
-      // Re-roda estrutural após correções
-      structIssues = structuralCheck(result);
-    } catch (err) {
-      console.warn("[summary-verifier] falhou, seguindo com checagem estrutural apenas:", err);
-    }
-
-    const verifierIssues = verifier?.issues ?? [];
-    const allIssues = [...structIssues, ...verifierIssues];
-    const hasBlockingError =
-      verifier?.verdict === "reprovado" ||
-      structIssues.some((i) => i.severity === "error");
-
-    const { supabase, userId } = context;
-
-    const sourcesBlock = result.sources && result.sources.length
-      ? `\n\nFontes utilizadas:\n${result.sources.map((s) => `• ${s}`).join("\n")}`
-      : "";
-
-    const auditBlock = (() => {
-      if (allIssues.length === 0 && verifier?.verdict === "aprovado") {
-        return "\n\nValidação automática: APROVADO (checagem estrutural + revisão IA).";
-      }
-      const verdict = verifier ? `Veredito IA: ${verifier.verdict}` : "Veredito IA: indisponível";
-      const lines = allIssues.map((i) => `• [${i.severity.toUpperCase()}] ${i.field}: ${i.message}`);
-      return `\n\nValidação automática:\n${verdict}\n${lines.join("\n")}`;
-    })();
-
-    const { data: row, error } = await supabase
-      .from("summaries")
-      .insert({
-        created_by: userId,
-        title: result.title.slice(0, 200),
-        specialty: data.specialty,
-        topic: result.topic ?? data.topic ?? null,
-        difficulty: result.difficulty,
-        read_time_minutes: result.read_time_minutes,
-        high_yield: result.high_yield && !hasBlockingError,
-        definition: result.definition,
-        clinical_picture: result.clinical_picture,
-        diagnosis: result.diagnosis,
-        conduct: result.conduct,
-        key_points: result.key_points,
-        pitfalls: result.pitfalls,
-        content_md: (sourcesBlock + auditBlock).trim(),
-        published: false, // sempre draft — professor revisa antes de publicar
-      })
-      .select("id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md")
-      .single();
-    if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");
-
-    return {
-      summary: row,
-      validation: {
-        verdict: verifier?.verdict ?? "indisponivel",
-        blocking: hasBlockingError,
-        issues: allIssues,
-      },
-    };
+    return generateAndSaveSummary(data, context.supabase as unknown as SupabaseClientLike, context.userId);
   });
+
