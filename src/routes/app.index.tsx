@@ -462,9 +462,15 @@ function Dashboard() {
           </ul>
         </div>
       </Link>
+      </motion.div>
 
       {/* Histórico */}
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className="rounded-2xl border border-border bg-card p-5 shadow-card"
+      >
         <div className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-mint" />
           <h3 className="font-display text-lg font-bold">Histórico de Estações</h3>
@@ -478,7 +484,17 @@ function Dashboard() {
 
         <div className="mt-5 space-y-3">
           {loading ? (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">Carregando...</p>
+            <div className="space-y-2.5" aria-label="Carregando histórico">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="relative h-14 overflow-hidden rounded-xl border border-border/60 bg-muted/30"
+                >
+                  <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.6s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-mint/15 to-transparent" />
+                </div>
+              ))}
+              <style>{`@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}`}</style>
+            </div>
           ) : rows.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum treinamento ainda.</p>
           ) : rows.slice(0, visibleCount).map((row) => {
