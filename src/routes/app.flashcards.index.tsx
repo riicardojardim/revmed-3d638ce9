@@ -647,7 +647,7 @@ function FlashcardsList({
               >
                 Todas
               </button>
-              <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
+              <div className="grid grid-cols-3 gap-2 lg:flex lg:flex-nowrap lg:items-center lg:gap-1.5 lg:overflow-x-auto">
                 <button
                   type="button"
                   onClick={() => setAllSpec("Todas")}
