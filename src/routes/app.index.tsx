@@ -50,6 +50,8 @@ function Dashboard() {
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
   const [detailId, setDetailId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(5);
+  useEffect(() => { setVisibleCount(5); }, [search]);
 
   const isAtorPlan = isAtorOnly;
   const isCompleto = isCompletoLike;
@@ -268,7 +270,7 @@ function Dashboard() {
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Carregando...</p>
           ) : rows.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum treinamento ainda.</p>
-          ) : rows.map((row) => {
+          ) : rows.slice(0, visibleCount).map((row) => {
             if (row.kind === "single") {
               const a = row.attempt;
               return (
@@ -345,6 +347,13 @@ function Dashboard() {
             );
           })}
         </div>
+        {rows.length > visibleCount && (
+          <div className="mt-4 flex justify-center">
+            <Button variant="outline" size="sm" onClick={() => setVisibleCount((n) => n + 5)}>
+              Ver mais
+            </Button>
+          </div>
+        )}
       </div>
 
       <HistoricoDetailModal
