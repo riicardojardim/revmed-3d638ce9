@@ -581,7 +581,7 @@ function Dashboard() {
             </Button>
           </div>
         )}
-      </div>
+      </motion.div>
 
       <HistoricoDetailModal
         attemptId={detailId}
