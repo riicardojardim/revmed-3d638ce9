@@ -633,10 +633,10 @@ function Simulation() {
           </p>
           <ul className="space-y-2.5 pt-1">
             {[
-              "Vídeo nativo — sem Zoom ou Meet",
-              "Código de sala para treinar com colegas",
+              "Vídeo nativo — sem Zoom, sem Meet, sem instalar nada",
+              "Código de sala pra treinar com qualquer colega",
               "Cada papel vê só o conteúdo do seu perfil",
-              "Feedback consolidado ao final da sala",
+              "Treine sozinho também: IA assume o papel do ator",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
