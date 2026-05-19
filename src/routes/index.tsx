@@ -1089,7 +1089,7 @@ function Resources() {
     { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
     { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
     { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
-    { icon: Calendar, title: "Cronograma de estudos", desc: "Plano semanal personalizável." },
+    
     { icon: Users, title: "Correção do professor", desc: "Feedback humano para alunos de mentoria." },
     { icon: Smartphone, title: "App instalável (PWA)", desc: "Treine pelo celular como app nativo." },
   ];
