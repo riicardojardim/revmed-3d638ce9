@@ -287,7 +287,7 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
   ].join("\n");
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 120_000);
+  const timer = setTimeout(() => controller.abort(), 45_000);
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -336,12 +336,12 @@ export async function generateAndSaveSummary(
   const prompt = buildUserPrompt(input);
   let result: z.infer<typeof ResultSchema>;
   try {
-    result = await callGateway(apiKey, prompt, "openai/gpt-5", 150_000);
+    result = await callGateway(apiKey, prompt, "google/gemini-3-flash-preview", 90_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const isRecoverable = /abort|timeout|504|502|503|upstream|rate/i.test(msg);
     if (!isRecoverable) throw err;
-    result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000);
+    result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 90_000);
   }
 
   let structIssues = structuralCheck(result);
