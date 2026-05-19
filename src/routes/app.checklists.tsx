@@ -113,13 +113,13 @@ function StationsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <div>
+    <div className="relative mx-auto max-w-7xl space-y-6">
+      <Reveal>
         <h1 className="font-display text-2xl font-bold md:text-3xl">Banco de Checklists</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Busque por tema, escolha uma estação e treine com o checklist oficial.
         </p>
-      </div>
+      </Reveal>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main column */}
