@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState, useRef } from "react";
-import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -31,12 +31,23 @@ import {
   BarChart3,
   Layers,
   Trophy,
-  Bell,
   X,
+  Mic,
+  MicOff,
+  ShieldCheck,
+  MapPin,
+  Stethoscope,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import doctor1 from "@/assets/doctor-1.jpg";
+import doctor2 from "@/assets/doctor-2.jpg";
+import doctor3 from "@/assets/doctor-3.jpg";
+import doctor4 from "@/assets/doctor-4.jpg";
+import doctor5 from "@/assets/doctor-5.jpg";
+import doctor6 from "@/assets/doctor-6.jpg";
+import doctor7 from "@/assets/doctor-7.jpg";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -58,6 +69,8 @@ export const Route = createFileRoute("/")({
   }),
 });
 
+const DOCTORS = [doctor1, doctor2, doctor3, doctor4, doctor5, doctor6, doctor7];
+
 const nav = [
   { label: "Como funciona", href: "#como-funciona" },
   { label: "Simulação", href: "#simulacao" },
@@ -78,6 +91,7 @@ function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <Hero />
+      <TrustBar />
       <Stats />
       <HowItWorks />
       <Simulation />
@@ -97,17 +111,17 @@ function LandingPage() {
 function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
         <Logo />
-        <nav className="hidden items-center gap-8 text-sm font-medium text-muted-foreground lg:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground lg:flex">
           {nav.map((n) => (
             <a key={n.href} href={n.href} className="transition-colors hover:text-primary">
               {n.label}
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Link to="/login">
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
@@ -159,79 +173,85 @@ function Header() {
 /* ---------------- Hero ---------------- */
 function Hero() {
   return (
-    <section className="relative overflow-hidden px-4 pb-24 pt-12 lg:px-8 lg:pt-20">
+    <section className="relative overflow-hidden px-4 pb-20 pt-10 lg:px-8 lg:pt-16">
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -right-32 -top-32 h-[600px] w-[600px] rounded-full bg-mint/20 blur-[120px]" />
-      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[400px] w-[400px] rounded-full bg-mint-soft/30 blur-[120px]" />
+      <div className="pointer-events-none absolute -right-32 -top-32 h-[560px] w-[560px] rounded-full bg-mint/15 blur-[120px]" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 h-[380px] w-[380px] rounded-full bg-mint-soft/25 blur-[120px]" />
 
-      <div className="container mx-auto grid items-center gap-16 lg:grid-cols-2">
+      <div className="container mx-auto grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 space-y-7"
+          transition={{ duration: 0.5 }}
+          className="relative z-10 space-y-6"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/40 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-            <span className="relative flex h-2 w-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+            <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-mint" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-mint" />
             </span>
-            Simulador Premium · Revalida 2026
+            Simulador oficial · Revalida 2026
           </div>
 
-          <h1 className="font-display text-4xl font-extrabold leading-[1.05] text-primary md:text-6xl lg:text-7xl">
-            Domine a prova prática com{" "}
+          <h1 className="font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-primary sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+            Treine a prova prática do Revalida com{" "}
             <span className="bg-gradient-to-br from-mint to-primary bg-clip-text text-transparent">
-              realismo total.
+              realismo de banca real.
             </span>
           </h1>
 
-          <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Simule estações clínicas com checklists oficiais, cronômetro de prova e{" "}
-            <strong className="text-foreground">vídeo-chamada integrada para 3 papéis</strong> —
-            candidato, paciente ator e banca. Treine como se já estivesse no dia.
+          <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
+            Estações clínicas com checklists oficiais, cronômetro e{" "}
+            <strong className="text-foreground">vídeo-chamada nativa com 3 papéis</strong> —
+            candidato, ator e banca. Chegue na prova já tendo feito a prova.
           </p>
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-1">
             <Link to="/cadastro">
               <Button
                 size="lg"
-                className="h-14 rounded-2xl bg-mint px-8 text-base font-bold text-night shadow-glow hover:scale-[1.02] hover:bg-mint/90"
+                className="h-12 rounded-xl bg-mint px-6 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
               >
                 Começar meu treino
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
             <a href="#simulacao">
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 rounded-2xl border-2 px-8 text-base font-bold"
+                className="h-12 rounded-xl border-2 px-6 text-sm font-bold"
               >
                 Ver como funciona
               </Button>
             </a>
           </div>
 
-          <div className="flex items-center gap-4 pt-4">
-            <div className="flex -space-x-3">
-              {[
-                "from-mint to-mint-soft",
-                "from-primary to-mint",
-                "from-mint-soft to-primary",
-              ].map((g, i) => (
-                <div
-                  key={i}
-                  className={`h-10 w-10 rounded-full border-2 border-background bg-gradient-to-br ${g}`}
-                />
-              ))}
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-background bg-mint-soft text-[10px] font-bold text-primary">
-                +1k
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2.5">
+                {DOCTORS.slice(0, 4).map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt=""
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 rounded-full border-2 border-background object-cover"
+                  />
+                ))}
+              </div>
+              <div className="text-xs leading-tight">
+                <div className="flex items-center gap-1 text-mint">
+                  {Array.from({ length: 5 }).map((_, k) => (
+                    <Star key={k} className="h-3 w-3 fill-current" />
+                  ))}
+                </div>
+                <p className="mt-0.5 font-semibold text-foreground">
+                  +1.200 médicos treinando hoje
+                </p>
               </div>
             </div>
-            <p className="text-sm font-semibold text-muted-foreground">
-              <span className="text-foreground">+1.200 médicos</span> treinando hoje
-            </p>
           </div>
         </motion.div>
 
@@ -244,118 +264,186 @@ function Hero() {
 function HeroVisual() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.7, delay: 0.2 }}
+      transition={{ duration: 0.6, delay: 0.15 }}
       className="relative"
     >
-      {/* Outer frame */}
-      <div className="relative rounded-[32px] bg-night p-2 shadow-2xl shadow-primary/30">
-        <div className="relative aspect-[5/4] overflow-hidden rounded-[24px] bg-gradient-to-br from-primary via-primary to-night">
-          {/* Grid pattern */}
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, var(--mint) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-            }}
-          />
-
-          {/* Top cards */}
-          <div className="absolute left-5 right-5 top-5 flex justify-between gap-3">
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-xl"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">
-                Cronômetro
-              </p>
-              <p className="mt-1 font-display text-3xl font-bold tabular-nums text-white">
-                07:42
-              </p>
-            </motion.div>
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              className="rounded-2xl border border-mint/40 bg-mint/20 p-4 text-center backdrop-blur-xl"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-widest text-mint-soft">
-                Nota
-              </p>
-              <p className="mt-1 font-display text-3xl font-bold text-mint">8.7</p>
-            </motion.div>
+      {/* Outer device frame */}
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/20">
+        {/* Browser top bar */}
+        <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
           </div>
+          <div className="flex items-center gap-1.5 rounded-md bg-background px-2.5 py-0.5 text-[10px] text-muted-foreground">
+            <ShieldCheck className="h-3 w-3 text-mint" />
+            estacaorevalida.com.br/sala/MX9K2
+          </div>
+          <div className="w-12" />
+        </div>
 
-          {/* Center label */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex items-center gap-2 rounded-full border border-white/20 bg-black/30 px-4 py-2 backdrop-blur-sm">
-              <Video className="h-4 w-4 text-mint" />
-              <span className="text-xs font-semibold text-white">Sala ao vivo · 3 papéis</span>
+        {/* Station header */}
+        <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <div className="rounded-md bg-mint-soft/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+              Estação 14
             </div>
+            <span className="text-xs font-semibold text-foreground">Dor torácica · 35a</span>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full bg-night px-2.5 py-1 font-mono text-xs font-bold tabular-nums text-mint">
+            <Clock className="h-3 w-3" />
+            07:42
+          </div>
+        </div>
+
+        <div className="grid grid-cols-[1.3fr_1fr] gap-3 bg-background/60 p-3">
+          {/* LEFT — case + video tiles */}
+          <div className="space-y-3">
+            <div className="rounded-lg border border-border bg-card p-3">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                Caso clínico
+              </p>
+              <p className="mt-1 text-[11px] leading-snug text-foreground/85">
+                Paciente masculino, 35a, comparece ao PS referindo dor torácica retroesternal
+                opressiva há 40min, irradiando para mandíbula…
+              </p>
+            </div>
+
+            {/* Video tiles */}
+            <div className="grid grid-cols-2 gap-2">
+              <VideoTile src={doctor2} name="Você" role="Candidato" active />
+              <VideoTile src={doctor5} name="Ana C." role="Atriz" />
+            </div>
+            <VideoTile src={doctor7} name="Dra. Lúcia M." role="Banca" wide />
           </div>
 
-          {/* Bottom checklist card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="absolute bottom-5 left-5 right-5 rounded-2xl border border-border bg-card p-5 shadow-2xl"
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-2 w-2 animate-pulse rounded-full bg-destructive" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Checklist oficial
+          {/* RIGHT — checklist */}
+          <div className="flex flex-col rounded-lg border border-border bg-card p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Checklist · banca
                 </span>
               </div>
               <span className="text-[10px] font-bold text-mint">85%</span>
             </div>
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-2 text-xs">
-                <CheckCircle2 className="h-4 w-4 text-mint" />
-                <span className="text-foreground/80">Anamnese completa</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <CheckCircle2 className="h-4 w-4 text-mint" />
-                <span className="text-foreground/80">Exame físico dirigido</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs">
-                <div className="h-4 w-4 rounded-full border-2 border-mint" />
-                <span className="text-muted-foreground">Hipótese diagnóstica</span>
-              </div>
+            <div className="flex-1 space-y-1.5">
+              {[
+                { ok: true, t: "Se apresenta ao paciente" },
+                { ok: true, t: "Identifica queixa principal" },
+                { ok: true, t: "Caracteriza dor (OPQRST)" },
+                { ok: true, t: "Investiga fatores de risco" },
+                { ok: false, t: "Hipótese diagnóstica" },
+                { ok: false, t: "Solicita ECG + tropo" },
+              ].map((i) => (
+                <div key={i.t} className="flex items-start gap-1.5 text-[10px] leading-tight">
+                  {i.ok ? (
+                    <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-mint" />
+                  ) : (
+                    <div className="mt-0.5 h-3 w-3 shrink-0 rounded-full border-2 border-muted-foreground/40" />
+                  )}
+                  <span className={i.ok ? "text-foreground/80" : "text-muted-foreground"}>
+                    {i.t}
+                  </span>
+                </div>
+              ))}
             </div>
-            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "85%" }}
-                transition={{ delay: 1, duration: 1.2, ease: "easeOut" }}
+                transition={{ delay: 0.8, duration: 1.2, ease: "easeOut" }}
                 className="h-full rounded-full bg-gradient-to-r from-mint to-primary"
               />
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* Floating side badge */}
+      {/* Floating trophy badge */}
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: 16 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.9, duration: 0.5 }}
-        className="absolute -right-4 top-1/2 hidden -translate-y-1/2 rounded-2xl border border-border bg-card p-4 shadow-elegant md:block"
+        transition={{ delay: 0.7, duration: 0.4 }}
+        className="absolute -right-3 -top-3 hidden items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-elegant md:flex"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-mint-soft">
-            <Trophy className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-xs font-bold">+42 estações</p>
-            <p className="text-[10px] text-muted-foreground">esta semana</p>
-          </div>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-mint-soft">
+          <Trophy className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-[11px] font-bold leading-tight">+42 estações</p>
+          <p className="text-[9px] text-muted-foreground">esta semana</p>
         </div>
       </motion.div>
+
+      {/* Floating live indicator */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.4 }}
+        className="absolute -bottom-3 left-4 hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-elegant md:flex"
+      >
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-mint" />
+        </span>
+        <span className="text-[11px] font-semibold">128 salas ao vivo</span>
+      </motion.div>
     </motion.div>
+  );
+}
+
+function VideoTile({
+  src,
+  name,
+  role,
+  active,
+  wide,
+}: {
+  src: string;
+  name: string;
+  role: string;
+  active?: boolean;
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={`relative overflow-hidden rounded-lg border ${
+        active ? "border-mint/70 ring-2 ring-mint/30" : "border-border"
+      } bg-night ${wide ? "aspect-[16/7]" : "aspect-[4/3]"}`}
+    >
+      <img src={src} alt={name} className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-2 py-1.5">
+        <div className="flex items-center gap-1 text-[10px] font-semibold text-white">
+          {active && <span className="h-1.5 w-1.5 rounded-full bg-mint" />}
+          {name}
+          <span className="text-white/60">· {role}</span>
+        </div>
+        {active ? (
+          <Mic className="h-3 w-3 text-mint" />
+        ) : (
+          <MicOff className="h-3 w-3 text-white/60" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Trust bar ---------------- */
+function TrustBar() {
+  return (
+    <div className="border-y border-border bg-card/40">
+      <div className="container mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground lg:px-8">
+        <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-mint" /> Pagamento seguro</span>
+        <span className="flex items-center gap-1.5"><Stethoscope className="h-3.5 w-3.5 text-mint" /> Feito por médicos</span>
+        <span className="flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-mint" /> Atualizado para 2026</span>
+        <span className="flex items-center gap-1.5"><Smartphone className="h-3.5 w-3.5 text-mint" /> Instalável (PWA)</span>
+      </div>
+    </div>
   );
 }
 
@@ -384,18 +472,18 @@ function Stats() {
     { value: 120, suffix: "+", label: "Estações clínicas" },
     { value: 600, suffix: "+", label: "Itens de checklist" },
     { value: 1200, suffix: "+", label: "Médicos ativos" },
-    { value: 8.4, suffix: "", label: "Nota média de evolução" },
+    { value: 8.4, suffix: "", label: "Nota média" },
   ];
   return (
-    <section className="container mx-auto px-4 pb-20 lg:px-8">
-      <div className="rounded-3xl border border-border bg-card p-8 shadow-card md:p-12">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+    <section className="container mx-auto px-4 py-14 lg:px-8">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card md:p-8">
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
-              <p className="font-display text-4xl font-extrabold text-primary md:text-5xl">
+              <p className="font-display text-2xl font-extrabold text-primary md:text-3xl">
                 <AnimatedNumber value={s.value} suffix={s.suffix} />
               </p>
-              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 {s.label}
               </p>
             </div>
@@ -409,48 +497,32 @@ function Stats() {
 /* ---------------- How it works ---------------- */
 function HowItWorks() {
   const steps = [
-    {
-      icon: ClipboardList,
-      title: "Escolha a estação",
-      desc: "Filtre por especialidade, dificuldade e tempo para focar no seu ponto fraco.",
-    },
-    {
-      icon: Clock,
-      title: "Ative o cronômetro",
-      desc: "Leia o caso e simule o tempo real da banca. Sem checklist à vista, igual à prova.",
-    },
-    {
-      icon: ClipboardCheck,
-      title: "Treine o checklist",
-      desc: "Sua banca (ou IA) marca o que você fez ou deixou de fazer durante a estação.",
-    },
-    {
-      icon: BarChart3,
-      title: "Receba feedback",
-      desc: "Veja sua nota, pontos fortes e fracos, e o plano de revisão para a próxima.",
-    },
+    { icon: ClipboardList, title: "Escolha a estação", desc: "Filtre por especialidade, dificuldade e tempo." },
+    { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da banca." },
+    { icon: ClipboardCheck, title: "Treine o checklist", desc: "Banca (ou IA) marca tudo o que você fez." },
+    { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
-    <section id="como-funciona" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+    <section id="como-funciona" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Metodologia" title="Quatro passos para a aprovação" />
-      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {steps.map((s, i) => (
           <motion.div
             key={s.title}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="group relative rounded-3xl border border-border bg-card p-7 transition-all hover:-translate-y-1 hover:border-mint/50 hover:shadow-elegant"
+            transition={{ duration: 0.4, delay: i * 0.08 }}
+            className="group relative rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-mint/50 hover:shadow-elegant"
           >
-            <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-muted/30 transition-colors group-hover:text-mint-soft/60">
+            <span className="absolute right-4 top-3 font-display text-3xl font-extrabold text-muted/30 transition-colors group-hover:text-mint-soft/60">
               {String(i + 1).padStart(2, "0")}
             </span>
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-mint-soft/50">
-              <s.icon className="h-6 w-6 text-primary" />
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-mint-soft/50">
+              <s.icon className="h-5 w-5 text-primary" />
             </div>
-            <h3 className="font-display text-lg font-bold">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+            <h3 className="font-display text-base font-bold">{s.title}</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -461,28 +533,13 @@ function HowItWorks() {
 /* ---------------- Simulation (3 roles) ---------------- */
 function Simulation() {
   const roles = [
-    {
-      icon: UserRound,
-      title: "Candidato",
-      desc: "Você atua no caso clínico sem ver o checklist — exatamente como na prova real.",
-      highlight: false,
-    },
-    {
-      icon: Theater,
-      title: "Paciente ator",
-      desc: "Recebe um roteiro com história, emoções e o que só revelar se for perguntado.",
-      highlight: false,
-    },
-    {
-      icon: ClipboardCheck,
-      title: "Banca examinadora",
-      desc: "Corrige o candidato pelo checklist oficial, pontua e devolve feedback no fim.",
-      highlight: true,
-    },
+    { icon: UserRound, title: "Candidato", desc: "Atua no caso clínico sem ver o checklist — como na prova.", highlight: false },
+    { icon: Theater, title: "Paciente ator", desc: "Recebe roteiro com história, emoções e gatilhos de fala.", highlight: false },
+    { icon: ClipboardCheck, title: "Banca examinadora", desc: "Corrige pelo checklist oficial e devolve feedback no fim.", highlight: true },
   ];
 
   return (
-    <section id="simulacao" className="relative overflow-hidden bg-night py-24 text-white lg:py-32">
+    <section id="simulacao" className="relative overflow-hidden bg-night py-20 text-white lg:py-28">
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -492,71 +549,65 @@ function Simulation() {
       />
       <div className="pointer-events-none absolute right-0 top-0 h-[500px] w-[500px] rounded-full bg-mint/10 blur-[120px]" />
 
-      <div className="container relative mx-auto grid gap-16 px-4 lg:grid-cols-2 lg:px-8">
-        <div className="space-y-7">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-mint-soft">
-            <Sparkles className="h-3.5 w-3.5" />
+      <div className="container relative mx-auto grid gap-12 px-4 lg:grid-cols-2 lg:px-8">
+        <div className="space-y-5">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-mint-soft">
+            <Sparkles className="h-3 w-3" />
             Diferencial exclusivo
           </div>
-          <h2 className="font-display text-4xl font-extrabold leading-tight md:text-5xl">
+          <h2 className="font-display text-3xl font-extrabold leading-tight md:text-4xl">
             Treine em equipe,{" "}
             <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
               aprenda em 3 dimensões.
             </span>
           </h2>
-          <p className="max-w-lg text-lg leading-relaxed text-white/70">
-            Nossa sala de vídeo integrada permite que você troque de perspectiva. Ao atuar como
-            banca, você entende exatamente o que o avaliador procura no Revalida.
+          <p className="max-w-lg text-base leading-relaxed text-white/70">
+            Vídeo nativo na plataforma: troque de papel e entenda exatamente o que a banca procura.
           </p>
-          <ul className="space-y-3 pt-2">
+          <ul className="space-y-2.5 pt-1">
             {[
-              "Vídeo-chamada nativa, sem precisar de Zoom ou Meet",
-              "Compartilhe um código e treine com qualquer colega",
-              "Cada papel vê apenas o conteúdo do seu perfil",
-              "Feedback consolidado no fim da sala",
+              "Vídeo nativo — sem Zoom ou Meet",
+              "Código de sala para treinar com colegas",
+              "Cada papel vê só o conteúdo do seu perfil",
+              "Feedback consolidado ao final da sala",
             ].map((item) => (
-              <li key={item} className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-mint" />
+              <li key={item} className="flex items-start gap-2.5 text-sm">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
                 <span className="text-white/80">{item}</span>
               </li>
             ))}
           </ul>
-          <div className="flex flex-wrap gap-3 pt-4">
+          <div className="flex flex-wrap gap-3 pt-3">
             <Link to="/cadastro">
-              <Button
-                size="lg"
-                className="h-12 rounded-xl bg-mint px-6 font-bold text-night hover:bg-mint/90"
-              >
+              <Button size="lg" className="h-11 rounded-xl bg-mint px-5 text-sm font-bold text-night hover:bg-mint/90">
                 Criar minha sala
               </Button>
             </Link>
           </div>
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           {roles.map((r, i) => (
             <motion.div
               key={r.title}
-              initial={{ opacity: 0, x: 30 }}
+              initial={{ opacity: 0, x: 24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-              className={`flex items-center gap-5 rounded-3xl border p-6 transition-colors ${
-                r.highlight
-                  ? "border-mint/40 bg-mint/15"
-                  : "border-white/10 bg-white/5 hover:bg-white/10"
+              transition={{ duration: 0.45, delay: i * 0.12 }}
+              className={`flex items-center gap-4 rounded-2xl border p-5 transition-colors ${
+                r.highlight ? "border-mint/40 bg-mint/15" : "border-white/10 bg-white/5 hover:bg-white/10"
               }`}
             >
               <div
-                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
                   r.highlight ? "bg-mint text-night" : "bg-white/10 text-mint"
                 }`}
               >
-                <r.icon className="h-7 w-7" />
+                <r.icon className="h-6 w-6" />
               </div>
               <div>
-                <h4 className="font-display text-xl font-bold">{r.title}</h4>
-                <p className="mt-1 text-sm text-white/60">{r.desc}</p>
+                <h4 className="font-display text-base font-bold">{r.title}</h4>
+                <p className="mt-0.5 text-xs text-white/60">{r.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -569,70 +620,34 @@ function Simulation() {
 /* ---------------- Resources (real features) ---------------- */
 function Resources() {
   const features = [
-    {
-      icon: ClipboardCheck,
-      title: "Checklists oficiais",
-      desc: "Itens avaliativos por categoria, alinhados aos critérios do INEP.",
-    },
-    {
-      icon: Clock,
-      title: "Cronômetro integrado",
-      desc: "Treine no tempo real da prova, com alerta no minuto final.",
-    },
-    {
-      icon: Video,
-      title: "Vídeo-chamada nativa",
-      desc: "Sala ao vivo com 3 papéis, sem instalar nada extra.",
-    },
-    {
-      icon: Brain,
-      title: "Flashcards",
-      desc: "Revisão espaçada para fixar critérios e condutas que mais caem.",
-    },
-    {
-      icon: Layers,
-      title: "Resumos",
-      desc: "Conteúdo objetivo escrito por médicos, com foco no que cai na prova.",
-    },
-    {
-      icon: TrendingUp,
-      title: "Histórico e desempenho",
-      desc: "Gráficos por competência e evolução por especialidade ao longo do tempo.",
-    },
-    {
-      icon: Calendar,
-      title: "Cronograma de estudos",
-      desc: "Plano semanal personalizável para você não perder o ritmo.",
-    },
-    {
-      icon: Users,
-      title: "Correção do professor",
-      desc: "Feedback humano detalhado para alunos de mentoria.",
-    },
-    {
-      icon: Smartphone,
-      title: "App instalável (PWA)",
-      desc: "Treine pelo celular como se fosse um aplicativo nativo.",
-    },
+    { icon: ClipboardCheck, title: "Checklists oficiais", desc: "Itens avaliativos por categoria, alinhados ao INEP." },
+    { icon: Clock, title: "Cronômetro integrado", desc: "Tempo real da prova, com alerta no minuto final." },
+    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo com 3 papéis, sem instalar nada." },
+    { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
+    { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
+    { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
+    { icon: Calendar, title: "Cronograma de estudos", desc: "Plano semanal personalizável." },
+    { icon: Users, title: "Correção do professor", desc: "Feedback humano para alunos de mentoria." },
+    { icon: Smartphone, title: "App instalável (PWA)", desc: "Treine pelo celular como app nativo." },
   ];
   return (
-    <section id="recursos" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+    <section id="recursos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Recursos" title="Tudo que você precisa para treinar com método" />
-      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {features.map((f, i) => (
           <motion.div
             key={f.title}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.4, delay: (i % 3) * 0.08 }}
-            className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card"
+            transition={{ duration: 0.35, delay: (i % 3) * 0.07 }}
+            className="group rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card"
           >
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
-            <h3 className="font-display font-bold">{f.title}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
+            <h3 className="font-display text-sm font-bold">{f.title}</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{f.desc}</p>
           </motion.div>
         ))}
       </div>
@@ -648,33 +663,30 @@ function Areas() {
     { icon: Baby, name: "Pediatria", count: "22 estações" },
     { icon: Heart, name: "Ginecologia & Obstetrícia", count: "24 estações" },
     { icon: HomeIcon, name: "Medicina de Família", count: "20 estações" },
-    { icon: MessagesSquare, name: "Comunicação médico-paciente", count: "12 estações" },
+    { icon: MessagesSquare, name: "Comunicação", count: "12 estações" },
     { icon: Siren, name: "Emergência", count: "10 estações" },
     { icon: ClipboardList, name: "Exames e condutas", count: "14 estações" },
   ];
   return (
-    <section className="bg-card/40 py-20 lg:py-28">
+    <section className="bg-card/40 py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
-        <SectionTitle
-          eyebrow="Áreas de treino"
-          title="Estações organizadas por especialidade"
-        />
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {areas.map((a, i) => (
             <motion.div
               key={a.name}
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.35, delay: (i % 4) * 0.05 }}
-              className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-all hover:-translate-y-1 hover:border-mint/40 hover:shadow-card"
+              transition={{ duration: 0.3, delay: (i % 4) * 0.05 }}
+              className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-all hover:-translate-y-0.5 hover:border-mint/40 hover:shadow-card"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
-                <a.icon className="h-6 w-6 text-primary" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-mint-soft/50 transition-colors group-hover:bg-mint/20">
+                <a.icon className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <div className="font-semibold leading-tight">{a.name}</div>
-                <div className="text-xs text-muted-foreground">{a.count}</div>
+                <div className="text-sm font-semibold leading-tight">{a.name}</div>
+                <div className="text-[11px] text-muted-foreground">{a.count}</div>
               </div>
             </motion.div>
           ))}
@@ -697,8 +709,8 @@ const plans = [
     features: [
       "Acesso até o dia da prova",
       "Atuação como paciente ator",
-      "Banco de checklists do paciente",
-      "Libere impressos e materiais",
+      "Banco de roteiros do paciente",
+      "Impressos e materiais liberados",
     ],
   },
   {
@@ -739,27 +751,27 @@ const plans = [
 
 function Plans() {
   return (
-    <section id="planos" className="container mx-auto px-4 py-20 lg:px-8 lg:py-28">
+    <section id="planos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
-      <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
+      <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
         Comece hoje. Cancele quando quiser no plano mensal — sem fidelidade.
       </p>
-      <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-3">
+      <div className="mt-10 grid items-stretch gap-5 lg:grid-cols-3">
         {plans.map((p, i) => (
           <motion.div
             key={p.name}
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className={`relative flex flex-col rounded-3xl border bg-card p-8 transition-all ${
+            transition={{ duration: 0.45, delay: i * 0.08 }}
+            className={`relative flex flex-col rounded-2xl border bg-card p-6 transition-all ${
               p.highlight
-                ? "border-2 border-mint shadow-glow lg:-translate-y-4 lg:scale-105"
+                ? "border-2 border-mint shadow-glow lg:-translate-y-3 lg:scale-[1.03]"
                 : "border-border shadow-card hover:border-mint/40"
             }`}
           >
             {p.highlight && (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-mint px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-night hover:bg-mint">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-mint px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-night hover:bg-mint">
                 {p.badge}
               </Badge>
             )}
@@ -767,32 +779,30 @@ function Plans() {
               {!p.highlight && p.badge}
               {p.highlight && "Formação completa"}
             </span>
-            <h3 className="mt-1 font-display text-2xl font-bold">{p.name}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
+            <h3 className="mt-1 font-display text-xl font-bold">{p.name}</h3>
+            <p className="mt-1 text-xs text-muted-foreground">{p.desc}</p>
 
-            <div className="mt-6 flex items-baseline gap-2">
+            <div className="mt-5 flex items-baseline gap-2">
               {p.originalPrice && (
-                <span className="text-base text-muted-foreground line-through">
-                  {p.originalPrice}
-                </span>
+                <span className="text-sm text-muted-foreground line-through">{p.originalPrice}</span>
               )}
-              <span className="font-display text-4xl font-extrabold text-primary">{p.price}</span>
-              <span className="text-sm text-muted-foreground">{p.period}</span>
+              <span className="font-display text-3xl font-extrabold text-primary">{p.price}</span>
+              <span className="text-xs text-muted-foreground">{p.period}</span>
             </div>
 
-            <ul className="mt-6 space-y-3 text-sm">
+            <ul className="mt-5 space-y-2 text-xs">
               {p.features.map((f) => (
-                <li key={f} className="flex items-start gap-2.5">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
+                <li key={f} className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-mint" />
                   <span>{f}</span>
                 </li>
               ))}
             </ul>
 
-            <Link to="/cadastro" className="mt-auto pt-8">
+            <Link to="/cadastro" className="mt-auto pt-6">
               <Button
                 size="lg"
-                className={`w-full rounded-xl font-bold ${
+                className={`w-full rounded-xl text-sm font-bold ${
                   p.highlight
                     ? "bg-mint text-night shadow-glow hover:bg-mint/90"
                     : "bg-background text-foreground hover:bg-muted"
@@ -812,48 +822,76 @@ function Plans() {
 /* ---------------- Testimonials ---------------- */
 const testimonials = [
   {
-    name: "Dra. Marina L.",
+    name: "Dra. Marina Lopes",
     role: "Aprovada · Revalida 2025",
     text: "Treinar por estação com cronômetro mudou meu desempenho. Cheguei na prova com a sensação de já ter passado por aquilo.",
+    avatar: doctor1,
   },
   {
-    name: "Dr. Rafael S.",
-    role: "Estudante",
+    name: "Dr. Rafael Santos",
+    role: "Candidato · Revalida 2026",
     text: "Os checklists me ajudaram a estruturar o raciocínio e perder o medo do tempo. O feedback é o melhor da plataforma.",
+    avatar: doctor2,
   },
   {
-    name: "Dra. Camila T.",
-    role: "Professora convidada",
+    name: "Dra. Camila Tavares",
+    role: "Professora · mentoria",
     text: "Como mentora, consigo corrigir meus alunos com profundidade e acompanhar cada evolução. Recomendo demais.",
+    avatar: doctor3,
+  },
+  {
+    name: "Dr. Bruno Almeida",
+    role: "Aprovado · Revalida 2024.2",
+    text: "A sala com 3 papéis é o que mais se aproxima da prova real. Atuar como banca me fez enxergar o que faltava.",
+    avatar: doctor4,
+  },
+  {
+    name: "Dra. Letícia Moura",
+    role: "Candidata · Revalida 2026",
+    text: "App leve, treino pelo celular no intervalo do plantão. Os flashcards salvam minha revisão.",
+    avatar: doctor5,
+  },
+  {
+    name: "Dr. Felipe Carvalho",
+    role: "Aprovado · Revalida 2025.1",
+    text: "Saí do achismo. O histórico mostra exatamente onde eu travo e o que treinar na próxima semana.",
+    avatar: doctor6,
   },
 ];
 
 function Testimonials() {
   return (
-    <section className="bg-card/40 py-20 lg:py-28">
+    <section className="bg-card/40 py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
-        <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina conosco" />
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
+        <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina com a gente" />
+        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((t, i) => (
             <motion.div
               key={t.name}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="rounded-2xl border border-border bg-card p-6 shadow-card"
+              transition={{ duration: 0.4, delay: (i % 3) * 0.08 }}
+              className="rounded-2xl border border-border bg-card p-5 shadow-card"
             >
               <div className="flex gap-0.5 text-mint">
                 {Array.from({ length: 5 }).map((_, k) => (
-                  <Star key={k} className="h-4 w-4 fill-current" />
+                  <Star key={k} className="h-3.5 w-3.5 fill-current" />
                 ))}
               </div>
-              <p className="mt-4 leading-relaxed text-foreground/90">"{t.text}"</p>
-              <div className="mt-5 flex items-center gap-3 border-t border-border pt-4">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-mint to-primary" />
+              <p className="mt-3 text-sm leading-relaxed text-foreground/90">"{t.text}"</p>
+              <div className="mt-4 flex items-center gap-3 border-t border-border pt-3">
+                <img
+                  src={t.avatar}
+                  alt={t.name}
+                  width={40}
+                  height={40}
+                  loading="lazy"
+                  className="h-10 w-10 rounded-full object-cover"
+                />
                 <div>
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.role}</div>
+                  <div className="text-sm font-semibold">{t.name}</div>
+                  <div className="text-[11px] text-muted-foreground">{t.role}</div>
                 </div>
               </div>
             </motion.div>
@@ -866,37 +904,19 @@ function Testimonials() {
 
 /* ---------------- FAQ ---------------- */
 const faqs = [
-  {
-    q: "O app substitui um curso presencial?",
-    a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova.",
-  },
-  {
-    q: "Como funciona a sala com 3 papéis?",
-    a: "Você cria uma sala e compartilha o código. Cada participante entra como candidato, paciente ator ou banca — cada um vê apenas o conteúdo do seu papel, com vídeo integrado.",
-  },
-  {
-    q: "Posso treinar pelo celular?",
-    a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular.",
-  },
-  {
-    q: "Os checklists são oficiais?",
-    a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações.",
-  },
-  {
-    q: "Posso cancelar quando quiser?",
-    a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único.",
-  },
-  {
-    q: "Existe correção humana?",
-    a: "Sim, para alunos do plano de mentoria. Professores avaliam tentativas, dão nota e escrevem feedback individual.",
-  },
+  { q: "O app substitui um curso presencial?", a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
+  { q: "Como funciona a sala com 3 papéis?", a: "Você cria uma sala e compartilha o código. Cada participante entra como candidato, paciente ator ou banca — cada um vê apenas o conteúdo do seu papel, com vídeo integrado." },
+  { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
+  { q: "Os checklists são oficiais?", a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
+  { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único." },
+  { q: "Existe correção humana?", a: "Sim, para alunos do plano de mentoria. Professores avaliam tentativas, dão nota e escrevem feedback individual." },
 ];
 
 function FAQ() {
   return (
-    <section id="faq" className="container mx-auto max-w-3xl px-4 py-20 lg:px-8 lg:py-28">
+    <section id="faq" className="container mx-auto max-w-5xl px-4 py-16 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="FAQ" title="Perguntas frequentes" />
-      <div className="mt-12 space-y-3">
+      <div className="mt-10 grid gap-3 md:grid-cols-2">
         {faqs.map((f, i) => (
           <FAQItem key={i} q={f.q} a={f.a} />
         ))}
@@ -908,19 +928,29 @@ function FAQ() {
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card transition-all">
+    <div className="overflow-hidden rounded-xl border border-border bg-card transition-all">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-4 p-5 text-left font-medium"
+        className="flex w-full items-center justify-between gap-3 p-4 text-left text-sm font-semibold"
       >
         <span>{q}</span>
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-mint transition-transform ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-mint transition-transform ${open ? "rotate-180" : ""}`}
         />
       </button>
-      {open && (
-        <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{a}</div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 text-xs leading-relaxed text-muted-foreground">{a}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -928,28 +958,28 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 /* ---------------- Final CTA ---------------- */
 function FinalCTA() {
   return (
-    <section className="container mx-auto px-4 py-20 lg:px-8">
-      <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-primary via-primary to-night p-10 text-center text-white md:p-16">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-[400px] w-[400px] rounded-full bg-mint/20 blur-[100px]" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 h-[300px] w-[300px] rounded-full bg-mint/15 blur-[100px]" />
+    <section className="container mx-auto px-4 py-16 lg:px-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-night p-8 text-center text-white md:p-14">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-[380px] w-[380px] rounded-full bg-mint/20 blur-[100px]" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-[280px] w-[280px] rounded-full bg-mint/15 blur-[100px]" />
         <div className="relative">
-          <h2 className="mx-auto max-w-2xl font-display text-3xl font-extrabold leading-tight md:text-5xl">
-            Pronto pra treinar como na{" "}
+          <h2 className="mx-auto max-w-2xl font-display text-2xl font-extrabold leading-tight md:text-4xl">
+            Pronto para treinar como na{" "}
             <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
               estação real?
             </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-white/70">
+          <p className="mx-auto mt-3 max-w-md text-sm text-white/70">
             Acesso imediato. Comece a treinar nos próximos 2 minutos.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link to="/cadastro">
               <Button
                 size="lg"
-                className="h-14 rounded-2xl bg-mint px-10 text-base font-bold text-night shadow-glow hover:scale-[1.02] hover:bg-mint/90"
+                className="h-12 rounded-xl bg-mint px-8 text-sm font-bold text-night shadow-glow transition-transform hover:scale-[1.02] hover:bg-mint/90"
               >
                 Começar meu treino agora
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </Link>
           </div>
@@ -963,33 +993,33 @@ function FinalCTA() {
 function Footer() {
   return (
     <footer className="border-t border-border bg-night text-white/80">
-      <div className="container mx-auto grid gap-10 px-4 py-14 md:grid-cols-4 lg:px-8">
+      <div className="container mx-auto grid gap-8 px-4 py-12 md:grid-cols-4 lg:px-8">
         <div className="md:col-span-2">
           <Logo variant="light" />
-          <p className="mt-5 max-w-sm text-sm text-white/60">
+          <p className="mt-4 max-w-sm text-xs text-white/60">
             Plataforma premium de preparação para a prova prática do Revalida. Treine, corrija,
             repita e evolua.
           </p>
-          <div className="mt-6 flex gap-3">
+          <div className="mt-5 flex gap-2.5">
             <a
               href="https://wa.me/5500000000000"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
               aria-label="WhatsApp"
             >
-              <MessageCircle className="h-5 w-5" />
+              <MessageCircle className="h-4 w-4" />
             </a>
             <a
               href="#"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-colors hover:bg-white/10"
               aria-label="Instagram"
             >
-              <Instagram className="h-5 w-5" />
+              <Instagram className="h-4 w-4" />
             </a>
           </div>
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">Produto</div>
-          <ul className="mt-4 space-y-2 text-sm text-white/60">
+          <div className="text-xs font-semibold uppercase tracking-wider text-white">Produto</div>
+          <ul className="mt-3 space-y-2 text-xs text-white/60">
             <li><a href="#como-funciona">Como funciona</a></li>
             <li><a href="#simulacao">Simulação</a></li>
             <li><a href="#recursos">Recursos</a></li>
@@ -998,15 +1028,15 @@ function Footer() {
           </ul>
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">Legal</div>
-          <ul className="mt-4 space-y-2 text-sm text-white/60">
+          <div className="text-xs font-semibold uppercase tracking-wider text-white">Legal</div>
+          <ul className="mt-3 space-y-2 text-xs text-white/60">
             <li><a href="#">Termos de uso</a></li>
             <li><a href="#">Política de privacidade</a></li>
             <li><a href="#">Contato</a></li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 py-6 text-center text-xs text-white/40">
+      <div className="border-t border-white/10 py-5 text-center text-[11px] text-white/40">
         © {new Date().getFullYear()} Estação Revalida · Conteúdo educacional autoral. Não
         afiliado ao INEP ou ao governo.
       </div>
@@ -1018,11 +1048,11 @@ function Footer() {
 function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <div className="mx-auto max-w-2xl text-center">
-      <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/40 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-        <span className="h-1.5 w-1.5 rounded-full bg-mint" />
+      <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint-soft/50 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest text-primary">
+        <span className="h-1 w-1 rounded-full bg-mint" />
         {eyebrow}
       </div>
-      <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight md:text-4xl lg:text-5xl">
+      <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl lg:text-[2rem]">
         {title}
       </h2>
     </div>
@@ -1032,20 +1062,22 @@ function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
 /* ---------------- Floating social-proof notifications ---------------- */
 type FakeNotif = {
   kind: "compra" | "conquista" | "aprovado" | "online";
-  title: string;
-  subtitle: string;
-  icon: React.ComponentType<{ className?: string }>;
+  name: string;
+  action: string;
+  meta: string;
+  city?: string;
+  avatar: string;
 };
 
 const FAKE_NOTIFS: FakeNotif[] = [
-  { kind: "compra", title: "Dr. Lucas R. assinou o plano Completo", subtitle: "há 2 minutos · São Paulo", icon: Sparkles },
-  { kind: "conquista", title: "Ana acabou de completar 50 estações", subtitle: "Clínica Médica · há 4 min", icon: Trophy },
-  { kind: "aprovado", title: "João foi aprovado no Revalida 2025.1", subtitle: "Treinou 142 estações", icon: CheckCircle2 },
-  { kind: "online", title: "+128 médicos estudando agora", subtitle: "Salas ao vivo abertas", icon: Users },
-  { kind: "compra", title: "Dra. Marina P. assinou o Completo Mensal", subtitle: "há 7 minutos · Recife", icon: Sparkles },
-  { kind: "conquista", title: "Bruno bateu 90% no checklist de Pediatria", subtitle: "há 9 min", icon: Trophy },
-  { kind: "aprovado", title: "Camila foi aprovada · Revalida 2024.2", subtitle: "Treinou 98 estações", icon: CheckCircle2 },
-  { kind: "compra", title: "Dr. Pedro H. assinou o Ator", subtitle: "há 12 min · Curitiba", icon: Sparkles },
+  { kind: "compra", name: "Dr. Lucas R.", action: "assinou o plano Completo", meta: "há 2 min", city: "São Paulo, SP", avatar: doctor2 },
+  { kind: "conquista", name: "Dra. Ana C.", action: "completou 50 estações de Clínica Médica", meta: "há 4 min", avatar: doctor5 },
+  { kind: "aprovado", name: "Dr. João P.", action: "foi aprovado no Revalida 2025.1 🎉", meta: "treinou 142 estações", avatar: doctor4 },
+  { kind: "online", name: "+128 médicos", action: "estudando agora", meta: "salas ao vivo abertas", avatar: doctor3 },
+  { kind: "compra", name: "Dra. Marina P.", action: "assinou o Completo Mensal", meta: "há 7 min", city: "Recife, PE", avatar: doctor1 },
+  { kind: "conquista", name: "Dr. Bruno A.", action: "bateu 90% no checklist de Pediatria", meta: "há 9 min", avatar: doctor6 },
+  { kind: "aprovado", name: "Dra. Camila T.", action: "foi aprovada · Revalida 2024.2", meta: "treinou 98 estações", avatar: doctor7 },
+  { kind: "compra", name: "Dr. Pedro H.", action: "assinou o plano Ator", meta: "há 12 min", city: "Curitiba, PR", avatar: doctor2 },
 ];
 
 function FloatingNotifications() {
@@ -1074,37 +1106,62 @@ function FloatingNotifications() {
   if (dismissed) return null;
 
   const n = FAKE_NOTIFS[index];
-  const Icon = n.icon;
-  const tone =
+  const kindMeta =
     n.kind === "aprovado"
-      ? "bg-mint text-night"
+      ? { label: "Aprovação", chip: "bg-mint text-night" }
       : n.kind === "online"
-      ? "bg-primary text-white"
+      ? { label: "Ao vivo", chip: "bg-primary text-white" }
       : n.kind === "conquista"
-      ? "bg-mint-soft text-primary"
-      : "bg-mint text-night";
+      ? { label: "Conquista", chip: "bg-mint-soft text-primary" }
+      : { label: "Nova assinatura", chip: "bg-mint text-night" };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="fixed bottom-4 left-4 z-[60] max-w-xs sm:bottom-6 sm:left-6"
+      className="fixed bottom-4 left-4 z-[60] w-[300px] max-w-[calc(100vw-2rem)] sm:bottom-6 sm:left-6"
     >
-      <div className="relative flex items-center gap-3 rounded-2xl border border-border bg-card p-3 pr-9 shadow-elegant">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${tone}`}>
-          <Icon className="h-5 w-5" />
+      <div className="relative flex items-start gap-3 rounded-2xl border border-border bg-card p-3 pr-8 shadow-elegant">
+        <div className="relative shrink-0">
+          <img
+            src={n.avatar}
+            alt=""
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-full object-cover"
+          />
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-card bg-mint">
+            <span className="h-1 w-1 rounded-full bg-night" />
+          </span>
         </div>
-        <div className="min-w-0">
-          <p className="truncate text-xs font-bold text-foreground">{n.title}</p>
-          <p className="mt-0.5 truncate text-[10px] text-muted-foreground">{n.subtitle}</p>
+        <div className="min-w-0 flex-1">
+          <span
+            className={`inline-block rounded-full px-1.5 py-px text-[8px] font-bold uppercase tracking-widest ${kindMeta.chip}`}
+          >
+            {kindMeta.label}
+          </span>
+          <p className="mt-1 text-[11px] font-semibold leading-tight text-foreground">
+            <span className="font-bold">{n.name}</span>{" "}
+            <span className="font-normal text-muted-foreground">{n.action}</span>
+          </p>
+          <p className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+            <span>{n.meta}</span>
+            {n.city && (
+              <>
+                <span>·</span>
+                <MapPin className="h-2.5 w-2.5" />
+                <span>{n.city}</span>
+              </>
+            )}
+          </p>
         </div>
         <button
           onClick={() => setDismissed(true)}
           className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
           aria-label="Fechar"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-3 w-3" />
         </button>
       </div>
     </motion.div>
