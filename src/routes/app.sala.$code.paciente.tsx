@@ -26,7 +26,7 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
-import { RelatedResources } from "@/components/RelatedResources";
+import { StationSummaryDialog } from "@/components/StationSummaryDialog";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -1150,14 +1150,7 @@ function ActorView() {
             </Button>
           </PRBlock>
 
-          <RelatedResources
-            specialty={station.specialty}
-            title={room.station_title ?? station.title}
-            stationId={station.id}
-            show={{ resumo: true }}
-            excludeStationId={station.id}
-            heading="Resumo de apoio"
-          />
+          {/* (Resumo movido para a lateral como botão/modal) */}
         </div>
 
 
@@ -1303,6 +1296,14 @@ function ActorView() {
                       </ul>
                     )}
                   </div>
+
+                  {/* Resumo de apoio (somente ator) */}
+                  <StationSummaryDialog
+                    specialty={station.specialty}
+                    title={room.station_title ?? station.title}
+                    stationId={station.id}
+                    triggerLabel="Ver resumo da estação"
+                  />
 
                   {/* Link de convite */}
                   <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
