@@ -37,6 +37,11 @@ import {
   ShieldCheck,
   MapPin,
   Stethoscope,
+  ArrowLeft,
+  FileText,
+  StickyNote,
+  Inbox,
+  Hourglass,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
