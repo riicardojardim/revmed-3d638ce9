@@ -481,7 +481,7 @@ function AdminResumosPage() {
                     <div className="truncate text-sm font-medium">{r.title}</div>
                     <div className="text-xs text-muted-foreground">
                       {r.status === "ok"
-                        ? `Gerado · veredito IA: ${r.verdict}${r.blocking ? " · requer revisão antes de publicar" : ""}`
+                        ? `Gerado${r.blocking ? " · requer revisão antes de publicar" : ""}`
                         : (r.message ?? r.status)}
                     </div>
                   </div>
