@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, X, Share, MoreVertical, Plus, Monitor, Smartphone, Tablet } from "lucide-react";
 import {
   Dialog,
