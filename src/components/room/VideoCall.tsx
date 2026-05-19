@@ -73,7 +73,10 @@ function Stage({ isHost, roomCode, selfIdentity, allowedIdentities }: { isHost: 
     : allTracks;
   const participants = useParticipants();
   return (
-    <GridLayout tracks={tracks} style={{ height: "100%" }}>
+    <GridLayout
+      tracks={tracks}
+      style={{ height: "100%", transition: "all 320ms cubic-bezier(0.4, 0, 0.2, 1)" }}
+    >
       <TrackRefContext.Consumer>
         {(trackRef) => {
           const identity = trackRef?.participant?.identity;
@@ -82,7 +85,13 @@ function Stage({ isHost, roomCode, selfIdentity, allowedIdentities }: { isHost: 
           const audioPub = p ? [...p.audioTrackPublications.values()][0] : undefined;
           const audioMuted = audioPub?.isMuted ?? true;
           return (
-            <div className="relative h-full w-full">
+            // key força remount quando o tile passa a representar outro participante,
+            // disparando a animação de entrada (fade + scale) suave.
+            <div
+              key={identity ?? "empty"}
+              className="relative h-full w-full animate-scale-in"
+              style={{ transition: "all 320ms cubic-bezier(0.4, 0, 0.2, 1)" }}
+            >
               <ParticipantTile />
               {isHost && identity && !isSelf && (
                 <HostMuteButton roomCode={roomCode} targetIdentity={identity} isMuted={audioMuted} />
