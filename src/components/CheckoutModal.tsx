@@ -107,10 +107,13 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
     if (!plan) return;
 
     if (!form.first_name.trim() || !form.last_name.trim()) return toast.error("Informe nome e sobrenome.");
-    if (!/^[a-zA-Z0-9_.]{3,20}$/.test(form.username))
-      return toast.error("Nick inválido", { description: "3 a 20 caracteres (letras, números, . ou _)." });
+    if (!/^[a-z0-9_.]{3,20}$/.test(form.username))
+      return toast.error("Usuário inválido", { description: "3 a 20 caracteres: letras minúsculas, números, . ou _ (sem espaços)." });
+    if (/^[._]|[._]$|[._]{2,}/.test(form.username))
+      return toast.error("Usuário inválido", { description: "Não pode começar/terminar com . ou _, nem repetir esses símbolos." });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return toast.error("E-mail inválido.");
     const wppDigits = normalizeWhatsapp(form.whatsapp);
-    if (!wppDigits || !isValidWhatsapp(wppDigits)) return toast.error("WhatsApp inválido.");
+    if (!wppDigits || !isValidWhatsapp(wppDigits)) return toast.error("Telefone inválido.", { description: "Use DDD + número, ex: (11) 99999-9999." });
     if (!isValidCPF(form.cpf)) return toast.error("CPF inválido.");
     if (!form.birth_date) return toast.error("Informe a data de nascimento.");
     const birth = new Date(form.birth_date);
@@ -120,6 +123,18 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
     if (form.password !== form.confirm) return toast.error("As senhas não conferem.");
 
     setSubmitting(true);
+
+    // Checa disponibilidade do nome de usuário
+    const { data: taken, error: checkErr } = await supabase.rpc("username_exists", { _username: form.username.trim() });
+    if (checkErr) {
+      setSubmitting(false);
+      return toast.error("Erro ao validar usuário", { description: checkErr.message });
+    }
+    if (taken === true) {
+      setSubmitting(false);
+      return toast.error("Usuário já está em uso", { description: "Escolha outro nome de usuário." });
+    }
+
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
     const cpfDigits = form.cpf.replace(/\D/g, "");
 
