@@ -790,7 +790,7 @@ const plans = [
     cta: "Quero o Completo",
     highlight: true,
     features: [
-      "Treine como candidato, ator e banca",
+      "Treine como candidato e como ator",
       "+120 estações clínicas",
       "+600 itens de checklist",
       "Flashcards e resumos",
