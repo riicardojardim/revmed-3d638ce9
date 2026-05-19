@@ -37,6 +37,11 @@ import {
   ShieldCheck,
   MapPin,
   Stethoscope,
+  ArrowLeft,
+  FileText,
+  StickyNote,
+  Inbox,
+  Hourglass,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -63,13 +68,13 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Checklists oficiais, simulação com 3 papéis, flashcards e correção de professores. Domine a prova prática.",
+          "Checklists oficiais, simulação entre candidato e ator, flashcards e correção de professores. Domine a prova prática.",
       },
     ],
   }),
 });
 
-const DOCTORS = [doctor1, doctor2, doctor3, doctor4, doctor5, doctor6, doctor7];
+
 
 const nav = [
   { label: "Como funciona", href: "#como-funciona" },
@@ -196,14 +201,14 @@ function Hero() {
           <h1 className="font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-primary sm:text-4xl md:text-5xl lg:text-[3.25rem]">
             Treine a prova prática do Revalida com{" "}
             <span className="bg-gradient-to-br from-mint to-primary bg-clip-text text-transparent">
-              realismo de banca real.
+              realismo de estação real.
             </span>
           </h1>
 
           <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
             Estações clínicas com checklists oficiais, cronômetro e{" "}
-            <strong className="text-foreground">vídeo-chamada nativa com 3 papéis</strong> —
-            candidato, ator e banca. Chegue na prova já tendo feito a prova.
+            <strong className="text-foreground">vídeo-chamada nativa entre candidato e ator</strong>.
+            Chegue na prova já tendo feito a prova.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-1">
@@ -230,7 +235,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {DOCTORS.slice(0, 4).map((src, i) => (
+                {[doctor3, doctor6, doctor5, doctor4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
@@ -269,7 +274,7 @@ function HeroVisual() {
       transition={{ duration: 0.6, delay: 0.15 }}
       className="relative"
     >
-      {/* Outer device frame */}
+      {/* Outer device frame — espelha a tela do candidato dentro da estação */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-primary/20">
         {/* Browser top bar */}
         <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2">
@@ -280,85 +285,137 @@ function HeroVisual() {
           </div>
           <div className="flex items-center gap-1.5 rounded-md bg-background px-2.5 py-0.5 text-[10px] text-muted-foreground">
             <ShieldCheck className="h-3 w-3 text-mint" />
-            estacaorevalida.com.br/sala/MX9K2
+            estacaorevalida.com.br/app/sala/MX9K2
           </div>
           <div className="w-12" />
         </div>
 
-        {/* Station header */}
-        <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2.5">
-          <div className="flex items-center gap-2">
-            <div className="rounded-md bg-mint-soft/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-              Estação 14
+        {/* App station header (igual ao real: voltar + título + role chip + timer) */}
+        <div className="flex items-center justify-between gap-2 border-b border-border bg-card/80 px-3 py-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md border border-border text-muted-foreground">
+              <ArrowLeft className="h-3 w-3" />
             </div>
-            <span className="text-xs font-semibold text-foreground">Dor torácica · 35a</span>
+            <span className="truncate text-[11px] font-bold text-foreground">
+              Estação 14 · Dor torácica em adulto jovem
+            </span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-night px-2.5 py-1 font-mono text-xs font-bold tabular-nums text-mint">
-            <Clock className="h-3 w-3" />
-            07:42
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full bg-mint-soft/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary">
+              Candidato
+            </span>
+            <div className="flex items-center gap-1 rounded-full bg-night px-2 py-0.5 font-mono text-[11px] font-bold tabular-nums text-mint">
+              <Hourglass className="h-3 w-3" />
+              07:42
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-[1.3fr_1fr] gap-3 bg-background/60 p-3">
-          {/* LEFT — case + video tiles */}
+        <div className="grid grid-cols-[1.25fr_1fr] gap-3 bg-background/60 p-3">
+          {/* LEFT — caso + impressos (espelha o que o candidato vê) */}
           <div className="space-y-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                Caso clínico
-              </p>
-              <p className="mt-1 text-[11px] leading-snug text-foreground/85">
-                Paciente masculino, 35a, comparece ao PS referindo dor torácica retroesternal
-                opressiva há 40min, irradiando para mandíbula…
-              </p>
-            </div>
-
-            {/* Video tiles */}
-            <div className="grid grid-cols-2 gap-2">
-              <VideoTile src={doctor2} name="Você" role="Candidato" active />
-              <VideoTile src={doctor5} name="Ana C." role="Atriz" />
-            </div>
-            <VideoTile src={doctor7} name="Dra. Lúcia M." role="Banca" wide />
-          </div>
-
-          {/* RIGHT — checklist */}
-          <div className="flex flex-col rounded-lg border border-border bg-card p-3">
-            <div className="mb-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Checklist · banca
+                <FileText className="h-3 w-3 text-primary" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Caso clínico
+                </p>
+              </div>
+              <p className="mt-1.5 text-[11px] leading-snug text-foreground/85">
+                Paciente masculino, 35a, comparece ao PS com dor torácica
+                retroesternal opressiva há 40min, irradiando para mandíbula. Nega
+                trauma. Tabagista, HAS em uso irregular de losartana.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1">
+                {["PA 158x96", "FC 102", "SatO₂ 96%", "Tax 36,4°C"].map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md bg-mint-soft/40 px-1.5 py-px font-mono text-[9px] text-primary"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Impressos / materiais entregues */}
+            <div className="rounded-lg border border-border bg-card p-3">
+              <div className="mb-1.5 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Inbox className="h-3 w-3 text-primary" />
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Impressos recebidos
+                  </p>
+                </div>
+                <span className="rounded-full bg-mint/15 px-1.5 text-[9px] font-bold text-primary">
+                  3
                 </span>
               </div>
-              <span className="text-[10px] font-bold text-mint">85%</span>
-            </div>
-            <div className="flex-1 space-y-1.5">
               {[
-                { ok: true, t: "Se apresenta ao paciente" },
-                { ok: true, t: "Identifica queixa principal" },
-                { ok: true, t: "Caracteriza dor (OPQRST)" },
-                { ok: true, t: "Investiga fatores de risco" },
-                { ok: false, t: "Hipótese diagnóstica" },
-                { ok: false, t: "Solicita ECG + tropo" },
-              ].map((i) => (
-                <div key={i.t} className="flex items-start gap-1.5 text-[10px] leading-tight">
-                  {i.ok ? (
-                    <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-mint" />
-                  ) : (
-                    <div className="mt-0.5 h-3 w-3 shrink-0 rounded-full border-2 border-muted-foreground/40" />
-                  )}
-                  <span className={i.ok ? "text-foreground/80" : "text-muted-foreground"}>
-                    {i.t}
+                { name: "ECG de 12 derivações", t: "imagem", hot: true },
+                { name: "Troponina I — laudo", t: "laudo" },
+                { name: "Radiografia de tórax PA", t: "imagem" },
+              ].map((d) => (
+                <div
+                  key={d.name}
+                  className="flex items-center justify-between border-t border-border/60 py-1.5 first:border-0"
+                >
+                  <div className="flex items-center gap-1.5">
+                    {d.hot && (
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" />
+                    )}
+                    <span className="text-[10px] font-semibold text-foreground/85">
+                      {d.name}
+                    </span>
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-muted-foreground">
+                    {d.t}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "85%" }}
-                transition={{ delay: 0.8, duration: 1.2, ease: "easeOut" }}
-                className="h-full rounded-full bg-gradient-to-r from-mint to-primary"
-              />
+          </div>
+
+          {/* RIGHT — anotações do candidato + mini videocall (2 papéis) */}
+          <div className="flex flex-col gap-3">
+            <div className="flex-1 rounded-lg border border-border bg-card p-3">
+              <div className="mb-1.5 flex items-center gap-1.5">
+                <StickyNote className="h-3 w-3 text-primary" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Minhas anotações
+                </p>
+              </div>
+              <ul className="space-y-1 text-[10px] leading-snug text-foreground/85">
+                <li>• Dor 7/10, contínua, sem fator de melhora</li>
+                <li>• HF: pai IAM aos 52a · ex-tabagista 20 maços/ano</li>
+                <li>
+                  <span className="rounded bg-mint/20 px-1 font-semibold text-primary">
+                    HD: SCA · pedir ECG + troponina + AAS 300mg
+                  </span>
+                </li>
+                <li className="text-muted-foreground">
+                  • Considerar dissecção (PA assimétrica?)
+                </li>
+              </ul>
+              <div className="mt-2 flex items-center gap-1 text-[9px] text-muted-foreground">
+                <span className="h-1 w-1 animate-pulse rounded-full bg-mint" />
+                salvo automaticamente
+              </div>
+            </div>
+
+            {/* Mini videocall flutuante — só 2 tiles (candidato + ator) */}
+            <div className="rounded-lg border border-border bg-night p-1.5">
+              <div className="mb-1 flex items-center justify-between px-1">
+                <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-white/70">
+                  <Video className="h-2.5 w-2.5 text-mint" />
+                  vídeo · ao vivo
+                </div>
+                <span className="text-[9px] text-white/50">2 / 2</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <VideoTile src={doctor6} name="Você" role="Candidato" active />
+                <VideoTile src={doctor3} name="Ana C." role="Atriz" />
+              </div>
             </div>
           </div>
         </div>
@@ -498,8 +555,8 @@ function Stats() {
 function HowItWorks() {
   const steps = [
     { icon: ClipboardList, title: "Escolha a estação", desc: "Filtre por especialidade, dificuldade e tempo." },
-    { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da banca." },
-    { icon: ClipboardCheck, title: "Treine o checklist", desc: "Banca (ou IA) marca tudo o que você fez." },
+    { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da prova." },
+    { icon: ClipboardCheck, title: "Treine o checklist", desc: "O ator marca cada item — ou a IA, se você estiver sozinho." },
     { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
@@ -530,12 +587,21 @@ function HowItWorks() {
   );
 }
 
-/* ---------------- Simulation (3 roles) ---------------- */
+/* ---------------- Simulation (2 roles: candidato + ator) ---------------- */
 function Simulation() {
   const roles = [
-    { icon: UserRound, title: "Candidato", desc: "Atua no caso clínico sem ver o checklist — como na prova.", highlight: false },
-    { icon: Theater, title: "Paciente ator", desc: "Recebe roteiro com história, emoções e gatilhos de fala.", highlight: false },
-    { icon: ClipboardCheck, title: "Banca examinadora", desc: "Corrige pelo checklist oficial e devolve feedback no fim.", highlight: true },
+    {
+      icon: UserRound,
+      title: "Candidato",
+      desc: "Atua no caso clínico sem ver o checklist — exatamente como na prova real. Vê impressos, faz anotações e conduz a estação.",
+      highlight: true,
+    },
+    {
+      icon: Theater,
+      title: "Paciente ator",
+      desc: "Recebe roteiro com história, emoções, gatilhos de fala e marca o checklist oficial enquanto o candidato conduz.",
+      highlight: false,
+    },
   ];
 
   return (
@@ -556,20 +622,21 @@ function Simulation() {
             Diferencial exclusivo
           </div>
           <h2 className="font-display text-3xl font-extrabold leading-tight md:text-4xl">
-            Treine em equipe,{" "}
+            Treine em dupla,{" "}
             <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
-              aprenda em 3 dimensões.
+              aprenda dos dois lados.
             </span>
           </h2>
           <p className="max-w-lg text-base leading-relaxed text-white/70">
-            Vídeo nativo na plataforma: troque de papel e entenda exatamente o que a banca procura.
+            Vídeo nativo na plataforma. Hoje você é candidato, amanhã é ator —
+            ver o checklist por trás muda como você responde na prova.
           </p>
           <ul className="space-y-2.5 pt-1">
             {[
-              "Vídeo nativo — sem Zoom ou Meet",
-              "Código de sala para treinar com colegas",
+              "Vídeo nativo — sem Zoom, sem Meet, sem instalar nada",
+              "Código de sala pra treinar com qualquer colega",
               "Cada papel vê só o conteúdo do seu perfil",
-              "Feedback consolidado ao final da sala",
+              "Treine sozinho também: IA assume o papel do ator",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
@@ -622,7 +689,7 @@ function Resources() {
   const features = [
     { icon: ClipboardCheck, title: "Checklists oficiais", desc: "Itens avaliativos por categoria, alinhados ao INEP." },
     { icon: Clock, title: "Cronômetro integrado", desc: "Tempo real da prova, com alerta no minuto final." },
-    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo com 3 papéis, sem instalar nada." },
+    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo entre candidato e ator, sem instalar nada." },
     { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
     { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
     { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
@@ -723,7 +790,7 @@ const plans = [
     cta: "Quero o Completo",
     highlight: true,
     features: [
-      "Treine como candidato, ator e banca",
+      "Treine como candidato e como ator",
       "+120 estações clínicas",
       "+600 itens de checklist",
       "Flashcards e resumos",
@@ -842,7 +909,7 @@ const testimonials = [
   {
     name: "Dr. Bruno Almeida",
     role: "Aprovado · Revalida 2024.2",
-    text: "A sala com 3 papéis é o que mais se aproxima da prova real. Atuar como banca me fez enxergar o que faltava.",
+    text: "A sala em dupla é o que mais se aproxima da prova real. Atuar como ator me fez enxergar tudo o que faltava na minha conduta.",
     avatar: doctor4,
   },
   {
@@ -905,7 +972,7 @@ function Testimonials() {
 /* ---------------- FAQ ---------------- */
 const faqs = [
   { q: "O app substitui um curso presencial?", a: "Não. Ele é um complemento poderoso para a parte prática, com simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
-  { q: "Como funciona a sala com 3 papéis?", a: "Você cria uma sala e compartilha o código. Cada participante entra como candidato, paciente ator ou banca — cada um vê apenas o conteúdo do seu papel, com vídeo integrado." },
+  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como paciente ator — cada um vê apenas o conteúdo do seu papel, com vídeo integrado. Se estiver sozinho, a IA assume o papel do ator." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
   { q: "Os checklists são oficiais?", a: "São construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
   { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único." },
