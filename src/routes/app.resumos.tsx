@@ -475,6 +475,13 @@ function ResumosPage() {
 
       <Dialog open={selectedId !== null} onOpenChange={(open) => !open && setSelectedId(null)}>
         <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+          <div className="pointer-events-none absolute right-4 top-4 z-50">
+            <DialogClose className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Fechar</span>
+            </DialogClose>
+          </div>
+
           {!selectedSummary ? (
             <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
               {error ? (
@@ -533,18 +540,14 @@ function ResumosPage() {
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
                   </>
                 )}
-                <div className="relative space-y-3">
-                  <div className="flex items-start justify-between gap-3">
+                <div className="relative space-y-3 pr-14">
+                  <div className="flex items-start gap-3">
                     <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <SpecialtyBadge specialty={selectedSummary.specialty} short />
                       <span className="min-w-0 text-[11px] font-semibold uppercase tracking-wider text-white/75">
                         {selectedSummary.specialty}
                       </span>
                     </div>
-                    <DialogClose className="-mr-1 -mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
-                      <X className="h-4 w-4" />
-                      <span className="sr-only">Fechar</span>
-                    </DialogClose>
                   </div>
                   <DialogTitle className="font-display text-xl font-bold leading-tight text-white sm:text-2xl">
                     {selectedSummary.title || "Resumo clínico"}
