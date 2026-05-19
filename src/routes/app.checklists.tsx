@@ -306,20 +306,11 @@ function StationsPage() {
                 className="w-full rounded-md border border-border bg-background pl-9 pr-3 py-2 text-sm"
               />
             </div>
-            <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1">
-              <button
-                type="button"
-                onClick={() => setAllSpec("Todas")}
-                className={cn(
-                  "shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                  allSpec === "Todas"
-                    ? "border-mint bg-mint/10 text-foreground"
-                    : "border-border bg-background text-muted-foreground hover:border-mint/40",
-                )}
-              >
-                Todas
-              </button>
-              {SPECIALTIES.map((s) => {
+            {(() => {
+              const order: Specialty[] = ["Cirurgia", "Pediatria", "Clínica Médica", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade"];
+              const row1 = order.slice(0, 3);
+              const row2 = order.slice(3);
+              const renderMobile = (s: Specialty) => {
                 const m = getSpecialtyMeta(s);
                 const active = allSpec === s;
                 return (
@@ -329,18 +320,74 @@ function StationsPage() {
                     onClick={() => setAllSpec(s)}
                     title={s}
                     className={cn(
-                      "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      "inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border px-2 text-[11px] font-medium leading-tight transition-colors",
                       active
                         ? "border-foreground/20 bg-card text-foreground shadow-sm"
                         : "border-border bg-background text-muted-foreground hover:border-mint/40",
                     )}
                   >
-                    <span className={cn("inline-block h-1.5 w-1.5 rounded-full", m.solid)} />
-                    {m.code}
+                    <span className={cn("inline-block h-1.5 w-1.5 shrink-0 rounded-full", m.solid)} />
+                    <span className="truncate text-center">{s}</span>
                   </button>
                 );
-              })}
-            </div>
+              };
+              return (
+                <div className="space-y-2 lg:space-y-0">
+                  <div className="space-y-2 lg:hidden">
+                    <button
+                      type="button"
+                      onClick={() => setAllSpec("Todas")}
+                      className={cn(
+                        "inline-flex h-10 w-full items-center justify-center rounded-full border px-3 text-sm font-medium transition-colors",
+                        allSpec === "Todas"
+                          ? "border-mint bg-mint/10 text-foreground"
+                          : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                      )}
+                    >
+                      Todas
+                    </button>
+                    <div className="grid grid-cols-3 gap-2">{row1.map(renderMobile)}</div>
+                    <div className="grid grid-cols-2 gap-2">{row2.map(renderMobile)}</div>
+                  </div>
+                  <div className="hidden lg:flex lg:flex-wrap lg:items-center lg:gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setAllSpec("Todas")}
+                      className={cn(
+                        "shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                        allSpec === "Todas"
+                          ? "border-mint bg-mint/10 text-foreground"
+                          : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                      )}
+                    >
+                      Todas
+                    </button>
+                    {SPECIALTIES.map((s) => {
+                      const m = getSpecialtyMeta(s);
+                      const active = allSpec === s;
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setAllSpec(s)}
+                          title={s}
+                          className={cn(
+                            "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                            active
+                              ? "border-foreground/20 bg-card text-foreground shadow-sm"
+                              : "border-border bg-background text-muted-foreground hover:border-mint/40",
+                          )}
+                        >
+                          <span className={cn("inline-block h-1.5 w-1.5 rounded-full", m.solid)} />
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
 
             <ul className="max-h-[55vh] divide-y divide-border overflow-y-auto rounded-xl border border-border bg-card">
               {dbStations
