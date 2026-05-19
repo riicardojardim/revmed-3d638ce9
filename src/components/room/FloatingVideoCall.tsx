@@ -23,8 +23,8 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
     );
   }
 
-  // Mantém o VideoCall SEMPRE montado para não desconectar ao minimizar.
-  // No estado minimizado mostramos só um pill com áudio rodando em segundo plano.
+  // VideoCall fica SEMPRE montado enquanto open=true para preservar a conexão
+  // LiveKit ao minimizar. Apenas alternamos a visibilidade do conteúdo via CSS.
   return (
     <div
       className={cn(
@@ -57,24 +57,17 @@ export function FloatingVideoCall({ roomCode, displayName }: Props) {
           </button>
         </div>
       </div>
-      {/* Sempre montado — apenas escondido visualmente quando minimizado.
-          Mantém conexão LiveKit + áudio ativo. */}
-      <div className={cn("h-[calc(100%-26px)] w-full", minimized && "hidden")}>
+      {/* Sempre montado — alternamos só a visibilidade para manter a conexão. */}
+      <div
+        className="h-[calc(100%-26px)] w-full"
+        style={minimized ? { visibility: "hidden", position: "absolute", inset: "26px 0 0 0", pointerEvents: "none" } : undefined}
+      >
         <VideoCall
           roomCode={roomCode}
           displayName={displayName}
           className="h-full w-full"
         />
       </div>
-      {minimized && (
-        <div className="hidden">
-          <VideoCall
-            roomCode={roomCode}
-            displayName={displayName}
-            className="h-0 w-0"
-          />
-        </div>
-      )}
     </div>
   );
 }
