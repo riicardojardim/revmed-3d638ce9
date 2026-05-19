@@ -130,7 +130,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
     supabase.auth.getUser().then(({ data }) => setSelfIdentity(data.user?.id ?? null));
   }, []);
 
-  }, [roomCode]);
+
 
   if (error) {
     return (
