@@ -532,7 +532,14 @@ function FlashcardsList({
               ))}
             </motion.div>
           )}
-        </div>
+
+          {filtered.length > 4 && (
+            <div className="flex justify-center pt-2">
+              <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
+                Ver todos os {filtered.length} flashcards <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
         {/* Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
