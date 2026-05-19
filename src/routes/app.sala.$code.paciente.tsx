@@ -907,7 +907,7 @@ function ActorView() {
                       if (isBlocked) toast.error("Você tem que terminar o checklist primeiro..");
                     }}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] gap-x-4 rounded-xl border px-4 py-3 transition-colors",
+                      "grid grid-cols-[minmax(0,1fr)_auto] gap-x-2 rounded-xl border px-3 py-3 transition-colors sm:gap-x-4 sm:px-4",
                       typeof current === "number"
                         ? "border-mint/30 bg-mint/5"
                         : "border-border bg-background/30",
@@ -1161,7 +1161,7 @@ function ActorView() {
                       "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
                       isRunning ? "bg-mint/15" : "bg-white/5",
                     )}>
-                      <div className="font-display text-5xl font-bold tabular-nums text-white">
+                      <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
                         {mm}:{ss}
                       </div>
                       {isWaiting && (
