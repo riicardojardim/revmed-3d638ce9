@@ -17,6 +17,7 @@ import {
   Scissors,
   HomeIcon,
   Siren,
+  MessageSquare,
   MessagesSquare,
   ClipboardList,
   Star,
