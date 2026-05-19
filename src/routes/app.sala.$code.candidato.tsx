@@ -20,6 +20,7 @@ import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIn
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
