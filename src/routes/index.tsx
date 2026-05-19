@@ -980,6 +980,33 @@ function Plans() {
               ))}
             </ul>
 
+            {p.bonuses && (
+              <div className="mt-5 rounded-xl border border-dashed border-mint/50 bg-mint-soft/30 p-3">
+                <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary">
+                  <Gift className="h-3.5 w-3.5" />
+                  Bônus exclusivos por tempo limitado
+                </div>
+                <ul className="space-y-1.5">
+                  {p.bonuses.map((b) => (
+                    <li key={b.name} className="flex items-start justify-between gap-2 text-[11px]">
+                      <span className="flex items-start gap-1.5">
+                        <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-mint" />
+                        <span className="text-foreground">{b.name}</span>
+                      </span>
+                      <span className="shrink-0 font-bold text-mint line-through opacity-70">{b.value}</span>
+                    </li>
+                  ))}
+                </ul>
+                {p.totalValue && (
+                  <div className="mt-2.5 flex items-center justify-between border-t border-mint/30 pt-2 text-[11px]">
+                    <span className="font-semibold text-muted-foreground">Valor total:</span>
+                    <span className="font-display text-sm font-extrabold text-primary line-through">{p.totalValue}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+
             <div className="mt-auto pt-6">
               <Link to="/cadastro">
                 <Button
