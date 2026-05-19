@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, Clock, Search, ArrowRight, ListChecks, Brain, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, X } from "lucide-react";
+import { BookOpen, Clock, Search, ArrowRight, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, X } from "lucide-react";
 import { SummaryCover } from "@/components/SummaryCover";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta, sortSpecialties } from "@/lib/specialtyMeta";
