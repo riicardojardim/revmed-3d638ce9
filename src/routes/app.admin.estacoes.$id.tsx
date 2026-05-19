@@ -2409,8 +2409,12 @@ function SectionGenerateSummary({ station }: { station: Station }) {
 
   async function togglePublish() {
     if (!summary) return;
-    setPubLoading(true);
     const next = !published;
+    if (next && validation?.blocking) {
+      toast.error("Não é possível publicar: a validação automática encontrou erros críticos. Edite manualmente o resumo na área de Resumos antes de publicar.");
+      return;
+    }
+    setPubLoading(true);
     const { error } = await supabase.from("summaries").update({ published: next }).eq("id", summary.id);
     setPubLoading(false);
     if (error) return toast.error("Falha ao publicar", { description: error.message });
