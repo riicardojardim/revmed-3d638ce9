@@ -59,22 +59,17 @@ function SheetContent({ children, className }: { children: React.ReactNode; clas
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          // mobile: bottom sheet
-          "fixed inset-x-0 bottom-0 z-50 flex max-h-[92dvh] w-full flex-col rounded-t-3xl border border-border bg-background shadow-2xl outline-none",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-          // sm+: dialog centralizado
-          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[92vh] sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
-          "sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=closed]:slide-out-to-bottom-0",
+          // mobile: modal centralizado com margens (não cola nas bordas)
+          "fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-1.5rem)] max-w-[420px] -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-border bg-background shadow-2xl outline-none",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
+          // sm+: dialog maior centralizado
+          "sm:max-h-[92vh] sm:w-full sm:max-w-2xl",
           className,
         )}
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-2 sm:hidden">
-          <span className="h-1.5 w-10 rounded-full bg-muted-foreground/30" />
-        </div>
         {children}
         <DialogPrimitive.Close
-          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/70 text-foreground/80 transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:right-4 sm:top-4"
+          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted/70 text-foreground/80 transition hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring sm:right-4 sm:top-4 sm:h-9 sm:w-9"
           aria-label="Fechar"
         >
           <X className="h-4 w-4" />
@@ -112,10 +107,13 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
     if (!plan) return;
 
     if (!form.first_name.trim() || !form.last_name.trim()) return toast.error("Informe nome e sobrenome.");
-    if (!/^[a-zA-Z0-9_.]{3,20}$/.test(form.username))
-      return toast.error("Nick inválido", { description: "3 a 20 caracteres (letras, números, . ou _)." });
+    if (!/^[a-z0-9_.]{3,20}$/.test(form.username))
+      return toast.error("Usuário inválido", { description: "3 a 20 caracteres: letras minúsculas, números, . ou _ (sem espaços)." });
+    if (/^[._]|[._]$|[._]{2,}/.test(form.username))
+      return toast.error("Usuário inválido", { description: "Não pode começar/terminar com . ou _, nem repetir esses símbolos." });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return toast.error("E-mail inválido.");
     const wppDigits = normalizeWhatsapp(form.whatsapp);
-    if (!wppDigits || !isValidWhatsapp(wppDigits)) return toast.error("WhatsApp inválido.");
+    if (!wppDigits || !isValidWhatsapp(wppDigits)) return toast.error("Telefone inválido.", { description: "Use DDD + número, ex: (11) 99999-9999." });
     if (!isValidCPF(form.cpf)) return toast.error("CPF inválido.");
     if (!form.birth_date) return toast.error("Informe a data de nascimento.");
     const birth = new Date(form.birth_date);
@@ -125,6 +123,18 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
     if (form.password !== form.confirm) return toast.error("As senhas não conferem.");
 
     setSubmitting(true);
+
+    // Checa disponibilidade do nome de usuário
+    const { data: taken, error: checkErr } = await supabase.rpc("username_exists", { _username: form.username.trim() });
+    if (checkErr) {
+      setSubmitting(false);
+      return toast.error("Erro ao validar usuário", { description: checkErr.message });
+    }
+    if (taken === true) {
+      setSubmitting(false);
+      return toast.error("Usuário já está em uso", { description: "Escolha outro nome de usuário." });
+    }
+
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
     const cpfDigits = form.cpf.replace(/\D/g, "");
 
@@ -229,17 +239,18 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
               <Input id="cm_last" autoComplete="family-name" className={inputCls} value={form.last_name} onChange={(e) => update("last_name", e.target.value)} required />
             </div>
             <div className="sm:col-span-2">
-              <Label htmlFor="cm_user" className="mb-1.5 block text-xs">Nick (como vai aparecer)</Label>
+              <Label htmlFor="cm_user" className="mb-1.5 block text-xs">Usuário (como vai aparecer)</Label>
               <Input
                 id="cm_user"
                 autoComplete="username"
                 className={inputCls}
                 value={form.username}
-                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/\s/g, ""))}
+                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
                 placeholder="ex: dra.ana"
                 maxLength={20}
                 required
               />
+              <p className="mt-1 text-[10px] text-muted-foreground">Sem espaços. Letras minúsculas, números, . ou _</p>
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="cm_email" className="mb-1.5 block text-xs">E-mail</Label>
