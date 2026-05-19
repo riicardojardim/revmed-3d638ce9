@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
-import { batchGenerateSummariesFromStations } from "@/lib/summary-batch.functions";
+import { generateOneSummaryByStationId } from "@/lib/summary-batch.functions";
 
 export const Route = createFileRoute("/app/admin/resumos/")({
   component: AdminResumosPage,
