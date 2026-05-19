@@ -284,10 +284,10 @@ function Hero() {
             </Button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-[11px] text-muted-foreground sm:text-xs">
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em 12x</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Cancele em 2 cliques</span>
+          <div className="flex flex-nowrap items-center gap-x-3 gap-y-2 overflow-x-auto pt-1 text-[11px] text-muted-foreground sm:flex-wrap sm:text-xs">
+            <span className="inline-flex shrink-0 items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-mint" /> 7 dias de garantia</span>
+            <span className="inline-flex shrink-0 items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-mint" /> Pix ou cartão em 12x</span>
+            <span className="inline-flex shrink-0 items-center gap-1.5"><Star className="h-4 w-4 text-mint" /> Acesso imediato</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
