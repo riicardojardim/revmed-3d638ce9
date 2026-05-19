@@ -108,7 +108,7 @@ function LandingPage() {
       <Simulation />
       <Resources />
       <Areas />
-      <FounderVideo />
+      
       <Comparison />
       <ExamCountdown />
       <Plans />
@@ -443,7 +443,7 @@ function HeroVisual() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-mint" />
         </span>
-        <span className="text-[11px] font-semibold">128 salas ao vivo</span>
+        <span className="text-[11px] font-semibold">128 salas abertas agora</span>
       </motion.div>
     </motion.div>
   );
@@ -575,7 +575,7 @@ function HowItWorks() {
   const steps = [
     { icon: ClipboardList, title: "Escolha a estação", desc: "Filtre por especialidade, dificuldade e tempo." },
     { icon: Clock, title: "Ative o cronômetro", desc: "Leia o caso e simule o tempo real da prova." },
-    { icon: ClipboardCheck, title: "Treine o checklist", desc: "O ator marca cada item — ou a IA, se você estiver sozinho." },
+    { icon: ClipboardCheck, title: "Treine o checklist", desc: "O ator marca cada item enquanto você conduz a estação." },
     { icon: BarChart3, title: "Receba feedback", desc: "Nota, pontos fortes/fracos e plano de revisão." },
   ];
   return (
@@ -619,7 +619,7 @@ function BeforeAfter() {
     "Conduz a estação em voz alta, igual no dia da prova",
     "Já passou pelo nervosismo dezenas de vezes — calejado",
     "Cronômetro real, divisão de tempo treinada na prática",
-    "Ator (ou IA) marca cada erro na hora, com feedback",
+    "Ator marca cada erro na hora, com feedback humano",
     "Sai de cada simulado sabendo exatamente o que revisar",
   ];
 
@@ -747,7 +747,7 @@ function Simulation() {
               "Vídeo nativo — sem Zoom, sem Meet, sem instalar nada",
               "Código de sala pra treinar com qualquer colega",
               "Cada papel vê só o conteúdo do seu perfil",
-              "Treine sozinho também: IA assume o papel do ator",
+              "Comunidade ativa pra parear com outros candidatos",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2.5 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-mint" />
@@ -800,7 +800,7 @@ function Resources() {
   const features = [
     { icon: ClipboardCheck, title: "Checklists oficiais", desc: "Itens avaliativos por categoria, alinhados ao INEP." },
     { icon: Clock, title: "Cronômetro integrado", desc: "Tempo real da prova, com alerta no minuto final." },
-    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala ao vivo entre candidato e ator, sem instalar nada." },
+    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala em vídeo entre candidato e ator, sem instalar nada." },
     { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
     { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
     { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
@@ -911,7 +911,7 @@ const plans = [
     ],
     bonuses: [
       { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
-      { name: "Aula ao vivo: Erros que reprovam na prática", value: "R$ 297" },
+      { name: "E-book: Erros que reprovam na prática", value: "R$ 297" },
       { name: "Checklist comentado por aprovados 2024", value: "R$ 147" },
     ],
     totalValue: "R$ 1.138",
@@ -933,72 +933,7 @@ const plans = [
   },
 ];
 
-/* ---------------- Founder Video ---------------- */
-function FounderVideo() {
-  return (
-    <section className="bg-night py-16 text-white lg:py-24">
-      <div className="container mx-auto grid items-center gap-10 px-4 lg:grid-cols-2 lg:px-8">
-        <div className="space-y-5">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-mint-soft">
-            <Sparkles className="h-3 w-3" />
-            Do fundador
-          </div>
-          <h2 className="font-display text-3xl font-extrabold leading-tight md:text-4xl">
-            Por que eu criei a{" "}
-            <span className="bg-gradient-to-br from-mint to-mint-soft bg-clip-text text-transparent">
-              Estação Revalida.
-            </span>
-          </h2>
-          <p className="text-base leading-relaxed text-white/70">
-            Tomei bomba na prova prática em 2023 — sabia toda a teoria, mas
-            travei na hora de falar com o ator. Vi que faltava um lugar pra
-            treinar de verdade, em voz alta, com gente do outro lado. Construí
-            o que eu queria ter tido. Hoje é o que mais aprova.
-          </p>
-          <div className="flex items-center gap-4 pt-2">
-            <img
-              src={candidate2}
-              alt="Fundador"
-              className="h-14 w-14 rounded-full border-2 border-mint object-cover"
-            />
-            <div>
-              <p className="font-display text-base font-bold">Dr. Rafael Mendes</p>
-              <p className="text-xs text-white/60">Fundador · Aprovado Revalida 2024</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="relative">
-          <button
-            type="button"
-            className="group relative block aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-mint/20 to-night shadow-glow transition-transform hover:scale-[1.01]"
-            aria-label="Reproduzir vídeo do fundador"
-          >
-            <img
-              src={candidate7}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-40 transition-opacity group-hover:opacity-50"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/20 to-transparent" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="flex h-20 w-20 items-center justify-center rounded-full bg-mint shadow-glow transition-transform group-hover:scale-110">
-                <Play className="ml-1 h-8 w-8 fill-night text-night" />
-              </span>
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 p-5 text-left">
-              <p className="text-xs font-bold uppercase tracking-wider text-mint">
-                2 minutos · Sem enrolação
-              </p>
-              <p className="mt-1 font-display text-lg font-bold">
-                "O que mudou depois que troquei flashcard por simulado em voz alta"
-              </p>
-            </div>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ---------------- Comparison ---------------- */
 function Comparison() {
