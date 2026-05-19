@@ -1232,7 +1232,7 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-[2fr,160px,140px]">
+              <div className="grid gap-3 md:grid-cols-[1fr,220px]">
                 <div>
                   <Label>Descrição</Label>
                   <Textarea rows={8} className="min-h-[180px] font-mono text-sm leading-relaxed whitespace-pre-wrap"
@@ -1243,11 +1243,9 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                   <Label>Categoria</Label>
                   <Input defaultValue={item.category}
                     onBlur={(e) => e.target.value.trim() !== item.category && patchItem(item, { category: e.target.value.trim() || "Anamnese" })} />
-                </div>
-                <div>
-                  <Label>Pontos máximos</Label>
-                  <Input type="number" step="0.1" min={0} max={20} defaultValue={item.points}
-                    onBlur={(e) => Number(e.target.value) !== Number(item.points) && patchItem(item, { points: Number(e.target.value) })} />
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    A pontuação máxima é definida automaticamente pela soma dos níveis abaixo.
+                  </p>
                 </div>
               </div>
 
@@ -1256,9 +1254,10 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
                 <LevelsEditor
                   item={item}
                   onSet={async (levels) => {
+                    const maxPts = levels.reduce((m, l) => Math.max(m, Number(l.points) || 0), 0);
                     const { error } = await supabase
                       .from("station_checklist_items")
-                      .update({ levels } as never)
+                      .update({ levels, points: maxPts } as never)
                       .eq("id", item.id);
                     if (error) {
                       toast.error("Erro", { description: error.message });
@@ -1877,21 +1876,8 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               </PRBlock>
               <PRBlock icon={Inbox} title="Materiais recebidos" right={<Badge variant="outline">0</Badge>}>
                 <p className="text-sm text-muted-foreground">
-                  Os impressos cadastrados serão entregues pelo ator durante a estação.
+                  Nenhum material ainda. Solicite exames e o ator entregará durante a estação.
                 </p>
-                {materials.length > 0 && (
-                  <div className="mt-3 space-y-2 opacity-70">
-                    {materials.map((m, i) => (
-                      <div key={i} className="rounded-lg border border-dashed border-border p-2 text-xs">
-                        <span className="font-semibold">{m.name || `Impresso ${i + 1}`}</span>
-                        {m.type && <span className="ml-2 text-muted-foreground">· {m.type}</span>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </PRBlock>
-              <PRBlock icon={StickyNote} title="Anotações">
-                <Textarea rows={3} placeholder="O candidato anota aqui durante a estação…" disabled />
               </PRBlock>
             </div>
             <div className="space-y-4">
