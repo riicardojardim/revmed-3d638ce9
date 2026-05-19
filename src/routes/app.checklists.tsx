@@ -227,21 +227,14 @@ function StationsPage() {
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-mint/20 text-foreground">
               <ListChecks className="h-5 w-5" />
             </div>
-            <h3 className="mt-3 font-display text-lg font-bold">Todos os Checklists</h3>
+            <h3 className="mt-3 font-display text-lg font-bold">Catálogo</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Explore o catálogo completo de checklists disponíveis.
+              Checklists oficiais publicados e prontos para treinar.
             </p>
             <div className="mt-4 flex items-baseline gap-1">
               <span className="font-display text-3xl font-bold">{dbStations.length}</span>
-              <span className="text-xs text-muted-foreground">checklists publicados</span>
+              <span className="text-xs text-muted-foreground">disponíveis</span>
             </div>
-            <Button
-              variant="outline"
-              className="mt-4 w-full"
-              onClick={() => { setAllSearch(""); setAllOpen(true); }}
-            >
-              Ver todas <ArrowRight className="h-4 w-4" />
-            </Button>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card">
@@ -259,6 +252,7 @@ function StationsPage() {
         </aside>
       </div>
       <SimuladoBuilder open={builderOpen} onOpenChange={setBuilderOpen} />
+
 
       <Dialog open={allOpen} onOpenChange={setAllOpen}>
         <DialogContent className="max-w-3xl overflow-hidden">
