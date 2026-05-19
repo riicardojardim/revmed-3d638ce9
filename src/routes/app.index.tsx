@@ -43,7 +43,6 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
-import { DashboardBackground } from "@/components/DashboardBackground";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { motion } from "framer-motion";
 
