@@ -237,9 +237,9 @@ function ResumosPage() {
             >
               {filtered.slice(0, 4).map((s) => (
                 <motion.div key={s.id} variants={staggerItem}>
-                  <Link
-                    to="/app/resumos/$id"
-                    params={{ id: s.id }}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(s.id)}
                     className="group flex h-full flex-col gap-2 rounded-2xl border border-border bg-card/80 p-2 text-left shadow-card backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-elegant sm:gap-3 sm:p-3"
                   >
                     <SummaryCover
@@ -263,7 +263,7 @@ function ResumosPage() {
                         <Clock className="h-3 w-3" /> {s.read_time_minutes} min
                       </div>
                     </div>
-                  </Link>
+                  </button>
                 </motion.div>
               ))}
             </motion.div>
@@ -397,7 +397,7 @@ function ResumosPage() {
                     <Button
                       size="sm"
                       variant="hero"
-                      onClick={() => { setAllOpen(false); nav({ to: "/app/resumos/$id", params: { id: s.id } }); }}
+                      onClick={() => { setAllOpen(false); setSelectedId(s.id); }}
                     >
                       Abrir <ArrowRight className="h-3.5 w-3.5" />
                     </Button>
