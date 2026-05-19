@@ -196,18 +196,19 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   }
 
   const isHost = creds.role === "host";
-  const isSpectator = creds.role === "spectator";
-  // Espectadores entram só com áudio (sem câmera). Ator e candidato avaliado
-  // publicam câmera + microfone automaticamente.
-  const autoVideo = !isSpectator;
+  // O candidato avaliado da vez (qualquer participante pode virar avaliado em tempo real)
+  const isCurrentEvaluated = !!selfIdentity && currentEvaluatedId === selfIdentity;
+  // Câmera inicial: somente quem já é host/avaliado no momento da conexão
+  const autoVideo = isHost || creds.role === "evaluated";
   const autoAudio = isHost || creds.role === "evaluated";
 
   // Apenas 2 vídeos podem aparecer na tela: o ator (host) e o candidato avaliado da vez.
-  // O ID do avaliado vem do estado reativo — quando o ator troca de candidato,
-  // o novo vídeo entra automaticamente no lugar.
   const allowed = new Set<string>();
   if (creds.hostId) allowed.add(creds.hostId);
   if (currentEvaluatedId) allowed.add(currentEvaluatedId);
+
+  // Mostra câmera nos controles para host e para quem é/pode-virar o avaliado.
+  const showCameraControl = isHost || isCurrentEvaluated;
 
   return (
     <div className={className}>
@@ -220,6 +221,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
         data-lk-theme="default"
         style={{ height: "100%", borderRadius: "0.5rem", overflow: "hidden", display: "flex", flexDirection: "column" }}
       >
+        <CameraSync shouldPublish={isHost || isCurrentEvaluated} />
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           <Stage
             isHost={isHost}
@@ -236,13 +238,33 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
               leave: false,
               screenShare: isHost,
               microphone: true,
-              // Espectadores não publicam vídeo — só ator/candidato têm câmera.
-              camera: !isSpectator,
+              camera: showCameraControl,
             }}
           />
         </div>
       </LiveKitRoom>
     </div>
   );
+}
+
+/**
+ * Liga/desliga câmera + mic automaticamente conforme o usuário vira (ou
+ * deixa de ser) o candidato avaliado da vez. Funciona mesmo para quem
+ * entrou inicialmente como espectador.
+ */
+function CameraSync({ shouldPublish }: { shouldPublish: boolean }) {
+  const { localParticipant } = useLocalParticipant();
+  useEffect(() => {
+    if (!localParticipant) return;
+    (async () => {
+      try {
+        await localParticipant.setCameraEnabled(shouldPublish);
+        await localParticipant.setMicrophoneEnabled(shouldPublish);
+      } catch (err) {
+        console.warn("[VideoCall] camera/mic toggle failed", err);
+      }
+    })();
+  }, [shouldPublish, localParticipant]);
+  return null;
 }
 
