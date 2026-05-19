@@ -1150,14 +1150,7 @@ function ActorView() {
             </Button>
           </PRBlock>
 
-          <RelatedResources
-            specialty={station.specialty}
-            title={room.station_title ?? station.title}
-            stationId={station.id}
-            show={{ resumo: true }}
-            excludeStationId={station.id}
-            heading="Resumo de apoio"
-          />
+          {/* (Resumo movido para a lateral como botão/modal) */}
         </div>
 
 
