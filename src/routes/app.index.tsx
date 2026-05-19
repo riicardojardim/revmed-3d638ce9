@@ -382,15 +382,15 @@ function Dashboard() {
               const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
               return (
                 <li key={s.key} className="space-y-1.5">
-                  <div className="flex items-baseline justify-between gap-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className={`inline-flex h-6 min-w-[2rem] shrink-0 items-center justify-center rounded-md px-1.5 text-[10px] font-bold tracking-wider ${meta.badge}`}>
                         {s.short}
                       </span>
-                      <span className="font-medium">{s.label}</span>
+                      <span className="truncate font-medium">{s.label}</span>
                     </div>
-                    <div className="flex items-baseline gap-2 text-xs text-muted-foreground">
-                      <span>{n} est.</span>
+                    <div className="flex shrink-0 items-baseline gap-2 text-xs text-muted-foreground">
+                      <span className="whitespace-nowrap">{n} est.</span>
                       <span className={`font-display text-base font-bold ${hit ? meta.text : "text-foreground"}`}>
                         {avg.toFixed(1)}
                       </span>
