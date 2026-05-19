@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
-import { BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, Clock, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, Clock, ArrowRight, Sparkles, X } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 type Summary = {
