@@ -509,8 +509,8 @@ function CandidateView() {
     <>
       {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
       {introOverlay}
-      <div className="mx-auto max-w-7xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
         <button
           type="button"
           onClick={() => { if (typeof window !== "undefined" && window.history.length > 1) window.history.back(); else nav({ to: "/app" }); }}
@@ -518,7 +518,7 @@ function CandidateView() {
         >
           <ArrowLeft className="h-4 w-4" /> Sair
         </button>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           <span className={cn(
             "inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium",
             isSpectator ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" : "bg-mint/15 text-mint",
@@ -526,7 +526,7 @@ function CandidateView() {
             {isSpectator ? "Espectador" : "Candidato"}
           </span>
           <span>•</span>
-          <span>{station.specialty}</span>
+          <span className="min-w-0 truncate">{station.specialty}</span>
         </div>
       </div>
 
@@ -540,7 +540,7 @@ function CandidateView() {
       )}
 
       {/* Banner gradient institucional (igual ao painel do ator) */}
-      <div className="relative overflow-hidden rounded-3xl border border-mint/20 bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
+      <div className="relative min-w-0 overflow-hidden rounded-2xl border border-mint/20 bg-gradient-hero p-4 text-white shadow-elegant sm:rounded-3xl sm:p-6 md:p-8">
         <div
           className="pointer-events-none absolute inset-0 opacity-10"
           style={{
@@ -553,10 +553,10 @@ function CandidateView() {
           <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-mint">
             <ShieldCheck className="h-3 w-3" /> Estação em andamento
           </div>
-          <h1 className="mt-3 font-display text-2xl font-bold md:text-3xl">
+          <h1 className="mt-3 break-words font-display text-xl font-bold leading-tight sm:text-2xl md:text-3xl">
             Estação de {station.specialty}
           </h1>
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/70">
+          <div className="mt-4 flex min-w-0 flex-wrap items-center gap-2 text-xs text-white/70 sm:gap-4">
             {(() => {
               const meta = getSpecialtyMeta(station.specialty);
               return (
@@ -565,7 +565,7 @@ function CandidateView() {
                 </span>
               );
             })()}
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex min-w-0 max-w-full items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-mint" /> {station.specialty}
             </span>
             <span className="inline-flex items-center gap-1.5">
