@@ -44,6 +44,7 @@ import { AtorDashboard } from "@/components/AtorDashboard";
 import { Button } from "@/components/ui/button";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 
 import { motion } from "framer-motion";
 
@@ -242,20 +243,10 @@ function Dashboard() {
   const titlePrefix = profile?.title && profile.title !== "Sem título" ? `${profile.title} ` : "";
   const greetingName = `${titlePrefix}${displayName}`;
 
-  if (subLoading) {
-    // Skeleton leve em vez de bloquear com texto — sensação de instantâneo.
-    return (
-      <div className="mx-auto max-w-5xl animate-pulse space-y-4">
-        <div className="h-7 w-48 rounded-md bg-muted/60" />
-        <div className="h-32 rounded-2xl bg-muted/40" />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="h-24 rounded-2xl bg-muted/40" />
-          <div className="h-24 rounded-2xl bg-muted/40" />
-          <div className="h-24 rounded-2xl bg-muted/40" />
-        </div>
-      </div>
-    );
+  if (subLoading || loading) {
+    return <DashboardSkeleton />;
   }
+
 
 
   if (isAtorPlan) return <AtorDashboard />;
