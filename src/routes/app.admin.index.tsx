@@ -46,7 +46,7 @@ function AdminOverview() {
         supabase.from("attempts").select("id", { count: "exact", head: true }).gte("created_at", d30),
         supabase.from("custom_stations").select("id", { count: "exact", head: true }).eq("published", true),
         supabase.from("custom_stations").select("id", { count: "exact", head: true }).eq("published", false),
-        supabase.from("flashcards").select("id", { count: "exact", head: true }),
+        supabase.from("flashcard_decks").select("id", { count: "exact", head: true }),
         supabase.from("summaries").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }).eq("status", "aguardando_correcao"),
         supabase.from("user_subscriptions").select("plan_id, status").eq("status", "active"),
