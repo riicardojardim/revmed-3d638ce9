@@ -366,7 +366,7 @@ function HeroVisual() {
           <div className="w-12" />
         </div>
 
-        <div className="relative h-[560px] overflow-hidden">
+        <div className="relative h-[440px] sm:h-[520px] lg:h-[560px] overflow-hidden">
           <AnimatePresence mode="sync">
             {view === "station" ? (
               <motion.div
