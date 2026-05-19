@@ -1823,7 +1823,7 @@ function FloatingNotifications() {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="fixed bottom-4 left-4 z-[60] w-[300px] max-w-[calc(100vw-2rem)] sm:bottom-6 sm:left-6"
+      className="fixed bottom-3 left-3 z-[60] hidden w-[300px] max-w-[calc(100vw-1.5rem)] [margin-bottom:env(safe-area-inset-bottom)] xs:block sm:bottom-6 sm:left-6 sm:block"
     >
       <div className="relative flex items-start gap-3 rounded-2xl border border-border bg-card p-3 pr-8 shadow-elegant">
         <div className="relative shrink-0">
