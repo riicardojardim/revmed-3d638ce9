@@ -30,6 +30,7 @@ import { DeckPreview } from "@/components/flashcards/DeckPreview";
 import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
 import { suggestStationTitle } from "@/lib/title-suggest.functions";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Loader2, Wand2, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
