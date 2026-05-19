@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect, useState, useRef, useContext, createContext, type ComponentType, type ReactNode } from "react";
+import { useEffect, useState, useRef, useContext, createContext, lazy, Suspense, type ComponentType, type ReactNode } from "react";
 import { motion, useInView, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -56,7 +56,10 @@ import { Logo } from "@/components/Logo";
 import { StaggerText, Magnetic, Tilt, Reveal } from "@/components/landing/motion-primitives";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckoutModal, type CheckoutPlanSlug } from "@/components/CheckoutModal";
+import type { CheckoutPlanSlug } from "@/components/CheckoutModal";
+const CheckoutModal = lazy(() =>
+  import("@/components/CheckoutModal").then((m) => ({ default: m.CheckoutModal })),
+);
 import candidate1 from "@/assets/candidate-1.jpg";
 import candidate2 from "@/assets/candidate-2.jpg";
 import candidate3 from "@/assets/candidate-3.jpg";
@@ -144,10 +147,15 @@ function LandingPage() {
         <Footer />
         <FloatingNotifications />
       </div>
-      <CheckoutModal plan={checkoutPlan} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+      {checkoutOpen && (
+        <Suspense fallback={null}>
+          <CheckoutModal plan={checkoutPlan} open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+        </Suspense>
+      )}
     </CheckoutCtx.Provider>
   );
 }
+
 
 /* ---------------- Header ---------------- */
 function Header() {
@@ -587,7 +595,7 @@ function DashboardMockup() {
       <div className="rounded-xl border border-border bg-gradient-to-br from-card via-card to-mint/5 p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
-            <img src={candidate6} alt="" className="h-8 w-8 rounded-full border-2 border-mint object-cover" />
+            <img src={candidate6} alt="" loading="lazy" decoding="async" className="h-8 w-8 rounded-full border-2 border-mint object-cover" />
             <div className="min-w-0">
               <p className="text-[11px] font-bold leading-tight">
                 <span className="text-mint">Dr. João</span>{" "}
@@ -776,7 +784,7 @@ function VideoTile({
         active ? "border-mint/70 ring-2 ring-mint/30" : "border-border"
       } bg-night ${wide ? "aspect-[16/7]" : "aspect-[4/3]"}`}
     >
-      <img src={src} alt={name} className="absolute inset-0 h-full w-full object-cover" />
+      <img src={src} alt={name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-2 py-1.5">
         <div className="flex items-center gap-1 text-[10px] font-semibold text-white">
           {active && <span className="h-1.5 w-1.5 rounded-full bg-mint" />}
@@ -1863,6 +1871,8 @@ function FloatingNotifications() {
             alt=""
             width={40}
             height={40}
+            loading="lazy"
+            decoding="async"
             className="h-10 w-10 rounded-full object-cover"
           />
           <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-card bg-mint">

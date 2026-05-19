@@ -85,30 +85,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
+      // Libera a UI imediatamente assim que sabemos o estado de auth.
+      setLoading(false);
       if (s?.user) {
-        setTimeout(() => {
-          void loadExtras(s.user.id).finally(() => setLoading(false));
-        }, 0);
-        // On fresh sign-in, claim this device as the active session
+        // Carrega profile/roles em background — não bloqueia render.
+        setTimeout(() => { void loadExtras(s.user.id); }, 0);
         if (event === "SIGNED_IN") {
           setTimeout(() => { void claimActiveSession(s.user.id); }, 0);
         }
       } else {
         setProfile(null);
         setRoles([]);
-        setLoading(false);
       }
     });
 
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
+      setLoading(false);
       if (s?.user) {
-        await loadExtras(s.user.id);
-        // Ensure this device is registered as the active session on app open
+        // Background: não trava o render do app.
+        void loadExtras(s.user.id);
         void claimActiveSession(s.user.id);
       }
-      setLoading(false);
     }).catch(() => {
       setSession(null);
       setUser(null);
@@ -119,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => sub.subscription.unsubscribe();
   }, []);
+
 
   // Single-session enforcement: listen for active-session changes
   useEffect(() => {
