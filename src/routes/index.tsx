@@ -1378,12 +1378,12 @@ function Plans() {
 
 
   return (
-    <section id="planos" className="container mx-auto px-4 py-16 lg:px-8 lg:py-24">
+    <section id="planos" className="container mx-auto scroll-mt-20 px-4 py-14 lg:px-8 lg:py-24">
       <SectionTitle eyebrow="Planos" title="Escolha o ritmo do seu treino" />
       <p className="mx-auto mt-2 max-w-xl text-center text-sm text-muted-foreground">
         Comece hoje. Cancele quando quiser no plano mensal — sem fidelidade.
       </p>
-      <div className="mt-20 grid items-center gap-5 lg:grid-cols-3">
+      <div className="mt-10 grid items-stretch gap-5 sm:mt-14 lg:mt-20 lg:grid-cols-3">
         {plans.map((p, i) => (
           <motion.div
             key={p.name}
@@ -1391,7 +1391,7 @@ function Plans() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.45, delay: i * 0.08 }}
-            className={`relative flex flex-col rounded-2xl border bg-card p-6 transition-all ${
+            className={`relative flex flex-col rounded-2xl border bg-card p-5 transition-all sm:p-6 ${
               p.highlight
                 ? "border-2 border-mint shadow-glow lg:-my-8 lg:px-7 lg:py-10 lg:scale-[1.03]"
                 : "border-border shadow-card hover:border-mint/40"
