@@ -149,9 +149,6 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
               </DialogTitle>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <SpecialtyBadge specialty={summary.specialty} />
-                <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ring-1 ring-white/20">
-                  {summary.difficulty}
-                </span>
                 {summary.high_yield && (
                   <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                     Alta incidência
@@ -162,6 +159,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
                 </span>
                 {summary.topic && <span className="text-xs text-white/70">· {summary.topic}</span>}
               </div>
+
             </div>
 
             <div className="space-y-4 p-6">
