@@ -502,7 +502,7 @@ function FlashcardsList({
               variants={staggerContainer}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+              className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
             >
               {filtered.slice(0, 4).map((d) => (
                 <motion.button
@@ -533,7 +533,7 @@ function FlashcardsList({
               {filtered.length > 4 && (
                 <motion.div
                   variants={staggerItem}
-                  className="col-span-2 flex justify-center pt-2 sm:col-span-3 lg:col-span-4"
+                  className="col-span-2 flex justify-center pt-2 lg:col-span-4"
                 >
                   <Button variant="outline" onClick={() => { setAllSearch(""); setAllSpec("Todas"); setAllOpen(true); }}>
                     Ver todos os {filtered.length} flashcards <ArrowRight className="h-4 w-4" />
