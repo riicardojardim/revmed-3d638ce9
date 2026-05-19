@@ -35,7 +35,9 @@ export const getLivekitToken = createServerFn({ method: "POST" })
 
     const isHost = !!room && room.host_id === userId;
     const isEvaluated = !!room && room.evaluated_candidate_id === userId;
-    const canPublishAudioVideo = isHost || isEvaluated;
+    // Todos podem publicar áudio/vídeo — assim cada um controla seu próprio mic/cam
+    // (espectadores entram com mic desligado e podem se desmutar no final pra tirar dúvidas).
+    const canPublishAudioVideo = true;
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity: userId,
