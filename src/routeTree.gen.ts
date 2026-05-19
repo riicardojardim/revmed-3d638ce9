@@ -46,6 +46,7 @@ import { Route as AppHistoricoIdRouteImport } from './routes/app.historico.$id'
 import { Route as AppFlashcardsDesempenhoRouteImport } from './routes/app.flashcards.desempenho'
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
+import { Route as AppAdminResumosRouteImport } from './routes/app.admin.resumos'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
 import { Route as AppAdminPagamentosRouteImport } from './routes/app.admin.pagamentos'
 import { Route as AppAdminIntegracoesRouteImport } from './routes/app.admin.integracoes'
@@ -54,6 +55,7 @@ import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoe
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
 import { Route as AppAdminAparenciaRouteImport } from './routes/app.admin.aparencia'
 import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
+import { Route as AppAdminResumosIndexRouteImport } from './routes/app.admin.resumos.index'
 import { Route as AppAdminFlashcardsIndexRouteImport } from './routes/app.admin.flashcards.index'
 import { Route as AppAdminEstacoesIndexRouteImport } from './routes/app.admin.estacoes.index'
 import { Route as AppSalaCodePacienteRouteImport } from './routes/app.sala.$code.paciente'
@@ -61,6 +63,7 @@ import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$cod
 import { Route as AppSalaCodeBancaRouteImport } from './routes/app.sala.$code.banca'
 import { Route as AppProfessorEstacoesIdRouteImport } from './routes/app.professor.estacoes.$id'
 import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.professor.correcoes.$id'
+import { Route as AppAdminResumosIdRouteImport } from './routes/app.admin.resumos.$id'
 import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
 
@@ -249,6 +252,11 @@ const AppAdminUsuariosRoute = AppAdminUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminResumosRoute = AppAdminResumosRouteImport.update({
+  id: '/resumos',
+  path: '/resumos',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminPlanosRoute = AppAdminPlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -289,6 +297,11 @@ const AppSalaCodeIndexRoute = AppSalaCodeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppSalaCodeRoute,
 } as any)
+const AppAdminResumosIndexRoute = AppAdminResumosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminResumosRoute,
+} as any)
 const AppAdminFlashcardsIndexRoute = AppAdminFlashcardsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -323,6 +336,11 @@ const AppProfessorCorrecoesIdRoute = AppProfessorCorrecoesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => AppProfessorCorrecoesRoute,
+} as any)
+const AppAdminResumosIdRoute = AppAdminResumosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppAdminResumosRoute,
 } as any)
 const AppAdminFlashcardsIdRoute = AppAdminFlashcardsIdRouteImport.update({
   id: '/$id',
@@ -364,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
+  '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
@@ -382,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
+  '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -389,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
+  '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
   '/app/sala/$code/': typeof AppSalaCodeIndexRoute
 }
 export interface FileRoutesByTo {
@@ -432,6 +453,7 @@ export interface FileRoutesByTo {
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
+  '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -439,6 +461,7 @@ export interface FileRoutesByTo {
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards': typeof AppAdminFlashcardsIndexRoute
+  '/app/admin/resumos': typeof AppAdminResumosIndexRoute
   '/app/sala/$code': typeof AppSalaCodeIndexRoute
 }
 export interface FileRoutesById {
@@ -471,6 +494,7 @@ export interface FileRoutesById {
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
+  '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
@@ -489,6 +513,7 @@ export interface FileRoutesById {
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
+  '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
   '/app/professor/estacoes/$id': typeof AppProfessorEstacoesIdRoute
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
@@ -496,6 +521,7 @@ export interface FileRoutesById {
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
+  '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
   '/app/sala/$code/': typeof AppSalaCodeIndexRoute
 }
 export interface FileRouteTypes {
@@ -529,6 +555,7 @@ export interface FileRouteTypes {
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
+    | '/app/admin/resumos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
@@ -547,6 +574,7 @@ export interface FileRouteTypes {
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
+    | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -554,6 +582,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/paciente'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
+    | '/app/admin/resumos/'
     | '/app/sala/$code/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -597,6 +626,7 @@ export interface FileRouteTypes {
     | '/app/professor'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
+    | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -604,6 +634,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/paciente'
     | '/app/admin/estacoes'
     | '/app/admin/flashcards'
+    | '/app/admin/resumos'
     | '/app/sala/$code'
   id:
     | '__root__'
@@ -635,6 +666,7 @@ export interface FileRouteTypes {
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
+    | '/app/admin/resumos'
     | '/app/admin/usuarios'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
@@ -653,6 +685,7 @@ export interface FileRouteTypes {
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
     | '/app/admin/flashcards/$id'
+    | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
     | '/app/professor/estacoes/$id'
     | '/app/sala/$code/banca'
@@ -660,6 +693,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/paciente'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
+    | '/app/admin/resumos/'
     | '/app/sala/$code/'
   fileRoutesById: FileRoutesById
 }
@@ -934,6 +968,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminUsuariosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/resumos': {
+      id: '/app/admin/resumos'
+      path: '/resumos'
+      fullPath: '/app/admin/resumos'
+      preLoaderRoute: typeof AppAdminResumosRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/planos': {
       id: '/app/admin/planos'
       path: '/planos'
@@ -990,6 +1031,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSalaCodeIndexRouteImport
       parentRoute: typeof AppSalaCodeRoute
     }
+    '/app/admin/resumos/': {
+      id: '/app/admin/resumos/'
+      path: '/'
+      fullPath: '/app/admin/resumos/'
+      preLoaderRoute: typeof AppAdminResumosIndexRouteImport
+      parentRoute: typeof AppAdminResumosRoute
+    }
     '/app/admin/flashcards/': {
       id: '/app/admin/flashcards/'
       path: '/'
@@ -1039,6 +1087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfessorCorrecoesIdRouteImport
       parentRoute: typeof AppProfessorCorrecoesRoute
     }
+    '/app/admin/resumos/$id': {
+      id: '/app/admin/resumos/$id'
+      path: '/$id'
+      fullPath: '/app/admin/resumos/$id'
+      preLoaderRoute: typeof AppAdminResumosIdRouteImport
+      parentRoute: typeof AppAdminResumosRoute
+    }
     '/app/admin/flashcards/$id': {
       id: '/app/admin/flashcards/$id'
       path: '/$id'
@@ -1082,6 +1137,20 @@ const AppAdminFlashcardsRouteChildren: AppAdminFlashcardsRouteChildren = {
 const AppAdminFlashcardsRouteWithChildren =
   AppAdminFlashcardsRoute._addFileChildren(AppAdminFlashcardsRouteChildren)
 
+interface AppAdminResumosRouteChildren {
+  AppAdminResumosIdRoute: typeof AppAdminResumosIdRoute
+  AppAdminResumosIndexRoute: typeof AppAdminResumosIndexRoute
+}
+
+const AppAdminResumosRouteChildren: AppAdminResumosRouteChildren = {
+  AppAdminResumosIdRoute: AppAdminResumosIdRoute,
+  AppAdminResumosIndexRoute: AppAdminResumosIndexRoute,
+}
+
+const AppAdminResumosRouteWithChildren = AppAdminResumosRoute._addFileChildren(
+  AppAdminResumosRouteChildren,
+)
+
 interface AppAdminRouteChildren {
   AppAdminAparenciaRoute: typeof AppAdminAparenciaRoute
   AppAdminConteudoRoute: typeof AppAdminConteudoRoute
@@ -1090,6 +1159,7 @@ interface AppAdminRouteChildren {
   AppAdminIntegracoesRoute: typeof AppAdminIntegracoesRoute
   AppAdminPagamentosRoute: typeof AppAdminPagamentosRoute
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
+  AppAdminResumosRoute: typeof AppAdminResumosRouteWithChildren
   AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
@@ -1102,6 +1172,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminIntegracoesRoute: AppAdminIntegracoesRoute,
   AppAdminPagamentosRoute: AppAdminPagamentosRoute,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
+  AppAdminResumosRoute: AppAdminResumosRouteWithChildren,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
