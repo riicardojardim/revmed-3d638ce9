@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
-import { BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, Clock, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText, Clock, ArrowRight, Sparkles, X } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 type Summary = {
@@ -128,7 +129,12 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto p-0">
+      <DialogContent className="flex max-h-[90vh] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-y-auto rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+        <DialogClose className="absolute right-3 top-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 backdrop-blur-md transition-all hover:bg-white/25 hover:ring-white/50 focus:outline-none focus:ring-2 focus:ring-white">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Fechar</span>
+        </DialogClose>
+
         {isLoading ? (
           <div className="p-8 text-sm text-muted-foreground">Carregando resumo...</div>
         ) : !summary ? (
@@ -149,9 +155,6 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
               </DialogTitle>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <SpecialtyBadge specialty={summary.specialty} />
-                <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ring-1 ring-white/20">
-                  {summary.difficulty}
-                </span>
                 {summary.high_yield && (
                   <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
                     Alta incidência
@@ -162,6 +165,7 @@ export function StationSummaryDialog({ specialty, title, stationId, triggerLabel
                 </span>
                 {summary.topic && <span className="text-xs text-white/70">· {summary.topic}</span>}
               </div>
+
             </div>
 
             <div className="space-y-4 p-6">

@@ -112,7 +112,7 @@ function ProfessorSummaries() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs text-muted-foreground">
-                  {s.specialty}{s.topic ? ` · ${s.topic}` : ""} · {s.difficulty} · {s.read_time_minutes} min
+                  {s.specialty}{s.topic ? ` · ${s.topic}` : ""} · {s.read_time_minutes} min
                   {s.high_yield && <span className="ml-2 font-semibold text-amber-600">· Alta incidência</span>}
                 </div>
                 <div className="mt-1 font-medium">{s.title}</div>
@@ -145,22 +145,14 @@ function ProfessorSummaries() {
             value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <label className={labelCls}>Especialidade</label>
-            <select className={inputCls} value={form.specialty}
-              onChange={(e) => setForm({ ...form, specialty: e.target.value })}>
-              {SPECIALTIES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-          <div className="space-y-1">
-            <label className={labelCls}>Dificuldade</label>
-            <select className={inputCls} value={form.difficulty}
-              onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
-              {DIFFICULTIES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
+        <div className="space-y-1">
+          <label className={labelCls}>Especialidade</label>
+          <select className={inputCls} value={form.specialty}
+            onChange={(e) => setForm({ ...form, specialty: e.target.value })}>
+            {SPECIALTIES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
         </div>
+
 
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">

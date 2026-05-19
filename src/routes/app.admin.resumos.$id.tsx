@@ -18,7 +18,7 @@ const SPECIALTIES = [
   "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade", "Preventiva",
 ];
-const DIFFICULTIES = ["Básico", "Intermediário", "Avançado"];
+
 
 type SummaryRow = {
   id: string; title: string; specialty: string; topic: string | null;
@@ -169,15 +169,8 @@ function AdminResumoEdit() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1">
-              <Label>Dificuldade</Label>
-              <Select value={row.difficulty} onValueChange={(v) => update("difficulty", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {DIFFICULTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+
+
             <div className="space-y-1">
               <Label>Tempo de leitura (min)</Label>
               <Input

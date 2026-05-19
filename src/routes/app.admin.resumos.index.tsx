@@ -307,7 +307,7 @@ function AdminResumosPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
                   <SpecialtyBadge specialty={s.specialty} />
-                  <Badge variant="outline">{s.difficulty}</Badge>
+                  
                   <Badge variant="outline">{s.read_time_minutes} min</Badge>
                   {s.published ? (
                     <Badge className="bg-success/15 text-success hover:bg-success/15">
