@@ -12,7 +12,7 @@ export type CheckoutPlanSlug = "completo" | "mensal" | "ator";
 
 const PLAN_META: Record<CheckoutPlanSlug, { name: string; price: string; period: string; icon: typeof Crown }> = {
   completo: { name: "Completo", price: "R$ 497", period: "até a prova", icon: Crown },
-  mensal: { name: "Completo Mensal", price: "R$ 347", period: "por mês", icon: Repeat },
+  mensal: { name: "Completo Mensal", price: "R$ 197", period: "por mês", icon: Repeat },
   ator: { name: "Ator", price: "R$ 97", period: "até a prova", icon: Users },
 };
 
