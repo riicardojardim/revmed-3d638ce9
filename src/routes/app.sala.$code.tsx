@@ -1265,6 +1265,23 @@ function SimuladoRunner({ id }: { id: string }) {
                       >
                         <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
                         <span className="flex-1 truncate font-medium">{c.name}</span>
+                        {isWaiting && (
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
+                              presentIdentities.has(c.id)
+                                ? "bg-mint/15 text-mint"
+                                : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+                            )}
+                            title={presentIdentities.has(c.id) ? "Na videochamada" : "Fora da videochamada"}
+                          >
+                            <span className={cn(
+                              "h-1.5 w-1.5 rounded-full",
+                              presentIdentities.has(c.id) ? "bg-mint animate-pulse" : "bg-amber-500",
+                            )} />
+                            {presentIdentities.has(c.id) ? "vídeo" : "fora"}
+                          </span>
+                        )}
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                           isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
