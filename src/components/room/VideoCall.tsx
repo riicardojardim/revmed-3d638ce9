@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   LiveKitRoom,
   GridLayout,
@@ -8,9 +8,10 @@ import {
   useTracks,
   useParticipants,
   useLocalParticipant,
+  useRoomContext,
   TrackRefContext,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { Track, RoomEvent, RemoteTrackPublication, RemoteParticipant } from "livekit-client";
 import "@livekit/components-styles";
 import { useServerFn } from "@tanstack/react-start";
 import { getLivekitToken, muteParticipant } from "@/lib/livekit.functions";
@@ -60,14 +61,18 @@ function HostMuteButton({ roomCode, targetIdentity, isMuted }: { roomCode: strin
 }
 
 function Stage({ isHost, roomCode, selfIdentity, allowedIdentities }: { isHost: boolean; roomCode: string; selfIdentity: string; allowedIdentities: Set<string> | null }) {
+  // onlySubscribed: true → o GridLayout só recebe tracks de vídeo realmente
+  // baixadas. Combinado com SubscriptionManager abaixo, os streams de
+  // espectadores nunca são decodificados (poupa CPU/GPU/banda).
   const allTracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
       { source: Track.Source.ScreenShare, withPlaceholder: false },
     ],
-    { onlySubscribed: false },
+    { onlySubscribed: true },
   );
-  // Espectadores só veem participantes permitidos (ator + candidato avaliado)
+  // Filtro de UI: extra defesa caso o servidor entregue alguma track fora
+  // da whitelist (ex.: durante a janela de troca de candidato).
   const tracks = allowedIdentities
     ? allTracks.filter((t) => t.participant && allowedIdentities.has(t.participant.identity))
     : allTracks;
@@ -231,6 +236,7 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
         style={{ height: "100%", borderRadius: "0.5rem", overflow: "hidden", display: "flex", flexDirection: "column" }}
       >
         <CameraSync shouldPublish={isHost || isCurrentEvaluated} />
+        <VideoSubscriptionManager allowedIdentities={allowed} />
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           <Stage
             isHost={isHost}
@@ -274,6 +280,76 @@ function CameraSync({ shouldPublish }: { shouldPublish: boolean }) {
       }
     })();
   }, [shouldPublish, localParticipant]);
+  return null;
+}
+
+/**
+ * Controla a assinatura de tracks de VÍDEO remotos: só assina câmera de
+ * participantes permitidos (ator + candidato avaliado da vez). Streams de
+ * espectadores nem chegam a ser decodificados, eliminando o custo de CPU/GPU
+ * com salas grandes. Áudio continua assinado normalmente (gerenciado pelo
+ * RoomAudioRenderer) para preservar a fala de todos.
+ */
+function VideoSubscriptionManager({ allowedIdentities }: { allowedIdentities: Set<string> | null }) {
+  const room = useRoomContext();
+  // Identidades estáveis em ref para evitar re-bind de listeners a cada render.
+  const allowedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    allowedRef.current = allowedIdentities ?? new Set();
+  }, [allowedIdentities]);
+
+  useEffect(() => {
+    if (!room) return;
+
+    const isVideo = (pub: RemoteTrackPublication) =>
+      pub.kind === Track.Kind.Video &&
+      (pub.source === Track.Source.Camera || pub.source === Track.Source.ScreenShare);
+
+    const apply = (participant: RemoteParticipant) => {
+      const allow = allowedRef.current.has(participant.identity);
+      participant.videoTrackPublications.forEach((pub) => {
+        if (!isVideo(pub)) return;
+        try {
+          if (pub.isSubscribed !== allow) pub.setSubscribed(allow);
+        } catch {
+          /* alguns publishers podem rejeitar durante negociação — ignoramos */
+        }
+      });
+    };
+
+    const applyAll = () => {
+      room.remoteParticipants.forEach((p) => apply(p));
+    };
+
+    const onPublished = (_pub: RemoteTrackPublication, p: RemoteParticipant) => apply(p);
+    const onParticipantConnected = (p: RemoteParticipant) => apply(p);
+
+    applyAll();
+    room.on(RoomEvent.TrackPublished, onPublished);
+    room.on(RoomEvent.ParticipantConnected, onParticipantConnected);
+
+    return () => {
+      room.off(RoomEvent.TrackPublished, onPublished);
+      room.off(RoomEvent.ParticipantConnected, onParticipantConnected);
+    };
+  }, [room]);
+
+  // Reaplica sempre que a whitelist mudar (ex.: ator selecionou outro candidato).
+  useEffect(() => {
+    if (!room) return;
+    room.remoteParticipants.forEach((p) => {
+      const allow = (allowedIdentities ?? new Set<string>()).has(p.identity);
+      p.videoTrackPublications.forEach((pub) => {
+        if (pub.kind !== Track.Kind.Video) return;
+        try {
+          if (pub.isSubscribed !== allow) pub.setSubscribed(allow);
+        } catch {
+          /* ignore */
+        }
+      });
+    });
+  }, [allowedIdentities, room]);
+
   return null;
 }
 
