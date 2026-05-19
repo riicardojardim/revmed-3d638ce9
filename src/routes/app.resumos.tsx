@@ -161,7 +161,7 @@ function ResumosPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+      <div className="grid gap-6">
         {/* Main column */}
         <div className="min-w-0 space-y-5">
           {/* Search */}
