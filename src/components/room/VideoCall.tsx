@@ -106,7 +106,6 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
   const [selfIdentity, setSelfIdentity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connect, setConnect] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
 
   const refresh = useCallback(() => {
     setError(null);
@@ -124,30 +123,13 @@ export function VideoCall({ roomCode, displayName, className }: Props) {
       .then((r) => { if (!cancelled) setCreds(r); })
       .catch((e: Error) => { if (!cancelled) setError(e.message ?? "Falha ao conectar à sala"); });
     return () => { cancelled = true; };
-  }, [roomCode, displayName, fetchToken, reloadKey]);
+  }, [roomCode, displayName, fetchToken]);
 
   // Captura identity do usuário logado (para distinguir tiles "eu" vs outros)
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setSelfIdentity(data.user?.id ?? null));
   }, []);
 
-  // Re-emite token quando o ator troca o candidato avaliado (mudança em training_rooms)
-  useEffect(() => {
-    const ch = supabase
-      .channel(`lk-room-perms-${roomCode}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "training_rooms", filter: `code=eq.${roomCode}` },
-        (payload) => {
-          const oldRow = payload.old as { evaluated_candidate_id?: string | null };
-          const newRow = payload.new as { evaluated_candidate_id?: string | null };
-          if (oldRow.evaluated_candidate_id !== newRow.evaluated_candidate_id) {
-            setReloadKey((k) => k + 1);
-          }
-        },
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
   }, [roomCode]);
 
   if (error) {
