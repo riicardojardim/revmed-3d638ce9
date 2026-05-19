@@ -172,8 +172,11 @@ export function StationSummaryDialog({
         </button>
       </DialogTrigger>
 
-      <DialogContent className="flex max-h-[calc(100dvh-1.25rem)] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
-        <div className="pointer-events-none absolute right-4 top-4 z-50">
+      <DialogContent className="flex max-h-[calc(100dvh-1.25rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
+        <div
+          className="pointer-events-none absolute right-4 z-50"
+          style={{ top: "max(1rem, env(safe-area-inset-top))" }}
+        >
           <DialogClose className="pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-lg ring-1 ring-white/50 backdrop-blur-md transition-all hover:bg-background focus:outline-none focus:ring-2 focus:ring-white">
             <X className="h-4 w-4" />
             <span className="sr-only">Fechar</span>
