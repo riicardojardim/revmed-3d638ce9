@@ -201,14 +201,14 @@ function Hero() {
           <h1 className="font-display text-3xl font-extrabold leading-[1.1] tracking-tight text-primary sm:text-4xl md:text-5xl lg:text-[3.25rem]">
             Treine a prova prática do Revalida com{" "}
             <span className="bg-gradient-to-br from-mint to-primary bg-clip-text text-transparent">
-              realismo de banca real.
+              realismo de estação real.
             </span>
           </h1>
 
           <p className="max-w-lg text-base leading-relaxed text-muted-foreground">
             Estações clínicas com checklists oficiais, cronômetro e{" "}
-            <strong className="text-foreground">vídeo-chamada nativa com 3 papéis</strong> —
-            candidato, ator e banca. Chegue na prova já tendo feito a prova.
+            <strong className="text-foreground">vídeo-chamada nativa entre candidato e ator</strong>.
+            Chegue na prova já tendo feito a prova.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-1">
@@ -235,7 +235,7 @@ function Hero() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-2">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2.5">
-                {DOCTORS.slice(0, 4).map((src, i) => (
+                {[doctor3, doctor6, doctor5, doctor4].map((src, i) => (
                   <img
                     key={i}
                     src={src}
