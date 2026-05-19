@@ -894,7 +894,7 @@ function BeforeAfter() {
   ];
 
   return (
-    <section className="bg-gradient-to-b from-background to-mint-soft/30 py-16 lg:py-24">
+    <section className="bg-gradient-to-b from-background to-mint-soft/30 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle
           eyebrow="A diferença"
@@ -987,7 +987,7 @@ function Simulation() {
   ];
 
   return (
-    <section id="simulacao" className="relative overflow-hidden bg-night py-20 text-white lg:py-28">
+    <section id="simulacao" className="relative overflow-hidden bg-night py-14 text-white sm:py-20 lg:py-28">
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -1119,7 +1119,7 @@ function Areas() {
     { icon: ClipboardList, name: "Exames e condutas", count: "14 estações" },
   ];
   return (
-    <section className="bg-card/40 py-16 lg:py-24">
+    <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Áreas de treino" title="Estações organizadas por especialidade" />
         <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
@@ -1545,7 +1545,7 @@ function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
 
 function Testimonials() {
   return (
-    <section className="bg-card/40 py-16 lg:py-24">
+    <section className="bg-card/40 py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle eyebrow="Depoimentos" title="O que dizem quem treina com a gente" />
 
