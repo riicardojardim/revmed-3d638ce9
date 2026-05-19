@@ -347,6 +347,13 @@ function Dashboard() {
             );
           })}
         </div>
+        {rows.length > visibleCount && (
+          <div className="mt-4 flex justify-center">
+            <Button variant="outline" size="sm" onClick={() => setVisibleCount((n) => n + 5)}>
+              Ver mais
+            </Button>
+          </div>
+        )}
       </div>
 
       <HistoricoDetailModal
