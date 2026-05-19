@@ -46,7 +46,7 @@ function AdminOverview() {
         supabase.from("attempts").select("id", { count: "exact", head: true }).gte("created_at", d30),
         supabase.from("custom_stations").select("id", { count: "exact", head: true }).eq("published", true),
         supabase.from("custom_stations").select("id", { count: "exact", head: true }).eq("published", false),
-        supabase.from("flashcards").select("id", { count: "exact", head: true }),
+        supabase.from("flashcard_decks").select("id", { count: "exact", head: true }),
         supabase.from("summaries").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }).eq("status", "aguardando_correcao"),
         supabase.from("user_subscriptions").select("plan_id, status").eq("status", "active"),
@@ -100,7 +100,7 @@ function AdminOverview() {
     { label: "Tentativas — 30 dias", value: stats.attempts30, icon: ClipboardList, color: "text-mint" },
     { label: "Checklists publicados", value: stats.stationsPublished, icon: CheckCircle2, color: "text-success" },
     { label: "Checklists rascunho", value: stats.stationsDraft, icon: Layers, color: "text-warning" },
-    { label: "Flashcards", value: stats.flashcards, icon: BookOpen, color: "text-mint" },
+    { label: "Decks de Flashcards", value: stats.flashcards, icon: BookOpen, color: "text-mint" },
     { label: "Resumos", value: stats.summaries, icon: FileText, color: "text-mint" },
   ];
 

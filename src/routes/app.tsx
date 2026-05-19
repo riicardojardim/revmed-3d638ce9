@@ -75,6 +75,7 @@ function AppLayout() {
         items: [
           { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
           { to: "/app/admin/estacoes", label: "Checklists", icon: Stethoscope },
+          { to: "/app/admin/flashcards", label: "Flashcards", icon: Brain },
           { to: "/app/admin/usuarios", label: "Usuários", icon: Users },
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
