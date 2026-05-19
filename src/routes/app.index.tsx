@@ -506,7 +506,13 @@ function Dashboard() {
           className="mt-3 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint"
         />
 
-        <div className="mt-5 space-y-3">
+        <motion.div
+          key={loading ? "loading" : `rows-${rows.length}`}
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="mt-5 space-y-3"
+        >
           {loading ? (
             <div className="space-y-2.5" aria-label="Carregando histórico">
               {[0, 1, 2].map((i) => (
@@ -525,7 +531,7 @@ function Dashboard() {
             if (row.kind === "single") {
               const a = row.attempt;
               return (
-                <div key={a.id} className="overflow-hidden rounded-xl border border-border">
+                <motion.div key={a.id} variants={staggerItem} className="overflow-hidden rounded-xl border border-border">
                   <button
                     type="button"
                     onClick={() => setDetailId(a.id)}
@@ -543,14 +549,14 @@ function Dashboard() {
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </button>
-                </div>
+                </motion.div>
               );
             }
             const g = row;
             const open = !!openSim[g.id];
             const totalStations = g.total || g.stations.length;
             return (
-              <div key={g.id} className="overflow-hidden rounded-xl border border-border">
+              <motion.div key={g.id} variants={staggerItem} className="overflow-hidden rounded-xl border border-border">
                 <button
                   type="button"
                   onClick={() => setOpenSim((s) => ({ ...s, [g.id]: !open }))}
@@ -594,10 +600,11 @@ function Dashboard() {
                     </tbody>
                   </table>
                 )}
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
+
         {rows.length > visibleCount && (
           <div className="mt-4 flex justify-center">
             <Button variant="outline" size="sm" onClick={() => setVisibleCount((n) => n + 5)}>
