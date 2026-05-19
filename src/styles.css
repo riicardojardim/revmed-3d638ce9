@@ -201,3 +201,42 @@
   color: var(--night);
   text-shadow: none;
 }
+
+/* ---------- Mobile / PWA polish ---------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  /* iOS Safari: inputs com fonte < 16px causam zoom automático ao focar */
+  @media (max-width: 640px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+  /* Tap targets confortáveis para mobile */
+  @media (pointer: coarse) {
+    button, a[role="button"], [data-tap] {
+      min-height: 44px;
+    }
+  }
+}
+
+/* Safe-area utilities (iOS notch / PWA standalone) */
+@utility pt-safe { padding-top: max(env(safe-area-inset-top), 0px); }
+@utility pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+@utility pl-safe { padding-left: max(env(safe-area-inset-left), 0px); }
+@utility pr-safe { padding-right: max(env(safe-area-inset-right), 0px); }
+@utility px-safe {
+  padding-left: max(env(safe-area-inset-left), 0px);
+  padding-right: max(env(safe-area-inset-right), 0px);
+}
+@utility min-h-dvh { min-height: 100dvh; }
+@utility h-dvh { height: 100dvh; }
+@utility max-h-dvh { max-height: 100dvh; }
+
