@@ -468,14 +468,7 @@ function ResumosPage() {
                       )}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold tabular-nums",
-                            section.tone === "highlight" && "bg-mint/15 text-mint",
-                            section.tone === "warn" && "bg-amber-400/15 text-amber-600",
-                            section.tone === "default" && "bg-muted text-muted-foreground",
-                          )}
-                        >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-hero text-xs font-bold tabular-nums text-white shadow-elegant ring-1 ring-white/20">
                           {String(index + 1).padStart(2, "0")}
                         </div>
                         <div className="flex items-center gap-2">
