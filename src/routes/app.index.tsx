@@ -184,9 +184,50 @@ function Dashboard() {
             <BarChart3 className="h-5 w-5 text-mint" />
             <h3 className="font-display text-lg font-bold">Meu Desempenho</h3>
           </div>
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-mint">
-            Ver detalhes <ChevronRight className="h-3.5 w-3.5" />
-          </span>
+          <div className="flex items-center gap-2">
+            <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+              <AlertDialogTrigger asChild>
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setResetOpen(true); }}
+                  className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-destructive hover:text-destructive"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" /> Resetar
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Resetar desempenho?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Isso vai apagar permanentemente todas as suas tentativas, notas e histórico de estações. Esta ação não pode ser desfeita.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={resetting}
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      if (!user) return;
+                      setResetting(true);
+                      const { error } = await supabase.from("attempts").delete().eq("user_id", user.id);
+                      setResetting(false);
+                      if (!error) {
+                        setAttempts([]);
+                        setResetOpen(false);
+                      }
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {resetting ? "Resetando..." : "Sim, resetar tudo"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-mint">
+              Ver detalhes <ChevronRight className="h-3.5 w-3.5" />
+            </span>
+          </div>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
