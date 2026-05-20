@@ -69,6 +69,10 @@ type Props = {
   stationId?: string | null;
   triggerLabel?: string;
   triggerClassName?: string;
+  /** When provided, hides the default trigger and uses controlled open state. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 };
 
 export function StationSummaryDialog({
@@ -77,8 +81,17 @@ export function StationSummaryDialog({
   stationId,
   triggerLabel = "Ver resumo",
   triggerClassName,
+  open: openProp,
+  onOpenChange,
+  hideTrigger,
 }: Props) {
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : openState;
+  const setOpen = (v: boolean) => {
+    if (!isControlled) setOpenState(v);
+    onOpenChange?.(v);
+  };
 
   const { data: summary, isLoading } = useQuery({
     queryKey: ["station-summary-modal", stationId ?? null, specialty, title],
