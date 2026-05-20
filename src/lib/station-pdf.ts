@@ -801,22 +801,22 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
 }
 
 // ============ Public helpers ============
-function safeSlug(s: string): string {
+function safeFileName(s: string): string {
+  // Remove only characters that are invalid in file names across common OSes
   return s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .toLowerCase()
-    .slice(0, 80) || "estacao";
+    .replace(/[\\/:*?"<>|]/g, "")
+    .trim()
+    .slice(0, 100) || "estacao";
 }
 
 export async function downloadActorPDF(station: StationLike) {
   const doc = await buildActorPDF(station);
-  doc.save(`${safeSlug(station.title)}-ator-estacao-revalida.pdf`);
+  const title = safeFileName(station.title);
+  doc.save(`${title} - Ator - Estação Revalida.pdf`);
 }
 
 export async function downloadCandidatePDF(station: StationLike, items: ChecklistItem[]) {
   const doc = await buildCandidatePDF(station, items);
-  doc.save(`${safeSlug(station.title)}-estacao-revalida.pdf`);
+  const title = safeFileName(station.title);
+  doc.save(`${title} - Estação Revalida.pdf`);
 }
