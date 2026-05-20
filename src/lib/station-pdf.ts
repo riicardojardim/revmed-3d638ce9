@@ -721,7 +721,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
           const inad = sorted[0]; const adeq = sorted[sorted.length - 1];
           const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
           const cat = it.category?.trim() || "Item";
-          const parts: string[] = [`${idx + 1}. ${cat}`];
+          const parts: string[] = [cat];
           if (it.description?.trim()) parts.push(it.description.trim());
           if (it.helper_text?.trim()) parts.push(it.helper_text.trim());
           const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
