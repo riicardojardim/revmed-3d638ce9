@@ -1,11 +1,12 @@
 import { StationIntroOverlay, INTRO_DURATION_MS as CLASSIC_DURATION, type IntroRole } from "./StationIntroOverlay";
 import { StationIntroOverlayDoor, INTRO_DURATION_MS as DOOR_DURATION } from "./StationIntroOverlayDoor";
 import { StationIntroOverlayCorridor, INTRO_DURATION_MS as CORRIDOR_DURATION } from "./StationIntroOverlayCorridor";
+import { StationIntroOverlayXray, INTRO_DURATION_MS as XRAY_DURATION } from "./StationIntroOverlayXray";
 
-export type IntroVariant = "classic" | "door" | "corridor";
+export type IntroVariant = "classic" | "door" | "corridor" | "xray";
 export type { IntroRole };
 
-export const INTRO_DURATION_MS = Math.max(CLASSIC_DURATION, DOOR_DURATION, CORRIDOR_DURATION);
+export const INTRO_DURATION_MS = Math.max(CLASSIC_DURATION, DOOR_DURATION, CORRIDOR_DURATION, XRAY_DURATION);
 
 interface Props {
   variant?: IntroVariant | null;
@@ -22,5 +23,6 @@ interface Props {
 export function IntroOverlay({ variant, ...rest }: Props) {
   if (variant === "door") return <StationIntroOverlayDoor {...rest} />;
   if (variant === "corridor") return <StationIntroOverlayCorridor {...rest} />;
+  if (variant === "xray") return <StationIntroOverlayXray {...rest} />;
   return <StationIntroOverlay {...rest} />;
 }
