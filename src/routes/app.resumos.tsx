@@ -435,7 +435,7 @@ function ResumosPage() {
                       <div className="truncate text-sm font-medium">{s.title}</div>
                       <div className="truncate text-xs text-muted-foreground">
                         {s.specialty}
-                        {s.topic ? ` • ${s.topic}` : ""} • {s.read_time_minutes} min
+                        {s.topic ? ` • ${s.topic}` : ""}
                       </div>
                     </div>
                     <Button
@@ -543,16 +543,8 @@ function ResumosPage() {
                     {selectedSummary.title || "Resumo clínico"}
                   </DialogTitle>
                   <div className="flex flex-wrap items-center gap-2">
-                    {selectedSummary.high_yield && (
-                      <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
-                        Alta incidência
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-1 text-xs text-white/80">
-                      <Clock className="h-3.5 w-3.5" /> {selectedSummary.read_time_minutes} min
-                    </span>
                     {selectedSummary.topic && (
-                      <span className="text-xs text-white/70">· {selectedSummary.topic}</span>
+                      <span className="text-xs text-white/70">{selectedSummary.topic}</span>
                     )}
                   </div>
                 </div>
