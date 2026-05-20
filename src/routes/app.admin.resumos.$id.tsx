@@ -27,8 +27,9 @@ type SummaryRow = {
   difficulty: string; read_time_minutes: number; published: boolean; high_yield: boolean;
   cover_image_url: string | null; definition: string | null; clinical_picture: string | null;
   diagnosis: string | null; conduct: string | null; key_points: string | null; pitfalls: string | null;
-  content_md: string | null;
+  content_md: string | null; station_id: string | null;
 };
+
 
 function AdminResumoEdit() {
   const { id } = Route.useParams();
