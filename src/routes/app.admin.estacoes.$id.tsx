@@ -538,7 +538,7 @@ function EditorBody({
         <StationLivePreview station={station} items={items} />
       </Section>
 
-      <SectionGenerateFlashcards station={station} />
+      <SectionGenerateFlashcards station={station} items={items} />
       <SectionGenerateSummary station={station} items={items} />
       <SectionPublish station={station} togglePublish={togglePublish} />
 
