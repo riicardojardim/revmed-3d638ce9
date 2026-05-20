@@ -131,6 +131,25 @@ export function RelatedResources({
   );
   if (!hasAny) return null;
 
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [deckOpen, setDeckOpen] = useState(false);
+
+  const { data: deckCards = [] } = useQuery({
+    queryKey: ["related-deck-cards", bestDeck?.id ?? null],
+    enabled: !!bestDeck && deckOpen,
+    staleTime: 60_000,
+    queryFn: async () => {
+      if (!bestDeck) return [];
+      const { data } = await supabase
+        .from("flashcards")
+        .select("id, front, back, position")
+        .eq("deck_id", bestDeck.id)
+        .eq("published", true)
+        .order("position");
+      return (data ?? []).map((c) => ({ id: c.id, front: c.front, back: c.back }));
+    },
+  });
+
   function startStation() {
     if (!bestStation) return;
     if (!user) { toast.error("Faça login para iniciar."); return; }
@@ -179,10 +198,8 @@ export function RelatedResources({
             <div className="line-clamp-1 text-[11px] text-muted-foreground">
               {bestResumo.specialty}{bestResumo.topic ? ` · ${bestResumo.topic}` : ""}
             </div>
-            <Button asChild size="sm" variant="hero" className="mt-auto">
-              <Link to="/app/resumos/$id" params={{ id: bestResumo.id }}>
-                Abrir resumo <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+            <Button size="sm" variant="hero" className="mt-auto" onClick={() => setSummaryOpen(true)}>
+              Abrir resumo <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
@@ -197,14 +214,33 @@ export function RelatedResources({
             <div className="line-clamp-1 text-[11px] text-muted-foreground">
               {bestDeck.specialty}{bestDeck.topic ? ` · ${bestDeck.topic}` : ""}
             </div>
-            <Button asChild size="sm" variant="hero" className="mt-auto">
-              <Link to="/app/flashcards">
-                Treinar flashcards <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+            <Button size="sm" variant="hero" className="mt-auto" onClick={() => setDeckOpen(true)}>
+              Treinar flashcards <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
       </div>
+
+      {bestResumo && (
+        <StationSummaryDialog
+          specialty={bestResumo.specialty}
+          title={bestResumo.title}
+          stationId={stationId ?? null}
+          hideTrigger
+          open={summaryOpen}
+          onOpenChange={setSummaryOpen}
+        />
+      )}
+      {bestDeck && (
+        <DeckPreview
+          open={deckOpen}
+          onClose={() => setDeckOpen(false)}
+          title={bestDeck.title}
+          specialty={bestDeck.specialty}
+          topic={bestDeck.topic}
+          cards={deckCards}
+        />
+      )}
     </section>
   );
 }
