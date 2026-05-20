@@ -512,20 +512,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
     );
   }
 
-      let cy = yy + 2;
-      printable.forEach((m, idx) => {
-        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
-        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
-          let yy2 = by;
-          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
-          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
-          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
-          return yy2;
-        });
-      });
-      return cy;
-    });
-  }
+
 
   // CHECKLIST (PEP)
   if (items.length > 0) {
