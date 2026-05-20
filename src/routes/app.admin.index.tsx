@@ -50,6 +50,7 @@ function AdminOverview() {
       : variant === "stamp" ? "Carimbo AUTORIZADO"
       : variant === "elevator" ? "Elevador hospitalar"
       : variant === "iv" ? "Soro pingando"
+      : variant === "examroom" ? "Médico entrando na sala da banca"
       : "Crachá + Prontuário";
     toast.success("Animação salva", { description: label });
   }
