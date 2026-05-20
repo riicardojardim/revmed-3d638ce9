@@ -518,6 +518,13 @@ function EditorBody({
       <SectionGenerateFlashcards station={station} />
       <SectionGenerateSummary station={station} items={items} />
       <SectionPublish station={station} togglePublish={togglePublish} />
+
+      <PostChecklistAIDialog
+        open={aiDialogOpen}
+        onOpenChange={setAiDialogOpen}
+        station={station}
+        items={items}
+      />
     </div>
   );
 }
