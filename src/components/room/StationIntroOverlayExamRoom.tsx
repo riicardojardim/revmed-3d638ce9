@@ -219,6 +219,95 @@ export function StationIntroOverlayExamRoom({
               ))}
             </div>
           </motion.div>
+          )}
+
+          {/* === Banca POV: foreground (ombros + borda da mesa) === */}
+          {!isCandidate && (
+            <>
+              {/* Borda da mesa em primeiro plano */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                className="absolute inset-x-0 bottom-0 pointer-events-none"
+                style={{ height: "30%" }}
+              >
+                <div
+                  className="absolute inset-x-0 bottom-0 h-[55%]"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(20,26,43,0) 0%, #1a2236 30%, #0b1020 100%)",
+                    boxShadow: "0 -30px 60px -10px rgba(0,0,0,0.85)",
+                  }}
+                />
+                {/* prontuário aberto (POV) */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20, rotate: -2 }}
+                  animate={{ opacity: revealed ? 0.95 : 0, y: 0, rotate: -2 }}
+                  transition={{ duration: 0.7, delay: 0.2 }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-2 rounded-sm"
+                  style={{
+                    width: "44%",
+                    height: 72,
+                    background: "#f5efdc",
+                    boxShadow: "0 8px 18px rgba(0,0,0,0.6), inset 0 0 0 1px #c9b88a",
+                  }}
+                >
+                  <div className="mx-4 mt-3 h-1.5 rounded" style={{ background: "#b8a96f" }} />
+                  <div className="mx-4 mt-2 h-1 rounded w-2/3" style={{ background: "#d6c790" }} />
+                  <div className="mx-4 mt-1.5 h-1 rounded w-3/4" style={{ background: "#d6c790" }} />
+                  <div className="mx-4 mt-1.5 h-1 rounded w-1/2" style={{ background: "#d6c790" }} />
+                </motion.div>
+              </motion.div>
+
+              {/* Ombro/cabeça do avaliador à esquerda */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8 }}
+                className="absolute pointer-events-none"
+                style={{ left: "-2%", bottom: "0%", width: 280, height: 320 }}
+              >
+                <svg viewBox="0 0 280 320" width="100%" height="100%">
+                  <defs>
+                    <radialGradient id="shoulderL" cx="40%" cy="30%" r="80%">
+                      <stop offset="0%" stopColor="#1a2236" />
+                      <stop offset="100%" stopColor="#05070d" />
+                    </radialGradient>
+                  </defs>
+                  <path
+                    d="M -20 320 L -20 180 Q -20 130 40 110 Q 70 100 95 95 Q 115 60 150 55 Q 195 55 205 100 Q 240 120 250 170 L 250 320 Z"
+                    fill="url(#shoulderL)"
+                  />
+                  {/* gola */}
+                  <path d="M 110 110 L 150 145 L 188 110 L 180 165 L 122 165 Z" fill="#f4f5f8" opacity="0.85" />
+                </svg>
+              </motion.div>
+
+              {/* Ombro/cabeça do avaliador à direita */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.1 }}
+                className="absolute pointer-events-none"
+                style={{ right: "-2%", bottom: "0%", width: 280, height: 320 }}
+              >
+                <svg viewBox="0 0 280 320" width="100%" height="100%">
+                  <defs>
+                    <radialGradient id="shoulderR" cx="60%" cy="30%" r="80%">
+                      <stop offset="0%" stopColor="#1a2236" />
+                      <stop offset="100%" stopColor="#05070d" />
+                    </radialGradient>
+                  </defs>
+                  <path
+                    d="M 300 320 L 300 180 Q 300 130 240 110 Q 210 100 185 95 Q 165 60 130 55 Q 85 55 75 100 Q 40 120 30 170 L 30 320 Z"
+                    fill="url(#shoulderR)"
+                  />
+                  <path d="M 170 110 L 130 145 L 92 110 L 100 165 L 158 165 Z" fill="#f4f5f8" opacity="0.85" />
+                </svg>
+              </motion.div>
+            </>
+          )}
 
           {/* Vão da porta atrás da figura (apenas pré-entrada) */}
           <AnimatePresence>
