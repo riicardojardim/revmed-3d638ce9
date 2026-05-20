@@ -252,26 +252,27 @@ function renderSubBlock(
   body: (bx: number, by: number, bw: number) => number,
 ): number {
   y += 2;
-  y = ensureSpace(doc, y, 12);
+  y = ensureSpace(doc, y, 14);
   // label
   setText(doc, C_MUTED);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
   doc.text(label.toUpperCase(), x + 3, y + 4);
-  y += 6;
-  // body inside soft bg
+  const headerEndY = y + 6;
+  // body content
   const innerX = x + 3;
   const innerW = w - 6;
-  const startY = y;
-  const endY = body(innerX, y + 2, innerW);
-  // background rectangle
-  setFill(doc, C_SUBBG);
+  const endY = body(innerX, headerEndY + 2, innerW);
+  // outline-only border around the sub-block (no fill, so text remains visible)
   setStroke(doc, C_BORDER);
   doc.setLineWidth(0.2);
-  doc.roundedRect(x, startY - 4, w, endY - startY + 6, 1.5, 1.5, "FD");
-  // re-render body on top (clean since fill replaced text). Easier: render after rect.
-  return endY + 2;
+  doc.roundedRect(x, y, w, endY - y + 2, 1.5, 1.5, "S");
+  // left accent stripe
+  setFill(doc, C_MINT);
+  doc.rect(x, y, 1, endY - y + 2, "F");
+  return endY + 3;
 }
+
 
 // ============ Page header (small brand strip on every page top) ============
 function drawPageHeader(doc: jsPDF, station: StationLike, kind: "ATOR" | "CANDIDATO") {
