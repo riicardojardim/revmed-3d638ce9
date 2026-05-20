@@ -3,18 +3,53 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { logAiUsage, type AiUsageKind } from "./ai-usage.server";
 
+const truncStr = (max: number) =>
+  z.preprocess(
+    (v) => (v == null ? null : String(v).slice(0, max)),
+    z.string().max(max).optional().nullable(),
+  );
+
+const ChecklistItemSchema = z.object({
+  description: z.preprocess(
+    (v) => (v == null ? "" : String(v).slice(0, 2000)),
+    z.string().max(2000),
+  ),
+  category: truncStr(120),
+  points: z.number().optional().nullable(),
+  helper_text: truncStr(2000),
+});
+
 const InputSchema = z.object({
   station_id: z.string().uuid().optional().nullable(),
   title: z.string().min(1).max(300),
   specialty: z.string().min(1).max(120),
   topic: z.string().max(200).optional().nullable(),
   clinical_case: z.string().max(20_000).optional().nullable(),
+  case_description: z.string().max(20_000).optional().nullable(),
   candidate_task: z.string().max(10_000).optional().nullable(),
+  patient_info: z.string().max(10_000).optional().nullable(),
+  patient_script: z.string().max(20_000).optional().nullable(),
+  patient_profile: z.string().max(10_000).optional().nullable(),
+  support_materials: z.string().max(10_000).optional().nullable(),
+  evaluator_notes: z.string().max(10_000).optional().nullable(),
+  deliverable_materials: z
+    .array(
+      z.object({
+        name: z.string().max(300).optional().nullable(),
+        type: z.string().max(120).optional().nullable(),
+        description: z.string().max(5_000).optional().nullable(),
+        content: z.string().max(20_000).optional().nullable(),
+      }),
+    )
+    .max(20)
+    .optional()
+    .nullable(),
   educational_goal: z.string().max(5_000).optional().nullable(),
   expected_conduct: z.string().max(10_000).optional().nullable(),
   common_mistakes: z.string().max(10_000).optional().nullable(),
   scoring_criteria: z.string().max(10_000).optional().nullable(),
   references: z.array(z.object({ label: z.string(), url: z.string().optional() })).max(40).optional(),
+  checklist_items: z.array(ChecklistItemSchema).max(200).optional().nullable(),
   count: z.number().int().min(6).max(30).default(14),
 });
 
@@ -25,20 +60,24 @@ const CardSchema = z.object({
 
 const ResultSchema = z.object({
   deck_title: z.string().min(1).max(200).optional(),
-  deck_topic: z.string().max(200).optional(), // ignorado — mantido para compatibilidade
+  deck_topic: z.string().max(200).optional(),
   cards: z.array(CardSchema).min(3).max(40),
 });
 
 const SYSTEM_PROMPT = `Você é um professor médico brasileiro especialista em preparação para o Revalida/INEP, com domínio profundo de medicina baseada em evidências.
 
-Sua tarefa: gerar um DECK DE FLASHCARDS de alta qualidade a partir do contexto de uma ESTAÇÃO clínica (OSCE). Retorne SOMENTE JSON válido (sem markdown, sem cercas \`\`\`).
+Sua tarefa: gerar um DECK DE FLASHCARDS de alta qualidade a partir do contexto COMPLETO de uma ESTAÇÃO clínica (OSCE) — título, descrição do caso, tarefa do candidato, roteiro/perfil do ator, materiais de apoio, IMPRESSOS (exames, ECG, laudos), notas do avaliador, conduta esperada, erros comuns, critérios E o CHECKLIST/PEP. Retorne SOMENTE JSON válido (sem markdown, sem cercas \`\`\`).
+
+ANTES DE ESCREVER OS CARDS:
+1. Identifique o TEMA CLÍNICO real da estação (a doença/condição/abordagem) a partir de TODO o contexto — não apenas do título nem apenas do PEP. O PEP indica o que o candidato deve executar; os cards devem ensinar o assunto inteiro.
+2. Os cards devem fazer SENTIDO com o que está sendo dito na estação. Se a estação é sobre anemia, NÃO gere cards sobre hipotireoidismo. Se é sobre IAM, NÃO gere cards sobre asma. Coerência absoluta com o tema identificado.
 
 REGRAS DE CONTEÚDO (não negociáveis):
 1. Cada card deve refletir conhecimento CIENTÍFICO ATUAL e correto, conforme:
-   - Diretrizes brasileiras vigentes (SBC, SBP, FEBRASGO, SBI, MS, Caderno de Atenção Básica)
+   - Diretrizes brasileiras vigentes (SBC, SBP, FEBRASGO, SBI, SBPT, SBN, SBD, SBEM, MS, Caderno de Atenção Básica)
    - Protocolos do Ministério da Saúde e PCDTs do SUS
    - Bulas e normas regulatórias da ANVISA (medicamentos, doses, contraindicações)
-   - Guidelines internacionais consagradas (WHO, CDC, NICE, AHA, ACOG, GINA, GOLD, ADA, KDIGO) quando aplicáveis
+   - Guidelines internacionais consagradas (WHO, CDC, NICE, AHA, ACOG, GINA, GOLD, ADA, KDIGO) quando aplicáveis ao SUS
    - Revisões de UpToDate / BMJ Best Practice / Cochrane
 2. NÃO invente doses, esquemas, nomes comerciais, critérios diagnósticos ou condutas.
 3. Se houver dúvida razoável sobre um dado, escolha um conteúdo mais geral e seguro — prefira omitir a chutar.
@@ -49,18 +88,13 @@ REGRAS DE CONTEÚDO (não negociáveis):
 REGRAS DE FORMATO DOS CARDS:
 - "front" (pergunta): 1 frase curta e objetiva, terminando em "?". Foco em UMA ideia testável.
   Bons formatos: "Qual o tratamento de primeira linha para X?", "Quais critérios diagnósticos de Y?", "Quando indicar Z?", "Qual o mecanismo de ação de W?".
-- "back" (resposta): direta, em até ~80 palavras. Pode usar bullets curtos com "•" ou numeração "1)". Inclua dose/critério/valor de corte quando aplicável. Termine com 1 linha "Fonte: <diretriz/órgão>" se relevante.
-- Diversifique os tipos: epidemiologia, fisiopatologia (1-2), diagnóstico/critérios, exames complementares, tratamento farmacológico (com dose), conduta não-farmacológica, complicações, red flags, prevenção, particularidades pediátricas/gestantes quando pertinente, comunicação/quebra de más notícias quando pertinente à estação.
-- Sem duplicatas: cada card cobre um aspecto diferente.
-
-REGRAS DO TÍTULO DO DECK:
-- "deck_title" deve ser um nome CURTO (3 a 7 palavras), conceitual e didático, descrevendo o TEMA CLÍNICO coberto (a condição/conduta), NÃO o nome da estação.
-- NÃO copie literalmente o título da estação. NÃO repita a especialidade. NÃO use prefixos como "Estação", "Caso clínico", "OSCE".
-- Bons exemplos: "Ameaça de abortamento — manejo", "IAM com supra de ST", "Crise hipertensiva na gestante", "Bronquiolite no lactente".
+- "back" (resposta): direta, em até ~80 palavras. Pode usar bullets curtos com "•" ou numeração "1)". Inclua dose/critério/valor de corte quando aplicável.
+- Diversifique os tipos: epidemiologia, fisiopatologia (1-2), diagnóstico/critérios, exames complementares, tratamento farmacológico (com dose), conduta não-farmacológica, complicações, red flags, prevenção, particularidades pediátricas/gestantes quando pertinente.
+- Sem duplicatas: cada card cobre um aspecto diferente do mesmo tema clínico.
 
 Schema de saída:
 {
-  "deck_title": "<título curto e didático, distinto do título da estação>",
+  "deck_title": "<título — será sobrescrito pelo título da estação>",
   "cards": [
     { "front": "...", "back": "..." }
   ]
@@ -122,8 +156,24 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
   const refs = (input.references ?? [])
     .map((r) => `- ${r.label}${r.url ? ` (${r.url})` : ""}`)
     .join("\n");
+  const checklistBlock = (input.checklist_items ?? [])
+    .map((it, idx) => {
+      const cat = it.category ? ` [${it.category}]` : "";
+      const pts = typeof it.points === "number" ? ` (${it.points} pt)` : "";
+      const helper = it.helper_text ? `\n     ↳ ${it.helper_text}` : "";
+      return `  ${idx + 1}.${cat} ${it.description}${pts}${helper}`;
+    })
+    .join("\n");
+  const deliverablesBlock = (input.deliverable_materials ?? [])
+    .map((m, idx) => {
+      const head = `IMPRESSO ${idx + 1}${m.type ? ` (${m.type})` : ""}${m.name ? ` — ${m.name}` : ""}`;
+      const desc = m.description ? `\n  Descrição: ${m.description}` : "";
+      const content = m.content ? `\n  Conteúdo: ${m.content.slice(0, 3000)}` : "";
+      return `${head}${desc}${content}`;
+    })
+    .join("\n\n");
   return [
-    `Gere ${input.count} flashcards de alta qualidade para a estação abaixo. Conteúdo baseado em evidências, diretrizes brasileiras e ANVISA quando houver medicamento.`,
+    `Gere ${input.count} flashcards de alta qualidade sobre o TEMA CLÍNICO real da estação abaixo. Use TODO o contexto (não apenas o título nem só o PEP) para identificar o assunto e gerar cards COERENTES com ele.`,
     "",
     `TÍTULO DA ESTAÇÃO: ${input.title}`,
     `ÁREA: ${input.specialty}`,
@@ -131,13 +181,21 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
     "",
     input.educational_goal ? `OBJETIVO EDUCACIONAL:\n${input.educational_goal}` : "",
     input.candidate_task ? `\nTAREFA DO CANDIDATO:\n${input.candidate_task}` : "",
-    input.clinical_case ? `\nCASO CLÍNICO (use apenas para inferir o tema; NÃO cite o paciente nos cards):\n${input.clinical_case.slice(0, 4000)}` : "",
+    input.case_description ? `\nDESCRIÇÃO DO CASO / CENÁRIO:\n${input.case_description.slice(0, 5000)}` : "",
+    input.clinical_case ? `\nCASO CLÍNICO (use apenas para inferir o tema; NÃO cite o paciente nos cards):\n${input.clinical_case.slice(0, 5000)}` : "",
+    input.patient_info ? `\nINFORMAÇÕES DO PACIENTE:\n${input.patient_info.slice(0, 3000)}` : "",
+    input.patient_profile ? `\nPERFIL DO ATOR/PACIENTE:\n${input.patient_profile.slice(0, 3000)}` : "",
+    input.patient_script ? `\nROTEIRO DO ATOR:\n${input.patient_script.slice(0, 5000)}` : "",
+    input.support_materials ? `\nMATERIAIS DE APOIO:\n${input.support_materials.slice(0, 3000)}` : "",
+    deliverablesBlock ? `\nIMPRESSOS ENTREGUES AO CANDIDATO (exames, laudos, ECG, receitas):\n${deliverablesBlock}` : "",
+    checklistBlock ? `\nCHECKLIST / PEP (critérios avaliados — os cards devem dar base científica ao tema, cobrindo esses pontos e indo além):\n${checklistBlock}` : "",
     input.expected_conduct ? `\nCONDUTA ESPERADA:\n${input.expected_conduct.slice(0, 3000)}` : "",
     input.common_mistakes ? `\nERROS COMUNS:\n${input.common_mistakes.slice(0, 2000)}` : "",
+    input.evaluator_notes ? `\nNOTAS DO AVALIADOR:\n${input.evaluator_notes.slice(0, 2000)}` : "",
     input.scoring_criteria ? `\nCRITÉRIOS DE AVALIAÇÃO:\n${input.scoring_criteria.slice(0, 2000)}` : "",
     refs ? `\nREFERÊNCIAS DECLARADAS NA ESTAÇÃO:\n${refs}` : "",
     "",
-    "Retorne SOMENTE o JSON do schema. Verifique cada dose e critério antes de gerar.",
+    "Retorne SOMENTE o JSON do schema. Os cards DEVEM ser coerentes com o tema clínico identificado a partir do contexto inteiro. Verifique cada dose e critério antes de gerar.",
   ].filter(Boolean).join("\n");
 }
 
@@ -161,7 +219,8 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
     }
 
     const { supabase, userId } = context;
-    const deckTitle = (result.deck_title?.trim() || data.title).slice(0, 200);
+    // Título do deck = título da estação (regra do produto).
+    const deckTitle = data.title.slice(0, 200);
 
     const { data: deck, error: deckErr } = await supabase
       .from("flashcard_decks")
@@ -190,7 +249,6 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
     }));
     const { error: cardsErr } = await supabase.from("flashcards").insert(rows);
     if (cardsErr) {
-      // rollback deck if cards failed
       await supabase.from("flashcard_decks").delete().eq("id", deck.id);
       throw new Error(cardsErr.message);
     }
