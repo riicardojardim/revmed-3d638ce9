@@ -1052,6 +1052,7 @@ function ChecklistBulkImport({
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
       await reload();
+      onFilled?.();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Falha ao processar";
       toast.error("Falha na IA", { description: msg });
