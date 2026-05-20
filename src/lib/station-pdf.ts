@@ -692,7 +692,8 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
           const sorted = (it.levels ?? []).slice().sort((a, b) => (a.points ?? 0) - (b.points ?? 0));
           const inad = sorted[0]; const adeq = sorted[sorted.length - 1];
           const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
-          let cell = it.description || "";
+          const catPrefix = it.category?.trim() ? `[${it.category.trim()}] ` : "";
+          let cell = `${catPrefix}${it.description || ""}`;
           if (it.helper_text?.trim()) cell += `\n${it.helper_text.trim()}`;
           const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
           if (hints) cell += `\n${hints}`;
