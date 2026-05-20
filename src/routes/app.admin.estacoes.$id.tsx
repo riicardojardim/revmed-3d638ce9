@@ -58,6 +58,27 @@ interface DeliverableMaterial {
   autoDeliver?: boolean;
 }
 
+function serializePatientProfile(p: PatientProfile | null | undefined): string | null {
+  if (!p) return null;
+  const labels: Array<[keyof PatientProfile, string]> = [
+    ["name", "Nome"], ["age", "Idade"], ["sex", "Sexo"], ["city", "Cidade"], ["profession", "Profissão"],
+    ["chiefComplaint", "Queixa principal"], ["hpi", "HMA"], ["personalHistory", "Antecedentes pessoais"],
+    ["medications", "Medicações"], ["allergies", "Alergias"], ["familyHistory", "Antecedentes familiares"],
+    ["habits", "Hábitos"], ["symptoms", "Sintomas"], ["vitals", "Sinais vitais"], ["previousExams", "Exames prévios"],
+    ["spontaneous", "Falar espontaneamente"], ["onlyIfAsked", "Só se perguntado"], ["doNotReveal", "Não revelar"],
+    ["emotionalTone", "Tom emocional"], ["actingTips", "Dicas de atuação"],
+  ];
+  const out = labels
+    .map(([k, label]) => {
+      const v = (p[k] ?? "").toString().trim();
+      return v ? `${label}: ${v}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+  return out || null;
+}
+
+
 interface BiblioRef { label: string; url?: string }
 
 interface Station {
@@ -2410,7 +2431,19 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
           specialty: station.specialty,
           topic: null,
           clinical_case: station.clinical_case ?? null,
+          case_description: station.case_description ?? null,
           candidate_task: station.candidate_task ?? null,
+          patient_info: station.patient_info ?? null,
+          patient_script: station.patient_script ?? null,
+          patient_profile: serializePatientProfile(station.patient_profile),
+          support_materials: station.support_materials ?? null,
+          evaluator_notes: station.evaluator_notes ?? null,
+          deliverable_materials: (station.deliverable_materials ?? []).map((m) => ({
+            name: m.name ?? null,
+            type: m.type ?? null,
+            description: m.description ?? null,
+            content: m.content ?? null,
+          })),
           educational_goal: station.educational_goal ?? null,
           expected_conduct: station.expected_conduct ?? null,
           common_mistakes: station.common_mistakes ?? null,
@@ -2809,7 +2842,19 @@ function PostChecklistAIDialog({
           specialty: station.specialty,
           topic: null,
           clinical_case: station.clinical_case ?? null,
+          case_description: station.case_description ?? null,
           candidate_task: station.candidate_task ?? null,
+          patient_info: station.patient_info ?? null,
+          patient_script: station.patient_script ?? null,
+          patient_profile: serializePatientProfile(station.patient_profile),
+          support_materials: station.support_materials ?? null,
+          evaluator_notes: station.evaluator_notes ?? null,
+          deliverable_materials: (station.deliverable_materials ?? []).map((m) => ({
+            name: m.name ?? null,
+            type: m.type ?? null,
+            description: m.description ?? null,
+            content: m.content ?? null,
+          })),
           educational_goal: station.educational_goal ?? null,
           expected_conduct: station.expected_conduct ?? null,
           common_mistakes: station.common_mistakes ?? null,
