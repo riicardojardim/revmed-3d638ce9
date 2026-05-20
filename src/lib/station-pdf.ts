@@ -434,6 +434,23 @@ function drawPageBackground(doc: jsPDF) {
   ];
   for (const [hx, hy, hs] of hearts) drawHeartIcon(doc, hx, hy, hs);
   drawEcgLine(doc, PAGE_H - 22);
+
+  // Faint centered logo watermark
+  if (_logoDataUrl && _logoDims) {
+    try {
+      const docAny = doc as unknown as {
+        GState: new (opts: { opacity: number }) => unknown;
+        setGState: (g: unknown) => void;
+      };
+      const prev = docAny.GState ? new docAny.GState({ opacity: 1 }) : null;
+      if (docAny.GState) docAny.setGState(new docAny.GState({ opacity: 0.06 }));
+      const ratio = _logoDims.w / _logoDims.h;
+      const wmW = 130;
+      const wmH = wmW / ratio;
+      doc.addImage(_logoDataUrl, "PNG", (PAGE_W - wmW) / 2, (PAGE_H - wmH) / 2, wmW, wmH);
+      if (prev) docAny.setGState(prev);
+    } catch { /* ignore */ }
+  }
 }
 
 // ============ Top accent strip (every page) ============
@@ -704,7 +721,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
           const inad = sorted[0]; const adeq = sorted[sorted.length - 1];
           const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
           const cat = it.category?.trim() || "Item";
-          const parts: string[] = [`${idx + 1}. ${cat}`];
+          const parts: string[] = [cat];
           if (it.description?.trim()) parts.push(it.description.trim());
           if (it.helper_text?.trim()) parts.push(it.helper_text.trim());
           const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
