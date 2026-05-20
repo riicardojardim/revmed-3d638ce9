@@ -58,7 +58,7 @@ export function StationPDFButton({ stationId, size = "sm", variant = "outline", 
             try {
               setLoading("ator");
               const { station } = await fetchData();
-              downloadActorPDF(station as never);
+              await downloadActorPDF(station as never);
               toast.success("PDF do ator gerado");
             } catch (err) {
               toast.error(err instanceof Error ? err.message : "Falha ao gerar PDF");
