@@ -57,6 +57,35 @@ function AdminOverview() {
       : "Crachá + Prontuário";
     toast.success("Animação salva", { description: label });
   }
+
+  // === Banner do grupo de WhatsApp (topo do app) ===
+  const [waEnabled, setWaEnabled] = useState(true);
+  const [waLabel, setWaLabel] = useState("");
+  const [waUrl, setWaUrl] = useState("");
+  const [savingWa, setSavingWa] = useState(false);
+  useEffect(() => {
+    if (!settings) return;
+    setWaEnabled(settings.whatsapp_banner_enabled !== false);
+    setWaLabel(settings.whatsapp_banner_label ?? "");
+    setWaUrl(settings.whatsapp_banner_url ?? "");
+  }, [settings?.id, settings?.whatsapp_banner_enabled, settings?.whatsapp_banner_label, settings?.whatsapp_banner_url]);
+  async function saveWa() {
+    if (!settings?.id) return;
+    setSavingWa(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        whatsapp_banner_enabled: waEnabled,
+        whatsapp_banner_label: waLabel || null,
+        whatsapp_banner_url: waUrl || null,
+      })
+      .eq("id", settings.id);
+    setSavingWa(false);
+    if (error) return toast.error("Erro ao salvar", { description: error.message });
+    await refreshSiteSettings();
+    toast.success("Banner do WhatsApp atualizado");
+  }
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     users: 0, attempts: 0, attempts7: 0, attempts30: 0,
