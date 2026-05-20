@@ -256,11 +256,11 @@ function AppLayout() {
                 href={waUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative hidden shrink-0 items-center gap-2 overflow-hidden rounded-full bg-[#25D366] px-3.5 py-1.5 text-xs font-bold tracking-tight text-white shadow-[0_4px_14px_-2px_rgba(37,211,102,0.55)] ring-1 ring-white/20 transition-all hover:bg-[#1ebe5d] hover:shadow-[0_6px_20px_-2px_rgba(37,211,102,0.75)] sm:inline-flex"
+                className="group relative hidden shrink-0 items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-mint to-medical px-3.5 py-1.5 text-xs font-bold tracking-tight text-white shadow-[0_4px_14px_-2px_color-mix(in_oklab,var(--mint)_55%,transparent)] ring-1 ring-white/25 transition-all hover:brightness-110 hover:shadow-[0_6px_20px_-2px_color-mix(in_oklab,var(--medical)_70%,transparent)] sm:inline-flex"
               >
                 <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                 <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white">
-                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-[#25D366]" aria-hidden>
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-medical" aria-hidden>
                     <path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2s-.8 1-1 1.2c-.2.2-.4.2-.6 0-.3-.2-1.2-.4-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.5s1 2.9 1.1 3.1c.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.2-.1-.5-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.3c1.4.8 3 1.3 4.8 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
                   </svg>
                 </span>
