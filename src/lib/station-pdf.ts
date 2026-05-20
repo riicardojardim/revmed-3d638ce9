@@ -232,49 +232,76 @@ function drawCard(
   rightBadge: string | null,
   render: (bx: number, by: number, bw: number) => number,
 ): number {
-  const headerH = 10;
-  const bodyPadX = 5;
+  const headerH = 10.5;
+  const bodyPadX = 6;
   const bodyPadY = 5;
+  const radius = 2.8;
 
   // Move to next page if not enough room for header + at least one line
   y = ensureSpace(doc, y, headerH + 14);
+  const startPage = doc.getNumberOfPages();
+  const cardTop = y;
 
-  // Header banner (gradient)
-  drawGradientBanner(doc, MARGIN_X, y, CONTENT_W, headerH);
-  // Title text
+  // 1) Gradient header — clipped so the TOP corners are rounded (bottom is flush with body)
+  doc.saveGraphicsState();
+  // Clip area extends below the gradient by `radius` so the clip's bottom rounded
+  // corners stay outside the painted gradient region (gradient bottom edge stays flat).
+  (doc as unknown as { roundedRect: (a: number, b: number, c: number, d: number, e: number, f: number) => unknown })
+    .roundedRect(MARGIN_X, cardTop, CONTENT_W, headerH + radius, radius, radius);
+  (doc as unknown as { clip: () => void; discardPath: () => void }).clip();
+  (doc as unknown as { discardPath: () => void }).discardPath();
+  drawGradientBanner(doc, MARGIN_X, cardTop, CONTENT_W, headerH);
+  doc.restoreGraphicsState();
+
+  // Title text (left) and optional right badge
   setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10.5);
-  const titleLines = doc.splitTextToSize(title, CONTENT_W - 10 - (rightBadge ? 24 : 0));
-  // Single-line if possible; if title wraps, only first line shows (banner is fixed height)
-  doc.text(titleLines[0], MARGIN_X + 4, y + 6.6);
+  let badgeW = 0;
   if (rightBadge) {
-    doc.setFontSize(9);
-    doc.text(rightBadge, PAGE_W - MARGIN_X - 4, y + 6.6, { align: "right" });
+    doc.setFontSize(8);
+    badgeW = doc.getTextWidth(rightBadge) + 8;
+  }
+  doc.setFontSize(10.5);
+  const titleLines = doc.splitTextToSize(title, CONTENT_W - 12 - badgeW);
+  doc.text(titleLines[0], MARGIN_X + 5, cardTop + 6.9);
+  if (rightBadge) {
+    // small translucent pill behind the badge for polish
+    setFill(doc, [255, 255, 255]);
+    const bx = PAGE_W - MARGIN_X - badgeW - 2;
+    const by = cardTop + 2.6;
+    const bh = headerH - 5.2;
+    // semi-opaque via overlay rect — jsPDF lacks alpha by default; use stroke instead
+    setStroke(doc, [255, 255, 255]);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(bx, by, badgeW, bh, 1.4, 1.4, "S");
+    setText(doc, [255, 255, 255]);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text(rightBadge, PAGE_W - MARGIN_X - 6, cardTop + 6.6, { align: "right" });
   }
 
-  // Body — render content with auto-pagination support; on overflow inside render(),
-  // it should call ensureSpace itself. To keep things simple, we render then if it
-  // crossed page, the new content already drew on the new page. We also stroke a
-  // border around just the FIRST page's body block.
-  const bodyStartY = y + headerH;
+  // 2) Body content
+  const bodyStartY = cardTop + headerH;
   const bodyTop = bodyStartY + bodyPadY;
   const newY = render(MARGIN_X + bodyPadX, bodyTop, CONTENT_W - bodyPadX * 2);
-  // If still on the same page (no page break happened inside render), draw a side border
-  // for visual coherence. We can't easily detect that; use a light bottom border instead.
   const finalY = newY + bodyPadY;
-  setStroke(doc, C_BORDER);
-  doc.setLineWidth(0.3);
-  // Draw left + right + bottom border (skip top — it touches the gradient header)
-  // Only safe to draw if finalY is on the same page as bodyStartY; we approximate by
-  // drawing on the current page from the body top to finalY.
-  const currentPageHeight = finalY - bodyStartY;
-  if (currentPageHeight > 0 && finalY <= PAGE_H - MARGIN_BOTTOM) {
-    doc.line(MARGIN_X, bodyStartY, MARGIN_X, finalY);
-    doc.line(PAGE_W - MARGIN_X, bodyStartY, PAGE_W - MARGIN_X, finalY);
+  const endPage = doc.getNumberOfPages();
+
+  // 3) Card outline (rounded all corners) — only if content didn't paginate
+  if (endPage === startPage && finalY <= PAGE_H - MARGIN_BOTTOM) {
+    setStroke(doc, C_BORDER);
+    doc.setLineWidth(0.35);
+    doc.roundedRect(MARGIN_X, cardTop, CONTENT_W, finalY - cardTop, radius, radius, "S");
+  } else {
+    // Multi-page fallback: draw side + bottom border on the last page only
+    setStroke(doc, C_BORDER);
+    doc.setLineWidth(0.35);
+    doc.line(MARGIN_X, MARGIN_TOP, MARGIN_X, finalY);
+    doc.line(PAGE_W - MARGIN_X, MARGIN_TOP, PAGE_W - MARGIN_X, finalY);
     doc.line(MARGIN_X, finalY, PAGE_W - MARGIN_X, finalY);
   }
-  return finalY + 4;
+  return finalY + 5;
 }
 
 // ============ Script text renderer (preserves blank lines + **bold**) ============
