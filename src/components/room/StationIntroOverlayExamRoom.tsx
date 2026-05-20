@@ -221,91 +221,134 @@ export function StationIntroOverlayExamRoom({
           </motion.div>
           )}
 
-          {/* === Banca POV: foreground (ombros + borda da mesa) === */}
+          {/* === Banca POV: mesa em primeiro plano + dois colegas avaliadores === */}
           {!isCandidate && (
             <>
-              {/* Borda da mesa em primeiro plano */}
+              {/* Tampo de mesa em primeiro plano (POV) */}
               <motion.div
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
                 className="absolute inset-x-0 bottom-0 pointer-events-none"
-                style={{ height: "30%" }}
+                style={{ height: "38%" }}
               >
+                {/* superfície da mesa com perspectiva */}
                 <div
-                  className="absolute inset-x-0 bottom-0 h-[55%]"
+                  className="absolute inset-x-0 bottom-0 h-full"
                   style={{
                     background:
-                      "linear-gradient(180deg, rgba(20,26,43,0) 0%, #1a2236 30%, #0b1020 100%)",
-                    boxShadow: "0 -30px 60px -10px rgba(0,0,0,0.85)",
+                      "linear-gradient(180deg, rgba(20,26,43,0) 0%, rgba(46,36,26,0.6) 18%, #3a2c1c 35%, #2a1f14 70%, #14100a 100%)",
+                    clipPath: "polygon(-5% 100%, 105% 100%, 92% 18%, 8% 18%)",
+                    boxShadow: "0 -40px 80px -10px rgba(0,0,0,0.9)",
                   }}
                 />
-                {/* prontuário aberto (POV) */}
+                {/* borda frontal da mesa */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-3"
+                  style={{ background: "linear-gradient(180deg, #1a130a 0%, #000 100%)" }}
+                />
+
+                {/* prontuário aberto no centro (folhas duplas) */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20, rotate: -2 }}
-                  animate={{ opacity: revealed ? 0.95 : 0, y: 0, rotate: -2 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: revealed ? 1 : 0, y: 0 }}
                   transition={{ duration: 0.7, delay: 0.2 }}
-                  className="absolute left-1/2 -translate-x-1/2 bottom-2 rounded-sm"
-                  style={{
-                    width: "44%",
-                    height: 72,
-                    background: "#f5efdc",
-                    boxShadow: "0 8px 18px rgba(0,0,0,0.6), inset 0 0 0 1px #c9b88a",
-                  }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-3 flex gap-1"
+                  style={{ perspective: 600 }}
                 >
-                  <div className="mx-4 mt-3 h-1.5 rounded" style={{ background: "#b8a96f" }} />
-                  <div className="mx-4 mt-2 h-1 rounded w-2/3" style={{ background: "#d6c790" }} />
-                  <div className="mx-4 mt-1.5 h-1 rounded w-3/4" style={{ background: "#d6c790" }} />
-                  <div className="mx-4 mt-1.5 h-1 rounded w-1/2" style={{ background: "#d6c790" }} />
+                  {[ -6, 6 ].map((rot, i) => (
+                    <div
+                      key={i}
+                      className="rounded-sm"
+                      style={{
+                        width: 130, height: 90,
+                        background: "linear-gradient(180deg, #fbf6e6 0%, #ede4c6 100%)",
+                        boxShadow: "0 10px 24px rgba(0,0,0,0.7), inset 0 0 0 1px #c9b88a",
+                        transform: `rotateX(55deg) rotateZ(${rot * 0.3}deg)`,
+                        transformOrigin: "bottom center",
+                      }}
+                    >
+                      <div className="mx-3 mt-2 h-1.5 rounded" style={{ background: accent, opacity: 0.7 }} />
+                      <div className="mx-3 mt-1.5 h-[3px] rounded w-3/4" style={{ background: "#bda975" }} />
+                      <div className="mx-3 mt-1 h-[3px] rounded w-2/3" style={{ background: "#bda975" }} />
+                      <div className="mx-3 mt-1 h-[3px] rounded w-4/5" style={{ background: "#bda975" }} />
+                      <div className="mx-3 mt-1 h-[3px] rounded w-1/2" style={{ background: "#bda975" }} />
+                    </div>
+                  ))}
+                </motion.div>
+
+                {/* caneta */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: revealed ? 1 : 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="absolute"
+                  style={{
+                    bottom: 14, right: "32%",
+                    width: 80, height: 5, borderRadius: 3,
+                    background: `linear-gradient(90deg, ${accent} 0%, ${accent} 18%, #1a1a1a 18%, #2a2a2a 100%)`,
+                    transform: "rotate(-12deg)",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.6)",
+                  }}
+                />
+
+                {/* xícara de café à direita */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: revealed ? 1 : 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="absolute"
+                  style={{ bottom: 14, left: "18%" }}
+                >
+                  <div
+                    style={{
+                      width: 36, height: 26, borderRadius: "4px 4px 18px 18px",
+                      background: "linear-gradient(180deg, #f4f5f8 0%, #c4c8d0 100%)",
+                      boxShadow: "0 6px 12px rgba(0,0,0,0.55)",
+                      position: "relative",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute", top: 3, left: 3, right: 3, height: 6,
+                      background: "#2a1a10", borderRadius: 2,
+                    }} />
+                    <div style={{
+                      position: "absolute", right: -7, top: 6, width: 10, height: 12,
+                      border: "3px solid #c4c8d0", borderRadius: "0 8px 8px 0", borderLeft: "none",
+                    }} />
+                  </div>
                 </motion.div>
               </motion.div>
 
-              {/* Ombro/cabeça do avaliador à esquerda */}
+              {/* Colega avaliador SENTADO à esquerda (de costas/3-4) */}
               <motion.div
-                initial={{ opacity: 0, x: -30 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 className="absolute pointer-events-none"
-                style={{ left: "-2%", bottom: "0%", width: 280, height: 320 }}
+                style={{ left: "2%", bottom: "18%", width: 200, height: 280 }}
               >
-                <svg viewBox="0 0 280 320" width="100%" height="100%">
-                  <defs>
-                    <radialGradient id="shoulderL" cx="40%" cy="30%" r="80%">
-                      <stop offset="0%" stopColor="#1a2236" />
-                      <stop offset="100%" stopColor="#05070d" />
-                    </radialGradient>
-                  </defs>
-                  <path
-                    d="M -20 320 L -20 180 Q -20 130 40 110 Q 70 100 95 95 Q 115 60 150 55 Q 195 55 205 100 Q 240 120 250 170 L 250 320 Z"
-                    fill="url(#shoulderL)"
-                  />
-                  {/* gola */}
-                  <path d="M 110 110 L 150 145 L 188 110 L 180 165 L 122 165 Z" fill="#f4f5f8" opacity="0.85" />
-                </svg>
+                <SeatedEvaluator side="left" />
               </motion.div>
 
-              {/* Ombro/cabeça do avaliador à direita */}
+              {/* Colega avaliador SENTADO à direita (de costas/3-4) */}
               <motion.div
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="absolute pointer-events-none"
-                style={{ right: "-2%", bottom: "0%", width: 280, height: 320 }}
+                style={{ right: "2%", bottom: "18%", width: 200, height: 280 }}
               >
-                <svg viewBox="0 0 280 320" width="100%" height="100%">
-                  <defs>
-                    <radialGradient id="shoulderR" cx="60%" cy="30%" r="80%">
-                      <stop offset="0%" stopColor="#1a2236" />
-                      <stop offset="100%" stopColor="#05070d" />
-                    </radialGradient>
-                  </defs>
-                  <path
-                    d="M 300 320 L 300 180 Q 300 130 240 110 Q 210 100 185 95 Q 165 60 130 55 Q 85 55 75 100 Q 40 120 30 170 L 30 320 Z"
-                    fill="url(#shoulderR)"
-                  />
-                  <path d="M 170 110 L 130 145 L 92 110 L 100 165 L 158 165 Z" fill="#f4f5f8" opacity="0.85" />
-                </svg>
+                <SeatedEvaluator side="right" />
               </motion.div>
+
+              {/* Etiqueta de POV */}
+              <div
+                className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] backdrop-blur-sm"
+                style={{ borderColor: accentSoft, background: "rgba(0,0,0,0.4)", color: accent }}
+              >
+                <Users className="h-3 w-3" /> Visão da banca
+              </div>
             </>
           )}
 
