@@ -2552,7 +2552,7 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
       {linked.length > 0 && (
         <div className="mt-3 rounded-xl border border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-sm font-display font-bold">Resumos recentes ({station.specialty})</div>
+            <div className="text-sm font-display font-bold">Resumos conectados a esta estação</div>
             <Badge variant="outline">{linked.length}</Badge>
           </div>
           <div className="divide-y divide-border">
