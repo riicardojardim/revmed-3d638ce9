@@ -161,7 +161,8 @@ export function StationIntroOverlayExamRoom({
           className="relative"
           style={{ width: "min(92vw, 980px)", height: "min(78vh, 620px)", perspective: 1600 }}
         >
-          {/* Mesa da banca (fundo) */}
+          {/* Mesa da banca (fundo) - apenas na visão do candidato */}
+          {isCandidate && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: revealed ? 1 : 0.35, y: 0 }}
@@ -169,6 +170,7 @@ export function StationIntroOverlayExamRoom({
             className="absolute left-1/2 -translate-x-1/2"
             style={{ top: "32%", width: "62%" }}
           >
+
             {/* lâmpada / spot da banca */}
             <div
               className="absolute left-1/2 -translate-x-1/2 -top-24 h-44 w-[140%] rounded-[50%]"
