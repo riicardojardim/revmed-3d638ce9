@@ -130,34 +130,64 @@ function parseBoldSegments(line: string): Seg[] {
 }
 
 // Word-wrap segments to fit width, returning visual lines (each is an array of segments).
+// Long tokens without spaces (e.g. URLs, long numbers) are hard-broken by character.
 function wrapSegments(doc: jsPDF, segs: Seg[], maxW: number, fontSize: number): Seg[][] {
   doc.setFontSize(fontSize);
-  // Tokenize each segment into word/space tokens preserving bold flag.
   type Tok = { text: string; bold: boolean; space: boolean };
   const toks: Tok[] = [];
   for (const s of segs) {
-    const parts = s.text.split(/(\s+)/);
-    for (const p of parts) {
+    for (const p of s.text.split(/(\s+)/)) {
       if (!p) continue;
       toks.push({ text: p, bold: s.bold, space: /^\s+$/.test(p) });
     }
   }
+  const widthOf = (text: string, bold: boolean) => {
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    return doc.getTextWidth(text);
+  };
+  const hardBreak = (text: string, bold: boolean, firstAvail: number): string[] => {
+    const chunks: string[] = [];
+    let cur = "";
+    let avail = firstAvail > 4 ? firstAvail : maxW;
+    for (const ch of text) {
+      if (widthOf(cur + ch, bold) > avail && cur) {
+        chunks.push(cur);
+        cur = ch;
+        avail = maxW;
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur) chunks.push(cur);
+    return chunks;
+  };
   const lines: Seg[][] = [];
   let cur: Seg[] = [];
   let curW = 0;
-  const widthOf = (t: Tok) => {
-    doc.setFont("helvetica", t.bold ? "bold" : "normal");
-    return doc.getTextWidth(t.text);
-  };
   for (const t of toks) {
-    const w = widthOf(t);
-    if (curW + w > maxW && cur.length && !t.space) {
-      lines.push(cur);
-      cur = []; curW = 0;
+    if (t.space) {
+      if (curW === 0) continue;
+      const w = widthOf(t.text, t.bold);
+      if (curW + w > maxW) { lines.push(cur); cur = []; curW = 0; continue; }
+      cur.push({ text: t.text, bold: t.bold }); curW += w; continue;
     }
-    if (curW === 0 && t.space) continue; // skip leading spaces
-    cur.push({ text: t.text, bold: t.bold });
-    curW += w;
+    const w = widthOf(t.text, t.bold);
+    if (curW + w <= maxW) {
+      cur.push({ text: t.text, bold: t.bold }); curW += w; continue;
+    }
+    if (curW > 0 && w <= maxW) {
+      lines.push(cur); cur = [{ text: t.text, bold: t.bold }]; curW = w; continue;
+    }
+    const chunks = hardBreak(t.text, t.bold, maxW - curW);
+    chunks.forEach((c, i) => {
+      if (i === 0 && curW > 0) {
+        cur.push({ text: c, bold: t.bold }); lines.push(cur); cur = []; curW = 0;
+      } else if (i < chunks.length - 1) {
+        lines.push([{ text: c, bold: t.bold }]);
+      } else {
+        cur = [{ text: c, bold: t.bold }]; curW = widthOf(c, t.bold);
+      }
+    });
   }
   if (cur.length) lines.push(cur);
   return lines;
