@@ -322,6 +322,7 @@ function EditorBody({
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
   return (
     <div className="space-y-6">
       {/* PDF Import — Passo 1: importe o PDF para preencher tudo automaticamente */}
@@ -501,7 +502,7 @@ function EditorBody({
             materials={station.deliverable_materials}
             onChange={(m) => up("deliverable_materials", m)}
           />
-          <SectionChecklist stationId={id} items={items} reload={load} />
+          <SectionChecklist stationId={id} items={items} reload={load} onChecklistFilled={() => setAiDialogOpen(true)} />
           <SectionPedagogical station={station} up={up} />
         </>
       ) : (
@@ -517,6 +518,13 @@ function EditorBody({
       <SectionGenerateFlashcards station={station} />
       <SectionGenerateSummary station={station} items={items} />
       <SectionPublish station={station} togglePublish={togglePublish} />
+
+      <PostChecklistAIDialog
+        open={aiDialogOpen}
+        onOpenChange={setAiDialogOpen}
+        station={station}
+        items={items}
+      />
     </div>
   );
 }
@@ -989,8 +997,8 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
 }
 
 function ChecklistBulkImport({
-  stationId, currentCount, reload,
-}: { stationId: string; currentCount: number; reload: () => Promise<void> }) {
+  stationId, currentCount, reload, onFilled,
+}: { stationId: string; currentCount: number; reload: () => Promise<void>; onFilled?: () => void }) {
   const [text, setText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
@@ -1044,6 +1052,7 @@ function ChecklistBulkImport({
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
       await reload();
+      onFilled?.();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Falha ao processar";
       toast.error("Falha na IA", { description: msg });
@@ -1114,7 +1123,7 @@ function ChecklistBulkImport({
   );
 }
 
-function SectionChecklist({ stationId, items, reload }: { stationId: string; items: Item[]; reload: () => Promise<void> }) {
+function SectionChecklist({ stationId, items, reload, onChecklistFilled }: { stationId: string; items: Item[]; reload: () => Promise<void>; onChecklistFilled?: () => void }) {
   const [draft, setDraft] = useState({ description: "", category: "Apresentação", points: 1 });
 
   async function addItem(e: React.FormEvent) {
@@ -1207,7 +1216,7 @@ function SectionChecklist({ stationId, items, reload }: { stationId: string; ite
         <Button type="submit" variant="hero"><Plus className="h-4 w-4" /> Adicionar</Button>
       </form>
 
-      <ChecklistBulkImport stationId={stationId} currentCount={items.length} reload={reload} />
+      <ChecklistBulkImport stationId={stationId} currentCount={items.length} reload={reload} onFilled={onChecklistFilled} />
 
       <div className="text-xs text-muted-foreground">
         {items.length} itens · {totalPts.toFixed(2)} pts totais
@@ -2672,5 +2681,335 @@ function InlineSummaryPreview({
         )}
       </div>
     </div>
+  );
+}
+
+// ============= Post-Checklist AI Dialog =============
+// Aparece logo após a IA preencher o checklist (PEP) a partir do PDF/texto.
+// Oferece gerar Flashcards, gerar Resumo, ou os dois em sequência.
+// Para cada artefato, mostra pré-visualização + publicar.
+
+type AIPhase = "idle" | "running-deck" | "running-summary" | "done";
+type AIArtifact = {
+  deck?: GeneratedDeck;
+  summary?: GeneratedSummary;
+  summaryValidation?: { verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } | null;
+  deckPublished?: boolean;
+  summaryPublished?: boolean;
+};
+
+function PostChecklistAIDialog({
+  open, onOpenChange, station, items,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  station: Station;
+  items: Item[];
+}) {
+  const generateDeck = useServerFn(generateDeckFromStation);
+  const generateSummary = useServerFn(generateSummaryFromStation);
+  const [phase, setPhase] = useState<AIPhase>("idle");
+  const [artifact, setArtifact] = useState<AIArtifact>({});
+  const [deckPreviewOpen, setDeckPreviewOpen] = useState(false);
+  const [summaryPreviewOpen, setSummaryPreviewOpen] = useState(false);
+  const [pubDeckLoading, setPubDeckLoading] = useState(false);
+  const [pubSummaryLoading, setPubSummaryLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      // reset apenas ao fechar
+      setPhase("idle");
+      setArtifact({});
+      setDeckPreviewOpen(false);
+      setSummaryPreviewOpen(false);
+    }
+  }, [open]);
+
+  const checklistItems = items.map((it) => ({
+    description: it.description,
+    category: it.category,
+    points: it.points,
+    helper_text: it.helper_text,
+  }));
+
+  async function runDeck(): Promise<boolean> {
+    setPhase("running-deck");
+    try {
+      const count = 10 + Math.floor(Math.random() * 6);
+      const res = await generateDeck({
+        data: {
+          station_id: station.id,
+          title: station.title,
+          specialty: station.specialty,
+          topic: null,
+          clinical_case: station.clinical_case ?? null,
+          candidate_task: station.candidate_task ?? null,
+          educational_goal: station.educational_goal ?? null,
+          expected_conduct: station.expected_conduct ?? null,
+          common_mistakes: station.common_mistakes ?? null,
+          scoring_criteria: station.scoring_criteria ?? null,
+          references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+          count,
+        },
+      });
+      const [{ data: d }, { data: cs }] = await Promise.all([
+        supabase.from("flashcard_decks").select("title,specialty,topic").eq("id", res.deck_id).maybeSingle(),
+        supabase.from("flashcards").select("id,front,back,position").eq("deck_id", res.deck_id).order("position"),
+      ]);
+      const deck: GeneratedDeck = {
+        deck_id: res.deck_id,
+        title: (d?.title ?? station.title) as string,
+        specialty: (d?.specialty ?? station.specialty) as string,
+        topic: (d?.topic ?? null) as string | null,
+        cards: ((cs ?? []) as GeneratedCard[]).map((c) => ({ id: c.id, front: c.front, back: c.back })),
+      };
+      setArtifact((a) => ({ ...a, deck, deckPublished: false }));
+      toast.success(`Deck pronto com ${res.count} cards!`);
+      return true;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error("Falha ao gerar flashcards", { description: msg });
+      return false;
+    }
+  }
+
+  async function runSummary(): Promise<boolean> {
+    setPhase("running-summary");
+    try {
+      const res = await generateSummary({
+        data: {
+          station_id: station.id,
+          title: station.title,
+          specialty: station.specialty,
+          topic: null,
+          clinical_case: station.clinical_case ?? null,
+          candidate_task: station.candidate_task ?? null,
+          educational_goal: station.educational_goal ?? null,
+          expected_conduct: station.expected_conduct ?? null,
+          common_mistakes: station.common_mistakes ?? null,
+          scoring_criteria: station.scoring_criteria ?? null,
+          references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+          checklist_items: checklistItems.slice(0, 200),
+        },
+      });
+      const v = (res as { validation?: { verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } }).validation ?? null;
+      setArtifact((a) => ({ ...a, summary: res.summary as GeneratedSummary, summaryValidation: v, summaryPublished: false }));
+      if (v?.blocking) toast.warning("Resumo gerado com alertas críticos — revise antes de publicar.");
+      else toast.success("Resumo pronto!");
+      return true;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error("Falha ao gerar resumo", { description: msg });
+      return false;
+    }
+  }
+
+  async function onClickDeck() {
+    const ok = await runDeck();
+    setPhase(ok ? "done" : "idle");
+  }
+  async function onClickSummary() {
+    if (items.length === 0) return toast.error("Checklist vazio.");
+    const ok = await runSummary();
+    setPhase(ok ? "done" : "idle");
+  }
+  async function onClickBoth() {
+    if (items.length === 0) return toast.error("Checklist vazio.");
+    const okDeck = await runDeck();
+    const okSum = await runSummary();
+    setPhase(okDeck || okSum ? "done" : "idle");
+  }
+
+  async function toggleDeckPublish() {
+    if (!artifact.deck) return;
+    const next = !artifact.deckPublished;
+    setPubDeckLoading(true);
+    const [{ error: e1 }, { error: e2 }] = await Promise.all([
+      supabase.from("flashcard_decks").update({ published: next }).eq("id", artifact.deck.deck_id),
+      supabase.from("flashcards").update({ published: next }).eq("deck_id", artifact.deck.deck_id),
+    ]);
+    setPubDeckLoading(false);
+    if (e1 || e2) return toast.error("Falha ao publicar deck", { description: (e1 ?? e2)?.message });
+    setArtifact((a) => ({ ...a, deckPublished: next }));
+    toast.success(next ? "Deck publicado" : "Deck despublicado");
+  }
+
+  async function toggleSummaryPublish() {
+    if (!artifact.summary) return;
+    const next = !artifact.summaryPublished;
+    if (next && artifact.summaryValidation?.blocking) {
+      return toast.error("Resumo tem erros críticos. Edite antes de publicar.");
+    }
+    setPubSummaryLoading(true);
+    const { error } = await supabase.from("summaries").update({ published: next }).eq("id", artifact.summary.id);
+    setPubSummaryLoading(false);
+    if (error) return toast.error("Falha ao publicar resumo", { description: error.message });
+    setArtifact((a) => ({ ...a, summaryPublished: next }));
+    toast.success(next ? "Resumo publicado" : "Resumo despublicado");
+  }
+
+  const isRunning = phase === "running-deck" || phase === "running-summary";
+  const canAct = items.length > 0;
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={(v) => { if (isRunning && !v) return; onOpenChange(v); }}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-xl">
+              <Sparkles className="h-5 w-5 text-mint" /> Checklist preenchido!
+            </DialogTitle>
+            <DialogDescription>
+              A IA acabou de organizar <strong>{items.length}</strong> {items.length === 1 ? "item" : "itens"} do PEP.
+              Quer aproveitar e já gerar flashcards e/ou resumo desta estação?
+            </DialogDescription>
+          </DialogHeader>
+
+          {phase === "idle" && (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <button
+                type="button"
+                disabled={!canAct}
+                onClick={onClickDeck}
+                className="group rounded-2xl border border-border bg-card p-4 text-left transition hover:border-mint/40 hover:bg-mint/5 disabled:opacity-50"
+              >
+                <Brain className="h-6 w-6 text-mint" />
+                <div className="mt-2 font-display font-bold">Gerar Flashcards</div>
+                <div className="text-xs text-muted-foreground">10–15 cards baseados nesta estação.</div>
+              </button>
+              <button
+                type="button"
+                disabled={!canAct}
+                onClick={onClickSummary}
+                className="group rounded-2xl border border-border bg-card p-4 text-left transition hover:border-mint/40 hover:bg-mint/5 disabled:opacity-50"
+              >
+                <BookOpen className="h-6 w-6 text-mint" />
+                <div className="mt-2 font-display font-bold">Gerar Resumo</div>
+                <div className="text-xs text-muted-foreground">Resumo clínico estruturado a partir do PEP.</div>
+              </button>
+              <button
+                type="button"
+                disabled={!canAct}
+                onClick={onClickBoth}
+                className="group rounded-2xl border-2 border-mint/40 bg-mint/5 p-4 text-left transition hover:bg-mint/10 disabled:opacity-50"
+              >
+                <Sparkles className="h-6 w-6 text-mint" />
+                <div className="mt-2 font-display font-bold">Gerar os dois</div>
+                <div className="text-xs text-muted-foreground">Flashcards primeiro, depois o resumo.</div>
+              </button>
+            </div>
+          )}
+
+          {isRunning && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
+                <Loader2 className="h-5 w-5 animate-spin text-mint" />
+                <div className="text-sm">
+                  {phase === "running-deck" ? "Gerando flashcards..." : "Gerando resumo clínico..."}
+                </div>
+              </div>
+              {artifact.deck && phase === "running-summary" && (
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs">
+                  <Check className="h-4 w-4 text-mint" /> Flashcards prontos ({artifact.deck.cards.length} cards)
+                </div>
+              )}
+            </div>
+          )}
+
+          {phase === "done" && (
+            <div className="space-y-3">
+              {artifact.deck && (
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Brain className="h-4 w-4 text-mint" />
+                    <div className="font-display font-bold">Deck de Flashcards</div>
+                    <Badge variant="outline">{artifact.deck.cards.length} cards</Badge>
+                    {artifact.deckPublished && <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setDeckPreviewOpen(true)}>
+                      <Play className="h-4 w-4" /> Pré-visualizar
+                    </Button>
+                    <Button variant={artifact.deckPublished ? "outline" : "hero"} size="sm" onClick={toggleDeckPublish} disabled={pubDeckLoading}>
+                      {pubDeckLoading
+                        ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</>
+                        : artifact.deckPublished
+                          ? <><EyeOff className="h-4 w-4" /> Despublicar</>
+                          : <><Eye className="h-4 w-4" /> Publicar</>}
+                    </Button>
+                    <Link
+                      to="/app/admin/flashcards/$id"
+                      params={{ id: artifact.deck.deck_id }}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                    >
+                      Abrir editor →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {artifact.summary && (
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-mint" />
+                    <div className="font-display font-bold">Resumo clínico</div>
+                    {artifact.summaryValidation?.blocking && (
+                      <Badge variant="outline" className="border-rose-400/40 text-rose-600">Revisar</Badge>
+                    )}
+                    {artifact.summaryPublished && <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setSummaryPreviewOpen(true)}>
+                      <Eye className="h-4 w-4" /> Pré-visualizar
+                    </Button>
+                    <Button variant={artifact.summaryPublished ? "outline" : "hero"} size="sm" onClick={toggleSummaryPublish} disabled={pubSummaryLoading}>
+                      {pubSummaryLoading
+                        ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</>
+                        : artifact.summaryPublished
+                          ? <><EyeOff className="h-4 w-4" /> Despublicar</>
+                          : <><Eye className="h-4 w-4" /> Publicar</>}
+                    </Button>
+                    <Link
+                      to="/app/resumos/$id"
+                      params={{ id: artifact.summary.id }}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                    >
+                      Abrir página →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end pt-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>Fechar</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {artifact.deck && (
+        <DeckPreview
+          open={deckPreviewOpen}
+          onClose={() => setDeckPreviewOpen(false)}
+          title={artifact.deck.title}
+          specialty={artifact.deck.specialty}
+          topic={artifact.deck.topic}
+          cards={artifact.deck.cards}
+        />
+      )}
+
+      {artifact.summary && (
+        <SummaryModal
+          open={summaryPreviewOpen}
+          onOpenChange={setSummaryPreviewOpen}
+          summary={artifact.summary}
+          published={!!artifact.summaryPublished}
+          pubLoading={pubSummaryLoading}
+          onTogglePublish={toggleSummaryPublish}
+          validation={artifact.summaryValidation ?? null}
+        />
+      )}
+    </>
   );
 }
