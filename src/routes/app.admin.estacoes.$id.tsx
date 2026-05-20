@@ -475,6 +475,33 @@ function EditorBody({
             setStation={setStation as never}
             setItems={setItems as never}
           />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Printer className="h-4 w-4" /> PDFs para impressão
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>Gerar PDF da estação</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  downloadActorPDF(station as never);
+                  toast.success("PDF do ator gerado");
+                }}
+              >
+                <Theater className="h-4 w-4" /> PDF do ator
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  downloadCandidatePDF(station as never, items as never);
+                  toast.success("PDF do candidato gerado");
+                }}
+              >
+                <User className="h-4 w-4" /> PDF do candidato
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" onClick={togglePublish}>
             {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
