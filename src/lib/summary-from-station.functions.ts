@@ -3,11 +3,20 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { logAiUsage, type AiUsageKind } from "./ai-usage.server";
 
+const truncStr = (max: number) =>
+  z.preprocess(
+    (v) => (v == null ? null : String(v).slice(0, max)),
+    z.string().max(max).optional().nullable(),
+  );
+
 const ChecklistItemSchema = z.object({
-  description: z.string().max(2000).optional().nullable().transform((v) => v ?? ""),
-  category: z.string().max(120).optional().nullable(),
+  description: z.preprocess(
+    (v) => (v == null ? "" : String(v).slice(0, 2000)),
+    z.string().max(2000),
+  ),
+  category: truncStr(120),
   points: z.number().optional().nullable(),
-  helper_text: z.string().max(2000).optional().nullable(),
+  helper_text: truncStr(2000),
 });
 
 const InputSchema = z.object({
