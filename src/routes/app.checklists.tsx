@@ -244,6 +244,7 @@ function StationsPage() {
                             {s.specialty} • {s.checklistCount} itens
                           </div>
                         </div>
+                        <StationPDFButton stationId={s.id} iconOnly />
                         <Button size="sm" variant="hero" onClick={() => startStation(s)} className="shrink-0 px-2.5 sm:px-3">
                           <span className="hidden sm:inline">Iniciar</span>
                           <ArrowRight className="h-3.5 w-3.5" />
