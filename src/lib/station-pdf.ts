@@ -657,9 +657,9 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
   drawPageHeader(doc, station, "CANDIDATO", logo);
   let y = CONTENT_START_Y;
 
-  if (station.support_materials?.trim()) {
+  if (station.clinical_case?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
-      renderScriptText(doc, station.support_materials!.trim(), x, yy + 3, w),
+      renderScriptText(doc, station.clinical_case!.trim(), x, yy + 3, w),
     );
   }
   if (station.case_description?.trim()) {
