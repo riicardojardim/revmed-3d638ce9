@@ -196,8 +196,9 @@ export function RelatedResources({
               {bestResumo.title}
             </div>
             <div className="line-clamp-1 text-[11px] text-muted-foreground">
-              {bestResumo.specialty}{bestResumo.topic ? ` · ${bestResumo.topic}` : ""}
+              {bestResumo.specialty}
             </div>
+
             <Button size="sm" variant="hero" className="mt-auto" onClick={() => setSummaryOpen(true)}>
               Abrir resumo <ArrowRight className="h-3.5 w-3.5" />
             </Button>
