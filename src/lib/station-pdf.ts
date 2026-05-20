@@ -310,6 +310,17 @@ function drawCard(
 }
 
 // ============ Script text renderer (preserves blank lines + **bold**) ============
+// Auto-bold the "Label:" prefix of a line if it isn't already styled.
+function autoBoldLabel(line: string): string {
+  if (line.includes("**")) return line;
+  if (/https?:\/\//i.test(line)) return line;
+  const m = line.match(/^(\s*(?:[-•—–]\s*)?)([^:\n*]{1,80}):(\s*)(.*)$/);
+  if (!m) return line;
+  const [, lead, label, sp, rest] = m;
+  if (/[.!?]/.test(label)) return line;
+  return `${lead}**${label}:**${sp}${rest}`;
+}
+
 function renderScriptText(doc: jsPDF, text: string, x: number, y: number, w: number): number {
   const fontSize = 10;
   const lineH = 5.2;
@@ -320,7 +331,7 @@ function renderScriptText(doc: jsPDF, text: string, x: number, y: number, w: num
       y += paraGap + 1.5;
       continue;
     }
-    const segs = parseBoldSegments(raw);
+    const segs = parseBoldSegments(autoBoldLabel(raw));
     const wrapped = wrapSegments(doc, segs, w, fontSize);
     for (const ln of wrapped) {
       y = ensureSpace(doc, y, lineH);
