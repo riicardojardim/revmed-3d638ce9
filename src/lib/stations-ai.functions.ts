@@ -263,7 +263,7 @@ async function callGateway(
                 type: "text",
                 text: `Extraia a estação clínica deste PDF "${pdfName}" seguindo EXATAMENTE o padrão do gold standard. Antes do JSON, localize mentalmente os cabeçalhos "CENÁRIO DE ATENDIMENTO", "DESCRIÇÃO DO CASO" e "INSTRUÇÕES AO ATOR" e copie cada seção para seu campo correto. Não derive nem invente orientações do ator; se não conseguir transcrever fielmente a seção do ator, deixe patient_script vazio. Não deixe de extrair TODOS os impressos com conteúdo na íntegra, e checklist com category literal do título numerado + sub-itens "(1)... (2)..." dentro da description.`,
               },
-              { type: "image_url", image_url: { url: pdfDataUrl } },
+              { type: "file", file: { filename: pdfName, file_data: pdfDataUrl } },
             ],
           },
         ],
