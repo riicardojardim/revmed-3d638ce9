@@ -302,26 +302,59 @@ function renderSubBlock(
 }
 
 
-// ============ Page header (small brand strip on every page top) ============
-function drawPageHeader(doc: jsPDF, station: StationLike, kind: "ATOR" | "CANDIDATO") {
-  // Thin colored strip at top
-  drawGradientBanner(doc, 0, 0, PAGE_W, 4);
-  // Title strip
+// ============ Page header (brand strip + logo on every page top) ============
+function drawPageHeader(
+  doc: jsPDF,
+  station: StationLike,
+  kind: "ATOR" | "CANDIDATO",
+  logo: { data: string; w: number; h: number } | null,
+) {
+  // Gradient brand strip (taller, hosts the white logo)
+  const stripH = 14;
+  drawGradientBanner(doc, 0, 0, PAGE_W, stripH);
+
+  // Logo on the left inside the strip (rendered in white via overlay — png has dark logo,
+  // so instead we draw on a white pill so it stays readable on the dark gradient).
+  if (logo) {
+    const targetH = 8;
+    const ratio = logo.w / logo.h;
+    const targetW = targetH * ratio;
+    // white pill background for legibility
+    setFill(doc, [255, 255, 255]);
+    doc.roundedRect(MARGIN_X - 1.5, (stripH - targetH) / 2 - 1.5, targetW + 3, targetH + 3, 1.5, 1.5, "F");
+    try {
+      doc.addImage(logo.data, "PNG", MARGIN_X, (stripH - targetH) / 2, targetW, targetH);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // Right side: kind badge + specialty · duration
+  setText(doc, [255, 255, 255]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  const kindLabel = kind === "ATOR" ? "ATOR / ATRIZ" : "CANDIDATO";
+  doc.text(kindLabel, PAGE_W - MARGIN_X, 6, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text(
+    `${station.specialty.toUpperCase()} · ${station.duration_minutes} min`,
+    PAGE_W - MARGIN_X,
+    11,
+    { align: "right" },
+  );
+
+  // Station title under the strip
   setText(doc, C_TEXT);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   const title = kind === "ATOR" ? `${station.title} — ATOR` : station.title;
-  const wrapped = doc.splitTextToSize(title, CONTENT_W - 40);
-  doc.text(wrapped[0], MARGIN_X, 10);
-  // right side: specialty + duração
-  setText(doc, C_MUTED);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.text(`${station.specialty.toUpperCase()} · ${station.duration_minutes} min`, PAGE_W - MARGIN_X, 10, { align: "right" });
+  const wrapped = doc.splitTextToSize(title, CONTENT_W);
+  doc.text(wrapped[0], MARGIN_X, stripH + 6);
   // subtle divider
   setStroke(doc, C_BORDER);
   doc.setLineWidth(0.2);
-  doc.line(MARGIN_X, 12, PAGE_W - MARGIN_X, 12);
+  doc.line(MARGIN_X, stripH + 8.5, PAGE_W - MARGIN_X, stripH + 8.5);
 }
 
 // ============ formatPatientProfile (local copy, mirrors src/components/station/shared.tsx) ============
