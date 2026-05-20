@@ -29,7 +29,7 @@ interface DailyPoint { date: string; label: string; value: number }
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const { settings } = useSiteSettings();
-  const [variant, setVariant] = useState<"classic" | "door">("classic");
+  const [variant, setVariant] = useState<"classic" | "door" | "corridor">("classic");
   const [savingVariant, setSavingVariant] = useState(false);
   useEffect(() => {
     if (settings?.intro_animation_variant) setVariant(settings.intro_animation_variant);
@@ -44,7 +44,8 @@ function AdminOverview() {
     setSavingVariant(false);
     if (error) return toast.error("Erro ao salvar", { description: error.message });
     await refreshSiteSettings();
-    toast.success("Animação salva", { description: variant === "door" ? "Médico abrindo a porta" : "Crachá + Prontuário" });
+    const label = variant === "door" ? "Médico abrindo a porta" : variant === "corridor" ? "Corredor do hospital" : "Crachá + Prontuário";
+    toast.success("Animação salva", { description: label });
   }
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
