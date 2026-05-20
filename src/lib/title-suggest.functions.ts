@@ -66,10 +66,25 @@ export const suggestStationTitle = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
+    const GENERIC_TITLES = new Set([
+      "clinica medica", "cirurgia", "cirurgia geral", "pediatria",
+      "ginecologia", "obstetricia", "ginecologia e obstetricia",
+      "medicina de familia", "medicina de familia e comunidade",
+      "preventiva", "saude coletiva", "psiquiatria",
+      "emergencia", "urgencia", "ambulatorio", "nova estacao", "",
+    ]);
+    const norm = (s: string) =>
+      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const ct = data.currentTitle.trim();
+    const ctNorm = norm(ct);
+    const isGeneric =
+      GENERIC_TITLES.has(ctNorm) || ctNorm === norm(data.specialty);
+    const effectiveCurrentTitle = isGeneric ? "" : ct;
+
     const userPayload = {
       instruction:
-        "Sugira um título no formato 'SIGLAS - Descrição curta' preservando siglas. Baseie a descrição PRINCIPALMENTE em candidate_task + pep_items. Retorne SOMENTE JSON.",
-      currentTitle: data.currentTitle,
+        "Identifique o DIAGNÓSTICO específico a partir de clinical_case/case_description/patient_script e a AÇÃO a partir de candidate_task/pep_items. NUNCA use o nome da especialidade como diagnóstico. Retorne SOMENTE JSON.",
+      currentTitle: effectiveCurrentTitle,
       specialty: data.specialty,
       candidate_task: data.candidate_task.slice(0, 3000),
       pep_items: data.pep_items.slice(0, 60),
@@ -77,6 +92,7 @@ export const suggestStationTitle = createServerFn({ method: "POST" })
       case_description: data.case_description.slice(0, 2500),
       patient_script: data.patient_script.slice(0, 2500),
     };
+
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 45_000);
