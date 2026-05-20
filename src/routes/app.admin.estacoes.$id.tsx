@@ -2400,12 +2400,13 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
     const { data } = await supabase
       .from("summaries")
       .select("id,title,published,created_at")
-      .eq("specialty", station.specialty)
+      .eq("station_id", station.id)
       .order("created_at", { ascending: false })
       .limit(8);
     setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
   }
-  useEffect(() => { void loadLinked(); }, [station.id, station.specialty]);
+  useEffect(() => { void loadLinked(); }, [station.id]);
+
 
   const checklistCount = checklistItems.length;
   const canGenerate = checklistCount > 0 && !!station.title?.trim() && !!station.specialty?.trim();
