@@ -861,9 +861,9 @@ function CandidateView() {
             specialty={station.specialty}
             title={room.station_title ?? station.title}
             stationId={station.id}
-            show={{ resumo: true }}
+            show={{ resumo: true, flashcard: true }}
             excludeStationId={station.id}
-            heading="Resumo desta estação"
+            heading="Material desta estação"
           />
         </div>
       )}
