@@ -21,7 +21,8 @@ import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientP
 import { supabase } from "@/integrations/supabase/client";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { useAuth } from "@/hooks/use-auth";
-import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { IntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/IntroOverlay";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
