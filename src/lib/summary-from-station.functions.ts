@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const ChecklistItemSchema = z.object({
-  description: z.string().min(1).max(2000),
+  description: z.string().max(2000).optional().nullable().transform((v) => v ?? ""),
   category: z.string().max(120).optional().nullable(),
   points: z.number().optional().nullable(),
   helper_text: z.string().max(2000).optional().nullable(),
