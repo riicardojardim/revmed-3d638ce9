@@ -18,7 +18,6 @@ import {
   Star,
   AlertTriangle,
   FileText,
-  Clock,
   Sparkles,
   X,
 } from "lucide-react";
@@ -31,9 +30,7 @@ type Summary = {
   specialty: string;
   topic: string | null;
   content_md: string | null;
-  read_time_minutes: number;
   difficulty: string;
-  high_yield: boolean;
   definition: string | null;
   clinical_picture: string | null;
   diagnosis: string | null;
@@ -207,16 +204,8 @@ export function StationSummaryDialog({
                   {summary.title || title}
                 </DialogTitle>
                 <div className="flex flex-wrap items-center gap-2">
-                  {summary.high_yield && (
-                    <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
-                      Alta incidência
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1 text-xs text-white/80">
-                    <Clock className="h-3.5 w-3.5" /> {summary.read_time_minutes} min
-                  </span>
                   {summary.topic && (
-                    <span className="text-xs text-white/70">· {summary.topic}</span>
+                    <span className="text-xs text-white/70">{summary.topic}</span>
                   )}
                 </div>
               </div>
