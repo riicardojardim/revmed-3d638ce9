@@ -1,5 +1,33 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoUrl from "@/assets/logo-estacao-revalida.png";
+
+// Cache the logo as a data URL so we only fetch it once.
+let _logoDataUrl: string | null = null;
+let _logoDims: { w: number; h: number } | null = null;
+async function getLogoDataUrl(): Promise<{ data: string; w: number; h: number } | null> {
+  try {
+    if (!_logoDataUrl) {
+      const res = await fetch(logoUrl);
+      const blob = await res.blob();
+      _logoDataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+      _logoDims = await new Promise<{ w: number; h: number }>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+        img.onerror = () => resolve({ w: 600, h: 160 });
+        img.src = _logoDataUrl!;
+      });
+    }
+    return { data: _logoDataUrl!, w: _logoDims!.w, h: _logoDims!.h };
+  } catch {
+    return null;
+  }
+}
 
 // ============ Types (loose, matching the editor route shape) ============
 interface PatientProfile {
@@ -274,26 +302,59 @@ function renderSubBlock(
 }
 
 
-// ============ Page header (small brand strip on every page top) ============
-function drawPageHeader(doc: jsPDF, station: StationLike, kind: "ATOR" | "CANDIDATO") {
-  // Thin colored strip at top
-  drawGradientBanner(doc, 0, 0, PAGE_W, 4);
-  // Title strip
+// ============ Page header (brand strip + logo on every page top) ============
+function drawPageHeader(
+  doc: jsPDF,
+  station: StationLike,
+  kind: "ATOR" | "CANDIDATO",
+  logo: { data: string; w: number; h: number } | null,
+) {
+  // Gradient brand strip (taller, hosts the white logo)
+  const stripH = 14;
+  drawGradientBanner(doc, 0, 0, PAGE_W, stripH);
+
+  // Logo on the left inside the strip (rendered in white via overlay — png has dark logo,
+  // so instead we draw on a white pill so it stays readable on the dark gradient).
+  if (logo) {
+    const targetH = 8;
+    const ratio = logo.w / logo.h;
+    const targetW = targetH * ratio;
+    // white pill background for legibility
+    setFill(doc, [255, 255, 255]);
+    doc.roundedRect(MARGIN_X - 1.5, (stripH - targetH) / 2 - 1.5, targetW + 3, targetH + 3, 1.5, 1.5, "F");
+    try {
+      doc.addImage(logo.data, "PNG", MARGIN_X, (stripH - targetH) / 2, targetW, targetH);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // Right side: kind badge + specialty · duration
+  setText(doc, [255, 255, 255]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  const kindLabel = kind === "ATOR" ? "ATOR / ATRIZ" : "CANDIDATO";
+  doc.text(kindLabel, PAGE_W - MARGIN_X, 6, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text(
+    `${station.specialty.toUpperCase()} · ${station.duration_minutes} min`,
+    PAGE_W - MARGIN_X,
+    11,
+    { align: "right" },
+  );
+
+  // Station title under the strip
   setText(doc, C_TEXT);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   const title = kind === "ATOR" ? `${station.title} — ATOR` : station.title;
-  const wrapped = doc.splitTextToSize(title, CONTENT_W - 40);
-  doc.text(wrapped[0], MARGIN_X, 10);
-  // right side: specialty + duração
-  setText(doc, C_MUTED);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.text(`${station.specialty.toUpperCase()} · ${station.duration_minutes} min`, PAGE_W - MARGIN_X, 10, { align: "right" });
+  const wrapped = doc.splitTextToSize(title, CONTENT_W);
+  doc.text(wrapped[0], MARGIN_X, stripH + 6);
   // subtle divider
   setStroke(doc, C_BORDER);
   doc.setLineWidth(0.2);
-  doc.line(MARGIN_X, 12, PAGE_W - MARGIN_X, 12);
+  doc.line(MARGIN_X, stripH + 8.5, PAGE_W - MARGIN_X, stripH + 8.5);
 }
 
 // ============ formatPatientProfile (local copy, mirrors src/components/station/shared.tsx) ============
@@ -336,8 +397,9 @@ function formatPatientProfileLocal(p: PatientProfile): string {
 // ============ ACTOR PDF ============
 async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  drawPageHeader(doc, station, "ATOR");
-  let y = 16;
+  const logo = await getLogoDataUrl();
+  drawPageHeader(doc, station, "ATOR", logo);
+  let y = 26;
 
   // 1) Cenário de atuação
   if (station.support_materials?.trim()) {
@@ -396,6 +458,27 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
     });
   }
 
+  // 5) Impressos para entregar ao candidato (somente no PDF do ator)
+  const printable = (station.deliverable_materials ?? []).filter(
+    (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
+  );
+  if (printable.length > 0) {
+    y = drawCard(doc, y, "Impressos para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
+      let cy = yy + 2;
+      printable.forEach((m, idx) => {
+        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
+        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
+          let yy2 = by;
+          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
+          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
+          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
+          return yy2;
+        });
+      });
+      return cy;
+    });
+  }
+
   // Footer on every page
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
@@ -405,8 +488,9 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
 // ============ CANDIDATE PDF ============
 async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  drawPageHeader(doc, station, "CANDIDATO");
-  let y = 16;
+  const logo = await getLogoDataUrl();
+  drawPageHeader(doc, station, "CANDIDATO", logo);
+  let y = 26;
 
   if (station.support_materials?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
@@ -428,26 +512,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
     );
   }
 
-  // Materiais para entregar ao candidato
-  const printable = (station.deliverable_materials ?? []).filter(
-    (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
-  );
-  if (printable.length > 0) {
-    y = drawCard(doc, y, "Materiais para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
-      let cy = yy + 2;
-      printable.forEach((m, idx) => {
-        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
-        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
-          let yy2 = by;
-          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
-          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
-          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
-          return yy2;
-        });
-      });
-      return cy;
-    });
-  }
+
 
   // CHECKLIST (PEP)
   if (items.length > 0) {
