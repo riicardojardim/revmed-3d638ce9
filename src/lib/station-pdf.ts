@@ -332,60 +332,86 @@ function renderSubBlock(
 }
 
 
-// ============ Page header (brand strip + logo on every page top) ============
+// ============ Top accent strip (every page) ============
+function drawTopAccent(doc: jsPDF) {
+  drawGradientBanner(doc, 0, 0, PAGE_W, 3);
+}
+
+// ============ Page header (first page only) ============
 function drawPageHeader(
   doc: jsPDF,
   station: StationLike,
   kind: "ATOR" | "CANDIDATO",
   logo: { data: string; w: number; h: number } | null,
 ) {
-  // Gradient brand strip (taller, hosts the white logo)
-  const stripH = 14;
-  drawGradientBanner(doc, 0, 0, PAGE_W, stripH);
+  // 1) Thin gradient accent at the very top
+  drawTopAccent(doc);
 
-  // Logo on the left inside the strip (rendered in white via overlay — png has dark logo,
-  // so instead we draw on a white pill so it stays readable on the dark gradient).
+  // 2) Logo on a clean white area (no ugly pill)
+  const logoTop = 8;
+  const logoH = 11;
+  let logoRight = MARGIN_X;
   if (logo) {
-    const targetH = 8;
     const ratio = logo.w / logo.h;
-    const targetW = targetH * ratio;
-    // white pill background for legibility
-    setFill(doc, [255, 255, 255]);
-    doc.roundedRect(MARGIN_X - 1.5, (stripH - targetH) / 2 - 1.5, targetW + 3, targetH + 3, 1.5, 1.5, "F");
+    const logoW = logoH * ratio;
     try {
-      doc.addImage(logo.data, "PNG", MARGIN_X, (stripH - targetH) / 2, targetW, targetH);
-    } catch {
-      /* ignore */
-    }
+      doc.addImage(logo.data, "PNG", MARGIN_X, logoTop, logoW, logoH);
+      logoRight = MARGIN_X + logoW;
+    } catch { /* ignore */ }
   }
 
-  // Right side: kind badge + specialty · duration
+  // 3) Right-side info pill (dark, brand color) with kind + specialty + duration
+  const kindLabel = kind === "ATOR" ? "ATOR / ATRIZ" : "CANDIDATO";
+  const metaLabel = `${station.specialty.toUpperCase()} · ${station.duration_minutes} MIN`;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  const kindW = doc.getTextWidth(kindLabel);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  const metaW = doc.getTextWidth(metaLabel);
+  const pillW = Math.max(kindW, metaW) + 10;
+  const pillH = 11;
+  const pillX = PAGE_W - MARGIN_X - pillW;
+  const pillY = logoTop;
+  setFill(doc, C_NIGHT);
+  doc.roundedRect(pillX, pillY, pillW, pillH, 2, 2, "F");
+  // mint left accent on pill
+  setFill(doc, C_MINT);
+  doc.rect(pillX, pillY, 1.2, pillH, "F");
   setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  const kindLabel = kind === "ATOR" ? "ATOR / ATRIZ" : "CANDIDATO";
-  doc.text(kindLabel, PAGE_W - MARGIN_X, 6, { align: "right" });
-  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text(
-    `${station.specialty.toUpperCase()} · ${station.duration_minutes} min`,
-    PAGE_W - MARGIN_X,
-    11,
-    { align: "right" },
-  );
+  doc.text(kindLabel, pillX + pillW - 3, pillY + 4.6, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  setText(doc, [200, 230, 230]);
+  doc.text(metaLabel, pillX + pillW - 3, pillY + 8.8, { align: "right" });
 
-  // Station title under the strip
-  setText(doc, C_TEXT);
+  // 4) Station title below
+  const titleY = logoTop + logoH + 6;
+  setText(doc, C_NIGHT);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
+  doc.setFontSize(13);
+  const titleMaxW = PAGE_W - MARGIN_X * 2;
   const title = kind === "ATOR" ? `${station.title} — ATOR` : station.title;
-  const wrapped = doc.splitTextToSize(title, CONTENT_W);
-  doc.text(wrapped[0], MARGIN_X, stripH + 6);
-  // subtle divider
+  const wrapped = doc.splitTextToSize(title, titleMaxW);
+  doc.text(wrapped[0], MARGIN_X, titleY);
+  if (wrapped[1]) {
+    doc.setFontSize(11);
+    doc.text(wrapped[1], MARGIN_X, titleY + 5.5);
+  }
+  // subtle divider with mint accent
+  const divY = titleY + (wrapped[1] ? 9 : 4);
   setStroke(doc, C_BORDER);
   doc.setLineWidth(0.2);
-  doc.line(MARGIN_X, stripH + 8.5, PAGE_W - MARGIN_X, stripH + 8.5);
+  doc.line(MARGIN_X, divY, PAGE_W - MARGIN_X, divY);
+  setFill(doc, C_MINT);
+  doc.rect(MARGIN_X, divY - 0.1, 24, 0.7, "F");
 }
+
+// Where content should start on the first page
+const CONTENT_START_Y = 36;
+
 
 // ============ formatPatientProfile (local copy, mirrors src/components/station/shared.tsx) ============
 function formatPatientProfileLocal(p: PatientProfile): string {
