@@ -66,6 +66,7 @@ interface StationLike {
   case_description: string | null;
   candidate_task: string;
   support_materials: string | null;
+  clinical_case: string | null;
   patient_profile: PatientProfile | null;
   deliverable_materials: DeliverableMaterial[];
 }
@@ -551,11 +552,12 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   let y = CONTENT_START_Y;
 
   // 1) Cenário de atuação
-  if (station.support_materials?.trim()) {
+  if (station.clinical_case?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
-      renderScriptText(doc, station.support_materials!.trim(), x, yy + 3, w),
+      renderScriptText(doc, station.clinical_case!.trim(), x, yy + 3, w),
     );
   }
+
 
   // 2) Descrição do caso
   if (station.case_description?.trim()) {
@@ -656,9 +658,9 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
   drawPageHeader(doc, station, "CANDIDATO", logo);
   let y = CONTENT_START_Y;
 
-  if (station.support_materials?.trim()) {
+  if (station.clinical_case?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
-      renderScriptText(doc, station.support_materials!.trim(), x, yy + 3, w),
+      renderScriptText(doc, station.clinical_case!.trim(), x, yy + 3, w),
     );
   }
   if (station.case_description?.trim()) {
@@ -690,7 +692,8 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
           const sorted = (it.levels ?? []).slice().sort((a, b) => (a.points ?? 0) - (b.points ?? 0));
           const inad = sorted[0]; const adeq = sorted[sorted.length - 1];
           const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
-          let cell = it.description || "";
+          const catPrefix = it.category?.trim() ? `[${it.category.trim()}] ` : "";
+          let cell = `${catPrefix}${it.description || ""}`;
           if (it.helper_text?.trim()) cell += `\n${it.helper_text.trim()}`;
           const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
           if (hints) cell += `\n${hints}`;
