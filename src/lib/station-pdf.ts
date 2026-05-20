@@ -112,6 +112,19 @@ function drawGradientBanner(doc: jsPDF, x: number, y: number, w: number, h: numb
   }
 }
 
+function drawRoundedTopGradientBanner(doc: jsPDF, x: number, y: number, w: number, h: number, radius: number) {
+  const pdf = doc as jsPDF & { clip: () => jsPDF; discardPath: () => jsPDF };
+
+  doc.saveGraphicsState();
+  // Important: pass `null` as the style so jsPDF keeps the rounded path open for clipping.
+  // Without it, the gradient rectangles can paint outside the clipped shape and make corners look square.
+  doc.roundedRect(x, y, w, h + radius, radius, radius, null as unknown as string);
+  pdf.clip();
+  pdf.discardPath();
+  drawGradientBanner(doc, x, y, w, h);
+  doc.restoreGraphicsState();
+}
+
 // ============ Inline text renderer that supports **bold** ============
 type Seg = { text: string; bold: boolean };
 function parseBoldSegments(line: string): Seg[] {
@@ -245,14 +258,8 @@ function drawCard(
   const startPage = doc.getNumberOfPages();
   const cardTop = y;
 
-  // 1) Gradient header — clip so the TOP corners are rounded
-  doc.saveGraphicsState();
-  (doc as unknown as { roundedRect: (a: number, b: number, c: number, d: number, e: number, f: number) => unknown })
-    .roundedRect(MARGIN_X, cardTop, CONTENT_W, headerH + radius, radius, radius);
-  (doc as unknown as { clip: () => void; discardPath: () => void }).clip();
-  (doc as unknown as { discardPath: () => void }).discardPath();
-  drawGradientBanner(doc, MARGIN_X, cardTop, CONTENT_W, headerH);
-  doc.restoreGraphicsState();
+  // 1) Gradient header — clipped inside the rounded top so it never leaks into square corners.
+  drawRoundedTopGradientBanner(doc, MARGIN_X, cardTop, CONTENT_W, headerH, radius);
 
   // Title text + optional right badge
   setText(doc, [255, 255, 255]);
