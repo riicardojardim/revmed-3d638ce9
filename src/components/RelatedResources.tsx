@@ -150,59 +150,56 @@ export function RelatedResources({
         <Sparkles className="h-4 w-4 text-mint" />
         <h3 className="font-display text-sm font-bold uppercase tracking-wide">{heading}</h3>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid items-stretch gap-3 sm:grid-cols-2">
         {show.checklist && bestStation && (
-          <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3">
+          <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-3">
             <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-medical">
               <ListChecks className="h-3.5 w-3.5" /> Checklist sugerido
             </div>
-            <div className="line-clamp-2 font-display text-sm font-bold leading-snug">{bestStation.title}</div>
-            <div className="text-[11px] text-muted-foreground">
+            <div className="line-clamp-1 font-display text-sm font-bold leading-snug">{bestStation.title}</div>
+            <div className="line-clamp-1 text-[11px] text-muted-foreground">
               {bestStation.specialty} · {data?.checklistCount ?? 0} {(data?.checklistCount ?? 0) === 1 ? "item" : "itens"}
             </div>
-            <Button size="sm" variant="hero" className="mt-1" onClick={startStation}>
+            <Button size="sm" variant="hero" className="mt-auto" onClick={startStation}>
               Treinar checklist <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
         {show.resumo && bestResumo && (
-          <Link
-            to="/app/resumos/$id"
-            params={{ id: bestResumo.id }}
-            className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-3 transition-colors hover:border-mint/40"
-          >
+          <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-3">
             <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-medical">
               <BookOpen className="h-3.5 w-3.5" /> Resumo sugerido
             </div>
-            <div className="line-clamp-2 font-display text-sm font-bold leading-snug group-hover:text-mint">
+            <div className="line-clamp-1 font-display text-sm font-bold leading-snug">
               {bestResumo.title}
             </div>
-            <div className="text-[11px] text-muted-foreground">
+            <div className="line-clamp-1 text-[11px] text-muted-foreground">
               {bestResumo.specialty}{bestResumo.topic ? ` · ${bestResumo.topic}` : ""}
             </div>
-            <div className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-mint">
-              Abrir resumo <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
+            <Button asChild size="sm" variant="hero" className="mt-auto">
+              <Link to="/app/resumos/$id" params={{ id: bestResumo.id }}>
+                Abrir resumo <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
         )}
         {show.flashcard && bestDeck && (
-          <Link
-            to="/app/flashcards"
-            className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-3 transition-colors hover:border-mint/40"
-          >
+          <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-3">
             <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-medical">
               <Brain className="h-3.5 w-3.5" /> Flashcard sugerido
             </div>
-            <div className="line-clamp-2 font-display text-sm font-bold leading-snug group-hover:text-mint">
+            <div className="line-clamp-1 font-display text-sm font-bold leading-snug">
               {bestDeck.title}
             </div>
-            <div className="text-[11px] text-muted-foreground">
+            <div className="line-clamp-1 text-[11px] text-muted-foreground">
               {bestDeck.specialty}{bestDeck.topic ? ` · ${bestDeck.topic}` : ""}
             </div>
-            <div className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-mint">
-              Treinar flashcards <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
+            <Button asChild size="sm" variant="hero" className="mt-auto">
+              <Link to="/app/flashcards">
+                Treinar flashcards <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
     </section>
