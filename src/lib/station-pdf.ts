@@ -455,7 +455,7 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
   drawPageHeader(doc, station, "ATOR", logo);
-  let y = 26;
+  let y = CONTENT_START_Y;
 
   // 1) Cenário de atuação
   if (station.support_materials?.trim()) {
@@ -514,26 +514,40 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
     });
   }
 
-  // 5) Impressos para entregar ao candidato (somente no PDF do ator)
+  // 5) Impressos — um card separado por impresso, com banner gradiente próprio
   const printable = (station.deliverable_materials ?? []).filter(
     (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
   );
   if (printable.length > 0) {
-    y = drawCard(doc, y, "Impressos para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
-      let cy = yy + 2;
-      printable.forEach((m, idx) => {
-        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
-        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
-          let yy2 = by;
-          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
-          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
-          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
-          return yy2;
-        });
+    // Section divider title
+    y = ensureSpace(doc, y, 14);
+    setText(doc, C_MEDICAL);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text(`Impressos para entregar ao candidato · ${printable.length}`, MARGIN_X, y + 4);
+    setStroke(doc, C_MINT);
+    doc.setLineWidth(0.5);
+    doc.line(MARGIN_X, y + 6.5, PAGE_W - MARGIN_X, y + 6.5);
+    y += 10;
+
+    printable.forEach((m, idx) => {
+      const title = `IMPRESSO ${idx + 1}${m.name ? ` — ${m.name.toUpperCase()}` : ""}`;
+      y = drawCard(doc, y, title, m.type ? m.type.toUpperCase() : null, (x, yy, w) => {
+        let cy = yy + 3;
+        if (m.description?.trim()) {
+          cy = renderScriptText(doc, `**${m.description.trim()}**`, x, cy, w);
+          cy += 1;
+        }
+        if (m.content?.trim()) cy = renderScriptText(doc, m.content.trim(), x, cy, w);
+        if (m.imageUrl) {
+          cy += 1;
+          cy = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, x, cy, w);
+        }
+        return cy;
       });
-      return cy;
     });
   }
+
 
   // Footer on every page
   const pageCount = doc.getNumberOfPages();
@@ -546,7 +560,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
   drawPageHeader(doc, station, "CANDIDATO", logo);
-  let y = 26;
+  let y = CONTENT_START_Y;
 
   if (station.support_materials?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
