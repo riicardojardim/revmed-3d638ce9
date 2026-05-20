@@ -70,7 +70,7 @@ export async function logAiUsage(args: {
       error_message: args.errorMessage ?? null,
       station_id: args.stationId ?? null,
       duration_ms: args.durationMs ?? null,
-      metadata: args.metadata ?? {},
+      metadata: (args.metadata ?? {}) as never,
     });
   } catch (e) {
     // Telemetria nunca deve quebrar o fluxo principal.
