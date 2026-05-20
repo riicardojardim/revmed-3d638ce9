@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoUrl from "@/assets/logo-estacao-revalida.png";
 
 // ============ Types (kept loose to match the editor route) ============
 interface PatientProfile {
@@ -45,303 +46,438 @@ interface StationLike {
 // ============ Layout constants ============
 const PAGE_W = 210;
 const PAGE_H = 297;
-const MARGIN_X = 20;
-const MARGIN_TOP = 18;
-const MARGIN_BOTTOM = 18;
+const MARGIN_X = 14;
+const MARGIN_BOTTOM = 16;
 const CONTENT_W = PAGE_W - MARGIN_X * 2;
 
-const COLOR_TEXT: [number, number, number] = [25, 30, 40];
+const COLOR_TEXT: [number, number, number] = [30, 35, 45];
 const COLOR_MUTED: [number, number, number] = [110, 116, 130];
-const COLOR_BRAND: [number, number, number] = [13, 67, 113];
-const COLOR_ACCENT: [number, number, number] = [180, 36, 56];
-const COLOR_LIGHT_BG: [number, number, number] = [240, 244, 250];
-const COLOR_BORDER: [number, number, number] = [210, 218, 230];
+const COLOR_BRAND: [number, number, number] = [31, 169, 131];      // green primary
+const COLOR_BRAND_DARK: [number, number, number] = [23, 138, 106]; // header band
+const COLOR_BRAND_LIGHT: [number, number, number] = [191, 229, 214]; // light chip
+const COLOR_BORDER: [number, number, number] = [43, 182, 115];
 
 // ============ Helpers ============
 function setText(doc: jsPDF, c: [number, number, number]) { doc.setTextColor(c[0], c[1], c[2]); }
 function setFill(doc: jsPDF, c: [number, number, number]) { doc.setFillColor(c[0], c[1], c[2]); }
 function setStroke(doc: jsPDF, c: [number, number, number]) { doc.setDrawColor(c[0], c[1], c[2]); }
 
-function drawPageHeader(doc: jsPDF, station: StationLike, kind: "ATOR" | "PARTICIPANTE" | "IMPRESSO" | "PEP") {
-  // top brand band
+let cachedLogo: string | null = null;
+async function loadLogoDataURL(): Promise<string | null> {
+  if (cachedLogo) return cachedLogo;
+  try {
+    const res = await fetch(logoUrl);
+    const blob = await res.blob();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+    cachedLogo = dataUrl;
+    return dataUrl;
+  } catch {
+    return null;
+  }
+}
+
+function drawTopBand(doc: jsPDF) {
   setFill(doc, COLOR_BRAND);
-  doc.rect(0, 0, PAGE_W, 10, "F");
-  setText(doc, [255, 255, 255]);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("ESTAÇÃO REVALIDA", MARGIN_X, 6.8);
+  doc.rect(0, 0, PAGE_W, 6, "F");
+}
+
+function drawHeader(
+  doc: jsPDF,
+  station: StationLike,
+  kind: "ATOR" | "PARTICIPANTE" | "IMPRESSO" | "PEP",
+  logo: string | null,
+): number {
+  drawTopBand(doc);
+
+  // Logo block (centered horizontally in left 70% area)
+  const logoTop = 10;
+  if (logo) {
+    try {
+      // logo is wide horizontal; place at top-left, scaled
+      doc.addImage(logo, "PNG", MARGIN_X, logoTop, 56, 14, undefined, "FAST");
+    } catch {
+      // ignore image errors
+    }
+  }
+  // Subtitle text under logo
+  setText(doc, COLOR_TEXT);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Material de simulação para impressão", PAGE_W - MARGIN_X, 6.8, { align: "right" });
+  doc.text("Plataforma de simulação para o Revalida", MARGIN_X, logoTop + 19);
+  doc.text("Material para impressão e uso presencial", MARGIN_X, logoTop + 23);
 
-  // kind chip
-  const chipY = 14;
-  setFill(doc, kind === "ATOR" ? COLOR_ACCENT : COLOR_BRAND);
-  doc.roundedRect(MARGIN_X, chipY, 26, 6, 1.5, 1.5, "F");
+  // Right-side kind band
+  const bandY = logoTop + 12;
+  const bandH = 8;
+  setFill(doc, COLOR_BRAND_DARK);
+  doc.rect(PAGE_W - 50, bandY, 50, bandH, "F");
   setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
-  doc.text(kind, MARGIN_X + 13, chipY + 4.2, { align: "center" });
+  doc.setFontSize(11);
+  doc.text(kind, PAGE_W - 25, bandY + 5.6, { align: "center" });
 
-  // title
+  // Specialty / Title chips
+  const chipsY = logoTop + 28;
+  // ESTAÇÃO chip (left, light green)
+  const leftChipW = 32;
+  setFill(doc, COLOR_BRAND_LIGHT);
+  doc.rect(MARGIN_X, chipsY, leftChipW, 11, "F");
+  setText(doc, COLOR_BRAND_DARK);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("ESTAÇÃO", MARGIN_X + leftChipW / 2, chipsY + 7.2, { align: "center" });
+
+  // Specialty/title chip (right, lighter bg)
+  const rightX = MARGIN_X + leftChipW + 2;
+  const rightW = CONTENT_W - leftChipW - 2;
+  setFill(doc, [232, 246, 240]);
+  doc.rect(rightX, chipsY, rightW, 11, "F");
+  setText(doc, [60, 70, 80]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  const spec = (station.specialty || "").toUpperCase();
+  doc.text(spec, rightX + 4, chipsY + 7.4);
+
+  // Station title (smaller, below chips)
+  const titleY = chipsY + 17;
   setText(doc, COLOR_TEXT);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  const titleSuffix = kind === "ATOR" ? " — ATOR" : "";
-  const title = `${station.title}${titleSuffix}`;
-  const wrapped = doc.splitTextToSize(title, CONTENT_W - 32);
-  doc.text(wrapped, MARGIN_X + 30, chipY + 4.8);
+  doc.setFontSize(11);
+  const titleLines = doc.splitTextToSize(station.title, CONTENT_W);
+  doc.text(titleLines, MARGIN_X, titleY);
 
-  // specialty under title
-  setText(doc, COLOR_MUTED);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.text(`Estação: ${station.specialty.toUpperCase()} · ${station.duration_minutes} min`, MARGIN_X, chipY + 12);
-
-  // divider
-  setStroke(doc, COLOR_BORDER);
-  doc.setLineWidth(0.3);
-  doc.line(MARGIN_X, chipY + 15, PAGE_W - MARGIN_X, chipY + 15);
-
-  return chipY + 21;
+  return titleY + titleLines.length * 5 + 3;
 }
 
-function drawPageFooter(doc: jsPDF) {
-  const pageNum = doc.getNumberOfPages();
-  setText(doc, COLOR_MUTED);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.text("estacaorevalida.com.br", MARGIN_X, PAGE_H - 8);
-  doc.text(`Página ${pageNum}`, PAGE_W - MARGIN_X, PAGE_H - 8, { align: "right" });
-}
-
-function sectionHeading(doc: jsPDF, y: number, label: string): number {
-  if (y > PAGE_H - MARGIN_BOTTOM - 18) {
-    drawPageFooter(doc);
+function drawSectionBar(doc: jsPDF, y: number, label: string): number {
+  if (y > PAGE_H - MARGIN_BOTTOM - 14) {
+    drawFooter(doc);
     doc.addPage();
-    y = MARGIN_TOP;
+    drawTopBand(doc);
+    y = 14;
   }
-  setFill(doc, COLOR_LIGHT_BG);
-  doc.rect(MARGIN_X, y, CONTENT_W, 7, "F");
-  setText(doc, COLOR_BRAND);
+  setFill(doc, COLOR_BRAND);
+  doc.rect(MARGIN_X, y, CONTENT_W, 8, "F");
+  setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text(label.toUpperCase(), MARGIN_X + 3, y + 5);
+  doc.setFontSize(11);
+  doc.text(label.toUpperCase(), MARGIN_X + 4, y + 5.6);
   return y + 11;
 }
 
-function paragraph(doc: jsPDF, y: number, text: string, opts?: { bold?: boolean; size?: number; indent?: number }): number {
-  const size = opts?.size ?? 10;
-  const indent = opts?.indent ?? 0;
-  doc.setFont("helvetica", opts?.bold ? "bold" : "normal");
-  doc.setFontSize(size);
-  setText(doc, COLOR_TEXT);
-  const lines = doc.splitTextToSize(text, CONTENT_W - indent);
-  for (const line of lines) {
-    if (y > PAGE_H - MARGIN_BOTTOM - 6) {
-      drawPageFooter(doc);
-      doc.addPage();
-      y = MARGIN_TOP;
-    }
-    doc.text(line, MARGIN_X + indent, y);
-    y += size * 0.5;
-  }
-  return y + 1.5;
+function drawFooter(doc: jsPDF) {
+  // Bottom green band with brand text
+  setFill(doc, COLOR_BRAND);
+  doc.rect(0, PAGE_H - 8, PAGE_W, 8, "F");
+  setText(doc, [255, 255, 255]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("ESTAÇÃO REVALIDA — estacaorevalida.com.br", PAGE_W / 2, PAGE_H - 3, { align: "center" });
+
+  setText(doc, COLOR_MUTED);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.text(`Página ${doc.getNumberOfPages()}`, PAGE_W - MARGIN_X, PAGE_H - 10, { align: "right" });
 }
 
-function labeledRow(doc: jsPDF, y: number, label: string, value: string): number {
-  if (!value || !value.trim()) return y;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  setText(doc, COLOR_BRAND);
-  doc.text(`${label}:`, MARGIN_X, y);
-  doc.setFont("helvetica", "normal");
-  setText(doc, COLOR_TEXT);
-  const labelW = doc.getTextWidth(`${label}: `);
-  const lines = doc.splitTextToSize(value, CONTENT_W - labelW);
-  doc.text(lines[0] ?? "", MARGIN_X + labelW, y);
-  let cy = y + 5;
-  for (let i = 1; i < lines.length; i++) {
-    if (cy > PAGE_H - MARGIN_BOTTOM - 6) {
-      drawPageFooter(doc); doc.addPage(); cy = MARGIN_TOP;
-    }
-    doc.text(lines[i], MARGIN_X, cy);
-    cy += 5;
+// Wrap a content block in a green-bordered rounded rectangle.
+// Caller draws content with the provided drawer; we measure height and stroke the border.
+function drawBorderedBox(doc: jsPDF, yStart: number, drawer: (innerX: number, innerY: number, innerW: number) => number): number {
+  const padX = 5;
+  const padY = 5;
+  const innerX = MARGIN_X + padX;
+  const innerW = CONTENT_W - padX * 2;
+  const contentTopY = yStart + padY;
+  const endY = drawer(innerX, contentTopY, innerW);
+  const boxH = endY - yStart + padY;
+  setStroke(doc, COLOR_BORDER);
+  doc.setLineWidth(0.5);
+  doc.rect(MARGIN_X, yStart, CONTENT_W, boxH, "S");
+  return yStart + boxH + 3;
+}
+
+// Render an "ATOR-style" content section: each entry is { title, lines: [[label?, value]] }
+interface BoxSection {
+  title: string;
+  // Each line either:
+  //  - { label, value } => "- **Label:** value"
+  //  - { text }         => "- text" (no bold label)
+  //  - { paragraph }    => plain paragraph (no bullet)
+  lines: Array<{ label?: string; value?: string; text?: string; paragraph?: string }>;
+}
+
+function renderBoxSections(
+  doc: jsPDF,
+  startY: number,
+  sections: BoxSection[],
+): number {
+  let y = startY;
+  // Auto page-break helper inside box rendering: we render simply, then if overflow add page.
+  const renderInner = (innerX: number, innerY: number, innerW: number): number => {
+    let cy = innerY;
+    const lineH = 5;
+    sections.forEach((sec, i) => {
+      // section title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.5);
+      setText(doc, COLOR_TEXT);
+      if (cy > PAGE_H - MARGIN_BOTTOM - 12) {
+        drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
+      }
+      doc.text(sec.title.toUpperCase() + ":", innerX, cy);
+      cy += lineH + 0.5;
+
+      sec.lines.forEach((ln) => {
+        if (ln.paragraph) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          setText(doc, COLOR_TEXT);
+          const wrapped = doc.splitTextToSize(ln.paragraph, innerW);
+          for (const w of wrapped) {
+            if (cy > PAGE_H - MARGIN_BOTTOM - 10) {
+              drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
+            }
+            doc.text(w, innerX, cy);
+            cy += lineH;
+          }
+          return;
+        }
+        // bullet line
+        const bullet = "- ";
+        const label = ln.label ? `${ln.label}:` : "";
+        const value = ln.value ?? ln.text ?? "";
+        const indent = doc.getTextWidth(bullet);
+        // measure label width in bold
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        const labelW = label ? doc.getTextWidth(label + " ") : 0;
+        const firstLineW = innerW - indent - labelW;
+
+        doc.setFont("helvetica", "normal");
+        const valueLines = doc.splitTextToSize(value, firstLineW > 20 ? firstLineW : innerW - indent);
+        // wrap continuation lines using full inner width minus bullet indent
+        let firstLine = valueLines[0] ?? "";
+        let rest: string[] = valueLines.slice(1);
+        // if value too long even for firstLineW, re-split rest with broader width
+        if (valueLines.length > 1) {
+          rest = doc.splitTextToSize(valueLines.slice(1).join(" "), innerW - indent);
+        }
+
+        if (cy > PAGE_H - MARGIN_BOTTOM - 10) {
+          drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
+        }
+        // bullet
+        doc.setFont("helvetica", "normal");
+        setText(doc, COLOR_TEXT);
+        doc.text(bullet, innerX, cy);
+        // label bold
+        if (label) {
+          doc.setFont("helvetica", "bold");
+          doc.text(label, innerX + indent, cy);
+        }
+        // value normal
+        doc.setFont("helvetica", "normal");
+        doc.text(firstLine, innerX + indent + labelW, cy);
+        cy += lineH;
+        for (const r of rest) {
+          if (cy > PAGE_H - MARGIN_BOTTOM - 10) {
+            drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
+          }
+          doc.text(r, innerX + indent, cy);
+          cy += lineH;
+        }
+      });
+
+      if (i < sections.length - 1) cy += 2;
+    });
+    return cy;
+  };
+
+  y = drawBorderedBox(doc, y, renderInner);
+  return y;
+}
+
+// Parse a free-form string into bullet lines. If text contains lines that look
+// like "Label: value" or "- Label: value", we split them into label/value lines.
+function parseBulletLines(text: string): Array<{ label?: string; value?: string; text?: string }> {
+  const out: Array<{ label?: string; value?: string; text?: string }> = [];
+  const raw = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  for (const line of raw) {
+    const cleaned = line.replace(/^[-•*]\s*/, "");
+    const m = cleaned.match(/^([^:]{1,60}):\s*(.*)$/);
+    if (m) out.push({ label: m[1].trim(), value: m[2].trim() });
+    else out.push({ text: cleaned });
   }
-  return cy + 1;
+  return out;
 }
 
 // ============ ACTOR PDF ============
-export function generateActorPDF(station: StationLike): jsPDF {
+async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  let y = drawPageHeader(doc, station, "ATOR");
+  const logo = await loadLogoDataURL();
 
-  y = sectionHeading(doc, y, "Instruções ao ator");
-  y = paragraph(
-    doc,
-    y,
-    "Você é o(a) ator(atriz) desta estação. Mantenha-se no personagem e responda conforme o roteiro abaixo. Só revele as informações marcadas como 'somente se perguntado' quando o candidato perguntar especificamente. Nunca revele as informações marcadas como 'não revelar'.",
-  );
+  let y = drawHeader(doc, station, "ATOR", logo);
+  y = drawSectionBar(doc, y, "Instruções ao ator");
 
   const p = station.patient_profile ?? {};
+  const sections: BoxSection[] = [];
 
-  if (p.name || p.age || p.sex || p.profession || p.city) {
-    y = sectionHeading(doc, y, "Dados pessoais");
-    const parts: string[] = [];
-    if (p.name) parts.push(p.name);
-    if (p.age) parts.push(`${p.age} anos`);
-    if (p.sex) parts.push(p.sex);
-    if (p.profession) parts.push(p.profession);
-    if (p.city) parts.push(p.city);
-    y = paragraph(doc, y, parts.join(" · "));
-  }
+  // Intro paragraph
+  sections.push({
+    title: "Orientações",
+    lines: [{
+      paragraph:
+        "Você é o(a) ator(atriz) desta estação. Mantenha-se no personagem e responda conforme o roteiro abaixo. Só revele as informações marcadas como “somente se perguntado” quando o candidato perguntar especificamente. Nunca revele as informações marcadas como “não revelar”.",
+    }],
+  });
+
+  // Dados pessoais
+  const dadosLines: BoxSection["lines"] = [];
+  const dadosParts: string[] = [];
+  if (p.name) dadosParts.push(p.name);
+  if (p.age) dadosParts.push(`${p.age} anos`);
+  if (p.sex) dadosParts.push(p.sex);
+  if (p.profession) dadosParts.push(p.profession);
+  if (p.city) dadosParts.push(p.city);
+  if (dadosParts.length) dadosLines.push({ text: dadosParts.join(", ") + "." });
+  if (dadosLines.length) sections.push({ title: "Dados pessoais", lines: dadosLines });
 
   if (p.chiefComplaint) {
-    y = sectionHeading(doc, y, "Motivo da consulta");
-    y = paragraph(doc, y, `"${p.chiefComplaint}"`);
+    sections.push({
+      title: "Motivo de consulta",
+      lines: [{ text: `“${p.chiefComplaint}”` }],
+    });
   }
 
   if (p.hpi || p.symptoms) {
-    y = sectionHeading(doc, y, "História da doença atual");
-    if (p.hpi) y = paragraph(doc, y, p.hpi);
-    if (p.symptoms) y = labeledRow(doc, y, "Sintomas associados", p.symptoms);
+    const lines: BoxSection["lines"] = [];
+    if (p.hpi) lines.push(...parseBulletLines(p.hpi));
+    if (p.symptoms) lines.push(...parseBulletLines(p.symptoms));
+    sections.push({ title: "História da doença atual", lines });
   }
 
-  const hasAntecedentes = p.personalHistory || p.medications || p.allergies || p.familyHistory;
-  if (hasAntecedentes) {
-    y = sectionHeading(doc, y, "Antecedentes");
-    if (p.personalHistory) y = labeledRow(doc, y, "Pessoais", p.personalHistory);
-    if (p.medications) y = labeledRow(doc, y, "Medicações", p.medications);
-    if (p.allergies) y = labeledRow(doc, y, "Alergias", p.allergies);
-    if (p.familyHistory) y = labeledRow(doc, y, "Familiares", p.familyHistory);
+  if (p.personalHistory || p.medications || p.allergies) {
+    const lines: BoxSection["lines"] = [];
+    if (p.personalHistory) lines.push({ label: "Comorbidades", value: p.personalHistory });
+    if (p.medications) lines.push({ label: "Uso de medicamentos", value: p.medications });
+    if (p.allergies) lines.push({ label: "Alergias", value: p.allergies });
+    sections.push({ title: "Antecedentes pessoais", lines });
+  }
+
+  if (p.familyHistory) {
+    sections.push({ title: "Antecedentes familiares", lines: parseBulletLines(p.familyHistory) });
   }
 
   if (p.habits) {
-    y = sectionHeading(doc, y, "Hábitos de vida");
-    y = paragraph(doc, y, p.habits);
+    sections.push({ title: "Hábitos", lines: parseBulletLines(p.habits) });
   }
 
   if (p.vitals || p.previousExams) {
-    y = sectionHeading(doc, y, "Informações clínicas");
-    if (p.vitals) y = labeledRow(doc, y, "Sinais vitais", p.vitals);
-    if (p.previousExams) y = labeledRow(doc, y, "Exames prévios", p.previousExams);
+    const lines: BoxSection["lines"] = [];
+    if (p.vitals) lines.push({ label: "Sinais vitais", value: p.vitals });
+    if (p.previousExams) lines.push({ label: "Exames prévios", value: p.previousExams });
+    sections.push({ title: "Informações clínicas", lines });
   }
 
   if (p.spontaneous || p.onlyIfAsked || p.doNotReveal) {
-    y = sectionHeading(doc, y, "Roteiro de revelação");
-    if (p.spontaneous) y = labeledRow(doc, y, "Falar espontaneamente", p.spontaneous);
-    if (p.onlyIfAsked) y = labeledRow(doc, y, "Só se perguntado", p.onlyIfAsked);
-    if (p.doNotReveal) y = labeledRow(doc, y, "Não revelar", p.doNotReveal);
+    const lines: BoxSection["lines"] = [];
+    if (p.spontaneous) lines.push({ label: "Falar espontaneamente", value: p.spontaneous });
+    if (p.onlyIfAsked) lines.push({ label: "Só se perguntado", value: p.onlyIfAsked });
+    if (p.doNotReveal) lines.push({ label: "Não revelar", value: p.doNotReveal });
+    sections.push({ title: "Roteiro de revelação", lines });
   }
 
   if (p.emotionalTone || p.actingTips) {
-    y = sectionHeading(doc, y, "Atuação");
-    if (p.emotionalTone) y = labeledRow(doc, y, "Tom emocional", p.emotionalTone);
-    if (p.actingTips) y = labeledRow(doc, y, "Dicas", p.actingTips);
+    const lines: BoxSection["lines"] = [];
+    if (p.emotionalTone) lines.push({ label: "Tom emocional", value: p.emotionalTone });
+    if (p.actingTips) lines.push({ label: "Dicas", value: p.actingTips });
+    sections.push({ title: "Atuação", lines });
   }
 
-  drawPageFooter(doc);
+  renderBoxSections(doc, y, sections);
+
+  // Footer on every page
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
   return doc;
 }
 
 // ============ CANDIDATE PDF ============
-export function generateCandidatePDF(station: StationLike, items: ChecklistItem[]): jsPDF {
+async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const logo = await loadLogoDataURL();
 
-  // ---------- Page 1: Instruções ao Participante ----------
-  let y = drawPageHeader(doc, station, "PARTICIPANTE");
+  // ---- Page 1: Instruções ao participante ----
+  let y = drawHeader(doc, station, "PARTICIPANTE", logo);
+  y = drawSectionBar(doc, y, "Instruções ao participante");
 
-  y = sectionHeading(doc, y, "Instruções ao participante");
-  y = paragraph(
-    doc,
-    y,
-    `Você terá ${station.duration_minutes} minutos para realizar esta estação. Leia atentamente a descrição do caso, execute as tarefas propostas e solicite os impressos quando pertinente.`,
-  );
-
-  if (station.support_materials && station.support_materials.trim()) {
-    y = sectionHeading(doc, y, "Cenário de atendimento");
-    y = paragraph(doc, y, station.support_materials);
-  }
-
-  if (station.case_description && station.case_description.trim()) {
-    y = sectionHeading(doc, y, "Descrição do caso");
-    y = paragraph(doc, y, station.case_description);
-  }
-
-  if (station.candidate_task && station.candidate_task.trim()) {
-    y = sectionHeading(doc, y, "Tarefas do candidato");
-    y = paragraph(doc, y, station.candidate_task);
-  }
-
-  drawPageFooter(doc);
-
-  // ---------- Impressos (one per page) ----------
-  const printable = (station.deliverable_materials ?? []).filter(m => m && (m.content?.trim() || m.description?.trim() || m.imageUrl));
-  printable.forEach((m, idx) => {
-    doc.addPage();
-    let py = drawPageHeader(doc, station, "IMPRESSO");
-    py = sectionHeading(doc, py, `Impresso ${idx + 1} — ${m.name || m.type}`);
-    if (m.type) {
-      setText(doc, COLOR_MUTED);
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(9);
-      doc.text(m.type, MARGIN_X, py);
-      py += 6;
-    }
-    if (m.description?.trim()) {
-      py = paragraph(doc, py, m.description, { bold: true });
-    }
-    if (m.content?.trim()) {
-      py = paragraph(doc, py, m.content);
-    }
-    if (m.imageUrl) {
-      setText(doc, COLOR_MUTED);
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(8.5);
-      doc.text(`Imagem anexa: ${m.imageUrl}`, MARGIN_X, py + 2);
-    }
-    drawPageFooter(doc);
+  const sections: BoxSection[] = [];
+  sections.push({
+    title: "Tempo da estação",
+    lines: [{ text: `${station.duration_minutes} minutos para completar a estação.` }],
   });
 
-  // ---------- PEP ----------
+  if (station.support_materials?.trim()) {
+    sections.push({ title: "Cenário de atendimento", lines: [{ paragraph: station.support_materials }] });
+  }
+  if (station.case_description?.trim()) {
+    sections.push({ title: "Descrição do caso", lines: [{ paragraph: station.case_description }] });
+  }
+  if (station.candidate_task?.trim()) {
+    sections.push({ title: "Tarefas do candidato", lines: parseBulletLines(station.candidate_task) });
+  }
+
+  renderBoxSections(doc, y, sections);
+
+  // ---- Impressos (one per page) ----
+  const printable = (station.deliverable_materials ?? []).filter(
+    (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
+  );
+  for (let idx = 0; idx < printable.length; idx++) {
+    const m = printable[idx];
+    doc.addPage();
+    let py = drawHeader(doc, station, "IMPRESSO", logo);
+    py = drawSectionBar(doc, py, `Impresso ${idx + 1} — ${m.name || m.type}`);
+    const lines: BoxSection["lines"] = [];
+    if (m.type) lines.push({ label: "Tipo", value: m.type });
+    if (m.description?.trim()) lines.push({ paragraph: m.description });
+    if (m.content?.trim()) lines.push({ paragraph: m.content });
+    if (m.imageUrl) lines.push({ label: "Imagem anexa", value: m.imageUrl });
+    renderBoxSections(doc, py, [{ title: m.name || m.type || "Impresso", lines }]);
+  }
+
+  // ---- PEP ----
   if (items.length > 0) {
     doc.addPage();
-    let py = drawPageHeader(doc, station, "PEP");
-    py = sectionHeading(doc, py, "Padrão esperado de procedimento (PEP)");
-    py = paragraph(
-      doc,
-      py,
-      "O desempenho do participante é avaliado conforme os itens abaixo, com pontuação por nível de desempenho.",
-    );
+    let py = drawHeader(doc, station, "PEP", logo);
+    py = drawSectionBar(doc, py, "Padrão esperado de procedimento (PEP)");
 
-    // Build table rows: each row = [n. descrição (+ helper), level1 pts, level2 pts, level3 pts]
-    // Many checklists have 2 or 3 levels — we normalize to 3 columns: Inadequado / Parcialmente adequado / Adequado.
     const head = [["#", "Item de desempenho avaliado", "Inadequado", "Parcial.\nadequado", "Adequado"]];
     const body = items
       .slice()
       .sort((a, b) => a.order_index - b.order_index)
       .map((it, idx) => {
         const lv = it.levels ?? [];
-        // Sort levels by points ascending so Inadequado=lowest, Adequado=highest
         const sorted = lv.slice().sort((a, b) => (a.points ?? 0) - (b.points ?? 0));
         const inad = sorted[0];
         const adeq = sorted[sorted.length - 1];
         const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
 
-        // Cell content: description + helper text + level descriptions inline
         let cell = it.description || "";
         if (it.helper_text?.trim()) cell += `\n${it.helper_text.trim()}`;
-        const levelHints = sorted
-          .filter(s => s.description?.trim())
-          .map(s => `${s.label}: ${s.description?.trim()}`)
-          .join("\n");
-        if (levelHints) cell += `\n${levelHints}`;
+        const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
+        if (hints) cell += `\n${hints}`;
 
         return [
           String(idx + 1),
           cell,
           inad ? inad.points.toFixed(2) : "—",
-          parc ? parc.points.toFixed(2) : (sorted.length === 2 ? "—" : "—"),
+          parc ? parc.points.toFixed(2) : "—",
           adeq ? adeq.points.toFixed(2) : "—",
         ];
       });
@@ -350,22 +486,9 @@ export function generateCandidatePDF(station: StationLike, items: ChecklistItem[
       startY: py,
       head,
       body,
-      margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM + 4, top: MARGIN_TOP },
-      styles: {
-        font: "helvetica",
-        fontSize: 8.5,
-        cellPadding: 2,
-        lineColor: COLOR_BORDER,
-        lineWidth: 0.2,
-        textColor: COLOR_TEXT,
-        valign: "top",
-      },
-      headStyles: {
-        fillColor: COLOR_BRAND,
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        halign: "center",
-      },
+      margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM + 6, top: 14 },
+      styles: { font: "helvetica", fontSize: 8.5, cellPadding: 2, lineColor: COLOR_BORDER, lineWidth: 0.2, textColor: COLOR_TEXT, valign: "top" },
+      headStyles: { fillColor: COLOR_BRAND, textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
       columnStyles: {
         0: { cellWidth: 8, halign: "center" },
         1: { cellWidth: "auto" },
@@ -373,35 +496,28 @@ export function generateCandidatePDF(station: StationLike, items: ChecklistItem[
         3: { cellWidth: 22, halign: "center" },
         4: { cellWidth: 22, halign: "center" },
       },
-      alternateRowStyles: { fillColor: [248, 250, 253] },
-      didDrawPage: () => {
-        // Re-draw header on new pages caused by table overflow
-        const pageNum = doc.getNumberOfPages();
-        if (pageNum > 1) {
-          // header was drawn manually for the first PEP page; for subsequent pages added by autotable, re-draw a slim header
-          // Note: autoTable adds new pages without our header; redraw it
-        }
-        drawPageFooter(doc);
-      },
+      alternateRowStyles: { fillColor: [240, 250, 246] },
     });
 
-    // Total row
     const totalPts = items.reduce((s, it) => s + (it.points ?? 0), 0);
     const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? py;
-    let ty = finalY + 6;
-    if (ty > PAGE_H - MARGIN_BOTTOM - 10) { doc.addPage(); ty = MARGIN_TOP; }
-    setFill(doc, COLOR_LIGHT_BG);
-    doc.rect(MARGIN_X, ty, CONTENT_W, 8, "F");
-    setText(doc, COLOR_BRAND);
+    let ty = finalY + 5;
+    if (ty > PAGE_H - MARGIN_BOTTOM - 12) { doc.addPage(); drawTopBand(doc); ty = 18; }
+    setFill(doc, COLOR_BRAND_LIGHT);
+    doc.rect(MARGIN_X, ty, CONTENT_W, 9, "F");
+    setText(doc, COLOR_BRAND_DARK);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text(`Pontuação total da estação: ${totalPts.toFixed(2)} pontos`, MARGIN_X + 3, ty + 5.5);
+    doc.setFontSize(10.5);
+    doc.text(`Pontuação total: ${totalPts.toFixed(2)} pontos`, MARGIN_X + 4, ty + 6);
   }
 
+  // Footer on every page
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
   return doc;
 }
 
-// ============ Public download helpers ============
+// ============ Public helpers ============
 function safeSlug(s: string): string {
   return s
     .normalize("NFD")
@@ -412,12 +528,12 @@ function safeSlug(s: string): string {
     .slice(0, 80) || "estacao";
 }
 
-export function downloadActorPDF(station: StationLike) {
-  const doc = generateActorPDF(station);
+export async function downloadActorPDF(station: StationLike) {
+  const doc = await buildActorPDF(station);
   doc.save(`${safeSlug(station.title)}_ator.pdf`);
 }
 
-export function downloadCandidatePDF(station: StationLike, items: ChecklistItem[]) {
-  const doc = generateCandidatePDF(station, items);
+export async function downloadCandidatePDF(station: StationLike, items: ChecklistItem[]) {
+  const doc = await buildCandidatePDF(station, items);
   doc.save(`${safeSlug(station.title)}.pdf`);
 }
