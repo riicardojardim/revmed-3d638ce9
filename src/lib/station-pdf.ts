@@ -205,10 +205,16 @@ function drawSegLine(doc: jsPDF, segs: Seg[], x: number, y: number, fontSize: nu
 }
 
 // ============ Card (PRBlock-style) ============
+function addNewPage(doc: jsPDF) {
+  drawFooter(doc);
+  doc.addPage();
+  drawPageBackground(doc);
+  drawTopAccent(doc);
+}
+
 function ensureSpace(doc: jsPDF, y: number, needed: number): number {
   if (y + needed > PAGE_H - MARGIN_BOTTOM) {
-    drawFooter(doc);
-    doc.addPage();
+    addNewPage(doc);
     return MARGIN_TOP;
   }
   return y;
@@ -222,9 +228,7 @@ function drawFooter(doc: jsPDF) {
   doc.text(`Página ${doc.getNumberOfPages()}`, PAGE_W - MARGIN_X, PAGE_H - 6, { align: "right" });
 }
 
-// Render a PRBlock-style card. Returns new y. Renders the gradient header,
-// then the body content via the provided renderer (which gets bodyX, bodyY,
-// bodyW and returns the new y after rendering content).
+// Render a PRBlock-style card. Returns new y.
 function drawCard(
   doc: jsPDF,
   y: number,
@@ -235,17 +239,14 @@ function drawCard(
   const headerH = 10.5;
   const bodyPadX = 6;
   const bodyPadY = 5;
-  const radius = 2.8;
+  const radius = 3.2;
 
-  // Move to next page if not enough room for header + at least one line
   y = ensureSpace(doc, y, headerH + 14);
   const startPage = doc.getNumberOfPages();
   const cardTop = y;
 
-  // 1) Gradient header — clipped so the TOP corners are rounded (bottom is flush with body)
+  // 1) Gradient header — clip so the TOP corners are rounded
   doc.saveGraphicsState();
-  // Clip area extends below the gradient by `radius` so the clip's bottom rounded
-  // corners stay outside the painted gradient region (gradient bottom edge stays flat).
   (doc as unknown as { roundedRect: (a: number, b: number, c: number, d: number, e: number, f: number) => unknown })
     .roundedRect(MARGIN_X, cardTop, CONTENT_W, headerH + radius, radius, radius);
   (doc as unknown as { clip: () => void; discardPath: () => void }).clip();
@@ -253,7 +254,7 @@ function drawCard(
   drawGradientBanner(doc, MARGIN_X, cardTop, CONTENT_W, headerH);
   doc.restoreGraphicsState();
 
-  // Title text (left) and optional right badge
+  // Title text + optional right badge
   setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10.5);
@@ -266,12 +267,9 @@ function drawCard(
   const titleLines = doc.splitTextToSize(title, CONTENT_W - 12 - badgeW);
   doc.text(titleLines[0], MARGIN_X + 5, cardTop + 6.9);
   if (rightBadge) {
-    // small translucent pill behind the badge for polish
-    setFill(doc, [255, 255, 255]);
     const bx = PAGE_W - MARGIN_X - badgeW - 2;
     const by = cardTop + 2.6;
     const bh = headerH - 5.2;
-    // semi-opaque via overlay rect — jsPDF lacks alpha by default; use stroke instead
     setStroke(doc, [255, 255, 255]);
     doc.setLineWidth(0.4);
     doc.roundedRect(bx, by, badgeW, bh, 1.4, 1.4, "S");
@@ -281,26 +279,25 @@ function drawCard(
     doc.text(rightBadge, PAGE_W - MARGIN_X - 6, cardTop + 6.6, { align: "right" });
   }
 
-  // 2) Body content
-  const bodyStartY = cardTop + headerH;
-  const bodyTop = bodyStartY + bodyPadY;
+  // 2) Body
+  const bodyTop = cardTop + headerH + bodyPadY;
   const newY = render(MARGIN_X + bodyPadX, bodyTop, CONTENT_W - bodyPadX * 2);
-  const finalY = newY + bodyPadY;
+  const finalY = Math.min(newY + bodyPadY, PAGE_H - MARGIN_BOTTOM);
   const endPage = doc.getNumberOfPages();
 
-  // 3) Card outline (rounded all corners) — only if content didn't paginate
-  if (endPage === startPage && finalY <= PAGE_H - MARGIN_BOTTOM) {
-    setStroke(doc, C_BORDER);
-    doc.setLineWidth(0.35);
-    doc.roundedRect(MARGIN_X, cardTop, CONTENT_W, finalY - cardTop, radius, radius, "S");
-  } else {
-    // Multi-page fallback: draw side + bottom border on the last page only
-    setStroke(doc, C_BORDER);
-    doc.setLineWidth(0.35);
-    doc.line(MARGIN_X, MARGIN_TOP, MARGIN_X, finalY);
-    doc.line(PAGE_W - MARGIN_X, MARGIN_TOP, PAGE_W - MARGIN_X, finalY);
-    doc.line(MARGIN_X, finalY, PAGE_W - MARGIN_X, finalY);
+  // 3) Card outline — per-page segments with rounded corners only at real top/bottom.
+  // Side/over-flow corners are pushed off-page so they're not visible.
+  setStroke(doc, C_BORDER);
+  doc.setLineWidth(0.35);
+  const off = radius + 2;
+  const currentPage = endPage;
+  for (let p = startPage; p <= endPage; p++) {
+    doc.setPage(p);
+    const segTop = p === startPage ? cardTop : MARGIN_TOP - off;
+    const segBottom = p === endPage ? finalY : PAGE_H - MARGIN_BOTTOM + off;
+    doc.roundedRect(MARGIN_X, segTop, CONTENT_W, segBottom - segTop, radius, radius, "S");
   }
+  doc.setPage(currentPage);
   return finalY + 5;
 }
 
@@ -358,6 +355,67 @@ function renderSubBlock(
   return endY + 3;
 }
 
+
+// ============ Decorative background (medical motifs) ============
+function drawPlusIcon(doc: jsPDF, cx: number, cy: number, size: number) {
+  const t = size * 0.32;
+  const s = size;
+  doc.rect(cx - t / 2, cy - s, t, s * 2, "F");
+  doc.rect(cx - s, cy - t / 2, s * 2, t, "F");
+}
+
+function drawHeartIcon(doc: jsPDF, cx: number, cy: number, size: number) {
+  const r = size * 0.55;
+  doc.circle(cx - r * 0.6, cy - r * 0.2, r, "F");
+  doc.circle(cx + r * 0.6, cy - r * 0.2, r, "F");
+  doc.triangle(
+    cx - r * 1.25, cy + r * 0.05,
+    cx + r * 1.25, cy + r * 0.05,
+    cx, cy + r * 1.7,
+    "F",
+  );
+}
+
+function drawEcgLine(doc: jsPDF, y: number) {
+  setStroke(doc, [210, 235, 232]);
+  doc.setLineWidth(0.35);
+  const segW = 14;
+  let x = 0;
+  let prevX = x;
+  let prevY = y;
+  const lineTo = (nx: number, ny: number) => {
+    doc.line(prevX, prevY, nx, ny);
+    prevX = nx; prevY = ny;
+  };
+  while (x < PAGE_W) {
+    lineTo(x + segW * 0.35, y);
+    lineTo(x + segW * 0.42, y - 1.2);
+    lineTo(x + segW * 0.48, y + 3.8);
+    lineTo(x + segW * 0.52, y - 6.5);
+    lineTo(x + segW * 0.58, y + 2.2);
+    lineTo(x + segW * 0.7, y);
+    lineTo(x + segW, y);
+    x += segW;
+  }
+}
+
+function drawPageBackground(doc: jsPDF) {
+  setFill(doc, [228, 244, 241]);
+  const step = 26;
+  for (let row = 0, yy = 22; yy < PAGE_H - 16; yy += step, row++) {
+    const offset = (row % 2) * (step / 2);
+    for (let xx = 8 + offset; xx < PAGE_W - 4; xx += step) {
+      drawPlusIcon(doc, xx, yy, 1.4);
+    }
+  }
+  setFill(doc, [243, 232, 236]);
+  const hearts: [number, number, number][] = [
+    [32, 70, 2.0], [168, 95, 2.4], [55, 165, 2.2],
+    [150, 200, 2.0], [25, 250, 2.4], [180, 270, 2.0],
+  ];
+  for (const [hx, hy, hs] of hearts) drawHeartIcon(doc, hx, hy, hs);
+  drawEcgLine(doc, PAGE_H - 22);
+}
 
 // ============ Top accent strip (every page) ============
 function drawTopAccent(doc: jsPDF) {
@@ -481,6 +539,7 @@ function formatPatientProfileLocal(p: PatientProfile): string {
 async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
+  drawPageBackground(doc);
   drawPageHeader(doc, station, "ATOR", logo);
   let y = CONTENT_START_Y;
 
@@ -586,6 +645,7 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
 async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
+  drawPageBackground(doc);
   drawPageHeader(doc, station, "CANDIDATO", logo);
   let y = CONTENT_START_Y;
 
