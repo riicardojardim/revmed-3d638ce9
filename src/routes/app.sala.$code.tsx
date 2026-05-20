@@ -32,6 +32,7 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
 import { useServerFn } from "@tanstack/react-start";
 import { listRoomPresence } from "@/lib/livekit.functions";
+import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
@@ -1344,6 +1345,16 @@ function SimuladoRunner({ id }: { id: string }) {
               </div>
             </div>
           )}
+
+          <RelatedResources
+            specialty={station.specialty}
+            title={station.title}
+            stationId={station.id}
+            show={{ flashcard: true, resumo: true }}
+            excludeStationId={station.id}
+            heading="Sugestões para este tema"
+            className="p-3"
+          />
 
           {/* Progresso do simulado — só faz sentido com 2+ estações */}
           {sim.stations.length >= 2 && (
