@@ -570,6 +570,9 @@ function ActorView() {
   async function startStation() {
     if (!room) return;
     if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
+    if (!actorInCall) return toast.error("Entre na videochamada antes de iniciar o cronômetro.", {
+      description: 'Clique em "Vídeo da sala" no canto inferior direito e ative câmera/microfone.',
+    });
     setStarting(true);
     const { error } = await supabase.from("training_rooms")
       .update({ status: "running", started_at: new Date().toISOString() })
