@@ -251,14 +251,16 @@ function AppLayout() {
               <span className="hidden h-3 w-px bg-mint/40 lg:inline-block" />
               <span className="hidden text-muted-foreground lg:inline">{NOTA_DE_CORTE_EDICAO}</span>
             </span>
-            <a
-              href="https://chat.whatsapp.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden shrink-0 truncate rounded-full border border-medical/40 bg-medical/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:border-mint/50 hover:bg-mint/10 hover:text-mint sm:inline-block"
-            >
-              <span className="text-muted-foreground">Grupo Premium 2026.1 ·</span> <span className="text-mint">WhatsApp (Grupo 6)</span>
-            </a>
+            {waEnabled && (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="hidden shrink-0 truncate rounded-full border border-medical/40 bg-medical/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-mint transition-colors hover:border-mint/50 hover:bg-mint/10 sm:inline-block"
+              >
+                {waLabel}
+              </a>
+            )}
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
             <NotificationBell />
