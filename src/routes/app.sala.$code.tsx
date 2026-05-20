@@ -72,7 +72,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
   const { settings } = useSiteSettings();
-  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door";
+  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door" | "corridor";
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
