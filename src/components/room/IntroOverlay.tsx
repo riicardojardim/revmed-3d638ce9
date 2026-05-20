@@ -4,12 +4,13 @@ import { StationIntroOverlayCorridor, INTRO_DURATION_MS as CORRIDOR_DURATION } f
 import { StationIntroOverlayXray, INTRO_DURATION_MS as XRAY_DURATION } from "./StationIntroOverlayXray";
 import { StationIntroOverlayStamp, INTRO_DURATION_MS as STAMP_DURATION } from "./StationIntroOverlayStamp";
 import { StationIntroOverlayElevator, INTRO_DURATION_MS as ELEVATOR_DURATION } from "./StationIntroOverlayElevator";
+import { StationIntroOverlayIV, INTRO_DURATION_MS as IV_DURATION } from "./StationIntroOverlayIV";
 
-export type IntroVariant = "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator";
+export type IntroVariant = "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv";
 export type { IntroRole };
 
 export const INTRO_DURATION_MS = Math.max(
-  CLASSIC_DURATION, DOOR_DURATION, CORRIDOR_DURATION, XRAY_DURATION, STAMP_DURATION, ELEVATOR_DURATION,
+  CLASSIC_DURATION, DOOR_DURATION, CORRIDOR_DURATION, XRAY_DURATION, STAMP_DURATION, ELEVATOR_DURATION, IV_DURATION,
 );
 
 interface Props {
@@ -30,5 +31,6 @@ export function IntroOverlay({ variant, ...rest }: Props) {
   if (variant === "xray") return <StationIntroOverlayXray {...rest} />;
   if (variant === "stamp") return <StationIntroOverlayStamp {...rest} />;
   if (variant === "elevator") return <StationIntroOverlayElevator {...rest} />;
+  if (variant === "iv") return <StationIntroOverlayIV {...rest} />;
   return <StationIntroOverlay {...rest} />;
 }
