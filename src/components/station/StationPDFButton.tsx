@@ -58,7 +58,7 @@ export function StationPDFButton({ stationId, size = "sm", variant = "outline", 
             try {
               setLoading("ator");
               const { station } = await fetchData();
-              downloadActorPDF(station as never);
+              await downloadActorPDF(station as never);
               toast.success("PDF do ator gerado");
             } catch (err) {
               toast.error(err instanceof Error ? err.message : "Falha ao gerar PDF");
@@ -75,7 +75,7 @@ export function StationPDFButton({ stationId, size = "sm", variant = "outline", 
             try {
               setLoading("candidato");
               const { station, items } = await fetchData();
-              downloadCandidatePDF(station as never, items as never);
+              await downloadCandidatePDF(station as never, items as never);
               toast.success("PDF do candidato gerado");
             } catch (err) {
               toast.error(err instanceof Error ? err.message : "Falha ao gerar PDF");
