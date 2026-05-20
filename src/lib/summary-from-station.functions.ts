@@ -568,8 +568,6 @@ export async function generateAndSaveSummary(
       specialty: input.specialty,
       topic: result.topic ?? input.topic ?? null,
       difficulty: result.difficulty,
-      read_time_minutes: 7,
-      high_yield: false,
       definition: result.definition,
       clinical_picture: result.clinical_picture,
       diagnosis: result.diagnosis,
