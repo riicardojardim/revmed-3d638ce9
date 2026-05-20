@@ -468,6 +468,32 @@ export async function generateAndSaveSummary(
     console.warn("[summary-verifier] falhou, seguindo com checagem estrutural apenas:", err);
   }
 
+  // Remove qualquer citação inline que o modelo tenha escapado (colchetes ou
+  // parênteses com nome de fonte). As fontes ficam APENAS no card de Referências.
+  const stripInlineCitations = (s: string | null | undefined): string => {
+    if (!s) return "";
+    let out = s;
+    // [Qualquer coisa entre colchetes até ~140 chars]
+    out = out.replace(/\s*\[[^\]\n]{2,140}\]/g, "");
+    // (MS — ...), (ANVISA ...), (SBC 2020), (Diretriz ...), (WHO 2021), (INEP ...), (PCDT ...), (FEBRASGO ...), (SBP ...), (SBPT ...) etc.
+    out = out.replace(
+      /\s*\((?:MS|ANVISA|SBC|SBP|SBPT|SBN|SBD|SBI|SBEM|FEBRASGO|WHO|OMS|INEP|PCDT|Diretriz|Bula)[^()\n]{0,140}\)/gi,
+      "",
+    );
+    // " — Fonte: ..." no fim da linha
+    out = out.replace(/\s*[—-]\s*Fonte:[^\n]*$/gim, "");
+    // Espaços duplicados deixados pela remoção
+    out = out.replace(/[ \t]{2,}/g, " ").replace(/ +([.,;:!?])/g, "$1");
+    return out.trim();
+  };
+  result.definition = stripInlineCitations(result.definition);
+  result.clinical_picture = stripInlineCitations(result.clinical_picture);
+  result.diagnosis = stripInlineCitations(result.diagnosis);
+  result.conduct = stripInlineCitations(result.conduct);
+  result.key_points = stripInlineCitations(result.key_points);
+  result.pitfalls = stripInlineCitations(result.pitfalls);
+
+
   const verifierIssues = verifier?.issues ?? [];
   const allIssues = [...structIssues, ...verifierIssues];
   const hasBlockingError =
