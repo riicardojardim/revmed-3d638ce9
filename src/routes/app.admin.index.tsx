@@ -7,7 +7,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
+import { useSiteSettings, refreshSiteSettings } from "@/hooks/use-site-settings";
+import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
@@ -25,6 +28,24 @@ interface DailyPoint { date: string; label: string; value: number }
 
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
+  const { settings } = useSiteSettings();
+  const [variant, setVariant] = useState<"classic" | "door">("classic");
+  const [savingVariant, setSavingVariant] = useState(false);
+  useEffect(() => {
+    if (settings?.intro_animation_variant) setVariant(settings.intro_animation_variant);
+  }, [settings?.intro_animation_variant]);
+  async function saveVariant() {
+    if (!settings?.id) return;
+    setSavingVariant(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ intro_animation_variant: variant })
+      .eq("id", settings.id);
+    setSavingVariant(false);
+    if (error) return toast.error("Erro ao salvar", { description: error.message });
+    await refreshSiteSettings();
+    toast.success("Animação salva", { description: variant === "door" ? "Médico abrindo a porta" : "Crachá + Prontuário" });
+  }
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     users: 0, attempts: 0, attempts7: 0, attempts30: 0,
@@ -156,25 +177,44 @@ function AdminOverview() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="font-display font-semibold flex items-center gap-2">
-              <Play className="h-4 w-4 text-mint" /> Testar animação de entrada
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Pré-visualize a sequência "Prontuário + Crachá" (~9s) sem precisar criar um checklist.
-            </p>
+      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5 space-y-4">
+        <div>
+          <h3 className="font-display font-semibold flex items-center gap-2">
+            <Play className="h-4 w-4 text-mint" /> Animação de entrada da estação
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Escolha qual animação ator e candidato veem ao iniciar uma estação. O preview usa a opção selecionada abaixo.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex-1 min-w-[240px]">
+            <label className="text-[11px] uppercase tracking-wider text-muted-foreground">Animação ativa</label>
+            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door")}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="classic">Crachá + Prontuário (clássica)</SelectItem>
+                <SelectItem value="door">Médico abrindo a porta</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>Ver como Candidato</Button>
-            <Button size="sm" variant="outline" onClick={() => setTestRole("paciente")}>Ver como Ator</Button>
-          </div>
+          <Button onClick={saveVariant} disabled={savingVariant || variant === (settings?.intro_animation_variant ?? "classic")}>
+            {savingVariant ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1 border-t border-mint/20">
+          <span className="text-xs text-muted-foreground self-center mr-1">Pré-visualizar:</span>
+          <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>
+            <Play className="h-3.5 w-3.5" /> Ver como Candidato
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setTestRole("paciente")}>
+            <Play className="h-3.5 w-3.5" /> Ver como Ator
+          </Button>
         </div>
       </div>
 
       {testRole && (
-        <StationIntroOverlay
+        <IntroOverlay
+          variant={variant}
           role={testRole}
           stationTitle="Estação de Teste — Dor Torácica Aguda"
           specialty="Clínica Médica"
