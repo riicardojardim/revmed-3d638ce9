@@ -47,13 +47,15 @@ FORMATO OBRIGATÓRIO: "PARTE EM CAIXA ALTA - Frase descritiva em Title Case"
 - DEPOIS do hífen: a AÇÃO PRINCIPAL que o candidato precisa executar, em Title Case (ex.: "Manejo na Emergência", "Diagnóstico e Conduta Inicial", "Abordagem Ambulatorial", "Atendimento ao Politrauma", "Comunicação de Más Notícias").
 
 REGRAS:
-- Se o usuário JÁ digitou siglas/letras maiúsculas no início do título atual, PRESERVE EXATAMENTE essas siglas antes do hífen. Não invente, não traduza, não expanda.
-- Se NÃO houver título atual ou siglas, IDENTIFIQUE o diagnóstico/tema principal a partir do conteúdo e use-o em CAIXA ALTA antes do hífen.
-- BASE PRIMÁRIA: candidate_task + pep_items (mostram o que de fato é avaliado → define a AÇÃO depois do hífen).
-- BASE SECUNDÁRIA: clinical_case + patient_script (identificam o DIAGNÓSTICO antes do hífen).
+- PRIORIDADE MÁXIMA: a parte antes do hífen DEVE ser o DIAGNÓSTICO/CONDIÇÃO CLÍNICA específica identificada a partir de clinical_case + case_description + patient_script + candidate_task + pep_items (ex.: "ANEMIA FERROPRIVA", "DPOC EXACERBADA", "HIPOTIREOIDISMO PRIMÁRIO"). NUNCA use o nome de uma ESPECIALIDADE/ÁREA como diagnóstico.
+- LISTA NEGRA — NUNCA use estes termos antes do hífen, são especialidades/áreas, não diagnósticos: "CLÍNICA MÉDICA", "CIRURGIA", "CIRURGIA GERAL", "PEDIATRIA", "GINECOLOGIA", "OBSTETRÍCIA", "GINECOLOGIA E OBSTETRÍCIA", "MEDICINA DE FAMÍLIA", "MEDICINA DE FAMÍLIA E COMUNIDADE", "PREVENTIVA", "SAÚDE COLETIVA", "PSIQUIATRIA", "EMERGÊNCIA", "URGÊNCIA", "AMBULATÓRIO".
+- Ignore o currentTitle se ele for genérico (uma especialidade da lista negra, "Nova estação", vazio, ou apenas a especialidade repetida). Nesses casos, IDENTIFIQUE o diagnóstico real do conteúdo.
+- Só PRESERVE o início do currentTitle quando ele já contiver uma SIGLA MÉDICA CONSAGRADA DE DIAGNÓSTICO (DPOC, IAM, AVC, HDA, TEP, ITU, HAS, DM2, ICC, IRA, IRC, AVE, HSA, TVP, HPB, DRGE, DHEG etc.). Nomes de especialidade NÃO são siglas a preservar.
+- BASE PRIMÁRIA do DIAGNÓSTICO: clinical_case + case_description + patient_script (sintomas, achados, exames). BASE PRIMÁRIA da AÇÃO: candidate_task + pep_items.
 - A frase depois do hífen deve ter 2 a 6 palavras em Title Case português.
-- NUNCA invente diagnóstico. Se o tema não estiver claro, use a queixa/situação principal em CAIXA ALTA (ex.: "DOR ABDOMINAL AGUDA - Investigação Inicial").
-- Retorne 1 título principal + até 3 alternativas (variando a ação OU o nome do diagnóstico — ex.: alternar entre sigla e nome por extenso).
+- NUNCA invente diagnóstico. Se realmente não houver pistas, use a queixa principal específica em CAIXA ALTA (ex.: "DOR ABDOMINAL AGUDA - Investigação Inicial"), nunca a especialidade.
+- Retorne 1 título principal + até 3 alternativas (variando a ação OU alternando entre sigla e nome por extenso do mesmo diagnóstico).
+
 
 Retorne SOMENTE JSON: {"title": "...", "alternatives": ["...", "..."]}`;
 
@@ -64,10 +66,25 @@ export const suggestStationTitle = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
+    const GENERIC_TITLES = new Set([
+      "clinica medica", "cirurgia", "cirurgia geral", "pediatria",
+      "ginecologia", "obstetricia", "ginecologia e obstetricia",
+      "medicina de familia", "medicina de familia e comunidade",
+      "preventiva", "saude coletiva", "psiquiatria",
+      "emergencia", "urgencia", "ambulatorio", "nova estacao", "",
+    ]);
+    const norm = (s: string) =>
+      s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const ct = data.currentTitle.trim();
+    const ctNorm = norm(ct);
+    const isGeneric =
+      GENERIC_TITLES.has(ctNorm) || ctNorm === norm(data.specialty);
+    const effectiveCurrentTitle = isGeneric ? "" : ct;
+
     const userPayload = {
       instruction:
-        "Sugira um título no formato 'SIGLAS - Descrição curta' preservando siglas. Baseie a descrição PRINCIPALMENTE em candidate_task + pep_items. Retorne SOMENTE JSON.",
-      currentTitle: data.currentTitle,
+        "Identifique o DIAGNÓSTICO específico a partir de clinical_case/case_description/patient_script e a AÇÃO a partir de candidate_task/pep_items. NUNCA use o nome da especialidade como diagnóstico. Retorne SOMENTE JSON.",
+      currentTitle: effectiveCurrentTitle,
       specialty: data.specialty,
       candidate_task: data.candidate_task.slice(0, 3000),
       pep_items: data.pep_items.slice(0, 60),
@@ -75,6 +92,7 @@ export const suggestStationTitle = createServerFn({ method: "POST" })
       case_description: data.case_description.slice(0, 2500),
       patient_script: data.patient_script.slice(0, 2500),
     };
+
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 45_000);
