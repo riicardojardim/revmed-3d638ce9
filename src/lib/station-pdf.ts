@@ -310,6 +310,17 @@ function drawCard(
 }
 
 // ============ Script text renderer (preserves blank lines + **bold**) ============
+// Auto-bold the "Label:" prefix of a line if it isn't already styled.
+function autoBoldLabel(line: string): string {
+  if (line.includes("**")) return line;
+  if (/https?:\/\//i.test(line)) return line;
+  const m = line.match(/^(\s*(?:[-•—–]\s*)?)([^:\n*]{1,80}):(\s*)(.*)$/);
+  if (!m) return line;
+  const [, lead, label, sp, rest] = m;
+  if (/[.!?]/.test(label)) return line;
+  return `${lead}**${label}:**${sp}${rest}`;
+}
+
 function renderScriptText(doc: jsPDF, text: string, x: number, y: number, w: number): number {
   const fontSize = 10;
   const lineH = 5.2;
@@ -320,7 +331,7 @@ function renderScriptText(doc: jsPDF, text: string, x: number, y: number, w: num
       y += paraGap + 1.5;
       continue;
     }
-    const segs = parseBoldSegments(raw);
+    const segs = parseBoldSegments(autoBoldLabel(raw));
     const wrapped = wrapSegments(doc, segs, w, fontSize);
     for (const ln of wrapped) {
       y = ensureSpace(doc, y, lineH);
@@ -692,14 +703,15 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
           const sorted = (it.levels ?? []).slice().sort((a, b) => (a.points ?? 0) - (b.points ?? 0));
           const inad = sorted[0]; const adeq = sorted[sorted.length - 1];
           const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
-          const catPrefix = it.category?.trim() ? `[${it.category.trim()}] ` : "";
-          let cell = `${catPrefix}${it.description || ""}`;
-          if (it.helper_text?.trim()) cell += `\n${it.helper_text.trim()}`;
+          const cat = it.category?.trim() || "Item";
+          const parts: string[] = [`${idx + 1}. ${cat}`];
+          if (it.description?.trim()) parts.push(it.description.trim());
+          if (it.helper_text?.trim()) parts.push(it.helper_text.trim());
           const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
-          if (hints) cell += `\n${hints}`;
+          if (hints) parts.push(hints);
           return [
             String(idx + 1),
-            cell,
+            parts.join("\n"),
             inad ? inad.points.toFixed(2) : "—",
             parc ? parc.points.toFixed(2) : "—",
             adeq ? adeq.points.toFixed(2) : "—",
@@ -720,6 +732,35 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
         },
         alternateRowStyles: { fillColor: [248, 251, 254] },
         tableWidth: w,
+        willDrawCell: (data) => {
+          if (data.section === "body" && data.column.index === 1) {
+            const isAlt = data.row.index % 2 === 1;
+            if (isAlt) {
+              setFill(doc, [248, 251, 254]);
+            } else {
+              setFill(doc, [255, 255, 255]);
+            }
+            doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, "F");
+            setStroke(doc, C_BORDER);
+            doc.setLineWidth(0.2);
+            doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, "S");
+            const padL = 1.8;
+            const padT = 1.8;
+            const fs = 8.5;
+            const lineH = fs * 1.15 / 2.835;
+            const lines = Array.isArray(data.cell.text) ? data.cell.text : [String(data.cell.text)];
+            setText(doc, C_TEXT);
+            doc.setFontSize(fs);
+            let ty = data.cell.y + padT + lineH * 0.85;
+            for (let i = 0; i < lines.length; i++) {
+              doc.setFont("helvetica", i === 0 ? "bold" : "normal");
+              doc.text(lines[i], data.cell.x + padL, ty);
+              ty += lineH;
+            }
+            return false;
+          }
+          return true;
+        },
       });
       const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? yy;
       // total row
