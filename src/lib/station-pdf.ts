@@ -1,8 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logoUrl from "@/assets/logo-estacao-revalida.png";
 
-// ============ Types (kept loose to match the editor route) ============
+// ============ Types (loose, matching the editor route shape) ============
 interface PatientProfile {
   name?: string; age?: string; sex?: string; city?: string; profession?: string;
   chiefComplaint?: string; hpi?: string; personalHistory?: string;
@@ -47,359 +46,354 @@ interface StationLike {
 const PAGE_W = 210;
 const PAGE_H = 297;
 const MARGIN_X = 14;
-const MARGIN_BOTTOM = 16;
+const MARGIN_TOP = 14;
+const MARGIN_BOTTOM = 14;
 const CONTENT_W = PAGE_W - MARGIN_X * 2;
 
-const COLOR_TEXT: [number, number, number] = [30, 35, 45];
-const COLOR_MUTED: [number, number, number] = [110, 116, 130];
-const COLOR_BRAND: [number, number, number] = [31, 169, 131];      // green primary
-const COLOR_BRAND_DARK: [number, number, number] = [23, 138, 106]; // header band
-const COLOR_BRAND_LIGHT: [number, number, number] = [191, 229, 214]; // light chip
-const COLOR_BORDER: [number, number, number] = [43, 182, 115];
+// Brand colors (match src/styles.css)
+const C_NIGHT: [number, number, number] = [7, 17, 31];
+const C_MEDICAL: [number, number, number] = [15, 76, 129];
+const C_MINT: [number, number, number] = [0, 194, 168];
+const C_TEXT: [number, number, number] = [25, 30, 40];
+const C_MUTED: [number, number, number] = [110, 116, 130];
+const C_BORDER: [number, number, number] = [220, 226, 234];
+const C_SUBBG: [number, number, number] = [245, 248, 252];
 
-// ============ Helpers ============
-function setText(doc: jsPDF, c: [number, number, number]) { doc.setTextColor(c[0], c[1], c[2]); }
-function setFill(doc: jsPDF, c: [number, number, number]) { doc.setFillColor(c[0], c[1], c[2]); }
-function setStroke(doc: jsPDF, c: [number, number, number]) { doc.setDrawColor(c[0], c[1], c[2]); }
+function setText(d: jsPDF, c: [number, number, number]) { d.setTextColor(c[0], c[1], c[2]); }
+function setFill(d: jsPDF, c: [number, number, number]) { d.setFillColor(c[0], c[1], c[2]); }
+function setStroke(d: jsPDF, c: [number, number, number]) { d.setDrawColor(c[0], c[1], c[2]); }
 
-let cachedLogo: string | null = null;
-async function loadLogoDataURL(): Promise<string | null> {
-  if (cachedLogo) return cachedLogo;
-  try {
-    const res = await fetch(logoUrl);
-    const blob = await res.blob();
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(blob);
-    });
-    cachedLogo = dataUrl;
-    return dataUrl;
-  } catch {
-    return null;
+// ============ Gradient banner (faux linear-gradient(135deg, night, medical, mint)) ============
+function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+function mix(c1: [number, number, number], c2: [number, number, number], t: number): [number, number, number] {
+  return [Math.round(lerp(c1[0], c2[0], t)), Math.round(lerp(c1[1], c2[1], t)), Math.round(lerp(c1[2], c2[2], t))];
+}
+function gradientColorAt(t: number): [number, number, number] {
+  // 0 → night, 0.6 → medical, 1 → mint  (matches bg-gradient-hero stops)
+  if (t <= 0.6) return mix(C_NIGHT, C_MEDICAL, t / 0.6);
+  return mix(C_MEDICAL, C_MINT, (t - 0.6) / 0.4);
+}
+function drawGradientBanner(doc: jsPDF, x: number, y: number, w: number, h: number) {
+  const steps = 60;
+  const sw = w / steps;
+  for (let i = 0; i < steps; i++) {
+    const c = gradientColorAt(i / (steps - 1));
+    setFill(doc, c);
+    // Slight overlap to avoid hairline gaps
+    doc.rect(x + i * sw, y, sw + 0.2, h, "F");
   }
 }
 
-function drawTopBand(doc: jsPDF) {
-  setFill(doc, COLOR_BRAND);
-  doc.rect(0, 0, PAGE_W, 6, "F");
+// ============ Inline text renderer that supports **bold** ============
+type Seg = { text: string; bold: boolean };
+function parseBoldSegments(line: string): Seg[] {
+  const out: Seg[] = [];
+  const re = /\*\*([^*]+)\*\*/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(line)) !== null) {
+    if (m.index > last) out.push({ text: line.slice(last, m.index), bold: false });
+    out.push({ text: m[1], bold: true });
+    last = m.index + m[0].length;
+  }
+  if (last < line.length) out.push({ text: line.slice(last), bold: false });
+  if (out.length === 0) out.push({ text: line, bold: false });
+  return out;
 }
 
-function drawHeader(
-  doc: jsPDF,
-  station: StationLike,
-  kind: "ATOR" | "PARTICIPANTE" | "IMPRESSO" | "PEP",
-  logo: string | null,
-): number {
-  drawTopBand(doc);
-
-  // Logo block (centered horizontally in left 70% area)
-  const logoTop = 10;
-  if (logo) {
-    try {
-      // logo is wide horizontal; place at top-left, scaled
-      doc.addImage(logo, "PNG", MARGIN_X, logoTop, 56, 14, undefined, "FAST");
-    } catch {
-      // ignore image errors
+// Word-wrap segments to fit width, returning visual lines (each is an array of segments).
+function wrapSegments(doc: jsPDF, segs: Seg[], maxW: number, fontSize: number): Seg[][] {
+  doc.setFontSize(fontSize);
+  // Tokenize each segment into word/space tokens preserving bold flag.
+  type Tok = { text: string; bold: boolean; space: boolean };
+  const toks: Tok[] = [];
+  for (const s of segs) {
+    const parts = s.text.split(/(\s+)/);
+    for (const p of parts) {
+      if (!p) continue;
+      toks.push({ text: p, bold: s.bold, space: /^\s+$/.test(p) });
     }
   }
-  // Subtitle text under logo
-  setText(doc, COLOR_TEXT);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.text("Plataforma de simulação para o Revalida", MARGIN_X, logoTop + 19);
-  doc.text("Material para impressão e uso presencial", MARGIN_X, logoTop + 23);
-
-  // Right-side kind band
-  const bandY = logoTop + 12;
-  const bandH = 8;
-  setFill(doc, COLOR_BRAND_DARK);
-  doc.rect(PAGE_W - 50, bandY, 50, bandH, "F");
-  setText(doc, [255, 255, 255]);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text(kind, PAGE_W - 25, bandY + 5.6, { align: "center" });
-
-  // Specialty / Title chips
-  const chipsY = logoTop + 28;
-  // ESTAÇÃO chip (left, light green)
-  const leftChipW = 32;
-  setFill(doc, COLOR_BRAND_LIGHT);
-  doc.rect(MARGIN_X, chipsY, leftChipW, 11, "F");
-  setText(doc, COLOR_BRAND_DARK);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("ESTAÇÃO", MARGIN_X + leftChipW / 2, chipsY + 7.2, { align: "center" });
-
-  // Specialty/title chip (right, lighter bg)
-  const rightX = MARGIN_X + leftChipW + 2;
-  const rightW = CONTENT_W - leftChipW - 2;
-  setFill(doc, [232, 246, 240]);
-  doc.rect(rightX, chipsY, rightW, 11, "F");
-  setText(doc, [60, 70, 80]);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  const spec = (station.specialty || "").toUpperCase();
-  doc.text(spec, rightX + 4, chipsY + 7.4);
-
-  // Station title (smaller, below chips)
-  const titleY = chipsY + 17;
-  setText(doc, COLOR_TEXT);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  const titleLines = doc.splitTextToSize(station.title, CONTENT_W);
-  doc.text(titleLines, MARGIN_X, titleY);
-
-  return titleY + titleLines.length * 5 + 3;
+  const lines: Seg[][] = [];
+  let cur: Seg[] = [];
+  let curW = 0;
+  const widthOf = (t: Tok) => {
+    doc.setFont("helvetica", t.bold ? "bold" : "normal");
+    return doc.getTextWidth(t.text);
+  };
+  for (const t of toks) {
+    const w = widthOf(t);
+    if (curW + w > maxW && cur.length && !t.space) {
+      lines.push(cur);
+      cur = []; curW = 0;
+    }
+    if (curW === 0 && t.space) continue; // skip leading spaces
+    cur.push({ text: t.text, bold: t.bold });
+    curW += w;
+  }
+  if (cur.length) lines.push(cur);
+  return lines;
 }
 
-function drawSectionBar(doc: jsPDF, y: number, label: string): number {
-  if (y > PAGE_H - MARGIN_BOTTOM - 14) {
+function drawSegLine(doc: jsPDF, segs: Seg[], x: number, y: number, fontSize: number) {
+  doc.setFontSize(fontSize);
+  setText(doc, C_TEXT);
+  let cx = x;
+  for (const s of segs) {
+    doc.setFont("helvetica", s.bold ? "bold" : "normal");
+    doc.text(s.text, cx, y);
+    cx += doc.getTextWidth(s.text);
+  }
+}
+
+// ============ Card (PRBlock-style) ============
+function ensureSpace(doc: jsPDF, y: number, needed: number): number {
+  if (y + needed > PAGE_H - MARGIN_BOTTOM) {
     drawFooter(doc);
     doc.addPage();
-    drawTopBand(doc);
-    y = 14;
+    return MARGIN_TOP;
   }
-  setFill(doc, COLOR_BRAND);
-  doc.rect(MARGIN_X, y, CONTENT_W, 8, "F");
-  setText(doc, [255, 255, 255]);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text(label.toUpperCase(), MARGIN_X + 4, y + 5.6);
-  return y + 11;
-}
-
-function drawFooter(doc: jsPDF) {
-  // Bottom green band with brand text
-  setFill(doc, COLOR_BRAND);
-  doc.rect(0, PAGE_H - 8, PAGE_W, 8, "F");
-  setText(doc, [255, 255, 255]);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text("ESTAÇÃO REVALIDA — estacaorevalida.com.br", PAGE_W / 2, PAGE_H - 3, { align: "center" });
-
-  setText(doc, COLOR_MUTED);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  doc.text(`Página ${doc.getNumberOfPages()}`, PAGE_W - MARGIN_X, PAGE_H - 10, { align: "right" });
-}
-
-// Wrap a content block in a green-bordered rounded rectangle.
-// Caller draws content with the provided drawer; we measure height and stroke the border.
-function drawBorderedBox(doc: jsPDF, yStart: number, drawer: (innerX: number, innerY: number, innerW: number) => number): number {
-  const padX = 5;
-  const padY = 5;
-  const innerX = MARGIN_X + padX;
-  const innerW = CONTENT_W - padX * 2;
-  const contentTopY = yStart + padY;
-  const endY = drawer(innerX, contentTopY, innerW);
-  const boxH = endY - yStart + padY;
-  setStroke(doc, COLOR_BORDER);
-  doc.setLineWidth(0.5);
-  doc.rect(MARGIN_X, yStart, CONTENT_W, boxH, "S");
-  return yStart + boxH + 3;
-}
-
-// Render an "ATOR-style" content section: each entry is { title, lines: [[label?, value]] }
-interface BoxSection {
-  title: string;
-  // Each line either:
-  //  - { label, value } => "- **Label:** value"
-  //  - { text }         => "- text" (no bold label)
-  //  - { paragraph }    => plain paragraph (no bullet)
-  lines: Array<{ label?: string; value?: string; text?: string; paragraph?: string }>;
-}
-
-function renderBoxSections(
-  doc: jsPDF,
-  startY: number,
-  sections: BoxSection[],
-): number {
-  let y = startY;
-  // Auto page-break helper inside box rendering: we render simply, then if overflow add page.
-  const renderInner = (innerX: number, innerY: number, innerW: number): number => {
-    let cy = innerY;
-    const lineH = 5;
-    sections.forEach((sec, i) => {
-      // section title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10.5);
-      setText(doc, COLOR_TEXT);
-      if (cy > PAGE_H - MARGIN_BOTTOM - 12) {
-        drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
-      }
-      doc.text(sec.title.toUpperCase() + ":", innerX, cy);
-      cy += lineH + 0.5;
-
-      sec.lines.forEach((ln) => {
-        if (ln.paragraph) {
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(10);
-          setText(doc, COLOR_TEXT);
-          const wrapped = doc.splitTextToSize(ln.paragraph, innerW);
-          for (const w of wrapped) {
-            if (cy > PAGE_H - MARGIN_BOTTOM - 10) {
-              drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
-            }
-            doc.text(w, innerX, cy);
-            cy += lineH;
-          }
-          return;
-        }
-        // bullet line
-        const bullet = "- ";
-        const label = ln.label ? `${ln.label}:` : "";
-        const value = ln.value ?? ln.text ?? "";
-        const indent = doc.getTextWidth(bullet);
-        // measure label width in bold
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        const labelW = label ? doc.getTextWidth(label + " ") : 0;
-        const firstLineW = innerW - indent - labelW;
-
-        doc.setFont("helvetica", "normal");
-        const valueLines = doc.splitTextToSize(value, firstLineW > 20 ? firstLineW : innerW - indent);
-        // wrap continuation lines using full inner width minus bullet indent
-        let firstLine = valueLines[0] ?? "";
-        let rest: string[] = valueLines.slice(1);
-        // if value too long even for firstLineW, re-split rest with broader width
-        if (valueLines.length > 1) {
-          rest = doc.splitTextToSize(valueLines.slice(1).join(" "), innerW - indent);
-        }
-
-        if (cy > PAGE_H - MARGIN_BOTTOM - 10) {
-          drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
-        }
-        // bullet
-        doc.setFont("helvetica", "normal");
-        setText(doc, COLOR_TEXT);
-        doc.text(bullet, innerX, cy);
-        // label bold
-        if (label) {
-          doc.setFont("helvetica", "bold");
-          doc.text(label, innerX + indent, cy);
-        }
-        // value normal
-        doc.setFont("helvetica", "normal");
-        doc.text(firstLine, innerX + indent + labelW, cy);
-        cy += lineH;
-        for (const r of rest) {
-          if (cy > PAGE_H - MARGIN_BOTTOM - 10) {
-            drawFooter(doc); doc.addPage(); drawTopBand(doc); cy = 14;
-          }
-          doc.text(r, innerX + indent, cy);
-          cy += lineH;
-        }
-      });
-
-      if (i < sections.length - 1) cy += 2;
-    });
-    return cy;
-  };
-
-  y = drawBorderedBox(doc, y, renderInner);
   return y;
 }
 
-// Parse a free-form string into bullet lines. If text contains lines that look
-// like "Label: value" or "- Label: value", we split them into label/value lines.
-function parseBulletLines(text: string): Array<{ label?: string; value?: string; text?: string }> {
-  const out: Array<{ label?: string; value?: string; text?: string }> = [];
-  const raw = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  for (const line of raw) {
-    const cleaned = line.replace(/^[-•*]\s*/, "");
-    const m = cleaned.match(/^([^:]{1,60}):\s*(.*)$/);
-    if (m) out.push({ label: m[1].trim(), value: m[2].trim() });
-    else out.push({ text: cleaned });
+function drawFooter(doc: jsPDF) {
+  setText(doc, C_MUTED);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.text("estacaorevalida.com.br", MARGIN_X, PAGE_H - 6);
+  doc.text(`Página ${doc.getNumberOfPages()}`, PAGE_W - MARGIN_X, PAGE_H - 6, { align: "right" });
+}
+
+// Render a PRBlock-style card. Returns new y. Renders the gradient header,
+// then the body content via the provided renderer (which gets bodyX, bodyY,
+// bodyW and returns the new y after rendering content).
+function drawCard(
+  doc: jsPDF,
+  y: number,
+  title: string,
+  rightBadge: string | null,
+  render: (bx: number, by: number, bw: number) => number,
+): number {
+  const headerH = 10;
+  const bodyPadX = 5;
+  const bodyPadY = 5;
+
+  // Move to next page if not enough room for header + at least one line
+  y = ensureSpace(doc, y, headerH + 14);
+
+  // Header banner (gradient)
+  drawGradientBanner(doc, MARGIN_X, y, CONTENT_W, headerH);
+  // Title text
+  setText(doc, [255, 255, 255]);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10.5);
+  const titleLines = doc.splitTextToSize(title, CONTENT_W - 10 - (rightBadge ? 24 : 0));
+  // Single-line if possible; if title wraps, only first line shows (banner is fixed height)
+  doc.text(titleLines[0], MARGIN_X + 4, y + 6.6);
+  if (rightBadge) {
+    doc.setFontSize(9);
+    doc.text(rightBadge, PAGE_W - MARGIN_X - 4, y + 6.6, { align: "right" });
   }
-  return out;
+
+  // Body — render content with auto-pagination support; on overflow inside render(),
+  // it should call ensureSpace itself. To keep things simple, we render then if it
+  // crossed page, the new content already drew on the new page. We also stroke a
+  // border around just the FIRST page's body block.
+  const bodyStartY = y + headerH;
+  const bodyTop = bodyStartY + bodyPadY;
+  const newY = render(MARGIN_X + bodyPadX, bodyTop, CONTENT_W - bodyPadX * 2);
+  // If still on the same page (no page break happened inside render), draw a side border
+  // for visual coherence. We can't easily detect that; use a light bottom border instead.
+  const finalY = newY + bodyPadY;
+  setStroke(doc, C_BORDER);
+  doc.setLineWidth(0.3);
+  // Draw left + right + bottom border (skip top — it touches the gradient header)
+  // Only safe to draw if finalY is on the same page as bodyStartY; we approximate by
+  // drawing on the current page from the body top to finalY.
+  const currentPageHeight = finalY - bodyStartY;
+  if (currentPageHeight > 0 && finalY <= PAGE_H - MARGIN_BOTTOM) {
+    doc.line(MARGIN_X, bodyStartY, MARGIN_X, finalY);
+    doc.line(PAGE_W - MARGIN_X, bodyStartY, PAGE_W - MARGIN_X, finalY);
+    doc.line(MARGIN_X, finalY, PAGE_W - MARGIN_X, finalY);
+  }
+  return finalY + 4;
+}
+
+// ============ Script text renderer (preserves blank lines + **bold**) ============
+function renderScriptText(doc: jsPDF, text: string, x: number, y: number, w: number): number {
+  const fontSize = 10;
+  const lineH = 5.2;
+  const paraGap = 2;
+  const lines = (text ?? "").replace(/\r\n/g, "\n").split("\n");
+  for (const raw of lines) {
+    if (!raw.trim()) {
+      y += paraGap + 1.5;
+      continue;
+    }
+    const segs = parseBoldSegments(raw);
+    const wrapped = wrapSegments(doc, segs, w, fontSize);
+    for (const ln of wrapped) {
+      y = ensureSpace(doc, y, lineH);
+      drawSegLine(doc, ln, x, y, fontSize);
+      y += lineH;
+    }
+  }
+  return y;
+}
+
+// Render a sub-block (like the "SubBlock" component) — small uppercase label
+// inside a faint box, then content.
+function renderSubBlock(
+  doc: jsPDF,
+  x: number,
+  y: number,
+  w: number,
+  label: string,
+  body: (bx: number, by: number, bw: number) => number,
+): number {
+  y += 2;
+  y = ensureSpace(doc, y, 12);
+  // label
+  setText(doc, C_MUTED);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.text(label.toUpperCase(), x + 3, y + 4);
+  y += 6;
+  // body inside soft bg
+  const innerX = x + 3;
+  const innerW = w - 6;
+  const startY = y;
+  const endY = body(innerX, y + 2, innerW);
+  // background rectangle
+  setFill(doc, C_SUBBG);
+  setStroke(doc, C_BORDER);
+  doc.setLineWidth(0.2);
+  doc.roundedRect(x, startY - 4, w, endY - startY + 6, 1.5, 1.5, "FD");
+  // re-render body on top (clean since fill replaced text). Easier: render after rect.
+  return endY + 2;
+}
+
+// ============ Page header (small brand strip on every page top) ============
+function drawPageHeader(doc: jsPDF, station: StationLike, kind: "ATOR" | "CANDIDATO") {
+  // Thin colored strip at top
+  drawGradientBanner(doc, 0, 0, PAGE_W, 4);
+  // Title strip
+  setText(doc, C_TEXT);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  const title = kind === "ATOR" ? `${station.title} — ATOR` : station.title;
+  const wrapped = doc.splitTextToSize(title, CONTENT_W - 40);
+  doc.text(wrapped[0], MARGIN_X, 10);
+  // right side: specialty + duração
+  setText(doc, C_MUTED);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.text(`${station.specialty.toUpperCase()} · ${station.duration_minutes} min`, PAGE_W - MARGIN_X, 10, { align: "right" });
+  // subtle divider
+  setStroke(doc, C_BORDER);
+  doc.setLineWidth(0.2);
+  doc.line(MARGIN_X, 12, PAGE_W - MARGIN_X, 12);
+}
+
+// ============ formatPatientProfile (local copy, mirrors src/components/station/shared.tsx) ============
+function formatPatientProfileLocal(p: PatientProfile): string {
+  const out: string[] = [];
+  const boldLabelLines = (raw?: string): string[] => {
+    if (!raw) return [];
+    return raw.split("\n").map((ln) => {
+      const t = ln.trim();
+      if (!t) return "";
+      const m = t.match(/^([^:]{1,60}):\s*(.*)$/);
+      if (m) return `- **${m[1].trim()}:** ${m[2].trim()}`;
+      return `- ${t}`;
+    }).filter(Boolean);
+  };
+  const dadosParts: string[] = [];
+  if (p.name) dadosParts.push(p.name);
+  if (p.age) dadosParts.push(`${p.age} de idade`);
+  if (p.profession) dadosParts.push(String(p.profession).toLowerCase());
+  if (dadosParts.length) { out.push("**DADOS PESSOAIS:**"); out.push(`- ${dadosParts.join(", ")}.`); out.push(""); }
+  if (p.chiefComplaint) { out.push("**MOTIVO DE CONSULTA:**"); out.push(`- ${p.chiefComplaint}`); out.push(""); }
+  if (p.hpi) { out.push("**HISTÓRIA DA DOENÇA ATUAL:**"); out.push(...boldLabelLines(p.hpi)); out.push(""); }
+  if (p.symptoms) { out.push("**SINTOMAS ASSOCIADOS:**"); out.push(...boldLabelLines(p.symptoms)); out.push(""); }
+  if (p.onlyIfAsked) {
+    out.push("**SE PERGUNTADO:**");
+    out.push(`- ${p.onlyIfAsked}`); out.push("");
+  }
+  const antecedentes: string[] = [];
+  if (p.personalHistory) antecedentes.push(...boldLabelLines(p.personalHistory));
+  if (p.medications) antecedentes.push(`- **Medicamentos:** ${p.medications}`);
+  if (p.allergies) antecedentes.push(`- **Alergias:** ${p.allergies}`);
+  if (p.familyHistory) antecedentes.push(`- **História familiar:** ${p.familyHistory}`);
+  if (antecedentes.length) { out.push("**ANTECEDENTES PESSOAIS:**"); out.push(...antecedentes); out.push(""); }
+  if (p.habits) { out.push("**HÁBITOS:**"); out.push(...boldLabelLines(p.habits)); out.push(""); }
+  if (p.vitals) { out.push("**SINAIS VITAIS:**"); out.push(`- ${p.vitals}`); out.push(""); }
+  if (p.previousExams) { out.push("**EXAMES PRÉVIOS:**"); out.push(`- ${p.previousExams}`); out.push(""); }
+  return out.join("\n").trimEnd();
 }
 
 // ============ ACTOR PDF ============
 async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const logo = await loadLogoDataURL();
+  drawPageHeader(doc, station, "ATOR");
+  let y = 16;
 
-  let y = drawHeader(doc, station, "ATOR", logo);
-  y = drawSectionBar(doc, y, "Instruções ao ator");
+  // 1) Cenário de atuação
+  if (station.support_materials?.trim()) {
+    y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
+      renderScriptText(doc, station.support_materials!.trim(), x, yy + 3, w),
+    );
+  }
 
-  const p = station.patient_profile ?? {};
-  const sections: BoxSection[] = [];
+  // 2) Descrição do caso
+  if (station.case_description?.trim()) {
+    y = drawCard(doc, y, "Descrição do caso", null, (x, yy, w) =>
+      renderScriptText(doc, station.case_description!.trim(), x, yy + 3, w),
+    );
+  }
 
-  // Intro paragraph
-  sections.push({
-    title: "Orientações",
-    lines: [{
-      paragraph:
-        "Você é o(a) ator(atriz) desta estação. Mantenha-se no personagem e responda conforme o roteiro abaixo. Só revele as informações marcadas como “somente se perguntado” quando o candidato perguntar especificamente. Nunca revele as informações marcadas como “não revelar”.",
-    }],
-  });
+  // 3) Tarefas
+  if (station.candidate_task?.trim()) {
+    y = drawCard(
+      doc,
+      y,
+      `Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`,
+      null,
+      (x, yy, w) => renderScriptText(doc, station.candidate_task.trim(), x, yy + 3, w),
+    );
+  }
 
-  // Dados pessoais
-  const dadosLines: BoxSection["lines"] = [];
-  const dadosParts: string[] = [];
-  if (p.name) dadosParts.push(p.name);
-  if (p.age) dadosParts.push(`${p.age} anos`);
-  if (p.sex) dadosParts.push(p.sex);
-  if (p.profession) dadosParts.push(p.profession);
-  if (p.city) dadosParts.push(p.city);
-  if (dadosParts.length) dadosLines.push({ text: dadosParts.join(", ") + "." });
-  if (dadosLines.length) sections.push({ title: "Dados pessoais", lines: dadosLines });
+  // 4) Orientações do Ator/Atriz
+  const p = station.patient_profile;
+  if (p) {
+    y = drawCard(doc, y, "Orientações do Ator/Atriz", null, (x, yy, w) => {
+      let cy = yy + 3;
+      const scriptText = formatPatientProfileLocal(p);
+      if (scriptText) cy = renderScriptText(doc, scriptText, x, cy, w);
 
-  if (p.chiefComplaint) {
-    sections.push({
-      title: "Motivo de consulta",
-      lines: [{ text: `“${p.chiefComplaint}”` }],
+      if (p.spontaneous?.trim()) {
+        cy = renderSubBlock(doc, x, cy, w, "O que falar espontaneamente", (bx, by, bw) =>
+          renderScriptText(doc, p.spontaneous!.trim(), bx, by, bw),
+        );
+      }
+      if (p.doNotReveal?.trim()) {
+        cy = renderSubBlock(doc, x, cy, w, "Nunca revelar", (bx, by, bw) =>
+          renderScriptText(doc, p.doNotReveal!.trim(), bx, by, bw),
+        );
+      }
+      if (p.emotionalTone?.trim() || p.actingTips?.trim()) {
+        cy = renderSubBlock(doc, x, cy, w, "Tom emocional e atuação", (bx, by, bw) => {
+          let yy2 = by;
+          if (p.emotionalTone?.trim())
+            yy2 = renderScriptText(doc, `**Tom:** ${p.emotionalTone.trim()}`, bx, yy2, bw);
+          if (p.actingTips?.trim())
+            yy2 = renderScriptText(doc, `**Dicas:** ${p.actingTips.trim()}`, bx, yy2, bw);
+          return yy2;
+        });
+      }
+      return cy;
     });
   }
-
-  if (p.hpi || p.symptoms) {
-    const lines: BoxSection["lines"] = [];
-    if (p.hpi) lines.push(...parseBulletLines(p.hpi));
-    if (p.symptoms) lines.push(...parseBulletLines(p.symptoms));
-    sections.push({ title: "História da doença atual", lines });
-  }
-
-  if (p.personalHistory || p.medications || p.allergies) {
-    const lines: BoxSection["lines"] = [];
-    if (p.personalHistory) lines.push({ label: "Comorbidades", value: p.personalHistory });
-    if (p.medications) lines.push({ label: "Uso de medicamentos", value: p.medications });
-    if (p.allergies) lines.push({ label: "Alergias", value: p.allergies });
-    sections.push({ title: "Antecedentes pessoais", lines });
-  }
-
-  if (p.familyHistory) {
-    sections.push({ title: "Antecedentes familiares", lines: parseBulletLines(p.familyHistory) });
-  }
-
-  if (p.habits) {
-    sections.push({ title: "Hábitos", lines: parseBulletLines(p.habits) });
-  }
-
-  if (p.vitals || p.previousExams) {
-    const lines: BoxSection["lines"] = [];
-    if (p.vitals) lines.push({ label: "Sinais vitais", value: p.vitals });
-    if (p.previousExams) lines.push({ label: "Exames prévios", value: p.previousExams });
-    sections.push({ title: "Informações clínicas", lines });
-  }
-
-  if (p.spontaneous || p.onlyIfAsked || p.doNotReveal) {
-    const lines: BoxSection["lines"] = [];
-    if (p.spontaneous) lines.push({ label: "Falar espontaneamente", value: p.spontaneous });
-    if (p.onlyIfAsked) lines.push({ label: "Só se perguntado", value: p.onlyIfAsked });
-    if (p.doNotReveal) lines.push({ label: "Não revelar", value: p.doNotReveal });
-    sections.push({ title: "Roteiro de revelação", lines });
-  }
-
-  if (p.emotionalTone || p.actingTips) {
-    const lines: BoxSection["lines"] = [];
-    if (p.emotionalTone) lines.push({ label: "Tom emocional", value: p.emotionalTone });
-    if (p.actingTips) lines.push({ label: "Dicas", value: p.actingTips });
-    sections.push({ title: "Atuação", lines });
-  }
-
-  renderBoxSections(doc, y, sections);
 
   // Footer on every page
   const pageCount = doc.getNumberOfPages();
@@ -410,105 +404,103 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
 // ============ CANDIDATE PDF ============
 async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const logo = await loadLogoDataURL();
-
-  // ---- Page 1: Instruções ao participante ----
-  let y = drawHeader(doc, station, "PARTICIPANTE", logo);
-  y = drawSectionBar(doc, y, "Instruções ao participante");
-
-  const sections: BoxSection[] = [];
-  sections.push({
-    title: "Tempo da estação",
-    lines: [{ text: `${station.duration_minutes} minutos para completar a estação.` }],
-  });
+  drawPageHeader(doc, station, "CANDIDATO");
+  let y = 16;
 
   if (station.support_materials?.trim()) {
-    sections.push({ title: "Cenário de atendimento", lines: [{ paragraph: station.support_materials }] });
+    y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
+      renderScriptText(doc, station.support_materials!.trim(), x, yy + 3, w),
+    );
   }
   if (station.case_description?.trim()) {
-    sections.push({ title: "Descrição do caso", lines: [{ paragraph: station.case_description }] });
+    y = drawCard(doc, y, "Descrição do caso", null, (x, yy, w) =>
+      renderScriptText(doc, station.case_description!.trim(), x, yy + 3, w),
+    );
   }
   if (station.candidate_task?.trim()) {
-    sections.push({ title: "Tarefas do candidato", lines: parseBulletLines(station.candidate_task) });
+    y = drawCard(
+      doc,
+      y,
+      `Nos ${station.duration_minutes} minutos de duração da estação, você deverá executar as seguintes tarefas`,
+      null,
+      (x, yy, w) => renderScriptText(doc, station.candidate_task.trim(), x, yy + 3, w),
+    );
   }
 
-  renderBoxSections(doc, y, sections);
-
-  // ---- Impressos (one per page) ----
+  // Materiais para entregar ao candidato
   const printable = (station.deliverable_materials ?? []).filter(
     (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
   );
-  for (let idx = 0; idx < printable.length; idx++) {
-    const m = printable[idx];
-    doc.addPage();
-    let py = drawHeader(doc, station, "IMPRESSO", logo);
-    py = drawSectionBar(doc, py, `Impresso ${idx + 1} — ${m.name || m.type}`);
-    const lines: BoxSection["lines"] = [];
-    if (m.type) lines.push({ label: "Tipo", value: m.type });
-    if (m.description?.trim()) lines.push({ paragraph: m.description });
-    if (m.content?.trim()) lines.push({ paragraph: m.content });
-    if (m.imageUrl) lines.push({ label: "Imagem anexa", value: m.imageUrl });
-    renderBoxSections(doc, py, [{ title: m.name || m.type || "Impresso", lines }]);
+  if (printable.length > 0) {
+    y = drawCard(doc, y, "Materiais para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
+      let cy = yy + 2;
+      printable.forEach((m, idx) => {
+        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
+        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
+          let yy2 = by;
+          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
+          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
+          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
+          return yy2;
+        });
+      });
+      return cy;
+    });
   }
 
-  // ---- PEP ----
+  // CHECKLIST (PEP)
   if (items.length > 0) {
-    doc.addPage();
-    let py = drawHeader(doc, station, "PEP", logo);
-    py = drawSectionBar(doc, py, "Padrão esperado de procedimento (PEP)");
-
-    const head = [["#", "Item de desempenho avaliado", "Inadequado", "Parcial.\nadequado", "Adequado"]];
-    const body = items
-      .slice()
-      .sort((a, b) => a.order_index - b.order_index)
-      .map((it, idx) => {
-        const lv = it.levels ?? [];
-        const sorted = lv.slice().sort((a, b) => (a.points ?? 0) - (b.points ?? 0));
-        const inad = sorted[0];
-        const adeq = sorted[sorted.length - 1];
-        const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
-
-        let cell = it.description || "";
-        if (it.helper_text?.trim()) cell += `\n${it.helper_text.trim()}`;
-        const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
-        if (hints) cell += `\n${hints}`;
-
-        return [
-          String(idx + 1),
-          cell,
-          inad ? inad.points.toFixed(2) : "—",
-          parc ? parc.points.toFixed(2) : "—",
-          adeq ? adeq.points.toFixed(2) : "—",
-        ];
+    y = drawCard(doc, y, "CHECKLIST ( PEP )", `${items.length} itens`, (x, yy, w) => {
+      // We render a normal table; let autoTable take over from yy
+      const head = [["#", "Item avaliado", "Inadeq.", "Parcial", "Adeq."]];
+      const body = items
+        .slice()
+        .sort((a, b) => a.order_index - b.order_index)
+        .map((it, idx) => {
+          const sorted = (it.levels ?? []).slice().sort((a, b) => (a.points ?? 0) - (b.points ?? 0));
+          const inad = sorted[0]; const adeq = sorted[sorted.length - 1];
+          const parc = sorted.length >= 3 ? sorted[Math.floor(sorted.length / 2)] : null;
+          let cell = it.description || "";
+          if (it.helper_text?.trim()) cell += `\n${it.helper_text.trim()}`;
+          const hints = sorted.filter((s) => s.description?.trim()).map((s) => `${s.label}: ${s.description?.trim()}`).join("\n");
+          if (hints) cell += `\n${hints}`;
+          return [
+            String(idx + 1),
+            cell,
+            inad ? inad.points.toFixed(2) : "—",
+            parc ? parc.points.toFixed(2) : "—",
+            adeq ? adeq.points.toFixed(2) : "—",
+          ];
+        });
+      autoTable(doc, {
+        startY: yy,
+        head, body,
+        margin: { left: x, right: MARGIN_X, bottom: MARGIN_BOTTOM + 4, top: MARGIN_TOP },
+        styles: { font: "helvetica", fontSize: 8.5, cellPadding: 1.8, lineColor: C_BORDER, lineWidth: 0.2, textColor: C_TEXT, valign: "top" },
+        headStyles: { fillColor: C_MEDICAL, textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
+        columnStyles: {
+          0: { cellWidth: 7, halign: "center" },
+          1: { cellWidth: "auto" },
+          2: { cellWidth: 18, halign: "center" },
+          3: { cellWidth: 18, halign: "center" },
+          4: { cellWidth: 18, halign: "center" },
+        },
+        alternateRowStyles: { fillColor: [248, 251, 254] },
+        tableWidth: w,
       });
-
-    autoTable(doc, {
-      startY: py,
-      head,
-      body,
-      margin: { left: MARGIN_X, right: MARGIN_X, bottom: MARGIN_BOTTOM + 6, top: 14 },
-      styles: { font: "helvetica", fontSize: 8.5, cellPadding: 2, lineColor: COLOR_BORDER, lineWidth: 0.2, textColor: COLOR_TEXT, valign: "top" },
-      headStyles: { fillColor: COLOR_BRAND, textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
-      columnStyles: {
-        0: { cellWidth: 8, halign: "center" },
-        1: { cellWidth: "auto" },
-        2: { cellWidth: 22, halign: "center" },
-        3: { cellWidth: 22, halign: "center" },
-        4: { cellWidth: 22, halign: "center" },
-      },
-      alternateRowStyles: { fillColor: [240, 250, 246] },
+      const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? yy;
+      // total row
+      const total = items.reduce((s, it) => s + (it.points ?? 0), 0);
+      let ty = finalY + 3;
+      ty = ensureSpace(doc, ty, 8);
+      setFill(doc, [240, 246, 252]);
+      doc.rect(x, ty, w, 7, "F");
+      setText(doc, C_MEDICAL);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text(`Pontuação total: ${total.toFixed(2)} pontos`, x + 3, ty + 4.8);
+      return ty + 8;
     });
-
-    const totalPts = items.reduce((s, it) => s + (it.points ?? 0), 0);
-    const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? py;
-    let ty = finalY + 5;
-    if (ty > PAGE_H - MARGIN_BOTTOM - 12) { doc.addPage(); drawTopBand(doc); ty = 18; }
-    setFill(doc, COLOR_BRAND_LIGHT);
-    doc.rect(MARGIN_X, ty, CONTENT_W, 9, "F");
-    setText(doc, COLOR_BRAND_DARK);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10.5);
-    doc.text(`Pontuação total: ${totalPts.toFixed(2)} pontos`, MARGIN_X + 4, ty + 6);
   }
 
   // Footer on every page
