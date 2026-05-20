@@ -670,6 +670,9 @@ export type Database = {
           terms_md: string | null
           tiktok_pixel_id: string | null
           updated_at: string
+          whatsapp_banner_enabled: boolean
+          whatsapp_banner_label: string | null
+          whatsapp_banner_url: string | null
         }
         Insert: {
           colors?: Json
@@ -692,6 +695,9 @@ export type Database = {
           terms_md?: string | null
           tiktok_pixel_id?: string | null
           updated_at?: string
+          whatsapp_banner_enabled?: boolean
+          whatsapp_banner_label?: string | null
+          whatsapp_banner_url?: string | null
         }
         Update: {
           colors?: Json
@@ -714,6 +720,9 @@ export type Database = {
           terms_md?: string | null
           tiktok_pixel_id?: string | null
           updated_at?: string
+          whatsapp_banner_enabled?: boolean
+          whatsapp_banner_label?: string | null
+          whatsapp_banner_url?: string | null
         }
         Relationships: []
       }

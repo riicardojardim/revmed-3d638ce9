@@ -11,6 +11,9 @@ import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
 import { useSiteSettings, refreshSiteSettings } from "@/hooks/use-site-settings";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
@@ -54,6 +57,35 @@ function AdminOverview() {
       : "Crachá + Prontuário";
     toast.success("Animação salva", { description: label });
   }
+
+  // === Banner do grupo de WhatsApp (topo do app) ===
+  const [waEnabled, setWaEnabled] = useState(true);
+  const [waLabel, setWaLabel] = useState("");
+  const [waUrl, setWaUrl] = useState("");
+  const [savingWa, setSavingWa] = useState(false);
+  useEffect(() => {
+    if (!settings) return;
+    setWaEnabled(settings.whatsapp_banner_enabled !== false);
+    setWaLabel(settings.whatsapp_banner_label ?? "");
+    setWaUrl(settings.whatsapp_banner_url ?? "");
+  }, [settings?.id, settings?.whatsapp_banner_enabled, settings?.whatsapp_banner_label, settings?.whatsapp_banner_url]);
+  async function saveWa() {
+    if (!settings?.id) return;
+    setSavingWa(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        whatsapp_banner_enabled: waEnabled,
+        whatsapp_banner_label: waLabel || null,
+        whatsapp_banner_url: waUrl || null,
+      })
+      .eq("id", settings.id);
+    setSavingWa(false);
+    if (error) return toast.error("Erro ao salvar", { description: error.message });
+    await refreshSiteSettings();
+    toast.success("Banner do WhatsApp atualizado");
+  }
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     users: 0, attempts: 0, attempts7: 0, attempts30: 0,
@@ -236,6 +268,62 @@ function AdminOverview() {
           onComplete={() => setTestRole(null)}
         />
       )}
+
+      {/* Banner do grupo de WhatsApp (topo do app) */}
+      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="font-display font-semibold">Banner do grupo de WhatsApp (topo do app)</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Controla o link clicável que aparece no topo de todas as páginas do app, ao lado da nota de corte.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Switch checked={waEnabled} onCheckedChange={setWaEnabled} id="wa-enabled" />
+            <Label htmlFor="wa-enabled" className="text-xs">{waEnabled ? "Ativo" : "Desativado"}</Label>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Frase exibida</Label>
+            <Input
+              value={waLabel}
+              onChange={(e) => setWaLabel(e.target.value)}
+              placeholder="Grupo Premium 2026.1 · WhatsApp (Grupo 6)"
+              disabled={!waEnabled}
+            />
+          </div>
+          <div>
+            <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Link do grupo</Label>
+            <Input
+              type="url"
+              value={waUrl}
+              onChange={(e) => setWaUrl(e.target.value)}
+              placeholder="https://chat.whatsapp.com/..."
+              disabled={!waEnabled}
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-3 pt-1 border-t border-mint/20">
+          <span className="text-xs text-muted-foreground">
+            {waEnabled
+              ? "Pré-visualização: " + (waLabel || "(sem texto)")
+              : "Banner desativado — não aparece no topo."}
+          </span>
+          <Button
+            onClick={saveWa}
+            disabled={
+              savingWa ||
+              (waEnabled === (settings?.whatsapp_banner_enabled !== false) &&
+                waLabel === (settings?.whatsapp_banner_label ?? "") &&
+                waUrl === (settings?.whatsapp_banner_url ?? ""))
+            }
+          >
+            {savingWa ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
+      </div>
+
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
