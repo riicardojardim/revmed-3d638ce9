@@ -149,14 +149,15 @@ export const generateDeckFromStation = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
     const prompt = buildUserPrompt(data);
+    const logCtx = { kind: "flashcards" as const, userId: context.userId, stationId: data.station_id ?? null };
     let result: z.infer<typeof ResultSchema>;
     try {
-      result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 90_000);
+      result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 90_000, logCtx);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
       if (!isTimeout) throw err;
-      result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000);
+      result = await callGateway(apiKey, prompt, "google/gemini-2.5-pro", 150_000, logCtx);
     }
 
     const { supabase, userId } = context;
