@@ -436,6 +436,7 @@ function EditorBody({
           // 5) Reload from DB (now contains everything)
           await load();
           toast.success("PDF importado e campos preenchidos");
+          if (r.checklist_items?.length) setAiDialogOpen(true);
         }}
       />
 
