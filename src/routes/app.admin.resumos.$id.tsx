@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Save, Eye, EyeOff, Trash2, Star, ExternalLink } from "lucide-react";
+import { ArrowLeft, Save, Eye, EyeOff, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ const SPECIALTIES = [
 
 type SummaryRow = {
   id: string; title: string; specialty: string; topic: string | null;
-  difficulty: string; read_time_minutes: number; published: boolean; high_yield: boolean;
+  difficulty: string; published: boolean;
   cover_image_url: string | null; definition: string | null; clinical_picture: string | null;
   diagnosis: string | null; conduct: string | null; key_points: string | null; pitfalls: string | null;
   content_md: string | null; station_id: string | null;
@@ -55,8 +55,7 @@ function AdminResumoEdit() {
     setSaving(true);
     const { error } = await supabase.from("summaries").update({
       title: row.title, specialty: row.specialty, topic: row.topic || null,
-      difficulty: row.difficulty, read_time_minutes: row.read_time_minutes,
-      high_yield: row.high_yield, cover_image_url: row.cover_image_url || null,
+      difficulty: row.difficulty, cover_image_url: row.cover_image_url || null,
       definition: row.definition, clinical_picture: row.clinical_picture,
       diagnosis: row.diagnosis, conduct: row.conduct,
       key_points: row.key_points, pitfalls: row.pitfalls, content_md: row.content_md ?? "",
@@ -106,9 +105,6 @@ function AdminResumoEdit() {
           <Link to="/app/resumos/$id" params={{ id: row.id }}>
             <Button variant="ghost" size="sm"><ExternalLink className="h-4 w-4" /> Pré-visualizar</Button>
           </Link>
-          <Button variant="outline" size="sm" onClick={() => update("high_yield", !row.high_yield)}>
-            <Star className={`h-4 w-4 ${row.high_yield ? "fill-amber-400 text-amber-500" : ""}`} /> Alta incidência
-          </Button>
           <Button variant="outline" size="sm" onClick={togglePublish}>
             {row.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
@@ -171,16 +167,6 @@ function AdminResumoEdit() {
                   {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
-
-
-            <div className="space-y-1">
-              <Label>Tempo de leitura (min)</Label>
-              <Input
-                type="number" min={1} max={60}
-                value={row.read_time_minutes}
-                onChange={(e) => update("read_time_minutes", Number(e.target.value) || 5)}
-              />
             </div>
           </div>
 
