@@ -2453,17 +2453,41 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
       title="Gerar Resumo desta estação"
       hint="A IA cria um resumo estruturado (Definição, Quadro clínico, Diagnóstico, Conduta, Pontos-chave, Armadilhas) com base no CHECKLIST (PEP) preenchido + descrição da estação, usando SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras (SBC, SBP, FEBRASGO…), matriz do Revalida/INEP e guidelines internacionais consagradas. O título do resumo é o mesmo título da estação/checklist."
     >
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
+      <div
+        className={`flex flex-wrap items-center gap-3 rounded-xl border p-4 transition-colors ${
+          checklistCount > 0
+            ? "border-emerald-500/40 bg-emerald-500/5"
+            : "border-rose-500/40 bg-rose-500/5"
+        }`}
+      >
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-mint/20 p-2 text-mint">
-            <BookOpen className="h-5 w-5" />
+          <div
+            className={`rounded-lg p-2 ${
+              checklistCount > 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-rose-500/15 text-rose-600"
+            }`}
+          >
+            {checklistCount > 0 ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
           </div>
           <div>
-            <div className="font-semibold">Resumo clínico baseado no PEP desta estação</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-semibold">Resumo clínico baseado no PEP desta estação</span>
+              <Badge
+                variant="outline"
+                className={
+                  checklistCount > 0
+                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-700"
+                    : "border-rose-500/50 bg-rose-500/10 text-rose-700"
+                }
+              >
+                {checklistCount > 0
+                  ? `Checklist pronto · ${checklistCount} ${checklistCount === 1 ? "item" : "itens"}`
+                  : "Checklist vazio"}
+              </Badge>
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
               {checklistCount > 0
                 ? <>Usará os <strong>{checklistCount}</strong> {checklistCount === 1 ? "item" : "itens"} do checklist + descrição da estação. Fontes oficiais MS / ANVISA / SUS / sociedades.</>
-                : <span className="text-rose-600 font-semibold">Checklist vazio — preencha o PEP acima antes de gerar o resumo.</span>}
+                : <span className="text-rose-600 font-semibold">Preencha o PEP acima antes de gerar o resumo.</span>}
             </div>
           </div>
         </div>
