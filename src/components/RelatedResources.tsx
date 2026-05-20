@@ -213,8 +213,9 @@ export function RelatedResources({
               {bestDeck.title}
             </div>
             <div className="line-clamp-1 text-[11px] text-muted-foreground">
-              {bestDeck.specialty}{bestDeck.topic ? ` · ${bestDeck.topic}` : ""}
+              {bestDeck.specialty}
             </div>
+
             <Button size="sm" variant="hero" className="mt-auto" onClick={() => setDeckOpen(true)}>
               Treinar flashcards <ArrowRight className="h-3.5 w-3.5" />
             </Button>
