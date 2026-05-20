@@ -376,7 +376,7 @@ CRITÉRIOS:
 
 Na dúvida sobre uma dose ou critério: marque como error e generalize com segurança na correção.`;
 
-async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, specialty: string) {
+async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, specialty: string, logCtx: { kind: AiUsageKind; userId: string | null; stationId?: string | null }) {
   const userText = [
     `ESPECIALIDADE: ${specialty}`,
     `TÍTULO: ${r.title}`,
@@ -393,6 +393,8 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25_000);
+  const start = Date.now();
+  const verifierModel = "google/gemini-2.5-pro";
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -402,7 +404,7 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
         "X-Lovable-AIG-SDK": "vercel-ai-sdk",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: verifierModel,
         messages: [
           { role: "system", content: VERIFIER_SYSTEM },
           { role: "user", content: userText },
@@ -413,8 +415,12 @@ async function verifySummary(apiKey: string, r: z.infer<typeof ResultSchema>, sp
       }),
       signal: controller.signal,
     });
-    if (!res.ok) throw new Error(`Verifier ${res.status}`);
-    const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    if (!res.ok) {
+      await logAiUsage({ kind: logCtx.kind, model: verifierModel, userId: logCtx.userId, stationId: logCtx.stationId ?? null, status: "error", errorMessage: `verifier ${res.status}`, durationMs: Date.now() - start, metadata: { step: "verifier" } });
+      throw new Error(`Verifier ${res.status}`);
+    }
+    const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }>; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } };
+    await logAiUsage({ kind: logCtx.kind, model: verifierModel, userId: logCtx.userId, stationId: logCtx.stationId ?? null, usage: json.usage ?? null, durationMs: Date.now() - start, metadata: { step: "verifier" } });
     const content = json.choices?.[0]?.message?.content ?? "{}";
     let parsed: unknown;
     try {
@@ -446,26 +452,28 @@ export async function generateAndSaveSummary(
   input: z.infer<typeof InputSchema>,
   supabase: SupabaseClientLike,
   userId: string,
+  logKind: AiUsageKind = "summary",
 ) {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
   const prompt = buildUserPrompt(input);
+  const logCtx = { kind: logKind, userId, stationId: input.station_id ?? null };
   let result: z.infer<typeof ResultSchema>;
   try {
-    result = await callGateway(apiKey, prompt, "google/gemini-3-flash-preview", 65_000);
+    result = await callGateway(apiKey, prompt, "google/gemini-3-flash-preview", 65_000, logCtx);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     const isRecoverable = /abort|timeout|504|502|503|upstream|rate/i.test(msg);
     if (!isRecoverable) throw err;
-    result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 45_000);
+    result = await callGateway(apiKey, prompt, "google/gemini-2.5-flash", 45_000, logCtx);
   }
 
   let structIssues = structuralCheck(result);
 
   let verifier: z.infer<typeof VerifierResultSchema> | null = null;
   try {
-    verifier = await verifySummary(apiKey, result, input.specialty);
+    verifier = await verifySummary(apiKey, result, input.specialty, logCtx);
     const c = verifier.corrections ?? {};
     if (c.definition) result.definition = c.definition;
     if (c.clinical_picture) result.clinical_picture = c.clinical_picture;
