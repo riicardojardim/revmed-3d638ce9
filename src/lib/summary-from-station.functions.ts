@@ -154,13 +154,13 @@ REGRAS DE FORMATO (cada campo textual é uma string, NÃO HTML, NÃO markdown):
 - "pitfalls": 3–6 erros comuns / armadilhas frequentes da prova. Cada bullet começa com "• ".
 - "sources": array de strings curtas com as fontes EFETIVAMENTE usadas. Ex.: ["MS — PCDT Pneumonia Adquirida na Comunidade 2023", "SBPT — Diretriz PAC 2018", "ANVISA — bula Amoxicilina"].
 
-CITAÇÕES INLINE (OBRIGATÓRIO — aumenta confiabilidade e rastreabilidade):
-- Em CADA seção textual (definition, clinical_picture, diagnosis, conduct, key_points, pitfalls), insira citações inline entre colchetes imediatamente após a afirmação que sustentam.
-- Formato curto e padronizado: [MS — PCDT <tema> <ano>], [ANVISA — bula <fármaco>], [Diretriz SBC <ano>], [SBP — <documento> <ano>], [FEBRASGO <ano>], [WHO <ano>], [INEP — Matriz Revalida].
-- Toda dose, valor de corte, critério diagnóstico, esquema terapêutico e conduta DEVE ter pelo menos uma citação inline.
-- As mesmas fontes citadas inline devem aparecer (sem colchetes, com descrição completa) no array "sources".
-- Exemplo de conduct: "Amoxicilina 500 mg VO 8/8h por 7 dias [MS — PCDT PAC 2023] [ANVISA — bula Amoxicilina]."
-- Exemplo de diagnosis: "• PA ≥ 140×90 mmHg em 2 medidas [Diretriz SBC HAS 2020]."
+CITAÇÕES (REGRA ESTRITA):
+- PROIBIDO inserir citações inline no texto das seções (definition, clinical_picture, diagnosis, conduct, key_points, pitfalls).
+- NÃO use colchetes [ ], parênteses com fonte tipo "(MS — PCDT ...)", "(SBC 2020)", "(ANVISA ...)", nem sufixos do tipo "— Fonte: ..." ao final de frases.
+- As fontes vão APENAS no array "sources" (lista final, sem colchetes, descrição completa). Ex.: ["MS — PCDT PAC 2023", "SBPT — Diretriz PAC 2018", "ANVISA — bula Amoxicilina"].
+- Exemplo CORRETO de conduct: "Amoxicilina 500 mg VO 8/8h por 7 dias."
+- Exemplo CORRETO de diagnosis: "• PA ≥ 140×90 mmHg em 2 medidas."
+- Exemplo ERRADO (NÃO FAZER): "Amoxicilina 500 mg VO 8/8h por 7 dias [MS — PCDT PAC 2023]."
 
 VERIFIQUE cada dose, cada critério e cada valor de corte ANTES de gerar. Se não tiver certeza absoluta, generalize.`;
 
@@ -284,11 +284,11 @@ function structuralCheck(r: z.infer<typeof ResultSchema>): StructIssue[] {
       issues.push({ field: label, severity: "error", message: "Seção vazia." });
       continue;
     }
-    if (requireCit && !CITATION_RE.test(text)) {
+    if (requireCit && CITATION_RE.test(text)) {
       issues.push({
         field: label,
-        severity: "error",
-        message: "Falta citação inline (ex.: [MS — PCDT ...]).",
+        severity: "warn",
+        message: "Citação inline encontrada — fontes devem ficar apenas no card Referências.",
       });
     }
     if (PLACEHOLDER_RE.test(text)) {
@@ -467,6 +467,32 @@ export async function generateAndSaveSummary(
   } catch (err) {
     console.warn("[summary-verifier] falhou, seguindo com checagem estrutural apenas:", err);
   }
+
+  // Remove qualquer citação inline que o modelo tenha escapado (colchetes ou
+  // parênteses com nome de fonte). As fontes ficam APENAS no card de Referências.
+  const stripInlineCitations = (s: string | null | undefined): string => {
+    if (!s) return "";
+    let out = s;
+    // [Qualquer coisa entre colchetes até ~140 chars]
+    out = out.replace(/\s*\[[^\]\n]{2,140}\]/g, "");
+    // (MS — ...), (ANVISA ...), (SBC 2020), (Diretriz ...), (WHO 2021), (INEP ...), (PCDT ...), (FEBRASGO ...), (SBP ...), (SBPT ...) etc.
+    out = out.replace(
+      /\s*\((?:MS|ANVISA|SBC|SBP|SBPT|SBN|SBD|SBI|SBEM|FEBRASGO|WHO|OMS|INEP|PCDT|Diretriz|Bula)[^()\n]{0,140}\)/gi,
+      "",
+    );
+    // " — Fonte: ..." no fim da linha
+    out = out.replace(/\s*[—-]\s*Fonte:[^\n]*$/gim, "");
+    // Espaços duplicados deixados pela remoção
+    out = out.replace(/[ \t]{2,}/g, " ").replace(/ +([.,;:!?])/g, "$1");
+    return out.trim();
+  };
+  result.definition = stripInlineCitations(result.definition);
+  result.clinical_picture = stripInlineCitations(result.clinical_picture);
+  result.diagnosis = stripInlineCitations(result.diagnosis);
+  result.conduct = stripInlineCitations(result.conduct);
+  result.key_points = stripInlineCitations(result.key_points);
+  result.pitfalls = stripInlineCitations(result.pitfalls);
+
 
   const verifierIssues = verifier?.issues ?? [];
   const allIssues = [...structIssues, ...verifierIssues];
