@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Eye, EyeOff, Star } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/professor/resumos")({
@@ -16,9 +16,7 @@ type Summary = {
   specialty: string;
   topic: string | null;
   content_md: string | null;
-  read_time_minutes: number;
   published: boolean;
-  high_yield: boolean;
   difficulty: string;
   definition: string | null;
   clinical_picture: string | null;
@@ -36,9 +34,7 @@ const empty = {
   title: "",
   specialty: "Clínica Médica",
   topic: "",
-  read_time_minutes: 5,
   difficulty: "Intermediário",
-  high_yield: false,
   published: false,
   cover_image_url: "",
   definition: "",
@@ -87,11 +83,6 @@ function ProfessorSummaries() {
     if (error) return toast.error(error.message);
     load();
   }
-  async function toggleHighYield(s: Summary) {
-    const { error } = await supabase.from("summaries").update({ high_yield: !s.high_yield }).eq("id", s.id);
-    if (error) return toast.error(error.message);
-    load();
-  }
   async function remove(id: string) {
     if (!confirm("Excluir resumo?")) return;
     const { error } = await supabase.from("summaries").delete().eq("id", id);
@@ -112,8 +103,7 @@ function ProfessorSummaries() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs text-muted-foreground">
-                  {s.specialty}{s.topic ? ` · ${s.topic}` : ""} · {s.read_time_minutes} min
-                  {s.high_yield && <span className="ml-2 font-semibold text-amber-600">· Alta incidência</span>}
+                  {s.specialty}{s.topic ? ` · ${s.topic}` : ""}
                 </div>
                 <div className="mt-1 font-medium">{s.title}</div>
                 <div className="mt-1 text-sm text-muted-foreground line-clamp-2">
@@ -121,9 +111,6 @@ function ProfessorSummaries() {
                 </div>
               </div>
               <div className="flex shrink-0 gap-1">
-                <Button size="icon" variant="ghost" onClick={() => toggleHighYield(s)} title="Alta incidência">
-                  <Star className={`h-4 w-4 ${s.high_yield ? "fill-amber-400 text-amber-500" : ""}`} />
-                </Button>
                 <Button size="icon" variant="ghost" onClick={() => togglePublish(s)}>
                   {s.published ? <Eye className="h-4 w-4 text-mint" /> : <EyeOff className="h-4 w-4" />}
                 </Button>
@@ -154,17 +141,10 @@ function ProfessorSummaries() {
         </div>
 
 
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1">
-            <label className={labelCls}>Tópico (opcional)</label>
-            <input className={inputCls} value={form.topic}
-              onChange={(e) => setForm({ ...form, topic: e.target.value })} />
-          </div>
-          <div className="space-y-1">
-            <label className={labelCls}>Tempo (min)</label>
-            <input type="number" min={1} className={inputCls} value={form.read_time_minutes}
-              onChange={(e) => setForm({ ...form, read_time_minutes: Number(e.target.value) })} />
-          </div>
+        <div className="space-y-1">
+          <label className={labelCls}>Tópico (opcional)</label>
+          <input className={inputCls} value={form.topic}
+            onChange={(e) => setForm({ ...form, topic: e.target.value })} />
         </div>
 
         <div className="space-y-1">
@@ -221,11 +201,6 @@ function ProfessorSummaries() {
             value={form.content_md} onChange={(e) => setForm({ ...form, content_md: e.target.value })} />
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={form.high_yield}
-            onChange={(e) => setForm({ ...form, high_yield: e.target.checked })} />
-          Marcar como alta incidência
-        </label>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={form.published}
             onChange={(e) => setForm({ ...form, published: e.target.checked })} />
