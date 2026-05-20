@@ -130,34 +130,64 @@ function parseBoldSegments(line: string): Seg[] {
 }
 
 // Word-wrap segments to fit width, returning visual lines (each is an array of segments).
+// Long tokens without spaces (e.g. URLs, long numbers) are hard-broken by character.
 function wrapSegments(doc: jsPDF, segs: Seg[], maxW: number, fontSize: number): Seg[][] {
   doc.setFontSize(fontSize);
-  // Tokenize each segment into word/space tokens preserving bold flag.
   type Tok = { text: string; bold: boolean; space: boolean };
   const toks: Tok[] = [];
   for (const s of segs) {
-    const parts = s.text.split(/(\s+)/);
-    for (const p of parts) {
+    for (const p of s.text.split(/(\s+)/)) {
       if (!p) continue;
       toks.push({ text: p, bold: s.bold, space: /^\s+$/.test(p) });
     }
   }
+  const widthOf = (text: string, bold: boolean) => {
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    return doc.getTextWidth(text);
+  };
+  const hardBreak = (text: string, bold: boolean, firstAvail: number): string[] => {
+    const chunks: string[] = [];
+    let cur = "";
+    let avail = firstAvail > 4 ? firstAvail : maxW;
+    for (const ch of text) {
+      if (widthOf(cur + ch, bold) > avail && cur) {
+        chunks.push(cur);
+        cur = ch;
+        avail = maxW;
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur) chunks.push(cur);
+    return chunks;
+  };
   const lines: Seg[][] = [];
   let cur: Seg[] = [];
   let curW = 0;
-  const widthOf = (t: Tok) => {
-    doc.setFont("helvetica", t.bold ? "bold" : "normal");
-    return doc.getTextWidth(t.text);
-  };
   for (const t of toks) {
-    const w = widthOf(t);
-    if (curW + w > maxW && cur.length && !t.space) {
-      lines.push(cur);
-      cur = []; curW = 0;
+    if (t.space) {
+      if (curW === 0) continue;
+      const w = widthOf(t.text, t.bold);
+      if (curW + w > maxW) { lines.push(cur); cur = []; curW = 0; continue; }
+      cur.push({ text: t.text, bold: t.bold }); curW += w; continue;
     }
-    if (curW === 0 && t.space) continue; // skip leading spaces
-    cur.push({ text: t.text, bold: t.bold });
-    curW += w;
+    const w = widthOf(t.text, t.bold);
+    if (curW + w <= maxW) {
+      cur.push({ text: t.text, bold: t.bold }); curW += w; continue;
+    }
+    if (curW > 0 && w <= maxW) {
+      lines.push(cur); cur = [{ text: t.text, bold: t.bold }]; curW = w; continue;
+    }
+    const chunks = hardBreak(t.text, t.bold, maxW - curW);
+    chunks.forEach((c, i) => {
+      if (i === 0 && curW > 0) {
+        cur.push({ text: c, bold: t.bold }); lines.push(cur); cur = []; curW = 0;
+      } else if (i < chunks.length - 1) {
+        lines.push([{ text: c, bold: t.bold }]);
+      } else {
+        cur = [{ text: c, bold: t.bold }]; curW = widthOf(c, t.bold);
+      }
+    });
   }
   if (cur.length) lines.push(cur);
   return lines;
@@ -302,60 +332,86 @@ function renderSubBlock(
 }
 
 
-// ============ Page header (brand strip + logo on every page top) ============
+// ============ Top accent strip (every page) ============
+function drawTopAccent(doc: jsPDF) {
+  drawGradientBanner(doc, 0, 0, PAGE_W, 3);
+}
+
+// ============ Page header (first page only) ============
 function drawPageHeader(
   doc: jsPDF,
   station: StationLike,
   kind: "ATOR" | "CANDIDATO",
   logo: { data: string; w: number; h: number } | null,
 ) {
-  // Gradient brand strip (taller, hosts the white logo)
-  const stripH = 14;
-  drawGradientBanner(doc, 0, 0, PAGE_W, stripH);
+  // 1) Thin gradient accent at the very top
+  drawTopAccent(doc);
 
-  // Logo on the left inside the strip (rendered in white via overlay — png has dark logo,
-  // so instead we draw on a white pill so it stays readable on the dark gradient).
+  // 2) Logo on a clean white area (no ugly pill)
+  const logoTop = 8;
+  const logoH = 11;
+  let logoRight = MARGIN_X;
   if (logo) {
-    const targetH = 8;
     const ratio = logo.w / logo.h;
-    const targetW = targetH * ratio;
-    // white pill background for legibility
-    setFill(doc, [255, 255, 255]);
-    doc.roundedRect(MARGIN_X - 1.5, (stripH - targetH) / 2 - 1.5, targetW + 3, targetH + 3, 1.5, 1.5, "F");
+    const logoW = logoH * ratio;
     try {
-      doc.addImage(logo.data, "PNG", MARGIN_X, (stripH - targetH) / 2, targetW, targetH);
-    } catch {
-      /* ignore */
-    }
+      doc.addImage(logo.data, "PNG", MARGIN_X, logoTop, logoW, logoH);
+      logoRight = MARGIN_X + logoW;
+    } catch { /* ignore */ }
   }
 
-  // Right side: kind badge + specialty · duration
+  // 3) Right-side info pill (dark, brand color) with kind + specialty + duration
+  const kindLabel = kind === "ATOR" ? "ATOR / ATRIZ" : "CANDIDATO";
+  const metaLabel = `${station.specialty.toUpperCase()} · ${station.duration_minutes} MIN`;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  const kindW = doc.getTextWidth(kindLabel);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  const metaW = doc.getTextWidth(metaLabel);
+  const pillW = Math.max(kindW, metaW) + 10;
+  const pillH = 11;
+  const pillX = PAGE_W - MARGIN_X - pillW;
+  const pillY = logoTop;
+  setFill(doc, C_NIGHT);
+  doc.roundedRect(pillX, pillY, pillW, pillH, 2, 2, "F");
+  // mint left accent on pill
+  setFill(doc, C_MINT);
+  doc.rect(pillX, pillY, 1.2, pillH, "F");
   setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  const kindLabel = kind === "ATOR" ? "ATOR / ATRIZ" : "CANDIDATO";
-  doc.text(kindLabel, PAGE_W - MARGIN_X, 6, { align: "right" });
-  doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text(
-    `${station.specialty.toUpperCase()} · ${station.duration_minutes} min`,
-    PAGE_W - MARGIN_X,
-    11,
-    { align: "right" },
-  );
+  doc.text(kindLabel, pillX + pillW - 3, pillY + 4.6, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7);
+  setText(doc, [200, 230, 230]);
+  doc.text(metaLabel, pillX + pillW - 3, pillY + 8.8, { align: "right" });
 
-  // Station title under the strip
-  setText(doc, C_TEXT);
+  // 4) Station title below
+  const titleY = logoTop + logoH + 6;
+  setText(doc, C_NIGHT);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
+  doc.setFontSize(13);
+  const titleMaxW = PAGE_W - MARGIN_X * 2;
   const title = kind === "ATOR" ? `${station.title} — ATOR` : station.title;
-  const wrapped = doc.splitTextToSize(title, CONTENT_W);
-  doc.text(wrapped[0], MARGIN_X, stripH + 6);
-  // subtle divider
+  const wrapped = doc.splitTextToSize(title, titleMaxW);
+  doc.text(wrapped[0], MARGIN_X, titleY);
+  if (wrapped[1]) {
+    doc.setFontSize(11);
+    doc.text(wrapped[1], MARGIN_X, titleY + 5.5);
+  }
+  // subtle divider with mint accent
+  const divY = titleY + (wrapped[1] ? 9 : 4);
   setStroke(doc, C_BORDER);
   doc.setLineWidth(0.2);
-  doc.line(MARGIN_X, stripH + 8.5, PAGE_W - MARGIN_X, stripH + 8.5);
+  doc.line(MARGIN_X, divY, PAGE_W - MARGIN_X, divY);
+  setFill(doc, C_MINT);
+  doc.rect(MARGIN_X, divY - 0.1, 24, 0.7, "F");
 }
+
+// Where content should start on the first page
+const CONTENT_START_Y = 36;
+
 
 // ============ formatPatientProfile (local copy, mirrors src/components/station/shared.tsx) ============
 function formatPatientProfileLocal(p: PatientProfile): string {
@@ -399,7 +455,7 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
   drawPageHeader(doc, station, "ATOR", logo);
-  let y = 26;
+  let y = CONTENT_START_Y;
 
   // 1) Cenário de atuação
   if (station.support_materials?.trim()) {
@@ -458,30 +514,44 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
     });
   }
 
-  // 5) Impressos para entregar ao candidato (somente no PDF do ator)
+  // 5) Impressos — um card separado por impresso, com banner gradiente próprio
   const printable = (station.deliverable_materials ?? []).filter(
     (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
   );
   if (printable.length > 0) {
-    y = drawCard(doc, y, "Impressos para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
-      let cy = yy + 2;
-      printable.forEach((m, idx) => {
-        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
-        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
-          let yy2 = by;
-          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
-          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
-          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
-          return yy2;
-        });
+    // Section divider title
+    y = ensureSpace(doc, y, 14);
+    setText(doc, C_MEDICAL);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text(`Impressos para entregar ao candidato · ${printable.length}`, MARGIN_X, y + 4);
+    setStroke(doc, C_MINT);
+    doc.setLineWidth(0.5);
+    doc.line(MARGIN_X, y + 6.5, PAGE_W - MARGIN_X, y + 6.5);
+    y += 10;
+
+    printable.forEach((m, idx) => {
+      const title = `IMPRESSO ${idx + 1}${m.name ? ` — ${m.name.toUpperCase()}` : ""}`;
+      y = drawCard(doc, y, title, m.type ? m.type.toUpperCase() : null, (x, yy, w) => {
+        let cy = yy + 3;
+        if (m.description?.trim()) {
+          cy = renderScriptText(doc, `**${m.description.trim()}**`, x, cy, w);
+          cy += 1;
+        }
+        if (m.content?.trim()) cy = renderScriptText(doc, m.content.trim(), x, cy, w);
+        if (m.imageUrl) {
+          cy += 1;
+          cy = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, x, cy, w);
+        }
+        return cy;
       });
-      return cy;
     });
   }
 
-  // Footer on every page
+
+  // Footer + top accent on every page (skip accent on page 1 — it has full header)
   const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
+  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); if (i > 1) drawTopAccent(doc); drawFooter(doc); }
   return doc;
 }
 
@@ -490,7 +560,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
   drawPageHeader(doc, station, "CANDIDATO", logo);
-  let y = 26;
+  let y = CONTENT_START_Y;
 
   if (station.support_materials?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
@@ -569,9 +639,9 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
     });
   }
 
-  // Footer on every page
+  // Footer + top accent on every page (skip accent on page 1 — it has full header)
   const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
+  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); if (i > 1) drawTopAccent(doc); drawFooter(doc); }
   return doc;
 }
 
