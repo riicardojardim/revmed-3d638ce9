@@ -159,26 +159,28 @@ export function StationSummaryDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            "flex w-full items-center gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 px-3 py-2.5 text-left transition hover:border-violet-400/60 hover:from-violet-500/15",
-            triggerClassName,
-          )}
-        >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/20 text-violet-200">
-            <BookOpen className="h-4 w-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-violet-300">
-              Material de apoio
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "flex w-full items-center gap-2 rounded-xl border border-violet-400/30 bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 px-3 py-2.5 text-left transition hover:border-violet-400/60 hover:from-violet-500/15",
+              triggerClassName,
+            )}
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/20 text-violet-200">
+              <BookOpen className="h-4 w-4" />
             </div>
-            <div className="truncate text-[13px] font-semibold text-white">{triggerLabel}</div>
-          </div>
-          <Sparkles className="h-3.5 w-3.5 text-violet-300/80" />
-        </button>
-      </DialogTrigger>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-violet-300">
+                Material de apoio
+              </div>
+              <div className="truncate text-[13px] font-semibold text-white">{triggerLabel}</div>
+            </div>
+            <Sparkles className="h-3.5 w-3.5 text-violet-300/80" />
+          </button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="flex max-h-[calc(100dvh-1.25rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] w-[calc(100vw-1.25rem)] max-w-3xl flex-col overflow-hidden rounded-3xl border-0 p-0 shadow-2xl [&>button]:hidden">
         <div className="pointer-events-none absolute right-3 top-3 z-50 sm:right-4 sm:top-4">
