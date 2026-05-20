@@ -645,6 +645,7 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
 async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const logo = await getLogoDataUrl();
+  drawPageBackground(doc);
   drawPageHeader(doc, station, "CANDIDATO", logo);
   let y = CONTENT_START_Y;
 
