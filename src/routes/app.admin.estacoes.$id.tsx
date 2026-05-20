@@ -515,7 +515,7 @@ function EditorBody({
       </Section>
 
       <SectionGenerateFlashcards station={station} />
-      <SectionGenerateSummary station={station} />
+      <SectionGenerateSummary station={station} items={items} />
       <SectionPublish station={station} togglePublish={togglePublish} />
     </div>
   );
@@ -2348,7 +2348,7 @@ type GeneratedSummary = {
   content_md: string | null;
 };
 
-function SectionGenerateSummary({ station }: { station: Station }) {
+function SectionGenerateSummary({ station, items }: { station: Station; items: Item[] }) {
   const generate = useServerFn(generateSummaryFromStation);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<GeneratedSummary | null>(null);
@@ -2357,7 +2357,12 @@ function SectionGenerateSummary({ station }: { station: Station }) {
   const [pubLoading, setPubLoading] = useState(false);
   const [validation, setValidation] = useState<{ verdict: string; blocking: boolean; issues: Array<{ field: string; severity: "error" | "warn"; message: string }> } | null>(null);
   const [linked, setLinked] = useState<Array<{ id: string; title: string; published: boolean; created_at: string }>>([]);
-  const [checklistItems, setChecklistItems] = useState<Array<{ description: string; category: string | null; points: number | null; helper_text: string | null }>>([]);
+  const checklistItems = items.map((it) => ({
+    description: it.description,
+    category: it.category,
+    points: it.points,
+    helper_text: it.helper_text,
+  }));
 
   async function loadLinked() {
     const { data } = await supabase
@@ -2368,15 +2373,7 @@ function SectionGenerateSummary({ station }: { station: Station }) {
       .limit(8);
     setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
   }
-  async function loadChecklist() {
-    const { data } = await supabase
-      .from("station_checklist_items")
-      .select("description, category, points, helper_text, order_index")
-      .eq("station_id", station.id)
-      .order("order_index");
-    setChecklistItems((data ?? []) as Array<{ description: string; category: string | null; points: number | null; helper_text: string | null }>);
-  }
-  useEffect(() => { void loadLinked(); void loadChecklist(); }, [station.id, station.specialty]);
+  useEffect(() => { void loadLinked(); }, [station.id, station.specialty]);
 
   const checklistCount = checklistItems.length;
   const canGenerate = checklistCount > 0 && !!station.title?.trim() && !!station.specialty?.trim();
