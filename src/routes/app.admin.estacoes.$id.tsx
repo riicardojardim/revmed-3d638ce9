@@ -538,7 +538,7 @@ function EditorBody({
         <StationLivePreview station={station} items={items} />
       </Section>
 
-      <SectionGenerateFlashcards station={station} />
+      <SectionGenerateFlashcards station={station} items={items} />
       <SectionGenerateSummary station={station} items={items} />
       <SectionPublish station={station} togglePublish={togglePublish} />
 
@@ -1531,11 +1531,17 @@ type GeneratedDeck = {
   cards: GeneratedCard[];
 };
 
-function SectionGenerateFlashcards({ station }: { station: Station }) {
+function SectionGenerateFlashcards({ station, items }: { station: Station; items: Item[] }) {
   const generate = useServerFn(generateDeckFromStation);
   const [loading, setLoading] = useState(false);
   const [deck, setDeck] = useState<GeneratedDeck | null>(null);
   const [linkedDecks, setLinkedDecks] = useState<Array<{ id: string; title: string; published: boolean; created_at: string; cards: number }>>([]);
+  const checklistItems = items.map((it) => ({
+    description: it.description,
+    category: it.category,
+    points: it.points,
+    helper_text: it.helper_text,
+  }));
 
   async function loadLinked() {
     const { data } = await supabase
@@ -1572,12 +1578,25 @@ function SectionGenerateFlashcards({ station }: { station: Station }) {
           specialty: station.specialty,
           topic: null,
           clinical_case: station.clinical_case ?? null,
+          case_description: station.case_description ?? null,
           candidate_task: station.candidate_task ?? null,
+          patient_info: station.patient_info ?? null,
+          patient_script: station.patient_script ?? null,
+          patient_profile: serializePatientProfile(station.patient_profile),
+          support_materials: station.support_materials ?? null,
+          evaluator_notes: station.evaluator_notes ?? null,
+          deliverable_materials: (station.deliverable_materials ?? []).map((m) => ({
+            name: m.name ?? null,
+            type: m.type ?? null,
+            description: m.description ?? null,
+            content: m.content ?? null,
+          })),
           educational_goal: station.educational_goal ?? null,
           expected_conduct: station.expected_conduct ?? null,
           common_mistakes: station.common_mistakes ?? null,
           scoring_criteria: station.scoring_criteria ?? null,
           references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+          checklist_items: checklistItems.slice(0, 200),
           count,
         },
       });
@@ -2804,12 +2823,25 @@ function PostChecklistAIDialog({
           specialty: station.specialty,
           topic: null,
           clinical_case: station.clinical_case ?? null,
+          case_description: station.case_description ?? null,
           candidate_task: station.candidate_task ?? null,
+          patient_info: station.patient_info ?? null,
+          patient_script: station.patient_script ?? null,
+          patient_profile: serializePatientProfile(station.patient_profile),
+          support_materials: station.support_materials ?? null,
+          evaluator_notes: station.evaluator_notes ?? null,
+          deliverable_materials: (station.deliverable_materials ?? []).map((m) => ({
+            name: m.name ?? null,
+            type: m.type ?? null,
+            description: m.description ?? null,
+            content: m.content ?? null,
+          })),
           educational_goal: station.educational_goal ?? null,
           expected_conduct: station.expected_conduct ?? null,
           common_mistakes: station.common_mistakes ?? null,
           scoring_criteria: station.scoring_criteria ?? null,
           references: (station.bibliographic_references ?? []).map((r) => ({ label: r.label, url: r.url })),
+          checklist_items: checklistItems.slice(0, 200),
           count,
         },
       });
