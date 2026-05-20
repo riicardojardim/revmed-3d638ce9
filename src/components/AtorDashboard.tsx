@@ -1,21 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Sparkles, Users, Stethoscope, ClipboardCheck, Clock, Theater } from "lucide-react";
+import { ArrowRight, Sparkles, Theater } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
-import { useSubscription } from "@/hooks/use-subscription";
 
 export function AtorDashboard() {
   const { profile, user } = useAuth();
-  const { daysLeft } = useSubscription();
   const name = (profile?.full_name || user?.email || "Ator").split(" ")[0];
-
-  const stats = [
-    { icon: ClipboardCheck, label: "Correções feitas", value: "—" },
-    { icon: Users, label: "Candidatos avaliados", value: "—" },
-    { icon: Stethoscope, label: "Especialidades", value: "Todas" },
-    { icon: Clock, label: "Validade do plano", value: daysLeft != null ? `${daysLeft} dias` : "Ativo" },
-  ];
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
@@ -34,19 +25,6 @@ export function AtorDashboard() {
           o PEP para avaliar o candidato em tempo real.
         </p>
       </header>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-card">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-              <s.icon className="h-4 w-4 text-mint" />
-              <span className="truncate">{s.label}</span>
-            </div>
-            <div className="mt-2 font-display text-2xl font-bold">{s.value}</div>
-          </div>
-        ))}
-      </div>
 
       {/* Entry hero */}
       <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-hero p-6 text-white shadow-elegant md:p-8">
