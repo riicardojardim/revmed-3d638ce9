@@ -2400,12 +2400,13 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
     const { data } = await supabase
       .from("summaries")
       .select("id,title,published,created_at")
-      .eq("specialty", station.specialty)
+      .eq("station_id", station.id)
       .order("created_at", { ascending: false })
       .limit(8);
     setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
   }
-  useEffect(() => { void loadLinked(); }, [station.id, station.specialty]);
+  useEffect(() => { void loadLinked(); }, [station.id]);
+
 
   const checklistCount = checklistItems.length;
   const canGenerate = checklistCount > 0 && !!station.title?.trim() && !!station.specialty?.trim();
@@ -2551,7 +2552,7 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
       {linked.length > 0 && (
         <div className="mt-3 rounded-xl border border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-sm font-display font-bold">Resumos recentes ({station.specialty})</div>
+            <div className="text-sm font-display font-bold">Resumos conectados a esta estação</div>
             <Badge variant="outline">{linked.length}</Badge>
           </div>
           <div className="divide-y divide-border">
@@ -2567,12 +2568,13 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
                   ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
                   : <Badge variant="outline">Rascunho</Badge>}
                 <Link
-                  to="/app/resumos/$id"
+                  to="/app/admin/resumos/$id"
                   params={{ id: s.id }}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                 >
                   Abrir →
                 </Link>
+
               </div>
             ))}
           </div>

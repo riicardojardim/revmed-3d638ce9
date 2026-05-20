@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { LinkStationField } from "@/components/admin/LinkStationField";
+
 
 export const Route = createFileRoute("/app/admin/flashcards/$id")({
   component: AdminFlashcardEditor,
@@ -33,7 +35,9 @@ type Deck = {
   description: string | null;
   cover_image_url: string | null;
   published: boolean;
+  station_id: string | null;
 };
+
 
 type Card = {
   id: string;
@@ -231,7 +235,17 @@ function AdminFlashcardEditor() {
               </Select>
             </div>
           </div>
+
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <LinkStationField
+              table="flashcard_decks"
+              rowId={deck.id}
+              stationId={deck.station_id}
+              onChange={(next) => patchDeck({ station_id: next })}
+            />
+          </div>
         </aside>
+
 
         {/* Cards */}
         <div className="space-y-3">

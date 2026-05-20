@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { LinkStationField } from "@/components/admin/LinkStationField";
+
 
 export const Route = createFileRoute("/app/admin/resumos/$id")({
   component: AdminResumoEdit,
@@ -25,8 +27,9 @@ type SummaryRow = {
   difficulty: string; read_time_minutes: number; published: boolean; high_yield: boolean;
   cover_image_url: string | null; definition: string | null; clinical_picture: string | null;
   diagnosis: string | null; conduct: string | null; key_points: string | null; pitfalls: string | null;
-  content_md: string | null;
+  content_md: string | null; station_id: string | null;
 };
+
 
 function AdminResumoEdit() {
   const { id } = Route.useParams();
@@ -180,7 +183,17 @@ function AdminResumoEdit() {
               />
             </div>
           </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <LinkStationField
+              table="summaries"
+              rowId={row.id}
+              stationId={row.station_id}
+              onChange={(next) => update("station_id", next)}
+            />
+          </div>
         </aside>
+
       </div>
     </div>
   );
