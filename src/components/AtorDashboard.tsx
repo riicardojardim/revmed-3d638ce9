@@ -101,7 +101,7 @@ export function AtorDashboard() {
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" />
-              <span>Use a tri-avaliação: Adequado (1.0), Parcial (0.5), Inadequado (0).</span>
+              <span>Use a tri-avaliação: Adequado, Parcialmente adequado, Inadequado.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" />
