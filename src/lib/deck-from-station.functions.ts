@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { logAiUsage, type AiUsageKind } from "./ai-usage.server";
 
 const InputSchema = z.object({
   station_id: z.string().uuid().optional().nullable(),
