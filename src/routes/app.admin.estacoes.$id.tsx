@@ -58,6 +58,27 @@ interface DeliverableMaterial {
   autoDeliver?: boolean;
 }
 
+function serializePatientProfile(p: PatientProfile | null | undefined): string | null {
+  if (!p) return null;
+  const labels: Array<[keyof PatientProfile, string]> = [
+    ["name", "Nome"], ["age", "Idade"], ["sex", "Sexo"], ["city", "Cidade"], ["profession", "Profissão"],
+    ["chiefComplaint", "Queixa principal"], ["hpi", "HMA"], ["personalHistory", "Antecedentes pessoais"],
+    ["medications", "Medicações"], ["allergies", "Alergias"], ["familyHistory", "Antecedentes familiares"],
+    ["habits", "Hábitos"], ["symptoms", "Sintomas"], ["vitals", "Sinais vitais"], ["previousExams", "Exames prévios"],
+    ["spontaneous", "Falar espontaneamente"], ["onlyIfAsked", "Só se perguntado"], ["doNotReveal", "Não revelar"],
+    ["emotionalTone", "Tom emocional"], ["actingTips", "Dicas de atuação"],
+  ];
+  const out = labels
+    .map(([k, label]) => {
+      const v = (p[k] ?? "").toString().trim();
+      return v ? `${label}: ${v}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+  return out || null;
+}
+
+
 interface BiblioRef { label: string; url?: string }
 
 interface Station {
