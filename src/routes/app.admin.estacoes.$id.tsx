@@ -8,8 +8,10 @@ import {
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
   Image as ImageIcon, X, Theater, Send, Play, Square, Lock,
   UserPlus, Link2, BarChart3, MessageCircle, MessageSquareWarning, Check,
-  CheckCircle2, AlertCircle,
+  CheckCircle2, AlertCircle, Printer,
 } from "lucide-react";
+import { downloadActorPDF, downloadCandidatePDF } from "@/lib/station-pdf";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
