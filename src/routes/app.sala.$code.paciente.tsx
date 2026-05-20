@@ -27,6 +27,7 @@ import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { StationSummaryDialog } from "@/components/StationSummaryDialog";
+import { RelatedResources } from "@/components/RelatedResources";
 import { useServerFn } from "@tanstack/react-start";
 import { listRoomPresence } from "@/lib/livekit.functions";
 
@@ -1245,6 +1246,19 @@ function ActorView() {
                       </div>
                     )}
                   </div>
+
+                  {/* Sugestões de estudo vinculadas à estação (visível para o ator durante toda a sessão) */}
+                  <RelatedResources
+                    specialty={station.specialty}
+                    title={station.title}
+                    stationId={station.id}
+                    show={{ resumo: true, flashcard: true }}
+                    excludeStationId={station.id}
+                    heading="Material desta estação"
+                    variant="compact"
+                  />
+
+
 
                   {/* Resultado */}
                   <div className="rounded-2xl border border-border bg-card p-4">
