@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Clock, BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText } from "lucide-react";
+import { ArrowLeft, BookOpen, Stethoscope, Microscope, ClipboardCheck, Star, AlertTriangle, FileText } from "lucide-react";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +16,7 @@ type Summary = {
   specialty: string;
   topic: string | null;
   content_md: string | null;
-  read_time_minutes: number;
   difficulty: string;
-  high_yield: boolean;
   cover_image_url: string | null;
   definition: string | null;
   clinical_picture: string | null;
@@ -136,16 +134,7 @@ function ResumoPage() {
           <h1 className="mt-1 font-display text-2xl font-bold leading-tight md:text-4xl">{s.title}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <SpecialtyBadge specialty={s.specialty} />
-
-            {s.high_yield && (
-              <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
-                Alta incidência
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1 text-xs text-white/80">
-              <Clock className="h-3.5 w-3.5" /> {s.read_time_minutes} min de leitura
-            </span>
-            {s.topic && <span className="text-xs text-white/70">· {s.topic}</span>}
+            {s.topic && <span className="text-xs text-white/70">{s.topic}</span>}
           </div>
         </div>
       </div>
