@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -7,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createSimulado } from "@/lib/simulado";
 import { toast } from "sonner";
+import { StationSummaryDialog } from "@/components/StationSummaryDialog";
+import { DeckPreview } from "@/components/flashcards/DeckPreview";
 
 type Props = {
   specialty: string;
