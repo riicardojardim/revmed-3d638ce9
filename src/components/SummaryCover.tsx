@@ -8,12 +8,11 @@ type Props = {
   topic?: string | null;
   /** Se informado, usa a imagem real como capa; senão, gera capa estilizada. */
   imageUrl?: string | null;
-  highYield?: boolean;
   className?: string;
 };
 
 /** Capa padronizada dos Resumos — espelha o estilo dos decks de flashcard. */
-export function SummaryCover({ title, specialty, topic, imageUrl, highYield, className }: Props) {
+export function SummaryCover({ title, specialty, topic, imageUrl, className }: Props) {
   const meta = getSpecialtyMeta(specialty);
 
   if (imageUrl) {
@@ -27,12 +26,7 @@ export function SummaryCover({ title, specialty, topic, imageUrl, highYield, cla
               style={{ padding: "1.2cqi 2.2cqi", fontSize: "max(8px, 4.2cqi)", lineHeight: 1 }}>
               {meta.code}
             </span>
-            {highYield && (
-              <span className="rounded-md bg-amber-400/90 px-[2cqi] py-[1cqi] font-bold text-amber-950 ring-1 ring-amber-200"
-                style={{ fontSize: "max(8px, 3.6cqi)", lineHeight: 1 }}>
-                Alta incidência
-              </span>
-            )}
+            <BookOpen className="opacity-80" style={{ width: "12cqi", height: "12cqi" }} />
           </div>
           <div>
             <h3 className="font-display font-black leading-[1.05] break-words" style={{ fontSize: "max(11px, 8cqi)" }}>
@@ -73,14 +67,7 @@ export function SummaryCover({ title, specialty, topic, imageUrl, highYield, cla
             style={{ padding: "1.2cqi 2.2cqi", fontSize: "max(8px, 4.2cqi)", lineHeight: 1 }}>
             {meta.code}
           </span>
-          {highYield ? (
-            <span className="rounded-md bg-amber-400/90 px-[2cqi] py-[1cqi] font-bold text-amber-950 ring-1 ring-amber-200"
-              style={{ fontSize: "max(8px, 3.4cqi)", lineHeight: 1 }}>
-              Alta incidência
-            </span>
-          ) : (
-            <BookOpen className="opacity-80" style={{ width: "12cqi", height: "12cqi" }} />
-          )}
+          <BookOpen className="opacity-80" style={{ width: "12cqi", height: "12cqi" }} />
         </div>
 
         <div className="flex flex-1 flex-col justify-center min-h-0">
