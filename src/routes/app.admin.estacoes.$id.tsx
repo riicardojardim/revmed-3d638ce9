@@ -997,8 +997,8 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
 }
 
 function ChecklistBulkImport({
-  stationId, currentCount, reload,
-}: { stationId: string; currentCount: number; reload: () => Promise<void> }) {
+  stationId, currentCount, reload, onFilled,
+}: { stationId: string; currentCount: number; reload: () => Promise<void>; onFilled?: () => void }) {
   const [text, setText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
