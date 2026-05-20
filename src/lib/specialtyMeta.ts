@@ -19,52 +19,53 @@ export type SpecialtyMeta = {
   text: string;
 };
 
+// Badges legíveis em fundo escuro/claro: usa tom 500 sólido + texto branco.
 const META: Record<string, SpecialtyMeta> = {
   "Clínica Médica": {
     code: "CM",
-    badge: "bg-blue-500/20 text-blue-800 dark:text-blue-200 ring-1 ring-blue-600/50",
+    badge: "bg-blue-500 text-white ring-1 ring-blue-300/60 shadow-sm shadow-blue-900/30",
     card: "border-blue-500/40 bg-blue-500/5",
     solid: "bg-blue-500",
     text: "text-blue-700 dark:text-blue-300",
   },
   "Cirurgia": {
     code: "CR",
-    badge: "bg-violet-500/20 text-violet-800 dark:text-violet-200 ring-1 ring-violet-600/50",
+    badge: "bg-violet-500 text-white ring-1 ring-violet-300/60 shadow-sm shadow-violet-900/30",
     card: "border-violet-500/40 bg-violet-500/5",
     solid: "bg-violet-500",
     text: "text-violet-700 dark:text-violet-300",
   },
   "Pediatria": {
     code: "PE",
-    badge: "bg-amber-500/25 text-amber-900 dark:text-amber-200 ring-1 ring-amber-600/50",
+    badge: "bg-amber-500 text-white ring-1 ring-amber-300/60 shadow-sm shadow-amber-900/30",
     card: "border-amber-500/40 bg-amber-500/5",
     solid: "bg-amber-500",
     text: "text-amber-700 dark:text-amber-300",
   },
   "Ginecologia e Obstetrícia": {
     code: "GO",
-    badge: "bg-pink-500/20 text-pink-800 dark:text-pink-200 ring-1 ring-pink-600/50",
+    badge: "bg-pink-500 text-white ring-1 ring-pink-300/60 shadow-sm shadow-pink-900/30",
     card: "border-pink-500/40 bg-pink-500/5",
     solid: "bg-pink-500",
     text: "text-pink-700 dark:text-pink-300",
   },
   "Medicina de Família e Comunidade": {
     code: "MFC",
-    badge: "bg-emerald-500/20 text-emerald-800 dark:text-emerald-200 ring-1 ring-emerald-600/50",
+    badge: "bg-emerald-500 text-white ring-1 ring-emerald-300/60 shadow-sm shadow-emerald-900/30",
     card: "border-emerald-500/40 bg-emerald-500/5",
     solid: "bg-emerald-500",
     text: "text-emerald-700 dark:text-emerald-300",
   },
   "Saúde Coletiva": {
     code: "SC",
-    badge: "bg-orange-500/20 text-orange-800 dark:text-orange-200 ring-1 ring-orange-600/50",
+    badge: "bg-orange-500 text-white ring-1 ring-orange-300/60 shadow-sm shadow-orange-900/30",
     card: "border-orange-500/40 bg-orange-500/5",
     solid: "bg-orange-500",
     text: "text-orange-700 dark:text-orange-300",
   },
   "Preventiva": {
     code: "PR",
-    badge: "bg-orange-500/20 text-orange-800 dark:text-orange-200 ring-1 ring-orange-600/50",
+    badge: "bg-orange-500 text-white ring-1 ring-orange-300/60 shadow-sm shadow-orange-900/30",
     card: "border-orange-500/40 bg-orange-500/5",
     solid: "bg-orange-500",
     text: "text-orange-700 dark:text-orange-300",

@@ -700,7 +700,7 @@ function ActorView() {
                   {(() => {
                     const meta = getSpecialtyMeta(station.specialty);
                     return (
-                      <span className={cn("inline-flex h-6 items-center rounded-md px-2 text-[11px] font-bold", meta.badge)}>
+                      <span className={cn("inline-flex h-7 items-center rounded-md px-2.5 text-[12px] font-extrabold tracking-wider", meta.badge)}>
                         {meta.code}
                       </span>
                     );
