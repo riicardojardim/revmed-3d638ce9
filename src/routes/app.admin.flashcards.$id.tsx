@@ -35,7 +35,9 @@ type Deck = {
   description: string | null;
   cover_image_url: string | null;
   published: boolean;
+  station_id: string | null;
 };
+
 
 type Card = {
   id: string;
