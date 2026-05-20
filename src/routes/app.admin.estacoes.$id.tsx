@@ -1122,7 +1122,7 @@ function ChecklistBulkImport({
   );
 }
 
-function SectionChecklist({ stationId, items, reload }: { stationId: string; items: Item[]; reload: () => Promise<void> }) {
+function SectionChecklist({ stationId, items, reload, onChecklistFilled }: { stationId: string; items: Item[]; reload: () => Promise<void>; onChecklistFilled?: () => void }) {
   const [draft, setDraft] = useState({ description: "", category: "Apresentação", points: 1 });
 
   async function addItem(e: React.FormEvent) {
