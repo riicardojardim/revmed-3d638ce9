@@ -52,6 +52,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSubscription } from "@/hooks/use-subscription";
 import { toast } from "sonner";
 
