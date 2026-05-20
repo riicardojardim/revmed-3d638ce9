@@ -256,9 +256,16 @@ function AppLayout() {
                 href={waUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="hidden shrink-0 truncate rounded-full border border-medical/40 bg-medical/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-mint transition-colors hover:border-mint/50 hover:bg-mint/10 sm:inline-block"
+                className="group relative hidden shrink-0 items-center gap-2 overflow-hidden rounded-full border border-mint/50 bg-gradient-to-r from-mint/20 via-medical/15 to-mint/20 px-3.5 py-1.5 text-xs font-semibold tracking-tight text-white shadow-[0_0_0_1px_rgba(110,231,183,0.15),0_8px_24px_-12px_rgba(45,212,168,0.6)] backdrop-blur-sm transition-all hover:border-mint hover:from-mint/30 hover:to-mint/30 hover:shadow-[0_0_0_1px_rgba(110,231,183,0.3),0_10px_30px_-10px_rgba(45,212,168,0.9)] sm:inline-flex"
               >
-                {waLabel}
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-mint text-[10px] shadow-[0_0_10px_rgba(45,212,168,0.7)]">
+                  <svg viewBox="0 0 24 24" className="h-3 w-3 fill-slate-950" aria-hidden>
+                    <path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2s-.8 1-1 1.2c-.2.2-.4.2-.6 0-.3-.2-1.2-.4-2.3-1.4-.8-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.5s1 2.9 1.1 3.1c.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.2-.1-.5-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.3c1.4.8 3 1.3 4.8 1.3 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
+                  </svg>
+                </span>
+                <span className="relative truncate">{waLabel}</span>
+                <span className="relative hidden h-1.5 w-1.5 animate-pulse rounded-full bg-mint shadow-[0_0_8px_var(--mint)] md:inline-block" />
               </a>
             )}
           </div>
