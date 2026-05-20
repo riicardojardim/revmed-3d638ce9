@@ -552,11 +552,12 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   let y = CONTENT_START_Y;
 
   // 1) Cenário de atuação
-  if (station.support_materials?.trim()) {
+  if (station.clinical_case?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
-      renderScriptText(doc, station.support_materials!.trim(), x, yy + 3, w),
+      renderScriptText(doc, station.clinical_case!.trim(), x, yy + 3, w),
     );
   }
+
 
   // 2) Descrição do caso
   if (station.case_description?.trim()) {
