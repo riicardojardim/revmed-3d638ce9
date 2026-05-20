@@ -1247,6 +1247,19 @@ function ActorView() {
                     )}
                   </div>
 
+                  {/* Sugestões de estudo vinculadas à estação (visível para o ator durante toda a sessão) */}
+                  <RelatedResources
+                    specialty={station.specialty}
+                    title={station.title}
+                    stationId={station.id}
+                    show={{ resumo: true, flashcard: true }}
+                    excludeStationId={station.id}
+                    heading="Material desta estação"
+                    variant="compact"
+                  />
+
+
+
                   {/* Resultado */}
                   <div className="rounded-2xl border border-border bg-card p-4">
                     <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
