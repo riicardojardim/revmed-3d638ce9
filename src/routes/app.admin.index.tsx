@@ -190,11 +190,12 @@ function AdminOverview() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[240px]">
             <label className="text-[11px] uppercase tracking-wider text-muted-foreground">Animação ativa</label>
-            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door")}>
+            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door" | "corridor")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="classic">Crachá + Prontuário (clássica)</SelectItem>
                 <SelectItem value="door">Médico abrindo a porta</SelectItem>
+                <SelectItem value="corridor">Corredor do hospital (1ª pessoa)</SelectItem>
               </SelectContent>
             </Select>
           </div>
