@@ -25,7 +25,25 @@ const InputSchema = z.object({
   specialty: z.string().min(1).max(120),
   topic: z.string().max(200).optional().nullable(),
   clinical_case: z.string().max(20_000).optional().nullable(),
+  case_description: z.string().max(20_000).optional().nullable(),
   candidate_task: z.string().max(10_000).optional().nullable(),
+  patient_info: z.string().max(10_000).optional().nullable(),
+  patient_script: z.string().max(20_000).optional().nullable(),
+  patient_profile: z.string().max(10_000).optional().nullable(),
+  support_materials: z.string().max(10_000).optional().nullable(),
+  evaluator_notes: z.string().max(10_000).optional().nullable(),
+  deliverable_materials: z
+    .array(
+      z.object({
+        name: z.string().max(300).optional().nullable(),
+        type: z.string().max(120).optional().nullable(),
+        description: z.string().max(5_000).optional().nullable(),
+        content: z.string().max(20_000).optional().nullable(),
+      }),
+    )
+    .max(20)
+    .optional()
+    .nullable(),
   educational_goal: z.string().max(5_000).optional().nullable(),
   expected_conduct: z.string().max(10_000).optional().nullable(),
   common_mistakes: z.string().max(10_000).optional().nullable(),
