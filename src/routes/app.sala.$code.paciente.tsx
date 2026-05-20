@@ -1212,15 +1212,27 @@ function ActorView() {
                       )}
                     </div>
                     {isWaiting && (
-                      <Button
-                        variant="hero"
-                        className="mt-3 w-full"
-                        onClick={startStation}
-                        disabled={starting || !room.evaluated_candidate_id}
-                      >
-                        <Play className="mr-1 h-4 w-4" />
-                        {room.evaluated_candidate_id ? "Iniciar cronômetro" : "Aguardando candidato..."}
-                      </Button>
+                      <>
+                        <Button
+                          variant="hero"
+                          className="mt-3 w-full"
+                          onClick={startStation}
+                          disabled={starting || !room.evaluated_candidate_id || !actorInCall}
+                          title={!actorInCall ? "Entre na videochamada para iniciar" : undefined}
+                        >
+                          <Play className="mr-1 h-4 w-4" />
+                          {!room.evaluated_candidate_id
+                            ? "Aguardando candidato..."
+                            : !actorInCall
+                              ? "Entre na videochamada"
+                              : "Iniciar cronômetro"}
+                        </Button>
+                        {room.evaluated_candidate_id && !actorInCall && (
+                          <div className="mt-2 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-center text-[11px] font-medium text-amber-200">
+                            📹 Você precisa entrar na <strong>videochamada</strong> antes de iniciar o cronômetro.
+                          </div>
+                        )}
+                      </>
                     )}
                     {isRunning && (
                       <Button variant="outline" className="mt-3 w-full" onClick={() => finishStation()}>
