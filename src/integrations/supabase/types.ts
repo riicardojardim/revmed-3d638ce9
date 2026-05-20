@@ -660,6 +660,7 @@ export type Database = {
           ga4_id: string | null
           gtm_id: string | null
           id: string
+          intro_animation_variant: string
           is_singleton: boolean
           logo_url: string | null
           meta_capi_token: string | null
@@ -681,6 +682,7 @@ export type Database = {
           ga4_id?: string | null
           gtm_id?: string | null
           id?: string
+          intro_animation_variant?: string
           is_singleton?: boolean
           logo_url?: string | null
           meta_capi_token?: string | null
@@ -702,6 +704,7 @@ export type Database = {
           ga4_id?: string | null
           gtm_id?: string | null
           id?: string
+          intro_animation_variant?: string
           is_singleton?: boolean
           logo_url?: string | null
           meta_capi_token?: string | null

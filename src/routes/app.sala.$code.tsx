@@ -21,7 +21,8 @@ import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientP
 import { supabase } from "@/integrations/supabase/client";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { useAuth } from "@/hooks/use-auth";
-import { StationIntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { IntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/IntroOverlay";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
@@ -70,6 +71,8 @@ function formatCandidateName(
 function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
+  const { settings } = useSiteSettings();
+  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door";
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -749,7 +752,8 @@ function SimuladoRunner({ id }: { id: string }) {
   return (
     <>
       {showIntro && (
-        <StationIntroOverlay
+        <IntroOverlay
+          variant={introVariant}
           role={"paciente" as IntroRole}
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}

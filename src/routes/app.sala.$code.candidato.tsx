@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
-import { StationIntroOverlay, type IntroRole } from "@/components/room/StationIntroOverlay";
+import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
@@ -42,6 +43,8 @@ type Delivery = {
 function CandidateView() {
   const { code } = Route.useParams();
   const { user, profile } = useAuth();
+  const { settings } = useSiteSettings();
+  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door";
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
@@ -412,7 +415,8 @@ function CandidateView() {
   // Overlay institucional de entrada (3..2..1). Renderizado COMO OVERLAY (não substitui a árvore)
   // para que a FloatingVideoCall continue montada e a chamada não caia ao iniciar a estação.
   const introOverlay = showIntro && user ? (
-    <StationIntroOverlay
+    <IntroOverlay
+      variant={introVariant}
       role={"candidato" as IntroRole}
       stationTitle={room.station_title ?? station.title}
       specialty={station.specialty}
