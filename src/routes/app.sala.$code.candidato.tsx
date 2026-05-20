@@ -44,7 +44,7 @@ function CandidateView() {
   const { code } = Route.useParams();
   const { user, profile } = useAuth();
   const { settings } = useSiteSettings();
-  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door";
+  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door" | "corridor";
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
