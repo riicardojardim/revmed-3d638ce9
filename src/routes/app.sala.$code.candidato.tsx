@@ -833,6 +833,18 @@ function CandidateView() {
             )}
           </div>
 
+          {isFinished && (
+            <RelatedResources
+              specialty={station.specialty}
+              title={room.station_title ?? station.title}
+              stationId={station.id}
+              show={{ resumo: true, flashcard: true }}
+              excludeStationId={station.id}
+              heading="Sugestões para este tema"
+              className="p-3"
+            />
+          )}
+
           {/* Resultado — só para o candidato avaliado */}
           {!isSpectator && (
             <div className="rounded-2xl border border-border bg-card p-4">
@@ -855,18 +867,6 @@ function CandidateView() {
 
         </aside>
       </div>
-      {isFinished && (
-        <div className="mt-4">
-          <RelatedResources
-            specialty={station.specialty}
-            title={room.station_title ?? station.title}
-            stationId={station.id}
-            show={{ resumo: true, flashcard: true }}
-            excludeStationId={station.id}
-            heading="Material desta estação"
-          />
-        </div>
-      )}
       <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
       </div>
     </>
