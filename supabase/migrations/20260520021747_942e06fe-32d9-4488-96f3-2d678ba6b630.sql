@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS intro_animation_variant text NOT NULL DEFAULT 'classic';
