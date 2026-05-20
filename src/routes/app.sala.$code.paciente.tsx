@@ -123,6 +123,24 @@ function ActorView() {
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [actorInCall, setActorInCall] = useState(false);
+  const fetchPresence = useServerFn(listRoomPresence);
+
+  // Poll presença na videochamada para garantir que o ator esteja na call
+  // antes de liberar o botão "Iniciar cronômetro".
+  useEffect(() => {
+    if (!code || !user?.id) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const r = await fetchPresence({ data: { roomCode: code } });
+        if (!cancelled) setActorInCall(new Set(r.identities).has(user.id));
+      } catch { /* silencioso */ }
+    };
+    void tick();
+    const id = setInterval(tick, 3000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [code, user?.id, fetchPresence]);
   const [copied, setCopied] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
