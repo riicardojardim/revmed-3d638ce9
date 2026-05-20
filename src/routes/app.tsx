@@ -75,6 +75,10 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const { user, loading, profile, roles, signOut } = useAuth();
+  const { settings } = useSiteSettings();
+  const waEnabled = settings?.whatsapp_banner_enabled !== false;
+  const waUrl = settings?.whatsapp_banner_url || "https://chat.whatsapp.com/";
+  const waLabel = settings?.whatsapp_banner_label || "Grupo Premium 2026.1 · WhatsApp (Grupo 6)";
   const { plan, isPrivileged, isCompletoLike, isAtorOnly } = useSubscription();
 
   const isAdmin = roles.includes("admin");
