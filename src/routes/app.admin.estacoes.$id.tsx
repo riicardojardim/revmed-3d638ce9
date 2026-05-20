@@ -2568,12 +2568,13 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
                   ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
                   : <Badge variant="outline">Rascunho</Badge>}
                 <Link
-                  to="/app/resumos/$id"
+                  to="/app/admin/resumos/$id"
                   params={{ id: s.id }}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                 >
                   Abrir →
                 </Link>
+
               </div>
             ))}
           </div>
