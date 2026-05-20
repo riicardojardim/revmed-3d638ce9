@@ -66,6 +66,7 @@ interface StationLike {
   case_description: string | null;
   candidate_task: string;
   support_materials: string | null;
+  clinical_case: string | null;
   patient_profile: PatientProfile | null;
   deliverable_materials: DeliverableMaterial[];
 }
