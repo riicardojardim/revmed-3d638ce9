@@ -205,10 +205,16 @@ function drawSegLine(doc: jsPDF, segs: Seg[], x: number, y: number, fontSize: nu
 }
 
 // ============ Card (PRBlock-style) ============
+function addNewPage(doc: jsPDF) {
+  drawFooter(doc);
+  doc.addPage();
+  drawPageBackground(doc);
+  drawTopAccent(doc);
+}
+
 function ensureSpace(doc: jsPDF, y: number, needed: number): number {
   if (y + needed > PAGE_H - MARGIN_BOTTOM) {
-    drawFooter(doc);
-    doc.addPage();
+    addNewPage(doc);
     return MARGIN_TOP;
   }
   return y;
@@ -222,9 +228,7 @@ function drawFooter(doc: jsPDF) {
   doc.text(`Página ${doc.getNumberOfPages()}`, PAGE_W - MARGIN_X, PAGE_H - 6, { align: "right" });
 }
 
-// Render a PRBlock-style card. Returns new y. Renders the gradient header,
-// then the body content via the provided renderer (which gets bodyX, bodyY,
-// bodyW and returns the new y after rendering content).
+// Render a PRBlock-style card. Returns new y.
 function drawCard(
   doc: jsPDF,
   y: number,
@@ -235,17 +239,14 @@ function drawCard(
   const headerH = 10.5;
   const bodyPadX = 6;
   const bodyPadY = 5;
-  const radius = 2.8;
+  const radius = 3.2;
 
-  // Move to next page if not enough room for header + at least one line
   y = ensureSpace(doc, y, headerH + 14);
   const startPage = doc.getNumberOfPages();
   const cardTop = y;
 
-  // 1) Gradient header — clipped so the TOP corners are rounded (bottom is flush with body)
+  // 1) Gradient header — clip so the TOP corners are rounded
   doc.saveGraphicsState();
-  // Clip area extends below the gradient by `radius` so the clip's bottom rounded
-  // corners stay outside the painted gradient region (gradient bottom edge stays flat).
   (doc as unknown as { roundedRect: (a: number, b: number, c: number, d: number, e: number, f: number) => unknown })
     .roundedRect(MARGIN_X, cardTop, CONTENT_W, headerH + radius, radius, radius);
   (doc as unknown as { clip: () => void; discardPath: () => void }).clip();
@@ -253,7 +254,7 @@ function drawCard(
   drawGradientBanner(doc, MARGIN_X, cardTop, CONTENT_W, headerH);
   doc.restoreGraphicsState();
 
-  // Title text (left) and optional right badge
+  // Title text + optional right badge
   setText(doc, [255, 255, 255]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10.5);
@@ -266,12 +267,9 @@ function drawCard(
   const titleLines = doc.splitTextToSize(title, CONTENT_W - 12 - badgeW);
   doc.text(titleLines[0], MARGIN_X + 5, cardTop + 6.9);
   if (rightBadge) {
-    // small translucent pill behind the badge for polish
-    setFill(doc, [255, 255, 255]);
     const bx = PAGE_W - MARGIN_X - badgeW - 2;
     const by = cardTop + 2.6;
     const bh = headerH - 5.2;
-    // semi-opaque via overlay rect — jsPDF lacks alpha by default; use stroke instead
     setStroke(doc, [255, 255, 255]);
     doc.setLineWidth(0.4);
     doc.roundedRect(bx, by, badgeW, bh, 1.4, 1.4, "S");
@@ -281,26 +279,25 @@ function drawCard(
     doc.text(rightBadge, PAGE_W - MARGIN_X - 6, cardTop + 6.6, { align: "right" });
   }
 
-  // 2) Body content
-  const bodyStartY = cardTop + headerH;
-  const bodyTop = bodyStartY + bodyPadY;
+  // 2) Body
+  const bodyTop = cardTop + headerH + bodyPadY;
   const newY = render(MARGIN_X + bodyPadX, bodyTop, CONTENT_W - bodyPadX * 2);
-  const finalY = newY + bodyPadY;
+  const finalY = Math.min(newY + bodyPadY, PAGE_H - MARGIN_BOTTOM);
   const endPage = doc.getNumberOfPages();
 
-  // 3) Card outline (rounded all corners) — only if content didn't paginate
-  if (endPage === startPage && finalY <= PAGE_H - MARGIN_BOTTOM) {
-    setStroke(doc, C_BORDER);
-    doc.setLineWidth(0.35);
-    doc.roundedRect(MARGIN_X, cardTop, CONTENT_W, finalY - cardTop, radius, radius, "S");
-  } else {
-    // Multi-page fallback: draw side + bottom border on the last page only
-    setStroke(doc, C_BORDER);
-    doc.setLineWidth(0.35);
-    doc.line(MARGIN_X, MARGIN_TOP, MARGIN_X, finalY);
-    doc.line(PAGE_W - MARGIN_X, MARGIN_TOP, PAGE_W - MARGIN_X, finalY);
-    doc.line(MARGIN_X, finalY, PAGE_W - MARGIN_X, finalY);
+  // 3) Card outline — per-page segments with rounded corners only at real top/bottom.
+  // Side/over-flow corners are pushed off-page so they're not visible.
+  setStroke(doc, C_BORDER);
+  doc.setLineWidth(0.35);
+  const off = radius + 2;
+  const currentPage = endPage;
+  for (let p = startPage; p <= endPage; p++) {
+    doc.setPage(p);
+    const segTop = p === startPage ? cardTop : MARGIN_TOP - off;
+    const segBottom = p === endPage ? finalY : PAGE_H - MARGIN_BOTTOM + off;
+    doc.roundedRect(MARGIN_X, segTop, CONTENT_W, segBottom - segTop, radius, radius, "S");
   }
+  doc.setPage(currentPage);
   return finalY + 5;
 }
 
