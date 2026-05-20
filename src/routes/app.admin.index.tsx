@@ -269,6 +269,62 @@ function AdminOverview() {
         />
       )}
 
+      {/* Banner do grupo de WhatsApp (topo do app) */}
+      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="font-display font-semibold">Banner do grupo de WhatsApp (topo do app)</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Controla o link clicável que aparece no topo de todas as páginas do app, ao lado da nota de corte.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Switch checked={waEnabled} onCheckedChange={setWaEnabled} id="wa-enabled" />
+            <Label htmlFor="wa-enabled" className="text-xs">{waEnabled ? "Ativo" : "Desativado"}</Label>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div>
+            <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Frase exibida</Label>
+            <Input
+              value={waLabel}
+              onChange={(e) => setWaLabel(e.target.value)}
+              placeholder="Grupo Premium 2026.1 · WhatsApp (Grupo 6)"
+              disabled={!waEnabled}
+            />
+          </div>
+          <div>
+            <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Link do grupo</Label>
+            <Input
+              type="url"
+              value={waUrl}
+              onChange={(e) => setWaUrl(e.target.value)}
+              placeholder="https://chat.whatsapp.com/..."
+              disabled={!waEnabled}
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-3 pt-1 border-t border-mint/20">
+          <span className="text-xs text-muted-foreground">
+            {waEnabled
+              ? "Pré-visualização: " + (waLabel || "(sem texto)")
+              : "Banner desativado — não aparece no topo."}
+          </span>
+          <Button
+            onClick={saveWa}
+            disabled={
+              savingWa ||
+              (waEnabled === (settings?.whatsapp_banner_enabled !== false) &&
+                waLabel === (settings?.whatsapp_banner_label ?? "") &&
+                waUrl === (settings?.whatsapp_banner_url ?? ""))
+            }
+          >
+            {savingWa ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
+      </div>
+
+
       <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
