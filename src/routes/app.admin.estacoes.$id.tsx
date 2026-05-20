@@ -8,6 +8,7 @@ import {
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
   Image as ImageIcon, X, Theater, Send, Play, Square, Lock,
   UserPlus, Link2, BarChart3, MessageCircle, MessageSquareWarning, Check,
+  CheckCircle2, AlertCircle,
 } from "lucide-react";
 import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
