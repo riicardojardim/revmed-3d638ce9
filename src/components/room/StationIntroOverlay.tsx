@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClipboardList, Stethoscope, UserRound, ShieldCheck } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 
@@ -47,7 +47,13 @@ const COUNT_END_MS = 600;  // delay entre count 0 e onComplete
 export function StationIntroOverlay({ role, stationTitle, specialty, displayName, avatarUrl, onComplete, startAtMs, nowMs }: Props) {
   const reduce = useReducedMotion();
   const now = nowMs ?? (() => Date.now());
-  const anchor = startAtMs ?? now();
+  // Âncora estável: calculada uma única vez (ou quando startAtMs muda explicitamente),
+  // pra não re-armar timers em cada render — isso causava loop da animação.
+  const anchorRef = useRef<number>(startAtMs ?? now());
+  if (startAtMs !== undefined && startAtMs !== anchorRef.current) {
+    anchorRef.current = startAtMs;
+  }
+  const anchor = anchorRef.current;
 
   // Calcula a fase inicial com base no quanto já passou desde o anchor.
   const initialElapsed = Math.max(0, now() - anchor);
