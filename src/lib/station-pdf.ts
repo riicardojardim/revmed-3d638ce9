@@ -1,5 +1,33 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoUrl from "@/assets/logo-estacao-revalida.png";
+
+// Cache the logo as a data URL so we only fetch it once.
+let _logoDataUrl: string | null = null;
+let _logoDims: { w: number; h: number } | null = null;
+async function getLogoDataUrl(): Promise<{ data: string; w: number; h: number } | null> {
+  try {
+    if (!_logoDataUrl) {
+      const res = await fetch(logoUrl);
+      const blob = await res.blob();
+      _logoDataUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+      _logoDims = await new Promise<{ w: number; h: number }>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+        img.onerror = () => resolve({ w: 600, h: 160 });
+        img.src = _logoDataUrl!;
+      });
+    }
+    return { data: _logoDataUrl!, w: _logoDims!.w, h: _logoDims!.h };
+  } catch {
+    return null;
+  }
+}
 
 // ============ Types (loose, matching the editor route shape) ============
 interface PatientProfile {
