@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_log: {
+        Row: {
+          completion_tokens: number
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          estimated_cost_usd: number
+          id: string
+          kind: string
+          metadata: Json
+          model: string
+          prompt_tokens: number
+          station_id: string | null
+          status: string
+          total_tokens: number
+          user_id: string | null
+        }
+        Insert: {
+          completion_tokens?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          estimated_cost_usd?: number
+          id?: string
+          kind: string
+          metadata?: Json
+          model: string
+          prompt_tokens?: number
+          station_id?: string | null
+          status?: string
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Update: {
+          completion_tokens?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          estimated_cost_usd?: number
+          id?: string
+          kind?: string
+          metadata?: Json
+          model?: string
+          prompt_tokens?: number
+          station_id?: string | null
+          status?: string
+          total_tokens?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       attempts: {
         Row: {
           checked_items: string[]

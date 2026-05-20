@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { logAiUsage, type AiUsageKind } from "./ai-usage.server";
 
 const FileSchema = z.object({
   name: z.string().min(1).max(255),
@@ -166,9 +167,11 @@ async function callGateway(
   userParts: UserContent[],
   model: string,
   timeoutMs: number,
+  logCtx: { kind: AiUsageKind; userId: string | null },
 ): Promise<z.infer<typeof ResultSchema>> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const start = Date.now();
   let res: Response;
   try {
     res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -193,13 +196,16 @@ async function callGateway(
 
   if (!res.ok) {
     const txt = await res.text();
+    await logAiUsage({ kind: logCtx.kind, model, userId: logCtx.userId, status: "error", errorMessage: `HTTP ${res.status}: ${txt.slice(0, 200)}`, durationMs: Date.now() - start });
     if (res.status === 429) throw new Error("Limite de uso da IA atingido. Aguarde alguns instantes.");
     if (res.status === 402) throw new Error("Créditos de IA esgotados.");
     throw new Error(`AI Gateway ${res.status}: ${txt.slice(0, 200)}`);
   }
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
   };
+  await logAiUsage({ kind: logCtx.kind, model, userId: logCtx.userId, usage: json.usage ?? null, durationMs: Date.now() - start });
   if (json.choices?.[0]?.finish_reason === "length") {
     throw new Error("A resposta da IA foi cortada (limite de tokens).");
   }
@@ -217,7 +223,7 @@ async function callGateway(
 export const parseChecklistBulk = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => InputSchema.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const literalItems = data.text ? parseChecklistTextLiterally(data.text.trim()) : [];
     if (literalItems.length > 0 && !(data.files?.length)) {
       return { checklist_items: literalItems };
@@ -241,12 +247,13 @@ export const parseChecklistBulk = createServerFn({ method: "POST" })
       parts.push({ type: "image_url", image_url: { url: f.dataUrl } });
     }
 
+    const logCtx = { kind: "checklist" as const, userId: context.userId };
     try {
-      return await callGateway(apiKey, parts, "google/gemini-2.5-flash", 90_000);
+      return await callGateway(apiKey, parts, "google/gemini-2.5-flash", 90_000, logCtx);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       const isTimeout = /abort|timeout|504|502|upstream/i.test(msg);
       if (!isTimeout) throw err;
-      return await callGateway(apiKey, parts, "google/gemini-2.5-pro", 150_000);
+      return await callGateway(apiKey, parts, "google/gemini-2.5-pro", 150_000, logCtx);
     }
   });
