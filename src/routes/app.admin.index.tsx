@@ -201,6 +201,7 @@ function AdminOverview() {
                 <SelectItem value="door">Médico abrindo a porta</SelectItem>
                 <SelectItem value="corridor">Corredor do hospital (1ª pessoa)</SelectItem>
                 <SelectItem value="xray">Raio-X revelando</SelectItem>
+                <SelectItem value="stamp">Carimbo "AUTORIZADO"</SelectItem>
               </SelectContent>
             </Select>
           </div>
