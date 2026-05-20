@@ -183,7 +183,17 @@ function AdminResumoEdit() {
               />
             </div>
           </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <LinkStationField
+              table="summaries"
+              rowId={row.id}
+              stationId={row.station_id}
+              onChange={(next) => update("station_id", next)}
+            />
+          </div>
         </aside>
+
       </div>
     </div>
   );
