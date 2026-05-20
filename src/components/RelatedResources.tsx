@@ -129,7 +129,6 @@ export function RelatedResources({
     (show.flashcard && bestDeck) ||
     (show.checklist && bestStation)
   );
-  if (!hasAny) return null;
 
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [deckOpen, setDeckOpen] = useState(false);
@@ -149,6 +148,8 @@ export function RelatedResources({
       return (data ?? []).map((c) => ({ id: c.id, front: c.front, back: c.back }));
     },
   });
+
+  if (!hasAny) return null;
 
   function startStation() {
     if (!bestStation) return;
