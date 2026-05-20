@@ -434,6 +434,23 @@ function drawPageBackground(doc: jsPDF) {
   ];
   for (const [hx, hy, hs] of hearts) drawHeartIcon(doc, hx, hy, hs);
   drawEcgLine(doc, PAGE_H - 22);
+
+  // Faint centered logo watermark
+  if (_logoDataUrl && _logoDims) {
+    try {
+      const docAny = doc as unknown as {
+        GState: new (opts: { opacity: number }) => unknown;
+        setGState: (g: unknown) => void;
+      };
+      const prev = docAny.GState ? new docAny.GState({ opacity: 1 }) : null;
+      if (docAny.GState) docAny.setGState(new docAny.GState({ opacity: 0.06 }));
+      const ratio = _logoDims.w / _logoDims.h;
+      const wmW = 130;
+      const wmH = wmW / ratio;
+      doc.addImage(_logoDataUrl, "PNG", (PAGE_W - wmW) / 2, (PAGE_H - wmH) / 2, wmW, wmH);
+      if (prev) docAny.setGState(prev);
+    } catch { /* ignore */ }
+  }
 }
 
 // ============ Top accent strip (every page) ============
