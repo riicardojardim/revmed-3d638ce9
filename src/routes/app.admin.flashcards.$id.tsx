@@ -235,7 +235,17 @@ function AdminFlashcardEditor() {
               </Select>
             </div>
           </div>
+
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <LinkStationField
+              table="flashcard_decks"
+              rowId={deck.id}
+              stationId={deck.station_id}
+              onChange={(next) => patchDeck({ station_id: next })}
+            />
+          </div>
         </aside>
+
 
         {/* Cards */}
         <div className="space-y-3">
