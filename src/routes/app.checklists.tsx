@@ -407,6 +407,7 @@ function StationsPage() {
                         <div className="truncate text-sm font-medium">{s.title}</div>
                         <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
                       </div>
+                      <StationPDFButton stationId={s.id} iconOnly />
                       <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); startStation(s); }}>
                         Iniciar <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
