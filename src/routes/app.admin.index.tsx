@@ -29,7 +29,7 @@ interface DailyPoint { date: string; label: string; value: number }
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const { settings } = useSiteSettings();
-  const [variant, setVariant] = useState<"classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv">("classic");
+  const [variant, setVariant] = useState<"classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv" | "examroom">("classic");
   const [savingVariant, setSavingVariant] = useState(false);
   useEffect(() => {
     if (settings?.intro_animation_variant) setVariant(settings.intro_animation_variant);
@@ -196,7 +196,7 @@ function AdminOverview() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[240px]">
             <label className="text-[11px] uppercase tracking-wider text-muted-foreground">Animação ativa</label>
-            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv")}>
+            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv" | "examroom")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="classic">Crachá + Prontuário (clássica)</SelectItem>
