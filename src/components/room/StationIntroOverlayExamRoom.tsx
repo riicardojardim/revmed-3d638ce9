@@ -602,3 +602,41 @@ function Examiner({ delay, active, accent, index }: { delay: number; active: boo
     </motion.svg>
   );
 }
+
+/* ---------- Colega avaliador sentado (visto de trás, 3/4) ---------- */
+function SeatedEvaluator({ side }: { side: "left" | "right" }) {
+  const flip = side === "right" ? -1 : 1;
+  return (
+    <svg viewBox="0 0 200 280" width="100%" height="100%" style={{ transform: `scaleX(${flip})` }}>
+      <defs>
+        <linearGradient id={`chair-${side}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#2a2218" />
+          <stop offset="100%" stopColor="#0d0a06" />
+        </linearGradient>
+        <linearGradient id={`body-${side}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#1f2942" />
+          <stop offset="100%" stopColor="#0a0e1a" />
+        </linearGradient>
+      </defs>
+      {/* encosto da cadeira */}
+      <path d="M 30 280 L 30 130 Q 30 90 70 80 L 130 80 Q 170 90 170 130 L 170 280 Z"
+        fill={`url(#chair-${side})`} />
+      {/* costas/torso */}
+      <path d="M 55 280 L 55 165 Q 55 130 85 122 L 115 122 Q 145 130 145 165 L 145 280 Z"
+        fill={`url(#body-${side})`} />
+      {/* gola/colarinho da camisa */}
+      <path d="M 80 130 L 100 152 L 120 130 L 116 168 L 84 168 Z"
+        fill="#f4f5f8" opacity="0.88" />
+      {/* cabeça (vista de trás levemente 3/4) */}
+      <ellipse cx="100" cy="92" rx="32" ry="36" fill="#d8b48a" />
+      {/* cabelo cobrindo a parte de trás */}
+      <path d="M 68 90 Q 68 56 100 52 Q 132 56 132 92 Q 132 110 124 118 L 76 118 Q 68 110 68 90 Z"
+        fill="#1f140d" />
+      {/* mecha lateral indicando 3/4 */}
+      <path d="M 124 90 Q 130 100 126 116 L 116 116 Q 122 102 124 90 Z" fill="#0e0805" />
+      {/* orelha sutil */}
+      <ellipse cx="128" cy="96" rx="3.5" ry="6" fill="#c89870" />
+      {/* sombra do corpo no chão (não visível, mas dá peso) */}
+    </svg>
+  );
+}
