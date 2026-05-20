@@ -284,11 +284,11 @@ function structuralCheck(r: z.infer<typeof ResultSchema>): StructIssue[] {
       issues.push({ field: label, severity: "error", message: "Seção vazia." });
       continue;
     }
-    if (requireCit && !CITATION_RE.test(text)) {
+    if (requireCit && CITATION_RE.test(text)) {
       issues.push({
         field: label,
-        severity: "error",
-        message: "Falta citação inline (ex.: [MS — PCDT ...]).",
+        severity: "warn",
+        message: "Citação inline encontrada — fontes devem ficar apenas no card Referências.",
       });
     }
     if (PLACEHOLDER_RE.test(text)) {
