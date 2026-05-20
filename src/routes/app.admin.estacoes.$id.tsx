@@ -2417,8 +2417,6 @@ type GeneratedSummary = {
   specialty: string;
   topic: string | null;
   difficulty: string;
-  read_time_minutes: number;
-  high_yield: boolean;
   definition: string | null;
   clinical_picture: string | null;
   diagnosis: string | null;
@@ -2764,14 +2762,6 @@ function InlineSummaryPreview({
           </span>
           <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             {summary.difficulty}
-          </span>
-          {summary.high_yield && (
-            <span className="rounded-md bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600 ring-1 ring-amber-400/30">
-              Alta incidência
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Clock className="h-3 w-3" /> {summary.read_time_minutes} min
           </span>
         </div>
         <h3 className="font-display text-2xl font-bold leading-tight">{summary.title}</h3>
