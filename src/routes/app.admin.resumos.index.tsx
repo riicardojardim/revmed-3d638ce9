@@ -10,7 +10,6 @@ import {
   Trash2,
   Search,
   FileText,
-  Star,
   Loader2,
   CheckCircle2,
   AlertTriangle,
@@ -58,9 +57,7 @@ type Summary = {
   specialty: string;
   topic: string | null;
   difficulty: string;
-  read_time_minutes: number;
   published: boolean;
-  high_yield: boolean;
   cover_image_url: string | null;
   created_at: string;
 };
@@ -98,7 +95,7 @@ function AdminResumosPage() {
     const { data } = await supabase
       .from("summaries")
       .select(
-        "id, title, specialty, topic, difficulty, read_time_minutes, published, high_yield, cover_image_url, created_at",
+        "id, title, specialty, topic, difficulty, published, cover_image_url, created_at",
       )
       .order("created_at", { ascending: false });
     setItems((data ?? []) as Summary[]);
@@ -132,14 +129,6 @@ function AdminResumosPage() {
       .eq("id", s.id);
     if (error) return toast.error("Falha ao atualizar", { description: error.message });
     toast.success(s.published ? "Resumo despublicado" : "Resumo publicado");
-    void load();
-  }
-  async function toggleHighYield(s: Summary) {
-    const { error } = await supabase
-      .from("summaries")
-      .update({ high_yield: !s.high_yield })
-      .eq("id", s.id);
-    if (error) return toast.error("Falha", { description: error.message });
     void load();
   }
   async function remove(s: Summary) {
@@ -307,8 +296,6 @@ function AdminResumosPage() {
               <div className="flex-1 min-w-[200px]">
                 <div className="flex flex-wrap items-center gap-2">
                   <SpecialtyBadge specialty={s.specialty} />
-                  
-                  <Badge variant="outline">{s.read_time_minutes} min</Badge>
                   {s.published ? (
                     <Badge className="bg-success/15 text-success hover:bg-success/15">
                       Publicado
@@ -318,26 +305,11 @@ function AdminResumosPage() {
                       Rascunho
                     </Badge>
                   )}
-                  {s.high_yield && (
-                    <Badge className="bg-amber-400/15 text-amber-600 hover:bg-amber-400/15">
-                      Alta incidência
-                    </Badge>
-                  )}
                 </div>
                 <div className="mt-1 font-display text-lg font-semibold">{s.title}</div>
                 {s.topic && <div className="text-xs text-muted-foreground">{s.topic}</div>}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => toggleHighYield(s)}
-                  title="Alta incidência"
-                >
-                  <Star
-                    className={`h-4 w-4 ${s.high_yield ? "fill-amber-400 text-amber-500" : ""}`}
-                  />
-                </Button>
                 <Link to="/app/admin/resumos/$id" params={{ id: s.id }}>
                   <Button variant="outline" size="sm">
                     <Pencil className="h-4 w-4" /> Editar

@@ -89,13 +89,6 @@ const ResultSchema = z.object({
       z.enum(["Básico", "Intermediário", "Avançado"]),
     )
     .default("Intermediário"),
-  read_time_minutes: z.coerce.number().int().min(2).max(30).catch(7),
-  high_yield: z
-    .preprocess((value) => {
-      if (typeof value === "string") return /^(true|sim|yes|1|alta)/i.test(value.trim());
-      return value;
-    }, z.boolean())
-    .catch(false),
   definition: coerceText(3500, 20),
   clinical_picture: coerceText(4500, 20),
   diagnosis: coerceText(5000, 20),
@@ -120,15 +113,6 @@ function normalizeGatewayResult(value: unknown) {
   const data =
     typeof value === "object" && value !== null ? { ...(value as Record<string, unknown>) } : {};
 
-  if (typeof data.read_time_minutes === "string") {
-    const match = data.read_time_minutes.match(/\d+/);
-    data.read_time_minutes = match ? Number(match[0]) : 7;
-  }
-
-  if (typeof data.high_yield === "string") {
-    data.high_yield = /^(true|sim|yes|1|alta)/i.test(data.high_yield.trim());
-  }
-
   for (const key of [
     "definition",
     "clinical_picture",
@@ -148,8 +132,6 @@ const SYSTEM_PROMPT = `Você é um professor médico brasileiro, especialista em
 Sua tarefa: gerar um RESUMO CLÍNICO de altíssima qualidade a partir do contexto de uma ESTAÇÃO clínica (OSCE). Retorne SOMENTE JSON válido (sem markdown, sem cercas \`\`\`).
 
 IMPORTANTE PARA O JSON:
-- "read_time_minutes" deve ser número inteiro, não string.
-- "high_yield" deve ser booleano true/false, não string.
 - Cada seção textual deve ser objetiva: use no máximo 6 bullets ou 2 parágrafos curtos por campo para evitar respostas longas demais.
 
 REGRAS DE CONTEÚDO (não negociáveis — segurança do paciente vem primeiro):
@@ -172,8 +154,6 @@ REGRAS DE FORMATO (cada campo textual é uma string, NÃO HTML, NÃO markdown):
 - "title": copie EXATAMENTE o título da estação informado pelo usuário.
 - "topic": subtema opcional (ex.: "Tratamento ambulatorial").
 - "difficulty": "Básico" | "Intermediário" | "Avançado" — proporcional à complexidade do tema na prova.
-- "read_time_minutes": estimativa honesta (5–12 minutos típico).
-- "high_yield": true SOMENTE se for tema de alta incidência no Revalida.
 - "definition": 1 parágrafo + epidemiologia rápida e fisiopatologia essencial.
 - "clinical_picture": sinais e sintomas em bullets curtos (use "• " no início de cada linha). Inclua red flags.
 - "diagnosis": critérios diagnósticos, exames complementares (com valores de corte), diagnósticos diferenciais. Use bullets quando útil.
@@ -588,8 +568,6 @@ export async function generateAndSaveSummary(
       specialty: input.specialty,
       topic: result.topic ?? input.topic ?? null,
       difficulty: result.difficulty,
-      read_time_minutes: result.read_time_minutes,
-      high_yield: result.high_yield && !hasBlockingError,
       definition: result.definition,
       clinical_picture: result.clinical_picture,
       diagnosis: result.diagnosis,
@@ -600,7 +578,7 @@ export async function generateAndSaveSummary(
       published: false,
     })
     .select(
-      "id, title, specialty, topic, difficulty, read_time_minutes, high_yield, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md, station_id",
+      "id, title, specialty, topic, difficulty, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, content_md, station_id",
     )
     .single();
   if (error || !row) throw new Error(error?.message || "Falha ao salvar o resumo");

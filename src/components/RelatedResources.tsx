@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowRight, BookOpen, Brain, ListChecks, Sparkles, Clock } from "lucide-react";
+import { ArrowRight, BookOpen, Brain, ListChecks, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createSimulado } from "@/lib/simulado";
@@ -68,11 +68,11 @@ export function RelatedResources({
         show.resumo
           ? supabase
               .from("summaries")
-              .select("id, title, specialty, topic, read_time_minutes, high_yield, station_id")
+              .select("id, title, specialty, topic, station_id")
               .eq("published", true)
               .eq("specialty", specialty)
               .limit(20)
-          : Promise.resolve({ data: [] as Array<{ id: string; title: string; specialty: string; topic: string | null; read_time_minutes: number; high_yield: boolean; station_id: string | null }> }),
+          : Promise.resolve({ data: [] as Array<{ id: string; title: string; specialty: string; topic: string | null; station_id: string | null }> }),
         show.flashcard
           ? supabase
               .from("flashcard_decks")
@@ -177,13 +177,8 @@ export function RelatedResources({
             <div className="line-clamp-2 font-display text-sm font-bold leading-snug group-hover:text-mint">
               {bestResumo.title}
             </div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Clock className="h-3 w-3" /> {bestResumo.read_time_minutes} min
-              {bestResumo.high_yield && (
-                <span className="ml-1 rounded bg-amber-400/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-600 ring-1 ring-amber-400/30">
-                  Alta inc.
-                </span>
-              )}
+            <div className="text-[11px] text-muted-foreground">
+              {bestResumo.specialty}{bestResumo.topic ? ` · ${bestResumo.topic}` : ""}
             </div>
             <div className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-mint">
               Abrir resumo <ArrowRight className="h-3.5 w-3.5" />

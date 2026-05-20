@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BookOpen,
-  Clock,
   Search,
   ArrowRight,
   Stethoscope,
@@ -42,9 +41,7 @@ type Summary = {
   specialty: string;
   topic: string | null;
   content_md: string | null;
-  read_time_minutes: number;
   difficulty: string;
-  high_yield: boolean;
   cover_image_url: string | null;
   definition: string | null;
   clinical_picture: string | null;
@@ -76,7 +73,7 @@ function ResumosPage() {
       const { data, error } = await supabase
         .from("summaries")
         .select(
-          "id, title, specialty, topic, content_md, read_time_minutes, difficulty, high_yield, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at",
+          "id, title, specialty, topic, content_md, difficulty, cover_image_url, definition, clinical_picture, diagnosis, conduct, key_points, pitfalls, created_at",
         )
         .eq("published", true)
         .order("created_at", { ascending: false });
@@ -315,22 +312,13 @@ function ResumosPage() {
                       specialty={s.specialty}
                       topic={s.topic}
                       imageUrl={s.cover_image_url}
-                      highYield={s.high_yield}
                     />
                     <div className="flex min-w-0 flex-col gap-1.5 px-0.5 pb-1">
                       <div className="flex flex-wrap items-center gap-1">
                         <SpecialtyBadge specialty={s.specialty} />
-                        {s.high_yield && (
-                          <span className="rounded-md bg-amber-400/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-amber-600 ring-1 ring-amber-400/30">
-                            Alta inc.
-                          </span>
-                        )}
                       </div>
                       <div className="truncate font-display text-xs font-bold leading-tight sm:text-sm">
                         {s.title}
-                      </div>
-                      <div className="inline-flex items-center gap-1 text-[10px] text-muted-foreground sm:text-[11px]">
-                        <Clock className="h-3 w-3" /> {s.read_time_minutes} min
                       </div>
                     </div>
                   </button>
@@ -447,7 +435,7 @@ function ResumosPage() {
                       <div className="truncate text-sm font-medium">{s.title}</div>
                       <div className="truncate text-xs text-muted-foreground">
                         {s.specialty}
-                        {s.topic ? ` • ${s.topic}` : ""} • {s.read_time_minutes} min
+                        {s.topic ? ` • ${s.topic}` : ""}
                       </div>
                     </div>
                     <Button
@@ -555,16 +543,8 @@ function ResumosPage() {
                     {selectedSummary.title || "Resumo clínico"}
                   </DialogTitle>
                   <div className="flex flex-wrap items-center gap-2">
-                    {selectedSummary.high_yield && (
-                      <span className="rounded-md bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-300/40">
-                        Alta incidência
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-1 text-xs text-white/80">
-                      <Clock className="h-3.5 w-3.5" /> {selectedSummary.read_time_minutes} min
-                    </span>
                     {selectedSummary.topic && (
-                      <span className="text-xs text-white/70">· {selectedSummary.topic}</span>
+                      <span className="text-xs text-white/70">{selectedSummary.topic}</span>
                     )}
                   </div>
                 </div>
