@@ -455,55 +455,62 @@ function CandidateView() {
         <button
           type="button"
           onClick={() => { if (typeof window !== "undefined" && window.history.length > 1) window.history.back(); else nav({ to: "/app" }); }}
-          className="absolute left-6 top-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          className="absolute left-6 top-6 inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1.5 text-sm text-white/90 backdrop-blur-md ring-1 ring-white/15 hover:bg-black/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Sair
         </button>
 
-        <div className="relative">
-          <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/20" />
-          <span className="absolute inset-0 -m-2 animate-pulse rounded-full bg-mint/30" />
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-mint/15 ring-2 ring-mint/40">
-            <Hourglass className="h-10 w-10 text-mint" />
-          </div>
-        </div>
+        {/* Painel principal com glass para garantir contraste sobre o fundo animado */}
+        <div className="relative w-full rounded-3xl border border-white/15 bg-slate-950/70 px-6 py-8 shadow-2xl backdrop-blur-xl md:px-10 md:py-10">
+          <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-white/5 to-transparent" />
 
-        <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-mint/15 px-3 py-1 text-xs font-medium text-mint">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
-          Conectado à sala {code}
-        </div>
-
-        <h1 className="mt-6 font-display text-3xl font-bold md:text-4xl">
-          {isSpectator ? "Aguarde sua vez..." : "Aguardando o ator iniciar..."}
-        </h1>
-        <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">
-          {isSpectator ? (
-            <>Outro candidato está sendo avaliado nesta estação. Quando chegar a sua vez, o ator vai te selecionar e a próxima estação abrirá automaticamente — não precisa atualizar a página.</>
-          ) : (
-            <>Você já está dentro da estação de <span className="font-semibold text-foreground">{station.specialty}</span>. Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.</>
-          )}
-        </p>
-
-        <div className="mt-6 max-w-md rounded-xl border border-mint/40 bg-mint/10 px-4 py-3 text-sm text-foreground">
-          <div className="flex items-start gap-2">
-            <span className="text-base">📹</span>
-            <div className="text-left">
-              <div className="font-semibold text-mint">Entre na videochamada agora</div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                Clique no botão <span className="font-medium text-foreground">"Vídeo da sala"</span> no canto inferior direito e ative câmera e microfone. O ator só inicia o cronômetro quando todos já estão na chamada.
+          <div className="relative flex flex-col items-center">
+            <div className="relative">
+              <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/25" />
+              <span className="absolute inset-0 -m-2 animate-pulse rounded-full bg-mint/40" />
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-mint/20 ring-2 ring-mint/60">
+                <Hourglass className="h-10 w-10 text-mint" />
               </div>
             </div>
+
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-mint/20 px-3 py-1 text-xs font-semibold text-mint ring-1 ring-mint/40">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
+              Conectado à sala {code}
+            </div>
+
+            <h1 className="mt-6 font-display text-3xl font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] md:text-4xl">
+              {isSpectator ? "Aguarde sua vez..." : "Aguardando o ator iniciar..."}
+            </h1>
+            <p className="mt-3 max-w-md text-sm text-slate-200/90 md:text-base">
+              {isSpectator ? (
+                <>Outro candidato está sendo avaliado nesta estação. Quando chegar a sua vez, o ator vai te selecionar e a próxima estação abrirá automaticamente — não precisa atualizar a página.</>
+              ) : (
+                <>Você já está dentro da estação de <span className="font-semibold text-white">{station.specialty}</span>. Assim que o ator iniciar o cronômetro, a tela vai abrir automaticamente — não precisa atualizar a página.</>
+              )}
+            </p>
+
+            <div className="mt-6 w-full max-w-md rounded-xl border border-mint/50 bg-mint/15 px-4 py-3 text-sm text-white shadow-lg">
+              <div className="flex items-start gap-2">
+                <span className="text-base">📹</span>
+                <div className="text-left">
+                  <div className="font-semibold text-mint">Entre na videochamada agora</div>
+                  <div className="mt-1 text-xs text-slate-200/90">
+                    Clique no botão <span className="font-semibold text-white">"Vídeo da sala"</span> no canto inferior direito e ative câmera e microfone. O ator só inicia o cronômetro quando todos já estão na chamada.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
+              <LobbyStep icon={CheckCheck} label="Entrou na sala" done />
+              <LobbyStep icon={Hourglass} label="Aguardando início" active />
+              <LobbyStep icon={Play} label="Estação inicia" />
+            </div>
+
+            <div className="mt-8 w-full max-w-md rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-[11px] text-slate-200/90">
+              💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o ator clicar em iniciar.
+            </div>
           </div>
-        </div>
-
-        <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
-          <LobbyStep icon={CheckCheck} label="Entrou na sala" done />
-          <LobbyStep icon={Hourglass} label="Aguardando início" active />
-          <LobbyStep icon={Play} label="Estação inicia" />
-        </div>
-
-        <div className="mt-8 rounded-xl border border-dashed border-border bg-card/50 px-4 py-3 text-[11px] text-muted-foreground">
-          💡 Dica: respire fundo, organize seu raciocínio. O cronômetro só começa quando o ator clicar em iniciar.
         </div>
         </div>
       </>
