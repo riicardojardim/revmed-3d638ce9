@@ -29,7 +29,7 @@ interface DailyPoint { date: string; label: string; value: number }
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const { settings } = useSiteSettings();
-  const [variant, setVariant] = useState<"classic" | "door" | "corridor" | "xray">("classic");
+  const [variant, setVariant] = useState<"classic" | "door" | "corridor" | "xray" | "stamp">("classic");
   const [savingVariant, setSavingVariant] = useState(false);
   useEffect(() => {
     if (settings?.intro_animation_variant) setVariant(settings.intro_animation_variant);
@@ -47,6 +47,7 @@ function AdminOverview() {
     const label = variant === "door" ? "Médico abrindo a porta"
       : variant === "corridor" ? "Corredor do hospital"
       : variant === "xray" ? "Raio-X revelando"
+      : variant === "stamp" ? "Carimbo AUTORIZADO"
       : "Crachá + Prontuário";
     toast.success("Animação salva", { description: label });
   }
@@ -193,13 +194,14 @@ function AdminOverview() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[240px]">
             <label className="text-[11px] uppercase tracking-wider text-muted-foreground">Animação ativa</label>
-            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door" | "corridor" | "xray")}>
+            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door" | "corridor" | "xray" | "stamp")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="classic">Crachá + Prontuário (clássica)</SelectItem>
                 <SelectItem value="door">Médico abrindo a porta</SelectItem>
                 <SelectItem value="corridor">Corredor do hospital (1ª pessoa)</SelectItem>
                 <SelectItem value="xray">Raio-X revelando</SelectItem>
+                <SelectItem value="stamp">Carimbo "AUTORIZADO"</SelectItem>
               </SelectContent>
             </Select>
           </div>
