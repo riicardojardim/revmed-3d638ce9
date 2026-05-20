@@ -18,6 +18,7 @@ export type SiteSettings = {
   terms_md: string | null;
   privacy_md: string | null;
   contact_email: string | null;
+  intro_animation_variant: "classic" | "door" | null;
 };
 
 let cache: SiteSettings | null = null;
