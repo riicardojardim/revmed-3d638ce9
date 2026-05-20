@@ -356,6 +356,67 @@ function renderSubBlock(
 }
 
 
+// ============ Decorative background (medical motifs) ============
+function drawPlusIcon(doc: jsPDF, cx: number, cy: number, size: number) {
+  const t = size * 0.32;
+  const s = size;
+  doc.rect(cx - t / 2, cy - s, t, s * 2, "F");
+  doc.rect(cx - s, cy - t / 2, s * 2, t, "F");
+}
+
+function drawHeartIcon(doc: jsPDF, cx: number, cy: number, size: number) {
+  const r = size * 0.55;
+  doc.circle(cx - r * 0.6, cy - r * 0.2, r, "F");
+  doc.circle(cx + r * 0.6, cy - r * 0.2, r, "F");
+  doc.triangle(
+    cx - r * 1.25, cy + r * 0.05,
+    cx + r * 1.25, cy + r * 0.05,
+    cx, cy + r * 1.7,
+    "F",
+  );
+}
+
+function drawEcgLine(doc: jsPDF, y: number) {
+  setStroke(doc, [210, 235, 232]);
+  doc.setLineWidth(0.35);
+  const segW = 14;
+  let x = 0;
+  let prevX = x;
+  let prevY = y;
+  const lineTo = (nx: number, ny: number) => {
+    doc.line(prevX, prevY, nx, ny);
+    prevX = nx; prevY = ny;
+  };
+  while (x < PAGE_W) {
+    lineTo(x + segW * 0.35, y);
+    lineTo(x + segW * 0.42, y - 1.2);
+    lineTo(x + segW * 0.48, y + 3.8);
+    lineTo(x + segW * 0.52, y - 6.5);
+    lineTo(x + segW * 0.58, y + 2.2);
+    lineTo(x + segW * 0.7, y);
+    lineTo(x + segW, y);
+    x += segW;
+  }
+}
+
+function drawPageBackground(doc: jsPDF) {
+  setFill(doc, [228, 244, 241]);
+  const step = 26;
+  for (let row = 0, yy = 22; yy < PAGE_H - 16; yy += step, row++) {
+    const offset = (row % 2) * (step / 2);
+    for (let xx = 8 + offset; xx < PAGE_W - 4; xx += step) {
+      drawPlusIcon(doc, xx, yy, 1.4);
+    }
+  }
+  setFill(doc, [243, 232, 236]);
+  const hearts: [number, number, number][] = [
+    [32, 70, 2.0], [168, 95, 2.4], [55, 165, 2.2],
+    [150, 200, 2.0], [25, 250, 2.4], [180, 270, 2.0],
+  ];
+  for (const [hx, hy, hs] of hearts) drawHeartIcon(doc, hx, hy, hs);
+  drawEcgLine(doc, PAGE_H - 22);
+}
+
 // ============ Top accent strip (every page) ============
 function drawTopAccent(doc: jsPDF) {
   drawGradientBanner(doc, 0, 0, PAGE_W, 3);
