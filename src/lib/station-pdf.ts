@@ -397,8 +397,9 @@ function formatPatientProfileLocal(p: PatientProfile): string {
 // ============ ACTOR PDF ============
 async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  drawPageHeader(doc, station, "ATOR");
-  let y = 16;
+  const logo = await getLogoDataUrl();
+  drawPageHeader(doc, station, "ATOR", logo);
+  let y = 26;
 
   // 1) Cenário de atuação
   if (station.support_materials?.trim()) {
@@ -457,6 +458,27 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
     });
   }
 
+  // 5) Impressos para entregar ao candidato (somente no PDF do ator)
+  const printable = (station.deliverable_materials ?? []).filter(
+    (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
+  );
+  if (printable.length > 0) {
+    y = drawCard(doc, y, "Impressos para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
+      let cy = yy + 2;
+      printable.forEach((m, idx) => {
+        const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
+        cy = renderSubBlock(doc, x, cy, w, title, (bx, by, bw) => {
+          let yy2 = by;
+          if (m.description?.trim()) yy2 = renderScriptText(doc, m.description.trim(), bx, yy2, bw);
+          if (m.content?.trim()) yy2 = renderScriptText(doc, m.content.trim(), bx, yy2, bw);
+          if (m.imageUrl) yy2 = renderScriptText(doc, `_Imagem anexa: ${m.imageUrl}_`, bx, yy2, bw);
+          return yy2;
+        });
+      });
+      return cy;
+    });
+  }
+
   // Footer on every page
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
@@ -466,8 +488,9 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
 // ============ CANDIDATE PDF ============
 async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  drawPageHeader(doc, station, "CANDIDATO");
-  let y = 16;
+  const logo = await getLogoDataUrl();
+  drawPageHeader(doc, station, "CANDIDATO", logo);
+  let y = 26;
 
   if (station.support_materials?.trim()) {
     y = drawCard(doc, y, "Cenário de atuação", null, (x, yy, w) =>
@@ -489,12 +512,6 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
     );
   }
 
-  // Materiais para entregar ao candidato
-  const printable = (station.deliverable_materials ?? []).filter(
-    (m) => m && (m.content?.trim() || m.description?.trim() || m.imageUrl),
-  );
-  if (printable.length > 0) {
-    y = drawCard(doc, y, "Materiais para entregar ao candidato", `${printable.length}`, (x, yy, w) => {
       let cy = yy + 2;
       printable.forEach((m, idx) => {
         const title = `Impresso ${idx + 1}${m.name ? ` — ${m.name}` : ""}`;
