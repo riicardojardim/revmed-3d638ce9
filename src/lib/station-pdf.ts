@@ -813,10 +813,10 @@ function safeSlug(s: string): string {
 
 export async function downloadActorPDF(station: StationLike) {
   const doc = await buildActorPDF(station);
-  doc.save(`${safeSlug(station.title)}_ator.pdf`);
+  doc.save(`${safeSlug(station.title)}-ator-estacao-revalida.pdf`);
 }
 
 export async function downloadCandidatePDF(station: StationLike, items: ChecklistItem[]) {
   const doc = await buildCandidatePDF(station, items);
-  doc.save(`${safeSlug(station.title)}.pdf`);
+  doc.save(`${safeSlug(station.title)}-estacao-revalida.pdf`);
 }
