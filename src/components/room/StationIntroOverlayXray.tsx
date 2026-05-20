@@ -404,13 +404,13 @@ export function StationIntroOverlayXray({
             style={{ color: accent }}
           >
             <div className="font-mono text-[10px] tracking-[0.3em] uppercase opacity-70">
-              Diagnóstico identificado
+              {isCandidate ? "Área de avaliação" : "Diagnóstico identificado"}
             </div>
             <div
               className="mt-2 font-display text-2xl md:text-3xl font-bold tracking-tight"
               style={{ color: "white", textShadow: `0 0 24px ${accentGlow}` }}
             >
-              {stationTitle}
+              {isCandidate ? (specialty || "Sigiloso até a abertura") : stationTitle}
             </div>
           </motion.div>
         )}
