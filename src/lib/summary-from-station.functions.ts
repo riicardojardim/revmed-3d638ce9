@@ -264,24 +264,52 @@ function buildUserPrompt(input: z.infer<typeof InputSchema>): string {
       return `  ${idx + 1}.${cat} ${it.description}${pts}${helper}`;
     })
     .join("\n");
+  const deliverablesBlock = (input.deliverable_materials ?? [])
+    .map((m, idx) => {
+      const head = `IMPRESSO ${idx + 1}${m.type ? ` (${m.type})` : ""}${m.name ? ` — ${m.name}` : ""}`;
+      const desc = m.description ? `\n  Descrição: ${m.description}` : "";
+      const content = m.content ? `\n  Conteúdo: ${m.content.slice(0, 4000)}` : "";
+      return `${head}${desc}${content}`;
+    })
+    .join("\n\n");
   return [
     `Gere um RESUMO CLÍNICO completo e confiável para a estação abaixo.`,
-    `O CHECKLIST (PEP) abaixo é a FONTE PRIMÁRIA do conteúdo: cubra TODOS os tópicos que ele cobra, na ordem clínica adequada. O resumo deve ensinar o aluno a executar cada item do PEP com segurança.`,
+    `Use TODO o contexto da estação (título, descrição do caso, tarefa do candidato, roteiro/perfil do ator, materiais de apoio, IMPRESSOS, notas do avaliador, conduta esperada, erros comuns, critérios) PLUS o CHECKLIST/PEP para entender o ASSUNTO clínico abordado. O resumo deve cobrir o tema como um todo, não apenas os itens do PEP — o PEP indica o que o aluno precisa executar, mas o resumo deve ensinar a doença/condição/abordagem inteira com profundidade clínica.`,
     `Use SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras das sociedades (SBC, SBP, FEBRASGO, SBPT, SBN, etc.), matriz do Revalida/INEP e guidelines internacionais consagradas quando alinhadas ao SUS.`,
     "",
     `TÍTULO DA ESTAÇÃO (use EXATAMENTE este texto no campo "title" do JSON — não reescreva, não encurte): ${input.title}`,
     `ÁREA: ${input.specialty}`,
     input.topic ? `TÓPICO: ${input.topic}` : "",
     "",
-    `CHECKLIST / PEP (cada item é um critério avaliado — o resumo deve dar base científica a TODOS):\n${checklistBlock}`,
-    "",
     input.educational_goal ? `OBJETIVO EDUCACIONAL:\n${input.educational_goal}` : "",
     input.candidate_task ? `\nTAREFA DO CANDIDATO:\n${input.candidate_task}` : "",
-    input.clinical_case
-      ? `\nCASO CLÍNICO (use apenas para inferir o tema; NÃO cite o paciente no resumo):\n${input.clinical_case.slice(0, 4000)}`
+    input.case_description
+      ? `\nDESCRIÇÃO DO CASO / CENÁRIO:\n${input.case_description.slice(0, 6000)}`
       : "",
-    input.expected_conduct ? `\nCONDUTA ESPERADA:\n${input.expected_conduct.slice(0, 3000)}` : "",
-    input.common_mistakes ? `\nERROS COMUNS:\n${input.common_mistakes.slice(0, 2000)}` : "",
+    input.clinical_case
+      ? `\nCASO CLÍNICO (use apenas para inferir o tema; NÃO cite o paciente no resumo):\n${input.clinical_case.slice(0, 6000)}`
+      : "",
+    input.patient_info
+      ? `\nINFORMAÇÕES DO PACIENTE:\n${input.patient_info.slice(0, 4000)}`
+      : "",
+    input.patient_profile
+      ? `\nPERFIL DO ATOR/PACIENTE:\n${input.patient_profile.slice(0, 4000)}`
+      : "",
+    input.patient_script
+      ? `\nROTEIRO DO ATOR (papel do paciente simulado):\n${input.patient_script.slice(0, 6000)}`
+      : "",
+    input.support_materials
+      ? `\nMATERIAIS DE APOIO:\n${input.support_materials.slice(0, 4000)}`
+      : "",
+    deliverablesBlock
+      ? `\nIMPRESSOS ENTREGUES AO CANDIDATO (exames, laudos, ECG, receitas — use o conteúdo para entender o caso clínico):\n${deliverablesBlock}`
+      : "",
+    "",
+    `CHECKLIST / PEP (cada item é um critério avaliado — o resumo deve dar base científica a TODOS, mas também ir ALÉM cobrindo o tema completo):\n${checklistBlock}`,
+    "",
+    input.expected_conduct ? `\nCONDUTA ESPERADA:\n${input.expected_conduct.slice(0, 4000)}` : "",
+    input.common_mistakes ? `\nERROS COMUNS:\n${input.common_mistakes.slice(0, 3000)}` : "",
+    input.evaluator_notes ? `\nNOTAS DO AVALIADOR:\n${input.evaluator_notes.slice(0, 3000)}` : "",
     input.scoring_criteria
       ? `\nCRITÉRIOS DE AVALIAÇÃO:\n${input.scoring_criteria.slice(0, 2000)}`
       : "",
