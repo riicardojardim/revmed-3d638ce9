@@ -71,6 +71,8 @@ function formatCandidateName(
 function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
+  const { settings } = useSiteSettings();
+  const introVariant = (settings?.intro_animation_variant ?? "classic") as "classic" | "door";
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -750,7 +752,8 @@ function SimuladoRunner({ id }: { id: string }) {
   return (
     <>
       {showIntro && (
-        <StationIntroOverlay
+        <IntroOverlay
+          variant={introVariant}
           role={"paciente" as IntroRole}
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}
