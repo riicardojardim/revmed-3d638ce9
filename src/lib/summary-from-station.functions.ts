@@ -89,13 +89,6 @@ const ResultSchema = z.object({
       z.enum(["Básico", "Intermediário", "Avançado"]),
     )
     .default("Intermediário"),
-  read_time_minutes: z.coerce.number().int().min(2).max(30).catch(7),
-  high_yield: z
-    .preprocess((value) => {
-      if (typeof value === "string") return /^(true|sim|yes|1|alta)/i.test(value.trim());
-      return value;
-    }, z.boolean())
-    .catch(false),
   definition: coerceText(3500, 20),
   clinical_picture: coerceText(4500, 20),
   diagnosis: coerceText(5000, 20),
@@ -119,15 +112,6 @@ const ResultSchema = z.object({
 function normalizeGatewayResult(value: unknown) {
   const data =
     typeof value === "object" && value !== null ? { ...(value as Record<string, unknown>) } : {};
-
-  if (typeof data.read_time_minutes === "string") {
-    const match = data.read_time_minutes.match(/\d+/);
-    data.read_time_minutes = match ? Number(match[0]) : 7;
-  }
-
-  if (typeof data.high_yield === "string") {
-    data.high_yield = /^(true|sim|yes|1|alta)/i.test(data.high_yield.trim());
-  }
 
   for (const key of [
     "definition",
