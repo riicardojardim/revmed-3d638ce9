@@ -11,6 +11,9 @@ import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
 import { useSiteSettings, refreshSiteSettings } from "@/hooks/use-site-settings";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
