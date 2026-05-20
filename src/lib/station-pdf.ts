@@ -549,9 +549,9 @@ async function buildActorPDF(station: StationLike): Promise<jsPDF> {
   }
 
 
-  // Footer on every page
+  // Footer + top accent on every page (skip accent on page 1 — it has full header)
   const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
+  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); if (i > 1) drawTopAccent(doc); drawFooter(doc); }
   return doc;
 }
 
@@ -639,9 +639,9 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
     });
   }
 
-  // Footer on every page
+  // Footer + top accent on every page (skip accent on page 1 — it has full header)
   const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc); }
+  for (let i = 1; i <= pageCount; i++) { doc.setPage(i); if (i > 1) drawTopAccent(doc); drawFooter(doc); }
   return doc;
 }
 
