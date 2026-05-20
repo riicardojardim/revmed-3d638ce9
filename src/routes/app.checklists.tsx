@@ -17,6 +17,7 @@ import { Shimmer } from "@/components/ui/shimmer";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
 import { toast } from "sonner";
+import { StationPDFButton } from "@/components/station/StationPDFButton";
 
 
 export const Route = createFileRoute("/app/checklists")({
@@ -243,6 +244,7 @@ function StationsPage() {
                             {s.specialty} • {s.checklistCount} itens
                           </div>
                         </div>
+                        <StationPDFButton stationId={s.id} iconOnly />
                         <Button size="sm" variant="hero" onClick={() => startStation(s)} className="shrink-0 px-2.5 sm:px-3">
                           <span className="hidden sm:inline">Iniciar</span>
                           <ArrowRight className="h-3.5 w-3.5" />
@@ -405,6 +407,7 @@ function StationsPage() {
                         <div className="truncate text-sm font-medium">{s.title}</div>
                         <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
                       </div>
+                      <StationPDFButton stationId={s.id} iconOnly />
                       <Button size="sm" variant="hero" onClick={() => { setAllOpen(false); startStation(s); }}>
                         Iniciar <ArrowRight className="h-3.5 w-3.5" />
                       </Button>

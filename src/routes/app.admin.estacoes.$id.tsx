@@ -8,8 +8,10 @@ import {
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
   Image as ImageIcon, X, Theater, Send, Play, Square, Lock,
   UserPlus, Link2, BarChart3, MessageCircle, MessageSquareWarning, Check,
-  CheckCircle2, AlertCircle,
+  CheckCircle2, AlertCircle, Printer,
 } from "lucide-react";
+import { downloadActorPDF, downloadCandidatePDF } from "@/lib/station-pdf";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
@@ -473,6 +475,33 @@ function EditorBody({
             setStation={setStation as never}
             setItems={setItems as never}
           />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Printer className="h-4 w-4" /> PDFs para impressão
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>Gerar PDF da estação</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  downloadActorPDF(station as never);
+                  toast.success("PDF do ator gerado");
+                }}
+              >
+                <Theater className="h-4 w-4" /> PDF do ator
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  downloadCandidatePDF(station as never, items as never);
+                  toast.success("PDF do candidato gerado");
+                }}
+              >
+                <User className="h-4 w-4" /> PDF do candidato
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" onClick={togglePublish}>
             {station.published ? <><EyeOff className="h-4 w-4" /> Despublicar</> : <><Eye className="h-4 w-4" /> Publicar</>}
           </Button>
