@@ -502,7 +502,7 @@ function EditorBody({
             materials={station.deliverable_materials}
             onChange={(m) => up("deliverable_materials", m)}
           />
-          <SectionChecklist stationId={id} items={items} reload={load} />
+          <SectionChecklist stationId={id} items={items} reload={load} onChecklistFilled={() => setAiDialogOpen(true)} />
           <SectionPedagogical station={station} up={up} />
         </>
       ) : (
