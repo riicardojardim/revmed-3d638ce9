@@ -733,12 +733,12 @@ function Resultados() {
 /* ----------------------------- MENTORIA ----------------------------- */
 
 const MENTORIA_BENEFITS = [
-  "20 encontros práticos em grupo de 5",
-  "10 encontros extras nas 5 grandes áreas",
-  "6 encontros com psicólogo do programa",
-  "Revisões + gravações sob demanda",
   "Acesso integral à plataforma REVMED",
-  "Cronograma personalizado pelo mentor",
+  "20 encontros práticos em grupo de 5",
+  "10 encontros nas 5 grandes áreas",
+  "6 sessões com psicólogo do programa",
+  "Cronograma de estudos personalizado",
+  "WhatsApp direto com o mentor",
 ];
 
 function Mentoria() {
@@ -748,23 +748,24 @@ function Mentoria() {
         <div className="grid items-stretch gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Mentoria 2026.1
+              Mentoria (opcional)
             </p>
             <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-              Cinco vagas. <br />
-              Um mentor. <br />
-              <span className="text-primary">Sua aprovação.</span>
+              Quer alguém <br />
+              do seu lado? <br />
+              <span className="text-primary">Tem mentoria.</span>
             </h2>
             <p className="mt-6 text-muted-foreground md:text-lg">
-              Grupos pequenos não são um detalhe — são o produto. Em cinco a
-              gente conhece sua história, sua banca interna, seu ponto cego.
-              Não dá pra escalar isso, e por isso a turma fecha rápido.
+              A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
+              um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
+              psicólogo no programa, pode entrar na mentoria — um plus à parte,
+              em turmas pequenas que fecham rápido.
             </p>
             <Link
               to="/cadastro"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground transition-transform hover:scale-[1.02]"
             >
-              Conversar com a equipe
+              Saber mais da mentoria
               <ArrowUpRight className="h-5 w-5" />
             </Link>
           </div>
