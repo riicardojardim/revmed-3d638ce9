@@ -198,14 +198,71 @@ function AppLayout() {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <Logo className="h-10 w-auto opacity-80" />
-          <div className="h-1 w-32 overflow-hidden rounded-full bg-muted/50">
-            <div className="h-full w-1/2 animate-[loading_1.2s_ease-in-out_infinite] rounded-full bg-mint" />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background">
+        {/* Ambient background */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-mint/20 blur-3xl animate-[splash-pulse_2.8s_ease-in-out_infinite]" />
+          <div className="absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-medical/15 blur-2xl" />
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground)) 1px, transparent 1px)",
+              backgroundSize: "44px 44px",
+              maskImage:
+                "radial-gradient(ellipse at center, black 30%, transparent 70%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse at center, black 30%, transparent 70%)",
+            }}
+          />
+        </div>
+
+        <div className="relative flex flex-col items-center gap-7">
+          {/* Rotating rings */}
+          <div className="relative flex h-40 w-40 items-center justify-center">
+            <div className="absolute inset-0 rounded-full border border-mint/20" />
+            <div className="absolute inset-0 animate-[splash-spin_2.4s_linear_infinite] rounded-full border-2 border-transparent border-t-mint border-r-mint/40" />
+            <div className="absolute inset-3 animate-[splash-spin-rev_3.2s_linear_infinite] rounded-full border border-transparent border-b-medical/70 border-l-medical/30" />
+            <div className="absolute inset-6 rounded-full bg-gradient-to-br from-mint/10 to-medical/10 backdrop-blur-sm" />
+            <Logo className="relative h-12 w-auto animate-[splash-breathe_2.4s_ease-in-out_infinite] drop-shadow-[0_8px_24px_hsl(var(--mint)/0.45)]" />
+          </div>
+
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-mint">
+              Preparando sua estação
+            </p>
+
+            {/* Loader bar */}
+            <div className="relative h-1 w-48 overflow-hidden rounded-full bg-muted/40">
+              <div className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-gradient-to-r from-transparent via-mint to-medical animate-[loading_1.4s_ease-in-out_infinite]" />
+            </div>
+
+            {/* Dots */}
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-mint animate-[splash-dot_1.2s_ease-in-out_infinite]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-mint animate-[splash-dot_1.2s_ease-in-out_infinite] [animation-delay:0.2s]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-mint animate-[splash-dot_1.2s_ease-in-out_infinite] [animation-delay:0.4s]" />
+            </div>
           </div>
         </div>
-        <style>{`@keyframes loading {0%{transform:translateX(-100%)}100%{transform:translateX(220%)}}`}</style>
+
+        <style>{`
+          @keyframes loading { 0%{transform:translateX(-120%)} 100%{transform:translateX(380%)} }
+          @keyframes splash-spin { to { transform: rotate(360deg); } }
+          @keyframes splash-spin-rev { to { transform: rotate(-360deg); } }
+          @keyframes splash-breathe {
+            0%, 100% { transform: scale(1); opacity: 0.95; }
+            50% { transform: scale(1.06); opacity: 1; }
+          }
+          @keyframes splash-pulse {
+            0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.08); }
+          }
+          @keyframes splash-dot {
+            0%, 100% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-3px); }
+          }
+        `}</style>
       </div>
     );
   }
