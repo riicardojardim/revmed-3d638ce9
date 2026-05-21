@@ -382,7 +382,7 @@ function AppSideNav({
             src={logoIconOnlyUrl}
             alt="REVMED"
             draggable={false}
-            className="hidden h-8 w-auto select-none group-data-[collapsible=icon]:block"
+            className="hidden aspect-square h-9 w-9 select-none object-contain group-data-[collapsible=icon]:block"
           />
         </div>
       </SidebarHeader>
