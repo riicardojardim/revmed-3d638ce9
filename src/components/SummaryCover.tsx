@@ -47,13 +47,13 @@ export function SummaryCover({ title, specialty, topic, imageUrl, className }: P
     <div
       className={cn(
         "@container relative aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10 text-white shadow-elegant",
-        "bg-[radial-gradient(135%_135%_at_15%_110%,#15406a_0%,#0c2c4d_35%,#071a32_65%,#040c1a_100%)]",
+        "bg-[radial-gradient(135%_135%_at_15%_110%,#3a1e08_0%,#241208_35%,#150a04_65%,#0a0503_100%)]",
         className,
       )}
     >
       <div className={cn("pointer-events-none absolute -bottom-1/3 -left-1/3 h-2/3 w-2/3 rounded-full blur-3xl opacity-45", meta.solid)} />
-      <div className="pointer-events-none absolute top-[55%] -right-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-18 bg-mint" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_100%_0%,rgba(4,12,26,0.55)_0%,transparent_70%)]" />
+      <div className="pointer-events-none absolute top-[55%] -right-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-25 bg-mint" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_100%_0%,rgba(10,5,3,0.6)_0%,transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage:
