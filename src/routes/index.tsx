@@ -43,28 +43,28 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "REVMED — Mentoria para Revalidação Médica" },
+      { title: "REVMED — Plataforma de prática para o Revalida INEP" },
       {
         name: "description",
         content:
-          "Mentoria 1:1 + plataforma de prática para médicos formados fora do Brasil. Cinco alunos por grupo, encontros com psicólogo, simulações com cronômetro INEP e revisão ativa que aprova.",
+          "Estações com cronômetro INEP, banco de checklists oficiais, flashcards com revisão espaçada, resumos práticos e desempenho em tempo real. Tudo num só lugar — com mentoria opcional 1:5.",
       },
-      { property: "og:title", content: "REVMED — Mentoria que aprova no Revalida" },
+      { property: "og:title", content: "REVMED — A plataforma do candidato Revalida" },
       {
         property: "og:description",
         content:
-          "Cinco vagas por turma. Encontros semanais. Plataforma com simulações cronometradas e correção objetiva. Sua aprovação não pode esperar mais um ciclo.",
+          "Treine estações ao vivo com ator, marque checklist como a banca, revise por flashcards e resumos, acompanhe seu desempenho. Mentoria 1:5 disponível como complemento.",
       },
     ],
   }),
 });
 
 const NAV_LINKS = [
-  { id: "manifesto", label: "Manifesto" },
   { id: "plataforma", label: "Plataforma" },
+  { id: "manifesto", label: "Método" },
   { id: "resultados", label: "Resultados" },
   { id: "mentoria", label: "Mentoria" },
-  { id: "investimento", label: "Investimento" },
+  { id: "investimento", label: "Planos" },
 ];
 
 function LandingPage() {
