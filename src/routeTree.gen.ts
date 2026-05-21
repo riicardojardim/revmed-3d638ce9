@@ -58,6 +58,7 @@ import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.in
 import { Route as AppAdminResumosIndexRouteImport } from './routes/app.admin.resumos.index'
 import { Route as AppAdminFlashcardsIndexRouteImport } from './routes/app.admin.flashcards.index'
 import { Route as AppAdminEstacoesIndexRouteImport } from './routes/app.admin.estacoes.index'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as AppSalaCodePacienteRouteImport } from './routes/app.sala.$code.paciente'
 import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$code.candidato'
 import { Route as AppSalaCodeBancaRouteImport } from './routes/app.sala.$code.banca'
@@ -312,6 +313,12 @@ const AppAdminEstacoesIndexRoute = AppAdminEstacoesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppSalaCodePacienteRoute = AppSalaCodePacienteRouteImport.update({
   id: '/paciente',
   path: '/paciente',
@@ -407,6 +414,7 @@ export interface FileRoutesByFullPath {
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
@@ -459,6 +467,7 @@ export interface FileRoutesByTo {
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos': typeof AppAdminResumosIndexRoute
@@ -519,6 +528,7 @@ export interface FileRoutesById {
   '/app/sala/$code/banca': typeof AppSalaCodeBancaRoute
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
@@ -580,6 +590,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/banca'
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
+    | '/lovable/email/queue/process'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
     | '/app/admin/resumos/'
@@ -632,6 +643,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/banca'
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
+    | '/lovable/email/queue/process'
     | '/app/admin/estacoes'
     | '/app/admin/flashcards'
     | '/app/admin/resumos'
@@ -691,6 +703,7 @@ export interface FileRouteTypes {
     | '/app/sala/$code/banca'
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
+    | '/lovable/email/queue/process'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
     | '/app/admin/resumos/'
@@ -705,6 +718,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1052,6 +1066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminEstacoesIndexRouteImport
       parentRoute: typeof AppAdminEstacoesRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/sala/$code/paciente': {
       id: '/app/sala/$code/paciente'
       path: '/paciente'
@@ -1325,17 +1346,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
