@@ -1135,6 +1135,10 @@ function Footer() {
           {/* brand */}
           <div className="flex flex-col items-center gap-3 md:items-start">
             <Logo />
+            <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
+              A plataforma de prática do candidato Revalida INEP — estações,
+              checklists, flashcards, resumos e desempenho num só lugar.
+            </p>
           </div>
 
           {/* contact */}
@@ -1167,6 +1171,9 @@ function Footer() {
 
           {/* links */}
           <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:items-end">
+            <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
+              Plataforma
+            </p>
             <a
               href="https://instagram.com/revmedmentoria"
               target="_blank"
@@ -1179,6 +1186,15 @@ function Footer() {
             <Link to="/login" className="hover:text-foreground">
               Entrar
             </Link>
+            <Link to="/cadastro" className="hover:text-foreground">
+              Criar conta
+            </Link>
+            <a href="#plataforma" className="hover:text-foreground">
+              Como funciona
+            </a>
+            <a href="#investimento" className="hover:text-foreground">
+              Planos
+            </a>
           </div>
         </div>
 
