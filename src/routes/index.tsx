@@ -604,7 +604,7 @@ function Manifesto() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[0.95] tracking-[-0.045em] md:text-[2.6rem] lg:text-[3.2rem] xl:text-[3.6rem]">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
             <p className="mt-6 text-base text-muted-foreground md:text-lg">
