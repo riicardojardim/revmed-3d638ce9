@@ -313,9 +313,9 @@ function AppLayout() {
                 target="_blank"
                 rel="noreferrer"
                 title={waLabel}
-                className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:bg-mint/15 hover:border-mint/60"
+                className="group inline-flex shrink-1 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:bg-mint/15 hover:border-mint/60"
               >
-                <span className="font-display font-bold text-mint truncate max-w-[180px]">{waLabel}</span>
+                <span className="font-display font-bold text-mint whitespace-nowrap">{waLabel}</span>
               </a>
             )}
           </div>
