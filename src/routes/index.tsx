@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Check,
@@ -351,6 +351,18 @@ function MockupCarousel() {
     };
   }, [frontSlides.length, backSlides.length]);
 
+  // Pré-carrega e decodifica todas as imagens uma única vez para evitar flash preto
+  useEffect(() => {
+    [...frontSlides, ...backSlides].forEach((s) => {
+      const img = new Image();
+      img.src = s.src;
+      if (typeof img.decode === "function") {
+        img.decode().catch(() => {});
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="relative w-full min-h-[520px] lg:min-h-[640px]">
       <motion.div
@@ -380,24 +392,21 @@ function MockupCarousel() {
           </div>
           <div className="relative h-[calc(100%-30px)] w-full bg-[#0a0a0a]">
             {backSlides.map((s, k) => (
-              <link key={k} rel="preload" as="image" href={s.src} />
-            ))}
-            <AnimatePresence initial={false}>
               <motion.img
-                key={iBack}
-                src={backSlides[iBack].src}
+                key={k}
+                src={s.src}
                 alt=""
                 aria-hidden
                 draggable={false}
                 loading="eager"
-                decoding="async"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                decoding="sync"
+                fetchPriority={k === 0 ? "high" : "low"}
+                initial={false}
+                animate={{ opacity: k === iBack ? 1 : 0 }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 h-full w-full select-none object-contain"
               />
-            </AnimatePresence>
+            ))}
           </div>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-background/40 via-transparent to-transparent" />
         </div>
@@ -417,25 +426,22 @@ function MockupCarousel() {
           </div>
           <div className="relative h-[calc(100%-30px)] w-full bg-[#0a0a0a]">
             {frontSlides.map((s, k) => (
-              <link key={k} rel="preload" as="image" href={s.src} />
-            ))}
-            <AnimatePresence initial={false}>
               <motion.img
-                key={iFront}
-                src={frontSlides[iFront].src}
-                alt={frontSlides[iFront].alt}
+                key={k}
+                src={s.src}
+                alt={s.alt}
                 width={1600}
                 height={1000}
                 draggable={false}
                 loading="eager"
-                decoding="async"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                decoding="sync"
+                fetchPriority={k === 0 ? "high" : "low"}
+                initial={false}
+                animate={{ opacity: k === iFront ? 1 : 0 }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 className="absolute inset-0 h-full w-full select-none object-contain"
               />
-            </AnimatePresence>
+            ))}
           </div>
         </div>
       </Tilt>
