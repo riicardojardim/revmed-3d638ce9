@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
   Check,
@@ -19,6 +19,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
 import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
 import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
+import { Tilt } from "@/components/landing/motion-primitives";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
