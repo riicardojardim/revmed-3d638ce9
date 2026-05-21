@@ -91,6 +91,7 @@ function LandingPage() {
   const { user, profile, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
 
@@ -107,7 +108,7 @@ function LandingPage() {
 
         setScrolled(y > 12);
 
-        if (menuOpen || y < 96) {
+        if (menuOpen || userMenuOpen || y < 96) {
           setHidden(false);
         } else if (delta > 6) {
           setHidden(true);
@@ -123,7 +124,7 @@ function LandingPage() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [menuOpen]);
+  }, [menuOpen, userMenuOpen]);
 
   return (
     <div className="dark min-h-dvh bg-background text-foreground antialiased">
@@ -133,6 +134,8 @@ function LandingPage() {
         hidden={hidden}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
+        userMenuOpen={userMenuOpen}
+        setUserMenuOpen={setUserMenuOpen}
         isLogged={!!user}
         avatarUrl={profile?.avatar_url ?? null}
         displayName={profile?.full_name ?? user?.email ?? null}
@@ -166,6 +169,8 @@ function TopNav({
   hidden,
   menuOpen,
   setMenuOpen,
+  userMenuOpen,
+  setUserMenuOpen,
   isLogged,
   avatarUrl,
   displayName,
@@ -175,13 +180,15 @@ function TopNav({
   hidden: boolean;
   menuOpen: boolean;
   setMenuOpen: (v: boolean) => void;
+  userMenuOpen: boolean;
+  setUserMenuOpen: (v: boolean) => void;
   isLogged: boolean;
   avatarUrl: string | null;
   displayName: string | null;
   onSignOut: () => Promise<void>;
 }) {
   const navigate = useNavigate();
-  const hasSolidSurface = scrolled || menuOpen;
+  const hasSolidSurface = scrolled || menuOpen || userMenuOpen;
 
   return (
     <header
@@ -208,7 +215,7 @@ function TopNav({
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
           {isLogged ? (
-            <DropdownMenu>
+            <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
