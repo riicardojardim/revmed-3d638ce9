@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
-import logoUrl from "@/assets/logo-revmed.png";
+import logoUrl from "@/assets/logo-revmed-horizontal.png";
+import logoIconUrl from "@/assets/logo-revmed.png";
 
 export function Logo({
   variant = "dark",
@@ -22,7 +23,7 @@ export function Logo({
       aria-label="REVMED — início"
     >
       <img
-        src={logoUrl}
+        src={isStacked ? logoIconUrl : logoUrl}
         alt="REVMED"
         draggable={false}
         className={
