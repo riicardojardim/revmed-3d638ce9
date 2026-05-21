@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/feedback")({
   component: Feedback,
-  head: () => ({ meta: [{ title: "Feedback — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Feedback — REVMED" }] }),
 });
 
 function Feedback() {

@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Entrar — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Entrar — REVMED" }] }),
 });
 
 function LoginPage() {

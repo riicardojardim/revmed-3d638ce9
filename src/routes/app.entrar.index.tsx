@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/reveal";
 
 export const Route = createFileRoute("/app/entrar/")({
   component: EntrarCodigo,
-  head: () => ({ meta: [{ title: "Entrar em uma estação — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Entrar em uma estação — REVMED" }] }),
 });
 
 function EntrarCodigo() {

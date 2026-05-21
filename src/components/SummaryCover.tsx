@@ -83,7 +83,7 @@ export function SummaryCover({ title, specialty, topic, imageUrl, className }: P
             {specialty}
           </div>
           <div className="hidden @[200px]:block uppercase tracking-[0.22em] text-white/50" style={{ fontSize: "max(8px, 2.6cqi)" }}>
-            Resumos · Estação Revalida
+            Resumos · REVMED
           </div>
         </div>
       </div>

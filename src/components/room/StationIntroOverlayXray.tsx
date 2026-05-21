@@ -144,7 +144,7 @@ export function StationIntroOverlayXray({
       >
         <ScanLine className="h-4 w-4" />
         <span className="font-mono text-[11px] tracking-[0.25em] uppercase">
-          Estação Revalida · Scanner Radiológico v3.2
+          REVMED · Scanner Radiológico v3.2
         </span>
         <motion.span
           className="h-2 w-2 rounded-full"

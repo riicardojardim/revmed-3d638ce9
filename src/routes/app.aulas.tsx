@@ -3,7 +3,7 @@ import { GraduationCap, Search } from "lucide-react";
 
 export const Route = createFileRoute("/app/aulas")({
   component: Aulas,
-  head: () => ({ meta: [{ title: "Aulas — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Aulas — REVMED" }] }),
 });
 
 const areas = [

@@ -5,7 +5,7 @@ import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin")({
   component: AdminLayout,
-  head: () => ({ meta: [{ title: "Admin — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Admin — REVMED" }] }),
 });
 
 function AdminLayout() {

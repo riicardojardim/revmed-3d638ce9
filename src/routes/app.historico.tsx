@@ -10,7 +10,7 @@ import { Shimmer } from "@/components/ui/shimmer";
 
 export const Route = createFileRoute("/app/historico")({
   component: Historico,
-  head: () => ({ meta: [{ title: "Histórico — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Histórico — REVMED" }] }),
 });
 
 type Attempt = {

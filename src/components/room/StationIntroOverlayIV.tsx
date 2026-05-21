@@ -179,7 +179,7 @@ export function StationIntroOverlayIV({
       >
         <Activity className="h-3.5 w-3.5" />
         <span className="font-mono text-[10px] tracking-[0.3em] uppercase">
-          Estação Revalida · Infusão de Acesso
+          REVMED · Infusão de Acesso
         </span>
         <motion.span
           className="h-1.5 w-1.5 rounded-full"

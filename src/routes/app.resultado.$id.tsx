@@ -32,7 +32,7 @@ export const Route = createFileRoute("/app/resultado/$id")({
     checked: typeof s.checked === "string" ? s.checked : undefined,
   }),
   component: ResultPage,
-  head: () => ({ meta: [{ title: "Resultado — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Resultado — REVMED" }] }),
 });
 
 function ResultPage() {

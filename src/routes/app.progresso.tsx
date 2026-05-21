@@ -13,7 +13,7 @@ import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
-  head: () => ({ meta: [{ title: "Progresso — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Progresso — REVMED" }] }),
 });
 
 interface DbAttempt {

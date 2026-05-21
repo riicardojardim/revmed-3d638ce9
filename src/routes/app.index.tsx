@@ -54,7 +54,7 @@ import { STAGGER, staggerContainer, staggerItem } from "@/lib/stagger";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
-  head: () => ({ meta: [{ title: "Dashboard — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — REVMED" }] }),
 });
 
 type AttemptRow = {

@@ -19,7 +19,7 @@ import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
-  head: () => ({ meta: [{ title: "Flashcards — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Flashcards — REVMED" }] }),
 });
 
 type Deck = {

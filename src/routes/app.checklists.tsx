@@ -22,7 +22,7 @@ import { StationPDFButton } from "@/components/station/StationPDFButton";
 
 export const Route = createFileRoute("/app/checklists")({
   component: StationsPage,
-  head: () => ({ meta: [{ title: "Banco de Checklists — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Banco de Checklists — REVMED" }] }),
 });
 
 function normalizeDifficulty(d: string): Station["difficulty"] {

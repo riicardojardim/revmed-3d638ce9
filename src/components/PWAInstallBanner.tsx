@@ -259,7 +259,7 @@ export function PWAInstallBanner() {
                 <Step n={2}>
                   Ou abra o menu{" "}
                   <MoreVertical className="inline-block h-4 w-4 align-[-3px] text-mint" /> e escolha{" "}
-                  <strong>"Instalar Estação Revalida"</strong>.
+                  <strong>"Instalar REVMED"</strong>.
                 </Step>
                 <Step n={3}>
                   Clique em <strong>"Instalar"</strong>. O app abre em uma janela própria, sem abas

@@ -21,7 +21,7 @@ import { AvatarUploader } from "@/components/AvatarUploader";
 
 export const Route = createFileRoute("/app/perfil")({
   component: ProfilePage,
-  head: () => ({ meta: [{ title: "Perfil — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Perfil — REVMED" }] }),
 });
 
 const TITLE_OPTIONS = [

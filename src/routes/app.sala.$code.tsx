@@ -33,7 +33,7 @@ import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
-  head: () => ({ meta: [{ title: "Sala — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Sala — REVMED" }] }),
 });
 
 function SalaDispatcher() {
@@ -353,16 +353,16 @@ function SimuladoRunner({ id }: { id: string }) {
   }
   function shareWhatsApp() {
     const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(`Vamos treinar um simulado no Estação Revalida 🩺\nEntre: ${link}`)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/?text=${encodeURIComponent(`Vamos treinar um simulado no REVMED 🩺\nEntre: ${link}`)}`, "_blank", "noopener,noreferrer");
   }
   function shareEmail() {
     const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
-    window.location.href = `mailto:?subject=${encodeURIComponent("Convite — Simulado Estação Revalida")}&body=${encodeURIComponent(`Entre pelo link: ${link}\n\nCódigo: ${sim?.roomCode ?? ""}`)}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent("Convite — Simulado REVMED")}&body=${encodeURIComponent(`Entre pelo link: ${link}\n\nCódigo: ${sim?.roomCode ?? ""}`)}`;
   }
   async function shareNative() {
     const link = `https://estacaorevalida.com.br/convite/${sim?.roomCode ?? ""}`;
     if (typeof navigator !== "undefined" && "share" in navigator) {
-      try { await navigator.share({ title: "Estação Revalida", text: "Entre no simulado:", url: link }); return; } catch {}
+      try { await navigator.share({ title: "REVMED", text: "Entre no simulado:", url: link }); return; } catch {}
     }
     copyInviteLink();
   }

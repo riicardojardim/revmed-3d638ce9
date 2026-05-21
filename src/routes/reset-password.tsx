@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
-  head: () => ({ meta: [{ title: "Redefinir senha — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Redefinir senha — REVMED" }] }),
 });
 
 function ResetPasswordPage() {

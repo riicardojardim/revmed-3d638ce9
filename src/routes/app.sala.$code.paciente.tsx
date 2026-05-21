@@ -618,12 +618,12 @@ function ActorView() {
   }
 
   function shareWhatsApp() {
-    const text = `Olá! Vamos treinar uma estação no Estação Revalida 🩺\nEntre pelo link: ${inviteLink}`;
+    const text = `Olá! Vamos treinar uma estação no REVMED 🩺\nEntre pelo link: ${inviteLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
   }
 
   function shareEmail() {
-    const subject = "Convite para treinar estação — Estação Revalida";
+    const subject = "Convite para treinar estação — REVMED";
     const body = `Olá!\n\nVocê foi convidado(a) para treinar uma estação clínica.\nEntre pelo link abaixo:\n\n${inviteLink}\n\nCódigo da sala: ${code}`;
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }
@@ -632,7 +632,7 @@ function ActorView() {
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
         await navigator.share({
-          title: "Estação Revalida",
+          title: "REVMED",
           text: "Vamos treinar uma estação? Entre na sala:",
           url: inviteLink,
         });

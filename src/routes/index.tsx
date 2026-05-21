@@ -73,13 +73,13 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "Estação Revalida — Treine a prova prática do Revalida" },
+      { title: "REVMED — Treine a prova prática do Revalida" },
       {
         name: "description",
         content:
           "Simule estações clínicas com checklists oficiais e cronômetro real. A plataforma premium para sua aprovação no Revalida.",
       },
-      { property: "og:title", content: "Estação Revalida — Treine a prova prática do Revalida" },
+      { property: "og:title", content: "REVMED — Treine a prova prática do Revalida" },
       {
         property: "og:description",
         content:
@@ -871,7 +871,7 @@ function BeforeAfter() {
       <div className="container mx-auto px-4 lg:px-8">
         <SectionTitle
           eyebrow="A diferença"
-          title="Estudar sozinho vs. treinar na Estação Revalida"
+          title="Estudar sozinho vs. treinar na REVMED"
         />
         <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-2">
           <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
@@ -1222,7 +1222,7 @@ function Comparison() {
                       Nós
                     </span>
                     <span className="font-display text-sm font-bold text-primary">
-                      Estação Revalida
+                      REVMED
                     </span>
                   </div>
                 </th>
@@ -1540,7 +1540,7 @@ function Testimonials() {
 /* ---------------- FAQ ---------------- */
 const faqs = [
   { q: "Sou tímido, não me sinto à vontade falando com estranho. Funciona pra mim?", a: "Funciona — e foi pra você que a gente desenhou. Comece entrando em salas só pra observar outros candidatos. Depois pega o roteiro de ator, que é mais 'guiado'. Quando estiver pronto, faz o papel de candidato. O músculo do 'falar em voz alta' é exatamente o que vai te diferenciar no dia da prova." },
-  { q: "Já comprei outro curso. Vale a pena assinar mesmo assim?", a: "Sim, justamente porque outros cursos ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
+  { q: "Já comprei outro curso. Vale a pena assinar mesmo assim?", a: "Sim, justamente porque outros cursos ensinam teoria e a gente é foco em PRÁTICA. Você usa a REVMED pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
   { q: "Tô começando agora, ainda não estudei nada. Devo entrar já?", a: "Pode entrar — mas comece pelas estações de dificuldade básica e use os resumos e flashcards. Quanto antes você treinar em voz alta, melhor. Decorar checklist não substitui executar." },
   { q: "Não tenho com quem treinar. Como faço?", a: "Entra nas salas abertas da comunidade — sempre tem candidato procurando par. Você também pode marcar treino com colegas pelo grupo do WhatsApp." },
   { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro e feedback que dificilmente se replicam fora da prova." },
@@ -1714,7 +1714,7 @@ function Footer() {
       </div>
 
       <div className="border-t border-white/10 py-5 text-center text-[11px] text-white/40">
-        © {new Date().getFullYear()} Estação Revalida · Conteúdo educacional autoral. Não
+        © {new Date().getFullYear()} REVMED · Conteúdo educacional autoral. Não
         afiliado ao INEP ou ao governo.
       </div>
     </footer>

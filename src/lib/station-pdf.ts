@@ -812,11 +812,11 @@ function safeFileName(s: string): string {
 export async function downloadActorPDF(station: StationLike) {
   const doc = await buildActorPDF(station);
   const title = safeFileName(station.title);
-  doc.save(`${title} - Ator - Estação Revalida.pdf`);
+  doc.save(`${title} - Ator - REVMED.pdf`);
 }
 
 export async function downloadCandidatePDF(station: StationLike, items: ChecklistItem[]) {
   const doc = await buildCandidatePDF(station, items);
   const title = safeFileName(station.title);
-  doc.save(`${title} - Estação Revalida.pdf`);
+  doc.save(`${title} - REVMED.pdf`);
 }

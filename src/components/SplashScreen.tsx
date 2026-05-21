@@ -49,7 +49,7 @@ export function SplashScreen({
         >
           <img
             src={logoStackedUrl}
-            alt="Estação Revalida"
+            alt="REVMED"
             className="h-32 w-auto select-none drop-shadow-[0_8px_30px_rgba(0,200,150,0.35)] md:h-40"
             draggable={false}
           />

@@ -20,7 +20,7 @@ const planSchema = z.object({
 export const Route = createFileRoute("/cadastro")({
   validateSearch: (s) => planSchema.parse(s),
   component: SignupPage,
-  head: () => ({ meta: [{ title: "Criar conta — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Criar conta — REVMED" }] }),
 });
 
 type PlanSlug = "completo" | "mensal" | "ator";
