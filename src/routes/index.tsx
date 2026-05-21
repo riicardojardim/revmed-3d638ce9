@@ -920,6 +920,12 @@ function Footer() {
           <p className="max-w-sm text-sm text-muted-foreground">
             REVMED — Mentoria para Revalidação Médica.
           </p>
+          <p className="flex items-center gap-2 text-xs text-muted-foreground/70">
+            <Building2 className="h-3.5 w-3.5" />
+            REVMED - EDUCACAO E SERVICOS DE MENTORIA LTDA
+            <span className="text-muted-foreground/50">|</span>
+            CNPJ 48.442.973/0001-07
+          </p>
         </div>
 
         {/* contact */}
