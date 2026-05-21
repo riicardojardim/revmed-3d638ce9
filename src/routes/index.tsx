@@ -1021,23 +1021,27 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
 const FAQS = [
   {
     q: "Pra quem é a REVMED?",
-    a: "Pra médicos formados fora do Brasil que vão prestar Revalida INEP. Funciona tanto pra primeira fase quanto pra prática.",
+    a: "Pra médicos formados fora do Brasil que vão prestar Revalida INEP. A plataforma serve tanto pra primeira quanto pra segunda fase, com foco em estação, checklist, flashcard, resumo e desempenho.",
   },
   {
-    q: "Como funciona o grupo de cinco alunos?",
-    a: "A cada ciclo abrimos turmas pequenas. O mentor acompanha o grupo do diagnóstico até a véspera da prova, com encontros semanais ao vivo.",
+    q: "A sala ao vivo trava com muita gente junto?",
+    a: "Não. A sala foi feita pra rodar estável com várias estações acontecendo ao mesmo tempo — candidato, ator e avaliador na mesma chamada, com cronômetro INEP.",
   },
   {
-    q: "Posso usar só a plataforma, sem mentoria?",
-    a: "Sim. O plano Plataforma é mensal e te dá acesso aos checklists, flashcards, simulados cronometrados e resumos.",
+    q: "Preciso entrar na mentoria pra usar a plataforma?",
+    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a checklists, flashcards, simulados cronometrados, resumos e painel de desempenho — sem precisar de mentor.",
+  },
+  {
+    q: "Consigo acompanhar meu desempenho?",
+    a: "Sim. Tudo que você faz na plataforma vira número no seu painel — nota por critério, tempo médio por estação, evolução por área e histórico completo de simulações.",
   },
   {
     q: "Tem garantia?",
-    a: "Sete dias de teste no plano Plataforma. Se não fizer sentido, devolvemos 100% do valor.",
+    a: "Sete dias nos planos Ator e Full. Se não fizer sentido, devolvemos 100% do valor.",
   },
   {
     q: "Funciona no celular?",
-    a: "Funciona em qualquer tela. A plataforma é PWA — você instala no celular e estuda offline em modo leitura.",
+    a: "Funciona em qualquer tela. A plataforma é PWA — você instala no celular e revisa flashcard e resumo em qualquer lugar.",
   },
 ];
 
