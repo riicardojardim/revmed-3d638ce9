@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -19,9 +19,22 @@ import {
   Drama,
   Crown,
   GraduationCap,
+  Home as HomeIcon,
+  User as UserIcon,
+  LogOut,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
+import { UserAvatar } from "@/components/UserAvatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "@tanstack/react-router";
 import mockupDashboard from "@/assets/mockup-dashboard.jpg";
 import mockupChecklists from "@/assets/mockup-checklists.jpg";
 import mockupFlashcards from "@/assets/mockup-flashcards.jpg";
@@ -75,12 +88,26 @@ const NAV_LINKS = [
 ];
 
 function LandingPage() {
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 16);
+      const delta = y - lastY.current;
+      if (y < 80) {
+        setHidden(false);
+      } else if (delta > 6) {
+        setHidden(true);
+      } else if (delta < -6) {
+        setHidden(false);
+      }
+      lastY.current = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -91,9 +118,13 @@ function LandingPage() {
       <UrgencyBanner />
       <TopNav
         scrolled={scrolled}
+        hidden={hidden}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         isLogged={!!user}
+        avatarUrl={profile?.avatar_url ?? null}
+        displayName={profile?.full_name ?? user?.email ?? null}
+        onSignOut={signOut}
       />
       <main className="overflow-clip">
         <Hero isLogged={!!user} />
@@ -120,18 +151,29 @@ function LandingPage() {
 
 function TopNav({
   scrolled,
+  hidden,
   menuOpen,
   setMenuOpen,
   isLogged,
+  avatarUrl,
+  displayName,
+  onSignOut,
 }: {
   scrolled: boolean;
+  hidden: boolean;
   menuOpen: boolean;
   setMenuOpen: (v: boolean) => void;
   isLogged: boolean;
+  avatarUrl: string | null;
+  displayName: string | null;
+  onSignOut: () => Promise<void>;
 }) {
+  const navigate = useNavigate();
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      } ${
         scrolled
           ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
           : "bg-transparent"
@@ -151,19 +193,55 @@ function TopNav({
           ))}
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            to={isLogged ? "/app" : "/login"}
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            {isLogged ? "Plataforma" : "Entrar"}
-          </Link>
-          <Link
-            to={isLogged ? "/app" : "/cadastro"}
-            className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
-          >
-            {isLogged ? "Abrir painel" : "Garantir vaga"}
-            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
+          {isLogged ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex rounded-full outline-none ring-offset-background transition-shadow focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  aria-label="Abrir menu do usuário"
+                >
+                  <UserAvatar
+                    avatarUrl={avatarUrl}
+                    name={displayName}
+                    size="md"
+                    online
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="truncate">
+                  {displayName ?? "Minha conta"}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => navigate({ to: "/app" })}>
+                  <HomeIcon className="mr-2 h-4 w-4" />
+                  Início
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => navigate({ to: "/app/perfil" })}>
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  Meu perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={async () => {
+                    await onSignOut();
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/login"
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+            >
+              Login
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+          )}
         </div>
         <button
           aria-label="Abrir menu"
@@ -186,12 +264,45 @@ function TopNav({
                 {l.label}
               </a>
             ))}
-            <Link
-              to={isLogged ? "/app" : "/cadastro"}
-              className="mt-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
-            >
-              {isLogged ? "Abrir painel" : "Garantir vaga"}
-            </Link>
+            {isLogged ? (
+              <>
+                <Link
+                  to="/app"
+                  onClick={() => setMenuOpen(false)}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  <HomeIcon className="h-4 w-4" />
+                  Início
+                </Link>
+                <Link
+                  to="/app/perfil"
+                  onClick={() => setMenuOpen(false)}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-center text-sm font-semibold"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  Meu perfil
+                </Link>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setMenuOpen(false);
+                    await onSignOut();
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-sm font-semibold text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       )}
