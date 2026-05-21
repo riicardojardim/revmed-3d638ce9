@@ -929,14 +929,14 @@ function Footer() {
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Phone className="h-4 w-4 text-primary" />
-              +55 (21) 98786-0985 — Suporte RevMed
+              (21) 98786-0985 — Suporte RevMed
             </a>
             <a
               href="tel:+5521983786198"
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Phone className="h-4 w-4 text-primary" />
-              +55 (21) 98378-6198 — Dr. Anoar Jezini
+              (21) 98378-6198 — Dr. Anoar Jezini
             </a>
             <a
               href="mailto:contato@revmed.app.br"
