@@ -723,10 +723,10 @@ function FeatureCard({
 }) {
   const accentRing =
     accent === "primary"
-      ? "card-premium ring-1 ring-primary/40"
+      ? "card-premium card-glow ring-1 ring-primary/40"
       : accent === "mint"
-        ? "card-premium ring-1 ring-mint/40"
-        : "card-premium";
+        ? "card-premium card-glow ring-1 ring-mint/40"
+        : "card-premium card-glow";
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -838,7 +838,7 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="card-premium relative overflow-hidden rounded-[2rem] ring-1 ring-primary/40 p-8 md:p-10">
+            <div className="card-premium card-glow relative overflow-hidden rounded-[2rem] ring-1 ring-primary/40 p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -977,7 +977,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`card-premium group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 transition-transform hover:-translate-y-1 ${
+                className={`card-premium card-glow group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 transition-transform hover:-translate-y-1 ${
                   p.highlight
                     ? "ring-1 ring-primary/60 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_75%,transparent)] lg:scale-[1.03]"
                     : ""
