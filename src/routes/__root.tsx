@@ -10,7 +10,6 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
-import { SmoothScroll, ScrollProgress } from "@/components/SmoothScroll";
 
 import appCss from "../styles.css?url";
 
@@ -105,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=revmed-2" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Sora:wght@600;700&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -134,8 +133,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SmoothScroll />
-        <ScrollProgress />
         <Outlet />
         <PWAInstallBanner />
         <Toaster richColors position="top-center" />

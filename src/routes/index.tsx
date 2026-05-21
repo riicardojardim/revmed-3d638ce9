@@ -30,7 +30,7 @@ import avatar1 from "@/assets/hero-avatar-1.jpg";
 import avatar2 from "@/assets/hero-avatar-2.jpg";
 import avatar3 from "@/assets/hero-avatar-3.jpg";
 import avatar4 from "@/assets/hero-avatar-4.jpg";
-import { Tilt, Magnetic, AnimatedCounter } from "@/components/landing/motion-primitives";
+import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
 import {
@@ -201,76 +201,10 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
-const HERO_PREFIX = ["A", "plataforma", "que"];
-const HERO_ITALIC = "treina pra valer";
-const HERO_SUFFIX = ["o", "Revalida."];
-const WORD_STAGGER = 0.07;
-const HERO_BASE_DELAY = 0.15;
-
-function HeroWord({ children, delay }: { children: React.ReactNode; delay: number }) {
-  return (
-    <motion.span
-      initial={{ y: 18, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="inline-block"
-    >
-      {children}
-    </motion.span>
-  );
-}
-
-function HeroTitle() {
-  const italicDelay = HERO_BASE_DELAY + HERO_PREFIX.length * WORD_STAGGER + 0.18;
-  const suffixStart = italicDelay + 0.35;
-  return (
-    <>
-      {HERO_PREFIX.map((w, i) => (
-        <span key={`p-${i}`}>
-          <HeroWord delay={HERO_BASE_DELAY + i * WORD_STAGGER}>{w}</HeroWord>{" "}
-        </span>
-      ))}
-      <motion.span
-        initial={{ y: 18, opacity: 0, scale: 0.96 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        transition={{ duration: 0.85, delay: italicDelay, ease: [0.22, 1, 0.36, 1] }}
-        className="font-serif italic hero-italic-shimmer inline-block"
-        style={{ fontWeight: 400 }}
-      >
-        {HERO_ITALIC}
-      </motion.span>{" "}
-      {HERO_SUFFIX.map((w, i) => (
-        <span key={`s-${i}`}>
-          <HeroWord delay={suffixStart + i * WORD_STAGGER}>{w}</HeroWord>{" "}
-        </span>
-      ))}
-    </>
-  );
-}
-
 function Hero({ isLogged }: { isLogged: boolean }) {
   return (
     <section className="relative">
-      {/* Aurora cônica girando sutilmente */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div className="aurora-bg" />
-      </div>
-      {/* Orbs flutuantes */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        <div
-          className="orb-a absolute -top-20 -left-10 h-72 w-72 rounded-full opacity-50 blur-3xl"
-          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)" }}
-        />
-        <div
-          className="orb-b absolute top-1/3 right-0 h-80 w-80 rounded-full opacity-40 blur-3xl"
-          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--mint) 50%, transparent), transparent 70%)" }}
-        />
-        <div
-          className="orb-c absolute bottom-0 left-1/3 h-64 w-64 rounded-full opacity-35 blur-3xl"
-          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)" }}
-        />
-      </div>
-      {/* radial orange glow base */}
+      {/* radial orange glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -291,15 +225,32 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             Plataforma oficial • Revalida INEP
           </motion.div>
 
-          <h1 className="mt-6 w-full font-display text-[1.45rem] font-black leading-[0.98] tracking-[-0.05em] md:text-[1.9rem] lg:w-[calc(100%+3rem)] lg:text-[2.15rem] xl:w-[calc(100%+4rem)] xl:text-[2.25rem]">
-            <HeroTitle />
-          </h1>
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="mt-6 font-display text-[2.1rem] font-black leading-[1.05] tracking-[-0.04em] md:text-5xl lg:text-6xl"
+          >
+            A plataforma que <br />
+            <span
+              style={{
+                backgroundImage:
+                  "linear-gradient(120deg, #f5c542 0%, #e85d1c 60%, #ff8a3a 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              treina pra valer
+            </span>{" "}
+            o Revalida.
+          </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
-            className="mt-6 max-w-xl text-lg text-muted-foreground md:text-xl leading-relaxed"
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
           >
             Estações ao vivo com cronômetro INEP, banco gigante de checklists
             oficiais, flashcards com revisão espaçada, resumos enxutos e
@@ -310,24 +261,16 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.05 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
             className="mt-8 flex flex-wrap items-center gap-3"
           >
-            <Magnetic strength={0.28} className="relative inline-block">
-              <span aria-hidden className="cta-halo" />
-              <Link
-                to={isLogged ? "/app" : "/cadastro"}
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--primary)_75%,transparent)] transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_color-mix(in_oklab,var(--primary)_90%,transparent)]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(120deg, #ff8a3a 0%, #F59A1B 50%, #CF8737 100%)",
-                }}
-              >
-                <span className="relative z-10">Começar a treinar</span>
-                <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
-                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-              </Link>
-            </Magnetic>
+            <Link
+              to={isLogged ? "/app" : "/cadastro"}
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02]"
+            >
+              Começar a treinar
+              <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
             <a
               href="#plataforma"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-card"
@@ -340,7 +283,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
             className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground"
           >
             <div className="flex -space-x-2">
@@ -604,7 +547,7 @@ function Manifesto() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[0.95] tracking-[-0.045em] md:text-[2.6rem] lg:text-[3.2rem] xl:text-[3.6rem]">
+            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
             <p className="mt-6 text-base text-muted-foreground md:text-lg">
@@ -629,7 +572,7 @@ function Manifesto() {
                     {p.n}
                   </div>
                   <div>
-                    <h3 className="font-display text-2xl font-extrabold tracking-[-0.03em] md:text-3xl lg:text-[1.6rem]">
+                    <h3 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
                       {p.title}
                     </h3>
                     <p className="mt-2 max-w-xl text-muted-foreground">
@@ -658,7 +601,7 @@ function Plataforma() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
@@ -723,10 +666,10 @@ function FeatureCard({
 }) {
   const accentRing =
     accent === "primary"
-      ? "card-premium card-glow ring-1 ring-primary/40"
+      ? "ring-1 ring-primary/40 bg-gradient-to-br from-primary/15 via-card to-card"
       : accent === "mint"
-        ? "card-premium card-glow ring-1 ring-mint/40"
-        : "card-premium card-glow";
+        ? "ring-1 ring-mint/40 bg-gradient-to-br from-mint/15 via-card to-card"
+        : "ring-1 ring-border bg-card";
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -756,10 +699,10 @@ function FeatureCard({
 /* ----------------------------- RESULTADOS ----------------------------- */
 
 const NUMBERS = [
-  { prefix: "+ ", value: 320, decimals: 0, suffix: "",    l: "Estações ao vivo já realizadas" },
-  { prefix: "+ ", value: 1.2, decimals: 1, suffix: "k",   l: "Médicos treinando na plataforma" },
-  { prefix: "",   value: 87,  decimals: 0, suffix: "%",   l: "Aprovação dos alunos na 25.1" },
-  { prefix: "",   value: 10,  decimals: 0, suffix: "min", l: "Cronômetro INEP em cada estação" },
+  { v: "+ 320", l: "Estações ao vivo já realizadas" },
+  { v: "+ 1.2k", l: "Médicos treinando na plataforma" },
+  { v: "87%", l: "Aprovação dos alunos na 25.1" },
+  { v: "10min", l: "Cronômetro INEP em cada estação" },
 ];
 
 
@@ -778,15 +721,11 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="card-premium card-glow rounded-3xl p-7 transition-transform hover:-translate-y-1"
+              className="rounded-3xl border border-border bg-background p-7"
             >
-              <AnimatedCounter
-                to={n.value}
-                decimals={n.decimals}
-                prefix={n.prefix}
-                suffix={n.suffix}
-                className="block font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl"
-              />
+              <div className="font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl">
+                {n.v}
+              </div>
               <div className="mt-3 text-sm font-medium text-muted-foreground">
                 {n.l}
               </div>
@@ -818,8 +757,9 @@ function Mentoria() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[0.95] tracking-[-0.045em] md:text-[2.6rem] lg:text-[3.2rem] xl:text-[3.6rem]">
-              Quer alguém do seu lado?{" "}
+            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+              Quer alguém <br />
+              do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
             <p className="mt-6 text-muted-foreground md:text-lg">
@@ -837,7 +777,7 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="card-premium card-glow relative overflow-hidden rounded-[2rem] ring-1 ring-primary/40 p-8 md:p-10">
+            <div className="relative overflow-hidden rounded-[2rem] border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -846,7 +786,7 @@ function Mentoria() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
-                <h3 className="mt-4 font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl lg:text-5xl">
+                <h3 className="mt-4 font-display text-3xl font-bold tracking-tight md:text-4xl">
                   O que vem na mentoria
                 </h3>
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -955,11 +895,11 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
       className="relative border-y border-border/60 bg-card/30 py-24 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="mx-auto max-w-5xl text-center">
+        <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mx-auto mt-4 max-w-[18ch] font-display text-[1.28rem] font-black leading-[1.04] tracking-[-0.045em] md:max-w-[20ch] md:text-[1.65rem] lg:max-w-[22ch] lg:text-[1.95rem] xl:text-[2.05rem]">
+          <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
@@ -976,10 +916,10 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`card-premium card-glow group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 transition-transform hover:-translate-y-1 ${
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 ${
                   p.highlight
-                    ? "ring-1 ring-primary/60 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_75%,transparent)] lg:scale-[1.03]"
-                    : ""
+                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
+                    : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
                 }`}
               >
                 {/* Glow de fundo */}
@@ -1015,7 +955,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                   </p>
 
                   <div className="mt-6 flex items-end gap-1.5">
-                    <span className="font-display text-[1.7rem] font-black leading-none tracking-[-0.04em] md:text-5xl">
+                    <span className="font-display text-[2.75rem] font-black leading-none tracking-[-0.04em] md:text-5xl">
                       {p.price}
                     </span>
                     {p.cadence && (
@@ -1120,7 +1060,7 @@ function FAQ() {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
           Perguntas honestas
         </p>
-        <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+        <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
           O que a gente costuma ouvir.
         </h2>
         <div className="mt-10 divide-y divide-border border-y border-border">
@@ -1171,9 +1111,9 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
             "radial-gradient(50% 70% at 50% 50%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div className="mx-auto max-w-6xl px-5 text-center md:px-8">
-        <h2 className="font-display text-[1.4rem] font-black leading-[1] tracking-[-0.045em] whitespace-nowrap md:text-[2.2rem] lg:text-[2.8rem] xl:text-[3.2rem]">
-          Pronto pra treinar{" "}
+      <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
+        <h2 className="font-display text-4xl font-black leading-[1.02] tracking-[-0.03em] md:text-6xl">
+          Pronto pra treinar <br />
           <span className="text-primary">do jeito que cai?</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-muted-foreground md:text-lg">
