@@ -96,23 +96,44 @@ function LandingPage() {
   const lastY = useRef(0);
 
   useEffect(() => {
+    lastY.current = window.scrollY;
+    setScrolled(window.scrollY > 8);
+
+    if (menuOpen || userMenuOpen || window.scrollY <= 24) {
+      setHidden(false);
+    }
+
     let ticking = false;
+    let frame = 0;
 
     const onScroll = () => {
       if (ticking) return;
 
       ticking = true;
-      window.requestAnimationFrame(() => {
-        const y = window.scrollY;
+      frame = window.requestAnimationFrame(() => {
+        const y = Math.max(window.scrollY, 0);
         const delta = y - lastY.current;
+        const movedEnough = Math.abs(delta) >= 2;
 
-        setScrolled(y > 12);
+        setScrolled(y > 8);
 
-        if (menuOpen || userMenuOpen || y < 96) {
+        if (menuOpen || userMenuOpen) {
           setHidden(false);
-        } else if (delta > 6) {
+        } else if (y <= 24) {
+          setHidden(false);
+        } else if (movedEnough) {
+          setHidden(delta > 0 && y > 72);
+        }
+
+        if (!movedEnough) {
+          lastY.current = y;
+          ticking = false;
+          return;
+        }
+
+        if (delta > 0 && y > 72) {
           setHidden(true);
-        } else if (delta < -6) {
+        } else if (delta < 0) {
           setHidden(false);
         }
 
@@ -123,7 +144,10 @@ function LandingPage() {
 
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.cancelAnimationFrame(frame);
+    };
   }, [menuOpen, userMenuOpen]);
 
   return (
