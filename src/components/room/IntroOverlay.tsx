@@ -1,18 +1,15 @@
-import { StationIntroOverlay, INTRO_DURATION_MS as CLASSIC_DURATION, type IntroRole } from "./StationIntroOverlay";
-import { StationIntroOverlayDoor, INTRO_DURATION_MS as DOOR_DURATION } from "./StationIntroOverlayDoor";
-import { StationIntroOverlayCorridor, INTRO_DURATION_MS as CORRIDOR_DURATION } from "./StationIntroOverlayCorridor";
-import { StationIntroOverlayXray, INTRO_DURATION_MS as XRAY_DURATION } from "./StationIntroOverlayXray";
-import { StationIntroOverlayStamp, INTRO_DURATION_MS as STAMP_DURATION } from "./StationIntroOverlayStamp";
-import { StationIntroOverlayElevator, INTRO_DURATION_MS as ELEVATOR_DURATION } from "./StationIntroOverlayElevator";
-import { StationIntroOverlayIV, INTRO_DURATION_MS as IV_DURATION } from "./StationIntroOverlayIV";
-import { StationIntroOverlayExamRoom, INTRO_DURATION_MS as EXAMROOM_DURATION } from "./StationIntroOverlayExamRoom";
+import { StationIntroPulse, INTRO_DURATION_MS as PULSE_DURATION, type IntroRole } from "./StationIntroPulse";
+import { StationIntroBadge, INTRO_DURATION_MS as BADGE_DURATION } from "./StationIntroBadge";
 
-export type IntroVariant = "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv" | "examroom";
+export type IntroVariant = "pulse" | "badge";
 export type { IntroRole };
 
-export const INTRO_DURATION_MS = Math.max(
-  CLASSIC_DURATION, DOOR_DURATION, CORRIDOR_DURATION, XRAY_DURATION, STAMP_DURATION, ELEVATOR_DURATION, IV_DURATION, EXAMROOM_DURATION,
-);
+export const INTRO_VARIANT_LABEL: Record<IntroVariant, string> = {
+  pulse: "Sinal vital (ECG REVMED)",
+  badge: "Credencial REVMED",
+};
+
+export const INTRO_DURATION_MS = Math.max(PULSE_DURATION, BADGE_DURATION);
 
 interface Props {
   variant?: IntroVariant | null;
@@ -27,12 +24,6 @@ interface Props {
 }
 
 export function IntroOverlay({ variant, ...rest }: Props) {
-  if (variant === "door") return <StationIntroOverlayDoor {...rest} />;
-  if (variant === "corridor") return <StationIntroOverlayCorridor {...rest} />;
-  if (variant === "xray") return <StationIntroOverlayXray {...rest} />;
-  if (variant === "stamp") return <StationIntroOverlayStamp {...rest} />;
-  if (variant === "elevator") return <StationIntroOverlayElevator {...rest} />;
-  if (variant === "iv") return <StationIntroOverlayIV {...rest} />;
-  if (variant === "examroom") return <StationIntroOverlayExamRoom {...rest} />;
-  return <StationIntroOverlay {...rest} />;
+  if (variant === "badge") return <StationIntroBadge {...rest} />;
+  return <StationIntroPulse {...rest} />;
 }
