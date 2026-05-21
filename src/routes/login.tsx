@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
-import { LoginBackground } from "@/components/LoginBackground";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -175,10 +174,6 @@ function LoginPage() {
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
-      <LoginBackground />
-
-
-
       <div className="container relative mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-6">
         <div className="mb-4 flex justify-center">
           <Logo className="h-12 w-auto select-none md:h-14" />
