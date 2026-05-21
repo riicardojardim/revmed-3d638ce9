@@ -62,7 +62,7 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-background text-foreground antialiased">
+    <div className="dark min-h-dvh bg-background text-foreground antialiased">
       <TopNav
         scrolled={scrolled}
         menuOpen={menuOpen}
