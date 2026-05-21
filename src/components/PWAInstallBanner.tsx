@@ -171,7 +171,7 @@ export function PWAInstallBanner() {
         style={{
           transform: `translateX(calc(-50% + ${dragX}px)) translateY(${hidden ? "-140%" : "0%"})`,
           top: "calc(env(safe-area-inset-top, 0px) + 0.5rem)",
-          opacity: Math.max(0, 1 - Math.abs(dragX) / 200),
+          opacity: hidden ? 0 : Math.max(0, 1 - Math.abs(dragX) / 200),
           transition: dragging
             ? "none"
             : "transform 300ms cubic-bezier(0.22,1,0.36,1), opacity 300ms cubic-bezier(0.22,1,0.36,1)",
