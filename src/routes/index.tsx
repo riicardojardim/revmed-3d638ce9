@@ -18,9 +18,9 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
-import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
-import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
-import mockupDashboard from "@/assets/revmed-dashboard-mockup.png";
+import mockupDashboard from "@/assets/mockup-dashboard.jpg";
+import mockupChecklists from "@/assets/mockup-checklists.jpg";
+import mockupFlashcards from "@/assets/mockup-flashcards.jpg";
 import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
@@ -322,9 +322,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
 
 function MockupCarousel() {
   const slides = [
-    { src: mockupDashboard, alt: "Dashboard REVMED com progresso por especialidade", label: "Dashboard" },
-    { src: mockupEstacao, alt: "Simulador de estação clínica REVMED com cronômetro INEP", label: "Estação clínica" },
-    { src: mockupCronograma, alt: "Painel REVMED com cronograma Revalida e progresso por especialidade", label: "Cronograma" },
+    { src: mockupDashboard, alt: "Dashboard REVMED com progresso real do candidato", label: "Dashboard" },
+    { src: mockupChecklists, alt: "Banco de checklists oficiais REVMED para Revalida", label: "Checklists" },
+    { src: mockupFlashcards, alt: "Banco de flashcards REVMED com revisão espaçada", label: "Flashcards" },
   ];
   const [i, setI] = useState(0);
   useEffect(() => {
