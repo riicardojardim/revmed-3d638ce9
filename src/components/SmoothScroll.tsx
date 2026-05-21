@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import Lenis from "lenis";
 
 export function SmoothScroll() {
   useEffect(() => {
