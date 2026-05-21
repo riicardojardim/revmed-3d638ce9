@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { downloadActorPDF, downloadCandidatePDF } from "@/lib/station-pdf";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, formatPatientProfile, BoldBeforeColon } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -2154,7 +2154,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                                             active ? "bg-mint/40 text-night ring-1 ring-mint/60" : "text-foreground/85 hover:bg-white/5",
                                           )}
                                         >
-                                          {sub}
+                                          <BoldBeforeColon text={sub} />
                                         </button>
                                       </li>
                                     );
