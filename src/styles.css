@@ -59,76 +59,80 @@
 :root {
   --radius: 1rem;
 
-  /* Brand — REVMED (paleta extraída do Instagram oficial) */
-  --night: oklch(0.14 0.012 50);          /* preto-marrom quente do feed */
-  --medical: oklch(0.72 0.19 55);         /* #f08c1c — laranja brand principal */
-  --mint: oklch(0.62 0.24 18);            /* magenta-pink do gradiente do logo */
-  --mint-soft: oklch(0.78 0.16 35);       /* coral suave (mid do gradiente) */
-  --ice: oklch(0.985 0.005 60);           /* off-white quente */
+  /* Brand — REVMED (paleta oficial: preto/café + laranja queimado + dourado) */
+  --night: #080606;                /* Background principal */
+  --surface: #1B1105;              /* Surface / fundo secundário */
+  --surface-2: #2D1F10;            /* Card / container marrom escuro */
+  --bronze: #6D4A25;               /* Borda bronze */
+  --medical: #F59A1B;              /* Primary — laranja REVMED */
+  --medical-dark: #CF8737;         /* Primary dark — laranja queimado */
+  --mint: #E29D44;                 /* Accent — dourado/âmbar */
+  --mint-soft: #CF8737;            /* Mid do gradiente laranja */
+  --ice: #FFFFFF;
 
   --background: var(--night);
-  --foreground: oklch(0.97 0.005 60);
-  --card: oklch(0.20 0.015 50);
-  --card-foreground: oklch(0.97 0.005 60);
-  --popover: oklch(0.20 0.015 50);
-  --popover-foreground: oklch(0.97 0.005 60);
+  --foreground: #FFFFFF;
+  --card: var(--surface-2);
+  --card-foreground: #FFFFFF;
+  --popover: var(--surface-2);
+  --popover-foreground: #FFFFFF;
 
   --primary: var(--medical);
-  --primary-foreground: var(--night);
+  --primary-foreground: #FFFFFF;
 
-  --secondary: oklch(0.24 0.015 50);
-  --secondary-foreground: oklch(0.97 0.005 60);
+  --secondary: var(--surface);
+  --secondary-foreground: #FFFFFF;
 
-  --muted: oklch(0.24 0.015 50);
-  --muted-foreground: oklch(0.72 0.015 50);
+  --muted: var(--surface);
+  --muted-foreground: #9C8C7B;
 
   --accent: var(--mint);
   --accent-foreground: var(--night);
 
   --destructive: oklch(0.63 0.22 27);
   --destructive-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.85 0.16 90);
-  --warning-foreground: oklch(0.2 0.02 40);
+  --warning: #E29D44;
+  --warning-foreground: var(--night);
   --success: oklch(0.72 0.16 150);
-  --success-foreground: oklch(0.16 0.01 40);
+  --success-foreground: var(--night);
 
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
+  --border: #6D4A25;
+  --input: color-mix(in oklab, #6D4A25 60%, transparent);
   --ring: var(--medical);
 
   --chart-1: var(--medical);
-  --chart-2: var(--mint);
-  --chart-3: var(--mint-soft);
-  --chart-4: oklch(0.82 0.15 75);
-  --chart-5: oklch(0.55 0.20 30);
+  --chart-2: var(--medical-dark);
+  --chart-3: var(--mint);
+  --chart-4: #9C8C7B;
+  --chart-5: #D9D8DA;
 
-  --sidebar: oklch(0.17 0.015 50);
-  --sidebar-foreground: oklch(0.97 0.005 60);
+  --sidebar: var(--surface);
+  --sidebar-foreground: #FFFFFF;
   --sidebar-primary: var(--medical);
-  --sidebar-primary-foreground: var(--night);
-  --sidebar-accent: oklch(0.24 0.015 50);
-  --sidebar-accent-foreground: oklch(0.97 0.005 60);
-  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #6D4A25;
   --sidebar-ring: var(--medical);
 }
 
 .dark {
   --background: var(--night);
-  --foreground: oklch(0.97 0.005 60);
-  --card: oklch(0.20 0.015 50);
-  --card-foreground: oklch(0.97 0.005 60);
-  --popover: oklch(0.20 0.015 50);
-  --popover-foreground: oklch(0.97 0.005 60);
+  --foreground: #FFFFFF;
+  --card: var(--surface-2);
+  --card-foreground: #FFFFFF;
+  --popover: var(--surface-2);
+  --popover-foreground: #FFFFFF;
   --primary: var(--medical);
-  --primary-foreground: var(--night);
-  --secondary: oklch(0.24 0.015 50);
-  --secondary-foreground: oklch(0.97 0.005 60);
-  --muted: oklch(0.24 0.015 50);
-  --muted-foreground: oklch(0.72 0.015 50);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--surface);
+  --secondary-foreground: #FFFFFF;
+  --muted: var(--surface);
+  --muted-foreground: #9C8C7B;
   --accent: var(--mint);
-  --accent-foreground: oklch(0.97 0.005 60);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
+  --accent-foreground: var(--night);
+  --border: #6D4A25;
+  --input: color-mix(in oklab, #6D4A25 60%, transparent);
   --ring: var(--medical);
 }
 
@@ -164,19 +168,19 @@
 }
 
 @utility bg-gradient-hero {
-  background-image: linear-gradient(135deg, var(--night) 0%, color-mix(in oklab, var(--medical) 70%, var(--night)) 55%, color-mix(in oklab, var(--mint) 55%, var(--night)) 100%);
+  background-image: linear-gradient(135deg, #080606 0%, #1B1105 45%, #2D1F10 100%);
 }
 
 @utility bg-gradient-mint {
-  background-image: linear-gradient(135deg, var(--medical) 0%, var(--mint-soft) 55%, var(--mint) 100%);
+  background-image: linear-gradient(135deg, #F59A1B 0%, #CF8737 60%, #E29D44 100%);
 }
 
 @utility bg-gradient-card {
-  background-image: linear-gradient(160deg, color-mix(in oklab, var(--card) 100%, transparent) 0%, color-mix(in oklab, var(--mint-soft) 25%, var(--card)) 100%);
+  background-image: linear-gradient(160deg, var(--surface-2) 0%, color-mix(in oklab, var(--medical) 18%, var(--surface-2)) 100%);
 }
 
 @utility text-gradient {
-  background: linear-gradient(135deg, var(--medical), var(--mint));
+  background: linear-gradient(135deg, #F59A1B, #E29D44);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
