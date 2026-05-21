@@ -46,14 +46,14 @@ export function Depoimentos() {
           </p>
         </div>
 
-        <div className="mt-14 columns-1 gap-6 sm:columns-2 lg:columns-3 [column-fill:_balance]">
+        <div className="mt-14 columns-1 gap-6 sm:columns-2 lg:columns-4 [column-fill:_balance]">
           {ITEMS.map((d, i) => (
             <motion.figure
               key={d.name}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.55, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.55, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
               className="group mb-6 break-inside-avoid"
             >
               <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/40 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_30px_80px_-20px_color-mix(in_oklab,var(--primary)_30%,transparent)]">
