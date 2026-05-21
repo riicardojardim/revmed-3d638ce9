@@ -1,10 +1,10 @@
-// Specialty color tokens — alinhado ao padrão Pense Revalida:
-//   CM  Clínica Médica            → azul claro
-//   CR  Cirurgia                  → roxo / lilás
-//   GO  Ginecologia e Obstetrícia → coral / vermelho
-//   PE  Pediatria                 → verde
-//   PR  Preventiva                → laranja
-//   MFC Medicina de Família e Comunidade → esmeralda
+// Specialty color tokens — identidade REVMED (paleta terrosa quente
+// deliberadamente distinta do padrão azul/roxo/verde do Estação Revalida):
+//   CM  Clínica Médica            → âmbar bronze
+//   CR  Cirurgia                  → aço cirúrgico (slate)
+//   PE  Pediatria                 → laranja coral
+//   GO  Ginecologia e Obstetrícia → fúcsia/mulberry
+//   MFC Medicina de Família e Comunidade → oliva
 
 
 export type SpecialtyMeta = {
@@ -23,52 +23,52 @@ export type SpecialtyMeta = {
 const META: Record<string, SpecialtyMeta> = {
   "Clínica Médica": {
     code: "CM",
-    badge: "bg-blue-500 text-white ring-1 ring-blue-300/60 shadow-sm shadow-blue-900/30",
-    card: "border-blue-500/40 bg-blue-500/5",
-    solid: "bg-blue-500",
-    text: "text-blue-700 dark:text-blue-300",
+    badge: "bg-amber-600 text-white ring-1 ring-amber-300/60 shadow-sm shadow-amber-900/30",
+    card: "border-amber-600/40 bg-amber-600/5",
+    solid: "bg-amber-600",
+    text: "text-amber-700 dark:text-amber-300",
   },
   "Cirurgia": {
     code: "CR",
-    badge: "bg-violet-500 text-white ring-1 ring-violet-300/60 shadow-sm shadow-violet-900/30",
-    card: "border-violet-500/40 bg-violet-500/5",
-    solid: "bg-violet-500",
-    text: "text-violet-700 dark:text-violet-300",
+    badge: "bg-slate-500 text-white ring-1 ring-slate-300/60 shadow-sm shadow-slate-900/30",
+    card: "border-slate-500/40 bg-slate-500/5",
+    solid: "bg-slate-500",
+    text: "text-slate-700 dark:text-slate-300",
   },
   "Pediatria": {
     code: "PE",
-    badge: "bg-amber-500 text-white ring-1 ring-amber-300/60 shadow-sm shadow-amber-900/30",
-    card: "border-amber-500/40 bg-amber-500/5",
-    solid: "bg-amber-500",
-    text: "text-amber-700 dark:text-amber-300",
+    badge: "bg-orange-500 text-white ring-1 ring-orange-300/60 shadow-sm shadow-orange-900/30",
+    card: "border-orange-500/40 bg-orange-500/5",
+    solid: "bg-orange-500",
+    text: "text-orange-700 dark:text-orange-300",
   },
   "Ginecologia e Obstetrícia": {
     code: "GO",
-    badge: "bg-pink-500 text-white ring-1 ring-pink-300/60 shadow-sm shadow-pink-900/30",
-    card: "border-pink-500/40 bg-pink-500/5",
-    solid: "bg-pink-500",
-    text: "text-pink-700 dark:text-pink-300",
+    badge: "bg-fuchsia-700 text-white ring-1 ring-fuchsia-400/60 shadow-sm shadow-fuchsia-900/30",
+    card: "border-fuchsia-700/40 bg-fuchsia-700/5",
+    solid: "bg-fuchsia-700",
+    text: "text-fuchsia-700 dark:text-fuchsia-300",
   },
   "Medicina de Família e Comunidade": {
     code: "MFC",
-    badge: "bg-emerald-500 text-white ring-1 ring-emerald-300/60 shadow-sm shadow-emerald-900/30",
-    card: "border-emerald-500/40 bg-emerald-500/5",
-    solid: "bg-emerald-500",
-    text: "text-emerald-700 dark:text-emerald-300",
+    badge: "bg-lime-600 text-white ring-1 ring-lime-300/60 shadow-sm shadow-lime-900/30",
+    card: "border-lime-600/40 bg-lime-600/5",
+    solid: "bg-lime-600",
+    text: "text-lime-700 dark:text-lime-300",
   },
   "Saúde Coletiva": {
     code: "SC",
-    badge: "bg-orange-500 text-white ring-1 ring-orange-300/60 shadow-sm shadow-orange-900/30",
-    card: "border-orange-500/40 bg-orange-500/5",
-    solid: "bg-orange-500",
-    text: "text-orange-700 dark:text-orange-300",
+    badge: "bg-lime-600 text-white ring-1 ring-lime-300/60 shadow-sm shadow-lime-900/30",
+    card: "border-lime-600/40 bg-lime-600/5",
+    solid: "bg-lime-600",
+    text: "text-lime-700 dark:text-lime-300",
   },
   "Preventiva": {
     code: "PR",
-    badge: "bg-orange-500 text-white ring-1 ring-orange-300/60 shadow-sm shadow-orange-900/30",
-    card: "border-orange-500/40 bg-orange-500/5",
-    solid: "bg-orange-500",
-    text: "text-orange-700 dark:text-orange-300",
+    badge: "bg-lime-600 text-white ring-1 ring-lime-300/60 shadow-sm shadow-lime-900/30",
+    card: "border-lime-600/40 bg-lime-600/5",
+    solid: "bg-lime-600",
+    text: "text-lime-700 dark:text-lime-300",
   },
 };
 
