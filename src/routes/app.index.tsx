@@ -252,20 +252,11 @@ function Dashboard() {
 
   if (isAtorPlan) return <AtorDashboard />;
   if (!isCompleto) {
-    // free user — keep simple welcome
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
           <p className="text-sm text-muted-foreground">Bem-vindo(a)</p>
           <h1 className="font-display text-2xl font-bold md:text-3xl">Olá, {displayName}!</h1>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-8 text-center shadow-card">
-          <Sparkles className="mx-auto h-8 w-8 text-mint" />
-          <h2 className="mt-3 font-display text-xl font-bold">Desbloqueie o plano Completo</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Acesso a 690+ checklists, 570+ resumos, 400+ flashcards, cronograma e mais.</p>
-          <Link to="/app/perfil" className="mt-5 inline-block">
-            <Button variant="hero">Ver planos</Button>
-          </Link>
         </div>
       </div>
     );
