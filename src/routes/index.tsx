@@ -777,12 +777,12 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="relative overflow-hidden rounded-[2rem] border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-10">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
               />
-              <div className="relative">
+              <div className="relative flex h-full flex-col justify-center">
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
