@@ -58,77 +58,77 @@
 :root {
   --radius: 1rem;
 
-  /* Brand */
-  --night: oklch(0.18 0.04 250);          /* #07111F */
-  --medical: oklch(0.42 0.12 250);        /* #0F4C81 */
-  --mint: oklch(0.78 0.14 175);           /* #00C2A8 */
-  --mint-soft: oklch(0.92 0.07 165);      /* #A7F3D0 */
-  --ice: oklch(0.985 0.005 240);          /* #F8FAFC */
+  /* Brand — REVMED (preto + laranja/dourado) */
+  --night: oklch(0.16 0.01 40);           /* #0d0d0d */
+  --medical: oklch(0.65 0.19 45);         /* #e85d1c — laranja principal */
+  --mint: oklch(0.83 0.16 85);            /* #f5c542 — dourado (accent) */
+  --mint-soft: oklch(0.92 0.10 85);       /* dourado claro */
+  --ice: oklch(0.985 0.005 60);           /* off-white quente */
 
   --background: var(--ice);
-  --foreground: oklch(0.22 0.04 250);
+  --foreground: oklch(0.20 0.02 40);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 250);
+  --card-foreground: oklch(0.20 0.02 40);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 250);
+  --popover-foreground: oklch(0.20 0.02 40);
 
   --primary: var(--medical);
   --primary-foreground: oklch(0.985 0.005 240);
 
-  --secondary: oklch(0.96 0.015 240);
-  --secondary-foreground: oklch(0.25 0.04 250);
+  --secondary: oklch(0.96 0.015 60);
+  --secondary-foreground: oklch(0.22 0.02 40);
 
-  --muted: oklch(0.96 0.012 240);
-  --muted-foreground: oklch(0.55 0.025 250);
+  --muted: oklch(0.96 0.012 60);
+  --muted-foreground: oklch(0.50 0.02 40);
 
   --accent: var(--mint);
-  --accent-foreground: oklch(0.18 0.04 250);
+  --accent-foreground: oklch(0.16 0.01 40);
 
   --destructive: oklch(0.63 0.22 27);
   --destructive-foreground: oklch(0.985 0 0);
   --warning: oklch(0.85 0.16 90);
-  --warning-foreground: oklch(0.2 0.04 250);
-  --success: oklch(0.72 0.15 165);
-  --success-foreground: oklch(0.18 0.04 250);
+  --warning-foreground: oklch(0.2 0.02 40);
+  --success: oklch(0.72 0.16 150);
+  --success-foreground: oklch(0.16 0.01 40);
 
-  --border: oklch(0.92 0.012 240);
-  --input: oklch(0.92 0.012 240);
-  --ring: var(--mint);
+  --border: oklch(0.92 0.012 60);
+  --input: oklch(0.92 0.012 60);
+  --ring: var(--medical);
 
   --chart-1: var(--medical);
   --chart-2: var(--mint);
-  --chart-3: oklch(0.68 0.13 220);
-  --chart-4: oklch(0.78 0.14 90);
-  --chart-5: oklch(0.6 0.18 25);
+  --chart-3: oklch(0.55 0.20 30);
+  --chart-4: oklch(0.78 0.14 70);
+  --chart-5: oklch(0.45 0.15 50);
 
-  --sidebar: oklch(0.99 0.005 240);
-  --sidebar-foreground: oklch(0.25 0.04 250);
+  --sidebar: oklch(0.99 0.005 60);
+  --sidebar-foreground: oklch(0.22 0.02 40);
   --sidebar-primary: var(--medical);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.96 0.012 240);
-  --sidebar-accent-foreground: oklch(0.22 0.04 250);
-  --sidebar-border: oklch(0.92 0.012 240);
-  --sidebar-ring: var(--mint);
+  --sidebar-accent: oklch(0.96 0.012 60);
+  --sidebar-accent-foreground: oklch(0.20 0.02 40);
+  --sidebar-border: oklch(0.92 0.012 60);
+  --sidebar-ring: var(--medical);
 }
 
 .dark {
   --background: var(--night);
-  --foreground: oklch(0.97 0.005 240);
-  --card: oklch(0.22 0.04 250);
-  --card-foreground: oklch(0.97 0.005 240);
-  --popover: oklch(0.22 0.04 250);
-  --popover-foreground: oklch(0.97 0.005 240);
-  --primary: var(--mint);
+  --foreground: oklch(0.97 0.005 60);
+  --card: oklch(0.22 0.015 40);
+  --card-foreground: oklch(0.97 0.005 60);
+  --popover: oklch(0.22 0.015 40);
+  --popover-foreground: oklch(0.97 0.005 60);
+  --primary: var(--medical);
   --primary-foreground: var(--night);
-  --secondary: oklch(0.26 0.04 250);
-  --secondary-foreground: oklch(0.97 0.005 240);
-  --muted: oklch(0.26 0.04 250);
-  --muted-foreground: oklch(0.72 0.02 240);
+  --secondary: oklch(0.26 0.015 40);
+  --secondary-foreground: oklch(0.97 0.005 60);
+  --muted: oklch(0.26 0.015 40);
+  --muted-foreground: oklch(0.72 0.015 40);
   --accent: var(--mint);
   --accent-foreground: var(--night);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
-  --ring: var(--mint);
+  --ring: var(--medical);
 }
 
 @layer base {
