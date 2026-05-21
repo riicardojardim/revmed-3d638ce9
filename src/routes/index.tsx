@@ -30,7 +30,7 @@ import avatar1 from "@/assets/hero-avatar-1.jpg";
 import avatar2 from "@/assets/hero-avatar-2.jpg";
 import avatar3 from "@/assets/hero-avatar-3.jpg";
 import avatar4 from "@/assets/hero-avatar-4.jpg";
-import { Tilt } from "@/components/landing/motion-primitives";
+import { Tilt, Magnetic, AnimatedCounter } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
 import {
@@ -201,10 +201,76 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
+const HERO_PREFIX = ["A", "plataforma", "que"];
+const HERO_ITALIC = "treina pra valer";
+const HERO_SUFFIX = ["o", "Revalida."];
+const WORD_STAGGER = 0.07;
+const HERO_BASE_DELAY = 0.15;
+
+function HeroWord({ children, delay }: { children: React.ReactNode; delay: number }) {
+  return (
+    <motion.span
+      initial={{ y: 18, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="inline-block"
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+function HeroTitle() {
+  const italicDelay = HERO_BASE_DELAY + HERO_PREFIX.length * WORD_STAGGER + 0.18;
+  const suffixStart = italicDelay + 0.35;
+  return (
+    <>
+      {HERO_PREFIX.map((w, i) => (
+        <span key={`p-${i}`}>
+          <HeroWord delay={HERO_BASE_DELAY + i * WORD_STAGGER}>{w}</HeroWord>{" "}
+        </span>
+      ))}
+      <motion.span
+        initial={{ y: 18, opacity: 0, scale: 0.96 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        transition={{ duration: 0.85, delay: italicDelay, ease: [0.22, 1, 0.36, 1] }}
+        className="font-serif italic hero-italic-shimmer inline-block"
+        style={{ fontWeight: 400 }}
+      >
+        {HERO_ITALIC}
+      </motion.span>{" "}
+      {HERO_SUFFIX.map((w, i) => (
+        <span key={`s-${i}`}>
+          <HeroWord delay={suffixStart + i * WORD_STAGGER}>{w}</HeroWord>{" "}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function Hero({ isLogged }: { isLogged: boolean }) {
   return (
     <section className="relative">
-      {/* radial orange glow */}
+      {/* Aurora cônica girando sutilmente */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="aurora-bg" />
+      </div>
+      {/* Orbs flutuantes */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div
+          className="orb-a absolute -top-20 -left-10 h-72 w-72 rounded-full opacity-50 blur-3xl"
+          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)" }}
+        />
+        <div
+          className="orb-b absolute top-1/3 right-0 h-80 w-80 rounded-full opacity-40 blur-3xl"
+          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--mint) 50%, transparent), transparent 70%)" }}
+        />
+        <div
+          className="orb-c absolute bottom-0 left-1/3 h-64 w-64 rounded-full opacity-35 blur-3xl"
+          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)" }}
+        />
+      </div>
+      {/* radial orange glow base */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -225,33 +291,14 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             Plataforma oficial • Revalida INEP
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-6 font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[5.5rem]"
-          >
-            A plataforma que{" "}
-            <span
-              className="font-serif italic"
-              style={{
-                backgroundImage:
-                  "linear-gradient(120deg, #f5c542 0%, #e85d1c 55%, #ff8a3a 100%)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                fontWeight: 400,
-              }}
-            >
-              treina pra valer
-            </span>{" "}
-            o Revalida.
-          </motion.h1>
+          <h1 className="mt-6 font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[5.5rem]">
+            <HeroTitle />
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
             className="mt-6 max-w-xl text-lg text-muted-foreground md:text-xl leading-relaxed"
           >
             Estações ao vivo com cronômetro INEP, banco gigante de checklists
@@ -263,21 +310,24 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
+            transition={{ duration: 0.6, delay: 1.05 }}
             className="mt-8 flex flex-wrap items-center gap-3"
           >
-            <Link
-              to={isLogged ? "/app" : "/cadastro"}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--primary)_75%,transparent)] transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_color-mix(in_oklab,var(--primary)_90%,transparent)]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(120deg, #ff8a3a 0%, #F59A1B 50%, #CF8737 100%)",
-              }}
-            >
-              <span className="relative z-10">Começar a treinar</span>
-              <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            </Link>
+            <Magnetic strength={0.28} className="relative inline-block">
+              <span aria-hidden className="cta-halo" />
+              <Link
+                to={isLogged ? "/app" : "/cadastro"}
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--primary)_75%,transparent)] transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_color-mix(in_oklab,var(--primary)_90%,transparent)]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(120deg, #ff8a3a 0%, #F59A1B 50%, #CF8737 100%)",
+                }}
+              >
+                <span className="relative z-10">Começar a treinar</span>
+                <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+              </Link>
+            </Magnetic>
             <a
               href="#plataforma"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-card"
@@ -290,7 +340,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
             className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground"
           >
             <div className="flex -space-x-2">
@@ -673,10 +723,10 @@ function FeatureCard({
 }) {
   const accentRing =
     accent === "primary"
-      ? "card-premium ring-1 ring-primary/40"
+      ? "card-premium card-glow ring-1 ring-primary/40"
       : accent === "mint"
-        ? "card-premium ring-1 ring-mint/40"
-        : "card-premium";
+        ? "card-premium card-glow ring-1 ring-mint/40"
+        : "card-premium card-glow";
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -706,10 +756,10 @@ function FeatureCard({
 /* ----------------------------- RESULTADOS ----------------------------- */
 
 const NUMBERS = [
-  { v: "+ 320", l: "Estações ao vivo já realizadas" },
-  { v: "+ 1.2k", l: "Médicos treinando na plataforma" },
-  { v: "87%", l: "Aprovação dos alunos na 25.1" },
-  { v: "10min", l: "Cronômetro INEP em cada estação" },
+  { prefix: "+ ", value: 320, decimals: 0, suffix: "",    l: "Estações ao vivo já realizadas" },
+  { prefix: "+ ", value: 1.2, decimals: 1, suffix: "k",   l: "Médicos treinando na plataforma" },
+  { prefix: "",   value: 87,  decimals: 0, suffix: "%",   l: "Aprovação dos alunos na 25.1" },
+  { prefix: "",   value: 10,  decimals: 0, suffix: "min", l: "Cronômetro INEP em cada estação" },
 ];
 
 
@@ -728,11 +778,15 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="card-premium rounded-3xl p-7 transition-transform hover:-translate-y-1"
+              className="card-premium card-glow rounded-3xl p-7 transition-transform hover:-translate-y-1"
             >
-              <div className="font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl">
-                {n.v}
-              </div>
+              <AnimatedCounter
+                to={n.value}
+                decimals={n.decimals}
+                prefix={n.prefix}
+                suffix={n.suffix}
+                className="block font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl"
+              />
               <div className="mt-3 text-sm font-medium text-muted-foreground">
                 {n.l}
               </div>
@@ -784,7 +838,7 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="card-premium relative overflow-hidden rounded-[2rem] ring-1 ring-primary/40 p-8 md:p-10">
+            <div className="card-premium card-glow relative overflow-hidden rounded-[2rem] ring-1 ring-primary/40 p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -923,7 +977,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`card-premium group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 transition-transform hover:-translate-y-1 ${
+                className={`card-premium card-glow group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 transition-transform hover:-translate-y-1 ${
                   p.highlight
                     ? "ring-1 ring-primary/60 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_75%,transparent)] lg:scale-[1.03]"
                     : ""

@@ -50,7 +50,7 @@ export function ComoFunciona() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-card/40 p-6 transition-all hover:-translate-y-1 hover:border-primary/40"
+              className="card-glow group relative overflow-hidden rounded-2xl border border-border bg-card/40 p-6 transition-all hover:-translate-y-1 hover:border-primary/40"
             >
               <div className="absolute right-4 top-3 font-display text-5xl font-black text-primary/10 transition-colors group-hover:text-primary/20">
                 {s.n}

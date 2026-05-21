@@ -174,13 +174,16 @@ export function FakeNotifications() {
         {current && (
           <motion.div
             key={current.id}
-            initial={{ opacity: 0, y: 20, scale: 0.92 }}
+            initial={{ opacity: 0, y: 30, scale: 0.85 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -20, scale: 0.95 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: -16, scale: 0.95, transition: { duration: 0.35, ease: [0.4, 0, 1, 1] } }}
+            transition={{ type: "spring", stiffness: 360, damping: 22, mass: 0.7 }}
             className="pointer-events-auto flex w-[19rem] items-start gap-3 rounded-2xl border border-border/80 bg-background/95 p-3.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl"
           >
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-background">
+            <div
+              key={`avatar-${current.id}`}
+              className="animate-ring-pulse-once relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-background"
+            >
               <div
                 aria-hidden
                 className={`absolute inset-0 rounded-full bg-gradient-to-br from-primary/35 via-accent/20 to-muted transition-opacity duration-300 ${

@@ -56,7 +56,7 @@ export function Depoimentos() {
               transition={{ duration: 0.55, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
               className="group mb-6 break-inside-avoid"
             >
-              <div className="card-premium relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-1 hover:ring-primary/40 hover:shadow-[0_40px_100px_-20px_color-mix(in_oklab,var(--primary)_35%,transparent)]">
+              <div className="card-premium card-glow relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-1 hover:ring-primary/40 hover:shadow-[0_40px_100px_-20px_color-mix(in_oklab,var(--primary)_35%,transparent)]">
                 <img
                   src={d.src}
                   alt={`Depoimento de ${d.name} — aprovado no Revalida INEP 25.1`}
