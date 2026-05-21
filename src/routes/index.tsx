@@ -673,10 +673,10 @@ function FeatureCard({
 }) {
   const accentRing =
     accent === "primary"
-      ? "ring-1 ring-primary/40 bg-gradient-to-br from-primary/15 via-card to-card"
+      ? "card-premium ring-1 ring-primary/40"
       : accent === "mint"
-        ? "ring-1 ring-mint/40 bg-gradient-to-br from-mint/15 via-card to-card"
-        : "ring-1 ring-border bg-card";
+        ? "card-premium ring-1 ring-mint/40"
+        : "card-premium";
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -728,7 +728,7 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="rounded-3xl border border-border bg-background p-7"
+              className="card-premium rounded-3xl p-7 transition-transform hover:-translate-y-1"
             >
               <div className="font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl">
                 {n.v}
@@ -784,7 +784,7 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="relative overflow-hidden rounded-[2rem] border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-10">
+            <div className="card-premium relative overflow-hidden rounded-[2rem] ring-1 ring-primary/40 p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -923,10 +923,10 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 ${
+                className={`card-premium group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 transition-transform hover:-translate-y-1 ${
                   p.highlight
-                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
-                    : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
+                    ? "ring-1 ring-primary/60 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_75%,transparent)] lg:scale-[1.03]"
+                    : ""
                 }`}
               >
                 {/* Glow de fundo */}
