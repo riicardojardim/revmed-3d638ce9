@@ -1899,6 +1899,13 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [highlights, setHighlights] = useState<Record<string, boolean>>({});
+  const [struck, setStruck] = useState<Set<string>>(new Set());
+  const toggleStruck = (id: string) =>
+    setStruck((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
   const [copied, setCopied] = useState(false);
   const meta = getSpecialtyMeta(station.specialty);
   const materials = station.deliverable_materials ?? [];
