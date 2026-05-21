@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
+import { IntroOverlay, INTRO_VARIANT_LABEL, type IntroRole, type IntroVariant } from "@/components/room/IntroOverlay";
 import { useSiteSettings, refreshSiteSettings } from "@/hooks/use-site-settings";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,10 +32,12 @@ interface DailyPoint { date: string; label: string; value: number }
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const { settings } = useSiteSettings();
-  const [variant, setVariant] = useState<"classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv" | "examroom">("classic");
+  const [variant, setVariant] = useState<IntroVariant>("pulse");
   const [savingVariant, setSavingVariant] = useState(false);
   useEffect(() => {
-    if (settings?.intro_animation_variant) setVariant(settings.intro_animation_variant);
+    const v = settings?.intro_animation_variant;
+    if (v === "pulse" || v === "badge") setVariant(v);
+    else setVariant("pulse");
   }, [settings?.intro_animation_variant]);
   async function saveVariant() {
     if (!settings?.id) return;
@@ -47,15 +49,7 @@ function AdminOverview() {
     setSavingVariant(false);
     if (error) return toast.error("Erro ao salvar", { description: error.message });
     await refreshSiteSettings();
-    const label = variant === "door" ? "Médico abrindo a porta"
-      : variant === "corridor" ? "Corredor do hospital"
-      : variant === "xray" ? "Raio-X revelando"
-      : variant === "stamp" ? "Carimbo AUTORIZADO"
-      : variant === "elevator" ? "Elevador hospitalar"
-      : variant === "iv" ? "Soro pingando"
-      : variant === "examroom" ? "Médico entrando na sala da banca"
-      : "Crachá + Prontuário";
-    toast.success("Animação salva", { description: label });
+    toast.success("Animação salva", { description: INTRO_VARIANT_LABEL[variant] });
   }
 
   // === Banner do grupo de WhatsApp (topo do app) ===
@@ -229,21 +223,15 @@ function AdminOverview() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex-1 min-w-[240px]">
             <label className="text-[11px] uppercase tracking-wider text-muted-foreground">Animação ativa</label>
-            <Select value={variant} onValueChange={(v) => setVariant(v as "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv" | "examroom")}>
+            <Select value={variant} onValueChange={(v) => setVariant(v as IntroVariant)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="classic">Crachá + Prontuário (clássica)</SelectItem>
-                <SelectItem value="door">Médico abrindo a porta</SelectItem>
-                <SelectItem value="corridor">Corredor do hospital (1ª pessoa)</SelectItem>
-                <SelectItem value="xray">Raio-X revelando</SelectItem>
-                <SelectItem value="stamp">Carimbo "AUTORIZADO"</SelectItem>
-                <SelectItem value="elevator">Elevador hospitalar</SelectItem>
-                <SelectItem value="iv">Soro pingando</SelectItem>
-                <SelectItem value="examroom">Médico entrando na sala (banca)</SelectItem>
+                <SelectItem value="pulse">{INTRO_VARIANT_LABEL.pulse}</SelectItem>
+                <SelectItem value="badge">{INTRO_VARIANT_LABEL.badge}</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={saveVariant} disabled={savingVariant || variant === (settings?.intro_animation_variant ?? "classic")}>
+          <Button onClick={saveVariant} disabled={savingVariant || variant === (settings?.intro_animation_variant ?? "pulse")}>
             {savingVariant ? "Salvando..." : "Salvar"}
           </Button>
         </div>
