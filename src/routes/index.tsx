@@ -13,6 +13,8 @@ import {
   Layers,
   PlayCircle,
   Instagram,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
