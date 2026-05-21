@@ -15,6 +15,10 @@ import {
   Instagram,
   Phone,
   Mail,
+  MessageCircle,
+  Drama,
+  Crown,
+  GraduationCap,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -797,36 +801,81 @@ function Mentoria() {
 
 /* ----------------------------- INVESTIMENTO ----------------------------- */
 
-const PLANS = [
+const WHATSAPP_URL =
+  "https://wa.me/5521987860985?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20a%20Mentoria%20REVMED.";
+
+type Plan = {
+  name: string;
+  tagline: string;
+  price: string;
+  cadence: string;
+  desc: string;
+  features: string[];
+  cta: string;
+  ctaType: "internal" | "whatsapp";
+  highlight: boolean;
+  icon: typeof Drama;
+  accent: string;
+};
+
+const PLANS: Plan[] = [
   {
-    name: "Plataforma",
+    name: "Ator",
+    tagline: "Treine como paciente",
+    price: "R$ 47",
+    cadence: "/mês",
+    desc: "Para quem quer praticar estações como ator simulando paciente. Acesso ao módulo de simulações ao vivo.",
+    features: [
+      "Iniciar sessões como ator",
+      "Roteiros de pacientes padronizados",
+      "Feedback do candidato avaliado",
+      "Histórico das sessões realizadas",
+    ],
+    cta: "Entrar como ator",
+    ctaType: "internal",
+    highlight: false,
+    icon: Drama,
+    accent: "from-mint/20",
+  },
+  {
+    name: "Full",
+    tagline: "Plataforma completa",
     price: "R$ 97",
     cadence: "/mês",
-    desc: "Acesso solo à plataforma REVMED — checklists, flashcards, simulados e resumos.",
+    desc: "Acesso total à plataforma REVMED — checklists, flashcards, simulados cronometrados e banco de resumos.",
     features: [
-      "Plataforma completa REVMED",
-      "Banco de estações INEP",
+      "Tudo do plano Ator",
+      "Banco completo de estações INEP",
       "Flashcards com revisão espaçada",
+      "Simulados cronometrados",
+      "Banco de resumos práticos",
       "Comunidade de candidatos",
     ],
     cta: "Começar agora",
-    highlight: false,
+    ctaType: "internal",
+    highlight: true,
+    icon: Crown,
+    accent: "from-primary/25",
   },
   {
     name: "Mentoria 1:5",
+    tagline: "Acompanhamento humano",
     price: "Sob consulta",
     cadence: "",
-    desc: "O programa completo: cinco alunos, mentor presente, psicólogo no time, plataforma inclusa.",
+    desc: "Programa completo com mentor presente, cinco alunos por turma, psicólogo no time e plataforma inclusa.",
     features: [
-      "Tudo do plano Plataforma",
+      "Tudo do plano Full",
       "20 encontros práticos ao vivo",
       "10 encontros nas grandes áreas",
       "6 sessões com psicólogo",
       "Cronograma personalizado",
       "WhatsApp direto com mentor",
     ],
-    cta: "Falar com a equipe",
-    highlight: true,
+    cta: "Falar no WhatsApp",
+    ctaType: "whatsapp",
+    highlight: false,
+    icon: GraduationCap,
+    accent: "from-amber-500/20",
   },
 ];
 
@@ -836,70 +885,130 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
       id="investimento"
       className="relative border-y border-border/60 bg-card/30 py-24 md:py-32"
     >
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Investimento
           </p>
           <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-            Dois caminhos. Mesma obsessão por aprovação.
+            Três caminhos. Mesma obsessão por aprovação.
           </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
+            Escolha o nível de envolvimento. Da prática como ator até a mentoria completa com acompanhamento humano.
+          </p>
         </div>
-        <div className="mt-14 grid gap-6 lg:grid-cols-2">
-          {PLANS.map((p) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className={`relative flex flex-col rounded-3xl p-8 md:p-10 ${
-                p.highlight
-                  ? "border border-primary/50 bg-gradient-to-br from-primary/10 via-background to-background shadow-[0_30px_80px_-30px_color-mix(in_oklab,var(--primary)_60%,transparent)]"
-                  : "border border-border bg-background"
-              }`}
-            >
-              {p.highlight && (
-                <div className="absolute -top-3 right-8 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
-                  Recomendado
-                </div>
-              )}
-              <h3 className="font-display text-2xl font-bold">{p.name}</h3>
-              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                {p.desc}
-              </p>
-              <div className="mt-6 flex items-end gap-1">
-                <span className="font-display text-5xl font-black tracking-[-0.03em]">
-                  {p.price}
-                </span>
-                {p.cadence && (
-                  <span className="mb-2 text-sm text-muted-foreground">
-                    {p.cadence}
-                  </span>
-                )}
-              </div>
-              <ul className="mt-8 space-y-3">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to={isLogged ? "/app" : "/cadastro"}
-                className={`mt-10 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold transition-transform hover:scale-[1.02] ${
+        <div className="mt-14 grid gap-6 md:gap-7 lg:grid-cols-3">
+          {PLANS.map((p, idx) => {
+            const Icon = p.icon;
+            return (
+              <motion.div
+                key={p.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.55, delay: idx * 0.08 }}
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 ${
                   p.highlight
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-card text-foreground hover:bg-muted"
+                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
+                    : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
                 }`}
               >
-                {p.cta}
-                <ArrowUpRight className="h-5 w-5" />
-              </Link>
-            </motion.div>
-          ))}
+                {/* Glow de fundo */}
+                <div
+                  className={`pointer-events-none absolute -top-32 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-gradient-to-b ${p.accent} to-transparent opacity-60 blur-3xl`}
+                />
+
+                {p.highlight && (
+                  <div className="absolute right-6 top-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground shadow-elegant">
+                    Recomendado
+                  </div>
+                )}
+
+                <div className="relative">
+                  <div
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${
+                      p.highlight
+                        ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                        : "bg-muted/60 text-foreground ring-1 ring-border"
+                    }`}
+                  >
+                    <Icon className="h-6 w-6" strokeWidth={2.2} />
+                  </div>
+
+                  <h3 className="mt-5 font-display text-2xl font-black tracking-[-0.02em]">
+                    {p.name}
+                  </h3>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    {p.tagline}
+                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                    {p.desc}
+                  </p>
+
+                  <div className="mt-6 flex items-end gap-1.5">
+                    <span className="font-display text-[2.75rem] font-black leading-none tracking-[-0.04em] md:text-5xl">
+                      {p.price}
+                    </span>
+                    {p.cadence && (
+                      <span className="mb-1.5 text-sm text-muted-foreground">
+                        {p.cadence}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="my-7 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+
+                  <ul className="space-y-3">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-sm">
+                        <span
+                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                            p.highlight
+                              ? "bg-primary/15 text-primary"
+                              : "bg-muted text-foreground"
+                          }`}
+                        >
+                          <Check className="h-3 w-3" strokeWidth={3} />
+                        </span>
+                        <span className="leading-snug">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="relative mt-auto pt-9">
+                  {p.ctaType === "whatsapp" ? (
+                    <a
+                      href={WHATSAPP_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 text-base font-bold text-white shadow-[0_15px_40px_-10px_rgba(37,211,102,0.55)] transition-transform hover:scale-[1.02]"
+                    >
+                      <MessageCircle className="h-5 w-5" strokeWidth={2.4} />
+                      {p.cta}
+                    </a>
+                  ) : (
+                    <Link
+                      to={isLogged ? "/app" : "/cadastro"}
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold transition-transform hover:scale-[1.02] ${
+                        p.highlight
+                          ? "bg-primary text-primary-foreground shadow-elegant"
+                          : "border border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {p.cta}
+                      <ArrowUpRight className="h-5 w-5" />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
+
+        <p className="mt-10 text-center text-xs text-muted-foreground">
+          Cancela quando quiser. 7 dias de garantia nos planos Ator e Full.
+        </p>
       </div>
     </section>
   );
