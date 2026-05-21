@@ -93,54 +93,31 @@ function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
-  const lastToggleY = useRef(0);
-  const lastDirection = useRef<"up" | "down" | null>(null);
 
   useEffect(() => {
+    let ticking = false;
+
     const onScroll = () => {
-      const y = window.scrollY;
-      const delta = y - lastY.current;
-      const direction = delta > 0 ? "down" : "up";
+      if (ticking) return;
 
-      setScrolled(y > 24);
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - lastY.current;
 
-      if (menuOpen) {
-        setHidden(false);
+        setScrolled(y > 12);
+
+        if (menuOpen || y < 96) {
+          setHidden(false);
+        } else if (delta > 6) {
+          setHidden(true);
+        } else if (delta < -6) {
+          setHidden(false);
+        }
+
         lastY.current = y;
-        lastToggleY.current = y;
-        lastDirection.current = null;
-        return;
-      }
-
-      if (y < 96) {
-        setHidden(false);
-        lastToggleY.current = y;
-        lastDirection.current = null;
-        lastY.current = y;
-        return;
-      }
-
-      if (Math.abs(delta) < 2) {
-        lastY.current = y;
-        return;
-      }
-
-      if (direction !== lastDirection.current) {
-        lastDirection.current = direction;
-        lastToggleY.current = y;
-      }
-
-      const travelledSinceDirectionChange = Math.abs(y - lastToggleY.current);
-
-      if (direction === "down" && travelledSinceDirectionChange > 18) {
-        setHidden(true);
-      }
-
-      if (direction === "up" && travelledSinceDirectionChange > 10) {
-        setHidden(false);
-      }
-
-      lastY.current = y;
+        ticking = false;
+      });
     };
 
     onScroll();
@@ -212,7 +189,7 @@ function TopNav({
         hidden ? "-translate-y-[120%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
       } ${
         hasSolidSurface
-          ? "border-b border-border/70 bg-background/90 shadow-[0_14px_40px_-28px_hsl(var(--foreground)/0.6)] backdrop-blur-xl"
+          ? "border-b border-border/70 bg-background/95 shadow-[0_18px_44px_-30px_hsl(var(--foreground)/0.8)] backdrop-blur-xl"
           : "border-b border-transparent bg-transparent"
       }`}
     >
