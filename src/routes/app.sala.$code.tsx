@@ -29,9 +29,6 @@ import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
-import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
-import { useServerFn } from "@tanstack/react-start";
-import { listRoomPresence } from "@/lib/livekit.functions";
 import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code")({
