@@ -43,28 +43,28 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "REVMED — Mentoria para Revalidação Médica" },
+      { title: "REVMED — Plataforma de prática para o Revalida INEP" },
       {
         name: "description",
         content:
-          "Mentoria 1:1 + plataforma de prática para médicos formados fora do Brasil. Cinco alunos por grupo, encontros com psicólogo, simulações com cronômetro INEP e revisão ativa que aprova.",
+          "Estações com cronômetro INEP, banco de checklists oficiais, flashcards com revisão espaçada, resumos práticos e desempenho em tempo real. Tudo num só lugar — com mentoria opcional 1:5.",
       },
-      { property: "og:title", content: "REVMED — Mentoria que aprova no Revalida" },
+      { property: "og:title", content: "REVMED — A plataforma do candidato Revalida" },
       {
         property: "og:description",
         content:
-          "Cinco vagas por turma. Encontros semanais. Plataforma com simulações cronometradas e correção objetiva. Sua aprovação não pode esperar mais um ciclo.",
+          "Treine estações ao vivo com ator, marque checklist como a banca, revise por flashcards e resumos, acompanhe seu desempenho. Mentoria 1:5 disponível como complemento.",
       },
     ],
   }),
 });
 
 const NAV_LINKS = [
-  { id: "manifesto", label: "Manifesto" },
   { id: "plataforma", label: "Plataforma" },
+  { id: "manifesto", label: "Método" },
   { id: "resultados", label: "Resultados" },
   { id: "mentoria", label: "Mentoria" },
-  { id: "investimento", label: "Investimento" },
+  { id: "investimento", label: "Planos" },
 ];
 
 function LandingPage() {
@@ -215,7 +215,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary"
           >
             <Flame className="h-3.5 w-3.5" />
-            Turma 2026 • 5 vagas por grupo
+            Plataforma oficial • Revalida INEP
           </motion.div>
 
           <motion.h1
@@ -224,7 +224,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-6 font-display text-[2.1rem] font-black leading-[1.05] tracking-[-0.04em] md:text-5xl lg:text-6xl"
           >
-            A mentoria que <br />
+            A plataforma que <br />
             <span
               style={{
                 backgroundImage:
@@ -234,9 +234,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              vira chave
+              treina pra valer
             </span>{" "}
-            no Revalida.
+            o Revalida.
           </motion.h1>
 
           <motion.p
@@ -245,9 +245,10 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
           >
-            Mentoria 1:5 + plataforma de prática para médicos formados fora do
-            Brasil. Cinco vagas por turma, cronômetro INEP, psicólogo no
-            programa. Resultado medido em prova.
+            Estações ao vivo com cronômetro INEP, banco gigante de checklists
+            oficiais, flashcards com revisão espaçada, resumos enxutos e
+            desempenho em tempo real. Tudo num só lugar — sem travar, mesmo com
+            todo mundo treinando junto.
           </motion.p>
 
           <motion.div
@@ -260,7 +261,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
               to={isLogged ? "/app" : "/cadastro"}
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02]"
             >
-              Garantir minha vaga
+              Começar a treinar
               <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
             <a
@@ -268,7 +269,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-card"
             >
               <PlayCircle className="h-5 w-5 text-primary" />
-              Ver a plataforma
+              Ver por dentro
             </a>
           </motion.div>
 
@@ -294,7 +295,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             </div>
             <span>
               <span className="font-bold text-foreground">+ 1.200 médicos</span>{" "}
-              já passaram pela mentoria
+              treinando na plataforma
             </span>
             <span className="hidden h-6 w-px bg-border md:block" />
             <span>
@@ -303,7 +304,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             <span className="hidden h-6 w-px bg-border md:block" />
             <span className="inline-flex items-center gap-1.5">
               <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
-              <span className="font-bold text-foreground">3 vagas</span> restantes
+              <span className="font-bold text-foreground">Sala estável</span> mesmo com a turma cheia
             </span>
           </motion.div>
         </div>
@@ -480,13 +481,13 @@ function MockupCarousel() {
 
 function MarqueeStrip() {
   const items = [
-    "Cinco alunos por grupo",
-    "Cronômetro INEP",
-    "Psicólogo no programa",
-    "Banca de simulação real",
+    "Estações com cronômetro INEP",
     "Checklists oficiais",
-    "Mentor presente toda semana",
-    "Foco em 2ª fase",
+    "Flashcards com revisão espaçada",
+    "Resumos enxutos",
+    "Desempenho em tempo real",
+    "Sala estável pra prática ao vivo",
+    "Banco com centenas de casos",
   ];
   return (
     <section className="border-y border-border/60 bg-card/40 py-5">
@@ -510,23 +511,23 @@ const PILLARS = [
   {
     n: "01",
     icon: Target,
-    title: "Foco brutal.",
+    title: "Treine de verdade.",
     body:
-      "Você não vai estudar tudo. Vai estudar o que cai. Mapeamos cada estação do INEP e cortamos o que não te tira pra fora da nota de corte.",
+      "Estação ao vivo, ator do outro lado, cronômetro do INEP rodando. Você não simula no papel — você executa, do mesmo jeito que vai fazer na prova.",
   },
   {
     n: "02",
     icon: Compass,
-    title: "Rota individual.",
+    title: "Veja onde está.",
     body:
-      "Cada um chega com uma história. Cinco médicos por grupo significa plano de estudo por nome — não por turma. Seu mentor sabe onde você travou.",
+      "Cada checklist, flashcard e estação vira número no seu painel de desempenho. Você sabe exatamente em qual área está perdendo ponto — e onde já é prova.",
   },
   {
     n: "03",
     icon: Layers,
     title: "Repetição que cura.",
     body:
-      "A plataforma roda checklist, flashcard e simulado cronometrado em looping. Nada de revisar uma vez e esquecer. Você ensaia até virar reflexo.",
+      "Checklist, flashcard e simulado cronometrado em looping. Nada de revisar uma vez e esquecer — você ensaia até a conduta sair em automático.",
   },
 ];
 
@@ -537,16 +538,16 @@ function Manifesto() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Manifesto
+              Método
             </p>
             <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
             <p className="mt-6 text-base text-muted-foreground md:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
-              estudou certo. REVMED existe pra fazer essa diferença caber na
-              sua rotina de plantonista, mãe, pai, imigrante e ser humano que
-              precisa dormir.
+              treinou certo. A REVMED foi feita pra você praticar conduta,
+              marcar checklist como banca e medir o próprio progresso, no
+              tempo que a sua rotina permite.
             </p>
           </div>
           <div className="lg:col-span-8">
@@ -594,13 +595,13 @@ function Plataforma() {
               Plataforma
             </p>
             <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-              Tudo num só lugar. Nada perdido em PDF.
+              Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
           <p className="max-w-md text-muted-foreground">
-            Construímos a plataforma que a gente sempre quis ter na época do
-            cursinho — sem 14 abas abertas, sem caderno físico, sem app
-            “de flashcard” separado.
+            Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
+            sem travar. Tudo integrado ao seu painel de desempenho, com
+            histórico, tempo médio e nota por critério.
           </p>
         </div>
 
@@ -608,34 +609,34 @@ function Plataforma() {
           <FeatureCard
             className="md:col-span-4"
             tag="Estação"
-            title="Simulações com cronômetro real do INEP"
-            desc="10 minutos, cinco impressos, ator treinado. Quando a campainha toca, você já tá pronto pra prova oficial."
+            title="Sala ao vivo com cronômetro INEP"
+            desc="Candidato, ator e avaliador na mesma sala — 10 minutos, impressos, roteiro padronizado. Roda estável mesmo com a turma toda treinando junto."
             accent="primary"
           />
           <FeatureCard
             className="md:col-span-2"
             tag="Checklist"
-            title="Pontuação objetiva por critério"
-            desc="O mesmo modelo da banca examinadora."
+            title="Pontuação igual à da banca"
+            desc="Marque critério por critério, no mesmo modelo do INEP."
           />
           <FeatureCard
             className="md:col-span-2"
             tag="Flashcards"
-            title="Revisão espaçada por especialidade"
-            desc="Memorização ativa sem decoreba."
+            title="Revisão espaçada por área"
+            desc="Centenas de cards prontos. Você só revisa o que tá perdendo."
           />
           <FeatureCard
             className="md:col-span-2"
             tag="Resumos"
-            title="Conteúdo enxuto, do jeito que cai"
-            desc="Sem manual de 800 páginas."
+            title="Resumos curtos, do jeito que cai"
+            desc="Sem manual de 800 páginas. Só o que vira ponto na prova."
             accent="mint"
           />
           <FeatureCard
             className="md:col-span-2"
-            tag="Banca"
-            title="Sala compartilhada candidato + ator + avaliador"
-            desc="Treine no mesmo formato da prova prática."
+            tag="Desempenho"
+            title="Painel com nota, tempo e evolução"
+            desc="Acompanhe sua média por estação, área e critério em tempo real."
           />
         </div>
       </div>
@@ -691,10 +692,10 @@ function FeatureCard({
 /* ----------------------------- RESULTADOS ----------------------------- */
 
 const NUMBERS = [
-  { v: "87%", l: "Aprovação na turma 25.1" },
-  { v: "5+", l: "Anos de existência" },
-  { v: "5", l: "Alunos por grupo" },
-  { v: "10min", l: "Por estação, como no INEP" },
+  { v: "+ 320", l: "Estações ao vivo já realizadas" },
+  { v: "+ 1.2k", l: "Médicos treinando na plataforma" },
+  { v: "87%", l: "Aprovação dos alunos na 25.1" },
+  { v: "10min", l: "Cronômetro INEP em cada estação" },
 ];
 
 
@@ -732,12 +733,12 @@ function Resultados() {
 /* ----------------------------- MENTORIA ----------------------------- */
 
 const MENTORIA_BENEFITS = [
-  "20 encontros práticos em grupo de 5",
-  "10 encontros extras nas 5 grandes áreas",
-  "6 encontros com psicólogo do programa",
-  "Revisões + gravações sob demanda",
   "Acesso integral à plataforma REVMED",
-  "Cronograma personalizado pelo mentor",
+  "20 encontros práticos em grupo de 5",
+  "10 encontros nas 5 grandes áreas",
+  "6 sessões com psicólogo do programa",
+  "Cronograma de estudos personalizado",
+  "WhatsApp direto com o mentor",
 ];
 
 function Mentoria() {
@@ -747,23 +748,24 @@ function Mentoria() {
         <div className="grid items-stretch gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Mentoria 2026.1
+              Mentoria (opcional)
             </p>
             <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-              Cinco vagas. <br />
-              Um mentor. <br />
-              <span className="text-primary">Sua aprovação.</span>
+              Quer alguém <br />
+              do seu lado? <br />
+              <span className="text-primary">Tem mentoria.</span>
             </h2>
             <p className="mt-6 text-muted-foreground md:text-lg">
-              Grupos pequenos não são um detalhe — são o produto. Em cinco a
-              gente conhece sua história, sua banca interna, seu ponto cego.
-              Não dá pra escalar isso, e por isso a turma fecha rápido.
+              A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
+              um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
+              psicólogo no programa, pode entrar na mentoria — um plus à parte,
+              em turmas pequenas que fecham rápido.
             </p>
             <Link
               to="/cadastro"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground transition-transform hover:scale-[1.02]"
             >
-              Conversar com a equipe
+              Saber mais da mentoria
               <ArrowUpRight className="h-5 w-5" />
             </Link>
           </div>
@@ -888,13 +890,13 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            Investimento
+            Planos
           </p>
           <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-            Três caminhos. Mesma obsessão por aprovação.
+            Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Escolha o nível de envolvimento. Da prática como ator até a mentoria completa com acompanhamento humano.
+            Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
           </p>
         </div>
         <div className="mt-14 grid gap-6 md:gap-7 lg:grid-cols-3">
@@ -1019,23 +1021,27 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
 const FAQS = [
   {
     q: "Pra quem é a REVMED?",
-    a: "Pra médicos formados fora do Brasil que vão prestar Revalida INEP. Funciona tanto pra primeira fase quanto pra prática.",
+    a: "Pra médicos formados fora do Brasil que vão prestar Revalida INEP. A plataforma serve tanto pra primeira quanto pra segunda fase, com foco em estação, checklist, flashcard, resumo e desempenho.",
   },
   {
-    q: "Como funciona o grupo de cinco alunos?",
-    a: "A cada ciclo abrimos turmas pequenas. O mentor acompanha o grupo do diagnóstico até a véspera da prova, com encontros semanais ao vivo.",
+    q: "A sala ao vivo trava com muita gente junto?",
+    a: "Não. A sala foi feita pra rodar estável com várias estações acontecendo ao mesmo tempo — candidato, ator e avaliador na mesma chamada, com cronômetro INEP.",
   },
   {
-    q: "Posso usar só a plataforma, sem mentoria?",
-    a: "Sim. O plano Plataforma é mensal e te dá acesso aos checklists, flashcards, simulados cronometrados e resumos.",
+    q: "Preciso entrar na mentoria pra usar a plataforma?",
+    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a checklists, flashcards, simulados cronometrados, resumos e painel de desempenho — sem precisar de mentor.",
+  },
+  {
+    q: "Consigo acompanhar meu desempenho?",
+    a: "Sim. Tudo que você faz na plataforma vira número no seu painel — nota por critério, tempo médio por estação, evolução por área e histórico completo de simulações.",
   },
   {
     q: "Tem garantia?",
-    a: "Sete dias de teste no plano Plataforma. Se não fizer sentido, devolvemos 100% do valor.",
+    a: "Sete dias nos planos Ator e Full. Se não fizer sentido, devolvemos 100% do valor.",
   },
   {
     q: "Funciona no celular?",
-    a: "Funciona em qualquer tela. A plataforma é PWA — você instala no celular e estuda offline em modo leitura.",
+    a: "Funciona em qualquer tela. A plataforma é PWA — você instala no celular e revisa flashcard e resumo em qualquer lugar.",
   },
 ];
 
@@ -1100,18 +1106,18 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
         <h2 className="font-display text-4xl font-black leading-[1.02] tracking-[-0.03em] md:text-6xl">
-          O próximo nome aprovado <br />
-          <span className="text-primary">pode ser o seu.</span>
+          Pronto pra treinar <br />
+          <span className="text-primary">do jeito que cai?</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-muted-foreground md:text-lg">
-          Vagas abertas para a turma 2026.1. Cinco médicos. Um mentor. Plataforma
-          inclusa. Sem promessas mágicas — só método.
+          Estações ao vivo, checklists oficiais, flashcards, resumos e painel
+          de desempenho. Tudo num só lugar, até o dia da prova.
         </p>
         <Link
           to={isLogged ? "/app" : "/cadastro"}
           className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03]"
         >
-          Garantir minha vaga
+          Entrar na plataforma
           <ArrowUpRight className="h-5 w-5" />
         </Link>
       </div>
@@ -1129,6 +1135,10 @@ function Footer() {
           {/* brand */}
           <div className="flex flex-col items-center gap-3 md:items-start">
             <Logo />
+            <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
+              A plataforma de prática do candidato Revalida INEP — estações,
+              checklists, flashcards, resumos e desempenho num só lugar.
+            </p>
           </div>
 
           {/* contact */}
@@ -1161,6 +1171,9 @@ function Footer() {
 
           {/* links */}
           <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:items-end">
+            <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
+              Plataforma
+            </p>
             <a
               href="https://instagram.com/revmedmentoria"
               target="_blank"
@@ -1173,6 +1186,15 @@ function Footer() {
             <Link to="/login" className="hover:text-foreground">
               Entrar
             </Link>
+            <Link to="/cadastro" className="hover:text-foreground">
+              Criar conta
+            </Link>
+            <a href="#plataforma" className="hover:text-foreground">
+              Como funciona
+            </a>
+            <a href="#investimento" className="hover:text-foreground">
+              Planos
+            </a>
           </div>
         </div>
 
