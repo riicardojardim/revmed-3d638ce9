@@ -10,6 +10,17 @@ import notif6 from "@/assets/notif-6.jpg";
 import notif7 from "@/assets/notif-7.jpg";
 import notif8 from "@/assets/notif-8.jpg";
 
+export const NOTIFICATION_AVATAR_SOURCES = [
+  notif1,
+  notif2,
+  notif3,
+  notif4,
+  notif5,
+  notif6,
+  notif7,
+  notif8,
+];
+
 type Notif = {
   id: number;
   name: string;
@@ -42,15 +53,14 @@ export function FakeNotifications() {
     let cancelled = false;
 
     const warmupAvatars = async () => {
-      const sources = [notif1, notif2, notif3, notif4, notif5, notif6, notif7, notif8];
-
       await Promise.all(
-        sources.map(
+        NOTIFICATION_AVATAR_SOURCES.map(
           (src) =>
             new Promise<void>((resolve) => {
               const img = new Image();
               img.loading = "eager";
               img.decoding = "sync";
+              img.fetchPriority = "high";
               img.src = src;
 
               const finish = () => resolve();
@@ -134,6 +144,7 @@ export function FakeNotifications() {
                 alt=""
                 loading="eager"
                 decoding="sync"
+                fetchPriority="high"
                 width={44}
                 height={44}
                 className="h-11 w-11 rounded-full object-cover ring-2 ring-background"
