@@ -38,12 +38,14 @@ function isStandalone(): boolean {
 
 export function PWAInstallBanner() {
   const [visible, setVisible] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const [platform, setPlatform] = useState<Platform>("desktop");
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; id: number } | null>(null);
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -70,6 +72,41 @@ export function PWAInstallBanner() {
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !visible || open) return;
+
+    lastScrollYRef.current = window.scrollY;
+    setHidden(window.scrollY > 24);
+
+    let ticking = false;
+    let frame = 0;
+
+    const onScroll = () => {
+      if (ticking) return;
+
+      ticking = true;
+      frame = window.requestAnimationFrame(() => {
+        const y = Math.max(window.scrollY, 0);
+        const delta = y - lastScrollYRef.current;
+
+        if (y <= 24) {
+          setHidden(false);
+        } else if (Math.abs(delta) >= 4) {
+          setHidden(delta > 0);
+        }
+
+        lastScrollYRef.current = y;
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.cancelAnimationFrame(frame);
+    };
+  }, [visible, open]);
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, String(Date.now()));
@@ -122,7 +159,9 @@ export function PWAInstallBanner() {
   return (
     <>
       <div
-        className="fixed left-1/2 z-50 w-[calc(100vw-1rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none sm:w-[calc(100vw-2rem)] sm:max-w-[440px] sm:px-4 sm:py-2"
+        className={`fixed left-1/2 z-50 w-[calc(100vw-1rem)] max-w-[360px] rounded-full border border-mint/40 bg-background/95 px-3 py-1.5 shadow-elegant backdrop-blur-xl touch-pan-y select-none transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:w-[calc(100vw-2rem)] sm:max-w-[440px] sm:px-4 sm:py-2 ${
+          hidden ? "pointer-events-none opacity-0" : "opacity-100"
+        }`}
         role="dialog"
         aria-label="Instalar aplicativo"
         onPointerDown={onPointerDown}
@@ -130,10 +169,12 @@ export function PWAInstallBanner() {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         style={{
-          transform: `translateX(calc(-50% + ${dragX}px))`,
+          transform: `translateX(calc(-50% + ${dragX}px)) translateY(${hidden ? "-140%" : "0%"})`,
           top: "calc(env(safe-area-inset-top, 0px) + 0.5rem)",
-          opacity: Math.max(0, 1 - Math.abs(dragX) / 200),
-          transition: dragging ? "none" : "transform 200ms ease, opacity 200ms ease",
+          opacity: hidden ? 0 : Math.max(0, 1 - Math.abs(dragX) / 200),
+          transition: dragging
+            ? "none"
+            : "transform 300ms cubic-bezier(0.22,1,0.36,1), opacity 300ms cubic-bezier(0.22,1,0.36,1)",
         }}
       >
         <div className="flex h-7 items-center gap-1.5 sm:h-8 sm:gap-2">
