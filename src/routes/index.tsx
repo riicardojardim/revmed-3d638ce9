@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -19,9 +19,22 @@ import {
   Drama,
   Crown,
   GraduationCap,
+  Home as HomeIcon,
+  User as UserIcon,
+  LogOut,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
+import { UserAvatar } from "@/components/UserAvatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "@tanstack/react-router";
 import mockupDashboard from "@/assets/mockup-dashboard.jpg";
 import mockupChecklists from "@/assets/mockup-checklists.jpg";
 import mockupFlashcards from "@/assets/mockup-flashcards.jpg";
