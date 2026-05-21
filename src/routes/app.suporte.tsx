@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Headphones, MessageCircle, Mail } from "lucide-react";
+import { Headphones, MessageCircle, Mail, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/suporte")({
@@ -18,7 +18,7 @@ function Suporte() {
         <p className="text-sm text-muted-foreground">Fale com nossa equipe.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <MessageCircle className="h-6 w-6 text-mint" />
           <h3 className="mt-3 font-display text-lg font-bold">WhatsApp</h3>
@@ -34,6 +34,14 @@ function Suporte() {
           <a href="mailto:suporte@estacaorevalida.com.br" className="mt-4 inline-block">
             <Button variant="outline">Enviar e-mail</Button>
           </a>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <Building2 className="h-6 w-6 text-mint" />
+          <h3 className="mt-3 font-display text-lg font-bold">Dados da empresa</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            REVMED - EDUCACAO E SERVICOS DE MENTORIA LTDA
+          </p>
+          <p className="text-sm text-muted-foreground">CNPJ 48.442.973/0001-07</p>
         </div>
       </div>
     </div>
