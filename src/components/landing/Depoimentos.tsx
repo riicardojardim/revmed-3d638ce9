@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { Quote, Instagram } from "lucide-react";
-import depoAlexandre from "@/assets/depoimento-alexandre.png";
-import depoRenaldo from "@/assets/depoimento-renaldo.png";
-import depoMarilice from "@/assets/depoimento-marilice.png";
-import depoMaressa from "@/assets/depoimento-maressa.png";
+import depoAlexandre from "@/assets/depoimento-alexandre.webp";
+import depoRenaldo from "@/assets/depoimento-renaldo.webp";
+import depoMarilice from "@/assets/depoimento-marilice.webp";
+import depoMaressa from "@/assets/depoimento-maressa.webp";
 import depoAndressa from "@/assets/depoimento-andressa.webp";
-import depoCristhian from "@/assets/depoimento-cristhian.png";
+import depoCristhian from "@/assets/depoimento-cristhian.webp";
 import depoAndre from "@/assets/depoimento-andre.webp";
 import depoNicolas from "@/assets/depoimento-nicolas.webp";
 
@@ -60,7 +60,10 @@ export function Depoimentos() {
                 <img
                   src={d.src}
                   alt={`Depoimento de ${d.name} — aprovado no Revalida INEP 25.1`}
-                  loading="lazy"
+                  loading={i < 4 ? "eager" : "lazy"}
+                  decoding="async"
+                  width={720}
+                  height={900}
                   className="block w-full transition-transform duration-700 group-hover:scale-[1.02]"
                 />
                 <div
