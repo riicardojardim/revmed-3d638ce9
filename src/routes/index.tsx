@@ -562,16 +562,6 @@ function StationMockup() {
         </aside>
       </div>
 
-      <div className="absolute bottom-3 right-3 w-[190px] overflow-hidden rounded-xl border border-border bg-background shadow-elegant">
-        <div className="flex items-center justify-between border-b border-border bg-muted/30 px-2 py-1 text-[10px] font-semibold">
-          <span className="inline-flex items-center gap-1"><Video className="h-3 w-3 text-primary" /> Vídeo</span>
-          <span className="text-muted-foreground">2 / 2</span>
-        </div>
-        <div className="grid grid-cols-2 gap-1.5 bg-night p-1.5">
-          <VideoTile src={candidate6} name="Você" role="Candidato" active />
-          <VideoTile src={candidate3} name="Ana" role="Atriz" />
-        </div>
-      </div>
     </div>
   );
 }
