@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Headphones, MessageCircle, Mail } from "lucide-react";
+import { Headphones, MessageCircle, Mail, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/suporte")({
