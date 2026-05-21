@@ -115,18 +115,18 @@
 .dark {
   --background: var(--night);
   --foreground: oklch(0.97 0.005 60);
-  --card: oklch(0.22 0.015 40);
+  --card: oklch(0.20 0.015 50);
   --card-foreground: oklch(0.97 0.005 60);
-  --popover: oklch(0.22 0.015 40);
+  --popover: oklch(0.20 0.015 50);
   --popover-foreground: oklch(0.97 0.005 60);
   --primary: var(--medical);
   --primary-foreground: var(--night);
-  --secondary: oklch(0.26 0.015 40);
+  --secondary: oklch(0.24 0.015 50);
   --secondary-foreground: oklch(0.97 0.005 60);
-  --muted: oklch(0.26 0.015 40);
-  --muted-foreground: oklch(0.72 0.015 40);
+  --muted: oklch(0.24 0.015 50);
+  --muted-foreground: oklch(0.72 0.015 50);
   --accent: var(--mint);
-  --accent-foreground: var(--night);
+  --accent-foreground: oklch(0.97 0.005 60);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
   --ring: var(--medical);
@@ -164,11 +164,11 @@
 }
 
 @utility bg-gradient-hero {
-  background-image: linear-gradient(135deg, var(--night) 0%, color-mix(in oklab, var(--medical) 80%, var(--night)) 60%, color-mix(in oklab, var(--mint) 40%, var(--night)) 100%);
+  background-image: linear-gradient(135deg, var(--night) 0%, color-mix(in oklab, var(--medical) 70%, var(--night)) 55%, color-mix(in oklab, var(--mint) 55%, var(--night)) 100%);
 }
 
 @utility bg-gradient-mint {
-  background-image: linear-gradient(135deg, var(--mint) 0%, color-mix(in oklab, var(--mint) 60%, var(--medical)) 100%);
+  background-image: linear-gradient(135deg, var(--medical) 0%, var(--mint-soft) 55%, var(--mint) 100%);
 }
 
 @utility bg-gradient-card {
