@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/use-auth";
 import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
 import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
 import { Tilt } from "@/components/landing/motion-primitives";
+import { Depoimentos } from "@/components/landing/Depoimentos";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -75,6 +76,7 @@ function LandingPage() {
         <Manifesto />
         <Plataforma />
         <Resultados />
+        <Depoimentos />
         <Mentoria />
         <Investimento isLogged={!!user} />
         <FAQ />
