@@ -428,7 +428,7 @@ function CandidateView() {
 
   // Espectador: outro candidato foi selecionado para ser avaliado.
   // Ele acompanha a estação (vê cenário, tarefa, materiais) mas não recebe PEP nem resultado,
-  // e futuramente não poderá falar no áudio/vídeo (só escutar).
+  // (recebe apenas o que o candidato avaliado vê, sem PEP nem resultado).
   const isSpectator = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id !== user.id);
   // Lobby só quando a sala ainda não começou (ou está entre estações). Espectador NÃO fica no lobby
   // durante uma estação rodando — ele acompanha junto.
@@ -486,18 +486,6 @@ function CandidateView() {
               )}
             </p>
 
-            <div className="mt-6 w-full max-w-md rounded-xl border border-mint/50 bg-mint/15 px-4 py-3 text-sm text-white shadow-lg">
-              <div className="flex items-start gap-2">
-                <span className="text-base">📹</span>
-                <div className="text-left">
-                  <div className="font-semibold text-mint">Entre na videochamada agora</div>
-                  <div className="mt-1 text-xs text-slate-200/90">
-                    Clique no botão <span className="font-semibold text-white">"Vídeo da sala"</span> no canto inferior direito e ative câmera e microfone. O ator só inicia o cronômetro quando todos já estão na chamada.
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="mt-6 grid w-full max-w-md grid-cols-3 gap-2 text-xs">
               <LobbyStep icon={CheckCheck} label="Entrou na sala" done />
               <LobbyStep icon={Hourglass} label="Aguardando início" active />
@@ -542,7 +530,7 @@ function CandidateView() {
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
           <div className="font-semibold">Você está acompanhando esta estação</div>
           <div className="text-xs opacity-90">
-            Outro candidato foi selecionado pelo ator para ser avaliado nesta rodada. Você pode acompanhar o cenário, a tarefa e os materiais entregues — mas não recebe PEP nem resultado, e (em breve) não poderá falar no áudio/vídeo, só escutar. Sua vez chega na próxima estação.
+            Outro candidato foi selecionado pelo ator para ser avaliado nesta rodada. Você pode acompanhar o cenário, a tarefa e os materiais entregues — mas não recebe PEP nem resultado. Sua vez chega na próxima estação.
           </div>
         </div>
       )}

@@ -28,14 +28,11 @@ import {
   Theater,
   UserRound,
   ClipboardCheck,
-  Video,
   Calendar,
   BarChart3,
   Layers,
   Trophy,
   X,
-  Mic,
-  MicOff,
   ShieldCheck,
   MapPin,
   Stethoscope,
@@ -80,7 +77,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Simule estações clínicas com checklists oficiais, cronômetro e vídeo-chamada integrada. A plataforma premium para sua aprovação no Revalida.",
+          "Simule estações clínicas com checklists oficiais e cronômetro real. A plataforma premium para sua aprovação no Revalida.",
       },
       { property: "og:title", content: "Estação Revalida — Treine a prova prática do Revalida" },
       {
@@ -272,8 +269,8 @@ function Hero() {
 
 
           <p className="max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-            Estações clínicas com checklists oficiais, cronômetro e{" "}
-            <strong className="text-foreground">vídeo-chamada nativa entre candidato e ator</strong>.
+            Estações clínicas com checklists oficiais, cronômetro real e{" "}
+            <strong className="text-foreground">simulação entre candidato e ator</strong>.
             Chegue na prova já tendo feito a prova.
           </p>
         </motion.div>
@@ -563,16 +560,6 @@ function StationMockup() {
         </aside>
       </div>
 
-      <div className="absolute bottom-3 right-3 w-[190px] overflow-hidden rounded-xl border border-border bg-background shadow-elegant">
-        <div className="flex items-center justify-between border-b border-border bg-muted/30 px-2 py-1 text-[10px] font-semibold">
-          <span className="inline-flex items-center gap-1"><Video className="h-3 w-3 text-primary" /> Vídeo</span>
-          <span className="text-muted-foreground">2 / 2</span>
-        </div>
-        <div className="grid grid-cols-2 gap-1.5 bg-night p-1.5">
-          <VideoTile src={candidate6} name="Você" role="Candidato" active />
-          <VideoTile src={candidate3} name="Ana" role="Atriz" />
-        </div>
-      </div>
     </div>
   );
 }
@@ -762,42 +749,6 @@ function MockStationBlock({
       </header>
       <div className="p-3 text-[11px] leading-snug text-foreground/85">{children}</div>
     </section>
-  );
-}
-
-function VideoTile({
-  src,
-  name,
-  role,
-  active,
-  wide,
-}: {
-  src: string;
-  name: string;
-  role: string;
-  active?: boolean;
-  wide?: boolean;
-}) {
-  return (
-    <div
-      className={`relative overflow-hidden rounded-lg border ${
-        active ? "border-mint/70 ring-2 ring-mint/30" : "border-border"
-      } bg-night ${wide ? "aspect-[16/7]" : "aspect-[4/3]"}`}
-    >
-      <img src={src} alt={name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-2 py-1.5">
-        <div className="flex items-center gap-1 text-[10px] font-semibold text-white">
-          {active && <span className="h-1.5 w-1.5 rounded-full bg-mint" />}
-          {name}
-          <span className="text-white/60">· {role}</span>
-        </div>
-        {active ? (
-          <Mic className="h-3 w-3 text-mint" />
-        ) : (
-          <MicOff className="h-3 w-3 text-white/60" />
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -995,12 +946,6 @@ function Simulation() {
       highlight: false,
     },
     {
-      icon: Video,
-      title: "Vídeo chamada integrada",
-      desc: "Áudio e vídeo nativos na plataforma — sem Zoom, sem Meet, sem instalar nada. Entrou no código, já tá em estação.",
-      highlight: false,
-    },
-    {
       icon: History,
       title: "Histórico de estações",
       desc: "Cada simulação fica salva com checklist, anotações e desempenho. Reveja o que errou e acompanhe sua evolução semana a semana.",
@@ -1032,12 +977,11 @@ function Simulation() {
             </span>
           </h2>
           <p className="max-w-lg text-base leading-relaxed text-white/70">
-            Vídeo nativo na plataforma. Hoje você é candidato, amanhã é ator —
-            ver o checklist por trás muda como você responde na prova.
+            Hoje você é candidato, amanhã é ator — ver o checklist por trás
+            muda como você responde na prova.
           </p>
           <ul className="space-y-2.5 pt-1">
             {[
-              "Vídeo nativo — sem Zoom, sem Meet, sem instalar nada",
               "Código de sala pra treinar com qualquer colega",
               "Cada papel vê só o conteúdo do seu perfil",
               "Comunidade ativa pra parear com outros candidatos",
@@ -1095,7 +1039,6 @@ function Resources() {
   const features = [
     { icon: ClipboardCheck, title: "Checklists oficiais", desc: "Itens avaliativos por categoria, alinhados ao INEP." },
     { icon: Clock, title: "Cronômetro integrado", desc: "Tempo real da prova, com alerta no minuto final." },
-    { icon: Video, title: "Vídeo-chamada nativa", desc: "Sala em vídeo entre candidato e ator, sem instalar nada." },
     { icon: Brain, title: "Flashcards", desc: "Revisão espaçada dos critérios que mais caem." },
     { icon: Layers, title: "Resumos", desc: "Conteúdo objetivo escrito por médicos." },
     { icon: TrendingUp, title: "Histórico e desempenho", desc: "Gráficos por competência e evolução por área." },
@@ -1186,7 +1129,6 @@ const plans = [
       "Atuação como paciente ator",
       "Banco de roteiros do paciente",
       "Impressos e materiais liberados",
-      "Vídeo-chamada integrada com o candidato",
       "Avaliação por checklist oficial",
       "Histórico das salas em que atuou",
     ],
@@ -1207,7 +1149,6 @@ const plans = [
       "+600 itens de checklist",
       "Flashcards e resumos",
       "Cronograma e histórico completo",
-      "Vídeo-chamada integrada",
     ],
     bonuses: [
       { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
@@ -1231,7 +1172,6 @@ const plans = [
       "+120 estações clínicas",
       "+600 checklists e flashcards",
       "Cronograma e histórico completo",
-      "Vídeo-chamada integrada",
       "Cancele quando quiser",
     ],
   },
@@ -1242,7 +1182,6 @@ const plans = [
 /* ---------------- Comparison ---------------- */
 function Comparison() {
   const rows = [
-    { feat: "Vídeo-chamada nativa candidato + ator", us: true, others: false },
     { feat: "Estações com checklist oficial INEP", us: true, others: true },
     { feat: "Banco de roteiros de ator detalhado", us: true, others: false },
     { feat: "Treino em dupla pelo código de sala", us: true, others: false },
@@ -1604,8 +1543,8 @@ const faqs = [
   { q: "Já comprei outro curso. Vale a pena assinar mesmo assim?", a: "Sim, justamente porque outros cursos ensinam teoria e a gente é foco em PRÁTICA. Você usa a Estação Revalida pra colocar em voz alta o que já estudou. A maioria dos nossos alunos vem com outro curso e usa a gente nos 60 dias finais." },
   { q: "Tô começando agora, ainda não estudei nada. Devo entrar já?", a: "Pode entrar — mas comece pelas estações de dificuldade básica e use os resumos e flashcards. Quanto antes você treinar em voz alta, melhor. Decorar checklist não substitui executar." },
   { q: "Não tenho com quem treinar. Como faço?", a: "Entra nas salas abertas da comunidade — sempre tem candidato procurando par. Você também pode marcar treino com colegas pelo grupo do WhatsApp." },
-  { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro, vídeo-chamada e feedback que dificilmente se replicam fora da prova." },
-  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como ator — cada um vê só o conteúdo do seu papel, com vídeo integrado." },
+  { q: "O app substitui um curso presencial?", a: "Não. É um complemento poderoso pra parte prática — simulação, cronômetro e feedback que dificilmente se replicam fora da prova." },
+  { q: "Como funciona a sala em dupla?", a: "Você cria uma sala e compartilha o código. Um entra como candidato e o outro como ator — cada um vê só o conteúdo do seu papel." },
   { q: "Posso treinar pelo celular?", a: "Sim. O app é mobile-first e pode ser instalado como PWA, funcionando como aplicativo nativo no seu celular." },
   { q: "Os checklists são oficiais?", a: "Construídos com base nos critérios do INEP por professores médicos. Mentores e admins podem editar e criar novas estações." },
   { q: "Posso cancelar quando quiser?", a: "No plano Completo Mensal, sim — sem fidelidade. O Completo até a prova é pagamento único, com 7 dias de garantia." },
