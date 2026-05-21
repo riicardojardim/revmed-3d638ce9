@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { RouteProgress } from "@/components/RouteProgress";
 import { Logo } from "@/components/Logo";
+import logoIconOnlyUrl from "@/assets/logo-revmed-icon.png";
 
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -293,9 +294,6 @@ function AppLayout() {
         >
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
-            <div className="hidden md:block">
-              <Logo />
-            </div>
           </div>
           <div className="hidden flex-1 items-center justify-end gap-2 overflow-hidden font-sans md:flex">
             <span
@@ -377,7 +375,15 @@ function AppSideNav({
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex h-12 items-center px-2 group-data-[collapsible=icon]:justify-center">
-          <Logo />
+          <div className="group-data-[collapsible=icon]:hidden">
+            <Logo />
+          </div>
+          <img
+            src={logoIconOnlyUrl}
+            alt="REVMED"
+            draggable={false}
+            className="hidden h-8 w-auto select-none group-data-[collapsible=icon]:block"
+          />
         </div>
       </SidebarHeader>
       <SidebarContent>
