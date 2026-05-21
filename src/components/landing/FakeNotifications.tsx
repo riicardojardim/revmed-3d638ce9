@@ -48,6 +48,7 @@ export function FakeNotifications() {
   const [current, setCurrent] = useState<Notif | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [avatarsReady, setAvatarsReady] = useState(false);
+  const [activeAvatarReady, setActiveAvatarReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -124,6 +125,47 @@ export function FakeNotifications() {
     return () => clearTimeout(timeout);
   }, [avatarsReady, dismissed]);
 
+  useEffect(() => {
+    if (!current?.avatar) {
+      setActiveAvatarReady(false);
+      return;
+    }
+
+    let cancelled = false;
+    setActiveAvatarReady(false);
+
+    const img = new Image();
+    img.src = current.avatar;
+
+    const reveal = () => {
+      if (cancelled) return;
+      requestAnimationFrame(() => {
+        if (!cancelled) {
+          setActiveAvatarReady(true);
+        }
+      });
+    };
+
+    const decodeAndReveal = () => {
+      if (typeof img.decode === "function") {
+        img.decode().then(reveal).catch(reveal);
+      } else {
+        reveal();
+      }
+    };
+
+    if (img.complete) {
+      decodeAndReveal();
+    } else {
+      img.onload = decodeAndReveal;
+      img.onerror = reveal;
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [current?.avatar]);
+
   if (dismissed) return null;
 
   return (
@@ -138,16 +180,24 @@ export function FakeNotifications() {
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="pointer-events-auto flex w-[19rem] items-start gap-3 rounded-2xl border border-border/80 bg-background/95 p-3.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl"
           >
-            <div className="relative h-11 w-11 shrink-0">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full ring-2 ring-background">
+              <div
+                aria-hidden
+                className={`absolute inset-0 rounded-full bg-gradient-to-br from-primary/35 via-accent/20 to-muted transition-opacity duration-300 ${
+                  activeAvatarReady ? "opacity-0" : "opacity-100"
+                }`}
+              />
               <img
                 src={current.avatar}
                 alt=""
                 loading="eager"
-                decoding="sync"
+                decoding="async"
                 fetchPriority="high"
                 width={44}
                 height={44}
-                className="h-11 w-11 rounded-full object-cover ring-2 ring-background"
+                className={`h-11 w-11 rounded-full object-cover transition-opacity duration-300 ${
+                  activeAvatarReady ? "opacity-100" : "opacity-0"
+                }`}
               />
               <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary ring-2 ring-background">
                 <CheckCircle2 className="h-3 w-3 text-primary-foreground" />
