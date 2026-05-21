@@ -287,23 +287,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                   "radial-gradient(50% 50% at 50% 50%, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 70%)",
               }}
             />
-            <img
-              src={mockupEstacao}
-              alt="Simulador de estação clínica REVMED com cronômetro INEP"
-              width={1600}
-              height={900}
-              className="w-full select-none drop-shadow-2xl"
-              draggable={false}
-            />
-            <img
-              src={mockupCronograma}
-              alt="App REVMED com cronograma Revalida e flashcards"
-              width={900}
-              height={1200}
-              loading="lazy"
-              className="pointer-events-none absolute -bottom-10 -right-6 hidden w-[38%] select-none drop-shadow-2xl md:block"
-              draggable={false}
-            />
+            <MockupCarousel />
           </div>
           {/* floating stats */}
           <motion.div
