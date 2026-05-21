@@ -59,28 +59,28 @@
 :root {
   --radius: 1rem;
 
-  /* Brand — REVMED (preto + laranja/dourado) */
-  --night: oklch(0.16 0.01 40);           /* #0d0d0d */
-  --medical: oklch(0.72 0.17 65);         /* #f08c00 — âmbar do logo */
-  --mint: oklch(0.83 0.16 80);            /* dourado accent */
-  --mint-soft: oklch(0.92 0.10 80);       /* dourado claro */
+  /* Brand — REVMED (paleta extraída do Instagram oficial) */
+  --night: oklch(0.14 0.012 50);          /* preto-marrom quente do feed */
+  --medical: oklch(0.72 0.19 55);         /* #f08c1c — laranja brand principal */
+  --mint: oklch(0.62 0.24 18);            /* magenta-pink do gradiente do logo */
+  --mint-soft: oklch(0.78 0.16 35);       /* coral suave (mid do gradiente) */
   --ice: oklch(0.985 0.005 60);           /* off-white quente */
 
   --background: var(--night);
   --foreground: oklch(0.97 0.005 60);
-  --card: oklch(0.22 0.015 40);
+  --card: oklch(0.20 0.015 50);
   --card-foreground: oklch(0.97 0.005 60);
-  --popover: oklch(0.22 0.015 40);
+  --popover: oklch(0.20 0.015 50);
   --popover-foreground: oklch(0.97 0.005 60);
 
   --primary: var(--medical);
   --primary-foreground: var(--night);
 
-  --secondary: oklch(0.26 0.015 40);
+  --secondary: oklch(0.24 0.015 50);
   --secondary-foreground: oklch(0.97 0.005 60);
 
-  --muted: oklch(0.26 0.015 40);
-  --muted-foreground: oklch(0.72 0.015 40);
+  --muted: oklch(0.24 0.015 50);
+  --muted-foreground: oklch(0.72 0.015 50);
 
   --accent: var(--mint);
   --accent-foreground: var(--night);
@@ -98,15 +98,15 @@
 
   --chart-1: var(--medical);
   --chart-2: var(--mint);
-  --chart-3: oklch(0.55 0.20 30);
-  --chart-4: oklch(0.78 0.14 70);
-  --chart-5: oklch(0.45 0.15 50);
+  --chart-3: var(--mint-soft);
+  --chart-4: oklch(0.82 0.15 75);
+  --chart-5: oklch(0.55 0.20 30);
 
-  --sidebar: oklch(0.18 0.015 40);
+  --sidebar: oklch(0.17 0.015 50);
   --sidebar-foreground: oklch(0.97 0.005 60);
   --sidebar-primary: var(--medical);
   --sidebar-primary-foreground: var(--night);
-  --sidebar-accent: oklch(0.26 0.015 40);
+  --sidebar-accent: oklch(0.24 0.015 50);
   --sidebar-accent-foreground: oklch(0.97 0.005 60);
   --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: var(--medical);
