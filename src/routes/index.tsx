@@ -99,11 +99,12 @@ function LandingPage() {
       const y = window.scrollY;
       setScrolled(y > 16);
       const delta = y - lastY.current;
+      if (Math.abs(delta) < 4) return;
       if (y < 80) {
         setHidden(false);
-      } else if (delta > 6) {
+      } else if (delta > 0) {
         setHidden(true);
-      } else if (delta < -6) {
+      } else {
         setHidden(false);
       }
       lastY.current = y;
@@ -171,8 +172,8 @@ function TopNav({
   const navigate = useNavigate();
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        hidden ? "-translate-y-full" : "translate-y-0"
+      className={`sticky top-0 z-50 transform-gpu transition-[transform,opacity,background-color,border-color,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+        hidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
       } ${
         scrolled
           ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
