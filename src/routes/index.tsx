@@ -589,23 +589,6 @@ const NUMBERS = [
   { v: "10min", l: "Por estação, como no INEP" },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Dra. Júlia M.",
-    role: "Formada em Lisboa • Aprovada 24.2",
-    text: "Era minha terceira tentativa. O que mudou foi parar de estudar tudo e começar a estudar o que cai. O mentor foi cirúrgico.",
-  },
-  {
-    name: "Dr. Renan A.",
-    role: "Formado em Buenos Aires • Aprovado 25.1",
-    text: "O simulado com cronômetro me destravou. Cheguei na prova oficial e foi como ensaio: já sabia o ritmo, já sabia onde respirar.",
-  },
-  {
-    name: "Dra. Camila S.",
-    role: "Formada em La Paz • Aprovada 25.1",
-    text: "O psicólogo do programa foi o que ninguém me ofereceu antes. Sem ele eu teria desistido no meio do ciclo.",
-  },
-];
 
 function Resultados() {
   return (
