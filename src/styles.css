@@ -271,9 +271,6 @@ body::before {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Bump global base font-size — Tailwind usa rem, então tipografia
-       e espaçamentos escalam juntos, preservando alinhamento. */
-    font-size: clamp(16.5px, 0.95rem + 0.22vw, 18px);
   }
   body {
     -webkit-tap-highlight-color: transparent;
