@@ -38,6 +38,7 @@ import {
   Sparkles,
   MessageSquare,
   Headphones,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Sidebar,
