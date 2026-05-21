@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { downloadActorPDF, downloadCandidatePDF } from "@/lib/station-pdf";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, Highlightable, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1899,6 +1899,13 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [highlights, setHighlights] = useState<Record<string, boolean>>({});
+  const [struck, setStruck] = useState<Set<string>>(new Set());
+  const toggleStruck = (id: string) =>
+    setStruck((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
   const [copied, setCopied] = useState(false);
   const meta = getSpecialtyMeta(station.specialty);
   const materials = station.deliverable_materials ?? [];
@@ -2136,9 +2143,16 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                             )}
                           >
                             <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                                <span>{formatPepHeading(idx, it.category, it.description)}</span>
-                              </div>
+                              <Highlightable>
+                                <ScriptText
+                                  text={formatPepHeading(idx, it.category, it.description)}
+                                  className="text-sm font-semibold text-foreground"
+                                  strikeable
+                                  struck={struck}
+                                  toggle={toggleStruck}
+                                  prefix={it.id}
+                                />
+                              </Highlightable>
                               {parts.subs.length > 0 && (
                                 <ul className="mt-2 space-y-0.5">
                                   {parts.subs.map((sub, si) => {

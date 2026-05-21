@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { ScriptText } from "@/components/station/shared";
+import { ScriptText, Highlightable } from "@/components/station/shared";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
@@ -63,6 +63,13 @@ function EvaluatorView() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [levels, setLevels] = useState<Record<string, Level>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
+  const [struck, setStruck] = useState<Set<string>>(new Set());
+  const toggleStruck = (id: string) =>
+    setStruck((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
   const [feedback, setFeedback] = useState("");
   const [status, setStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
@@ -501,7 +508,16 @@ function EvaluatorView() {
                               {idx + 1}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold leading-relaxed">{it.description}</p>
+                              <Highlightable>
+                                <ScriptText
+                                  text={it.description}
+                                  className="text-sm font-semibold"
+                                  strikeable
+                                  struck={struck}
+                                  toggle={toggleStruck}
+                                  prefix={it.id}
+                                />
+                              </Highlightable>
                               <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
                                 <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
                                 <span>Vale <b className="text-foreground tabular-nums">{it.points}</b> pts</span>
