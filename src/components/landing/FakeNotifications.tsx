@@ -38,6 +38,14 @@ export function FakeNotifications() {
   const [current, setCurrent] = useState<Notif | null>(null);
   const [dismissed, setDismissed] = useState(false);
 
+  // Pré-carrega todos os avatares para que apareçam junto com a notificação
+  useEffect(() => {
+    [notif1, notif2, notif3, notif4, notif5, notif6, notif7, notif8].forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   useEffect(() => {
     if (dismissed) return;
     let i = 0;
@@ -81,7 +89,8 @@ export function FakeNotifications() {
               <img
                 src={current.avatar}
                 alt=""
-                loading="lazy"
+                loading="eager"
+                decoding="sync"
                 width={44}
                 height={44}
                 className="h-11 w-11 rounded-full object-cover ring-2 ring-background"
