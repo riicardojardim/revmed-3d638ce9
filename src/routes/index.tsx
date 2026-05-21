@@ -481,13 +481,13 @@ function MockupCarousel() {
 
 function MarqueeStrip() {
   const items = [
-    "Cinco alunos por grupo",
-    "Cronômetro INEP",
-    "Psicólogo no programa",
-    "Banca de simulação real",
+    "Estações com cronômetro INEP",
     "Checklists oficiais",
-    "Mentor presente toda semana",
-    "Foco em 2ª fase",
+    "Flashcards com revisão espaçada",
+    "Resumos enxutos",
+    "Desempenho em tempo real",
+    "Sala estável pra prática ao vivo",
+    "Banco com centenas de casos",
   ];
   return (
     <section className="border-y border-border/60 bg-card/40 py-5">
