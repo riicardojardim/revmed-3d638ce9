@@ -37,8 +37,8 @@ export function Depoimentos() {
             <Quote className="h-3.5 w-3.5" /> Aprovados Revalida INEP 25.1
           </p>
           <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-6xl">
-            Quem passou pela <span className="text-primary">REVMED</span>,
-            <br className="hidden md:block" /> conta como foi.
+            Aprovados no Revalida
+            <br className="hidden md:block" /> <span className="text-primary">INEP 25.1</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-muted-foreground md:text-lg">
             Depoimentos reais de médicos aprovados na última edição do Revalida.
