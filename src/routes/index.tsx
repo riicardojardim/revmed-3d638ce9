@@ -818,9 +818,8 @@ function Mentoria() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
-              Quer alguém <br />
-              do seu lado? <br />
+            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[0.95] tracking-[-0.045em] md:text-[2.6rem] lg:text-[3.2rem] xl:text-[3.6rem]">
+              Quer alguém do seu lado?{" "}
               <span className="text-primary">Tem mentoria.</span>
             </h2>
             <p className="mt-6 text-muted-foreground md:text-lg">
