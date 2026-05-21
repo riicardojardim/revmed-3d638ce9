@@ -164,10 +164,6 @@ function AppLayout() {
     ];
   }
 
-  // Flat list for top nav
-  const flatNav: NavItem[] = sections.flatMap((s) => s.items);
-
-  
   const [activeRoom, setActiveRoom] = useState<{ code: string; title: string; path?: string; parent?: "treinar" | "estacoes" } | null>(null);
   useEffect(() => {
     const read = () => {
