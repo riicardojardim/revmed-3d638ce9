@@ -217,8 +217,8 @@ export function UrgencyBanner() {
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-5 py-2 text-center text-xs font-semibold md:px-8 md:text-sm">
         <Sparkles className="h-3.5 w-3.5 shrink-0 animate-pulse" />
         <span>
-          <span className="hidden md:inline">Turma 2026.1 — </span>
-          últimas <span className="underline underline-offset-2">3 vagas</span> com bônus de matrícula
+          <span className="hidden md:inline">Acesso 2026.1 — </span>
+          últimas <span className="underline underline-offset-2">3 vagas</span> com preço de lançamento
         </span>
         <button
           onClick={() => setClosed(true)}
