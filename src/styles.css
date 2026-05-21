@@ -332,12 +332,6 @@ body::before {
   .text-shimmer { animation: none; }
 }
 
-/* ---------- Lenis smooth scroll ---------- */
-html.lenis, html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: clip; }
-
 /* ---------- Hero italic shimmer (loop sutil) ---------- */
 @keyframes hero-italic-shimmer {
   0%   { background-position: 0% 50%; }
@@ -381,48 +375,24 @@ html.lenis, html.lenis body { height: auto; }
   .cta-halo { animation: none; }
 }
 
-/* ---------- Conic-gradient border glow no hover de cards ---------- */
-@property --card-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-@keyframes card-conic-rotate {
-  to { --card-angle: 360deg; }
-}
+/* ---------- Border glow no hover de cards (gradient simples animado) ---------- */
 @utility card-glow {
   position: relative;
-  isolation: isolate;
 }
-.card-glow::before {
+.card-glow::after {
   content: "";
   position: absolute;
-  inset: -1px;
+  inset: 0;
   border-radius: inherit;
-  padding: 1.5px;
-  background: conic-gradient(
-    from var(--card-angle),
-    transparent 0%,
-    color-mix(in oklab, var(--primary) 80%, transparent) 25%,
-    color-mix(in oklab, var(--mint) 90%, transparent) 40%,
-    transparent 55%,
-    color-mix(in oklab, var(--primary) 60%, transparent) 80%,
-    transparent 100%
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 350ms ease;
-  animation: card-conic-rotate 6s linear infinite;
   pointer-events: none;
-  z-index: 0;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent) inset,
+    0 0 40px -5px color-mix(in oklab, var(--primary) 45%, transparent),
+    0 0 80px -10px color-mix(in oklab, var(--mint) 35%, transparent);
 }
-.card-glow:hover::before { opacity: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .card-glow::before { animation: none; }
-}
+.card-glow:hover::after { opacity: 1; }
 
 /* ---------- Aurora atrás do hero ---------- */
 @keyframes aurora-rotate {
