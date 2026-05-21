@@ -616,28 +616,6 @@ function Resultados() {
             </motion.div>
           ))}
         </div>
-
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.figure
-              key={t.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="flex flex-col gap-5 rounded-3xl border border-border bg-background p-7 md:p-8"
-            >
-              <Quote className="h-7 w-7 text-primary" />
-              <blockquote className="text-base leading-relaxed text-foreground md:text-lg">
-                “{t.text}”
-              </blockquote>
-              <figcaption className="mt-auto border-t border-border pt-4">
-                <div className="font-semibold">{t.name}</div>
-                <div className="text-xs text-muted-foreground">{t.role}</div>
-              </figcaption>
-            </motion.figure>
-          ))}
-        </div>
       </div>
     </section>
   );
