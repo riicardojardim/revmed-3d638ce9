@@ -508,7 +508,16 @@ function EvaluatorView() {
                               {idx + 1}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold leading-relaxed">{it.description}</p>
+                              <Highlightable>
+                                <ScriptText
+                                  text={it.description}
+                                  className="text-sm font-semibold"
+                                  strikeable
+                                  struck={struck}
+                                  toggle={toggleStruck}
+                                  prefix={it.id}
+                                />
+                              </Highlightable>
                               <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
                                 <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
                                 <span>Vale <b className="text-foreground tabular-nums">{it.points}</b> pts</span>
