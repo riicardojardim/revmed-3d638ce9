@@ -912,65 +912,71 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-card/30 py-12">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-5 md:flex-row md:items-start md:justify-between md:px-8">
-        {/* brand */}
-        <div className="flex flex-col gap-3">
-          <Logo />
-          <p className="max-w-sm text-sm text-muted-foreground">
-            REVMED — Mentoria para Revalidação Médica.
-          </p>
-          <p className="flex items-center gap-2 text-xs text-muted-foreground/70">
-            <Building2 className="h-3.5 w-3.5" />
-            REVMED - EDUCACAO E SERVICOS DE MENTORIA LTDA
-            <span className="text-muted-foreground/50">|</span>
-            CNPJ 48.442.973/0001-07
-          </p>
+    <footer className="border-t border-border bg-card/30 pt-12 pb-8">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <div className="flex flex-col items-center gap-10 text-center md:flex-row md:items-start md:justify-between md:text-left">
+          {/* brand */}
+          <div className="flex flex-col items-center gap-3 md:items-start">
+            <Logo />
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Mentoria para Revalidação Médica.
+            </p>
+          </div>
+
+          {/* contact */}
+          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground md:items-start">
+            <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
+              Contato
+            </p>
+            <a
+              href="tel:+5521987860985"
+              className="inline-flex items-center gap-2 hover:text-foreground"
+            >
+              <Phone className="h-4 w-4 text-primary" />
+              +55 (21) 98786-0985 — Suporte RevMed
+            </a>
+            <a
+              href="tel:+5521983786198"
+              className="inline-flex items-center gap-2 hover:text-foreground"
+            >
+              <Phone className="h-4 w-4 text-primary" />
+              +55 (21) 98378-6198 — Dr. Anoar Jezini
+            </a>
+            <a
+              href="mailto:contato@revmed.app.br"
+              className="inline-flex items-center gap-2 hover:text-foreground"
+            >
+              <Mail className="h-4 w-4 text-primary" />
+              contato@revmed.app.br
+            </a>
+          </div>
+
+          {/* links */}
+          <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:items-end">
+            <a
+              href="https://instagram.com/revmedmentoria"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 hover:text-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+              @revmedmentoria
+            </a>
+            <Link to="/login" className="hover:text-foreground">
+              Entrar
+            </Link>
+          </div>
         </div>
 
-        {/* contact */}
-        <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-          <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
-            Contato
+        {/* legal bar */}
+        <div className="mt-10 flex flex-col items-center gap-2 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground/70 md:flex-row md:justify-between md:text-left">
+          <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 md:justify-start">
+            <Building2 className="h-3.5 w-3.5 shrink-0" />
+            <span>REVMED - EDUCAÇÃO E SERVIÇOS DE MENTORIA LTDA</span>
+            <span className="hidden md:inline text-muted-foreground/40">•</span>
+            <span>CNPJ 48.442.973/0001-07</span>
           </p>
-          <a
-            href="tel:+5521987860985"
-            className="inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Phone className="h-4 w-4 text-primary" />
-            +55 (21) 98786-0985 — Suporte RevMed
-          </a>
-          <a
-            href="tel:+5521983786198"
-            className="inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Phone className="h-4 w-4 text-primary" />
-            +55 (21) 98378-6198 — Dr. Anoar Jezini
-          </a>
-          <a
-            href="mailto:contato@revmed.app.br"
-            className="inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Mail className="h-4 w-4 text-primary" />
-            contato@revmed.app.br
-          </a>
-        </div>
-
-        {/* links */}
-        <div className="flex flex-col gap-4 text-sm text-muted-foreground md:items-end">
-          <a
-            href="https://instagram.com/revmedmentoria"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 hover:text-foreground"
-          >
-            <Instagram className="h-4 w-4" />
-            @revmedmentoria
-          </a>
-          <Link to="/login" className="hover:text-foreground">
-            Entrar
-          </Link>
-          <span className="text-xs">© {new Date().getFullYear()} REVMED</span>
+          <p>© {new Date().getFullYear()} REVMED. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>
