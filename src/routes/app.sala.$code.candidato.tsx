@@ -448,7 +448,6 @@ function CandidateView() {
   if (isWaiting) {
     return (
       <>
-        {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
         {introOverlay}
         <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
         <button
@@ -518,7 +517,6 @@ function CandidateView() {
 
   return (
     <>
-      {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
       {introOverlay}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
