@@ -10,6 +10,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
+import { SmoothScroll, ScrollProgress } from "@/components/SmoothScroll";
 
 import appCss from "../styles.css?url";
 
@@ -133,6 +134,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <SmoothScroll />
+        <ScrollProgress />
         <Outlet />
         <PWAInstallBanner />
         <Toaster richColors position="top-center" />
