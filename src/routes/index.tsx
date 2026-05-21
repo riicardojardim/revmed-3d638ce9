@@ -330,18 +330,26 @@ function Hero({ isLogged }: { isLogged: boolean }) {
 /* ----------------------------- MARQUEE ----------------------------- */
 
 function MockupCarousel() {
-  const slides = [
+  // Front carousel: dashboard ↔ checklists
+  const frontSlides = [
     { src: mockupDashboard, alt: "Dashboard REVMED com progresso real do candidato", label: "Dashboard" },
     { src: mockupChecklists, alt: "Banco de checklists oficiais REVMED para Revalida", label: "Checklists" },
-    { src: mockupFlashcards, alt: "Banco de flashcards REVMED com revisão espaçada", label: "Flashcards" },
   ];
-  const [i, setI] = useState(0);
+  // Back carousel: flashcards ↔ resumos
+  const backSlides = [
+    { src: mockupFlashcards, alt: "Banco de flashcards REVMED com revisão espaçada", label: "Flashcards" },
+    { src: mockupResumos, alt: "Banco de resumos REVMED com conteúdo prático", label: "Resumos" },
+  ];
+  const [iFront, setIFront] = useState(0);
+  const [iBack, setIBack] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % slides.length), 4500);
-    return () => clearInterval(t);
-  }, [slides.length]);
-
-  const next = (i + 1) % slides.length;
+    const tF = setInterval(() => setIFront((v) => (v + 1) % frontSlides.length), 4500);
+    const tB = setInterval(() => setIBack((v) => (v + 1) % backSlides.length), 5200);
+    return () => {
+      clearInterval(tF);
+      clearInterval(tB);
+    };
+  }, [frontSlides.length, backSlides.length]);
 
   return (
     <div className="relative w-full min-h-[520px] lg:min-h-[640px]">
@@ -359,13 +367,38 @@ function MockupCarousel() {
 
       <Tilt className="absolute right-0 top-10 z-10 w-[78%] lg:w-[72%]" max={4} scale={1.0}>
         <div className="relative aspect-[16/10] rotate-[4deg] overflow-hidden rounded-2xl border border-border/70 bg-[#0a0a0a] opacity-70 shadow-2xl ring-1 ring-white/[0.04]">
-          <img
-            src={slides[next].src}
-            alt=""
-            aria-hidden
-            draggable={false}
-            className="h-full w-full select-none object-contain"
-          />
+          {/* Barra do navegador também no mockup de trás */}
+          <div className="flex items-center gap-1.5 border-b border-border/60 bg-card/95 px-3 py-2 backdrop-blur-xl">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+            <div className="ml-3 hidden flex-1 items-center justify-center sm:flex">
+              <span className="rounded-md bg-background/60 px-3 py-0.5 text-[10px] font-medium text-muted-foreground">
+                revmed.app.br / {backSlides[iBack].label.toLowerCase()}
+              </span>
+            </div>
+          </div>
+          <div className="relative h-[calc(100%-30px)] w-full bg-[#0a0a0a]">
+            {backSlides.map((s, k) => (
+              <link key={k} rel="preload" as="image" href={s.src} />
+            ))}
+            <AnimatePresence initial={false}>
+              <motion.img
+                key={iBack}
+                src={backSlides[iBack].src}
+                alt=""
+                aria-hidden
+                draggable={false}
+                loading="eager"
+                decoding="async"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 h-full w-full select-none object-contain"
+              />
+            </AnimatePresence>
+          </div>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-background/40 via-transparent to-transparent" />
         </div>
       </Tilt>
@@ -378,20 +411,19 @@ function MockupCarousel() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
             <div className="ml-3 hidden flex-1 items-center justify-center sm:flex">
               <span className="rounded-md bg-background/60 px-3 py-0.5 text-[10px] font-medium text-muted-foreground">
-                revmed.app.br / {slides[i].label.toLowerCase()}
+                revmed.app.br / {frontSlides[iFront].label.toLowerCase()}
               </span>
             </div>
           </div>
           <div className="relative h-[calc(100%-30px)] w-full bg-[#0a0a0a]">
-            {/* Preload all slides so swap is instant */}
-            {slides.map((s, k) => (
+            {frontSlides.map((s, k) => (
               <link key={k} rel="preload" as="image" href={s.src} />
             ))}
             <AnimatePresence initial={false}>
               <motion.img
-                key={i}
-                src={slides[i].src}
-                alt={slides[i].alt}
+                key={iFront}
+                src={frontSlides[iFront].src}
+                alt={frontSlides[iFront].alt}
                 width={1600}
                 height={1000}
                 draggable={false}
@@ -421,12 +453,12 @@ function MockupCarousel() {
       </motion.div>
 
       <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1.5">
-        {slides.map((_, k) => (
+        {frontSlides.map((_, k) => (
           <button
             key={k}
-            onClick={() => setI(k)}
+            onClick={() => setIFront(k)}
             aria-label={`Slide ${k + 1}`}
-            className={`h-1.5 rounded-full transition-all ${k === i ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
+            className={`h-1.5 rounded-full transition-all ${k === iFront ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
           />
         ))}
       </div>
