@@ -15,6 +15,10 @@ import {
   Instagram,
   Phone,
   Mail,
+  MessageCircle,
+  Drama,
+  Crown,
+  GraduationCap,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
