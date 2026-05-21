@@ -1643,14 +1643,14 @@ function ScriptText({ text, className, strikeable, prefix, struck, toggle }: { t
 
   const Bold = ({ id, children }: { id: string; children: React.ReactNode }) => {
     if (!strikeable || !struck || !toggle) {
-      return <strong className="font-semibold text-foreground">{children}</strong>;
+      return <strong className="font-bold text-foreground">{children}</strong>;
     }
     const isStruck = struck.has(id);
     return (
       <strong
         onClick={() => toggle(id)}
         className={cn(
-          "font-semibold text-foreground cursor-pointer rounded px-0.5 transition-colors select-none",
+          "font-bold text-foreground cursor-pointer rounded px-0.5 transition-colors select-none",
           isStruck ? "line-through opacity-50 hover:opacity-70" : "hover:bg-amber-500/20"
         )}
       >
