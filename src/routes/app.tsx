@@ -39,6 +39,20 @@ import {
   Headphones,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -272,21 +286,23 @@ function AppLayout() {
 
   return (
     <OnlinePresenceProvider>
+    <SidebarProvider>
     <div className="relative z-10 flex min-h-dvh w-full min-w-0 overflow-x-clip">
-      {/* Sidebar desktop removida — navegação fica apenas no dock inferior */}
+      <AppSideNav sections={sections} isActive={isActive} />
 
-
-      <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
+      <SidebarInset className="flex min-h-dvh min-w-0 flex-1 flex-col">
         {/* Topbar */}
         <header
           className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-2 border-b border-border bg-background/80 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:px-6 lg:px-8"
           style={{ paddingTop: "max(env(safe-area-inset-top), 10px)", paddingLeft: "max(env(safe-area-inset-left), 0.75rem)", paddingRight: "max(env(safe-area-inset-right), 0.75rem)" }}
         >
           <div className="flex items-center gap-2">
-            <Logo />
+            <SidebarTrigger className="-ml-1" />
+            <div className="hidden md:block">
+              <Logo />
+            </div>
           </div>
-          <TopNav items={flatNav} isActive={isActive} />
-          <div className="hidden flex-1 items-center justify-end gap-2 overflow-hidden font-sans xl:flex">
+          <div className="hidden flex-1 items-center justify-end gap-2 overflow-hidden font-sans md:flex">
             <span
               title={`Nota de corte da prova de habilidades clínicas — ${NOTA_DE_CORTE_EDICAO} (INEP)`}
               className="inline-flex shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground"
@@ -348,74 +364,57 @@ function AppLayout() {
           <RouteProgress />
           <Outlet />
         </main>
-      </div>
+      </SidebarInset>
     </div>
+    </SidebarProvider>
     </OnlinePresenceProvider>
   );
 }
 
-function TopNav({
-  items,
+function AppSideNav({
+  sections,
   isActive,
 }: {
-  items: NavItem[];
+  sections: NavSection[];
   isActive: (to: string, exact?: boolean) => boolean;
 }) {
-  // Desktop: pills inline. Mobile: trigger that opens a popover with everything.
   return (
-    <>
-      {/* Desktop pills */}
-      <nav className="ml-2 hidden flex-1 items-center gap-1 overflow-x-auto no-scrollbar lg:flex">
-        {items.map((n) => {
-          const active = isActive(n.to, n.exact);
-          return (
-            <Link
-              key={n.to}
-              to={n.to}
-              className={`group inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors ${
-                active
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <n.icon className="h-4 w-4" />
-              {n.label}
-            </Link>
-          );
-        })}
-      </nav>
-      {/* Mobile / tablet trigger */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="ml-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground lg:hidden"
-            aria-label="Abrir navegação"
-          >
-            <LayoutDashboard className="h-4 w-4 text-primary" />
-            Menu
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-64 p-1">
-          <div className="flex flex-col">
-            {items.map((n) => {
-              const active = isActive(n.to, n.exact);
-              return (
-                <Link
-                  key={n.to}
-                  to={n.to}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                    active ? "bg-primary/15 text-primary" : "text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <n.icon className="h-4 w-4" />
-                  <span className="flex-1 truncate">{n.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </PopoverContent>
-      </Popover>
-    </>
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex h-12 items-center px-2 group-data-[collapsible=icon]:justify-center">
+          <Logo />
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        {sections.map((section, i) => (
+          <SidebarGroup key={i}>
+            {section.label && (
+              <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {section.items.map((item) => {
+                  const active = isActive(item.to, item.exact);
+                  return (
+                    <SidebarMenuItem key={item.to}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={active}
+                        tooltip={item.label}
+                      >
+                        <Link to={item.to}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+    </Sidebar>
   );
 }
