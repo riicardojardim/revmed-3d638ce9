@@ -929,7 +929,7 @@ function Footer() {
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Phone className="h-4 w-4 text-primary" />
-              (21) 98786-0985 — Suporte RevMed
+              (21) 98786-0985 — Suporte REVMED
             </a>
             <a
               href="tel:+5521983786198"
