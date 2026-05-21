@@ -566,20 +566,20 @@ function Manifesto() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.5 }}
-                  className="group relative grid grid-cols-[auto_1fr_auto] items-start gap-6 bg-card p-7 md:p-9"
+                  className="group relative grid grid-cols-[auto_1fr_auto] items-start gap-5 bg-card p-5 md:p-6"
                 >
-                  <div className="font-display text-3xl font-black text-primary md:text-4xl">
+                  <div className="font-display text-2xl font-black text-primary md:text-3xl">
                     {p.n}
                   </div>
                   <div>
-                    <h3 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
+                    <h3 className="font-display text-lg font-bold tracking-tight md:text-xl">
                       {p.title}
                     </h3>
-                    <p className="mt-2 max-w-xl text-muted-foreground">
+                    <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
                       {p.body}
                     </p>
                   </div>
-                  <p.icon className="h-6 w-6 text-primary opacity-60 transition-opacity group-hover:opacity-100 md:h-7 md:w-7" />
+                  <p.icon className="h-5 w-5 text-primary opacity-60 transition-opacity group-hover:opacity-100 md:h-6 md:w-6" />
                 </motion.article>
               ))}
             </div>
