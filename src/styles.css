@@ -271,6 +271,10 @@ body::before {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Base menor = sensação premium / Full HD.
+       Tailwind usa rem → tipografia e espaçamentos encolhem juntos,
+       preservando proporções e alinhamento. */
+    font-size: clamp(13px, 0.78rem + 0.2vw, 14.5px);
   }
   body {
     -webkit-tap-highlight-color: transparent;
