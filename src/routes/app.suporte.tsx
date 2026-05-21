@@ -30,8 +30,8 @@ function Suporte() {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <Mail className="h-6 w-6 text-mint" />
           <h3 className="mt-3 font-display text-lg font-bold">E-mail</h3>
-          <p className="mt-1 text-sm text-muted-foreground">suporte@estacaorevalida.com.br</p>
-          <a href="mailto:suporte@estacaorevalida.com.br" className="mt-4 inline-block">
+          <p className="mt-1 text-sm text-muted-foreground">suporte@revmed.app.br</p>
+          <a href="mailto:suporte@revmed.app.br" className="mt-4 inline-block">
             <Button variant="outline">Enviar e-mail</Button>
           </a>
         </div>
