@@ -2,7 +2,6 @@ import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-route
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-import { DashboardBackground } from "@/components/DashboardBackground";
 import { RouteProgress } from "@/components/RouteProgress";
 import { Logo } from "@/components/Logo";
 
@@ -216,7 +215,6 @@ function AppLayout() {
 
   return (
     <OnlinePresenceProvider>
-    <DashboardBackground />
     <div className="relative z-10 flex min-h-dvh w-full min-w-0 overflow-x-clip">
       {/* Sidebar desktop removida — navegação fica apenas no dock inferior */}
 
