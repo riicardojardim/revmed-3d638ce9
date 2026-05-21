@@ -111,6 +111,7 @@ function AppLayout() {
     sections = [
       {
         items: [
+          { to: "/app", label: "Voltar pro app", icon: Home, exact: true },
           { to: "/app/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
           { to: "/app/admin/estacoes", label: "Checklists", icon: Stethoscope },
           { to: "/app/admin/flashcards", label: "Flashcards", icon: Brain },
@@ -164,7 +165,12 @@ function AppLayout() {
           { to: "/app/suporte", label: "Suporte", icon: Headphones },
         ],
       },
-      { items: [{ to: "/app/perfil", label: "Perfil", icon: User }] },
+      {
+        items: [
+          { to: "/app/perfil", label: "Perfil", icon: User },
+          ...(isAdmin ? [{ to: "/app/admin", label: "Painel Admin", icon: ShieldCheck } as NavItem] : []),
+        ],
+      },
     ];
   } else {
     // Free / default candidato
@@ -177,6 +183,7 @@ function AppLayout() {
           { to: "/app/resumos", label: "Resumos", icon: BookOpen },
           ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
           { to: "/app/perfil", label: "Perfil", icon: User },
+          ...(isAdmin ? [{ to: "/app/admin", label: "Painel Admin", icon: ShieldCheck } as NavItem] : []),
         ],
       },
     ];
@@ -203,11 +210,8 @@ function AppLayout() {
     if (!loading && !user) nav({ to: "/login" });
   }, [user, loading, nav]);
 
-  useEffect(() => {
-    if (!loading && user && isAdmin && pathname === "/app") {
-      if (viewMode === "admin") nav({ to: "/app/admin" });
-    }
-  }, [loading, user, isAdmin, pathname, nav, viewMode]);
+  // No auto-redirect for admins: clicking "Dashboard" should stay on /app.
+  // Admins access the admin panel explicitly via the sidebar item.
 
   useEffect(() => {
     if (loading || !user || sessionStorage.getItem("auth:welcome") !== "1") return;
