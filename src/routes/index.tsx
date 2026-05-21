@@ -324,6 +324,50 @@ function Hero({ isLogged }: { isLogged: boolean }) {
 
 /* ----------------------------- MARQUEE ----------------------------- */
 
+function MockupCarousel() {
+  const slides = [
+    { src: mockupEstacao, alt: "Simulador de estação clínica REVMED com cronômetro INEP" },
+    { src: mockupCronograma, alt: "Painel REVMED com cronograma Revalida e progresso por especialidade" },
+  ];
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % slides.length), 4000);
+    return () => clearInterval(t);
+  }, [slides.length]);
+
+  return (
+    <Tilt className="relative aspect-[16/10] w-full" max={7} scale={1.015}>
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={i}
+          src={slides[i].src}
+          alt={slides[i].alt}
+          width={1600}
+          height={1000}
+          draggable={false}
+          initial={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scale: 0.985, filter: "blur(6px)" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0 h-full w-full select-none rounded-2xl ring-1 ring-border/60 drop-shadow-2xl"
+        />
+      </AnimatePresence>
+      <div className="absolute -bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+        {slides.map((_, k) => (
+          <button
+            key={k}
+            onClick={() => setI(k)}
+            aria-label={`Slide ${k + 1}`}
+            className={`h-1.5 rounded-full transition-all ${k === i ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
+          />
+        ))}
+      </div>
+    </Tilt>
+  );
+}
+
+/* ----------------------------- MARQUEE ----------------------------- */
+
 function MarqueeStrip() {
   const items = [
     "Cinco alunos por grupo",
