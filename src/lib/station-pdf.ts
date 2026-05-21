@@ -238,7 +238,7 @@ function drawFooter(doc: jsPDF) {
   setText(doc, C_MUTED);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.text("estacaorevalida.com.br", MARGIN_X, PAGE_H - 6);
+  doc.text("revmed.app.br", MARGIN_X, PAGE_H - 6);
   doc.text(`Página ${doc.getNumberOfPages()}`, PAGE_W - MARGIN_X, PAGE_H - 6, { align: "right" });
 }
 
