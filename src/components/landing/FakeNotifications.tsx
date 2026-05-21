@@ -13,23 +13,22 @@ import notif8 from "@/assets/notif-8.jpg";
 type Notif = {
   id: number;
   name: string;
-  city: string;
   action: string;
   time: string;
   avatar: string;
 };
 
 const POOL: Omit<Notif, "id" | "time">[] = [
-  { name: "Dra. Marina S.", city: "Lisboa, PT", action: "garantiu vaga na turma 2026.1", avatar: notif1 },
-  { name: "Dr. Rafael M.", city: "Buenos Aires, AR", action: "começou o plano Plataforma", avatar: notif2 },
-  { name: "Dra. Camila R.", city: "Assunção, PY", action: "fez uma simulação cronometrada", avatar: notif3 },
-  { name: "Dr. Henrique T.", city: "Madri, ES", action: "garantiu vaga na turma 2026.1", avatar: notif4 },
-  { name: "Dra. Letícia P.", city: "La Paz, BO", action: "completou um checklist INEP", avatar: notif5 },
-  { name: "Dr. André V.", city: "Cidade do México, MX", action: "agendou conversa com a equipe", avatar: notif6 },
-  { name: "Dra. Beatriz F.", city: "Montevidéu, UY", action: "começou o plano Plataforma", avatar: notif7 },
-  { name: "Dr. Lucas D.", city: "Berlim, DE", action: "garantiu vaga na turma 2026.1", avatar: notif8 },
-  { name: "Dra. Júlia A.", city: "Santiago, CL", action: "fez uma estação de pediatria", avatar: notif3 },
-  { name: "Dr. Eduardo L.", city: "Roma, IT", action: "completou 50 flashcards hoje", avatar: notif2 },
+  { name: "Dra. Marina S.", action: "garantiu vaga na turma 2026.1", avatar: notif1 },
+  { name: "Dr. Rafael M.", action: "começou o plano Plataforma", avatar: notif2 },
+  { name: "Dra. Camila R.", action: "fez uma simulação cronometrada", avatar: notif3 },
+  { name: "Dr. Henrique T.", action: "garantiu vaga na turma 2026.1", avatar: notif4 },
+  { name: "Dra. Letícia P.", action: "completou um checklist INEP", avatar: notif5 },
+  { name: "Dr. André V.", action: "agendou conversa com a equipe", avatar: notif6 },
+  { name: "Dra. Beatriz F.", action: "começou o plano Plataforma", avatar: notif7 },
+  { name: "Dr. Lucas D.", action: "garantiu vaga na turma 2026.1", avatar: notif8 },
+  { name: "Dra. Júlia A.", action: "fez uma estação de pediatria", avatar: notif3 },
+  { name: "Dr. Eduardo L.", action: "completou 50 flashcards hoje", avatar: notif2 },
 ];
 
 const TIMES = ["agora há pouco", "há 2 min", "há 5 min", "há 8 min", "há 12 min", "há 18 min"];
@@ -108,7 +107,7 @@ export function FakeNotifications() {
               </p>
               <p className="mt-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground/80">
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
-                {current.city} • {current.time}
+                {current.time}
               </p>
             </div>
             <button
