@@ -970,12 +970,7 @@ function Footer() {
 
         {/* legal bar */}
         <div className="mt-10 flex flex-col items-center gap-2 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground/70 md:flex-row md:justify-between md:text-left">
-          <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 md:justify-start">
-            <Building2 className="h-3.5 w-3.5 shrink-0" />
-            <span>REVMED - EDUCAÇÃO E SERVIÇOS DE MENTORIA LTDA</span>
-            <span className="hidden md:inline text-muted-foreground/40">•</span>
-            <span>CNPJ 48.442.973/0001-07</span>
-          </p>
+          <p>CNPJ 48.442.973/0001-07</p>
           <p>© {new Date().getFullYear()} REVMED. Todos os direitos reservados.</p>
         </div>
       </div>
