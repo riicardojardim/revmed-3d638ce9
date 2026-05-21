@@ -95,24 +95,35 @@ function LandingPage() {
   const lastY = useRef(0);
 
   useEffect(() => {
+    let ticking = false;
+
     const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 16);
-      const delta = y - lastY.current;
-      if (Math.abs(delta) < 4) return;
-      if (y < 80) {
-        setHidden(false);
-      } else if (delta > 0) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
-      lastY.current = y;
+      if (ticking) return;
+
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - lastY.current;
+
+        setScrolled(y > 12);
+
+        if (menuOpen || y < 96) {
+          setHidden(false);
+        } else if (delta > 6) {
+          setHidden(true);
+        } else if (delta < -6) {
+          setHidden(false);
+        }
+
+        lastY.current = y;
+        ticking = false;
+      });
     };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [menuOpen]);
 
   return (
     <div className="dark min-h-dvh bg-background text-foreground antialiased">
@@ -170,14 +181,16 @@ function TopNav({
   onSignOut: () => Promise<void>;
 }) {
   const navigate = useNavigate();
+  const hasSolidSurface = scrolled || menuOpen;
+
   return (
     <header
-      className={`sticky top-0 z-50 transform-gpu transition-[transform,opacity,background-color,border-color,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
-        hidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      className={`sticky top-0 z-50 transform-gpu transition-[transform,opacity,background-color,border-color,backdrop-filter,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+        hidden ? "-translate-y-[120%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
       } ${
-        scrolled
-          ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
-          : "bg-transparent"
+        hasSolidSurface
+          ? "border-b border-border/70 bg-background/95 shadow-[0_18px_44px_-30px_hsl(var(--foreground)/0.8)] backdrop-blur-xl"
+          : "border-b border-transparent bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
