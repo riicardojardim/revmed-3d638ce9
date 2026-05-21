@@ -2143,9 +2143,16 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                             )}
                           >
                             <div className="min-w-0">
-                              <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                                <span>{formatPepHeading(idx, it.category, it.description)}</span>
-                              </div>
+                              <Highlightable>
+                                <ScriptText
+                                  text={formatPepHeading(idx, it.category, it.description)}
+                                  className="text-sm font-semibold text-foreground"
+                                  strikeable
+                                  struck={struck}
+                                  toggle={toggleStruck}
+                                  prefix={it.id}
+                                />
+                              </Highlightable>
                               {parts.subs.length > 0 && (
                                 <ul className="mt-2 space-y-0.5">
                                   {parts.subs.map((sub, si) => {
