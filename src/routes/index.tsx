@@ -917,9 +917,6 @@ function Footer() {
           {/* brand */}
           <div className="flex flex-col items-center gap-3 md:items-start">
             <Logo />
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Mentoria para Revalidação Médica.
-            </p>
           </div>
 
           {/* contact */}
