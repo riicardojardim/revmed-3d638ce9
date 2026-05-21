@@ -201,6 +201,53 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
+const HERO_PREFIX = ["A", "plataforma", "que"];
+const HERO_ITALIC = "treina pra valer";
+const HERO_SUFFIX = ["o", "Revalida."];
+const WORD_STAGGER = 0.07;
+const HERO_BASE_DELAY = 0.15;
+
+function HeroWord({ children, delay }: { children: React.ReactNode; delay: number }) {
+  return (
+    <motion.span
+      initial={{ y: 18, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="inline-block"
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+function HeroTitle() {
+  const italicDelay = HERO_BASE_DELAY + HERO_PREFIX.length * WORD_STAGGER + 0.18;
+  const suffixStart = italicDelay + 0.35;
+  return (
+    <>
+      {HERO_PREFIX.map((w, i) => (
+        <span key={`p-${i}`}>
+          <HeroWord delay={HERO_BASE_DELAY + i * WORD_STAGGER}>{w}</HeroWord>{" "}
+        </span>
+      ))}
+      <motion.span
+        initial={{ y: 18, opacity: 0, scale: 0.96 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        transition={{ duration: 0.85, delay: italicDelay, ease: [0.22, 1, 0.36, 1] }}
+        className="font-serif italic hero-italic-shimmer inline-block"
+        style={{ fontWeight: 400 }}
+      >
+        {HERO_ITALIC}
+      </motion.span>{" "}
+      {HERO_SUFFIX.map((w, i) => (
+        <span key={`s-${i}`}>
+          <HeroWord delay={suffixStart + i * WORD_STAGGER}>{w}</HeroWord>{" "}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function Hero({ isLogged }: { isLogged: boolean }) {
   return (
     <section className="relative">
