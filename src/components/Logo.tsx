@@ -1,6 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import logoUrl from "@/assets/logo-estacao-revalida.png";
-import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.png";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Logo({
@@ -22,17 +20,24 @@ export function Logo({
       className="inline-flex items-center justify-center"
       aria-label="REVMED — início"
     >
-      <img
-        src={isStacked ? logoStackedUrl : logoUrl}
-        alt="REVMED"
+      <span
         className={
           className ??
           (isStacked
-            ? "h-28 w-auto select-none md:h-32"
-            : "h-10 w-auto select-none md:h-11")
+            ? "font-display font-black tracking-tight text-4xl md:text-5xl"
+            : "font-display font-black tracking-tight text-xl md:text-2xl")
         }
-        draggable={false}
-      />
+        style={{
+          backgroundImage:
+            "linear-gradient(135deg, #f5c542 0%, #e85d1c 100%)",
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
+          color: "transparent",
+          letterSpacing: "0.02em",
+        }}
+      >
+        REVMED
+      </span>
     </Link>
   );
 }
