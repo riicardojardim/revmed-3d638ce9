@@ -18,7 +18,7 @@ export type SiteSettings = {
   terms_md: string | null;
   privacy_md: string | null;
   contact_email: string | null;
-  intro_animation_variant: "classic" | "door" | "corridor" | "xray" | "stamp" | "elevator" | "iv" | "examroom" | null;
+  intro_animation_variant: "pulse" | "badge" | null;
   whatsapp_banner_enabled: boolean | null;
   whatsapp_banner_label: string | null;
   whatsapp_banner_url: string | null;
