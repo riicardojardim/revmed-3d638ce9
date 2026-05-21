@@ -822,8 +822,8 @@ const PLANS: Plan[] = [
   {
     name: "Ator",
     tagline: "Treine como paciente",
-    price: "R$ 47",
-    cadence: "/mês",
+    price: "R$ 147,00",
+    cadence: "até o dia da prova",
     desc: "Para quem quer praticar estações como ator simulando paciente. Acesso ao módulo de simulações ao vivo.",
     features: [
       "Iniciar sessões como ator",
@@ -840,8 +840,8 @@ const PLANS: Plan[] = [
   {
     name: "Full",
     tagline: "Plataforma completa",
-    price: "R$ 97",
-    cadence: "/mês",
+    price: "R$ 597,00",
+    cadence: "até o dia da prova",
     desc: "Acesso total à plataforma REVMED — checklists, flashcards, simulados cronometrados e banco de resumos.",
     features: [
       "Tudo do plano Ator",
