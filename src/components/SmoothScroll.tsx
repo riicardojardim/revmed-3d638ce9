@@ -4,43 +4,8 @@ import Lenis from "lenis";
 
 export function SmoothScroll() {
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) return;
-
-    const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      touchMultiplier: 1.4,
-    });
-
-    // Tornar âncoras (#id) compatíveis com Lenis
-    const onAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      const anchor = target?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
-      if (!anchor) return;
-      const href = anchor.getAttribute("href");
-      if (!href || href === "#") return;
-      const el = document.querySelector(href);
-      if (!el) return;
-      e.preventDefault();
-      lenis.scrollTo(el as HTMLElement, { offset: -16, duration: 1.2 });
-    };
-    document.addEventListener("click", onAnchorClick);
-
-    let raf = 0;
-    const tick = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      document.removeEventListener("click", onAnchorClick);
-      lenis.destroy();
-    };
+    // Smooth scroll desativado para evitar conflito com o layout SSR do TanStack Start.
+    // O CSS já habilita scroll-behavior: smooth nas âncoras.
   }, []);
   return null;
 }
