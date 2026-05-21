@@ -87,6 +87,23 @@ function AppLayout() {
   const isTeacher = roles.includes("professor") || isAdmin;
   const isCompleto = isCompletoLike;
 
+  // View-mode switcher (admins can preview the app as different plans).
+  const VIEW_MODE_KEY = "revmed:viewMode";
+  type ViewMode = "admin" | "completo";
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    try {
+      const v = localStorage.getItem(VIEW_MODE_KEY);
+      return v === "completo" ? "completo" : "admin";
+    } catch {
+      return "admin";
+    }
+  });
+  function changeViewMode(mode: ViewMode, target: string) {
+    try { localStorage.setItem(VIEW_MODE_KEY, mode); } catch {}
+    setViewMode(mode);
+    nav({ to: target });
+  }
+
   // Build sidebar sections based on plan
   let sections: NavSection[] = [];
 
@@ -188,9 +205,9 @@ function AppLayout() {
 
   useEffect(() => {
     if (!loading && user && isAdmin && pathname === "/app") {
-      nav({ to: "/app/admin" });
+      if (viewMode === "admin") nav({ to: "/app/admin" });
     }
-  }, [loading, user, isAdmin, pathname, nav]);
+  }, [loading, user, isAdmin, pathname, nav, viewMode]);
 
   useEffect(() => {
     if (loading || !user || sessionStorage.getItem("auth:welcome") !== "1") return;
@@ -344,6 +361,27 @@ function AppLayout() {
                   <User className="mr-2 h-4 w-4" />
                   Perfil
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Modo de visualização
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem onSelect={() => changeViewMode("admin", "/app/admin")}>
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard Admin
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => changeViewMode("admin", "/app")}>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Ver como Admin
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => changeViewMode("completo", "/app")}>
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Ver como Plano Completo
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onSelect={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sair
