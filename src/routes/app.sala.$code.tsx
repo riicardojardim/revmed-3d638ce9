@@ -1132,12 +1132,7 @@ function SimuladoRunner({ id }: { id: string }) {
                 disabled={!allCandidatesPresent}
                 onClick={() => {
                   if (!allCandidatesPresent) {
-                    const names = missingFromCall.map((c) => c.name).join(", ");
-                    toast.error(
-                      candidates.length === 0
-                        ? "Aguarde candidatos entrarem na sala."
-                        : `Aguardando entrar na videochamada: ${names}`,
-                    );
+                    toast.error("Aguarde candidatos entrarem na sala.");
                     return;
                   }
                   if (!evaluatedCandidateId) { setSelectCandidateOpen(true); return; }
@@ -1150,7 +1145,7 @@ function SimuladoRunner({ id }: { id: string }) {
                     ? "bg-white hover:bg-white/90 hover:shadow"
                     : "cursor-not-allowed bg-white/30 text-white/70",
                 )}
-                title={!allCandidatesPresent ? "Todos os candidatos precisam entrar na videochamada" : undefined}
+                title={!allCandidatesPresent ? "Aguarde candidatos entrarem na sala" : undefined}
               >
                 <Play className="h-4 w-4" /> Iniciar cronômetro
               </button>
@@ -1165,16 +1160,9 @@ function SimuladoRunner({ id }: { id: string }) {
                 )}
               >
                 {candidates.length === 0 ? (
-                  <>📹 Aguardando candidatos entrarem na sala...</>
-                ) : allCandidatesPresent ? (
-                  <>✅ Todos os candidatos estão na videochamada — pode iniciar o cronômetro.</>
+                  <>⏳ Aguardando candidatos entrarem na sala...</>
                 ) : (
-                  <>
-                    📹 Aguardando entrar na <strong>videochamada</strong>:{" "}
-                    <span className="font-semibold text-white">
-                      {missingFromCall.map((c) => c.name).join(", ")}
-                    </span>
-                  </>
+                  <>✅ Candidatos na sala — pode iniciar o cronômetro.</>
                 )}
               </div>
             )}
@@ -1241,23 +1229,6 @@ function SimuladoRunner({ id }: { id: string }) {
                       >
                         <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
                         <span className="flex-1 truncate font-medium">{c.name}</span>
-                        {isWaiting && (
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
-                              presentIdentities.has(c.id)
-                                ? "bg-mint/15 text-mint"
-                                : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-                            )}
-                            title={presentIdentities.has(c.id) ? "Na videochamada" : "Fora da videochamada"}
-                          >
-                            <span className={cn(
-                              "h-1.5 w-1.5 rounded-full",
-                              presentIdentities.has(c.id) ? "bg-mint animate-pulse" : "bg-amber-500",
-                            )} />
-                            {presentIdentities.has(c.id) ? "vídeo" : "fora"}
-                          </span>
-                        )}
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                           isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
