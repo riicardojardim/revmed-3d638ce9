@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
-import dashboardMockup from "@/assets/revmed-dashboard-mockup.png";
+import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
+import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -286,11 +287,20 @@ function Hero({ isLogged }: { isLogged: boolean }) {
               }}
             />
             <img
-              src={dashboardMockup}
-              alt="Painel REVMED com indicadores de desempenho"
+              src={mockupEstacao}
+              alt="Simulador de estação clínica REVMED com cronômetro INEP"
               width={1600}
-              height={1024}
+              height={900}
               className="w-full select-none drop-shadow-2xl"
+              draggable={false}
+            />
+            <img
+              src={mockupCronograma}
+              alt="App REVMED com cronograma Revalida e flashcards"
+              width={900}
+              height={1200}
+              loading="lazy"
+              className="pointer-events-none absolute -bottom-10 -right-6 hidden w-[38%] select-none drop-shadow-2xl md:block"
               draggable={false}
             />
           </div>
