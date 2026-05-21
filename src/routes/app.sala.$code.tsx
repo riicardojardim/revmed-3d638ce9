@@ -103,25 +103,6 @@ function SimuladoRunner({ id }: { id: string }) {
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
-  const [presentIdentities, setPresentIdentities] = useState<Set<string>>(new Set());
-  const fetchPresence = useServerFn(listRoomPresence);
-
-  // Poll de presença na videochamada — usado para liberar o "Iniciar cronômetro"
-  // apenas quando todos os candidatos já estão conectados ao LiveKit.
-  useEffect(() => {
-    if (!sim?.roomCode) return;
-    if (roomStatus !== "waiting") return;
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const r = await fetchPresence({ data: { roomCode: sim.roomCode! } });
-        if (!cancelled) setPresentIdentities(new Set(r.identities));
-      } catch { /* silencioso — só usado para liberar botão */ }
-    };
-    void tick();
-    const id = setInterval(tick, 3000);
-    return () => { cancelled = true; clearInterval(id); };
-  }, [sim?.roomCode, roomStatus, fetchPresence]);
 
 
 
@@ -740,8 +721,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
   const isWaiting = !running && !finishedStation;
-  const missingFromCall = candidates.filter((c) => !presentIdentities.has(c.id));
-  const allCandidatesPresent = candidates.length > 0 && missingFromCall.length === 0;
+  const allCandidatesPresent = candidates.length > 0;
   const totalSec = Math.max(0, Math.floor(remaining));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
   const ss = String(totalSec % 60).padStart(2, "0");
@@ -763,12 +743,6 @@ function SimuladoRunner({ id }: { id: string }) {
         />
       )}
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
-      {sim.roomCode && (
-        <FloatingVideoCall
-          roomCode={sim.roomCode}
-          displayName={(profile?.full_name?.trim()) || user?.email?.split("@")[0] || "Ator"}
-        />
-      )}
       {/* Progress header */}
       {sim.stations.length >= 2 && (
         <div className="sticky top-16 z-20 -mx-3 border-y border-border bg-background/95 px-3 py-3 backdrop-blur-xl sm:-mx-4 sm:px-4 lg:-mx-8 lg:px-8">
