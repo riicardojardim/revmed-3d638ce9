@@ -411,8 +411,7 @@ function CandidateView() {
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
-  // Overlay institucional de entrada (3..2..1). Renderizado COMO OVERLAY (não substitui a árvore)
-  // para que a FloatingVideoCall continue montada e a chamada não caia ao iniciar a estação.
+  // Overlay institucional de entrada (3..2..1) — renderizado COMO OVERLAY.
   const introOverlay = showIntro && user ? (
     <IntroOverlay
       variant={introVariant}
