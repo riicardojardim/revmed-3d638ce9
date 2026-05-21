@@ -20,14 +20,7 @@ import { useAuth } from "@/hooks/use-auth";
 import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
 import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
 import { Tilt } from "@/components/landing/motion-primitives";
-import depoAlexandre from "@/assets/depoimento-alexandre.png";
-import depoRenaldo from "@/assets/depoimento-renaldo.png";
-import depoMarilice from "@/assets/depoimento-marilice.png";
-import depoMaressa from "@/assets/depoimento-maressa.png";
-import depoAndressa from "@/assets/depoimento-andressa.webp";
-import depoCristhian from "@/assets/depoimento-cristhian.png";
-import depoAndre from "@/assets/depoimento-andre.webp";
-import depoNicolas from "@/assets/depoimento-nicolas.webp";
+import { Depoimentos } from "@/components/landing/Depoimentos";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
