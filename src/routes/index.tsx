@@ -30,7 +30,7 @@ import avatar1 from "@/assets/hero-avatar-1.jpg";
 import avatar2 from "@/assets/hero-avatar-2.jpg";
 import avatar3 from "@/assets/hero-avatar-3.jpg";
 import avatar4 from "@/assets/hero-avatar-4.jpg";
-import { Tilt } from "@/components/landing/motion-primitives";
+import { Tilt, Magnetic, AnimatedCounter } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
 import {
@@ -204,7 +204,26 @@ function TopNav({
 function Hero({ isLogged }: { isLogged: boolean }) {
   return (
     <section className="relative">
-      {/* radial orange glow */}
+      {/* Aurora cônica girando sutilmente */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="aurora-bg" />
+      </div>
+      {/* Orbs flutuantes */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div
+          className="orb-a absolute -top-20 -left-10 h-72 w-72 rounded-full opacity-50 blur-3xl"
+          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)" }}
+        />
+        <div
+          className="orb-b absolute top-1/3 right-0 h-80 w-80 rounded-full opacity-40 blur-3xl"
+          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--mint) 50%, transparent), transparent 70%)" }}
+        />
+        <div
+          className="orb-c absolute bottom-0 left-1/3 h-64 w-64 rounded-full opacity-35 blur-3xl"
+          style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 40%, transparent), transparent 70%)" }}
+        />
+      </div>
+      {/* radial orange glow base */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
@@ -225,33 +244,14 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             Plataforma oficial • Revalida INEP
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-6 font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[5.5rem]"
-          >
-            A plataforma que{" "}
-            <span
-              className="font-serif italic"
-              style={{
-                backgroundImage:
-                  "linear-gradient(120deg, #f5c542 0%, #e85d1c 55%, #ff8a3a 100%)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                fontWeight: 400,
-              }}
-            >
-              treina pra valer
-            </span>{" "}
-            o Revalida.
-          </motion.h1>
+          <h1 className="mt-6 font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[5.5rem]">
+            <HeroTitle />
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
             className="mt-6 max-w-xl text-lg text-muted-foreground md:text-xl leading-relaxed"
           >
             Estações ao vivo com cronômetro INEP, banco gigante de checklists
@@ -263,21 +263,24 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25 }}
+            transition={{ duration: 0.6, delay: 1.05 }}
             className="mt-8 flex flex-wrap items-center gap-3"
           >
-            <Link
-              to={isLogged ? "/app" : "/cadastro"}
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--primary)_75%,transparent)] transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_color-mix(in_oklab,var(--primary)_90%,transparent)]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(120deg, #ff8a3a 0%, #F59A1B 50%, #CF8737 100%)",
-              }}
-            >
-              <span className="relative z-10">Começar a treinar</span>
-              <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            </Link>
+            <Magnetic strength={0.28} className="relative inline-block">
+              <span aria-hidden className="cta-halo" />
+              <Link
+                to={isLogged ? "/app" : "/cadastro"}
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--primary)_75%,transparent)] transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_color-mix(in_oklab,var(--primary)_90%,transparent)]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(120deg, #ff8a3a 0%, #F59A1B 50%, #CF8737 100%)",
+                }}
+              >
+                <span className="relative z-10">Começar a treinar</span>
+                <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5" />
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+              </Link>
+            </Magnetic>
             <a
               href="#plataforma"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-card"
@@ -290,7 +293,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
             className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground"
           >
             <div className="flex -space-x-2">
