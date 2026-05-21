@@ -1171,9 +1171,9 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
             "radial-gradient(50% 70% at 50% 50%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
-        <h2 className="font-display text-[1.6rem] font-black leading-[0.98] tracking-[-0.045em] md:text-7xl lg:text-[2.4rem]">
-          Pronto pra treinar <br />
+      <div className="mx-auto max-w-6xl px-5 text-center md:px-8">
+        <h2 className="font-display text-[1.4rem] font-black leading-[1] tracking-[-0.045em] whitespace-nowrap md:text-[2.2rem] lg:text-[2.8rem] xl:text-[3.2rem]">
+          Pronto pra treinar{" "}
           <span className="text-primary">do jeito que cai?</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-muted-foreground md:text-lg">
