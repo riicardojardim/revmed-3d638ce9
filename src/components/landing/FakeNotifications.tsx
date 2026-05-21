@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, X, Sparkles } from "lucide-react";
-import { useSiteSettings } from "@/hooks/use-site-settings";
 import notif1 from "@/assets/notif-1.jpg";
 import notif2 from "@/assets/notif-2.jpg";
 import notif3 from "@/assets/notif-3.jpg";
