@@ -1,4 +1,4 @@
-import { Link, Outlet, useRouterState, useNavigate, useRouter } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -21,10 +21,7 @@ import {
 import {
   Home,
   ClipboardList,
-  Dumbbell,
-  
   User,
-  Bell,
   LogOut,
   GraduationCap,
   Brain,
@@ -37,20 +34,12 @@ import {
   Stethoscope,
   FileStack,
   FileText,
-  Calendar,
   DoorOpen,
-  Video,
   Sparkles,
-  
   MessageSquare,
   Headphones,
-  
-
-  MoreHorizontal,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -163,7 +152,7 @@ function AppLayout() {
     ];
   }
 
-  // Mobile bottom nav: flatten top-level
+  // Flat list for top nav
   const flatNav: NavItem[] = sections.flatMap((s) => s.items);
 
   
@@ -241,15 +230,16 @@ function AppLayout() {
           <div className="flex items-center gap-2">
             <Logo />
           </div>
-          <div className="flex flex-1 items-center gap-2 overflow-hidden font-sans">
+          <TopNav items={flatNav} isActive={isActive} />
+          <div className="hidden flex-1 items-center justify-end gap-2 overflow-hidden font-sans xl:flex">
             <span
               title={`Nota de corte da prova de habilidades clínicas — ${NOTA_DE_CORTE_EDICAO} (INEP)`}
-              className="hidden shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground md:inline-flex"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground"
             >
               <span className="text-muted-foreground">Nota de corte INEP</span>
               <span className="font-display font-bold tabular-nums text-mint">{NOTA_DE_CORTE.toFixed(3)} pts</span>
-              <span className="hidden h-3 w-px bg-mint/40 lg:inline-block" />
-              <span className="hidden text-muted-foreground lg:inline">{NOTA_DE_CORTE_EDICAO}</span>
+              <span className="inline-block h-3 w-px bg-mint/40" />
+              <span className="text-muted-foreground">{NOTA_DE_CORTE_EDICAO}</span>
             </span>
             {waEnabled && (
               <a
@@ -257,16 +247,9 @@ function AppLayout() {
                 target="_blank"
                 rel="noreferrer"
                 title={waLabel}
-                className="group hidden shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:bg-mint/15 hover:border-mint/60 sm:inline-flex"
+                className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:bg-mint/15 hover:border-mint/60"
               >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#25D366]">
-                  <svg viewBox="0 0 32 32" className="h-3.5 w-3.5 fill-white" aria-hidden>
-                    <path d="M25.873 6.069c-2.619-2.623-6.103-4.067-9.814-4.069-7.652 0-13.88 6.225-13.883 13.881-.001 2.447.638 4.835 1.852 6.941l-1.969 7.19 7.355-1.929c2.029 1.107 4.314 1.69 6.638 1.691h.006c7.652 0 13.881-6.226 13.884-13.882.001-3.708-1.44-7.193-4.063-9.815zM16.005 27.122c-2.077-.001-4.114-.561-5.892-1.617l-.422-.251-4.367 1.145 1.165-4.256-.275-.439c-1.16-1.845-1.774-3.978-1.773-6.166.003-6.367 5.183-11.546 11.553-11.546 3.083.001 5.986 1.204 8.169 3.388s3.385 5.088 3.384 8.173c-.003 6.367-5.183 11.547-11.541 11.547zm6.331-8.643c-.347-.174-2.053-1.013-2.372-1.129-.318-.116-.55-.174-.781.174-.232.347-.898 1.129-1.101 1.361-.203.232-.405.261-.752.087-.347-.174-1.466-.541-2.792-1.724-1.032-.921-1.728-2.058-1.93-2.405-.203-.347-.022-.535.152-.708.156-.156.347-.405.521-.608.174-.203.232-.347.347-.579.116-.232.058-.434-.029-.608-.087-.174-.781-1.883-1.071-2.578-.282-.677-.568-.585-.781-.596-.202-.01-.434-.012-.666-.012-.232 0-.608.087-.926.434-.318.347-1.216 1.188-1.216 2.897s1.245 3.36 1.419 3.592c.174.232 2.451 3.742 5.937 5.246.829.358 1.477.572 1.982.732.833.265 1.591.228 2.19.138.668-.1 2.053-.839 2.343-1.649.289-.81.289-1.504.203-1.649-.087-.145-.318-.232-.666-.405z"/>
-                  </svg>
-                </span>
-                <span className="text-muted-foreground">WhatsApp</span>
-                <span className="hidden h-3 w-px bg-mint/40 lg:inline-block" />
-                <span className="font-display font-bold text-mint truncate max-w-[220px]">{waLabel}</span>
+                <span className="font-display font-bold text-mint truncate max-w-[180px]">{waLabel}</span>
               </a>
             )}
           </div>
@@ -276,7 +259,7 @@ function AppLayout() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="hidden rounded-full outline-none ring-offset-background transition-shadow focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 sm:inline-flex"
+                  className="inline-flex rounded-full outline-none ring-offset-background transition-shadow focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2"
                   aria-label="Abrir menu do usuário"
                 >
                   <UserAvatar
@@ -306,130 +289,78 @@ function AppLayout() {
           </div>
         </header>
 
-        <main className="relative mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-clip px-3 pb-32 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
+        <main className="relative mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-clip px-3 pb-12 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
           <RouteProgress />
           <Outlet />
         </main>
-
-
-
-        {/* Bottom dock — em todas as larguras */}
-        <BottomDock items={flatNav} isActive={isActive} />
-
-
-
       </div>
     </div>
     </OnlinePresenceProvider>
   );
 }
 
-function BottomDock({
+function TopNav({
   items,
   isActive,
 }: {
   items: NavItem[];
   isActive: (to: string, exact?: boolean) => boolean;
 }) {
-  const isMobile = useIsMobile();
-  const router = useRouter();
-  // Em mobile mostramos no máximo 4 atalhos + botão "Mais" com o restante.
-  const MAX_VISIBLE = 4;
-  const showOverflow = isMobile && items.length > MAX_VISIBLE;
-  const visible = showOverflow ? items.slice(0, MAX_VISIBLE) : items;
-  const overflow = showOverflow ? items.slice(MAX_VISIBLE) : [];
-
-  // Pré-carrega TODAS as rotas do dock assim que ele monta — evita qualquer
-  // espera (e a tela anterior reaparecendo) ao clicar em Checklists, Flashcards
-  // ou outros atalhos. Usa requestIdleCallback p/ não disputar com a 1ª pintura.
-  useEffect(() => {
-    const run = () => {
-      items.forEach((n) => {
-        router.preloadRoute({ to: n.to } as Parameters<typeof router.preloadRoute>[0]).catch(() => {});
-      });
-    };
-    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
-    if (typeof w.requestIdleCallback === "function") {
-      w.requestIdleCallback(run);
-    } else {
-      window.setTimeout(run, 200);
-    }
-  }, [items, router]);
-
-
-
+  // Desktop: pills inline. Mobile: trigger that opens a popover with everything.
   return (
-    <nav
-      className="fixed left-1/2 z-40 w-[calc(100vw-1rem)] max-w-[720px] -translate-x-1/2 rounded-2xl border border-border/60 bg-background/90 shadow-elegant backdrop-blur-xl sm:w-[min(96vw,720px)]"
-      style={{
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)",
-        left: "calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2)",
-      }}
-    >
-
-      <div className="flex items-stretch justify-around gap-0.5 px-1.5 py-1.5 sm:gap-1 sm:px-2">
-        {visible.map((n) => {
+    <>
+      {/* Desktop pills */}
+      <nav className="ml-2 hidden flex-1 items-center gap-1 overflow-x-auto no-scrollbar lg:flex">
+        {items.map((n) => {
           const active = isActive(n.to, n.exact);
           return (
             <Link
               key={n.to}
               to={n.to}
-              className={`relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold transition-all sm:px-1.5 ${
-                active ? "bg-mint/15 text-mint" : "text-muted-foreground hover:text-foreground"
+              className={`group inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors ${
+                active
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <n.icon className={`h-5 w-5 ${active ? "scale-110" : ""} transition-transform`} />
-              <span className="max-w-full truncate">{n.label}</span>
-              {active && <span className="absolute -top-1 h-1 w-6 rounded-full bg-mint" />}
+              <n.icon className="h-4 w-4" />
+              {n.label}
             </Link>
           );
         })}
-        {showOverflow && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all hover:text-foreground sm:px-1.5"
-                aria-label="Mais opções"
-              >
-                <MoreHorizontal className="h-5 w-5" />
-                <span>Mais</span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent side="top" align="end" className="w-56 p-1">
-              <div className="flex flex-col">
-                {overflow.map((n) => {
-                  const active = isActive(n.to, n.exact);
-                  return (
-                    <Link
-                      key={n.to}
-                      to={n.to}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                        active ? "bg-mint/15 text-mint" : "text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <n.icon className="h-4 w-4" />
-                      <span className="flex-1 truncate">{n.label}</span>
-                    </Link>
-                  );
-                })}
-                <div className="my-1 h-px bg-border" />
-                <button
-                  type="button"
-                  onClick={async () => {
-                    const { supabase } = await import("@/integrations/supabase/client");
-                    await supabase.auth.signOut();
-                    window.location.href = "/login";
-                  }}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+      </nav>
+      {/* Mobile / tablet trigger */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="ml-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground lg:hidden"
+            aria-label="Abrir navegação"
+          >
+            <LayoutDashboard className="h-4 w-4 text-primary" />
+            Menu
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-64 p-1">
+          <div className="flex flex-col">
+            {items.map((n) => {
+              const active = isActive(n.to, n.exact);
+              return (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                    active ? "bg-primary/15 text-primary" : "text-foreground hover:bg-muted"
+                  }`}
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span className="flex-1 truncate text-left">Sair</span>
-                </button>
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
-      </div>
-    </nav>
+                  <n.icon className="h-4 w-4" />
+                  <span className="flex-1 truncate">{n.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </>
   );
 }
