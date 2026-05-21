@@ -35,6 +35,7 @@ function AdminAppearance() {
       favicon_url: draft.favicon_url,
       colors: draft.colors,
       contact_email: draft.contact_email,
+      urgency_banner_text: draft.urgency_banner_text,
     }).eq("id", draft.id);
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -62,6 +63,14 @@ function AdminAppearance() {
         <label className="text-sm">E-mail de contato
           <input type="email" value={draft.contact_email ?? ""} onChange={(e) => setDraft({ ...draft, contact_email: e.target.value })}
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+        </label>
+        <label className="text-sm">Barra superior (texto de urgência)
+          <input
+            value={draft.urgency_banner_text ?? ""}
+            onChange={(e) => setDraft({ ...draft, urgency_banner_text: e.target.value })}
+            placeholder="Entre numa sessão na plataforma mais completa para revalidação"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+          <p className="mt-1 text-[11px] text-muted-foreground">Texto exibido na barra laranja no topo da landing page.</p>
         </label>
 
         <div className="grid gap-4 md:grid-cols-2">
