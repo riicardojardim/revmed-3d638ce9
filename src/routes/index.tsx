@@ -15,7 +15,6 @@ import {
   Instagram,
   Phone,
   Mail,
-  Building2,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
