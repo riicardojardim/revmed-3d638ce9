@@ -225,7 +225,7 @@ export function StationIntroOverlayStamp({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: ink }}>
                 <FileText className="h-3.5 w-3.5" />
-                <span>Estação Revalida · Prontuário</span>
+                <span>REVMED · Prontuário</span>
               </div>
               <div className="font-mono text-[10px] tracking-widest" style={{ color: ink, opacity: 0.7 }}>
                 Nº {protocol}
@@ -422,7 +422,7 @@ export function StationIntroOverlayStamp({
       >
         <ShieldCheck className="h-3.5 w-3.5 text-white/70" />
         <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-white/70">
-          Estação Revalida · Liberação de Acesso
+          REVMED · Liberação de Acesso
         </span>
       </motion.div>
 

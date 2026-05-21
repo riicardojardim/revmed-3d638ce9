@@ -105,7 +105,7 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
             className="hidden @[200px]:block uppercase tracking-[0.22em] text-white/50"
             style={{ fontSize: "max(8px, 2.6cqi)" }}
           >
-            Flashcards · Estação Revalida
+            Flashcards · REVMED
           </div>
         </div>
       </div>

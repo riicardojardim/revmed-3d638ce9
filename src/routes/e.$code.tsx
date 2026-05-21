@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/e/$code")({
   component: ShortInvite,
-  head: () => ({ meta: [{ title: "Entrar na sala — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Entrar na sala — REVMED" }] }),
 });
 
 function ShortInvite() {

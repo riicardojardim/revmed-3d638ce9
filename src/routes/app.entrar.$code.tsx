@@ -6,7 +6,7 @@ import { Loader2, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/app/entrar/$code")({
   component: JoinRoom,
-  head: () => ({ meta: [{ title: "Entrando na sala — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Entrando na sala — REVMED" }] }),
 });
 
 function JoinRoom() {

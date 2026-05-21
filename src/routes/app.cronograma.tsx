@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/cronograma")({
   component: Cronograma,
-  head: () => ({ meta: [{ title: "Cronograma — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Cronograma — REVMED" }] }),
 });
 
 function Cronograma() {

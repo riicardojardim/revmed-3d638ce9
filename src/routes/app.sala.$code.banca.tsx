@@ -19,7 +19,7 @@ import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
   component: EvaluatorView,
-  head: () => ({ meta: [{ title: "Painel do Ator — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Painel do Ator — REVMED" }] }),
 });
 
 type Room = { id: string; code: string; station_id: string; station_title: string; duration_minutes: number | null };

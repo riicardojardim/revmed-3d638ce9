@@ -151,7 +151,7 @@ export function StationIntroOverlayExamRoom({
           className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] backdrop-blur-sm"
           style={{ borderColor: accentSoft, background: "rgba(255,255,255,0.03)", color: accent }}
         >
-          <ClipboardList className="h-3 w-3" /> Estação Revalida
+          <ClipboardList className="h-3 w-3" /> REVMED
         </div>
       </motion.div>
 

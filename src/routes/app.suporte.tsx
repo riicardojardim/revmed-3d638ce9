@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/suporte")({
   component: Suporte,
-  head: () => ({ meta: [{ title: "Suporte — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Suporte — REVMED" }] }),
 });
 
 function Suporte() {

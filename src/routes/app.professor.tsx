@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/professor")({
   component: ProfessorLayout,
-  head: () => ({ meta: [{ title: "Área do Professor — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Área do Professor — REVMED" }] }),
 });
 
 const tabs = [

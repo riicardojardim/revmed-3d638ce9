@@ -150,7 +150,7 @@ export function StationIntroOverlay({ role, stationTitle, specialty, displayName
         className="absolute left-1/2 top-[10%] -translate-x-1/2 text-center"
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-mint">
-          <ShieldCheck className="h-3 w-3" /> Estação Revalida
+          <ShieldCheck className="h-3 w-3" /> REVMED
         </div>
         <div className="mt-3 font-display text-xl text-white/80 md:text-2xl">
           {isCandidate ? "Você vai entrar agora." : "Prepare-se para receber o candidato"}
@@ -342,7 +342,7 @@ function CredentialCard({
       <div className="h-1.5 bg-gradient-to-r from-mint via-medical to-mint" />
       <div className="p-5">
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.18em] text-mint">
-          <span>Estação Revalida</span>
+          <span>REVMED</span>
           <span className="text-white/40">CRED · {role.slice(0, 3).toUpperCase()}</span>
         </div>
         <div className="mt-5 flex items-center gap-3">

@@ -178,7 +178,7 @@ export function StationIntroOverlayElevator({
       >
         <Bell className="h-3.5 w-3.5" />
         <span className="font-mono text-[10px] tracking-[0.3em] uppercase">
-          Estação Revalida · Elevador Clínico
+          REVMED · Elevador Clínico
         </span>
       </motion.div>
 

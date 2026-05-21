@@ -3,7 +3,7 @@ import { Video } from "lucide-react";
 
 export const Route = createFileRoute("/app/live")({
   component: Live,
-  head: () => ({ meta: [{ title: "Live - Parceiros — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Live - Parceiros — REVMED" }] }),
 });
 
 function Live() {

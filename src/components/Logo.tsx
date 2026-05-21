@@ -20,11 +20,11 @@ export function Logo({
     <Link
       to={target}
       className="inline-flex items-center justify-center"
-      aria-label="Estação Revalida — início"
+      aria-label="REVMED — início"
     >
       <img
         src={isStacked ? logoStackedUrl : logoUrl}
-        alt="Estação Revalida"
+        alt="REVMED"
         className={
           className ??
           (isStacked

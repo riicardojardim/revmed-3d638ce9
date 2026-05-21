@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/app/novidades")({
   component: Novidades,
-  head: () => ({ meta: [{ title: "Novidades — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Novidades — REVMED" }] }),
 });
 
 const news = [

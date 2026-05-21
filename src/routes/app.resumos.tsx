@@ -32,7 +32,7 @@ import { staggerContainer, staggerItem } from "@/lib/stagger";
 
 export const Route = createFileRoute("/app/resumos")({
   component: ResumosPage,
-  head: () => ({ meta: [{ title: "Resumos — Estação Revalida" }] }),
+  head: () => ({ meta: [{ title: "Resumos — REVMED" }] }),
 });
 
 type Summary = {

@@ -144,7 +144,7 @@ export function StationIntroOverlayDoor({
         className="absolute left-1/2 top-8 -translate-x-1/2 text-center"
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-mint/25 bg-white/[0.03] px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-mint/90 backdrop-blur-sm">
-          <ShieldCheck className="h-3 w-3" /> Estação Revalida
+          <ShieldCheck className="h-3 w-3" /> REVMED
         </div>
       </motion.div>
 

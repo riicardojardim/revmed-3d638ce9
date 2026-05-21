@@ -217,7 +217,7 @@ export function StationIntroOverlayCorridor({
         className="absolute left-1/2 top-8 -translate-x-1/2"
       >
         <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-black/40 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-mint/90 backdrop-blur-sm">
-          <ShieldCheck className="h-3 w-3" /> Estação Revalida
+          <ShieldCheck className="h-3 w-3" /> REVMED
         </div>
       </motion.div>
 
