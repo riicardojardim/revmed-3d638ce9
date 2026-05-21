@@ -11,19 +11,19 @@
 
   /* Escala tipográfica premium / compacta (Full HD friendly).
      Reduz todos os text-{size} do Tailwind proporcionalmente. */
-  --text-xs: 0.72rem;
-  --text-sm: 0.82rem;
-  --text-base: 0.92rem;
-  --text-lg: 1.02rem;
-  --text-xl: 1.12rem;
-  --text-2xl: 1.3rem;
-  --text-3xl: 1.55rem;
-  --text-4xl: 1.85rem;
-  --text-5xl: 2.2rem;
-  --text-6xl: 2.6rem;
-  --text-7xl: 3rem;
-  --text-8xl: 3.6rem;
-  --text-9xl: 4.4rem;
+  --text-xs: 0.7rem;
+  --text-sm: 0.78rem;
+  --text-base: 0.88rem;
+  --text-lg: 0.98rem;
+  --text-xl: 1.08rem;
+  --text-2xl: 1.2rem;
+  --text-3xl: 1.4rem;
+  --text-4xl: 1.65rem;
+  --text-5xl: 1.9rem;
+  --text-6xl: 2.2rem;
+  --text-7xl: 2.5rem;
+  --text-8xl: 2.9rem;
+  --text-9xl: 3.4rem;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

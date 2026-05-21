@@ -291,7 +291,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             Plataforma oficial • Revalida INEP
           </motion.div>
 
-          <h1 className="mt-6 font-display text-[2rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[3.6rem]">
+          <h1 className="mt-6 font-display text-[1.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[2.4rem]">
             <HeroTitle />
           </h1>
 
@@ -604,7 +604,7 @@ function Manifesto() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+            <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
             <p className="mt-6 text-base text-muted-foreground md:text-lg">
@@ -629,7 +629,7 @@ function Manifesto() {
                     {p.n}
                   </div>
                   <div>
-                    <h3 className="font-display text-2xl font-extrabold tracking-[-0.03em] md:text-3xl lg:text-[2rem]">
+                    <h3 className="font-display text-2xl font-extrabold tracking-[-0.03em] md:text-3xl lg:text-[1.6rem]">
                       {p.title}
                     </h3>
                     <p className="mt-2 max-w-xl text-muted-foreground">
@@ -658,7 +658,7 @@ function Plataforma() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+            <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
@@ -818,7 +818,7 @@ function Mentoria() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+            <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
               Quer alguém <br />
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
@@ -960,7 +960,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+          <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
@@ -1016,7 +1016,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                   </p>
 
                   <div className="mt-6 flex items-end gap-1.5">
-                    <span className="font-display text-[2.1rem] font-black leading-none tracking-[-0.04em] md:text-5xl">
+                    <span className="font-display text-[1.7rem] font-black leading-none tracking-[-0.04em] md:text-5xl">
                       {p.price}
                     </span>
                     {p.cadence && (
@@ -1121,7 +1121,7 @@ function FAQ() {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
           Perguntas honestas
         </p>
-        <h2 className="mt-4 font-display text-[1.8rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+        <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
           O que a gente costuma ouvir.
         </h2>
         <div className="mt-10 divide-y divide-border border-y border-border">
@@ -1173,7 +1173,7 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
-        <h2 className="font-display text-[2rem] font-black leading-[0.98] tracking-[-0.045em] md:text-7xl lg:text-[3.6rem]">
+        <h2 className="font-display text-[1.6rem] font-black leading-[0.98] tracking-[-0.045em] md:text-7xl lg:text-[2.4rem]">
           Pronto pra treinar <br />
           <span className="text-primary">do jeito que cai?</span>
         </h2>
