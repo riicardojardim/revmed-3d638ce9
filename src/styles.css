@@ -60,9 +60,9 @@
 
   /* Brand — REVMED (preto + laranja/dourado) */
   --night: oklch(0.16 0.01 40);           /* #0d0d0d */
-  --medical: oklch(0.65 0.19 45);         /* #e85d1c — laranja principal */
-  --mint: oklch(0.83 0.16 85);            /* #f5c542 — dourado (accent) */
-  --mint-soft: oklch(0.92 0.10 85);       /* dourado claro */
+  --medical: oklch(0.72 0.17 65);         /* #f08c00 — âmbar do logo */
+  --mint: oklch(0.83 0.16 80);            /* dourado accent */
+  --mint-soft: oklch(0.92 0.10 80);       /* dourado claro */
   --ice: oklch(0.985 0.005 60);           /* off-white quente */
 
   --background: var(--ice);
