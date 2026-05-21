@@ -692,10 +692,10 @@ function FeatureCard({
 /* ----------------------------- RESULTADOS ----------------------------- */
 
 const NUMBERS = [
-  { v: "87%", l: "Aprovação na turma 25.1" },
-  { v: "5+", l: "Anos de existência" },
-  { v: "5", l: "Alunos por grupo" },
-  { v: "10min", l: "Por estação, como no INEP" },
+  { v: "+ 320", l: "Estações ao vivo já realizadas" },
+  { v: "+ 1.2k", l: "Médicos treinando na plataforma" },
+  { v: "87%", l: "Aprovação dos alunos na 25.1" },
+  { v: "10min", l: "Cronômetro INEP em cada estação" },
 ];
 
 
