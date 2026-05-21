@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, X, Sparkles } from "lucide-react";
+import notif1 from "@/assets/notif-1.jpg";
+import notif2 from "@/assets/notif-2.jpg";
+import notif3 from "@/assets/notif-3.jpg";
+import notif4 from "@/assets/notif-4.jpg";
+import notif5 from "@/assets/notif-5.jpg";
+import notif6 from "@/assets/notif-6.jpg";
+import notif7 from "@/assets/notif-7.jpg";
+import notif8 from "@/assets/notif-8.jpg";
 
 type Notif = {
   id: number;
@@ -8,19 +16,20 @@ type Notif = {
   city: string;
   action: string;
   time: string;
+  avatar: string;
 };
 
 const POOL: Omit<Notif, "id" | "time">[] = [
-  { name: "Dra. Marina S.", city: "Lisboa, PT", action: "garantiu vaga na turma 2026.1" },
-  { name: "Dr. Rafael M.", city: "Buenos Aires, AR", action: "começou o plano Plataforma" },
-  { name: "Dra. Camila R.", city: "Assunção, PY", action: "fez uma simulação cronometrada" },
-  { name: "Dr. Henrique T.", city: "Madri, ES", action: "garantiu vaga na turma 2026.1" },
-  { name: "Dra. Letícia P.", city: "La Paz, BO", action: "completou um checklist INEP" },
-  { name: "Dr. André V.", city: "Cidade do México, MX", action: "agendou conversa com a equipe" },
-  { name: "Dra. Beatriz F.", city: "Montevidéu, UY", action: "começou o plano Plataforma" },
-  { name: "Dr. Lucas D.", city: "Berlim, DE", action: "garantiu vaga na turma 2026.1" },
-  { name: "Dra. Júlia A.", city: "Santiago, CL", action: "fez uma estação de pediatria" },
-  { name: "Dr. Eduardo L.", city: "Roma, IT", action: "completou 50 flashcards hoje" },
+  { name: "Dra. Marina S.", city: "Lisboa, PT", action: "garantiu vaga na turma 2026.1", avatar: notif1 },
+  { name: "Dr. Rafael M.", city: "Buenos Aires, AR", action: "começou o plano Plataforma", avatar: notif2 },
+  { name: "Dra. Camila R.", city: "Assunção, PY", action: "fez uma simulação cronometrada", avatar: notif3 },
+  { name: "Dr. Henrique T.", city: "Madri, ES", action: "garantiu vaga na turma 2026.1", avatar: notif4 },
+  { name: "Dra. Letícia P.", city: "La Paz, BO", action: "completou um checklist INEP", avatar: notif5 },
+  { name: "Dr. André V.", city: "Cidade do México, MX", action: "agendou conversa com a equipe", avatar: notif6 },
+  { name: "Dra. Beatriz F.", city: "Montevidéu, UY", action: "começou o plano Plataforma", avatar: notif7 },
+  { name: "Dr. Lucas D.", city: "Berlim, DE", action: "garantiu vaga na turma 2026.1", avatar: notif8 },
+  { name: "Dra. Júlia A.", city: "Santiago, CL", action: "fez uma estação de pediatria", avatar: notif3 },
+  { name: "Dr. Eduardo L.", city: "Roma, IT", action: "completou 50 flashcards hoje", avatar: notif2 },
 ];
 
 const TIMES = ["agora há pouco", "há 2 min", "há 5 min", "há 8 min", "há 12 min", "há 18 min"];
@@ -68,8 +77,18 @@ export function FakeNotifications() {
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             className="pointer-events-auto flex w-[19rem] items-start gap-3 rounded-2xl border border-border/80 bg-background/95 p-3.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 ring-1 ring-primary/30">
-              <CheckCircle2 className="h-5 w-5 text-primary" />
+            <div className="relative h-11 w-11 shrink-0">
+              <img
+                src={current.avatar}
+                alt=""
+                loading="lazy"
+                width={44}
+                height={44}
+                className="h-11 w-11 rounded-full object-cover ring-2 ring-background"
+              />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary ring-2 ring-background">
+                <CheckCircle2 className="h-3 w-3 text-primary-foreground" />
+              </span>
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-foreground">
