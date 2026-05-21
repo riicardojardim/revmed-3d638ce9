@@ -756,10 +756,10 @@ function FeatureCard({
 /* ----------------------------- RESULTADOS ----------------------------- */
 
 const NUMBERS = [
-  { v: "+ 320", l: "Estações ao vivo já realizadas" },
-  { v: "+ 1.2k", l: "Médicos treinando na plataforma" },
-  { v: "87%", l: "Aprovação dos alunos na 25.1" },
-  { v: "10min", l: "Cronômetro INEP em cada estação" },
+  { prefix: "+ ", value: 320, decimals: 0, suffix: "",    l: "Estações ao vivo já realizadas" },
+  { prefix: "+ ", value: 1.2, decimals: 1, suffix: "k",   l: "Médicos treinando na plataforma" },
+  { prefix: "",   value: 87,  decimals: 0, suffix: "%",   l: "Aprovação dos alunos na 25.1" },
+  { prefix: "",   value: 10,  decimals: 0, suffix: "min", l: "Cronômetro INEP em cada estação" },
 ];
 
 
@@ -778,11 +778,15 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="card-premium rounded-3xl p-7 transition-transform hover:-translate-y-1"
+              className="card-premium card-glow rounded-3xl p-7 transition-transform hover:-translate-y-1"
             >
-              <div className="font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl">
-                {n.v}
-              </div>
+              <AnimatedCounter
+                to={n.value}
+                decimals={n.decimals}
+                prefix={n.prefix}
+                suffix={n.suffix}
+                className="block font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl"
+              />
               <div className="mt-3 text-sm font-medium text-muted-foreground">
                 {n.l}
               </div>
