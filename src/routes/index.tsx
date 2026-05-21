@@ -1106,18 +1106,18 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
         <h2 className="font-display text-4xl font-black leading-[1.02] tracking-[-0.03em] md:text-6xl">
-          O próximo nome aprovado <br />
-          <span className="text-primary">pode ser o seu.</span>
+          Pronto pra treinar <br />
+          <span className="text-primary">do jeito que cai?</span>
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-muted-foreground md:text-lg">
-          Vagas abertas para a turma 2026.1. Cinco médicos. Um mentor. Plataforma
-          inclusa. Sem promessas mágicas — só método.
+          Estações ao vivo, checklists oficiais, flashcards, resumos e painel
+          de desempenho. Tudo num só lugar, até o dia da prova.
         </p>
         <Link
           to={isLogged ? "/app" : "/cadastro"}
           className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03]"
         >
-          Garantir minha vaga
+          Entrar na plataforma
           <ArrowUpRight className="h-5 w-5" />
         </Link>
       </div>
