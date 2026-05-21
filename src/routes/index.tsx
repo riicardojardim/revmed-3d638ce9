@@ -13,6 +13,8 @@ import {
   Layers,
   PlayCircle,
   Instagram,
+  Phone,
+  Mail,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -910,14 +912,45 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
 function Footer() {
   return (
     <footer className="border-t border-border bg-card/30 py-12">
-      <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-5 md:flex-row md:items-center md:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-5 md:flex-row md:items-start md:justify-between md:px-8">
+        {/* brand */}
         <div className="flex flex-col gap-3">
           <Logo />
           <p className="max-w-sm text-sm text-muted-foreground">
             REVMED — Mentoria para Revalidação Médica.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-sm text-muted-foreground md:flex-row md:items-center md:gap-8">
+
+        {/* contact */}
+        <div className="flex flex-col gap-3 text-sm text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
+            Contato
+          </p>
+          <a
+            href="tel:+5521987860985"
+            className="inline-flex items-center gap-2 hover:text-foreground"
+          >
+            <Phone className="h-4 w-4 text-primary" />
+            +55 (21) 98786-0985 — Suporte RevMed
+          </a>
+          <a
+            href="tel:+5521983786198"
+            className="inline-flex items-center gap-2 hover:text-foreground"
+          >
+            <Phone className="h-4 w-4 text-primary" />
+            +55 (21) 98378-6198 — Dr. Anoar Jezini
+          </a>
+          <a
+            href="mailto:contato@revmed.app.br"
+            className="inline-flex items-center gap-2 hover:text-foreground"
+          >
+            <Mail className="h-4 w-4 text-primary" />
+            contato@revmed.app.br
+          </a>
+        </div>
+
+        {/* links */}
+        <div className="flex flex-col gap-4 text-sm text-muted-foreground md:items-end">
           <a
             href="https://instagram.com/revmedmentoria"
             target="_blank"
