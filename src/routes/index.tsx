@@ -229,7 +229,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-6 font-display text-[2.1rem] font-black leading-[1.05] tracking-[-0.04em] md:text-5xl lg:text-6xl"
+            className="mt-6 font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[5.5rem]"
           >
             A plataforma que <br />
             <span
@@ -250,7 +250,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
+            className="mt-6 max-w-xl text-lg text-muted-foreground md:text-xl leading-relaxed"
           >
             Estações ao vivo com cronômetro INEP, banco gigante de checklists
             oficiais, flashcards com revisão espaçada, resumos enxutos e
@@ -547,7 +547,7 @@ function Manifesto() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-4 font-display text-[2.4rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
             <p className="mt-6 text-base text-muted-foreground md:text-lg">
@@ -572,7 +572,7 @@ function Manifesto() {
                     {p.n}
                   </div>
                   <div>
-                    <h3 className="font-display text-2xl font-bold tracking-tight md:text-3xl">
+                    <h3 className="font-display text-2xl font-extrabold tracking-[-0.03em] md:text-3xl lg:text-[2rem]">
                       {p.title}
                     </h3>
                     <p className="mt-2 max-w-xl text-muted-foreground">
@@ -601,7 +601,7 @@ function Plataforma() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-4 font-display text-[2.4rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
@@ -757,7 +757,7 @@ function Mentoria() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-4 font-display text-[2.4rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
               Quer alguém <br />
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
@@ -786,7 +786,7 @@ function Mentoria() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
-                <h3 className="mt-4 font-display text-3xl font-bold tracking-tight md:text-4xl">
+                <h3 className="mt-4 font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl lg:text-5xl">
                   O que vem na mentoria
                 </h3>
                 <ul className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -899,7 +899,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+          <h2 className="mt-4 font-display text-[2.4rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
@@ -1060,7 +1060,7 @@ function FAQ() {
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
           Perguntas honestas
         </p>
-        <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+        <h2 className="mt-4 font-display text-[2.4rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
           O que a gente costuma ouvir.
         </h2>
         <div className="mt-10 divide-y divide-border border-y border-border">
@@ -1112,7 +1112,7 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
-        <h2 className="font-display text-4xl font-black leading-[1.02] tracking-[-0.03em] md:text-6xl">
+        <h2 className="font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.045em] md:text-7xl lg:text-[5.5rem]">
           Pronto pra treinar <br />
           <span className="text-primary">do jeito que cai?</span>
         </h2>
