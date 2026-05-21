@@ -75,13 +75,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "REVMED — Treine a prova prática com método" },
+      { title: "REVMED" },
       { name: "description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
-      { name: "author", content: "REVMED" },
-      { property: "og:title", content: "REVMED — Treine a prova prática com método" },
+      { name: "author", content: "Estação Revalida" },
+      { property: "og:title", content: "REVMED" },
       { property: "og:description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "/icon-512.png" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7f97abc8-c51d-47a5-9895-cedcd4ec35ae/id-preview-2c06138e--4a374046-0ed1-4899-8089-e814e79cceb2.lovable.app-1779340201585.png" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "theme-color", content: "#07111F" },
@@ -89,9 +89,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "Revalida" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { name: "twitter:title", content: "REVMED — Treine a prova prática com método" },
+      { name: "twitter:title", content: "REVMED" },
       { name: "twitter:description", content: "Plataforma premium de preparação para a prova prática do Revalida: estações clínicas, checklists, cronômetro, feedback inteligente e evolução por competência." },
-      { name: "twitter:image", content: "/icon-512.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7f97abc8-c51d-47a5-9895-cedcd4ec35ae/id-preview-2c06138e--4a374046-0ed1-4899-8089-e814e79cceb2.lovable.app-1779340201585.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -114,7 +114,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className="dark">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
