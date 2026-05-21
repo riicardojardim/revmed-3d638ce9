@@ -511,23 +511,23 @@ const PILLARS = [
   {
     n: "01",
     icon: Target,
-    title: "Foco brutal.",
+    title: "Treine de verdade.",
     body:
-      "Você não vai estudar tudo. Vai estudar o que cai. Mapeamos cada estação do INEP e cortamos o que não te tira pra fora da nota de corte.",
+      "Estação ao vivo, ator do outro lado, cronômetro do INEP rodando. Você não simula no papel — você executa, do mesmo jeito que vai fazer na prova.",
   },
   {
     n: "02",
     icon: Compass,
-    title: "Rota individual.",
+    title: "Veja onde está.",
     body:
-      "Cada um chega com uma história. Cinco médicos por grupo significa plano de estudo por nome — não por turma. Seu mentor sabe onde você travou.",
+      "Cada checklist, flashcard e estação vira número no seu painel de desempenho. Você sabe exatamente em qual área está perdendo ponto — e onde já é prova.",
   },
   {
     n: "03",
     icon: Layers,
     title: "Repetição que cura.",
     body:
-      "A plataforma roda checklist, flashcard e simulado cronometrado em looping. Nada de revisar uma vez e esquecer. Você ensaia até virar reflexo.",
+      "Checklist, flashcard e simulado cronometrado em looping. Nada de revisar uma vez e esquecer — você ensaia até a conduta sair em automático.",
   },
 ];
 
@@ -538,16 +538,16 @@ function Manifesto() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              Manifesto
+              Método
             </p>
             <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
             <p className="mt-6 text-base text-muted-foreground md:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
-              estudou certo. REVMED existe pra fazer essa diferença caber na
-              sua rotina de plantonista, mãe, pai, imigrante e ser humano que
-              precisa dormir.
+              treinou certo. A REVMED foi feita pra você praticar conduta,
+              marcar checklist como banca e medir o próprio progresso, no
+              tempo que a sua rotina permite.
             </p>
           </div>
           <div className="lg:col-span-8">
