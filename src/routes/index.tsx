@@ -595,13 +595,13 @@ function Plataforma() {
               Plataforma
             </p>
             <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-              Tudo num só lugar. Nada perdido em PDF.
+              Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
           <p className="max-w-md text-muted-foreground">
-            Construímos a plataforma que a gente sempre quis ter na época do
-            cursinho — sem 14 abas abertas, sem caderno físico, sem app
-            “de flashcard” separado.
+            Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
+            sem travar. Tudo integrado ao seu painel de desempenho, com
+            histórico, tempo médio e nota por critério.
           </p>
         </div>
 
@@ -609,34 +609,34 @@ function Plataforma() {
           <FeatureCard
             className="md:col-span-4"
             tag="Estação"
-            title="Simulações com cronômetro real do INEP"
-            desc="10 minutos, cinco impressos, ator treinado. Quando a campainha toca, você já tá pronto pra prova oficial."
+            title="Sala ao vivo com cronômetro INEP"
+            desc="Candidato, ator e avaliador na mesma sala — 10 minutos, impressos, roteiro padronizado. Roda estável mesmo com a turma toda treinando junto."
             accent="primary"
           />
           <FeatureCard
             className="md:col-span-2"
             tag="Checklist"
-            title="Pontuação objetiva por critério"
-            desc="O mesmo modelo da banca examinadora."
+            title="Pontuação igual à da banca"
+            desc="Marque critério por critério, no mesmo modelo do INEP."
           />
           <FeatureCard
             className="md:col-span-2"
             tag="Flashcards"
-            title="Revisão espaçada por especialidade"
-            desc="Memorização ativa sem decoreba."
+            title="Revisão espaçada por área"
+            desc="Centenas de cards prontos. Você só revisa o que tá perdendo."
           />
           <FeatureCard
             className="md:col-span-2"
             tag="Resumos"
-            title="Conteúdo enxuto, do jeito que cai"
-            desc="Sem manual de 800 páginas."
+            title="Resumos curtos, do jeito que cai"
+            desc="Sem manual de 800 páginas. Só o que vira ponto na prova."
             accent="mint"
           />
           <FeatureCard
             className="md:col-span-2"
-            tag="Banca"
-            title="Sala compartilhada candidato + ator + avaliador"
-            desc="Treine no mesmo formato da prova prática."
+            tag="Desempenho"
+            title="Painel com nota, tempo e evolução"
+            desc="Acompanhe sua média por estação, área e critério em tempo real."
           />
         </div>
       </div>
