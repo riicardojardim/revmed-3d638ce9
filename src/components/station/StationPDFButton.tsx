@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Printer, Loader2, User } from "lucide-react";
+import { Printer, Loader2, User, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { downloadCandidatePDF } from "@/lib/station-pdf";
+import { downloadCandidatePDF, downloadActorPDF } from "@/lib/station-pdf";
+import { useSubscription } from "@/hooks/use-subscription";
 
 interface Props {
   stationId: string;
@@ -21,7 +22,8 @@ interface Props {
 }
 
 export function StationPDFButton({ stationId, size = "sm", variant = "outline", iconOnly = false }: Props) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<null | "candidato" | "ator">(null);
+  const { isAtorOnly } = useSubscription();
 
   async function fetchData() {
     const [{ data: station, error: e1 }, { data: items, error: e2 }] = await Promise.all([
@@ -35,6 +37,9 @@ export function StationPDFButton({ stationId, size = "sm", variant = "outline", 
     if (e1 || e2 || !station) throw new Error(e1?.message || e2?.message || "Estação não encontrada");
     return { station, items: items ?? [] };
   }
+
+  // Users on the "ator" plan cannot download any PDF
+  if (isAtorOnly) return null;
 
   return (
     <DropdownMenu>
@@ -56,18 +61,35 @@ export function StationPDFButton({ stationId, size = "sm", variant = "outline", 
           disabled={!!loading}
           onClick={async () => {
             try {
-              setLoading(true);
+              setLoading("candidato");
               const { station, items } = await fetchData();
               await downloadCandidatePDF(station as never, items as never);
               toast.success("PDF do candidato gerado");
             } catch (err) {
               toast.error(err instanceof Error ? err.message : "Falha ao gerar PDF");
             } finally {
-              setLoading(false);
+              setLoading(null);
             }
           }}
         >
           <User className="h-4 w-4" /> PDF do candidato
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={!!loading}
+          onClick={async () => {
+            try {
+              setLoading("ator");
+              const { station } = await fetchData();
+              await downloadActorPDF(station as never);
+              toast.success("PDF do ator gerado");
+            } catch (err) {
+              toast.error(err instanceof Error ? err.message : "Falha ao gerar PDF");
+            } finally {
+              setLoading(null);
+            }
+          }}
+        >
+          <UserCog className="h-4 w-4" /> PDF do ator
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
