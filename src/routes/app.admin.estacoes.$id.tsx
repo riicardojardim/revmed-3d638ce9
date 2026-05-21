@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { downloadActorPDF, downloadCandidatePDF } from "@/lib/station-pdf";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { PRBlock, SubBlock, ScriptText, formatPatientProfile } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, Highlightable, formatPatientProfile } from "@/components/station/shared";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
