@@ -155,6 +155,9 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-size: 1rem;
+    line-height: 1.65;
+    letter-spacing: -0.005em;
   }
 
   #root {
@@ -167,7 +170,15 @@
     font-family: var(--font-display);
     letter-spacing: -0.035em;
     font-weight: 800;
+    line-height: 1.08;
   }
+
+  h1 { letter-spacing: -0.04em; }
+  h2 { letter-spacing: -0.035em; line-height: 1.1; }
+  h3 { letter-spacing: -0.03em; line-height: 1.15; }
+  h4, h5, h6 { letter-spacing: -0.025em; line-height: 1.2; }
+
+  p { line-height: 1.65; }
 }
 
 @utility bg-gradient-hero {
