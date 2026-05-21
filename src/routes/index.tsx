@@ -22,6 +22,12 @@ import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
 import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
 import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
+import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
+import {
+  FakeNotifications,
+  WhatsAppFloat,
+  UrgencyBanner,
+} from "@/components/landing/FakeNotifications";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -65,6 +71,7 @@ function LandingPage() {
 
   return (
     <div className="dark min-h-dvh bg-background text-foreground antialiased">
+      <UrgencyBanner />
       <TopNav
         scrolled={scrolled}
         menuOpen={menuOpen}
@@ -74,8 +81,10 @@ function LandingPage() {
       <main className="overflow-clip">
         <Hero isLogged={!!user} />
         <MarqueeStrip />
+        <ComoFunciona />
         <Manifesto />
         <Plataforma />
+        <Comparativo />
         <Resultados />
         <Depoimentos />
         <Mentoria />
@@ -84,6 +93,8 @@ function LandingPage() {
         <FinalCTA isLogged={!!user} />
       </main>
       <Footer />
+      <FakeNotifications />
+      <WhatsAppFloat />
     </div>
   );
 }
@@ -201,7 +212,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-6 font-display text-[2.6rem] font-black leading-[1.02] tracking-[-0.04em] md:text-6xl lg:text-7xl"
+            className="mt-6 font-display text-[2.1rem] font-black leading-[1.05] tracking-[-0.04em] md:text-5xl lg:text-6xl"
           >
             A mentoria que <br />
             <span
@@ -222,12 +233,11 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-6 max-w-xl text-lg text-muted-foreground md:text-xl"
+            className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
           >
-            REVMED é mentoria de pequeno grupo + plataforma de prática para
-            quem decidiu que esse ciclo é o último. Cinco médicos por turma.
-            Cronômetro INEP. Acompanhamento com psicólogo. Resultado medido em
-            prova, não em discurso.
+            Mentoria 1:5 + plataforma de prática para médicos formados fora do
+            Brasil. Cinco vagas por turma, cronômetro INEP, psicólogo no
+            programa. Resultado medido em prova.
           </motion.p>
 
           <motion.div
@@ -256,7 +266,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-10 flex flex-wrap items-center gap-6 text-xs text-muted-foreground"
+            className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground"
           >
             <div className="flex -space-x-2">
               {["bg-primary", "bg-mint", "bg-primary/70", "bg-mint/70"].map(
@@ -271,6 +281,15 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             <span>
               <span className="font-bold text-foreground">+ 1.200 médicos</span>{" "}
               já passaram pela mentoria
+            </span>
+            <span className="hidden h-6 w-px bg-border md:block" />
+            <span>
+              <span className="font-bold text-foreground">87%</span> de aprovação na 25.1
+            </span>
+            <span className="hidden h-6 w-px bg-border md:block" />
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
+              <span className="font-bold text-foreground">3 vagas</span> restantes
             </span>
           </motion.div>
         </div>
