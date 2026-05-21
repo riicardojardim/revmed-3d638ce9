@@ -1,4 +1,4 @@
-import { Link, Outlet, useRouterState, useNavigate, useRouter } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -21,10 +21,7 @@ import {
 import {
   Home,
   ClipboardList,
-  Dumbbell,
-  
   User,
-  Bell,
   LogOut,
   GraduationCap,
   Brain,
@@ -37,20 +34,12 @@ import {
   Stethoscope,
   FileStack,
   FileText,
-  Calendar,
   DoorOpen,
-  Video,
   Sparkles,
-  
   MessageSquare,
   Headphones,
-  
-
-  MoreHorizontal,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -163,7 +152,7 @@ function AppLayout() {
     ];
   }
 
-  // Mobile bottom nav: flatten top-level
+  // Flat list for top nav
   const flatNav: NavItem[] = sections.flatMap((s) => s.items);
 
   
