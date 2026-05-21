@@ -117,21 +117,13 @@ function LandingPage() {
 
         setScrolled(y > 8);
 
-        if (menuOpen || userMenuOpen) {
+        if (menuOpen || userMenuOpen || y <= 24) {
           setHidden(false);
-        } else if (y <= 24) {
-          setHidden(false);
-        } else if (movedEnough) {
-          setHidden(delta > 0 && y > 72);
-        }
-
-        if (!movedEnough) {
+        } else if (!movedEnough) {
           lastY.current = y;
           ticking = false;
           return;
-        }
-
-        if (delta > 0 && y > 72) {
+        } else if (delta > 0 && y > 72) {
           setHidden(true);
         } else if (delta < 0) {
           setHidden(false);
