@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -412,8 +411,7 @@ function CandidateView() {
 
   if (!station || !room) return <div className="text-sm text-muted-foreground">Carregando...</div>;
 
-  // Overlay institucional de entrada (3..2..1). Renderizado COMO OVERLAY (não substitui a árvore)
-  // para que a FloatingVideoCall continue montada e a chamada não caia ao iniciar a estação.
+  // Overlay institucional de entrada (3..2..1) — renderizado COMO OVERLAY.
   const introOverlay = showIntro && user ? (
     <IntroOverlay
       variant={introVariant}
@@ -449,7 +447,6 @@ function CandidateView() {
   if (isWaiting) {
     return (
       <>
-        {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
         {introOverlay}
         <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
         <button
@@ -519,7 +516,6 @@ function CandidateView() {
 
   return (
     <>
-      {displayName && <FloatingVideoCall roomCode={code} displayName={displayName} />}
       {introOverlay}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">

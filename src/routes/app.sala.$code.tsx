@@ -29,9 +29,6 @@ import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
-import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
-import { useServerFn } from "@tanstack/react-start";
-import { listRoomPresence } from "@/lib/livekit.functions";
 import { RelatedResources } from "@/components/RelatedResources";
 
 export const Route = createFileRoute("/app/sala/$code")({
@@ -106,25 +103,6 @@ function SimuladoRunner({ id }: { id: string }) {
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
-  const [presentIdentities, setPresentIdentities] = useState<Set<string>>(new Set());
-  const fetchPresence = useServerFn(listRoomPresence);
-
-  // Poll de presença na videochamada — usado para liberar o "Iniciar cronômetro"
-  // apenas quando todos os candidatos já estão conectados ao LiveKit.
-  useEffect(() => {
-    if (!sim?.roomCode) return;
-    if (roomStatus !== "waiting") return;
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const r = await fetchPresence({ data: { roomCode: sim.roomCode! } });
-        if (!cancelled) setPresentIdentities(new Set(r.identities));
-      } catch { /* silencioso — só usado para liberar botão */ }
-    };
-    void tick();
-    const id = setInterval(tick, 3000);
-    return () => { cancelled = true; clearInterval(id); };
-  }, [sim?.roomCode, roomStatus, fetchPresence]);
 
 
 
@@ -743,8 +721,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
   const isWaiting = !running && !finishedStation;
-  const missingFromCall = candidates.filter((c) => !presentIdentities.has(c.id));
-  const allCandidatesPresent = candidates.length > 0 && missingFromCall.length === 0;
+  const allCandidatesPresent = candidates.length > 0;
   const totalSec = Math.max(0, Math.floor(remaining));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
   const ss = String(totalSec % 60).padStart(2, "0");
@@ -766,12 +743,6 @@ function SimuladoRunner({ id }: { id: string }) {
         />
       )}
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
-      {sim.roomCode && (
-        <FloatingVideoCall
-          roomCode={sim.roomCode}
-          displayName={(profile?.full_name?.trim()) || user?.email?.split("@")[0] || "Ator"}
-        />
-      )}
       {/* Progress header */}
       {sim.stations.length >= 2 && (
         <div className="sticky top-16 z-20 -mx-3 border-y border-border bg-background/95 px-3 py-3 backdrop-blur-xl sm:-mx-4 sm:px-4 lg:-mx-8 lg:px-8">
@@ -1161,12 +1132,7 @@ function SimuladoRunner({ id }: { id: string }) {
                 disabled={!allCandidatesPresent}
                 onClick={() => {
                   if (!allCandidatesPresent) {
-                    const names = missingFromCall.map((c) => c.name).join(", ");
-                    toast.error(
-                      candidates.length === 0
-                        ? "Aguarde candidatos entrarem na sala."
-                        : `Aguardando entrar na videochamada: ${names}`,
-                    );
+                    toast.error("Aguarde candidatos entrarem na sala.");
                     return;
                   }
                   if (!evaluatedCandidateId) { setSelectCandidateOpen(true); return; }
@@ -1179,7 +1145,7 @@ function SimuladoRunner({ id }: { id: string }) {
                     ? "bg-white hover:bg-white/90 hover:shadow"
                     : "cursor-not-allowed bg-white/30 text-white/70",
                 )}
-                title={!allCandidatesPresent ? "Todos os candidatos precisam entrar na videochamada" : undefined}
+                title={!allCandidatesPresent ? "Aguarde candidatos entrarem na sala" : undefined}
               >
                 <Play className="h-4 w-4" /> Iniciar cronômetro
               </button>
@@ -1194,16 +1160,9 @@ function SimuladoRunner({ id }: { id: string }) {
                 )}
               >
                 {candidates.length === 0 ? (
-                  <>📹 Aguardando candidatos entrarem na sala...</>
-                ) : allCandidatesPresent ? (
-                  <>✅ Todos os candidatos estão na videochamada — pode iniciar o cronômetro.</>
+                  <>⏳ Aguardando candidatos entrarem na sala...</>
                 ) : (
-                  <>
-                    📹 Aguardando entrar na <strong>videochamada</strong>:{" "}
-                    <span className="font-semibold text-white">
-                      {missingFromCall.map((c) => c.name).join(", ")}
-                    </span>
-                  </>
+                  <>✅ Candidatos na sala — pode iniciar o cronômetro.</>
                 )}
               </div>
             )}
@@ -1270,23 +1229,6 @@ function SimuladoRunner({ id }: { id: string }) {
                       >
                         <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
                         <span className="flex-1 truncate font-medium">{c.name}</span>
-                        {isWaiting && (
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
-                              presentIdentities.has(c.id)
-                                ? "bg-mint/15 text-mint"
-                                : "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-                            )}
-                            title={presentIdentities.has(c.id) ? "Na videochamada" : "Fora da videochamada"}
-                          >
-                            <span className={cn(
-                              "h-1.5 w-1.5 rounded-full",
-                              presentIdentities.has(c.id) ? "bg-mint animate-pulse" : "bg-amber-500",
-                            )} />
-                            {presentIdentities.has(c.id) ? "vídeo" : "fora"}
-                          </span>
-                        )}
                         <span className={cn(
                           "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
                           isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",

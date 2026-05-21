@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -221,7 +220,6 @@ function EvaluatorView() {
 
   return (
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden pb-24 sm:space-y-6">
-      <FloatingVideoCall roomCode={code} displayName={user?.email?.split("@")[0] || "Banca"} />
       <Link to="/app/sala/$code" params={{ code }} className="inline-flex items-center gap-1 text-sm text-muted-foreground transition hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Voltar à sala
       </Link>

@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { FloatingVideoCall } from "@/components/room/FloatingVideoCall";
 import { Button } from "@/components/ui/button";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -28,8 +27,6 @@ import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { StationSummaryDialog } from "@/components/StationSummaryDialog";
 import { RelatedResources } from "@/components/RelatedResources";
-import { useServerFn } from "@tanstack/react-start";
-import { listRoomPresence } from "@/lib/livekit.functions";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -124,24 +121,6 @@ function ActorView() {
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
-  const [actorInCall, setActorInCall] = useState(false);
-  const fetchPresence = useServerFn(listRoomPresence);
-
-  // Poll presença na videochamada para garantir que o ator esteja na call
-  // antes de liberar o botão "Iniciar cronômetro".
-  useEffect(() => {
-    if (!code || !user?.id) return;
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const r = await fetchPresence({ data: { roomCode: code } });
-        if (!cancelled) setActorInCall(new Set(r.identities).has(user.id));
-      } catch { /* silencioso */ }
-    };
-    void tick();
-    const id = setInterval(tick, 3000);
-    return () => { cancelled = true; clearInterval(id); };
-  }, [code, user?.id, fetchPresence]);
   const [copied, setCopied] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
@@ -571,9 +550,6 @@ function ActorView() {
   async function startStation() {
     if (!room) return;
     if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
-    if (!actorInCall) return toast.error("Entre na videochamada antes de iniciar o cronômetro.", {
-      description: 'Clique em "Vídeo da sala" no canto inferior direito e ative câmera/microfone.',
-    });
     setStarting(true);
     const { error } = await supabase.from("training_rooms")
       .update({ status: "running", started_at: new Date().toISOString() })
@@ -685,7 +661,6 @@ function ActorView() {
 
   return (
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
-      <FloatingVideoCall roomCode={code} displayName={user?.email?.split("@")[0] || "Ator"} />
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
         <Link to="/app/checklists" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar
@@ -1218,21 +1193,13 @@ function ActorView() {
                           variant="hero"
                           className="mt-3 w-full"
                           onClick={startStation}
-                          disabled={starting || !room.evaluated_candidate_id || !actorInCall}
-                          title={!actorInCall ? "Entre na videochamada para iniciar" : undefined}
+                          disabled={starting || !room.evaluated_candidate_id}
                         >
                           <Play className="mr-1 h-4 w-4" />
                           {!room.evaluated_candidate_id
                             ? "Aguardando candidato..."
-                            : !actorInCall
-                              ? "Entre na videochamada"
-                              : "Iniciar cronômetro"}
+                            : "Iniciar cronômetro"}
                         </Button>
-                        {room.evaluated_candidate_id && !actorInCall && (
-                          <div className="mt-2 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-center text-[11px] font-medium text-amber-200">
-                            📹 Você precisa entrar na <strong>videochamada</strong> antes de iniciar o cronômetro.
-                          </div>
-                        )}
                       </>
                     )}
                     {isRunning && (
