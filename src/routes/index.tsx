@@ -1190,17 +1190,11 @@ function Footer() {
               <Instagram className="h-4 w-4" />
               @revmedmentoria
             </a>
-            <Link
-              to="/cadastro"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_10px_30px_-10px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.03]"
-            >
-              Criar conta
-            </Link>
-            <Link
-              to="/login"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
-            >
+            <Link to="/login" className="hover:text-foreground">
               Entrar
+            </Link>
+            <Link to="/cadastro" className="hover:text-foreground">
+              Criar conta
             </Link>
             <a href="#plataforma" className="hover:text-foreground">
               Como funciona
