@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading, Highlightable } from "@/components/station/shared";
+import { PRBlock, SubBlock, ScriptText, parseSubItems, levelTone, formatPatientProfile, formatPepHeading, Highlightable, BoldBeforeColon } from "@/components/station/shared";
 import { supabase } from "@/integrations/supabase/client";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { useAuth } from "@/hooks/use-auth";
@@ -939,7 +939,7 @@ function SimuladoRunner({ id }: { id: string }) {
                                     "w-full rounded-md px-2 py-1 text-left text-sm transition-colors",
                                     active ? "bg-mint/40 text-night ring-1 ring-mint/60" : "text-foreground/85 hover:bg-white/5",
                                   )}>
-                                  {sub}
+                                  <BoldBeforeColon text={sub} />
                                 </button>
                               </li>
                             );

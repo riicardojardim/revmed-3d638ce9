@@ -14,7 +14,7 @@ import {
   Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp, X, ZoomIn,
 } from "lucide-react";
 import { toast } from "sonner";
-import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
+import { ScriptText, formatPepHeading, parseSubItems, levelTone, BoldBeforeColon } from "@/components/station/shared";
 import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatDoctorName } from "@/lib/doctorName";
@@ -710,7 +710,7 @@ function CandidateView() {
                             {parts.subs.length > 0 && (
                               <ul className="mt-2 space-y-0.5">
                                 {parts.subs.map((sub, si) => (
-                                  <li key={si} className="rounded-md px-2 py-1 text-sm text-foreground/85">{sub}</li>
+                                  <li key={si} className="rounded-md px-2 py-1 text-sm text-foreground/85"><BoldBeforeColon text={sub} /></li>
                                 ))}
                               </ul>
                             )}

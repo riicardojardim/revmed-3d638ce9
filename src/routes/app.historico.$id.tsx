@@ -6,7 +6,7 @@ import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { ArrowLeft, ClipboardCheck, Lock, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
+import { formatPepHeading, parseSubItems, levelTone, BoldBeforeColon } from "@/components/station/shared";
 
 export const Route = createFileRoute("/app/historico/$id")({
   component: HistoricoDetalhe,
@@ -172,7 +172,7 @@ function HistoricoDetalhe() {
                       {parts.subs.length > 0 && (
                         <ul className="mt-2 space-y-0.5">
                           {parts.subs.map((sub, si) => (
-                            <li key={si} className="rounded-md px-2 py-1 text-sm text-foreground/85">{sub}</li>
+                            <li key={si} className="rounded-md px-2 py-1 text-sm text-foreground/85"><BoldBeforeColon text={sub} /></li>
                           ))}
                         </ul>
                       )}
