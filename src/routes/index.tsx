@@ -215,7 +215,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary"
           >
             <Flame className="h-3.5 w-3.5" />
-            Turma 2026 • 5 vagas por grupo
+            Plataforma oficial • Revalida INEP
           </motion.div>
 
           <motion.h1
@@ -224,7 +224,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-6 font-display text-[2.1rem] font-black leading-[1.05] tracking-[-0.04em] md:text-5xl lg:text-6xl"
           >
-            A mentoria que <br />
+            A plataforma que <br />
             <span
               style={{
                 backgroundImage:
@@ -234,9 +234,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              vira chave
+              treina pra valer
             </span>{" "}
-            no Revalida.
+            o Revalida.
           </motion.h1>
 
           <motion.p
@@ -245,9 +245,10 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
           >
-            Mentoria 1:5 + plataforma de prática para médicos formados fora do
-            Brasil. Cinco vagas por turma, cronômetro INEP, psicólogo no
-            programa. Resultado medido em prova.
+            Estações ao vivo com cronômetro INEP, banco gigante de checklists
+            oficiais, flashcards com revisão espaçada, resumos enxutos e
+            desempenho em tempo real. Tudo num só lugar — sem travar, mesmo com
+            todo mundo treinando junto.
           </motion.p>
 
           <motion.div
@@ -260,7 +261,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
               to={isLogged ? "/app" : "/cadastro"}
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02]"
             >
-              Garantir minha vaga
+              Começar a treinar
               <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
             <a
@@ -268,7 +269,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-card"
             >
               <PlayCircle className="h-5 w-5 text-primary" />
-              Ver a plataforma
+              Ver por dentro
             </a>
           </motion.div>
 
@@ -294,7 +295,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             </div>
             <span>
               <span className="font-bold text-foreground">+ 1.200 médicos</span>{" "}
-              já passaram pela mentoria
+              treinando na plataforma
             </span>
             <span className="hidden h-6 w-px bg-border md:block" />
             <span>
@@ -303,7 +304,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             <span className="hidden h-6 w-px bg-border md:block" />
             <span className="inline-flex items-center gap-1.5">
               <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
-              <span className="font-bold text-foreground">3 vagas</span> restantes
+              <span className="font-bold text-foreground">Sala estável</span> mesmo com a turma cheia
             </span>
           </motion.div>
         </div>
