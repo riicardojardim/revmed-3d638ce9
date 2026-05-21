@@ -583,7 +583,7 @@ function FeatureCard({
 
 const NUMBERS = [
   { v: "87%", l: "Aprovação na turma 25.1" },
-  { v: "1.200+", l: "Médicos mentorados" },
+  { v: "5+", l: "Anos de existência" },
   { v: "5", l: "Alunos por grupo" },
   { v: "10min", l: "Por estação, como no INEP" },
 ];
