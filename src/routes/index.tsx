@@ -890,13 +890,13 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-            Investimento
+            Planos
           </p>
           <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
-            Três caminhos. Mesma obsessão por aprovação.
+            Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
-            Escolha o nível de envolvimento. Da prática como ator até a mentoria completa com acompanhamento humano.
+            Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
           </p>
         </div>
         <div className="mt-14 grid gap-6 md:gap-7 lg:grid-cols-3">
