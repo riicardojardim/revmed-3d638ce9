@@ -36,17 +36,61 @@ const TIMES = ["agora há pouco", "há 2 min", "há 5 min", "há 8 min", "há 12
 export function FakeNotifications() {
   const [current, setCurrent] = useState<Notif | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [avatarsReady, setAvatarsReady] = useState(false);
 
-  // Pré-carrega todos os avatares para que apareçam junto com a notificação
   useEffect(() => {
-    [notif1, notif2, notif3, notif4, notif5, notif6, notif7, notif8].forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
+    let cancelled = false;
+
+    const warmupAvatars = async () => {
+      const sources = [notif1, notif2, notif3, notif4, notif5, notif6, notif7, notif8];
+
+      await Promise.all(
+        sources.map(
+          (src) =>
+            new Promise<void>((resolve) => {
+              const img = new Image();
+              img.loading = "eager";
+              img.decoding = "sync";
+              img.src = src;
+
+              const finish = () => resolve();
+
+              if (img.complete) {
+                if (typeof img.decode === "function") {
+                  img.decode().then(finish).catch(finish);
+                } else {
+                  finish();
+                }
+                return;
+              }
+
+              img.onload = () => {
+                if (typeof img.decode === "function") {
+                  img.decode().then(finish).catch(finish);
+                } else {
+                  finish();
+                }
+              };
+
+              img.onerror = finish;
+            }),
+        ),
+      );
+
+      if (!cancelled) {
+        setAvatarsReady(true);
+      }
+    };
+
+    warmupAvatars();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (dismissed) return;
+    if (dismissed || !avatarsReady) return;
     let i = 0;
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -68,7 +112,7 @@ export function FakeNotifications() {
     // first one after 6s
     timeout = setTimeout(show, 6000);
     return () => clearTimeout(timeout);
-  }, [dismissed]);
+  }, [avatarsReady, dismissed]);
 
   if (dismissed) return null;
 
