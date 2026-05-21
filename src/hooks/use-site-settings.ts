@@ -22,6 +22,7 @@ export type SiteSettings = {
   whatsapp_banner_enabled: boolean | null;
   whatsapp_banner_label: string | null;
   whatsapp_banner_url: string | null;
+  urgency_banner_text: string | null;
 };
 
 let cache: SiteSettings | null = null;
