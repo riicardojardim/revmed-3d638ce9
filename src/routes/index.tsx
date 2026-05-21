@@ -83,6 +83,7 @@ function LandingPage() {
         <Manifesto />
         <Plataforma />
         <Resultados />
+        <Depoimentos />
         <Mentoria />
         <Investimento isLogged={!!user} />
         <FAQ />
