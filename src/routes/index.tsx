@@ -231,14 +231,16 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-6 font-display text-[2.6rem] font-black leading-[0.98] tracking-[-0.05em] md:text-6xl lg:text-7xl xl:text-[5.5rem]"
           >
-            A plataforma que <br />
+            A plataforma que{" "}
             <span
+              className="font-serif italic"
               style={{
                 backgroundImage:
-                  "linear-gradient(120deg, #f5c542 0%, #e85d1c 60%, #ff8a3a 100%)",
+                  "linear-gradient(120deg, #f5c542 0%, #e85d1c 55%, #ff8a3a 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent",
+                fontWeight: 400,
               }}
             >
               treina pra valer
@@ -266,10 +268,15 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           >
             <Link
               to={isLogged ? "/app" : "/cadastro"}
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02]"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--primary)_75%,transparent)] transition-all hover:scale-[1.03] hover:shadow-[0_25px_80px_-15px_color-mix(in_oklab,var(--primary)_90%,transparent)]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(120deg, #ff8a3a 0%, #F59A1B 50%, #CF8737 100%)",
+              }}
             >
-              Começar a treinar
-              <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span className="relative z-10">Começar a treinar</span>
+              <ArrowUpRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
             </Link>
             <a
               href="#plataforma"
