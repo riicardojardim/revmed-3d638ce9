@@ -1190,12 +1190,6 @@ function Footer() {
               <Instagram className="h-4 w-4" />
               @revmedmentoria
             </a>
-            <Link to="/login" className="hover:text-foreground">
-              Entrar
-            </Link>
-            <Link to="/cadastro" className="hover:text-foreground">
-              Criar conta
-            </Link>
             <a href="#plataforma" className="hover:text-foreground">
               Como funciona
             </a>
