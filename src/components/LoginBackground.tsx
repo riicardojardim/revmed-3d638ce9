@@ -34,7 +34,7 @@ export function LoginBackground() {
       className="pointer-events-none absolute inset-0 overflow-hidden"
       style={{
         backgroundImage:
-          "radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--mint) 30%, transparent) 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, color-mix(in oklab, var(--medical) 24%, transparent) 0%, transparent 55%), linear-gradient(160deg, color-mix(in oklab, var(--mint-soft) 70%, white) 0%, white 55%, color-mix(in oklab, var(--medical) 12%, white) 100%)",
+          "radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--mint) 24%, transparent) 0%, transparent 55%), radial-gradient(110% 80% at 100% 100%, color-mix(in oklab, var(--medical) 20%, transparent) 0%, transparent 55%), linear-gradient(160deg, color-mix(in oklab, var(--mint-soft) 12%, var(--background)) 0%, var(--background) 55%, color-mix(in oklab, var(--medical) 10%, var(--background)) 100%)",
       }}
     >
       {/* Aurora orbs (slow parallax) */}
@@ -169,7 +169,7 @@ export function LoginBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 40%, color-mix(in oklab, var(--mint-soft) 30%, white) 100%)",
+            "radial-gradient(ellipse at center, transparent 40%, color-mix(in oklab, var(--background) 78%, transparent) 100%)",
         }}
       />
     </div>

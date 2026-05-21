@@ -65,24 +65,24 @@
   --mint-soft: oklch(0.92 0.10 80);       /* dourado claro */
   --ice: oklch(0.985 0.005 60);           /* off-white quente */
 
-  --background: var(--ice);
-  --foreground: oklch(0.20 0.02 40);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.02 40);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.02 40);
+  --background: var(--night);
+  --foreground: oklch(0.97 0.005 60);
+  --card: oklch(0.22 0.015 40);
+  --card-foreground: oklch(0.97 0.005 60);
+  --popover: oklch(0.22 0.015 40);
+  --popover-foreground: oklch(0.97 0.005 60);
 
   --primary: var(--medical);
-  --primary-foreground: oklch(0.985 0.005 240);
+  --primary-foreground: var(--night);
 
-  --secondary: oklch(0.96 0.015 60);
-  --secondary-foreground: oklch(0.22 0.02 40);
+  --secondary: oklch(0.26 0.015 40);
+  --secondary-foreground: oklch(0.97 0.005 60);
 
-  --muted: oklch(0.96 0.012 60);
-  --muted-foreground: oklch(0.50 0.02 40);
+  --muted: oklch(0.26 0.015 40);
+  --muted-foreground: oklch(0.72 0.015 40);
 
   --accent: var(--mint);
-  --accent-foreground: oklch(0.16 0.01 40);
+  --accent-foreground: var(--night);
 
   --destructive: oklch(0.63 0.22 27);
   --destructive-foreground: oklch(0.985 0 0);
@@ -91,8 +91,8 @@
   --success: oklch(0.72 0.16 150);
   --success-foreground: oklch(0.16 0.01 40);
 
-  --border: oklch(0.92 0.012 60);
-  --input: oklch(0.92 0.012 60);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
   --ring: var(--medical);
 
   --chart-1: var(--medical);
@@ -101,13 +101,13 @@
   --chart-4: oklch(0.78 0.14 70);
   --chart-5: oklch(0.45 0.15 50);
 
-  --sidebar: oklch(0.99 0.005 60);
-  --sidebar-foreground: oklch(0.22 0.02 40);
+  --sidebar: oklch(0.18 0.015 40);
+  --sidebar-foreground: oklch(0.97 0.005 60);
   --sidebar-primary: var(--medical);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.96 0.012 60);
-  --sidebar-accent-foreground: oklch(0.20 0.02 40);
-  --sidebar-border: oklch(0.92 0.012 60);
+  --sidebar-primary-foreground: var(--night);
+  --sidebar-accent: oklch(0.26 0.015 40);
+  --sidebar-accent-foreground: oklch(0.97 0.005 60);
+  --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: var(--medical);
 }
 
@@ -141,6 +141,7 @@
     -webkit-font-smoothing: antialiased;
     max-width: 100%;
     overflow-x: clip;
+    color-scheme: dark;
   }
 
 
