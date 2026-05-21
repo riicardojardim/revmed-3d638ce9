@@ -1,6 +1,6 @@
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { cn } from "@/lib/utils";
-import logoStackedUrl from "@/assets/logo-estacao-revalida-stacked.webp";
+import logoUrl from "@/assets/logo-revmed-horizontal.png";
 
 type Props = {
   title: string;
@@ -25,16 +25,16 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
       className={cn(
         "@container relative aspect-square w-full overflow-hidden rounded-2xl ring-1 ring-white/10 text-white",
         // Gradiente azul-noite mais profundo — contraste alto com o logo mint/branco
-        "bg-[radial-gradient(135%_135%_at_15%_110%,#15406a_0%,#0c2c4d_35%,#071a32_65%,#040c1a_100%)]",
+        "bg-[radial-gradient(135%_135%_at_15%_110%,#3a1e08_0%,#241208_35%,#150a04_65%,#0a0503_100%)]",
         "shadow-elegant",
         className,
       )}
     >
       {/* Glows decorativos — posicionados longe do logo (canto superior direito) */}
       <div className={cn("pointer-events-none absolute -bottom-1/3 -left-1/3 h-2/3 w-2/3 rounded-full blur-3xl opacity-45", meta.solid)} />
-      <div className="pointer-events-none absolute top-[55%] -right-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-18 bg-mint" />
+        <div className="pointer-events-none absolute top-[55%] -right-1/4 h-1/2 w-1/2 rounded-full blur-3xl opacity-25 bg-mint" />
       {/* Vinheta escura no canto do logo para garantir contraste em qualquer especialidade */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_100%_0%,rgba(4,12,26,0.55)_0%,transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_100%_0%,rgba(10,5,3,0.6)_0%,transparent_70%)]" />
 
       {/* Grid sutil — densidade proporcional ao container */}
       <div
@@ -66,14 +66,14 @@ export function DeckCover({ title, specialty, topic, className }: Props) {
             {meta.code}
           </span>
           <img
-            src={logoStackedUrl}
+            src={logoUrl}
             alt=""
             draggable={false}
             loading="eager"
             decoding="sync"
             fetchPriority="high"
             className="select-none object-contain opacity-95 drop-shadow"
-            style={{ height: "18cqi", maxHeight: "72px" }}
+            style={{ height: "10cqi", maxHeight: "44px" }}
           />
 
         </div>
