@@ -9,6 +9,22 @@
   --font-display: "Sora", "Plus Jakarta Sans", system-ui, sans-serif;
   --font-serif: "Instrument Serif", "Cormorant Garamond", Georgia, serif;
 
+  /* Escala tipográfica premium / compacta (Full HD friendly).
+     Reduz todos os text-{size} do Tailwind proporcionalmente. */
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-base: 0.92rem;
+  --text-lg: 1.02rem;
+  --text-xl: 1.15rem;
+  --text-2xl: 1.4rem;
+  --text-3xl: 1.7rem;
+  --text-4xl: 2.1rem;
+  --text-5xl: 2.6rem;
+  --text-6xl: 3.2rem;
+  --text-7xl: 3.9rem;
+  --text-8xl: 4.8rem;
+  --text-9xl: 6rem;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
