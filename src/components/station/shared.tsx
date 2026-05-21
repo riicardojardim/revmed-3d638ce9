@@ -174,6 +174,29 @@ export function SubBlock({ label, children }: { label: string; tone?: "rose"; ch
   );
 }
 
+/**
+ * Renderiza um texto curto colocando em **negrito** tudo que vier antes do
+ * primeiro ":" (mantendo marcadores de lista como "-", "•"). Útil para
+ * itens de checklist e sub-itens onde o "rótulo:" precisa se destacar.
+ */
+export function BoldBeforeColon({ text, className }: { text: string; className?: string }) {
+  const safe = typeof text === "string" ? text : String(text ?? "");
+  const idx = safe.indexOf(":");
+  if (idx < 0) return <span className={className}>{safe}</span>;
+  const before = safe.slice(0, idx);
+  const after = safe.slice(idx + 1);
+  const m = before.match(/^(\s*[-•—–]\s*)(.*)$/);
+  const marker = m ? m[1] : "";
+  const label = m ? m[2] : before;
+  return (
+    <span className={className}>
+      {marker}
+      <strong className="font-semibold text-foreground">{label}:</strong>
+      {after}
+    </span>
+  );
+}
+
 export function ScriptText({ text, className, strikeable, prefix, struck, toggle }: { text: unknown; className?: string; strikeable?: boolean; prefix?: string; struck?: Set<string>; toggle?: (id: string) => void }) {
   const safe = typeof text === "string" ? text : text == null ? "" : String(text);
 
