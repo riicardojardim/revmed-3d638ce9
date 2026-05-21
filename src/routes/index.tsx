@@ -35,6 +35,7 @@ import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
 import {
   FakeNotifications,
+  NOTIFICATION_AVATAR_SOURCES,
   WhatsAppFloat,
   UrgencyBanner,
 } from "@/components/landing/FakeNotifications";
@@ -56,6 +57,12 @@ export const Route = createFileRoute("/")({
           "Treine estações ao vivo com ator, marque checklist como a banca, revise por flashcards e resumos, acompanhe seu desempenho. Mentoria 1:5 disponível como complemento.",
       },
     ],
+    links: NOTIFICATION_AVATAR_SOURCES.map((src) => ({
+      rel: "preload",
+      as: "image",
+      href: src,
+      fetchpriority: "high",
+    })),
   }),
 });
 
