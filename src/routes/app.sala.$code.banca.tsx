@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { ScriptText, Highlightable } from "@/components/station/shared";
+import { ScriptText } from "@/components/station/shared";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
@@ -68,12 +68,6 @@ function EvaluatorView() {
   const [saving, setSaving] = useState(false);
   const [openAnalysis, setOpenAnalysis] = useState(false);
   const [tab, setTab] = useState<Tab>("cenario");
-  const [struckWords, setStruckWords] = useState<Set<string>>(new Set());
-  const toggleStruck = (id: string) => setStruckWords((prev) => {
-    const next = new Set(prev);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    return next;
-  });
 
   // Timer regressivo
   const [seconds, setSeconds] = useState(600);
@@ -356,33 +350,22 @@ function EvaluatorView() {
               )}
 
               <PanelSection icon={Theater} title="Roteiro detalhado do paciente" accent="mint">
-                <p className="mb-3 text-[11px] text-muted-foreground italic">
-                  Dica: clique nas partes em <strong className="font-semibold">negrito</strong> para riscá-las. Selecione qualquer texto para marcá-lo; selecione de novo a mesma área para desmarcar.
-                </p>
-                <Highlightable>
-                  <ScriptText text={station.patientScript} strikeable prefix="bps" struck={struckWords} toggle={toggleStruck} />
-                </Highlightable>
+                <p className="whitespace-pre-wrap leading-relaxed">{station.patientScript}</p>
               </PanelSection>
 
               {p?.spontaneous && (
                 <PanelSection icon={Sparkles} title="Falar espontaneamente" accent="emerald">
-                  <Highlightable>
-                    <ScriptText text={p.spontaneous} strikeable prefix="bsp" struck={struckWords} toggle={toggleStruck} />
-                  </Highlightable>
+                  <p className="whitespace-pre-wrap">{p.spontaneous}</p>
                 </PanelSection>
               )}
               {p?.onlyIfAsked && (
                 <PanelSection icon={BookOpen} title="Revelar apenas se perguntado" accent="indigo">
-                  <Highlightable>
-                    <ScriptText text={p.onlyIfAsked} strikeable prefix="bia" struck={struckWords} toggle={toggleStruck} />
-                  </Highlightable>
+                  <p className="whitespace-pre-wrap">{p.onlyIfAsked}</p>
                 </PanelSection>
               )}
               {p?.doNotReveal && (
                 <PanelSection icon={Lock} title="Nunca revelar" accent="rose">
-                  <Highlightable>
-                    <ScriptText text={p.doNotReveal} strikeable prefix="bdn" struck={struckWords} toggle={toggleStruck} />
-                  </Highlightable>
+                  <p className="whitespace-pre-wrap">{p.doNotReveal}</p>
                 </PanelSection>
               )}
               {(p?.emotionalTone || p?.actingTips) && (

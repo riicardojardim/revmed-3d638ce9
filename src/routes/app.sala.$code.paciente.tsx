@@ -27,7 +27,6 @@ import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { StationSummaryDialog } from "@/components/StationSummaryDialog";
 import { RelatedResources } from "@/components/RelatedResources";
-import { BoldBeforeColon } from "@/components/station/shared";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -936,7 +935,7 @@ function ActorView() {
                                       : "text-foreground/85 hover:bg-white/5",
                                   )}
                                 >
-                                  <BoldBeforeColon text={sub} />
+                                  {sub}
                                 </button>
                               </li>
                             );
