@@ -357,28 +357,44 @@ function EvaluatorView() {
               )}
 
               <PanelSection icon={Theater} title="Roteiro detalhado do paciente" accent="mint">
-                <p className="whitespace-pre-wrap leading-relaxed">{station.patientScript}</p>
+                <Highlightable>
+                  <ScriptText text={station.patientScript} strikeable struck={struck} toggle={toggleStruck} prefix="patientScript" />
+                </Highlightable>
               </PanelSection>
 
               {p?.spontaneous && (
                 <PanelSection icon={Sparkles} title="Falar espontaneamente" accent="emerald">
-                  <p className="whitespace-pre-wrap">{p.spontaneous}</p>
+                  <Highlightable>
+                    <ScriptText text={p.spontaneous} strikeable struck={struck} toggle={toggleStruck} prefix="spontaneous" />
+                  </Highlightable>
                 </PanelSection>
               )}
               {p?.onlyIfAsked && (
                 <PanelSection icon={BookOpen} title="Revelar apenas se perguntado" accent="indigo">
-                  <p className="whitespace-pre-wrap">{p.onlyIfAsked}</p>
+                  <Highlightable>
+                    <ScriptText text={p.onlyIfAsked} strikeable struck={struck} toggle={toggleStruck} prefix="onlyIfAsked" />
+                  </Highlightable>
                 </PanelSection>
               )}
               {p?.doNotReveal && (
                 <PanelSection icon={Lock} title="Nunca revelar" accent="rose">
-                  <p className="whitespace-pre-wrap">{p.doNotReveal}</p>
+                  <Highlightable>
+                    <ScriptText text={p.doNotReveal} strikeable struck={struck} toggle={toggleStruck} prefix="doNotReveal" />
+                  </Highlightable>
                 </PanelSection>
               )}
               {(p?.emotionalTone || p?.actingTips) && (
                 <PanelSection icon={Theater} title="Tom emocional e dicas de atuação" accent="amber">
-                  {p?.emotionalTone && <p><span className="font-semibold">Tom:</span> {p.emotionalTone}</p>}
-                  {p?.actingTips && <p className="mt-1"><span className="font-semibold">Dicas:</span> {p.actingTips}</p>}
+                  <Highlightable>
+                    {p?.emotionalTone && (
+                      <ScriptText text={`**Tom:** ${p.emotionalTone}`} strikeable struck={struck} toggle={toggleStruck} prefix="emotionalTone" />
+                    )}
+                    {p?.actingTips && (
+                      <div className="mt-1">
+                        <ScriptText text={`**Dicas:** ${p.actingTips}`} strikeable struck={struck} toggle={toggleStruck} prefix="actingTips" />
+                      </div>
+                    )}
+                  </Highlightable>
                 </PanelSection>
               )}
             </div>
@@ -508,16 +524,10 @@ function EvaluatorView() {
                               {idx + 1}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <Highlightable>
-                                <ScriptText
-                                  text={it.description}
-                                  className="text-sm font-semibold"
-                                  strikeable
-                                  struck={struck}
-                                  toggle={toggleStruck}
-                                  prefix={it.id}
-                                />
-                              </Highlightable>
+                              <ScriptText
+                                text={it.description}
+                                className="text-sm font-semibold"
+                              />
                               <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
                                 <Badge variant="outline" className="h-5 px-1.5 text-[10px]">{it.category}</Badge>
                                 <span>Vale <b className="text-foreground tabular-nums">{it.points}</b> pts</span>
