@@ -38,10 +38,7 @@ function Suporte() {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
           <Building2 className="h-6 w-6 text-mint" />
           <h3 className="mt-3 font-display text-lg font-bold">Dados da empresa</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            REVMED - EDUCACAO E SERVICOS DE MENTORIA LTDA
-          </p>
-          <p className="text-sm text-muted-foreground">CNPJ 48.442.973/0001-07</p>
+          <p className="mt-1 text-sm text-muted-foreground">CNPJ 48.442.973/0001-07</p>
         </div>
       </div>
     </div>
