@@ -293,9 +293,6 @@ function AppLayout() {
         >
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
-            <div className="hidden md:block">
-              <Logo />
-            </div>
           </div>
           <div className="hidden flex-1 items-center justify-end gap-2 overflow-hidden font-sans md:flex">
             <span
