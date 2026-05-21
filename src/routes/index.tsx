@@ -93,26 +93,60 @@ function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
+  const lastToggleY = useRef(0);
+  const lastDirection = useRef<"up" | "down" | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      setScrolled(y > 16);
       const delta = y - lastY.current;
-      if (Math.abs(delta) < 4) return;
-      if (y < 80) {
+      const direction = delta > 0 ? "down" : "up";
+
+      setScrolled(y > 24);
+
+      if (menuOpen) {
         setHidden(false);
-      } else if (delta > 0) {
+        lastY.current = y;
+        lastToggleY.current = y;
+        lastDirection.current = null;
+        return;
+      }
+
+      if (y < 96) {
+        setHidden(false);
+        lastToggleY.current = y;
+        lastDirection.current = null;
+        lastY.current = y;
+        return;
+      }
+
+      if (Math.abs(delta) < 2) {
+        lastY.current = y;
+        return;
+      }
+
+      if (direction !== lastDirection.current) {
+        lastDirection.current = direction;
+        lastToggleY.current = y;
+      }
+
+      const travelledSinceDirectionChange = Math.abs(y - lastToggleY.current);
+
+      if (direction === "down" && travelledSinceDirectionChange > 18) {
         setHidden(true);
-      } else {
+      }
+
+      if (direction === "up" && travelledSinceDirectionChange > 10) {
         setHidden(false);
       }
+
       lastY.current = y;
     };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [menuOpen]);
 
   return (
     <div className="dark min-h-dvh bg-background text-foreground antialiased">
@@ -170,14 +204,16 @@ function TopNav({
   onSignOut: () => Promise<void>;
 }) {
   const navigate = useNavigate();
+  const hasSolidSurface = scrolled || menuOpen;
+
   return (
     <header
-      className={`sticky top-0 z-50 transform-gpu transition-[transform,opacity,background-color,border-color,backdrop-filter] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
-        hidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      className={`sticky top-0 z-50 transform-gpu transition-[transform,opacity,background-color,border-color,backdrop-filter,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+        hidden ? "-translate-y-[120%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
       } ${
-        scrolled
-          ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
-          : "bg-transparent"
+        hasSolidSurface
+          ? "border-b border-border/70 bg-background/90 shadow-[0_14px_40px_-28px_hsl(var(--foreground)/0.6)] backdrop-blur-xl"
+          : "border-b border-transparent bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
