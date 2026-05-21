@@ -12,7 +12,6 @@ import {
   Compass,
   Layers,
   PlayCircle,
-  Quote,
   Instagram,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -589,23 +588,6 @@ const NUMBERS = [
   { v: "10min", l: "Por estação, como no INEP" },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Dra. Júlia M.",
-    role: "Formada em Lisboa • Aprovada 24.2",
-    text: "Era minha terceira tentativa. O que mudou foi parar de estudar tudo e começar a estudar o que cai. O mentor foi cirúrgico.",
-  },
-  {
-    name: "Dr. Renan A.",
-    role: "Formado em Buenos Aires • Aprovado 25.1",
-    text: "O simulado com cronômetro me destravou. Cheguei na prova oficial e foi como ensaio: já sabia o ritmo, já sabia onde respirar.",
-  },
-  {
-    name: "Dra. Camila S.",
-    role: "Formada em La Paz • Aprovada 25.1",
-    text: "O psicólogo do programa foi o que ninguém me ofereceu antes. Sem ele eu teria desistido no meio do ciclo.",
-  },
-];
 
 function Resultados() {
   return (
@@ -631,28 +613,6 @@ function Resultados() {
                 {n.l}
               </div>
             </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.figure
-              key={t.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="flex flex-col gap-5 rounded-3xl border border-border bg-background p-7 md:p-8"
-            >
-              <Quote className="h-7 w-7 text-primary" />
-              <blockquote className="text-base leading-relaxed text-foreground md:text-lg">
-                “{t.text}”
-              </blockquote>
-              <figcaption className="mt-auto border-t border-border pt-4">
-                <div className="font-semibold">{t.name}</div>
-                <div className="text-xs text-muted-foreground">{t.role}</div>
-              </figcaption>
-            </motion.figure>
           ))}
         </div>
       </div>
