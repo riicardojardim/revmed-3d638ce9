@@ -33,8 +33,6 @@ import {
   Layers,
   Trophy,
   X,
-  Mic,
-  MicOff,
   ShieldCheck,
   MapPin,
   Stethoscope,
@@ -751,42 +749,6 @@ function MockStationBlock({
       </header>
       <div className="p-3 text-[11px] leading-snug text-foreground/85">{children}</div>
     </section>
-  );
-}
-
-function VideoTile({
-  src,
-  name,
-  role,
-  active,
-  wide,
-}: {
-  src: string;
-  name: string;
-  role: string;
-  active?: boolean;
-  wide?: boolean;
-}) {
-  return (
-    <div
-      className={`relative overflow-hidden rounded-lg border ${
-        active ? "border-mint/70 ring-2 ring-mint/30" : "border-border"
-      } bg-night ${wide ? "aspect-[16/7]" : "aspect-[4/3]"}`}
-    >
-      <img src={src} alt={name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent px-2 py-1.5">
-        <div className="flex items-center gap-1 text-[10px] font-semibold text-white">
-          {active && <span className="h-1.5 w-1.5 rounded-full bg-mint" />}
-          {name}
-          <span className="text-white/60">· {role}</span>
-        </div>
-        {active ? (
-          <Mic className="h-3 w-3 text-mint" />
-        ) : (
-          <MicOff className="h-3 w-3 text-white/60" />
-        )}
-      </div>
-    </div>
   );
 }
 
