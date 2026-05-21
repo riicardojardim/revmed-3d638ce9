@@ -20,6 +20,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
 import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
 import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
+import mockupDashboard from "@/assets/revmed-dashboard-mockup.png";
 import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
@@ -196,7 +197,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             "radial-gradient(60% 60% at 80% 0%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 60%), radial-gradient(40% 50% at 10% 100%, color-mix(in oklab, var(--mint) 18%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pt-10 pb-20 md:px-8 md:pt-16 md:pb-28 lg:grid-cols-12 lg:gap-8">
+      <div className="mx-auto grid max-w-7xl items-stretch gap-12 px-5 pt-10 pb-20 md:px-8 md:pt-16 md:pb-28 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-6 lg:order-2">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -298,9 +299,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative lg:col-span-6 lg:order-1"
+          className="relative flex lg:col-span-6 lg:order-1"
         >
-          <div className="relative">
+          <div className="relative flex w-full items-stretch">
             <div
               aria-hidden
               className="absolute -inset-8 -z-10 rounded-[3rem] blur-3xl"
@@ -311,33 +312,6 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             />
             <MockupCarousel />
           </div>
-          {/* floating stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="absolute -left-2 top-10 hidden rounded-2xl border border-border bg-card/90 px-4 py-3 shadow-elegant backdrop-blur-xl md:block"
-          >
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Aprovação 25.1
-            </div>
-            <div className="font-display text-2xl font-black text-primary">
-              87%
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.85 }}
-            className="absolute -right-2 bottom-12 hidden rounded-2xl border border-border bg-card/90 px-4 py-3 shadow-elegant backdrop-blur-xl md:block"
-          >
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Simulações
-            </div>
-            <div className="font-display text-2xl font-black text-mint">
-              + 320
-            </div>
-          </motion.div>
         </motion.div>
       </div>
     </section>
@@ -348,43 +322,100 @@ function Hero({ isLogged }: { isLogged: boolean }) {
 
 function MockupCarousel() {
   const slides = [
-    { src: mockupEstacao, alt: "Simulador de estação clínica REVMED com cronômetro INEP" },
-    { src: mockupCronograma, alt: "Painel REVMED com cronograma Revalida e progresso por especialidade" },
+    { src: mockupDashboard, alt: "Dashboard REVMED com progresso por especialidade", label: "Dashboard" },
+    { src: mockupEstacao, alt: "Simulador de estação clínica REVMED com cronômetro INEP", label: "Estação clínica" },
+    { src: mockupCronograma, alt: "Painel REVMED com cronograma Revalida e progresso por especialidade", label: "Cronograma" },
   ];
   const [i, setI] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % slides.length), 4000);
+    const t = setInterval(() => setI((v) => (v + 1) % slides.length), 4500);
     return () => clearInterval(t);
   }, [slides.length]);
 
+  const next = (i + 1) % slides.length;
+
   return (
-    <Tilt className="relative aspect-[16/10] w-full" max={7} scale={1.015}>
-      <AnimatePresence mode="wait">
-        <motion.img
-          key={i}
-          src={slides[i].src}
-          alt={slides[i].alt}
-          width={1600}
-          height={1000}
-          draggable={false}
-          initial={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.985, filter: "blur(6px)" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 h-full w-full select-none rounded-2xl ring-1 ring-border/60 drop-shadow-2xl"
-        />
-      </AnimatePresence>
-      <div className="absolute -bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+    <div className="relative w-full min-h-[520px] lg:min-h-[640px]">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.7 }}
+        className="absolute -left-3 top-4 z-30 hidden rounded-2xl border border-border bg-background/90 px-4 py-3 shadow-elegant backdrop-blur-xl md:block"
+      >
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Aprovação 25.1
+        </div>
+        <div className="font-display text-2xl font-black text-primary">87%</div>
+      </motion.div>
+
+      <Tilt className="absolute right-0 top-10 z-10 w-[78%] lg:w-[72%]" max={4} scale={1.0}>
+        <div className="relative aspect-[16/10] rotate-[4deg] overflow-hidden rounded-2xl border border-border/70 bg-card opacity-70 shadow-2xl ring-1 ring-white/[0.04]">
+          <img
+            src={slides[next].src}
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="h-full w-full select-none object-cover"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-background/40 via-transparent to-transparent" />
+        </div>
+      </Tilt>
+
+      <Tilt className="absolute left-0 bottom-16 z-20 w-[92%] lg:w-[88%]" max={7} scale={1.015}>
+        <div className="relative aspect-[16/10] -rotate-[2deg] overflow-hidden rounded-2xl border border-border bg-card shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.06]">
+          <div className="flex items-center gap-1.5 border-b border-border/60 bg-card/95 px-3 py-2 backdrop-blur-xl">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+            <div className="ml-3 hidden flex-1 items-center justify-center sm:flex">
+              <span className="rounded-md bg-background/60 px-3 py-0.5 text-[10px] font-medium text-muted-foreground">
+                revmed.app.br / {slides[i].label.toLowerCase()}
+              </span>
+            </div>
+          </div>
+          <div className="relative h-[calc(100%-30px)] w-full">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={i}
+                src={slides[i].src}
+                alt={slides[i].alt}
+                width={1600}
+                height={1000}
+                draggable={false}
+                initial={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 0.985, filter: "blur(6px)" }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 h-full w-full select-none object-cover"
+              />
+            </AnimatePresence>
+          </div>
+        </div>
+      </Tilt>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.85 }}
+        className="absolute -right-2 bottom-4 z-30 hidden rounded-2xl border border-border bg-background/90 px-4 py-3 shadow-elegant backdrop-blur-xl md:block"
+      >
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          Simulações
+        </div>
+        <div className="font-display text-2xl font-black text-mint">+ 320</div>
+      </motion.div>
+
+      <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1.5">
         {slides.map((_, k) => (
           <button
             key={k}
             onClick={() => setI(k)}
             aria-label={`Slide ${k + 1}`}
-            className={`h-1.5 rounded-full transition-all ${k === i ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
+            className={`h-1.5 rounded-full transition-all ${k === i ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
           />
         ))}
       </div>
-    </Tilt>
+    </div>
   );
 }
 
