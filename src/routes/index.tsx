@@ -1015,12 +1015,11 @@ function Simulation() {
             </span>
           </h2>
           <p className="max-w-lg text-base leading-relaxed text-white/70">
-            Vídeo nativo na plataforma. Hoje você é candidato, amanhã é ator —
-            ver o checklist por trás muda como você responde na prova.
+            Hoje você é candidato, amanhã é ator — ver o checklist por trás
+            muda como você responde na prova.
           </p>
           <ul className="space-y-2.5 pt-1">
             {[
-              "Vídeo nativo — sem Zoom, sem Meet, sem instalar nada",
               "Código de sala pra treinar com qualquer colega",
               "Cada papel vê só o conteúdo do seu perfil",
               "Comunidade ativa pra parear com outros candidatos",
@@ -1168,7 +1167,6 @@ const plans = [
       "Atuação como paciente ator",
       "Banco de roteiros do paciente",
       "Impressos e materiais liberados",
-      "Vídeo-chamada integrada com o candidato",
       "Avaliação por checklist oficial",
       "Histórico das salas em que atuou",
     ],
@@ -1189,7 +1187,6 @@ const plans = [
       "+600 itens de checklist",
       "Flashcards e resumos",
       "Cronograma e histórico completo",
-      "Vídeo-chamada integrada",
     ],
     bonuses: [
       { name: "Banco de 50 casos pediátricos exclusivos", value: "R$ 197" },
@@ -1213,7 +1210,6 @@ const plans = [
       "+120 estações clínicas",
       "+600 checklists e flashcards",
       "Cronograma e histórico completo",
-      "Vídeo-chamada integrada",
       "Cancele quando quiser",
     ],
   },
