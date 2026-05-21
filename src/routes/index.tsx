@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
   Check,
@@ -19,6 +19,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
 import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
 import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
+import { Tilt } from "@/components/landing/motion-primitives";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -286,23 +287,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                   "radial-gradient(50% 50% at 50% 50%, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 70%)",
               }}
             />
-            <img
-              src={mockupEstacao}
-              alt="Simulador de estação clínica REVMED com cronômetro INEP"
-              width={1600}
-              height={900}
-              className="w-full select-none drop-shadow-2xl"
-              draggable={false}
-            />
-            <img
-              src={mockupCronograma}
-              alt="App REVMED com cronograma Revalida e flashcards"
-              width={900}
-              height={1200}
-              loading="lazy"
-              className="pointer-events-none absolute -bottom-10 -right-6 hidden w-[38%] select-none drop-shadow-2xl md:block"
-              draggable={false}
-            />
+            <MockupCarousel />
           </div>
           {/* floating stats */}
           <motion.div
@@ -334,6 +319,50 @@ function Hero({ isLogged }: { isLogged: boolean }) {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+/* ----------------------------- MARQUEE ----------------------------- */
+
+function MockupCarousel() {
+  const slides = [
+    { src: mockupEstacao, alt: "Simulador de estação clínica REVMED com cronômetro INEP" },
+    { src: mockupCronograma, alt: "Painel REVMED com cronograma Revalida e progresso por especialidade" },
+  ];
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % slides.length), 4000);
+    return () => clearInterval(t);
+  }, [slides.length]);
+
+  return (
+    <Tilt className="relative aspect-[16/10] w-full" max={7} scale={1.015}>
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={i}
+          src={slides[i].src}
+          alt={slides[i].alt}
+          width={1600}
+          height={1000}
+          draggable={false}
+          initial={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scale: 0.985, filter: "blur(6px)" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0 h-full w-full select-none rounded-2xl ring-1 ring-border/60 drop-shadow-2xl"
+        />
+      </AnimatePresence>
+      <div className="absolute -bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+        {slides.map((_, k) => (
+          <button
+            key={k}
+            onClick={() => setI(k)}
+            aria-label={`Slide ${k + 1}`}
+            className={`h-1.5 rounded-full transition-all ${k === i ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
+          />
+        ))}
+      </div>
+    </Tilt>
   );
 }
 
