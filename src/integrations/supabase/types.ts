@@ -808,6 +808,7 @@ export type Database = {
           terms_md: string | null
           tiktok_pixel_id: string | null
           updated_at: string
+          urgency_banner_text: string | null
           whatsapp_banner_enabled: boolean
           whatsapp_banner_label: string | null
           whatsapp_banner_url: string | null
@@ -833,6 +834,7 @@ export type Database = {
           terms_md?: string | null
           tiktok_pixel_id?: string | null
           updated_at?: string
+          urgency_banner_text?: string | null
           whatsapp_banner_enabled?: boolean
           whatsapp_banner_label?: string | null
           whatsapp_banner_url?: string | null
@@ -858,6 +860,7 @@ export type Database = {
           terms_md?: string | null
           tiktok_pixel_id?: string | null
           updated_at?: string
+          urgency_banner_text?: string | null
           whatsapp_banner_enabled?: boolean
           whatsapp_banner_label?: string | null
           whatsapp_banner_url?: string | null
