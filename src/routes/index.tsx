@@ -184,7 +184,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pt-10 pb-20 md:px-8 md:pt-16 md:pb-28 lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-6">
+        <div className="lg:col-span-6 lg:order-2">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -277,7 +277,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative lg:col-span-6"
+          className="relative lg:col-span-6 lg:order-1"
         >
           <div className="relative">
             <div
