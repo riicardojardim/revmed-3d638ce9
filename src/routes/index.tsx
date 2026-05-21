@@ -28,7 +28,6 @@ import {
   Theater,
   UserRound,
   ClipboardCheck,
-  Video,
   Calendar,
   BarChart3,
   Layers,
@@ -80,7 +79,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Simule estações clínicas com checklists oficiais, cronômetro e vídeo-chamada integrada. A plataforma premium para sua aprovação no Revalida.",
+          "Simule estações clínicas com checklists oficiais e cronômetro real. A plataforma premium para sua aprovação no Revalida.",
       },
       { property: "og:title", content: "Estação Revalida — Treine a prova prática do Revalida" },
       {
@@ -272,8 +271,8 @@ function Hero() {
 
 
           <p className="max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-            Estações clínicas com checklists oficiais, cronômetro e{" "}
-            <strong className="text-foreground">vídeo-chamada nativa entre candidato e ator</strong>.
+            Estações clínicas com checklists oficiais, cronômetro real e{" "}
+            <strong className="text-foreground">simulação entre candidato e ator</strong>.
             Chegue na prova já tendo feito a prova.
           </p>
         </motion.div>
