@@ -552,61 +552,99 @@ function KpiTile({
   );
 }
 
-function InsigniaCard({ total }: { total: number }) {
-  const { current, next } = getRank(total);
-  const progress = next ? Math.min(100, ((total - current.min) / (next.min - current.min)) * 100) : 100;
+function InsigniaCard({ bySpec }: { bySpec: SpecStats }) {
+  const items = MEDAL_SPECIALTIES.map((s) => {
+    const { avg, n } = getSpecAvg(bySpec, s.key);
+    const meta = getSpecialtyMeta(s.key);
+    const unlocked = n >= MIN_STATIONS_PER_SPECIALTY && avg >= NOTA_DE_CORTE_ESCALA10;
+    const progress = Math.min(100, (avg / NOTA_DE_CORTE_ESCALA10) * 100);
+    return { ...s, meta, avg, n, unlocked, progress };
+  });
+  const unlockedCount = items.filter((i) => i.unlocked).length;
+
   return (
     <div className="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-medical/10 p-5">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Insígnia atual</div>
+        <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+          Insígnias por especialidade
+        </div>
         <Sparkles className="h-4 w-4 text-medical" />
       </div>
-      <div className="mt-4 flex items-center gap-4">
-        {/* hexágono insígnia */}
-        <div className="relative h-16 w-16 shrink-0">
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-medical via-mint to-medical shadow-glow"
-            style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-          />
-          <div
-            className="absolute inset-[3px] flex items-center justify-center bg-card font-display text-xl font-bold text-medical"
-            style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-          >
-            {current.label[0]}
-          </div>
-        </div>
-        <div className="min-w-0">
-          <div className="font-display text-xl font-bold leading-tight">{current.label}</div>
-          <div className="text-[11px] text-muted-foreground">{current.tagline}</div>
-        </div>
+
+      <div className="mt-3 flex items-baseline gap-1.5">
+        <span className="font-display text-3xl font-bold tabular-nums text-medical">
+          {unlockedCount}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          de {items.length} conquistadas
+        </span>
       </div>
-      {next ? (
-        <div className="mt-5">
-          <div className="flex items-baseline justify-between text-[11px] text-muted-foreground">
-            <span>Rumo a <span className="font-semibold text-foreground">{next.label}</span></span>
-            <span className="tabular-nums">{total}/{next.min}</span>
-          </div>
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-medical to-mint"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="mt-5 text-[11px] font-semibold uppercase tracking-wider text-medical">Patente máxima atingida</div>
-      )}
-      <div className="mt-5 flex gap-1.5">
-        {RANKS.map((r) => (
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        Desbloqueada quando sua média na especialidade atinge o corte INEP
+        ({NOTA_DE_CORTE_ESCALA10.toFixed(2)}) com ≥ {MIN_STATIONS_PER_SPECIALTY} estações.
+      </p>
+
+      <div className="mt-4 grid grid-cols-5 gap-2">
+        {items.map((it) => (
           <div
-            key={r.key}
-            className={`h-1 flex-1 rounded-full ${total >= r.min ? "bg-medical" : "bg-muted"}`}
-            title={r.label}
-          />
+            key={it.key}
+            className="group relative flex flex-col items-center gap-1.5"
+            title={`${it.label} · média ${it.avg.toFixed(1)} · ${it.n} estações`}
+          >
+            <div className="relative">
+              {/* hexágono */}
+              <div
+                className={
+                  "relative flex h-12 w-12 items-center justify-center font-display text-[11px] font-bold transition " +
+                  (it.unlocked
+                    ? `${it.meta.solid} text-white shadow-glow`
+                    : "bg-muted/40 text-muted-foreground")
+                }
+                style={{
+                  clipPath:
+                    "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                }}
+              >
+                {it.short}
+              </div>
+              {it.unlocked ? (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-night ring-2 ring-card">
+                  <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                </span>
+              ) : (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-muted text-muted-foreground ring-2 ring-card">
+                  <Lock className="h-2 w-2" />
+                </span>
+              )}
+            </div>
+            {/* mini progress */}
+            <div className="h-1 w-full overflow-hidden rounded-full bg-muted/50">
+              <div
+                className={
+                  "h-full rounded-full " +
+                  (it.unlocked ? it.meta.solid : "bg-medical/50")
+                }
+                style={{ width: `${it.progress}%` }}
+              />
+            </div>
+            <div
+              className={
+                "text-[9px] font-semibold tabular-nums " +
+                (it.n === 0 ? "text-muted-foreground/60" : "text-muted-foreground")
+              }
+            >
+              {it.n === 0 ? "—" : it.avg.toFixed(1)}
+            </div>
+          </div>
         ))}
       </div>
+
+      <Link
+        to="/app/progresso"
+        className="mt-4 inline-flex items-center gap-1 self-start text-[11px] font-semibold text-medical hover:underline"
+      >
+        Ver desempenho detalhado <ChevronRight className="h-3 w-3" />
+      </Link>
     </div>
   );
 }
