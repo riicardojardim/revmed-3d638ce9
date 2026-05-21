@@ -88,12 +88,26 @@ const NAV_LINKS = [
 ];
 
 function LandingPage() {
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 16);
+      const delta = y - lastY.current;
+      if (y < 80) {
+        setHidden(false);
+      } else if (delta > 6) {
+        setHidden(true);
+      } else if (delta < -6) {
+        setHidden(false);
+      }
+      lastY.current = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -104,9 +118,13 @@ function LandingPage() {
       <UrgencyBanner />
       <TopNav
         scrolled={scrolled}
+        hidden={hidden}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         isLogged={!!user}
+        avatarUrl={profile?.avatar_url ?? null}
+        displayName={profile?.full_name ?? user?.email ?? null}
+        onSignOut={signOut}
       />
       <main className="overflow-clip">
         <Hero isLogged={!!user} />
