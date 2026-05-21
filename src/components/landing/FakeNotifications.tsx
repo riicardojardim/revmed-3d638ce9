@@ -217,7 +217,7 @@ export function UrgencyBanner() {
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-5 py-2 text-center text-xs font-semibold md:px-8 md:text-sm">
         <Sparkles className="h-3.5 w-3.5 shrink-0 animate-pulse" />
         <span>
-          <span className="hidden font-bold md:inline">Treine agora — </span>
+          <span className="font-bold">Treine agora — </span>
           entre numa sessão na <span className="font-bold underline underline-offset-2">plataforma mais completa</span> para revalidação
         </span>
         <button
