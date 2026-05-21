@@ -956,11 +956,11 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
       className="relative border-y border-border/60 bg-card/30 py-24 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="text-center">
+        <div className="mx-auto max-w-5xl text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mt-4 font-display text-[1.5rem] font-black leading-[1.02] tracking-[-0.045em] md:text-6xl lg:text-7xl">
+          <h2 className="mx-auto mt-4 max-w-[18ch] font-display text-[1.28rem] font-black leading-[1.04] tracking-[-0.045em] md:max-w-[20ch] md:text-[1.65rem] lg:max-w-[22ch] lg:text-[1.95rem] xl:text-[2.05rem]">
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
