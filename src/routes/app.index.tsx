@@ -11,6 +11,8 @@ import {
   RotateCcw,
   Sparkles,
   Target,
+  Lock,
+  Check,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -29,6 +31,8 @@ import {
   NOTA_DE_CORTE_ESCALA10,
   MEDAL_SPECIALTIES,
   getSpecAvg,
+  MIN_STATIONS_PER_SPECIALTY,
+  type SpecStats,
 } from "@/components/SpecialtyMedals";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
@@ -311,7 +315,7 @@ function Dashboard() {
 
         {/* ============ ROW 2: INSÍGNIA + PRÓXIMA AÇÃO + FLASHCARDS ============ */}
         <motion.section variants={staggerItem} className="grid gap-4 lg:grid-cols-3">
-          <InsigniaCard total={stats.total} />
+          <InsigniaCard bySpec={stats.bySpec} />
           <RecommendationCard rec={recommendation} />
           <FlashcardsPerformanceCard />
         </motion.section>
