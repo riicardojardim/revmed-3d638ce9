@@ -21,6 +21,10 @@ import { useAuth } from "@/hooks/use-auth";
 import mockupDashboard from "@/assets/mockup-dashboard.jpg";
 import mockupChecklists from "@/assets/mockup-checklists.jpg";
 import mockupFlashcards from "@/assets/mockup-flashcards.jpg";
+import avatar1 from "@/assets/notif-1.jpg";
+import avatar2 from "@/assets/notif-3.jpg";
+import avatar3 from "@/assets/notif-5.jpg";
+import avatar4 from "@/assets/notif-7.jpg";
 import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
@@ -270,14 +274,18 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground"
           >
             <div className="flex -space-x-2">
-              {["bg-primary", "bg-mint", "bg-primary/70", "bg-mint/70"].map(
-                (c, i) => (
-                  <div
-                    key={i}
-                    className={`h-8 w-8 rounded-full border-2 border-background ${c}`}
-                  />
-                ),
-              )}
+              {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt=""
+                  width={32}
+                  height={32}
+                  loading="eager"
+                  decoding="async"
+                  className="h-8 w-8 rounded-full border-2 border-background object-cover"
+                />
+              ))}
             </div>
             <span>
               <span className="font-bold text-foreground">+ 1.200 médicos</span>{" "}
@@ -349,20 +357,20 @@ function MockupCarousel() {
       </motion.div>
 
       <Tilt className="absolute right-0 top-10 z-10 w-[78%] lg:w-[72%]" max={4} scale={1.0}>
-        <div className="relative aspect-[16/10] rotate-[4deg] overflow-hidden rounded-2xl border border-border/70 bg-card opacity-70 shadow-2xl ring-1 ring-white/[0.04]">
+        <div className="relative aspect-[16/10] rotate-[4deg] overflow-hidden rounded-2xl border border-border/70 bg-[#0a0a0a] opacity-70 shadow-2xl ring-1 ring-white/[0.04]">
           <img
             src={slides[next].src}
             alt=""
             aria-hidden
             draggable={false}
-            className="h-full w-full select-none object-cover"
+            className="h-full w-full select-none object-contain"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-background/40 via-transparent to-transparent" />
         </div>
       </Tilt>
 
       <Tilt className="absolute left-0 bottom-16 z-20 w-[92%] lg:w-[88%]" max={7} scale={1.015}>
-        <div className="relative aspect-[16/10] -rotate-[2deg] overflow-hidden rounded-2xl border border-border bg-card shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.06]">
+        <div className="relative aspect-[16/10] -rotate-[2deg] overflow-hidden rounded-2xl border border-border bg-[#0a0a0a] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.06]">
           <div className="flex items-center gap-1.5 border-b border-border/60 bg-card/95 px-3 py-2 backdrop-blur-xl">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
@@ -373,8 +381,12 @@ function MockupCarousel() {
               </span>
             </div>
           </div>
-          <div className="relative h-[calc(100%-30px)] w-full">
-            <AnimatePresence mode="wait">
+          <div className="relative h-[calc(100%-30px)] w-full bg-[#0a0a0a]">
+            {/* Preload all slides so swap is instant */}
+            {slides.map((s, k) => (
+              <link key={k} rel="preload" as="image" href={s.src} />
+            ))}
+            <AnimatePresence initial={false}>
               <motion.img
                 key={i}
                 src={slides[i].src}
@@ -382,11 +394,13 @@ function MockupCarousel() {
                 width={1600}
                 height={1000}
                 draggable={false}
-                initial={{ opacity: 0, scale: 1.02, filter: "blur(6px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.985, filter: "blur(6px)" }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 h-full w-full select-none object-cover"
+                loading="eager"
+                decoding="async"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 h-full w-full select-none object-contain"
               />
             </AnimatePresence>
           </div>
