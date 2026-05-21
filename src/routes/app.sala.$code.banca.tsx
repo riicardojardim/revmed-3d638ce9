@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { ScriptText } from "@/components/station/shared";
+import { ScriptText, Highlightable } from "@/components/station/shared";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 
 export const Route = createFileRoute("/app/sala/$code/banca")({
@@ -63,6 +63,13 @@ function EvaluatorView() {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [levels, setLevels] = useState<Record<string, Level>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
+  const [struck, setStruck] = useState<Set<string>>(new Set());
+  const toggleStruck = (id: string) =>
+    setStruck((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
   const [feedback, setFeedback] = useState("");
   const [status, setStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
