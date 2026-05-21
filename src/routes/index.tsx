@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
-import dashboardMockup from "@/assets/revmed-dashboard-mockup.png";
+import mockupEstacao from "@/assets/revmed-mockup-estacao.png";
+import mockupCronograma from "@/assets/revmed-mockup-cronograma.png";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
