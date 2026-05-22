@@ -317,9 +317,10 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:mt-0 lg:text-[3.75rem] lg:leading-[1.02] xl:text-[4.5rem]"
+            className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
-            <span className="lg:block">Chegue na prova{" "}</span>
+            <span className="lg:hidden">Chegue na prova </span>
+            <span className="hidden lg:inline">Chegue na prova do Revalida </span>
             <span
               style={{
                 backgroundImage:
@@ -328,10 +329,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 backgroundClip: "text",
                 color: "transparent",
               }}
-              className="lg:block"
             >
-              <span className="lg:block">já tendo feito</span>
-              <span className="lg:block">a prova.</span>
+              <span className="lg:hidden">já tendo feito a prova.</span>
+              <span className="hidden lg:inline">já tendo feito a prova dezenas de vezes.</span>
             </span>
           </motion.h1>
 
