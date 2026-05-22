@@ -93,7 +93,10 @@ function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const lastY = useRef(0);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     lastY.current = window.scrollY;
@@ -152,13 +155,13 @@ function LandingPage() {
         setMenuOpen={setMenuOpen}
         userMenuOpen={userMenuOpen}
         setUserMenuOpen={setUserMenuOpen}
-        isLogged={!!user}
+        isLogged={mounted && !!user}
         avatarUrl={profile?.avatar_url ?? null}
         displayName={profile?.full_name ?? user?.email ?? null}
         onSignOut={signOut}
       />
       <main className="overflow-clip">
-        <Hero isLogged={!!user} />
+        <Hero isLogged={mounted && !!user} />
         <MarqueeStrip />
         <ComoFunciona />
         <Manifesto />
@@ -167,9 +170,9 @@ function LandingPage() {
         <Resultados />
         <Depoimentos />
         <Mentoria />
-        <Investimento isLogged={!!user} />
+        <Investimento isLogged={mounted && !!user} />
         <FAQ />
-        <FinalCTA isLogged={!!user} />
+        <FinalCTA isLogged={mounted && !!user} />
       </main>
       <Footer />
       <FakeNotifications />
