@@ -125,6 +125,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
