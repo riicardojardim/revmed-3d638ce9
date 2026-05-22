@@ -204,10 +204,10 @@ function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-card">
-      <div className="container mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-8">
+      <div className="container mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-6 sm:py-8">
         <Logo />
 
-        <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-elegant sm:p-8">
+        <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-elegant sm:mt-8 sm:p-8">
           <div className="flex items-center justify-between gap-3 rounded-2xl border border-mint/30 bg-mint/5 px-4 py-3">
             <div className="flex items-center gap-2.5">
               <Icon className="h-5 w-5 text-mint" />
@@ -223,8 +223,8 @@ function SignupPage() {
             </Link>
           </div>
 
-          <h1 className="mt-6 font-display text-2xl font-bold">Crie sua conta</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="mt-6 font-display text-xl font-bold sm:text-2xl">Crie sua conta</h1>
+          <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
             Depois de criar a conta você vai para o pagamento.
           </p>
 

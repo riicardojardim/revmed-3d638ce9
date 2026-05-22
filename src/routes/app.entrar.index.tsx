@@ -71,10 +71,10 @@ function EntrarCodigo() {
             <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-mint/80">
               // protocolo de acesso
             </div>
-            <h1 className="mt-2 font-display text-4xl font-bold leading-[1.05] text-white md:text-5xl">
+            <h1 className="mt-2 font-display text-3xl font-bold leading-[1.05] text-white sm:text-4xl lg:text-5xl">
               Bipar <span className="bg-gradient-to-r from-medical via-mint to-medical-dark bg-clip-text text-transparent">estação</span>
             </h1>
-            <p className="mx-auto mt-3 max-w-md text-sm text-white/60">
+            <p className="mx-auto mt-3 max-w-md text-xs text-white/60 sm:text-sm">
               Insira o código do mentor para abrir a sala e iniciar o atendimento.
             </p>
           </div>
