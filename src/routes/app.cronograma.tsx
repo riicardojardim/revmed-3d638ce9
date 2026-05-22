@@ -31,8 +31,8 @@ function Cronograma() {
           <h1 className="mt-2 font-display text-2xl font-bold md:text-3xl">Cronograma</h1>
           <p className="text-sm text-muted-foreground">Organize sua rotina de treino com base no desempenho.</p>
         </div>
-        <Button variant="hero">
-          <Sparkles className="h-4 w-4" /> Gerar cronograma
+        <Button variant="hero" disabled title="Em breve">
+          <Sparkles className="h-4 w-4" /> Gerar cronograma (em breve)
         </Button>
       </Reveal>
 
