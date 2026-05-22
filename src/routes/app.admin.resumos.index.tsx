@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { generateOneSummaryByStationId } from "@/lib/summary-batch.functions";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/admin/resumos/")({
   component: AdminResumosPage,
@@ -66,6 +68,9 @@ type StationRow = { id: string; title: string; specialty: string; published: boo
 
 function AdminResumosPage() {
   const generateOne = useServerFn(generateOneSummaryByStationId);
+  const { user } = useAuth();
+  const nav = useNavigate();
+  const [creating, setCreating] = useState(false);
   const [items, setItems] = useState<Summary[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -101,6 +106,28 @@ function AdminResumosPage() {
     setItems((data ?? []) as Summary[]);
     setLoading(false);
   }
+
+  async function createNew() {
+    if (!user) return toast.error("Faça login novamente.");
+    setCreating(true);
+    const { data, error } = await supabase
+      .from("summaries")
+      .insert({
+        created_by: user.id,
+        title: "Novo resumo sem título",
+        specialty: "Clínica Médica",
+        content_md: "",
+        published: false,
+      })
+      .select("id")
+      .single();
+    setCreating(false);
+    if (error || !data)
+      return toast.error("Erro ao criar resumo", { description: error?.message });
+    toast.success("Resumo criado — preencha aba por aba");
+    nav({ to: "/app/admin/resumos/$id", params: { id: data.id } });
+  }
+
   useEffect(() => {
     void load();
   }, []);
@@ -236,9 +263,14 @@ function AdminResumosPage() {
             Gere resumos a partir das estações, edite, publique e mantenha a curadoria.
           </p>
         </div>
-        <Button variant="hero" onClick={openBatch}>
-          <Sparkles className="h-4 w-4" /> Gerar em lote
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={createNew} disabled={creating}>
+            <Plus className="h-4 w-4" /> {creating ? "Criando..." : "Novo resumo"}
+          </Button>
+          <Button variant="hero" onClick={openBatch}>
+            <Sparkles className="h-4 w-4" /> Gerar em lote
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
