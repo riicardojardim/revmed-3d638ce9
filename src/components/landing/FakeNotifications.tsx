@@ -214,7 +214,7 @@ export function UrgencyBanner() {
   if (closed) return null;
   return (
     <div className="relative z-50 bg-gradient-to-r from-primary via-[#e85d1c] to-primary text-primary-foreground pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex h-[22px] max-w-7xl items-center justify-center gap-1 px-2 pl-[max(env(safe-area-inset-left),0.5rem)] pr-[max(env(safe-area-inset-right),0.5rem)] text-center text-[10px] font-semibold leading-none md:h-auto md:gap-3 md:px-8 md:py-2 md:text-sm">
+      <div className="mx-auto flex h-[24px] max-w-7xl items-center justify-center gap-1 px-2 pl-[max(env(safe-area-inset-left),0.5rem)] pr-[max(env(safe-area-inset-right),0.5rem)] text-center text-[10px] font-semibold leading-none md:h-auto md:gap-3 md:px-8 md:py-2 md:text-sm">
         <Sparkles className="h-2.5 w-2.5 shrink-0 animate-pulse md:h-3.5 md:w-3.5" />
         <span className="truncate whitespace-nowrap">
           <span className="font-bold">Treine agora</span> na{" "}
