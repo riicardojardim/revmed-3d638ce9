@@ -157,12 +157,6 @@ function AppLayout() {
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
-      ...(isTeacher
-        ? [{
-            label: "Área da mentoria",
-            items: [{ to: "/app/professor", label: "Painel do Professor", icon: GraduationCap } as NavItem],
-          }]
-        : []),
       {
         label: "Contato",
         items: [
@@ -187,7 +181,7 @@ function AppLayout() {
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           { to: "/app/resumos", label: "Resumos", icon: BookOpen },
           { to: "/app/videoaulas", label: "Vídeo Aulas", icon: Video },
-          ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
+          
           { to: "/app/perfil", label: "Perfil", icon: User },
           ...(isAdmin ? [{ to: "/app/admin", label: "Painel Admin", icon: ShieldCheck } as NavItem] : []),
         ],
