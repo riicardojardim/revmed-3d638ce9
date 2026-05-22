@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as ECodeRouteImport } from './routes/e.$code'
 import { Route as ConviteCodeRouteImport } from './routes/convite.$code'
+import { Route as AppVideoaulasRouteImport } from './routes/app.videoaulas'
 import { Route as AppSuporteRouteImport } from './routes/app.suporte'
 import { Route as AppResumosRouteImport } from './routes/app.resumos'
 import { Route as AppProgressoRouteImport } from './routes/app.progresso'
@@ -107,6 +108,11 @@ const ConviteCodeRoute = ConviteCodeRouteImport.update({
   id: '/convite/$code',
   path: '/convite/$code',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppVideoaulasRoute = AppVideoaulasRouteImport.update({
+  id: '/videoaulas',
+  path: '/videoaulas',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSuporteRoute = AppSuporteRouteImport.update({
   id: '/suporte',
@@ -379,6 +385,7 @@ export interface FileRoutesByFullPath {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
@@ -436,6 +443,7 @@ export interface FileRoutesByTo {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app': typeof AppIndexRoute
@@ -493,6 +501,7 @@ export interface FileRoutesById {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
@@ -555,6 +564,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
     | '/app/'
@@ -612,6 +622,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
     | '/app'
@@ -668,6 +679,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
     | '/app/'
@@ -778,6 +790,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/convite/$code'
       preLoaderRoute: typeof ConviteCodeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/videoaulas': {
+      id: '/app/videoaulas'
+      path: '/videoaulas'
+      fullPath: '/app/videoaulas'
+      preLoaderRoute: typeof AppVideoaulasRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/suporte': {
       id: '/app/suporte'
@@ -1302,6 +1321,7 @@ interface AppRouteChildren {
   AppProgressoRoute: typeof AppProgressoRoute
   AppResumosRoute: typeof AppResumosRouteWithChildren
   AppSuporteRoute: typeof AppSuporteRoute
+  AppVideoaulasRoute: typeof AppVideoaulasRoute
   AppIndexRoute: typeof AppIndexRoute
   AppEntrarCodeRoute: typeof AppEntrarCodeRoute
   AppFlashcardsDesempenhoRoute: typeof AppFlashcardsDesempenhoRoute
@@ -1326,6 +1346,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProgressoRoute: AppProgressoRoute,
   AppResumosRoute: AppResumosRouteWithChildren,
   AppSuporteRoute: AppSuporteRoute,
+  AppVideoaulasRoute: AppVideoaulasRoute,
   AppIndexRoute: AppIndexRoute,
   AppEntrarCodeRoute: AppEntrarCodeRoute,
   AppFlashcardsDesempenhoRoute: AppFlashcardsDesempenhoRoute,
