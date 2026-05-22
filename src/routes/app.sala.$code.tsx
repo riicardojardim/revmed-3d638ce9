@@ -22,7 +22,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { useAuth } from "@/hooks/use-auth";
 import { IntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/IntroOverlay";
-import { useSiteSettings } from "@/hooks/use-site-settings";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
@@ -70,7 +69,6 @@ function formatCandidateName(
 function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
-  useSiteSettings(); // mantém o hook ativo (settings usado por outras seções)
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -731,7 +729,6 @@ function SimuladoRunner({ id }: { id: string }) {
     <>
       {showIntro && (
         <IntroOverlay
-          variant={introVariant}
           role={"paciente" as IntroRole}
           stationTitle={station?.title ?? sim.name}
           specialty={station?.specialty ?? null}
