@@ -1396,6 +1396,13 @@ function ActorView() {
           </div>
         </div>
       )}
+      {room && (
+        <RoomVideoCall
+          roomCode={room.code}
+          displayName={user?.user_metadata?.full_name ?? user?.email ?? undefined}
+          role="ator"
+        />
+      )}
     </div>
   );
 }
