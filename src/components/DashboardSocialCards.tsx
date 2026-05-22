@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useOnlinePresence } from "@/hooks/use-online-presence";
 import { UserAvatar } from "@/components/UserAvatar";
+import { AnimatePresence, motion } from "framer-motion";
+import { MotionCard, listContainer, listItem } from "@/components/motion/MotionPrimitives";
 
 type Friend = {
   id: string;
@@ -49,14 +51,20 @@ export function OnlineFriendsCard() {
   const onlineFriends = friends.filter((f) => online.has(f.id)).slice(0, 8);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <MotionCard className="rounded-2xl border border-border bg-card p-5" lift={2} glow>
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users2 className="h-4 w-4 text-medical" />
           <h3 className="font-display text-sm font-bold uppercase tracking-wide">Amigos online</h3>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+          <motion.span
+            key={onlineFriends.length}
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
+            className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground"
+          >
             {onlineFriends.length}
-          </span>
+          </motion.span>
         </div>
       </header>
 
@@ -65,22 +73,34 @@ export function OnlineFriendsCard() {
           Nenhum amigo online no momento. Adicione amigos no painel lateral.
         </p>
       ) : (
-        <ul className="space-y-2">
-          {onlineFriends.map((f) => (
-            <li key={f.id} className="flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-muted/50">
-              <div className="relative">
-                <UserAvatar name={f.full_name ?? f.username ?? "?"} avatarUrl={f.avatar_url} size="md" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-success" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium">{f.full_name ?? f.username ?? "Sem nome"}</div>
-                <div className="text-[11px] text-success">online agora</div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <motion.ul variants={listContainer} initial="hidden" animate="show" className="space-y-2">
+          <AnimatePresence initial={false}>
+            {onlineFriends.map((f) => (
+              <motion.li
+                key={f.id}
+                variants={listItem}
+                layout
+                exit={{ opacity: 0, x: -8 }}
+                className="flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-muted/50"
+              >
+                <div className="relative">
+                  <UserAvatar name={f.full_name ?? f.username ?? "?"} avatarUrl={f.avatar_url} size="md" />
+                  <motion.span
+                    className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-success"
+                    animate={{ scale: [1, 1.25, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{f.full_name ?? f.username ?? "Sem nome"}</div>
+                  <div className="text-[11px] text-success">online agora</div>
+                </div>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </motion.ul>
       )}
-    </div>
+    </MotionCard>
   );
 }
 
@@ -127,7 +147,7 @@ export function CommunityFeedCard() {
   }, []);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <MotionCard className="rounded-2xl border border-border bg-card p-5" lift={2} glow>
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MessagesSquare className="h-4 w-4 text-medical" />
@@ -143,10 +163,10 @@ export function CommunityFeedCard() {
       ) : posts.length === 0 ? (
         <p className="text-xs text-muted-foreground">Ainda não há posts. Seja o primeiro!</p>
       ) : (
-        <ul className="space-y-3">
+        <motion.ul variants={listContainer} initial="hidden" animate="show" className="space-y-3">
           {posts.map((p) => (
-            <li key={p.id}>
-              <Link to="/app/comunidade" className="block rounded-lg p-2 transition-colors hover:bg-muted/50">
+            <motion.li key={p.id} variants={listItem} layout>
+              <Link to="/app/comunidade" className="block rounded-lg p-2 transition-all hover:bg-muted/50 hover:translate-x-0.5">
                 <div className="flex items-start gap-2.5">
                     <UserAvatar name={p.author?.full_name ?? p.author?.username ?? "?"} avatarUrl={p.author?.avatar_url ?? null} size="sm" />
                   <div className="min-w-0 flex-1">
@@ -164,10 +184,10 @@ export function CommunityFeedCard() {
                   </div>
                 </div>
               </Link>
-            </li>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       )}
-    </div>
+    </MotionCard>
   );
 }
