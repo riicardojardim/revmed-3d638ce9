@@ -849,9 +849,9 @@ function Mentoria() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
+            <h2 className="mt-3 font-display text-[1.55rem] font-black leading-[1.08] tracking-[-0.03em] sm:text-[1.75rem] md:mt-4 md:text-[2rem] lg:text-5xl">
               Quer alguém do seu lado?{" "}
-              <span className="text-primary">Tem mentoria.</span>
+              <span className="whitespace-nowrap text-primary">Tem mentoria.</span>
             </h2>
             <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
