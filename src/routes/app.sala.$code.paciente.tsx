@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { Button } from "@/components/ui/button";
 
 import { Textarea } from "@/components/ui/textarea";
