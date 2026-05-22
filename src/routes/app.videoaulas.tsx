@@ -24,14 +24,8 @@ type Lesson = {
   cover_image_url: string | null;
 };
 
-const SPECIALTIES = [
-  "Clínica Médica",
-  "Cirurgia",
-  "Pediatria",
-  "Ginecologia e Obstetrícia",
-  "Medicina de Família e Comunidade",
-  "Preventiva",
-];
+import { REVALIDA_SPECIALTIES } from "@/lib/specialtyMeta";
+const SPECIALTIES = REVALIDA_SPECIALTIES;
 
 function VideoAulas() {
   const [items, setItems] = useState<Lesson[]>([]);
