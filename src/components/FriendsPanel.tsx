@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, MessageCircle, Send, Users, X } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Send, UserPlus, Users, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -149,13 +149,19 @@ export function FriendsPanel() {
           className="fixed bottom-20 right-5 z-50 flex h-[min(560px,calc(100dvh-120px))] w-[min(360px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
         >
           {chat ? (
-          <ChatView
-            target={chat}
-            onBack={() => { setChat(null); reload(); }}
-            meId={user?.id ?? ""}
-            online={online}
-          />
-        ) : (
+            <ChatView
+              target={chat}
+              onBack={() => { setChat(null); reload(); }}
+              meId={user?.id ?? ""}
+              online={online}
+            />
+          ) : showAdd ? (
+            <AddFriendView
+              meId={user?.id ?? ""}
+              onBack={() => setShowAdd(false)}
+              onSent={() => { setShowAdd(false); reload(); }}
+            />
+          ) : (
           <>
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
@@ -171,14 +177,24 @@ export function FriendsPanel() {
               </button>
             </div>
             <Tabs defaultValue="friends" className="flex min-h-0 flex-1 flex-col">
-              <TabsList className="mx-3 mt-3 grid grid-cols-2">
-                <TabsTrigger value="friends">
-                  Amigos {friends.length ? `(${friends.length})` : ""}
-                </TabsTrigger>
-                <TabsTrigger value="pending">
-                  Pedidos {pending.length ? `(${pending.length})` : ""}
-                </TabsTrigger>
-              </TabsList>
+              <div className="mx-3 mt-3 flex items-center gap-2">
+                <TabsList className="grid grid-cols-2 flex-1">
+                  <TabsTrigger value="friends">
+                    Amigos {friends.length ? `(${friends.length})` : ""}
+                  </TabsTrigger>
+                  <TabsTrigger value="pending">
+                    Pedidos {pending.length ? `(${pending.length})` : ""}
+                  </TabsTrigger>
+                </TabsList>
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(true)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                  aria-label="Adicionar amigo"
+                >
+                  <UserPlus className="h-4 w-4" />
+                </button>
+              </div>
 
               <TabsContent value="friends" className="m-0 min-h-0 flex-1">
                 <ScrollArea className="h-full">
