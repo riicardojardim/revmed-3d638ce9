@@ -16,6 +16,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
 import { createSimulado } from "@/lib/simulado";
 import { RelatedResources } from "@/components/RelatedResources";
+import { Reveal } from "@/components/ui/reveal";
 
 export const Route = createFileRoute("/app/flashcards/")({
   component: FlashcardsPage,
@@ -489,12 +490,12 @@ function FlashcardsList({
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
-      <div>
+      <Reveal>
         <h1 className="font-display text-2xl font-bold md:text-3xl">Banco de Flashcards</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Escolha um deck e treine com cards no estilo Pense Revalida.
         </p>
-      </div>
+      </Reveal>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main column */}
