@@ -26,8 +26,8 @@ export const Route = createFileRoute("/app/simulacao/$id")({
 function SimulationPage() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const station = STATIONS.find((s) => s.id === id) ?? STATIONS[0];
-  const total = station.durationMinutes * 60;
+  const station = STATIONS.find((s) => s.id === id);
+  const total = (station?.durationMinutes ?? 10) * 60;
 
   const [remaining, setRemaining] = useState(total);
   const [running, setRunning] = useState(false);
@@ -59,29 +59,31 @@ function SimulationPage() {
   const finished = remaining === 0;
 
   const totalPoints = useMemo(
-    () => station.checklist.reduce((s, i) => s + i.points, 0),
+    () => station?.checklist.reduce((s, i) => s + i.points, 0) ?? 0,
     [station],
   );
   const earned = useMemo(
     () =>
-      station.checklist.reduce(
+      station?.checklist.reduce(
         (s, i) => s + (checked[i.id] ? i.points : 0),
         0,
-      ),
+      ) ?? 0,
     [checked, station],
   );
 
   async function finish() {
+    if (!station) return;
     const score = (earned / totalPoints) * 10;
     const checkedIds = Object.entries(checked).filter(([, v]) => v).map(([k]) => k);
     const used = total - remaining;
 
-    // Persist attempt (best-effort)
+    // Persist attempt
+    let attemptId: string | null = null;
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from("attempts").insert({
+        const { data } = await supabase.from("attempts").insert({
           user_id: user.id,
           station_id: station.id,
           station_title: station.title,
@@ -93,20 +95,30 @@ function SimulationPage() {
           checked_items: checkedIds,
           notes: notes || null,
           status: "concluida",
-        });
+        }).select("id").single();
+        attemptId = data?.id ?? null;
       }
     } catch (e) {
       console.error("Falha ao salvar tentativa", e);
     }
 
-    const params = new URLSearchParams({
-      score: score.toFixed(2),
-      earned: String(earned),
-      total: String(totalPoints),
-      used: String(used),
-      checked: checkedIds.join(","),
-    });
-    nav({ to: `/app/resultado/${station.id}?${params.toString()}` });
+    if (attemptId) {
+      nav({ to: `/app/resultado/${station.id}?attempt=${attemptId}` });
+    } else {
+      nav({ to: `/app/resultado/${station.id}` });
+    }
+  }
+
+  if (!station) {
+    return (
+      <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-8 text-center">
+        <h1 className="font-display text-xl font-bold">Estação não encontrada</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Esta estação não existe ou foi removida.</p>
+        <Link to="/app/checklists" className="mt-4 inline-block text-sm text-mint underline">
+          Voltar à biblioteca
+        </Link>
+      </div>
+    );
   }
 
   return (

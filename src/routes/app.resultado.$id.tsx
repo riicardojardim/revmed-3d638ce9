@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   RefreshCw,
   Star,
@@ -9,6 +11,7 @@ import {
   CheckCircle2,
   XCircle,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,20 +19,12 @@ import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { STATIONS } from "@/data/stations";
 
 interface ResultSearch {
-  score?: string;
-  earned?: string;
-  total?: string;
-  used?: string;
-  checked?: string;
+  attempt?: string;
 }
 
 export const Route = createFileRoute("/app/resultado/$id")({
   validateSearch: (s: Record<string, unknown>): ResultSearch => ({
-    score: typeof s.score === "string" ? s.score : undefined,
-    earned: typeof s.earned === "string" ? s.earned : undefined,
-    total: typeof s.total === "string" ? s.total : undefined,
-    used: typeof s.used === "string" ? s.used : undefined,
-    checked: typeof s.checked === "string" ? s.checked : undefined,
+    attempt: typeof s.attempt === "string" ? s.attempt : undefined,
   }),
   component: ResultPage,
   head: () => ({ meta: [{ title: "Resultado — REVMED" }] }),
@@ -38,13 +33,66 @@ export const Route = createFileRoute("/app/resultado/$id")({
 function ResultPage() {
   const { id } = Route.useParams();
   const search = useSearch({ from: "/app/resultado/$id" }) as ResultSearch;
-  const station = STATIONS.find((s) => s.id === id) ?? STATIONS[0];
+  const station = STATIONS.find((s) => s.id === id);
 
-  const score = Number(search.score ?? "0");
-  const earned = Number(search.earned ?? "0");
-  const total = Number(search.total ?? station.checklist.reduce((s, i) => s + i.points, 0));
-  const used = Number(search.used ?? 0);
-  const checkedSet = new Set((search.checked ?? "").split(",").filter(Boolean));
+  const [attempt, setAttempt] = useState<{
+    score: number;
+    earned: number;
+    total_points: number;
+    used_seconds: number;
+    checked_items: string[];
+  } | null>(null);
+  const [loading, setLoading] = useState(!!search.attempt);
+
+  useEffect(() => {
+    if (!search.attempt) return;
+    let cancel = false;
+    (async () => {
+      const { data } = await supabase
+        .from("attempts")
+        .select("score, earned, total_points, used_seconds, checked_items")
+        .eq("id", search.attempt!)
+        .maybeSingle();
+      if (cancel) return;
+      if (data) {
+        setAttempt({
+          score: Number(data.score),
+          earned: data.earned,
+          total_points: data.total_points,
+          used_seconds: data.used_seconds,
+          checked_items: (data.checked_items as string[]) ?? [],
+        });
+      }
+      setLoading(false);
+    })();
+    return () => { cancel = true; };
+  }, [search.attempt]);
+
+  if (!station) {
+    return (
+      <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-8 text-center">
+        <h1 className="font-display text-xl font-bold">Estação não encontrada</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Esta estação não existe ou foi removida.</p>
+        <Link to="/app/checklists" className="mt-4 inline-block text-sm text-mint underline">
+          Voltar à biblioteca
+        </Link>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Carregando resultado...
+      </div>
+    );
+  }
+
+  const score = attempt?.score ?? 0;
+  const earned = attempt?.earned ?? 0;
+  const total = attempt?.total_points ?? station.checklist.reduce((s, i) => s + i.points, 0);
+  const used = attempt?.used_seconds ?? 0;
+  const checkedSet = new Set(attempt?.checked_items ?? []);
 
   const done = station.checklist.filter((i) => checkedSet.has(i.id));
   const missed = station.checklist.filter((i) => !checkedSet.has(i.id));
