@@ -361,13 +361,13 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             "radial-gradient(60% 60% at 80% 0%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 60%), radial-gradient(40% 50% at 10% 100%, color-mix(in oklab, var(--mint) 18%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div className="mx-auto grid max-w-7xl items-stretch gap-12 px-5 pt-10 pb-20 md:px-8 md:pt-16 md:pb-28 lg:grid-cols-12 lg:gap-8">
+      <div className="mx-auto grid max-w-7xl items-stretch gap-8 px-5 pt-6 pb-14 md:px-8 md:pt-16 md:pb-28 md:gap-12 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-6 lg:order-2">
           <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-primary"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-primary md:px-3 md:py-1.5 md:text-xs md:tracking-[0.18em]"
           >
             <Flame className="h-3.5 w-3.5" />
             Plataforma oficial • Revalida INEP
@@ -377,7 +377,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-6 font-display text-[2.1rem] font-black leading-[1.05] tracking-[-0.04em] md:text-5xl lg:text-6xl"
+            className="mt-4 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-5xl lg:text-6xl"
           >
             A plataforma que <br />
             <span
@@ -398,7 +398,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-5 max-w-xl text-base text-muted-foreground md:text-lg"
+            className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-lg"
           >
             Estações ao vivo com cronômetro INEP, banco gigante de checklists
             oficiais, flashcards com revisão espaçada, resumos enxutos e
@@ -406,24 +406,37 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             todo mundo treinando junto.
           </motion.p>
 
+          {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
+          <div className="relative mt-6 lg:hidden">
+            <div
+              aria-hidden
+              className="absolute -inset-6 -z-10 rounded-[2rem] blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(50% 50% at 50% 50%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 70%)",
+              }}
+            />
+            <MockupCarousel />
+          </div>
+
           <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="mt-8 flex flex-wrap items-center gap-3"
+            className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center md:mt-8"
           >
             <Link
               to={isLogged ? "/app" : "/cadastro"}
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02]"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
             >
               Começar a treinar
-              <ArrowUpRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
             </Link>
             <a
               href="#plataforma"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:bg-card"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-card sm:w-auto md:py-3.5 md:text-base"
             >
-              <PlayCircle className="h-5 w-5 text-primary" />
+              <PlayCircle className="h-4 w-4 text-primary md:h-5 md:w-5" />
               Ver por dentro
             </a>
           </motion.div>
@@ -432,7 +445,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-muted-foreground"
+            className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3 text-[0.7rem] text-muted-foreground md:mt-8 md:gap-x-6 md:text-xs"
           >
             <div className="flex -space-x-2">
               {[avatar1, avatar2, avatar3, avatar4].map((src, i) => (
@@ -440,11 +453,11 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                   key={i}
                   src={src}
                   alt=""
-                  width={32}
-                  height={32}
+                  width={28}
+                  height={28}
                   loading="eager"
                   decoding="async"
-                  className="h-8 w-8 rounded-full border-2 border-background object-cover"
+                  className="h-7 w-7 rounded-full border-2 border-background object-cover md:h-8 md:w-8"
                 />
               ))}
             </div>
@@ -468,7 +481,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           initial={{ opacity: 1, scale: 1 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative flex lg:col-span-6 lg:order-1"
+          className="relative hidden lg:col-span-6 lg:order-1 lg:flex"
         >
           <div className="relative flex w-full items-stretch">
             <div
