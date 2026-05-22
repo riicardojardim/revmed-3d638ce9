@@ -7,10 +7,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { IntroOverlay, INTRO_VARIANT_LABEL, type IntroRole, type IntroVariant } from "@/components/room/IntroOverlay";
+import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
 import { useSiteSettings, refreshSiteSettings } from "@/hooks/use-site-settings";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -36,25 +35,6 @@ interface DailyPoint { date: string; label: string; value: number }
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const { settings } = useSiteSettings();
-  const [variant, setVariant] = useState<IntroVariant>("pulse");
-  const [savingVariant, setSavingVariant] = useState(false);
-  useEffect(() => {
-    const v = settings?.intro_animation_variant;
-    if (v === "pulse" || v === "badge") setVariant(v);
-    else setVariant("pulse");
-  }, [settings?.intro_animation_variant]);
-  async function saveVariant() {
-    if (!settings?.id) return;
-    setSavingVariant(true);
-    const { error } = await supabase
-      .from("site_settings")
-      .update({ intro_animation_variant: variant })
-      .eq("id", settings.id);
-    setSavingVariant(false);
-    if (error) return toast.error("Erro ao salvar", { description: error.message });
-    await refreshSiteSettings();
-    toast.success("Animação salva", { description: INTRO_VARIANT_LABEL[variant] });
-  }
 
   // === Banner do grupo de WhatsApp (topo do app) ===
   const [waEnabled, setWaEnabled] = useState(true);
