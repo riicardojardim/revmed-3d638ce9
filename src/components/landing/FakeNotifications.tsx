@@ -127,7 +127,7 @@ export function FakeNotifications() {
   if (dismissed) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-24 left-4 z-40 md:bottom-6 md:left-6">
+    <div className="pointer-events-none fixed bottom-20 left-3 z-40 md:bottom-6 md:left-6">
       <AnimatePresence mode="wait">
         {current && (
           <motion.div
@@ -136,9 +136,9 @@ export function FakeNotifications() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.95 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-auto flex w-[19rem] items-start gap-3 rounded-2xl border border-border/80 bg-background/95 p-3.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+            className="pointer-events-auto flex w-[15rem] items-start gap-2 rounded-xl border border-border/80 bg-background/95 p-2.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl md:w-[19rem] md:gap-3 md:rounded-2xl md:p-3.5"
           >
-            <div className="relative h-11 w-11 shrink-0">
+            <div className="relative h-9 w-9 shrink-0 md:h-11 md:w-11">
               <img
                 src={current.avatar}
                 alt=""
@@ -147,20 +147,20 @@ export function FakeNotifications() {
                 fetchPriority="high"
                 width={44}
                 height={44}
-                className="h-11 w-11 rounded-full object-cover ring-2 ring-background"
+                className="h-9 w-9 rounded-full object-cover ring-2 ring-background md:h-11 md:w-11"
               />
-              <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary ring-2 ring-background">
-                <CheckCircle2 className="h-3 w-3 text-primary-foreground" />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary ring-2 ring-background md:h-4 md:w-4">
+                <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground md:h-3 md:w-3" />
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">
+              <p className="truncate text-xs font-semibold text-foreground md:text-sm">
                 {current.name}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground md:text-xs">
                 {current.action}
               </p>
-              <p className="mt-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground/80">
+              <p className="mt-0.5 flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground/80 md:mt-1 md:gap-1.5 md:text-[10px]">
                 <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
                 {current.time}
               </p>
@@ -170,7 +170,7 @@ export function FakeNotifications() {
               aria-label="Fechar notificações"
               className="-mr-1 -mt-1 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-3 w-3 md:h-3.5 md:w-3.5" />
             </button>
           </motion.div>
         )}
