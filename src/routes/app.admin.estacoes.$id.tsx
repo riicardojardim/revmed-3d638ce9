@@ -2894,6 +2894,7 @@ function PostChecklistAIDialog({
       };
       setArtifact((a) => ({ ...a, deck, deckPublished: false }));
       toast.success(`Deck pronto com ${res.count} cards!`);
+      onGenerated?.();
       return true;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -2937,6 +2938,7 @@ function PostChecklistAIDialog({
       setArtifact((a) => ({ ...a, summary: res.summary as GeneratedSummary, summaryValidation: v, summaryPublished: false }));
       if (v?.blocking) toast.warning("Resumo gerado com alertas críticos — revise antes de publicar.");
       else toast.success("Resumo pronto!");
+      onGenerated?.();
       return true;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
