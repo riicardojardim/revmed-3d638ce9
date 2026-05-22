@@ -2814,12 +2814,13 @@ type AIArtifact = {
 };
 
 function PostChecklistAIDialog({
-  open, onOpenChange, station, items,
+  open, onOpenChange, station, items, onGenerated,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   station: Station;
   items: Item[];
+  onGenerated?: () => void;
 }) {
   const generateDeck = useServerFn(generateDeckFromStation);
   const generateSummary = useServerFn(generateSummaryFromStation);
