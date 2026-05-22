@@ -1480,6 +1480,17 @@ function ActorView() {
           allowedIdentities={[user?.id, room.evaluated_candidate_id]}
         />
       )}
+      {/* Floating shortcut to controls panel (mobile/tablet only) */}
+      <button
+        type="button"
+        onClick={() => setControlsOpen(true)}
+        className="fixed bottom-5 right-5 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-gradient-hero px-4 text-sm font-semibold text-white shadow-elegant ring-1 ring-mint/30 transition hover:scale-[1.02] active:scale-[0.98] lg:hidden"
+        aria-label="Abrir controles da estação"
+      >
+        <SlidersHorizontal className="h-4 w-4" />
+        <span className="hidden sm:inline">Controles</span>
+        <span className="font-mono text-[11px] text-white/80">{mm}:{ss}</span>
+      </button>
     </div>
   );
 }
