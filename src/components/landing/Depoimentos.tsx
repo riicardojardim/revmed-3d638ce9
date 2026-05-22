@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
 import { Quote, Instagram } from "lucide-react";
 // vite-imagetools: gera variantes 320/480/720 em webp e devolve um srcset pronto.
-const SRCSET_QS = "?w=320;480;720&format=webp&as=srcset";
-const FALLBACK_QS = "?w=480&format=webp";
 import depoAlexandreSet from "@/assets/depoimento-alexandre.webp?w=320;480;720&format=webp&as=srcset";
 import depoAlexandreSrc from "@/assets/depoimento-alexandre.webp?w=480&format=webp";
 import depoRenaldoSet from "@/assets/depoimento-renaldo.webp?w=320;480;720&format=webp&as=srcset";
