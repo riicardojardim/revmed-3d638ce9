@@ -307,7 +307,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-primary md:px-3 md:py-1.5 md:text-xs md:tracking-[0.18em]"
+            className="inline-flex w-auto max-w-full items-center gap-2 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-primary md:px-3 md:py-1.5 md:text-xs md:tracking-[0.18em]"
           >
             <Flame className="h-3.5 w-3.5" />
             Plataforma de treino • Revalida INEP
@@ -339,14 +339,13 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
           >
-            Sinta como é estar diante do avaliador antes do dia da prova.
-            Sala ao vivo, cronômetro do INEP, checklist nos 3 níveis da
-            banca e seu desempenho comparado à nota de corte — tudo num
-            app que dá vontade de abrir todo dia.
+            Sala ao vivo com ator-avaliador, cronômetro do INEP e
+            checklist da banca — tudo num app que dá vontade de abrir
+            todo dia.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
-          <div className="relative mt-6 lg:hidden">
+          <div className="relative mt-5 lg:hidden">
             <div
               aria-hidden
               className="absolute -inset-6 -z-10 rounded-[2rem] blur-3xl"
@@ -469,7 +468,7 @@ function MockupCarousel() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-[520px] lg:min-h-[640px]">
+    <div className="relative w-full min-h-[420px] sm:min-h-[480px] lg:min-h-[640px]">
       <motion.div
         initial={{ opacity: 1, y: 0 }}
         animate={{ opacity: 1, y: 0 }}
@@ -482,7 +481,7 @@ function MockupCarousel() {
         <div className="font-display text-2xl font-black text-primary">87%</div>
       </motion.div>
 
-      <Tilt className="absolute right-0 top-10 z-10 w-[78%] lg:w-[72%]" max={4} scale={1.0}>
+      <Tilt className="absolute right-0 top-4 z-10 w-[78%] lg:top-10 lg:w-[72%]" max={4} scale={1.0}>
         <div className="relative aspect-[16/10] rotate-[4deg] overflow-hidden rounded-2xl border border-border/70 bg-[#0a0a0a] opacity-70 shadow-2xl ring-1 ring-white/[0.04]">
           {/* Barra do navegador também no mockup de trás */}
           <div className="flex items-center gap-1.5 border-b border-border/60 bg-card/95 px-3 py-2 backdrop-blur-xl">
@@ -517,7 +516,7 @@ function MockupCarousel() {
         </div>
       </Tilt>
 
-      <Tilt className="absolute left-0 bottom-16 z-20 w-[92%] lg:w-[88%]" max={7} scale={1.015}>
+      <Tilt className="absolute left-0 bottom-6 z-20 w-[92%] lg:bottom-16 lg:w-[88%]" max={7} scale={1.015}>
         <div className="relative aspect-[16/10] -rotate-[2deg] overflow-hidden rounded-2xl border border-border bg-[#0a0a0a] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.06]">
           <div className="flex items-center gap-1.5 border-b border-border/60 bg-card/95 px-3 py-2 backdrop-blur-xl">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
