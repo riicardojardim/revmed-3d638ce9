@@ -93,7 +93,10 @@ function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const lastY = useRef(0);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     lastY.current = window.scrollY;
