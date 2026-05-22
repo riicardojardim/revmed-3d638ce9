@@ -345,7 +345,6 @@ function AppLayout() {
             )}
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
-            <FriendsPanel />
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -408,6 +407,7 @@ function AppLayout() {
         </main>
       </SidebarInset>
     </div>
+    <FriendsPanel />
     </SidebarProvider>
     </OnlinePresenceProvider>
   );

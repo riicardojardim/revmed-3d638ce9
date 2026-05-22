@@ -4,7 +4,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -155,23 +154,27 @@ export function FriendsPanel() {
   const headerName = (n: string | null, u: string | null) => n || u || "Usuário";
 
   return (
-    <Sheet open={open} onOpenChange={(v) => { setOpen(v); if (!v) setChat(null); }}>
-      <SheetTrigger asChild>
-        <button
-          type="button"
-          className="relative inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground/80 hover:bg-muted/60 hover:text-foreground"
-          aria-label="Amigos"
+    <>
+      {/* Floating launcher (Facebook-style, bottom-right) */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full bg-mint text-night shadow-lg shadow-mint/30 ring-1 ring-mint/40 transition-transform hover:scale-105 active:scale-95"
+        aria-label="Amigos"
+      >
+        <Users className="h-5 w-5" />
+        {totalUnread > 0 && (
+          <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-background">
+            {totalUnread > 9 ? "9+" : totalUnread}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div
+          className="fixed bottom-20 right-5 z-50 flex h-[min(560px,calc(100dvh-120px))] w-[min(360px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
         >
-          <Users className="h-5 w-5" />
-          {totalUnread > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-mint px-1 text-[10px] font-bold text-night ring-2 ring-background">
-              {totalUnread > 9 ? "9+" : totalUnread}
-            </span>
-          )}
-        </button>
-      </SheetTrigger>
-      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
-        {chat ? (
+          {chat ? (
           <ChatView
             target={chat}
             onBack={() => { setChat(null); reload(); }}
@@ -180,11 +183,19 @@ export function FriendsPanel() {
           />
         ) : (
           <>
-            <SheetHeader className="border-b border-border px-4 py-3">
-              <SheetTitle className="flex items-center gap-2 text-base">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <div className="flex items-center gap-2 text-sm font-semibold">
                 <Users className="h-4 w-4 text-mint" /> Amigos
-              </SheetTitle>
-            </SheetHeader>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="Fechar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             <Tabs defaultValue="station" className="flex min-h-0 flex-1 flex-col">
               <TabsList className="mx-3 mt-3 grid grid-cols-3">
                 <TabsTrigger value="station">Da estação</TabsTrigger>
@@ -292,8 +303,9 @@ export function FriendsPanel() {
             </Tabs>
           </>
         )}
-      </SheetContent>
-    </Sheet>
+        </div>
+      )}
+    </>
   );
 }
 
