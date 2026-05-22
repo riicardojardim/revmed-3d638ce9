@@ -307,7 +307,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex w-auto max-w-full items-center gap-2 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-primary md:px-3 md:py-1.5 md:text-xs md:tracking-[0.18em]"
+            className="inline-flex w-auto max-w-full items-center gap-2 whitespace-nowrap rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-primary md:px-3 md:py-1.5 md:text-xs md:tracking-[0.18em] lg:hidden"
           >
             <Flame className="h-3.5 w-3.5" />
             Plataforma de treino • Revalida INEP
@@ -317,9 +317,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
+            className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:mt-0 lg:text-[3.75rem] lg:leading-[1.02] xl:text-[4.5rem]"
           >
-            Chegue na prova{" "}
+            <span className="lg:block">Chegue na prova{" "}</span>
             <span
               style={{
                 backgroundImage:
@@ -328,8 +328,10 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 backgroundClip: "text",
                 color: "transparent",
               }}
+              className="lg:block"
             >
-              já tendo feito a prova.
+              <span className="lg:block">já tendo feito</span>
+              <span className="lg:block">a prova.</span>
             </span>
           </motion.h1>
 
@@ -337,7 +339,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
+            className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:mt-6 lg:text-lg"
           >
             Sala ao vivo com ator-avaliador, cronômetro do INEP e
             checklist da banca — tudo num app que dá vontade de abrir
