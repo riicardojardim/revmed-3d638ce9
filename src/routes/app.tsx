@@ -155,7 +155,7 @@ function AppLayout() {
           ]},
           { to: "/app/resumos", label: "Resumos", icon: BookOpen },
           { to: "/app/videoaulas", label: "Vídeo Aulas", icon: Video },
-          { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
+          { to: "/app/entrar", label: "Bipar estação", icon: DoorOpen },
         ],
       },
       {
