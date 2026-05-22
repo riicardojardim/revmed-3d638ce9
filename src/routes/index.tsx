@@ -631,16 +631,6 @@ function MockupCarousel() {
         <div className="font-display text-2xl font-black text-mint">+ 320</div>
       </motion.div>
 
-      <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1.5">
-        {frontSlides.map((_, k) => (
-          <button
-            key={k}
-            onClick={() => setIFront(k)}
-            aria-label={`Slide ${k + 1}`}
-            className={`h-1.5 rounded-full transition-all ${k === iFront ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
