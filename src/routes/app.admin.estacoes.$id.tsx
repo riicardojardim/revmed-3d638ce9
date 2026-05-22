@@ -2554,6 +2554,40 @@ function SectionGenerateSummary({ station, items, refreshKey = 0 }: { station: S
       title="Gerar Resumo desta estação"
       hint="A IA cria um resumo estruturado (Definição, Quadro clínico, Diagnóstico, Conduta, Pontos-chave, Armadilhas) com base no CHECKLIST (PEP) preenchido + descrição da estação, usando SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras (SBC, SBP, FEBRASGO…), matriz do Revalida/INEP e guidelines internacionais consagradas. O título do resumo é o mesmo título da estação/checklist."
     >
+      {linked.length > 0 && (
+        <div className="rounded-xl border border-mint/40 bg-mint/10 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-sm font-display font-bold flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-mint" />
+              Resumos vinculados a esta estação
+            </div>
+            <Badge variant="outline" className="border-mint/40 text-mint">{linked.length}</Badge>
+          </div>
+          <div className="divide-y divide-border">
+            {linked.map((s) => (
+              <div key={s.id} className="flex flex-wrap items-center gap-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{s.title}</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    {new Date(s.created_at).toLocaleDateString("pt-BR")}
+                  </div>
+                </div>
+                {s.published
+                  ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
+                  : <Badge variant="outline">Rascunho</Badge>}
+                <Link
+                  to="/app/admin/resumos/$id"
+                  params={{ id: s.id }}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold hover:bg-muted"
+                >
+                  Abrir editor →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div
         className={`flex flex-wrap items-center gap-3 rounded-xl border p-4 transition-colors ${
           checklistCount > 0
@@ -2612,38 +2646,6 @@ function SectionGenerateSummary({ station, items, refreshKey = 0 }: { station: S
           onTogglePublish={togglePublish}
           validation={validation}
         />
-      )}
-
-      {linked.length > 0 && (
-        <div className="mt-3 rounded-xl border border-border bg-card p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="text-sm font-display font-bold">Resumos conectados a esta estação</div>
-            <Badge variant="outline">{linked.length}</Badge>
-          </div>
-          <div className="divide-y divide-border">
-            {linked.map((s) => (
-              <div key={s.id} className="flex flex-wrap items-center gap-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{s.title}</div>
-                  <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    {new Date(s.created_at).toLocaleDateString("pt-BR")}
-                  </div>
-                </div>
-                {s.published
-                  ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
-                  : <Badge variant="outline">Rascunho</Badge>}
-                <Link
-                  to="/app/admin/resumos/$id"
-                  params={{ id: s.id }}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
-                >
-                  Abrir →
-                </Link>
-
-              </div>
-            ))}
-          </div>
-        </div>
       )}
     </Section>
   );
