@@ -1019,7 +1019,6 @@ function SimuladoRunner({ id }: { id: string }) {
                 rows={4}
                 placeholder="Pontos fortes, pontos a melhorar..."
                 className="mt-2"
-                disabled={!finishedStation}
               />
             </div>
 
