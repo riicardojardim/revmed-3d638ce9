@@ -262,7 +262,8 @@ function ProfilePage() {
             </div>
           </div>
         </div>
-      </div>
+      </MotionCard>
+      </Reveal>
 
       {/* Personal info */}
       <form onSubmit={handleSaveProfile} className="rounded-2xl border border-border bg-card p-6 shadow-card space-y-5">
