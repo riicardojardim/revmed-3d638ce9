@@ -1230,12 +1230,13 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
         <h2 className="font-display text-3xl font-black leading-[1.02] tracking-[-0.03em] sm:text-4xl md:text-5xl lg:text-6xl">
-          Pronto pra treinar <br />
-          <span className="text-primary">do jeito que cai?</span>
+          Treine como o INEP <br />
+          <span className="text-primary">cobra na prova.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">
-          Estações ao vivo, checklists oficiais, flashcards, resumos e painel
-          de desempenho. Tudo num só lugar, até o dia da prova.
+          Sala ao vivo com vídeo, checklist 3 níveis, flashcards SM-2,
+          resumos, simulados, comunidade e gamificação. Tudo num só lugar,
+          até o dia da prova.
         </p>
         <Link
           to={isLogged ? "/app" : "/cadastro"}
