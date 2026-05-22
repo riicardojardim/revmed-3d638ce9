@@ -70,6 +70,20 @@ const META: Record<string, SpecialtyMeta> = {
     solid: "bg-lime-600",
     text: "text-lime-700 dark:text-lime-300",
   },
+  "Direito Médico": {
+    code: "DM",
+    badge: "bg-indigo-600 text-white ring-1 ring-indigo-300/60 shadow-sm shadow-indigo-900/30",
+    card: "border-indigo-600/40 bg-indigo-600/5",
+    solid: "bg-indigo-600",
+    text: "text-indigo-700 dark:text-indigo-300",
+  },
+  "Geral": {
+    code: "GR",
+    badge: "bg-teal-600 text-white ring-1 ring-teal-300/60 shadow-sm shadow-teal-900/30",
+    card: "border-teal-600/40 bg-teal-600/5",
+    solid: "bg-teal-600",
+    text: "text-teal-700 dark:text-teal-300",
+  },
 };
 
 const FALLBACK: SpecialtyMeta = {
