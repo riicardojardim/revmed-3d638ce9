@@ -97,8 +97,12 @@ function SignupPage() {
       toast.error("Informe nome e sobrenome.");
       return;
     }
-    if (!/^[a-zA-Z0-9_.]{3,20}$/.test(form.username)) {
-      toast.error("Nick inválido", { description: "Use 3 a 20 caracteres (letras, números, . ou _)." });
+    if (!/^[a-z0-9_.]{3,20}$/.test(form.username)) {
+      toast.error("Nick inválido", { description: "Use 3 a 20 caracteres (letras minúsculas, números, . ou _)." });
+      return;
+    }
+    if (/^[._]|[._]$|[._]{2,}/.test(form.username)) {
+      toast.error("Nick inválido", { description: "Não pode começar/terminar com . ou _, nem ter dois seguidos." });
       return;
     }
     const wppDigits = normalizeWhatsapp(form.whatsapp);
