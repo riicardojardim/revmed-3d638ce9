@@ -57,17 +57,17 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "REVMED — Plataforma de prática para o Revalida INEP" },
+      { title: "REVMED — Sala ao vivo, checklist INEP e flashcards SM-2 pro Revalida" },
       {
         name: "description",
         content:
-          "Estações com cronômetro INEP, banco de checklists oficiais, flashcards com revisão espaçada, resumos práticos e desempenho em tempo real. Tudo num só lugar — com mentoria opcional 1:5.",
+          "Sala ao vivo com vídeo (candidato + ator + banca), cronômetro no servidor, impressos em tempo real, checklist 3 níveis, flashcards SM-2, resumos cruzados, patentes, troféus e comunidade. Mentoria 1:5 opcional.",
       },
-      { property: "og:title", content: "REVMED — A plataforma do candidato Revalida" },
+      { property: "og:title", content: "REVMED — Treine como o INEP cobra na prova" },
       {
         property: "og:description",
         content:
-          "Treine estações ao vivo com ator, marque checklist como a banca, revise por flashcards e resumos, acompanhe seu desempenho. Mentoria 1:5 disponível como complemento.",
+          "Sala ao vivo com vídeo integrado, cronômetro INEP no servidor, checklist 3 níveis com PEP liberada na hora, flashcards SM-2, resumos cruzados, ranking, patentes e comunidade.",
       },
     ],
     links: NOTIFICATION_AVATAR_SOURCES.map((src) => ({
@@ -1261,8 +1261,9 @@ function Footer() {
           <div className="flex flex-col items-center gap-3 md:items-start md:col-span-3 lg:col-span-1">
             <Logo />
             <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
-              A plataforma de prática do candidato Revalida INEP — estações,
-              checklists, flashcards, resumos e desempenho num só lugar.
+              A plataforma de prática do candidato Revalida INEP — sala ao
+              vivo com vídeo, checklist 3 níveis, flashcards SM-2, resumos,
+              comunidade e gamificação num só lugar.
             </p>
           </div>
 
