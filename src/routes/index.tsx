@@ -1144,12 +1144,12 @@ const FAQS = [
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="py-16 md:py-32">
+    <section className="py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
           Perguntas honestas
         </p>
-        <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+        <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
           O que a gente costuma ouvir.
         </h2>
         <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
@@ -1191,7 +1191,7 @@ function FAQ() {
 
 function FinalCTA({ isLogged }: { isLogged: boolean }) {
   return (
-    <section className="relative overflow-hidden py-16 md:py-32">
+    <section className="relative overflow-hidden py-16 md:py-24 lg:py-32">
       <div
         aria-hidden
         className="absolute inset-0 -z-10"
@@ -1201,11 +1201,11 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
-        <h2 className="font-display text-3xl font-black leading-[1.02] tracking-[-0.03em] sm:text-4xl md:text-6xl">
+        <h2 className="font-display text-3xl font-black leading-[1.02] tracking-[-0.03em] sm:text-4xl md:text-5xl lg:text-6xl">
           Pronto pra treinar <br />
           <span className="text-primary">do jeito que cai?</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base md:text-lg">
+        <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">
           Estações ao vivo, checklists oficiais, flashcards, resumos e painel
           de desempenho. Tudo num só lugar, até o dia da prova.
         </p>
