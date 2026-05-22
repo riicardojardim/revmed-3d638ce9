@@ -501,6 +501,74 @@ function CandidateView() {
     );
   }
 
+  const controlPanel = (
+    <div className="min-w-0 space-y-3">
+      {/* Timer */}
+      <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+        <div className="flex items-center justify-between">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+            {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando"}
+          </div>
+          <button
+            type="button"
+            onClick={() => setHideTimer((v) => !v)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/20 bg-white/10 text-white/80 hover:text-white"
+            title={hideTimer ? "Mostrar cronômetro" : "Ocultar cronômetro"}
+          >
+            {hideTimer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+        <div className={cn(
+          "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
+          isRunning ? "bg-mint/15" : "bg-white/5",
+        )}>
+          <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
+            {hideTimer ? "— —" : `${mm}:${ss}`}
+          </div>
+        </div>
+        {isWaiting && (
+          <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-medium text-white/90">
+            Aguardando o ator iniciar a estação...
+          </div>
+        )}
+        {isFinished && (
+          <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-semibold text-white">
+            Estação encerrada.
+          </div>
+        )}
+      </div>
+      {isFinished && (
+        <RelatedResources
+          specialty={station.specialty}
+          title={room.station_title ?? station.title}
+          stationId={station.id}
+          show={{ resumo: true, flashcard: true }}
+          excludeStationId={station.id}
+          heading="Sugestões para este tema"
+          className="p-3"
+        />
+      )}
+      {!isSpectator && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Resultado
+          </div>
+          <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+            {correctionReady ? (
+              <div className="font-display text-xl font-bold tabular-nums text-mint">
+                {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
+              </div>
+            ) : (
+              <div className="font-display text-base font-semibold text-muted-foreground">
+                Aguardando...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       {introOverlay}
