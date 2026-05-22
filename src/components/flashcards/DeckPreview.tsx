@@ -43,22 +43,33 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col">
+    <div
+      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col"
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
       <div className="flex items-center justify-between px-6 py-4 border-b border-border">
         <div className="inline-flex items-center gap-2 text-sm">
           <Eye className="h-4 w-4 text-mint" />
           <span className="font-display font-bold">Pré-visualização do aluno</span>
           <span className="text-muted-foreground">· {title}</span>
         </div>
-        <button onClick={handleClose} className="text-muted-foreground hover:text-foreground" aria-label="Fechar">
-          <X className="h-5 w-5" />
+        <button
+          onClick={handleClose}
+          className="inline-flex items-center gap-1.5 rounded-full bg-card ring-1 ring-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+          aria-label="Fechar"
+        >
+          <X className="h-4 w-4" />
+          Fechar
         </button>
       </div>
 
       <div className="flex-1 flex flex-col py-6 overflow-y-auto">
         {step === "cover" && (
-          <div className="flex-1 flex items-center justify-center px-4">
-            <div className="w-[min(100%,70svh)] max-w-md">
+          <div
+            className="flex-1 flex items-center justify-center px-4"
+            onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+          >
+            <div className="w-[min(100%,70svh)] max-w-md" onClick={(e) => e.stopPropagation()}>
               <DeckCover title={title || "Título do deck"} specialty={specialty} topic={topic} />
               <div className="mt-4 rounded-2xl bg-primary/15 ring-1 ring-primary/30 py-4 text-center">
                 <div className="font-display font-bold text-lg uppercase tracking-wide">
@@ -78,7 +89,10 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
         )}
 
         {step === "play" && (
-          <div className="flex-1 flex items-center px-2 sm:px-8 relative">
+          <div
+            className="flex-1 flex items-center px-2 sm:px-8 relative"
+            onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+          >
             <button
               onClick={() => { if (index > 0) { setIndex(index - 1); setRevealed(false); } }}
               disabled={index === 0}
@@ -96,7 +110,7 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
               <ChevronRight className="h-8 w-8" />
             </button>
 
-            <div className="mx-auto w-[min(100%,65svh)] max-w-md">
+            <div className="mx-auto w-[min(100%,65svh)] max-w-md" onClick={(e) => e.stopPropagation()}>
               {done ? (
                 <div className="rounded-2xl border border-border bg-card p-10 text-center">
                   <p className="text-sm text-muted-foreground">Fim da pré-visualização.</p>
@@ -187,15 +201,14 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
       </div>
 
       <div className="flex items-center justify-between px-6 py-3 border-t border-border text-xs text-muted-foreground">
-        <span>
-          {step === "cover" ? "Tela de capa" : done ? "Final" : `Card ${index + 1} de ${cards.length} · ${revealed ? "Resposta" : "Pergunta"}`}
-        </span>
         <div className="flex gap-2">
           {step === "play" && (
             <Button variant="ghost" size="sm" onClick={reset}>Voltar para a capa</Button>
           )}
-          <Button variant="ghost" size="sm" onClick={handleClose}>Fechar</Button>
         </div>
+        <span>
+          {step === "cover" ? "Tela de capa" : done ? "Final" : `Card ${index + 1} de ${cards.length} · ${revealed ? "Resposta" : "Pergunta"}`}
+        </span>
       </div>
     </div>
   );
