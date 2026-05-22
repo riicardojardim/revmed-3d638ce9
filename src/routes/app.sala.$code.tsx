@@ -1180,6 +1180,38 @@ function SimuladoRunner({ id }: { id: string }) {
           </div>
 
 
+          {/* Live score (visible to actor from the start) */}
+          {station && (
+            <div className="rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-night/80 p-4 text-white shadow-elegant">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                  Resultado (ao vivo)
+                </div>
+                <span className="rounded-full bg-mint/15 px-2 py-0.5 text-[10px] font-semibold text-mint">
+                  {totals.scored}/{totals.count} itens
+                </span>
+              </div>
+              <div className="mt-2 flex items-baseline justify-center gap-1">
+                <span className="font-display text-4xl font-bold tabular-nums text-mint">
+                  {((totals.total > 0 ? (totals.earned / totals.total) * 10 : 0)).toFixed(2)}
+                </span>
+                <span className="text-sm text-white/60">/ 10</span>
+              </div>
+              <div className="mt-1 text-center text-[11px] text-white/60">
+                {totals.earned.toFixed(2)} de {totals.total.toFixed(2)} pts
+              </div>
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full bg-mint transition-all"
+                  style={{ width: `${totals.count > 0 ? (totals.scored / totals.count) * 100 : 0}%` }}
+                />
+              </div>
+              <div className="mt-2 text-center text-[10px] text-white/50">
+                Visível só para você — atualiza conforme preenche o PEP
+              </div>
+            </div>
+          )}
+
           {/* Participantes */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
