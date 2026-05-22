@@ -505,7 +505,7 @@ function drawPageHeader(
   doc.text(kindLabel, pillX + pillW - 3, pillY + 4.6, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
-  setText(doc, [200, 230, 230]);
+  setText(doc, [250, 220, 180]);
   doc.text(metaLabel, pillX + pillW - 3, pillY + 8.8, { align: "right" });
 
   // 4) Station title below
