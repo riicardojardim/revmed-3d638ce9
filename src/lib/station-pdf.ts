@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logoUrl from "@/assets/logo-estacao-revalida.png";
+import logoUrl from "@/assets/logo-revmed-horizontal.png";
 
 // Cache the logo as a data URL so we only fetch it once.
 let _logoDataUrl: string | null = null;
@@ -79,14 +79,14 @@ const MARGIN_TOP = 14;
 const MARGIN_BOTTOM = 14;
 const CONTENT_W = PAGE_W - MARGIN_X * 2;
 
-// Brand colors (match src/styles.css)
-const C_NIGHT: [number, number, number] = [7, 17, 31];
-const C_MEDICAL: [number, number, number] = [15, 76, 129];
-const C_MINT: [number, number, number] = [0, 194, 168];
-const C_TEXT: [number, number, number] = [25, 30, 40];
-const C_MUTED: [number, number, number] = [110, 116, 130];
-const C_BORDER: [number, number, number] = [220, 226, 234];
-const C_SUBBG: [number, number, number] = [245, 248, 252];
+// Brand colors (match src/styles.css — REVMED palette)
+const C_NIGHT: [number, number, number] = [8, 6, 6];          // #080606
+const C_MEDICAL: [number, number, number] = [245, 154, 27];   // #F59A1B (primary laranja)
+const C_MINT: [number, number, number] = [226, 157, 68];      // #E29D44 (accent âmbar)
+const C_TEXT: [number, number, number] = [30, 24, 18];
+const C_MUTED: [number, number, number] = [130, 118, 102];
+const C_BORDER: [number, number, number] = [238, 226, 208];
+const C_SUBBG: [number, number, number] = [253, 247, 237];
 
 function setText(d: jsPDF, c: [number, number, number]) { d.setTextColor(c[0], c[1], c[2]); }
 function setFill(d: jsPDF, c: [number, number, number]) { d.setFillColor(c[0], c[1], c[2]); }
@@ -98,9 +98,9 @@ function mix(c1: [number, number, number], c2: [number, number, number], t: numb
   return [Math.round(lerp(c1[0], c2[0], t)), Math.round(lerp(c1[1], c2[1], t)), Math.round(lerp(c1[2], c2[2], t))];
 }
 function gradientColorAt(t: number): [number, number, number] {
-  // 0 → night, 0.6 → medical, 1 → mint  (matches bg-gradient-hero stops)
-  if (t <= 0.6) return mix(C_NIGHT, C_MEDICAL, t / 0.6);
-  return mix(C_MEDICAL, C_MINT, (t - 0.6) / 0.4);
+  // 0 → night, 0.55 → medical (laranja), 1 → mint (âmbar dourado)
+  if (t <= 0.55) return mix(C_NIGHT, C_MEDICAL, t / 0.55);
+  return mix(C_MEDICAL, C_MINT, (t - 0.55) / 0.45);
 }
 function drawGradientBanner(doc: jsPDF, x: number, y: number, w: number, h: number) {
   const steps = 60;
