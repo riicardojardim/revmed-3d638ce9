@@ -662,6 +662,261 @@ function ActorView() {
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
 
+  const controlPanel = (
+    <div className="space-y-3">
+          {/* Timer */}
+          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+              {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando início"}
+            </div>
+            <div className={cn(
+              "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
+              isRunning ? "bg-mint/15" : "bg-white/5",
+            )}>
+              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
+                {mm}:{ss}
+              </div>
+              {isWaiting && (
+                <div className="mt-3">
+                  <Select
+                    value={String(room.duration_minutes ?? station.durationMinutes)}
+                    onValueChange={(v) => changeDuration(Number(v))}
+                  >
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[5, 6, 7, 8, 9, 10].map((m) => (
+                        <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
+                </div>
+              )}
+            </div>
+            {isWaiting && (
+              <>
+                <Button
+                  variant="hero"
+                  className="mt-3 w-full"
+                  onClick={startStation}
+                  disabled={starting || !room.evaluated_candidate_id}
+                >
+                  <Play className="mr-1 h-4 w-4" />
+                  {!room.evaluated_candidate_id
+                    ? "Aguardando candidato..."
+                    : "Iniciar cronômetro"}
+                </Button>
+              </>
+            )}
+            {isRunning && (
+              <Button variant="outline" className="mt-3 w-full" onClick={() => finishStation()}>
+                <Square className="mr-1 h-4 w-4" /> Encerrar estação
+              </Button>
+            )}
+            {isFinished && (
+              <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
+                Estação encerrada — preencha o PEP abaixo.
+              </div>
+            )}
+          </div>
+
+          {/* Sugestões de estudo vinculadas à estação (visível para o ator durante toda a sessão) */}
+          <RelatedResources
+            specialty={station.specialty}
+            title={station.title}
+            stationId={station.id}
+            show={{ resumo: true, flashcard: true }}
+            excludeStationId={station.id}
+            heading="Material desta estação"
+            variant="compact"
+          />
+
+
+
+          {/* Resultado */}
+          {/* Resultado ao vivo — visível desde o início para o ator. */}
+          <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-to-br from-night via-night to-night/80 p-4 text-white shadow-elegant sm:p-5">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-mint/20 blur-3xl" />
+            <div className="relative">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-mint/90">
+                Resultado ao vivo
+              </div>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className="font-display text-4xl font-bold tabular-nums sm:text-5xl">{score.toFixed(2)}</span>
+                <span className="text-base text-white/50">/ 10</span>
+              </div>
+              <div className="mt-1 text-[11px] text-white/60">
+                {totals.earned.toFixed(2)} / {totals.total} pts · {pct.toFixed(0)}%
+              </div>
+
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-mint via-emerald-400 to-mint transition-all"
+                  style={{ width: `${totals.count > 0 ? (totals.scored / totals.count) * 100 : 0}%` }}
+                />
+              </div>
+              <div className="mt-1 text-[10px] text-white/50">
+                Progresso do PEP · {totals.scored}/{totals.count} itens
+              </div>
+
+              <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
+                {(() => {
+                  let adq = 0, parc = 0, inad = 0;
+                  station.checklist.forEach((it) => {
+                    const v = checks[it.id];
+                    if (typeof v !== "number") return;
+                    const max = it.levels && it.levels.length > 0
+                      ? Math.max(...it.levels.map((l) => l.points))
+                      : it.points;
+                    if (v === 0) inad++;
+                    else if (v >= max) adq++;
+                    else parc++;
+                  });
+                  return [
+                    { c: "bg-emerald-500", n: adq, l: "Adq." },
+                    { c: "bg-amber-500", n: parc, l: "Parc." },
+                    { c: "bg-rose-500", n: inad, l: "Inad." },
+                  ];
+                })().map((x, i) => (
+                  <div key={i} className="rounded-lg border border-white/10 bg-white/5 px-1.5 py-1.5">
+                    <div className={cn("mx-auto h-1 w-5 rounded-full", x.c)} />
+                    <div className="mt-1 font-display text-base font-bold tabular-nums">{x.n}</div>
+                    <div className="text-[9px] uppercase tracking-wider text-white/60">{x.l}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-white/70">
+                {previewEnabled
+                  ? "🔓 Candidato está vendo a nota ao vivo."
+                  : "🔒 Visível apenas para você. O candidato só verá ao encerrar."}
+              </div>
+            </div>
+          </div>
+
+          {/* Status da avaliação */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Status da avaliação
+            </div>
+            <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
+              <SelectTrigger className="mt-2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="em_andamento">Aguardando...</SelectItem>
+                <SelectItem value="aprovado">Aprovado</SelectItem>
+                <SelectItem value="reprovado">Reprovado</SelectItem>
+                <SelectItem value="repetir">Pedir repetição</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Participantes */}
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Participantes ({candidates.length})
+              </div>
+              <button
+                type="button"
+                onClick={() => setInviteOpen(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-mint/40 bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint transition hover:bg-mint/20"
+              >
+                <UserPlus className="h-3 w-3" /> Convidar amigo
+              </button>
+            </div>
+            {candidates.length === 0 ? (
+              <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                <UserPlus className="h-4 w-4" />
+                Aguardando participantes.
+              </div>
+            ) : (
+              <ul className="mt-2 space-y-1.5">
+                {candidates.map((c) => {
+                  const isEvaluated = c.id === room.evaluated_candidate_id;
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => setEvaluatedCandidate(c.id)}
+                        disabled={isRunning && !isEvaluated}
+                        className={cn(
+                          "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                          isEvaluated
+                            ? "border-mint/50 bg-mint/10 text-foreground"
+                            : "border-border bg-background/40 text-foreground hover:border-mint/40",
+                          isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
+                        )}
+                      >
+                        <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                        <span className="flex-1 truncate font-medium">{c.name}</span>
+                        <span className={cn(
+                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                          isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
+                        )}>
+                          {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
+                        </span>
+                        {isEvaluated && (
+                          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {/* Resumo de apoio (somente ator) */}
+          <StationSummaryDialog
+            specialty={station.specialty}
+            title={room.station_title ?? station.title}
+            stationId={station.id}
+            triggerLabel="Ver resumo da estação"
+          />
+
+          {/* Link de convite */}
+          <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">
+                Convite do candidato
+              </div>
+              <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">
+                {code}
+              </span>
+            </div>
+            <button
+              onClick={copyInviteLink}
+              className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
+            >
+              <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+              <span className="flex-1 truncate font-mono text-[11px] text-foreground">{inviteLinkDisplay}</span>
+              {copied ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
+                  <Check className="h-3 w-3" /> Copiado
+                </span>
+              ) : (
+                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+              )}
+            </button>
+            <div className="mt-2 grid grid-cols-3 gap-1.5">
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareWhatsApp}>
+                <MessageCircle className="h-3.5 w-3.5 text-mint" /> WhatsApp
+              </Button>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareEmail}>
+                <Mail className="h-3.5 w-3.5 text-mint" /> E-mail
+              </Button>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareNative}>
+                <Share2 className="h-3.5 w-3.5 text-mint" /> Reenviar
+              </Button>
+            </div>
+          </div>
+    </div>
+  );
+
   return (
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
@@ -1159,282 +1414,23 @@ function ActorView() {
 
         {/* RIGHT: control panel (timer, participantes, convite) */}
         {(() => {
-          const controlPanel = (
-            <div className="space-y-3">
-                  {/* Timer */}
-                  <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
-                    <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
-                      {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando início"}
-                    </div>
-                    <div className={cn(
-                      "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
-                      isRunning ? "bg-mint/15" : "bg-white/5",
-                    )}>
-                      <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
-                        {mm}:{ss}
-                      </div>
-                      {isWaiting && (
-                        <div className="mt-3">
-                          <Select
-                            value={String(room.duration_minutes ?? station.durationMinutes)}
-                            onValueChange={(v) => changeDuration(Number(v))}
-                          >
-                            <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {[5, 6, 7, 8, 9, 10].map((m) => (
-                                <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
-                        </div>
-                      )}
-                    </div>
-                    {isWaiting && (
-                      <>
-                        <Button
-                          variant="hero"
-                          className="mt-3 w-full"
-                          onClick={startStation}
-                          disabled={starting || !room.evaluated_candidate_id}
-                        >
-                          <Play className="mr-1 h-4 w-4" />
-                          {!room.evaluated_candidate_id
-                            ? "Aguardando candidato..."
-                            : "Iniciar cronômetro"}
-                        </Button>
-                      </>
-                    )}
-                    {isRunning && (
-                      <Button variant="outline" className="mt-3 w-full" onClick={() => finishStation()}>
-                        <Square className="mr-1 h-4 w-4" /> Encerrar estação
-                      </Button>
-                    )}
-                    {isFinished && (
-                      <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
-                        Estação encerrada — preencha o PEP abaixo.
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Sugestões de estudo vinculadas à estação (visível para o ator durante toda a sessão) */}
-                  <RelatedResources
-                    specialty={station.specialty}
-                    title={station.title}
-                    stationId={station.id}
-                    show={{ resumo: true, flashcard: true }}
-                    excludeStationId={station.id}
-                    heading="Material desta estação"
-                    variant="compact"
-                  />
-
-
-
-                  {/* Resultado */}
-                  {/* Resultado ao vivo — visível desde o início para o ator. */}
-                  <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-to-br from-night via-night to-night/80 p-4 text-white shadow-elegant sm:p-5">
-                    <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-mint/20 blur-3xl" />
-                    <div className="relative">
-                      <div className="text-[10px] font-semibold uppercase tracking-widest text-mint/90">
-                        Resultado ao vivo
-                      </div>
-                      <div className="mt-1 flex items-baseline gap-2">
-                        <span className="font-display text-4xl font-bold tabular-nums sm:text-5xl">{score.toFixed(2)}</span>
-                        <span className="text-base text-white/50">/ 10</span>
-                      </div>
-                      <div className="mt-1 text-[11px] text-white/60">
-                        {totals.earned.toFixed(2)} / {totals.total} pts · {pct.toFixed(0)}%
-                      </div>
-
-                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-mint via-emerald-400 to-mint transition-all"
-                          style={{ width: `${totals.count > 0 ? (totals.scored / totals.count) * 100 : 0}%` }}
-                        />
-                      </div>
-                      <div className="mt-1 text-[10px] text-white/50">
-                        Progresso do PEP · {totals.scored}/{totals.count} itens
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
-                        {(() => {
-                          let adq = 0, parc = 0, inad = 0;
-                          station.checklist.forEach((it) => {
-                            const v = checks[it.id];
-                            if (typeof v !== "number") return;
-                            const max = it.levels && it.levels.length > 0
-                              ? Math.max(...it.levels.map((l) => l.points))
-                              : it.points;
-                            if (v === 0) inad++;
-                            else if (v >= max) adq++;
-                            else parc++;
-                          });
-                          return [
-                            { c: "bg-emerald-500", n: adq, l: "Adq." },
-                            { c: "bg-amber-500", n: parc, l: "Parc." },
-                            { c: "bg-rose-500", n: inad, l: "Inad." },
-                          ];
-                        })().map((x, i) => (
-                          <div key={i} className="rounded-lg border border-white/10 bg-white/5 px-1.5 py-1.5">
-                            <div className={cn("mx-auto h-1 w-5 rounded-full", x.c)} />
-                            <div className="mt-1 font-display text-base font-bold tabular-nums">{x.n}</div>
-                            <div className="text-[9px] uppercase tracking-wider text-white/60">{x.l}</div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-white/70">
-                        {previewEnabled
-                          ? "🔓 Candidato está vendo a nota ao vivo."
-                          : "🔒 Visível apenas para você. O candidato só verá ao encerrar."}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Status da avaliação */}
-                  <div className="rounded-2xl border border-border bg-card p-4">
-                    <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Status da avaliação
-                    </div>
-                    <Select value={evalStatus} onValueChange={(v) => setEvalStatus(v as typeof evalStatus)}>
-                      <SelectTrigger className="mt-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="em_andamento">Aguardando...</SelectItem>
-                        <SelectItem value="aprovado">Aprovado</SelectItem>
-                        <SelectItem value="reprovado">Reprovado</SelectItem>
-                        <SelectItem value="repetir">Pedir repetição</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Participantes */}
-                  <div className="rounded-2xl border border-border bg-card p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Participantes ({candidates.length})
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setInviteOpen(true)}
-                        className="inline-flex items-center gap-1 rounded-full border border-mint/40 bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint transition hover:bg-mint/20"
-                      >
-                        <UserPlus className="h-3 w-3" /> Convidar amigo
-                      </button>
-                    </div>
-                    {candidates.length === 0 ? (
-                      <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
-                        <UserPlus className="h-4 w-4" />
-                        Aguardando participantes.
-                      </div>
-                    ) : (
-                      <ul className="mt-2 space-y-1.5">
-                        {candidates.map((c) => {
-                          const isEvaluated = c.id === room.evaluated_candidate_id;
-                          return (
-                            <li key={c.id}>
-                              <button
-                                type="button"
-                                onClick={() => setEvaluatedCandidate(c.id)}
-                                disabled={isRunning && !isEvaluated}
-                                className={cn(
-                                  "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
-                                  isEvaluated
-                                    ? "border-mint/50 bg-mint/10 text-foreground"
-                                    : "border-border bg-background/40 text-foreground hover:border-mint/40",
-                                  isRunning && !isEvaluated && "opacity-50 cursor-not-allowed",
-                                )}
-                              >
-                                <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
-                                <span className="flex-1 truncate font-medium">{c.name}</span>
-                                <span className={cn(
-                                  "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                                  isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
-                                )}>
-                                  {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
-                                </span>
-                                {isEvaluated && (
-                                  <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
-                                )}
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </div>
-
-                  {/* Resumo de apoio (somente ator) */}
-                  <StationSummaryDialog
-                    specialty={station.specialty}
-                    title={room.station_title ?? station.title}
-                    stationId={station.id}
-                    triggerLabel="Ver resumo da estação"
-                  />
-
-                  {/* Link de convite */}
-                  <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">
-                        Convite do candidato
-                      </div>
-                      <span className="rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint">
-                        {code}
-                      </span>
-                    </div>
-                    <button
-                      onClick={copyInviteLink}
-                      className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
-                    >
-                      <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
-                      <span className="flex-1 truncate font-mono text-[11px] text-foreground">{inviteLinkDisplay}</span>
-                      {copied ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
-                          <Check className="h-3 w-3" /> Copiado
-                        </span>
-                      ) : (
-                        <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                      )}
-                    </button>
-                    <div className="mt-2 grid grid-cols-3 gap-1.5">
-                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareWhatsApp}>
-                        <MessageCircle className="h-3.5 w-3.5 text-mint" /> WhatsApp
-                      </Button>
-                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareEmail}>
-                        <Mail className="h-3.5 w-3.5 text-mint" /> E-mail
-                      </Button>
-                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareNative}>
-                        <Share2 className="h-3.5 w-3.5 text-mint" /> Reenviar
-                      </Button>
-                    </div>
-                  </div>
-            </div>
-          );
-          return (
-            <>
-              {/* Desktop sidebar */}
-              <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:self-start">
-                {controlPanel}
-              </aside>
-              {/* Mobile/tablet: stacked below PEP */}
-              <div className="min-w-0 lg:hidden">
-                {controlPanel}
-              </div>
-              {/* Mobile/tablet popup with the same controls */}
-              <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
-                <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4 sm:max-w-lg">
-                  <SheetHeader className="mb-3">
-                    <SheetTitle className="text-base">Controles da estação</SheetTitle>
-                  </SheetHeader>
-                  {controlPanel}
-                </SheetContent>
-              </Sheet>
-            </>
-          );
-        })()}
+        {/* Desktop sidebar */}
+        <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:self-start">
+          {controlPanel}
+        </aside>
+        {/* Mobile/tablet: stacked below PEP */}
+        <div className="min-w-0 lg:hidden">
+          {controlPanel}
+        </div>
+        {/* Mobile/tablet popup with the same controls */}
+        <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
+          <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4 sm:max-w-lg">
+            <SheetHeader className="mb-3">
+              <SheetTitle className="text-base">Controles da estação</SheetTitle>
+            </SheetHeader>
+            {controlPanel}
+          </SheetContent>
+        </Sheet>
       </div>
 
       {room && (
