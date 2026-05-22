@@ -691,17 +691,17 @@ const PILLARS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="relative py-24 md:py-32">
+    <section id="manifesto" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid gap-12 lg:grid-cols-12">
+        <div className="grid gap-8 md:gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
-            <p className="mt-6 text-base text-muted-foreground md:text-lg">
+            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
               treinou certo. A REVMED foi feita pra você praticar conduta,
               marcar checklist como banca e medir o próprio progresso, no
@@ -717,20 +717,20 @@ function Manifesto() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.5 }}
-                  className="group relative grid grid-cols-[auto_1fr_auto] items-start gap-5 bg-card p-5 md:p-6"
+                  className="group relative grid grid-cols-[auto_1fr_auto] items-start gap-4 bg-card p-4 sm:gap-5 sm:p-5 md:p-6"
                 >
-                  <div className="font-display text-2xl font-black text-primary md:text-3xl">
+                  <div className="font-display text-xl font-black text-primary sm:text-2xl md:text-3xl">
                     {p.n}
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-bold tracking-tight md:text-xl">
+                    <h3 className="font-display text-base font-bold tracking-tight sm:text-lg md:text-xl">
                       {p.title}
                     </h3>
-                    <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
+                    <p className="mt-1.5 max-w-xl text-[0.8rem] text-muted-foreground sm:text-sm">
                       {p.body}
                     </p>
                   </div>
-                  <p.icon className="h-5 w-5 text-primary opacity-60 transition-opacity group-hover:opacity-100 md:h-6 md:w-6" />
+                  <p.icon className="h-4 w-4 text-primary opacity-60 transition-opacity group-hover:opacity-100 sm:h-5 sm:w-5 md:h-6 md:w-6" />
                 </motion.article>
               ))}
             </div>
@@ -745,25 +745,25 @@ function Manifesto() {
 
 function Plataforma() {
   return (
-    <section id="plataforma" className="relative py-24 md:py-32">
+    <section id="plataforma" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 md:gap-6">
           <div className="max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
-          <p className="max-w-md text-muted-foreground">
+          <p className="max-w-md text-sm text-muted-foreground md:text-base">
             Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
             sem travar. Tudo integrado ao seu painel de desempenho, com
             histórico, tempo médio e nota por critério.
           </p>
         </div>
 
-        <div className="mt-12 grid auto-rows-[minmax(180px,_auto)] gap-4 md:grid-cols-6">
+        <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-6 md:gap-4">
           <FeatureCard
             className="md:col-span-4"
             tag="Estação"
@@ -827,19 +827,19 @@ function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5 }}
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 transition-transform hover:-translate-y-1 md:p-8 ${accentRing} ${className}`}
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 transition-transform hover:-translate-y-1 sm:rounded-3xl sm:p-6 md:p-8 ${accentRing} ${className}`}
     >
       <div className="flex items-center justify-between">
         <span className="rounded-full bg-background/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
           {tag}
         </span>
-        <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" />
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
       </div>
-      <div className="mt-8">
-        <h3 className="font-display text-xl font-bold leading-tight tracking-tight md:text-2xl">
+      <div className="mt-6 sm:mt-8">
+        <h3 className="font-display text-lg font-bold leading-tight tracking-tight sm:text-xl md:text-2xl">
           {title}
         </h3>
-        <p className="mt-2 text-sm text-muted-foreground md:text-base">
+        <p className="mt-2 text-[0.8rem] text-muted-foreground sm:text-sm md:text-base">
           {desc}
         </p>
       </div>
@@ -861,10 +861,10 @@ function Resultados() {
   return (
     <section
       id="resultados"
-      className="relative border-y border-border/60 bg-card/30 py-24 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {NUMBERS.map((n, i) => (
             <motion.div
               key={n.l}
@@ -872,12 +872,12 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="rounded-3xl border border-border bg-background p-7"
+              className="rounded-2xl border border-border bg-background p-5 sm:rounded-3xl sm:p-7"
             >
-              <div className="font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl">
+              <div className="font-display text-3xl font-black tracking-[-0.03em] text-primary sm:text-5xl md:text-6xl">
                 {n.v}
               </div>
-              <div className="mt-3 text-sm font-medium text-muted-foreground">
+              <div className="mt-2 text-xs font-medium text-muted-foreground sm:mt-3 sm:text-sm">
                 {n.l}
               </div>
             </motion.div>
@@ -901,19 +901,19 @@ const MENTORIA_BENEFITS = [
 
 function Mentoria() {
   return (
-    <section id="mentoria" className="relative py-24 md:py-32">
+    <section id="mentoria" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid items-stretch gap-10 lg:grid-cols-12">
+        <div className="grid items-stretch gap-8 md:gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
               Quer alguém <br />
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
-            <p className="mt-6 text-muted-foreground md:text-lg">
+            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
@@ -921,14 +921,14 @@ function Mentoria() {
             </p>
             <Link
               to="/cadastro"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground transition-transform hover:scale-[1.02]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] md:mt-8 md:px-6 md:py-3.5 md:text-base"
             >
               Saber mais da mentoria
-              <ArrowUpRight className="h-5 w-5" />
+              <ArrowUpRight className="h-4 w-4 md:h-5 md:w-5" />
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-10">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:rounded-[2rem] sm:p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -937,16 +937,16 @@ function Mentoria() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
-                <h3 className="mt-4 font-display text-3xl font-bold tracking-tight md:text-4xl">
+                <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-4xl">
                   O que vem na mentoria
                 </h3>
-                <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+                <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
                   {MENTORIA_BENEFITS.map((b) => (
                     <li key={b} className="flex items-start gap-3">
                       <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
                         <Check className="h-3.5 w-3.5" />
                       </span>
-                      <span className="text-sm md:text-base">{b}</span>
+                      <span className="text-[0.85rem] sm:text-sm md:text-base">{b}</span>
                     </li>
                   ))}
                 </ul>
@@ -1043,21 +1043,21 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
   return (
     <section
       id="investimento"
-      className="relative border-y border-border/60 bg-card/30 py-24 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
             Escolha como você quer treinar.
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground md:text-lg">
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-lg">
             Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
           </p>
         </div>
-        <div className="mt-14 grid gap-6 md:gap-7 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:mt-14 md:gap-7 lg:grid-cols-3">
           {PLANS.map((p, idx) => {
             const Icon = p.icon;
             return (
@@ -1067,7 +1067,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`group relative flex flex-col overflow-hidden rounded-3xl p-8 md:p-9 ${
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-8 md:p-9 ${
                   p.highlight
                     ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
                     : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
@@ -1079,48 +1079,48 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 />
 
                 {p.highlight && (
-                  <div className="absolute right-6 top-6 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground shadow-elegant">
+                  <div className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-primary-foreground shadow-elegant sm:right-6 sm:top-6 sm:px-3 sm:text-[10px]">
                     Recomendado
                   </div>
                 )}
 
                 <div className="relative">
                   <div
-                    className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl sm:h-12 sm:w-12 ${
                       p.highlight
                         ? "bg-primary/15 text-primary ring-1 ring-primary/30"
                         : "bg-muted/60 text-foreground ring-1 ring-border"
                     }`}
                   >
-                    <Icon className="h-6 w-6" strokeWidth={2.2} />
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.2} />
                   </div>
 
-                  <h3 className="mt-5 font-display text-2xl font-black tracking-[-0.02em]">
+                  <h3 className="mt-4 font-display text-xl font-black tracking-[-0.02em] sm:mt-5 sm:text-2xl">
                     {p.name}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground sm:text-xs">
                     {p.tagline}
                   </p>
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-3 text-[0.8rem] leading-relaxed text-muted-foreground sm:mt-4 sm:text-sm">
                     {p.desc}
                   </p>
 
-                  <div className="mt-6 flex items-end gap-1.5">
-                    <span className="font-display text-[2.75rem] font-black leading-none tracking-[-0.04em] md:text-5xl">
+                  <div className="mt-5 flex items-end gap-1.5 sm:mt-6">
+                    <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-5xl">
                       {p.price}
                     </span>
                     {p.cadence && (
-                      <span className="mb-1.5 text-sm text-muted-foreground">
+                      <span className="mb-1.5 text-xs text-muted-foreground sm:text-sm">
                         {p.cadence}
                       </span>
                     )}
                   </div>
 
-                  <div className="my-7 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:my-7" />
 
-                  <ul className="space-y-3">
+                  <ul className="space-y-2.5 sm:space-y-3">
                     {p.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm">
+                      <li key={f} className="flex items-start gap-3 text-[0.8rem] sm:text-sm">
                         <span
                           className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
                             p.highlight
@@ -1136,28 +1136,28 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                   </ul>
                 </div>
 
-                <div className="relative mt-auto pt-9">
+                <div className="relative mt-auto pt-7 sm:pt-9">
                   {p.ctaType === "whatsapp" ? (
                     <a
                       href={WHATSAPP_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 text-base font-bold text-white shadow-[0_15px_40px_-10px_rgba(37,211,102,0.55)] transition-transform hover:scale-[1.02]"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow-[0_15px_40px_-10px_rgba(37,211,102,0.55)] transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base"
                     >
-                      <MessageCircle className="h-5 w-5" strokeWidth={2.4} />
+                      <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2.4} />
                       {p.cta}
                     </a>
                   ) : (
                     <Link
                       to={isLogged ? "/app" : "/cadastro"}
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-bold transition-transform hover:scale-[1.02] ${
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
                           ? "bg-primary text-primary-foreground shadow-elegant"
                           : "border border-border bg-card text-foreground hover:bg-muted"
                       }`}
                     >
                       {p.cta}
-                      <ArrowUpRight className="h-5 w-5" />
+                      <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Link>
                   )}
                 </div>
@@ -1166,7 +1166,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
           })}
         </div>
 
-        <p className="mt-10 text-center text-xs text-muted-foreground">
+        <p className="mt-8 text-center text-[0.7rem] text-muted-foreground sm:mt-10 sm:text-xs">
           Cancela quando quiser. 7 dias de garantia nos planos Ator e Full.
         </p>
       </div>
@@ -1206,26 +1206,26 @@ const FAQS = [
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="py-24 md:py-32">
+    <section className="py-16 md:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
           Perguntas honestas
         </p>
-        <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+        <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
           O que a gente costuma ouvir.
         </h2>
-        <div className="mt-10 divide-y divide-border border-y border-border">
+        <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
           {FAQS.map((f, i) => (
             <div key={f.q}>
               <button
                 onClick={() => setOpen(open === i ? null : i)}
-                className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                className="flex w-full items-center justify-between gap-3 py-4 text-left sm:gap-4 sm:py-5"
               >
-                <span className="font-display text-lg font-semibold md:text-xl">
+                <span className="font-display text-base font-semibold sm:text-lg md:text-xl">
                   {f.q}
                 </span>
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-primary transition-transform ${
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-primary transition-transform sm:h-8 sm:w-8 ${
                     open === i ? "rotate-45 bg-primary text-primary-foreground" : ""
                   }`}
                 >
@@ -1236,7 +1236,7 @@ function FAQ() {
                 <motion.p
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="pb-6 text-muted-foreground"
+                  className="pb-5 text-sm text-muted-foreground sm:pb-6 sm:text-base"
                 >
                   {f.a}
                 </motion.p>
@@ -1253,7 +1253,7 @@ function FAQ() {
 
 function FinalCTA({ isLogged }: { isLogged: boolean }) {
   return (
-    <section className="relative overflow-hidden py-24 md:py-32">
+    <section className="relative overflow-hidden py-16 md:py-32">
       <div
         aria-hidden
         className="absolute inset-0 -z-10"
@@ -1263,20 +1263,20 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
-        <h2 className="font-display text-4xl font-black leading-[1.02] tracking-[-0.03em] md:text-6xl">
+        <h2 className="font-display text-3xl font-black leading-[1.02] tracking-[-0.03em] sm:text-4xl md:text-6xl">
           Pronto pra treinar <br />
           <span className="text-primary">do jeito que cai?</span>
         </h2>
-        <p className="mx-auto mt-6 max-w-xl text-muted-foreground md:text-lg">
+        <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base md:text-lg">
           Estações ao vivo, checklists oficiais, flashcards, resumos e painel
           de desempenho. Tudo num só lugar, até o dia da prova.
         </p>
         <Link
           to={isLogged ? "/app" : "/cadastro"}
-          className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-base font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03]"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
         >
           Entrar na plataforma
-          <ArrowUpRight className="h-5 w-5" />
+          <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
         </Link>
       </div>
     </section>
