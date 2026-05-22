@@ -378,7 +378,7 @@ function AdminOverview() {
 
         <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
           <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Pagantes vs Free</h3>
-          <div className="h-64">
+          <div className="h-56 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={paidVsFree} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
@@ -394,8 +394,8 @@ function AdminOverview() {
       </div>
 
       {/* Top stations */}
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-        <h3 className="font-display font-semibold flex items-center gap-2">
+      <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
+        <h3 className="font-display text-sm font-semibold flex items-center gap-2 sm:text-base">
           <Stethoscope className="h-4 w-4 text-mint" /> Top 5 checklists (30 dias)
         </h3>
         {loading ? (
@@ -417,9 +417,9 @@ function AdminOverview() {
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card flex flex-wrap items-center justify-between gap-3">
+      <div className="rounded-2xl border border-border bg-card p-3 shadow-card flex flex-wrap items-center justify-between gap-3 sm:p-5">
         <div>
-          <h3 className="font-display font-semibold flex items-center gap-2">
+          <h3 className="font-display text-sm font-semibold flex items-center gap-2 sm:text-base">
             <DollarSign className="h-4 w-4 text-mint" /> Pagamentos
           </h3>
           <p className="text-sm text-muted-foreground mt-1">Gerencie assinaturas, veja receita e atribua planos manualmente.</p>
