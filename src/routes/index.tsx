@@ -219,7 +219,7 @@ function TopNav({
           : "border-b border-transparent bg-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-4 md:px-8">
         <Logo />
         <nav className="hidden items-center gap-8 lg:flex">
           {NAV_LINKS.map((l) => (

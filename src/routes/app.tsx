@@ -431,7 +431,7 @@ function AppSideNav({
 }) {
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border pt-[env(safe-area-inset-top)]">
         <div className="flex h-12 items-center px-2 group-data-[collapsible=icon]:justify-center">
           <div className="group-data-[collapsible=icon]:hidden">
             <Logo />
