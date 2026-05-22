@@ -94,7 +94,7 @@ function AdminPlans() {
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Carregando...</div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {plans.map((p) => (
             <PlanCard key={p.id} plan={p}
               onChange={(np) => setPlans((cur) => cur.map((x) => x.id === p.id ? np : x))}

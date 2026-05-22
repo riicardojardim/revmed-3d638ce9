@@ -117,7 +117,7 @@ function AdminResumoEdit() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
         <div className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
             <div className="space-y-1">

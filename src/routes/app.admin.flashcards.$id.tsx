@@ -202,7 +202,7 @@ function AdminFlashcardEditor() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
         {/* Deck meta */}
         <aside className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
