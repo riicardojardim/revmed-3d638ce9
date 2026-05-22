@@ -24,7 +24,7 @@ import {
   ClipboardList,
   User,
   LogOut,
-  GraduationCap,
+  
   Brain,
   BookOpen,
   Activity,
