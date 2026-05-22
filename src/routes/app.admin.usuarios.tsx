@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
-import { Loader2, MoreHorizontal, Plus, Shield, UserPlus } from "lucide-react";
+import { Loader2, MoreHorizontal, Plus, Shield, UserPlus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -52,6 +52,7 @@ function AdminUsers() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [openCreate, setOpenCreate] = useState(false);
+  const [createDefaultRole, setCreateDefaultRole] = useState<"aluno" | "professor" | "admin" | "mentor">("aluno");
   const [acting, setActing] = useState<string | null>(null);
 
   async function load() {
@@ -110,9 +111,27 @@ function AdminUsers() {
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Atualizar"}
         </Button>
         <div className="ml-auto">
-          <Button variant="hero" onClick={() => setOpenCreate(true)}>
-            <UserPlus className="mr-2 h-4 w-4" /> Novo usuário
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCreateDefaultRole("mentor");
+                setOpenCreate(true);
+              }}
+              title="Cria conta de mentor com acesso completo e sem cobrança"
+            >
+              <Sparkles className="mr-2 h-4 w-4 text-mint" /> Novo mentor
+            </Button>
+            <Button
+              variant="hero"
+              onClick={() => {
+                setCreateDefaultRole("aluno");
+                setOpenCreate(true);
+              }}
+            >
+              <UserPlus className="mr-2 h-4 w-4" /> Novo usuário
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -130,7 +149,13 @@ function AdminUsers() {
           </thead>
           <tbody>
             {visible.map((u) => {
-              const role = u.roles.includes("admin") ? "admin" : u.roles.includes("professor") ? "professor" : "aluno";
+              const role = u.roles.includes("admin")
+                ? "admin"
+                : u.roles.includes("professor")
+                ? "professor"
+                : u.roles.includes("mentor")
+                ? "mentor"
+                : "aluno";
               const end = u.subscription?.current_period_end ? new Date(u.subscription.current_period_end) : null;
               const expired = end && end.getTime() < Date.now();
               return (
@@ -155,8 +180,12 @@ function AdminUsers() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={role === "admin" ? "destructive" : role === "professor" ? "default" : "outline"} className="text-[10px]">
+                    <Badge
+                      variant={role === "admin" ? "destructive" : role === "professor" ? "default" : role === "mentor" ? "secondary" : "outline"}
+                      className={`text-[10px] ${role === "mentor" ? "bg-mint/15 text-mint hover:bg-mint/15" : ""}`}
+                    >
                       {role === "admin" && <Shield className="mr-1 h-3 w-3" />}
+                      {role === "mentor" && <Sparkles className="mr-1 h-3 w-3" />}
                       {role}
                     </Badge>
                   </td>
@@ -195,6 +224,7 @@ function AdminUsers() {
       <CreateUserDialog
         open={openCreate}
         onOpenChange={setOpenCreate}
+        defaultRole={createDefaultRole}
         onCreate={async (payload) => {
           try {
             await createFn({ data: payload });
@@ -217,7 +247,7 @@ function UserActions(props: {
   onEditEmail: (email: string) => void;
   onSetPassword: (password: string) => void;
   onSendLink: () => void;
-  onSetRole: (role: "aluno" | "professor" | "admin") => void;
+  onSetRole: (role: "aluno" | "professor" | "admin" | "mentor") => void;
   onAssignPlan: (plan_id: string, days: number) => void;
   onAdjustDays: (days: number) => void;
   onCancel: () => void;
@@ -252,6 +282,7 @@ function UserActions(props: {
           <DropdownMenuLabel>Permissão</DropdownMenuLabel>
           <DropdownMenuItem onSelect={() => props.onSetRole("aluno")}>Tornar aluno</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => props.onSetRole("professor")}>Tornar professor</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => props.onSetRole("mentor")}>Tornar mentor</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => props.onSetRole("admin")}>Tornar admin</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={props.onDelete} className="text-destructive">Excluir usuário</DropdownMenuItem>
@@ -355,20 +386,33 @@ function AssignPlanDialog({ open, onOpenChange, plans, onConfirm }: {
   );
 }
 
-function CreateUserDialog({ open, onOpenChange, onCreate }: {
+function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno" }: {
   open: boolean; onOpenChange: (v: boolean) => void;
-  onCreate: (p: { email: string; password: string; full_name: string; role: "aluno" | "professor" | "admin" }) => void;
+  onCreate: (p: { email: string; password: string; full_name: string; username?: string; role: "aluno" | "professor" | "admin" | "mentor" }) => void;
+  defaultRole?: "aluno" | "professor" | "admin" | "mentor";
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"aluno" | "professor" | "admin">("aluno");
+  const [username, setUsername] = useState("");
+  const [role, setRole] = useState<"aluno" | "professor" | "admin" | "mentor">(defaultRole);
+  useEffect(() => {
+    if (open) {
+      setRole(defaultRole);
+      setEmail(""); setPassword(""); setName(""); setUsername("");
+    }
+  }, [open, defaultRole]);
+  const usernameValid = !username || /^[a-z0-9._]{3,20}$/.test(username);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo usuário</DialogTitle>
-          <DialogDescription>O usuário será criado já confirmado.</DialogDescription>
+          <DialogTitle>{role === "mentor" ? "Novo mentor" : "Novo usuário"}</DialogTitle>
+          <DialogDescription>
+            {role === "mentor"
+              ? "Mentores recebem acesso completo automaticamente, sem cobrança, e não entram nas métricas de receita."
+              : "O usuário será criado já confirmado."}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <label className="block text-sm">Nome completo
@@ -377,12 +421,24 @@ function CreateUserDialog({ open, onOpenChange, onCreate }: {
           <label className="block text-sm">E-mail
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
+          <label className="block text-sm">Nome de usuário (opcional)
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().trim())}
+              placeholder="ex: dr.joao"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+            />
+            <span className={`mt-1 block text-[11px] ${usernameValid ? "text-muted-foreground" : "text-destructive"}`}>
+              3–20 caracteres · letras minúsculas, números, ponto ou underline · precisa ser único
+            </span>
+          </label>
           <label className="block text-sm">Senha temporária (mín. 8)
             <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
           <label className="block text-sm">Permissão
-            <select value={role} onChange={(e) => setRole(e.target.value as "aluno" | "professor" | "admin")} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2">
+            <select value={role} onChange={(e) => setRole(e.target.value as "aluno" | "professor" | "admin" | "mentor")} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2">
               <option value="aluno">Aluno</option>
+              <option value="mentor">Mentor (acesso completo, sem cobrança)</option>
               <option value="professor">Professor</option>
               <option value="admin">Admin</option>
             </select>
@@ -390,7 +446,11 @@ function CreateUserDialog({ open, onOpenChange, onCreate }: {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button variant="hero" onClick={() => onCreate({ email, password, full_name: name, role })} disabled={!email || password.length < 8 || !name}>
+          <Button
+            variant="hero"
+            onClick={() => onCreate({ email, password, full_name: name, username: username || undefined, role })}
+            disabled={!email || password.length < 8 || !name || !usernameValid}
+          >
             <Plus className="mr-2 h-4 w-4" /> Criar
           </Button>
         </DialogFooter>

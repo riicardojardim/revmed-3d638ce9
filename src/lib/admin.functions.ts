@@ -14,6 +14,21 @@ async function assertAdmin(userId: string) {
   if (!data) throw new Error("Acesso negado: apenas administradores.");
 }
 
+// Roles que NÃO devem ser contabilizadas como "pagantes" nas métricas
+// (são contas internas: admin, professor, mentor). Apenas alunos com plano
+// pago de fato contam para MRR / receita / total de pagantes.
+const INTERNAL_ROLES = ["admin", "professor", "mentor"] as const;
+
+async function getInternalUserIds(): Promise<Set<string>> {
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("user_id, role")
+    .in("role", [...INTERNAL_ROLES]);
+  return new Set((data ?? []).map((r) => r.user_id));
+}
+
+const USERNAME_RE = /^[a-z0-9._]{3,20}$/;
+
 // ───────────── Listagem completa de usuários (junta auth.users + profiles + roles + assinatura) ─────────────
 export const listUsersAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -98,11 +113,24 @@ export const createUserAdmin = createServerFn({ method: "POST" })
       email: z.string().email(),
       password: z.string().min(8),
       full_name: z.string().min(1).max(120),
-      role: z.enum(["aluno", "professor", "admin"]).default("aluno"),
+      username: z.string().trim().toLowerCase().regex(USERNAME_RE, "Nome de usuário deve ter 3–20 caracteres (letras minúsculas, números, ponto ou underline).").optional(),
+      role: z.enum(["aluno", "professor", "admin", "mentor"]).default("aluno"),
     }).parse,
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
+
+    // Checa unicidade do username ANTES de criar o usuário
+    if (data.username) {
+      const { data: exists, error: chkErr } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("username", data.username)
+        .maybeSingle();
+      if (chkErr) throw new Error(chkErr.message);
+      if (exists) throw new Error(`Já existe um usuário com o nome "${data.username}". Escolha outro.`);
+    }
+
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
@@ -110,8 +138,50 @@ export const createUserAdmin = createServerFn({ method: "POST" })
       user_metadata: { full_name: data.full_name },
     });
     if (error) throw new Error(error.message);
+
+    // Garante profile + username
+    if (data.username) {
+      const { error: upErr } = await supabaseAdmin
+        .from("profiles")
+        .update({ username: data.username, full_name: data.full_name })
+        .eq("id", created.user.id);
+      if (upErr) {
+        // Mensagem amigável para conflito de username (índice único)
+        if (upErr.code === "23505") {
+          throw new Error(`Já existe um usuário com o nome "${data.username}". Escolha outro.`);
+        }
+        throw new Error(upErr.message);
+      }
+    }
+
     if (data.role !== "aluno") {
       await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role });
+    }
+
+    // Mentor: libera acesso completo sem cobrar — atribui plano pago mais caro
+    // sem data de expiração. Mesmo assim, métricas o ignoram (INTERNAL_ROLES).
+    if (data.role === "mentor") {
+      const { data: topPlan } = await supabaseAdmin
+        .from("plans")
+        .select("id")
+        .eq("active", true)
+        .gt("price_cents", 0)
+        .order("price_cents", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (topPlan) {
+        await supabaseAdmin
+          .from("user_subscriptions")
+          .upsert(
+            {
+              user_id: created.user.id,
+              plan_id: topPlan.id,
+              status: "active",
+              current_period_end: null,
+            },
+            { onConflict: "user_id" },
+          );
+      }
     }
     return { id: created.user.id };
   });
@@ -155,7 +225,7 @@ export const sendPasswordResetLinkAdmin = createServerFn({ method: "POST" })
 // ───────────── Mudar role (substitui todas) ─────────────
 export const setUserRoleAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ user_id: z.string().uuid(), role: z.enum(["aluno", "professor", "admin"]) }).parse)
+  .inputValidator(z.object({ user_id: z.string().uuid(), role: z.enum(["aluno", "professor", "admin", "mentor"]) }).parse)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.user_id);
@@ -243,6 +313,17 @@ export const deleteUserAdmin = createServerFn({ method: "POST" })
   });
 
 // ───────────── Estatísticas para o dashboard admin ─────────────
+
+// Retorna os user_ids de contas internas (admin / professor / mentor),
+// que devem ser excluídos de qualquer métrica financeira/usuários do dashboard.
+export const listInternalUserIdsAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const ids = await getInternalUserIds();
+    return { ids: Array.from(ids) };
+  });
+
 export const getAdminDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -251,14 +332,16 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
     const d7 = new Date(now - 7 * 86400_000).toISOString();
     const d30 = new Date(now - 30 * 86400_000).toISOString();
 
-    const [users, subs, plans] = await Promise.all([
+    const [users, subs, plans, internalIds] = await Promise.all([
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1 }),
-      supabaseAdmin.from("user_subscriptions").select("plan_id, status, current_period_end, created_at"),
+      supabaseAdmin.from("user_subscriptions").select("plan_id, status, current_period_end, created_at, user_id"),
       supabaseAdmin.from("plans").select("id, name, slug, price_cents"),
+      getInternalUserIds(),
     ]);
 
     const planMap = new Map((plans.data ?? []).map((p) => [p.id, p]));
-    const subsArr = subs.data ?? [];
+    // Ignora contas internas (admin / professor / mentor) em TODAS as métricas
+    const subsArr = (subs.data ?? []).filter((s) => !internalIds.has(s.user_id));
 
     const activePaid = subsArr.filter(
       (s) =>
@@ -301,8 +384,9 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       .sort()
       .map(([day, count]) => ({ day, count }));
 
+    const total_users_raw = ("total" in users.data ? (users.data.total ?? 0) : 0);
     return {
-      total_users: ("total" in users.data ? (users.data.total ?? 0) : 0),
+      total_users: Math.max(total_users_raw - internalIds.size, 0),
       new_subs_7d: subsArr.filter((s) => s.created_at && s.created_at >= d7).length,
       new_subs_30d: subsArr.filter((s) => s.created_at && s.created_at >= d30).length,
       paying_users: activePaid.length,
@@ -310,5 +394,6 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       by_plan: Array.from(byPlan.values()),
       status_count: statusCount,
       daily_series: dailySeries,
+      internal_users: internalIds.size,
     };
   });
