@@ -11,7 +11,6 @@ import {
   Target,
   Compass,
   Layers,
-  PlayCircle,
   Instagram,
   Phone,
   Mail,
