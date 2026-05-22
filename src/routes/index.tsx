@@ -299,7 +299,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             "radial-gradient(60% 60% at 80% 0%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 60%), radial-gradient(40% 50% at 10% 100%, color-mix(in oklab, var(--mint) 18%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div className="mx-auto grid max-w-7xl items-stretch gap-8 px-5 pt-6 pb-14 md:px-8 md:pt-16 md:pb-28 md:gap-12 lg:grid-cols-12 lg:gap-8">
+      <div className="mx-auto grid max-w-7xl items-stretch gap-8 px-5 pt-6 pb-14 md:px-8 md:pt-12 md:pb-20 md:gap-10 lg:pt-16 lg:pb-28 lg:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-6 lg:order-2">
           <motion.div
             initial={{ opacity: 1, y: 0 }}
@@ -315,7 +315,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-4 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-5xl lg:text-6xl"
+            className="mt-4 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
             A plataforma que <br />
             <span
@@ -336,7 +336,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-lg"
+            className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
           >
             Estações ao vivo com cronômetro INEP, banco gigante de checklists
             oficiais, flashcards com revisão espaçada, resumos enxutos e
@@ -629,17 +629,17 @@ const PILLARS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="relative py-16 md:py-32">
+    <section id="manifesto" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="grid gap-8 md:gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
+            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-base lg:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
               treinou certo. A REVMED foi feita pra você praticar conduta,
               marcar checklist como banca e medir o próprio progresso, no
@@ -683,53 +683,53 @@ function Manifesto() {
 
 function Plataforma() {
   return (
-    <section id="plataforma" className="relative py-16 md:py-32">
+    <section id="plataforma" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 md:gap-6">
           <div className="max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
-          <p className="max-w-md text-sm text-muted-foreground md:text-base">
+          <p className="max-w-md text-sm text-muted-foreground md:text-[0.95rem] lg:text-base">
             Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
             sem travar. Tudo integrado ao seu painel de desempenho, com
             histórico, tempo médio e nota por critério.
           </p>
         </div>
 
-        <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-6 md:gap-4">
+        <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-2 md:gap-4 lg:grid-cols-6">
           <FeatureCard
-            className="md:col-span-4"
+            className="md:col-span-2 lg:col-span-4"
             tag="Estação"
             title="Sala ao vivo com cronômetro INEP"
             desc="Candidato, ator e avaliador na mesma sala — 10 minutos, impressos, roteiro padronizado. Roda estável mesmo com a turma toda treinando junto."
             accent="primary"
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-2 lg:col-span-2"
             tag="Checklist"
             title="Pontuação igual à da banca"
             desc="Marque critério por critério, no mesmo modelo do INEP."
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-1 lg:col-span-2"
             tag="Flashcards"
             title="Revisão espaçada por área"
             desc="Centenas de cards prontos. Você só revisa o que tá perdendo."
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-1 lg:col-span-2"
             tag="Resumos"
             title="Resumos curtos, do jeito que cai"
             desc="Sem manual de 800 páginas. Só o que vira ponto na prova."
             accent="mint"
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-2 lg:col-span-2"
             tag="Desempenho"
             title="Painel com nota, tempo e evolução"
             desc="Acompanhe sua média por estação, área e critério em tempo real."
@@ -799,10 +799,10 @@ function Resultados() {
   return (
     <section
       id="resultados"
-      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
           {NUMBERS.map((n, i) => (
             <motion.div
               key={n.l}
@@ -810,9 +810,9 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="rounded-2xl border border-border bg-background p-5 sm:rounded-3xl sm:p-7"
+              className="rounded-2xl border border-border bg-background p-5 sm:rounded-3xl sm:p-6 md:p-7"
             >
-              <div className="font-display text-3xl font-black tracking-[-0.03em] text-primary sm:text-5xl md:text-6xl">
+              <div className="font-display text-3xl font-black tracking-[-0.03em] text-primary sm:text-4xl md:text-5xl lg:text-6xl">
                 {n.v}
               </div>
               <div className="mt-2 text-xs font-medium text-muted-foreground sm:mt-3 sm:text-sm">
@@ -839,19 +839,19 @@ const MENTORIA_BENEFITS = [
 
 function Mentoria() {
   return (
-    <section id="mentoria" className="relative py-16 md:py-32">
+    <section id="mentoria" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="grid items-stretch gap-8 md:gap-10 lg:grid-cols-12">
           <div className="text-center lg:col-span-5 lg:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Quer alguém <br />
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-lg lg:mx-0 lg:max-w-none">
+            <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
@@ -866,7 +866,7 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:rounded-[2rem] sm:p-8 md:p-10">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:rounded-[2rem] sm:p-8 md:p-8 lg:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -875,7 +875,7 @@ function Mentoria() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
-                <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-4xl">
+                <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-3xl lg:text-4xl">
                   O que vem na mentoria
                 </h3>
                 <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
@@ -981,21 +981,21 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
   return (
     <section
       id="investimento"
-      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
             Escolha como você quer treinar.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-lg">
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
             Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
           </p>
         </div>
-        <div className="mt-10 grid gap-5 md:mt-14 md:gap-7 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
           {PLANS.map((p, idx) => {
             const Icon = p.icon;
             return (
@@ -1005,7 +1005,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-8 md:p-9 ${
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 ${
                   p.highlight
                     ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
                     : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
@@ -1043,8 +1043,8 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                     {p.desc}
                   </p>
 
-                  <div className="mt-5 flex items-end gap-1.5 sm:mt-6">
-                    <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-5xl">
+                  <div className="mt-5 flex flex-wrap items-end gap-1.5 sm:mt-6">
+                    <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-4xl lg:text-5xl">
                       {p.price}
                     </span>
                     {p.cadence && (
@@ -1144,12 +1144,12 @@ const FAQS = [
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="py-16 md:py-32">
+    <section className="py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
           Perguntas honestas
         </p>
-        <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+        <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
           O que a gente costuma ouvir.
         </h2>
         <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
@@ -1191,7 +1191,7 @@ function FAQ() {
 
 function FinalCTA({ isLogged }: { isLogged: boolean }) {
   return (
-    <section className="relative overflow-hidden py-16 md:py-32">
+    <section className="relative overflow-hidden py-16 md:py-24 lg:py-32">
       <div
         aria-hidden
         className="absolute inset-0 -z-10"
@@ -1201,11 +1201,11 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto max-w-3xl px-5 text-center md:px-8">
-        <h2 className="font-display text-3xl font-black leading-[1.02] tracking-[-0.03em] sm:text-4xl md:text-6xl">
+        <h2 className="font-display text-3xl font-black leading-[1.02] tracking-[-0.03em] sm:text-4xl md:text-5xl lg:text-6xl">
           Pronto pra treinar <br />
           <span className="text-primary">do jeito que cai?</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base md:text-lg">
+        <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">
           Estações ao vivo, checklists oficiais, flashcards, resumos e painel
           de desempenho. Tudo num só lugar, até o dia da prova.
         </p>
@@ -1227,9 +1227,9 @@ function Footer() {
   return (
     <footer className="border-t border-border bg-card/30 pt-12 pb-8">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="flex flex-col items-center gap-10 text-center md:flex-row md:items-start md:justify-between md:text-left">
+        <div className="grid gap-10 text-center md:grid-cols-3 md:items-start md:gap-8 md:text-left">
           {/* brand */}
-          <div className="flex flex-col items-center gap-3 md:items-start">
+          <div className="flex flex-col items-center gap-3 md:items-start md:col-span-3 lg:col-span-1">
             <Logo />
             <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
               A plataforma de prática do candidato Revalida INEP — estações,
@@ -1238,7 +1238,7 @@ function Footer() {
           </div>
 
           {/* contact */}
-          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground md:items-start">
+          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground md:items-start md:col-span-2 lg:col-span-1">
             <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
               Contato
             </p>
@@ -1266,7 +1266,7 @@ function Footer() {
           </div>
 
           {/* links */}
-          <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:items-end">
+          <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:col-span-1 md:items-start lg:items-end">
             <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
               Plataforma
             </p>
