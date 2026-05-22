@@ -313,6 +313,17 @@ export const deleteUserAdmin = createServerFn({ method: "POST" })
   });
 
 // ───────────── Estatísticas para o dashboard admin ─────────────
+
+// Retorna os user_ids de contas internas (admin / professor / mentor),
+// que devem ser excluídos de qualquer métrica financeira/usuários do dashboard.
+export const listInternalUserIdsAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+    const ids = await getInternalUserIds();
+    return { ids: Array.from(ids) };
+  });
+
 export const getAdminDashboardStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
