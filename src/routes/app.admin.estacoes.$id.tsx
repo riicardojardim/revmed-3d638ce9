@@ -2442,7 +2442,7 @@ type GeneratedSummary = {
   content_md: string | null;
 };
 
-function SectionGenerateSummary({ station, items }: { station: Station; items: Item[] }) {
+function SectionGenerateSummary({ station, items, refreshKey = 0 }: { station: Station; items: Item[]; refreshKey?: number }) {
   const generate = useServerFn(generateSummaryFromStation);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<GeneratedSummary | null>(null);
@@ -2467,7 +2467,7 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
       .limit(8);
     setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
   }
-  useEffect(() => { void loadLinked(); }, [station.id]);
+  useEffect(() => { void loadLinked(); }, [station.id, refreshKey]);
 
 
   const checklistCount = checklistItems.length;
