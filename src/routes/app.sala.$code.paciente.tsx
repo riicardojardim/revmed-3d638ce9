@@ -15,7 +15,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck, Eye, EyeOff,
+  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck, Eye, EyeOff, SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { StationSummaryDialog } from "@/components/StationSummaryDialog";
 import { RelatedResources } from "@/components/RelatedResources";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
