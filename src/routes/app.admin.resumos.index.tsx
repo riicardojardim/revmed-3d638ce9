@@ -263,9 +263,14 @@ function AdminResumosPage() {
             Gere resumos a partir das estações, edite, publique e mantenha a curadoria.
           </p>
         </div>
-        <Button variant="hero" onClick={openBatch}>
-          <Sparkles className="h-4 w-4" /> Gerar em lote
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={createNew} disabled={creating}>
+            <Plus className="h-4 w-4" /> {creating ? "Criando..." : "Novo resumo"}
+          </Button>
+          <Button variant="hero" onClick={openBatch}>
+            <Sparkles className="h-4 w-4" /> Gerar em lote
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-card p-3">
