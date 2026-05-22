@@ -229,7 +229,7 @@ function TopNav({
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="flex items-center gap-3">
           {isLogged ? (
             <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
               <DropdownMenuTrigger asChild>
@@ -273,76 +273,14 @@ function TopNav({
           ) : (
             <Link
               to="/login"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] sm:px-5 sm:py-2.5"
             >
               Login
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           )}
         </div>
-        <button
-          aria-label="Abrir menu"
-          className="rounded-lg border border-border p-2 lg:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
       </div>
-      {menuOpen && (
-        <div className="border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
-          <div className="flex flex-col gap-1 px-5 py-4">
-            {NAV_LINKS.map((l) => (
-              <a
-                key={l.id}
-                href={`#${l.id}`}
-                onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                {l.label}
-              </a>
-            ))}
-            {isLogged ? (
-              <>
-                <Link
-                  to="/app"
-                  onClick={() => setMenuOpen(false)}
-                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  <HomeIcon className="h-4 w-4" />
-                  Início
-                </Link>
-                <Link
-                  to="/app/perfil"
-                  onClick={() => setMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-center text-sm font-semibold"
-                >
-                  <UserIcon className="h-4 w-4" />
-                  Meu perfil
-                </Link>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setMenuOpen(false);
-                    await onSignOut();
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-sm font-semibold text-destructive"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setMenuOpen(false)}
-                className="mt-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
-              >
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 }
@@ -904,7 +842,7 @@ function Mentoria() {
     <section id="mentoria" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="grid items-stretch gap-8 md:gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+          <div className="text-center lg:col-span-5 lg:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
@@ -913,7 +851,7 @@ function Mentoria() {
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
+            <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-lg lg:mx-0 lg:max-w-none">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
