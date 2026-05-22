@@ -236,41 +236,41 @@ function Dashboard() {
         variants={staggerContainer}
         initial="hidden"
         animate="show"
-        className="space-y-8"
+        className="space-y-5 sm:space-y-8"
       >
         {/* ============ HERO EDITORIAL ============ */}
         <motion.section
           variants={staggerItem}
-          className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-card via-card to-background"
+          className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card via-card to-background sm:rounded-3xl"
         >
           {/* faixa âmbar superior */}
           <div className="h-1 w-full bg-gradient-to-r from-medical via-mint to-medical" />
-          <div className="grid gap-6 p-6 sm:p-10 lg:grid-cols-[1.4fr_1fr]">
-            <div className="flex flex-col justify-between gap-6">
-              <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <div className="grid gap-5 p-4 sm:gap-6 sm:p-10 lg:grid-cols-[1.4fr_1fr]">
+            <div className="flex flex-col justify-between gap-5 sm:gap-6">
+              <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground sm:gap-3 sm:text-[11px]">
                 <span className="inline-block h-px w-8 bg-medical" />
                 Painel · {todayLabel}
               </div>
               <div>
-                <h1 className="font-display text-3xl font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
+                <h1 className="font-display text-[1.75rem] font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
                   {salutation},<br />
                   <span className="text-medical">{greetingName}.</span>
                 </h1>
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                <p className="mt-3 max-w-md text-[0.8rem] leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
                   Sua bancada particular de treino para o Revalida — sem firula, com método.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <Link
                   to="/app/checklists"
-                  className="group inline-flex items-center gap-2 rounded-full bg-medical px-5 py-2.5 text-sm font-semibold text-night transition-all hover:shadow-glow"
+                  className="group inline-flex items-center gap-2 rounded-full bg-medical px-4 py-2 text-[0.8rem] font-semibold text-night transition-all hover:shadow-glow sm:px-5 sm:py-2.5 sm:text-sm"
                 >
                   Começar treino agora
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </Link>
                 <Link
                   to="/app/progresso"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-medical hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-[0.8rem] font-medium text-muted-foreground transition-colors hover:border-medical hover:text-foreground sm:px-4 sm:py-2.5 sm:text-sm"
                 >
                   Ver progresso detalhado
                 </Link>
@@ -278,7 +278,7 @@ function Dashboard() {
             </div>
 
             {/* Painel KPI lateral */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
               <KpiTile
                 eyebrow="Média geral"
                 value={<AnimatedNumber value={stats.avg} decimals={1} />}
@@ -329,10 +329,10 @@ function Dashboard() {
 
         {/* ============ DESEMPENHO POR EIXO ============ */}
         <motion.section variants={staggerItem} className="rounded-2xl border border-border bg-card">
-          <header className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border px-6 py-4">
+          <header className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border px-4 py-3 sm:px-6 sm:py-4">
             <div>
               <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Desempenho</div>
-              <h3 className="font-display text-xl font-bold">Por eixo de prova</h3>
+              <h3 className="font-display text-lg font-bold sm:text-xl">Por eixo de prova</h3>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-muted-foreground">
@@ -383,13 +383,13 @@ function Dashboard() {
               const pct = Math.max(0, Math.min(100, (avg / 10) * 100));
               const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
               return (
-                <li key={s.key} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-6 py-4">
-                  <span className={`flex h-10 w-10 items-center justify-center rounded-lg font-display text-xs font-bold ${meta.badge}`}>
+                <li key={s.key} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
+                  <span className={`flex h-9 w-9 items-center justify-center rounded-lg font-display text-[10px] font-bold sm:h-10 sm:w-10 sm:text-xs ${meta.badge}`}>
                     {s.short}
                   </span>
                   <div className="min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="truncate text-sm font-semibold">{s.label}</div>
+                      <div className="truncate text-[0.8rem] font-semibold sm:text-sm">{s.label}</div>
                       <div className="text-[11px] text-muted-foreground">{n} {n === 1 ? "estação" : "estações"}</div>
                     </div>
                     <div className="relative mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -407,7 +407,7 @@ function Dashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className={`font-display text-2xl font-bold tabular-nums ${hit ? meta.text : "text-foreground"}`}>
+                    <div className={`font-display text-xl font-bold tabular-nums sm:text-2xl ${hit ? meta.text : "text-foreground"}`}>
                       {avg.toFixed(1)}
                     </div>
                   </div>
@@ -423,7 +423,7 @@ function Dashboard() {
         </motion.section>
 
         {/* ============ HISTÓRICO ============ */}
-        <motion.section variants={staggerItem} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+        <motion.section variants={staggerItem} className="rounded-2xl border border-border bg-card p-4 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Arquivo</div>
@@ -547,14 +547,14 @@ function KpiTile({
   emphasis?: boolean;
 }) {
   return (
-    <div className={`flex flex-col justify-between rounded-2xl border p-4 ${emphasis ? "border-medical/40 bg-medical/5" : "border-border bg-background/50"}`}>
-      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+    <div className={`flex flex-col justify-between rounded-xl border p-3 sm:rounded-2xl sm:p-4 ${emphasis ? "border-medical/40 bg-medical/5" : "border-border bg-background/50"}`}>
+      <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground sm:text-[10px]">
         {icon}{eyebrow}
       </div>
-      <div className={`mt-2 font-display font-bold tabular-nums ${emphasis ? "text-medical text-4xl sm:text-5xl" : "text-2xl sm:text-3xl"}`}>
+      <div className={`mt-1.5 font-display font-bold tabular-nums sm:mt-2 ${emphasis ? "text-medical text-3xl sm:text-5xl" : "text-xl sm:text-3xl"}`}>
         {value}
       </div>
-      {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground sm:text-[11px]">{hint}</div>}
     </div>
   );
 }
