@@ -107,15 +107,6 @@ export function FriendsPanel() {
     if (open) reload();
   }, [open, reload]);
 
-  async function addFriend(targetId: string) {
-    const { error } = await supabase.rpc("send_friend_request", { _to_user: targetId });
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Pedido enviado");
-      reload();
-    }
-  }
-
   async function acceptRequest(requestId: string) {
     const { error } = await supabase.rpc("accept_friend_request", { _request_id: requestId });
     if (error) toast.error(error.message);
