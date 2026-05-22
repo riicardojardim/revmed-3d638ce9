@@ -7,6 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { LessonCover } from "@/components/lessons/LessonCover";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/stagger";
+import { Reveal } from "@/components/ui/reveal";
+import { MotionCard } from "@/components/motion/MotionPrimitives";
 
 export const Route = createFileRoute("/app/videoaulas")({
   component: VideoAulas,
@@ -62,12 +66,12 @@ function VideoAulas() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
+      <Reveal>
         <h1 className="font-display text-2xl font-bold md:text-3xl">Vídeo Aulas</h1>
         <p className="text-sm text-muted-foreground">Aulas em vídeo curadas pela equipe REVMED.</p>
-      </div>
+      </Reveal>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-card sm:flex-row sm:items-center">
+      <Reveal delay={0.08} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-card sm:flex-row sm:items-center">
         <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input
@@ -84,7 +88,7 @@ function VideoAulas() {
             {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-      </div>
+      </Reveal>
 
       {loading ? (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -99,13 +103,23 @@ function VideoAulas() {
           <p className="mt-1 text-sm text-muted-foreground">Tente ajustar a busca ou a especialidade.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <motion.div
+          key={filtered.map((l) => l.id).join("|")}
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4"
+        >
           {filtered.map((l) => (
-            <button
+            <motion.button
               key={l.id}
+              variants={staggerItem}
               type="button"
               onClick={() => setPlaying(l)}
-              className="group flex flex-col text-left transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              whileHover={{ y: -4 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className="group flex flex-col text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
             >
               <LessonCover
                 title={l.title}
@@ -116,9 +130,9 @@ function VideoAulas() {
               />
               <div className="mt-2 line-clamp-2 min-h-[2.5rem] px-1 text-sm font-medium leading-tight">{l.title}</div>
               <div className="px-1 text-xs text-muted-foreground">{l.specialty ?? "Boas-vindas"}</div>
-            </button>
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
       )}
 
       <Dialog open={!!playing} onOpenChange={(o) => !o && setPlaying(null)}>
