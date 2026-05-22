@@ -81,7 +81,7 @@ function AdminOverview() {
       const d7 = new Date(now.getTime() - 7 * 86400000).toISOString();
       const d30 = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-      const [u, aAll, a7, a30, sPub, sDraft, fc, sum, pend, subs, plans, recentAttempts, profiles30, attempts30list] = await Promise.all([
+      const [u, aAll, a7, a30, sPub, sDraft, fc, sum, pend, subs, plans, recentAttempts, profiles30, attempts30list, internalRoles] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }).gte("created_at", d7),
@@ -91,12 +91,16 @@ function AdminOverview() {
         supabase.from("flashcard_decks").select("id", { count: "exact", head: true }),
         supabase.from("summaries").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }).eq("status", "aguardando_correcao"),
-        supabase.from("user_subscriptions").select("plan_id, status").eq("status", "active"),
+        supabase.from("user_subscriptions").select("plan_id, status, user_id").eq("status", "active"),
         supabase.from("plans").select("id, name, slug, price_cents"),
         supabase.from("attempts").select("station_id, station_title").gte("created_at", d30).limit(2000),
         supabase.from("profiles").select("created_at").gte("created_at", d30).limit(5000),
         supabase.from("attempts").select("created_at").gte("created_at", d30).limit(5000),
+        supabase.from("user_roles").select("user_id").in("role", ["admin", "professor", "mentor"]),
       ]);
+
+      // IDs de contas internas (admin / professor / mentor) — NÃO contam em métricas
+      const internalIds = new Set<string>((internalRoles.data ?? []).map((r: any) => r.user_id));
 
       // Plan buckets + MRR
       const planMap = new Map<string, { name: string; slug: string; price_cents: number }>();
@@ -104,7 +108,8 @@ function AdminOverview() {
       const buckets = new Map<string, { count: number; price_cents: number }>();
       let mrr = 0;
       let freeCount = 0;
-      (subs.data ?? []).forEach((s: any) => {
+      const externalSubs = (subs.data ?? []).filter((s: any) => !internalIds.has(s.user_id));
+      externalSubs.forEach((s: any) => {
         const plan = planMap.get(s.plan_id);
         const name = plan?.name ?? "Sem plano";
         const price = plan?.price_cents ?? 0;
@@ -151,8 +156,9 @@ function AdminOverview() {
       setSignupSeries(buildSeries((profiles30.data ?? []) as any));
       setAttemptSeries(buildSeries((attempts30list.data ?? []) as any));
 
-      const totalUsers = u.count ?? 0;
-      const activeSubs = (subs.data ?? []).length;
+      // Total de usuários "reais" (exclui admins/professores/mentores)
+      const totalUsers = Math.max((u.count ?? 0) - internalIds.size, 0);
+      const activeSubs = externalSubs.length;
       setStats({
         users: totalUsers,
         attempts: aAll.count ?? 0,
