@@ -268,7 +268,7 @@ function SignupPage() {
               <Input
                 id="username"
                 value={form.username}
-                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/\s/g, ""))}
+                onChange={(e) => update("username", e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
                 placeholder="ex: dra.ana"
                 required
                 autoComplete="username"
