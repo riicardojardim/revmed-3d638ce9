@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
 import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
+import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
