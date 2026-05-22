@@ -31,7 +31,7 @@ export function CookieConsent() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-2 bottom-2 z-[60] mx-auto max-w-3xl rounded-xl border border-border bg-card/95 px-3 py-2.5 shadow-2xl backdrop-blur sm:inset-x-4 sm:bottom-4 sm:px-4 sm:py-3">
+    <div className="fixed inset-x-2 z-[60] mx-auto max-w-3xl rounded-xl border border-border bg-card/95 px-3 py-2.5 shadow-2xl backdrop-blur sm:inset-x-4 sm:px-4 sm:py-3" style={{ bottom: 'max(8px, env(safe-area-inset-bottom))' }}>
       <div className="flex flex-row items-center gap-3">
         <Cookie className="hidden h-4 w-4 shrink-0 text-mint sm:block" />
         <p className="flex-1 text-[11px] leading-snug text-foreground/85 sm:text-xs">
