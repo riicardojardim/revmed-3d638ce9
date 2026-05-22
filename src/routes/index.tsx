@@ -691,17 +691,17 @@ const PILLARS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="relative py-24 md:py-32">
+    <section id="manifesto" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid gap-12 lg:grid-cols-12">
+        <div className="grid gap-8 md:gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
-            <p className="mt-6 text-base text-muted-foreground md:text-lg">
+            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
               treinou certo. A REVMED foi feita pra você praticar conduta,
               marcar checklist como banca e medir o próprio progresso, no
@@ -717,20 +717,20 @@ function Manifesto() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.5 }}
-                  className="group relative grid grid-cols-[auto_1fr_auto] items-start gap-5 bg-card p-5 md:p-6"
+                  className="group relative grid grid-cols-[auto_1fr_auto] items-start gap-4 bg-card p-4 sm:gap-5 sm:p-5 md:p-6"
                 >
-                  <div className="font-display text-2xl font-black text-primary md:text-3xl">
+                  <div className="font-display text-xl font-black text-primary sm:text-2xl md:text-3xl">
                     {p.n}
                   </div>
                   <div>
-                    <h3 className="font-display text-lg font-bold tracking-tight md:text-xl">
+                    <h3 className="font-display text-base font-bold tracking-tight sm:text-lg md:text-xl">
                       {p.title}
                     </h3>
-                    <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
+                    <p className="mt-1.5 max-w-xl text-[0.8rem] text-muted-foreground sm:text-sm">
                       {p.body}
                     </p>
                   </div>
-                  <p.icon className="h-5 w-5 text-primary opacity-60 transition-opacity group-hover:opacity-100 md:h-6 md:w-6" />
+                  <p.icon className="h-4 w-4 text-primary opacity-60 transition-opacity group-hover:opacity-100 sm:h-5 sm:w-5 md:h-6 md:w-6" />
                 </motion.article>
               ))}
             </div>
@@ -745,25 +745,25 @@ function Manifesto() {
 
 function Plataforma() {
   return (
-    <section id="plataforma" className="relative py-24 md:py-32">
+    <section id="plataforma" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 md:gap-6">
           <div className="max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
-          <p className="max-w-md text-muted-foreground">
+          <p className="max-w-md text-sm text-muted-foreground md:text-base">
             Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
             sem travar. Tudo integrado ao seu painel de desempenho, com
             histórico, tempo médio e nota por critério.
           </p>
         </div>
 
-        <div className="mt-12 grid auto-rows-[minmax(180px,_auto)] gap-4 md:grid-cols-6">
+        <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-6 md:gap-4">
           <FeatureCard
             className="md:col-span-4"
             tag="Estação"
@@ -827,19 +827,19 @@ function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5 }}
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 transition-transform hover:-translate-y-1 md:p-8 ${accentRing} ${className}`}
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 transition-transform hover:-translate-y-1 sm:rounded-3xl sm:p-6 md:p-8 ${accentRing} ${className}`}
     >
       <div className="flex items-center justify-between">
         <span className="rounded-full bg-background/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
           {tag}
         </span>
-        <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" />
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
       </div>
-      <div className="mt-8">
-        <h3 className="font-display text-xl font-bold leading-tight tracking-tight md:text-2xl">
+      <div className="mt-6 sm:mt-8">
+        <h3 className="font-display text-lg font-bold leading-tight tracking-tight sm:text-xl md:text-2xl">
           {title}
         </h3>
-        <p className="mt-2 text-sm text-muted-foreground md:text-base">
+        <p className="mt-2 text-[0.8rem] text-muted-foreground sm:text-sm md:text-base">
           {desc}
         </p>
       </div>
@@ -861,10 +861,10 @@ function Resultados() {
   return (
     <section
       id="resultados"
-      className="relative border-y border-border/60 bg-card/30 py-24 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {NUMBERS.map((n, i) => (
             <motion.div
               key={n.l}
@@ -872,12 +872,12 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="rounded-3xl border border-border bg-background p-7"
+              className="rounded-2xl border border-border bg-background p-5 sm:rounded-3xl sm:p-7"
             >
-              <div className="font-display text-5xl font-black tracking-[-0.03em] text-primary md:text-6xl">
+              <div className="font-display text-3xl font-black tracking-[-0.03em] text-primary sm:text-5xl md:text-6xl">
                 {n.v}
               </div>
-              <div className="mt-3 text-sm font-medium text-muted-foreground">
+              <div className="mt-2 text-xs font-medium text-muted-foreground sm:mt-3 sm:text-sm">
                 {n.l}
               </div>
             </motion.div>
@@ -901,19 +901,19 @@ const MENTORIA_BENEFITS = [
 
 function Mentoria() {
   return (
-    <section id="mentoria" className="relative py-24 md:py-32">
+    <section id="mentoria" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid items-stretch gap-10 lg:grid-cols-12">
+        <div className="grid items-stretch gap-8 md:gap-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-4 font-display text-4xl font-black leading-[1.05] tracking-[-0.03em] md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
               Quer alguém <br />
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
-            <p className="mt-6 text-muted-foreground md:text-lg">
+            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
@@ -921,14 +921,14 @@ function Mentoria() {
             </p>
             <Link
               to="/cadastro"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-bold text-primary-foreground transition-transform hover:scale-[1.02]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] md:mt-8 md:px-6 md:py-3.5 md:text-base"
             >
               Saber mais da mentoria
-              <ArrowUpRight className="h-5 w-5" />
+              <ArrowUpRight className="h-4 w-4 md:h-5 md:w-5" />
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:p-10">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:rounded-[2rem] sm:p-8 md:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -937,16 +937,16 @@ function Mentoria() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
-                <h3 className="mt-4 font-display text-3xl font-bold tracking-tight md:text-4xl">
+                <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-4xl">
                   O que vem na mentoria
                 </h3>
-                <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+                <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
                   {MENTORIA_BENEFITS.map((b) => (
                     <li key={b} className="flex items-start gap-3">
                       <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
                         <Check className="h-3.5 w-3.5" />
                       </span>
-                      <span className="text-sm md:text-base">{b}</span>
+                      <span className="text-[0.85rem] sm:text-sm md:text-base">{b}</span>
                     </li>
                   ))}
                 </ul>
