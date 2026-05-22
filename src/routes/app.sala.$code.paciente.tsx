@@ -15,7 +15,7 @@ import { getServerOffset, serverNow } from "@/lib/serverClock";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
-  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck, Eye, EyeOff,
+  Square, Check, Share2, Mail, MessageCircle, Lock, Unlock, ChevronDown, BookOpen, BarChart3, MessageSquareWarning, ShieldCheck, Eye, EyeOff, SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
 import { StationSummaryDialog } from "@/components/StationSummaryDialog";
 import { RelatedResources } from "@/components/RelatedResources";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/app/sala/$code/paciente")({
   component: ActorView,
@@ -124,6 +125,7 @@ function ActorView() {
   const [starting, setStarting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
@@ -675,7 +677,7 @@ function ActorView() {
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
         {/* LEFT: station content */}
         <div className="min-w-0 space-y-4">
           {/* Title bar like Pense Revalida */}
@@ -1156,7 +1158,9 @@ function ActorView() {
 
 
         {/* RIGHT: control panel (timer, participantes, convite) */}
-        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
+        {(() => {
+          const controlPanel = (
+            <div className="space-y-3">
                   {/* Timer */}
                   <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
                     <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
@@ -1407,7 +1411,30 @@ function ActorView() {
                       </Button>
                     </div>
                   </div>
-        </aside>
+            </div>
+          );
+          return (
+            <>
+              {/* Desktop sidebar */}
+              <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:self-start">
+                {controlPanel}
+              </aside>
+              {/* Mobile/tablet: stacked below PEP */}
+              <div className="min-w-0 lg:hidden">
+                {controlPanel}
+              </div>
+              {/* Mobile/tablet popup with the same controls */}
+              <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
+                <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4 sm:max-w-lg">
+                  <SheetHeader className="mb-3">
+                    <SheetTitle className="text-base">Controles da estação</SheetTitle>
+                  </SheetHeader>
+                  {controlPanel}
+                </SheetContent>
+              </Sheet>
+            </>
+          );
+        })()}
       </div>
 
       {room && (
@@ -1453,6 +1480,17 @@ function ActorView() {
           allowedIdentities={[user?.id, room.evaluated_candidate_id]}
         />
       )}
+      {/* Floating shortcut to controls panel (mobile/tablet only) */}
+      <button
+        type="button"
+        onClick={() => setControlsOpen(true)}
+        className="fixed bottom-5 right-5 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-gradient-hero px-4 text-sm font-semibold text-white shadow-elegant ring-1 ring-mint/30 transition hover:scale-[1.02] active:scale-[0.98] lg:hidden"
+        aria-label="Abrir controles da estação"
+      >
+        <SlidersHorizontal className="h-4 w-4" />
+        <span className="hidden sm:inline">Controles</span>
+        <span className="font-mono text-[11px] text-white/80">{mm}:{ss}</span>
+      </button>
     </div>
   );
 }
