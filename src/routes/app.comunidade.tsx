@@ -21,6 +21,10 @@ export const Route = createFileRoute("/app/comunidade")({
   component: ComunidadePage,
 });
 
+// Cache em memória do feed — sobrevive entre navegações dentro da mesma sessão
+// para que ao voltar para a página o feed apareça instantâneo (sem "Carregando…").
+const feedCache: { posts: Post[] } = { posts: [] };
+
 type Profile = { id: string; full_name: string | null; username: string | null; avatar_url: string | null };
 type Comment = {
   id: string;
