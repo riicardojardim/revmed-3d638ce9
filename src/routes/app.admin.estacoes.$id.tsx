@@ -1658,35 +1658,14 @@ function SectionGenerateFlashcards({ station, items, refreshKey = 0 }: { station
       title="Gerar Flashcards desta estação"
       hint="A IA escolhe entre 10 e 15 cards baseados no tema da estação, usando diretrizes brasileiras (MS, SBC, SBP, FEBRASGO), ANVISA e guidelines internacionais. Você revisa e publica depois."
     >
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-mint/20 p-2 text-mint">
-            <Brain className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="font-semibold">Deck automático baseado em evidências</div>
-            <div className="text-xs text-muted-foreground">
-              A IA decide a quantidade ideal (10–15 cards) e mostra a pré-visualização aqui embaixo.
-            </div>
-          </div>
-        </div>
-        <div className="ml-auto">
-          <Button variant="hero" onClick={run} disabled={loading}>
-            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar Flashcards</>}
-          </Button>
-        </div>
-      </div>
-      <p className="text-[11px] text-muted-foreground">
-        A IA é um ponto de partida — revise sempre doses, contraindicações e critérios antes de publicar para os alunos.
-      </p>
-
       {linkedDecks.length > 0 && (
-        <div className="mt-3 rounded-xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-mint/40 bg-mint/10 p-4">
           <div className="mb-2 flex items-center justify-between">
-            <div className="text-sm font-display font-bold">
-              Decks gerados desta estação
+            <div className="text-sm font-display font-bold flex items-center gap-2">
+              <Brain className="h-4 w-4 text-mint" />
+              Decks vinculados a esta estação
             </div>
-            <Badge variant="outline">{linkedDecks.length}</Badge>
+            <Badge variant="outline" className="border-mint/40 text-mint">{linkedDecks.length}</Badge>
           </div>
           <div className="divide-y divide-border">
             {linkedDecks.map((d) => (
@@ -1703,15 +1682,39 @@ function SectionGenerateFlashcards({ station, items, refreshKey = 0 }: { station
                 <Link
                   to="/app/admin/flashcards/$id"
                   params={{ id: d.id }}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold hover:bg-muted"
                 >
-                  Abrir →
+                  Abrir editor →
                 </Link>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-mint/30 bg-mint/5 p-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-mint/20 p-2 text-mint">
+            <Brain className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="font-semibold">
+              {linkedDecks.length > 0 ? "Gerar outro deck para esta estação" : "Deck automático baseado em evidências"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              A IA decide a quantidade ideal (10–15 cards) e mostra a pré-visualização aqui embaixo.
+            </div>
+          </div>
+        </div>
+        <div className="ml-auto">
+          <Button variant="hero" onClick={run} disabled={loading}>
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando...</> : <><Sparkles className="h-4 w-4" /> Gerar Flashcards</>}
+          </Button>
+        </div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        A IA é um ponto de partida — revise sempre doses, contraindicações e critérios antes de publicar para os alunos.
+      </p>
 
       {deck && <InlineDeckPreview deck={deck} />}
     </Section>
@@ -2551,6 +2554,40 @@ function SectionGenerateSummary({ station, items, refreshKey = 0 }: { station: S
       title="Gerar Resumo desta estação"
       hint="A IA cria um resumo estruturado (Definição, Quadro clínico, Diagnóstico, Conduta, Pontos-chave, Armadilhas) com base no CHECKLIST (PEP) preenchido + descrição da estação, usando SOMENTE Ministério da Saúde, ANVISA, PCDTs do SUS, diretrizes brasileiras (SBC, SBP, FEBRASGO…), matriz do Revalida/INEP e guidelines internacionais consagradas. O título do resumo é o mesmo título da estação/checklist."
     >
+      {linked.length > 0 && (
+        <div className="rounded-xl border border-mint/40 bg-mint/10 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-sm font-display font-bold flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-mint" />
+              Resumos vinculados a esta estação
+            </div>
+            <Badge variant="outline" className="border-mint/40 text-mint">{linked.length}</Badge>
+          </div>
+          <div className="divide-y divide-border">
+            {linked.map((s) => (
+              <div key={s.id} className="flex flex-wrap items-center gap-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{s.title}</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    {new Date(s.created_at).toLocaleDateString("pt-BR")}
+                  </div>
+                </div>
+                {s.published
+                  ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
+                  : <Badge variant="outline">Rascunho</Badge>}
+                <Link
+                  to="/app/admin/resumos/$id"
+                  params={{ id: s.id }}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold hover:bg-muted"
+                >
+                  Abrir editor →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div
         className={`flex flex-wrap items-center gap-3 rounded-xl border p-4 transition-colors ${
           checklistCount > 0
@@ -2609,38 +2646,6 @@ function SectionGenerateSummary({ station, items, refreshKey = 0 }: { station: S
           onTogglePublish={togglePublish}
           validation={validation}
         />
-      )}
-
-      {linked.length > 0 && (
-        <div className="mt-3 rounded-xl border border-border bg-card p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="text-sm font-display font-bold">Resumos conectados a esta estação</div>
-            <Badge variant="outline">{linked.length}</Badge>
-          </div>
-          <div className="divide-y divide-border">
-            {linked.map((s) => (
-              <div key={s.id} className="flex flex-wrap items-center gap-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{s.title}</div>
-                  <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    {new Date(s.created_at).toLocaleDateString("pt-BR")}
-                  </div>
-                </div>
-                {s.published
-                  ? <Badge variant="outline" className="border-mint/40 text-mint">Publicado</Badge>
-                  : <Badge variant="outline">Rascunho</Badge>}
-                <Link
-                  to="/app/admin/resumos/$id"
-                  params={{ id: s.id }}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs font-semibold hover:bg-muted"
-                >
-                  Abrir →
-                </Link>
-
-              </div>
-            ))}
-          </div>
-        </div>
       )}
     </Section>
   );
