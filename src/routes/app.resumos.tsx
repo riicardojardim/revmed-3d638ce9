@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
+import { Reveal } from "@/components/ui/reveal";
 
 export const Route = createFileRoute("/app/resumos")({
   component: ResumosPage,
@@ -211,7 +212,7 @@ function ResumosPage() {
 
   return (
     <div className="relative mx-auto max-w-7xl space-y-6">
-      <div>
+      <Reveal>
         <div className="inline-flex items-center gap-2 rounded-full border border-mint/30 bg-mint/5 px-3 py-1 text-xs font-medium text-medical">
           <BookOpen className="h-3.5 w-3.5" /> Resumos clínicos
         </div>
@@ -219,7 +220,7 @@ function ResumosPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Conteúdo estruturado pelos professores — direto ao ponto para a prova prática.
         </p>
-      </div>
+      </Reveal>
 
       <div className="grid gap-6">
         {/* Main column */}

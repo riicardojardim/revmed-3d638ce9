@@ -10,6 +10,8 @@ import { ResetStatsButton } from "@/components/ResetStatsButton";
 import { Reveal } from "@/components/ui/reveal";
 import { Shimmer } from "@/components/ui/shimmer";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { MotionCard, listContainer, listItem } from "@/components/motion/MotionPrimitives";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Route = createFileRoute("/app/progresso")({
   component: ProgressPage,
@@ -78,17 +80,17 @@ function ProgressPage() {
       </Reveal>
 
       <Reveal delay={0.08} className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
+        <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Tentativas</div>
           <div className="mt-2 font-display text-3xl font-bold"><AnimatedNumber value={attempts.length} /></div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
+        </MotionCard>
+        <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota média</div>
           <div className="mt-2 font-display text-3xl font-bold text-medical">
             <AnimatedNumber value={avg} decimals={1} />
           </div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
+        </MotionCard>
+        <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota de corte INEP</div>
           <div className="mt-2 font-display text-3xl font-bold text-mint">
             {NOTA_DE_CORTE.toFixed(3)}
@@ -96,7 +98,7 @@ function ProgressPage() {
           <div className="mt-1 text-[11px] text-muted-foreground">
             {NOTA_DE_CORTE_EDICAO} · equivale a {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
           </div>
-        </div>
+        </MotionCard>
       </Reveal>
 
       <Reveal delay={0.16} className="rounded-2xl border border-border bg-card p-6 shadow-card">
@@ -159,14 +161,27 @@ function ProgressPage() {
             Você ainda não realizou nenhuma estação.
           </p>
         ) : (
-          <div className="mt-4 divide-y divide-border">
+          <motion.div
+            variants={listContainer}
+            initial="hidden"
+            animate="show"
+            className="mt-4 divide-y divide-border"
+          >
+            <AnimatePresence initial={false}>
             {attempts.map((a) => {
               const st = STATIONS.find((s) => s.id === a.station_id);
               const title = a.station_title || st?.title || a.station_id;
               const specialty = a.specialty || st?.specialty || "—";
               const date = new Date(a.created_at).toLocaleDateString("pt-BR");
               return (
-                <div key={a.id} className="py-3">
+                <motion.div
+                  key={a.id}
+                  variants={listItem}
+                  layout
+                  whileHover={{ x: 2 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  className="py-3"
+                >
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-mint/10 font-display font-bold text-medical">
                       {Number(a.score).toFixed(1)}
@@ -187,10 +202,11 @@ function ProgressPage() {
                       <p className="mt-1 text-foreground/90 whitespace-pre-wrap">{a.professor_feedback}</p>
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+            </AnimatePresence>
+          </motion.div>
         )}
       </Reveal>
     </div>
