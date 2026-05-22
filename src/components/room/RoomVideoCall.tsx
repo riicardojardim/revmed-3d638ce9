@@ -47,12 +47,13 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const dragRef = useRef<{ dx: number; dy: number } | null>(null);
 
-  // Posição inicial: canto inferior direito, com margem.
+  // Posição inicial: canto inferior ESQUERDO, com margem
+  // (o painel de Amigos vive no canto inferior direito).
   useEffect(() => {
     if (pos || typeof window === "undefined") return;
     const margin = 16;
     setPos({
-      x: Math.max(margin, window.innerWidth - PANEL_W - margin),
+      x: margin,
       y: Math.max(margin, window.innerHeight - PANEL_H_OPEN - margin),
     });
   }, [pos]);
@@ -108,7 +109,7 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-full border border-mint/40 bg-night/90 px-4 py-2 text-sm font-semibold text-white shadow-elegant backdrop-blur transition hover:bg-night"
+        className="fixed bottom-4 left-4 z-[60] inline-flex items-center gap-2 rounded-full border border-mint/40 bg-night/90 px-4 py-2 text-sm font-semibold text-white shadow-elegant backdrop-blur transition hover:bg-night"
       >
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
@@ -127,7 +128,7 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }
         top: pos?.y ?? 16,
         width: PANEL_W,
         height: minimized ? PANEL_H_MIN : PANEL_H_OPEN,
-        zIndex: 50,
+        zIndex: 60,
       }}
       className="flex flex-col overflow-hidden rounded-xl border border-mint/30 bg-night/95 text-white shadow-elegant backdrop-blur"
     >
