@@ -421,17 +421,15 @@ function PostCard({
         </div>
       </div>
 
-      <AnimatePresence initial={false}>
       {showComments && (
         <motion.div
           key="comments"
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.28, ease: STAGGER.ease }}
           className="overflow-hidden border-t bg-muted/20"
         >
-        <div className="space-y-3 p-4">
+          <div className="space-y-3 p-4">
           {loadingComments ? (
             <p className="text-center text-xs text-muted-foreground">Carregando comentários…</p>
           ) : comments.length === 0 ? (
@@ -480,10 +478,9 @@ function PostCard({
               <Send className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+          </div>
         </motion.div>
       )}
-      </AnimatePresence>
     </Card>
   );
 }
