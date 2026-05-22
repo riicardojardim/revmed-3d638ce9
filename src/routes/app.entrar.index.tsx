@@ -2,13 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { DoorOpen, Search, KeyRound, Sparkles, ScanLine } from "lucide-react";
+import { Activity, ScanLine, Radio, Stethoscope, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { Reveal } from "@/components/ui/reveal";
 
 export const Route = createFileRoute("/app/entrar/")({
   component: EntrarCodigo,
-  head: () => ({ meta: [{ title: "Entrar em uma estação — REVMED" }] }),
+  head: () => ({ meta: [{ title: "Bipar estação — REVMED" }] }),
 });
 
 function EntrarCodigo() {
@@ -18,140 +17,153 @@ function EntrarCodigo() {
 
   function submit() {
     const c = code.trim();
-    if (!c) return toast.error("Digite um código.");
+    if (!c) return toast.error("Bipe um código para abrir a sala.");
     nav({ to: "/app/entrar/$code", params: { code: c } });
   }
 
   return (
-    <div className="relative mx-auto max-w-2xl space-y-8 py-4">
-      {/* Hero */}
-      <Reveal>
-        <div className="text-center">
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto mb-5 inline-flex h-20 w-20 items-center justify-center"
-          >
-            {/* halo pulsante */}
-            <motion.span
-              aria-hidden
-              className="absolute inset-0 rounded-full bg-mint/25 blur-2xl"
-              animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0.7, 0.4] }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.span
-              aria-hidden
-              className="absolute inset-0 rounded-full border border-mint/40"
-              animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
-            />
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-mint/40 bg-gradient-to-br from-mint/30 to-medical/20 shadow-elegant backdrop-blur-sm">
-              <DoorOpen className="h-7 w-7 text-mint" />
-            </div>
-          </motion.div>
-
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-mint">
-            <Sparkles className="h-3 w-3" /> Acesso rápido
-          </div>
-          <h1 className="mt-3 font-display text-3xl font-bold leading-tight md:text-4xl">
-            Entrar em uma <span className="bg-gradient-to-r from-emerald-700 to-teal-700 dark:from-mint dark:to-medical bg-clip-text text-transparent">estação</span>
-          </h1>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground md:text-base">
-            Digite ou cole o código compartilhado pelo seu mentor ou colega de treino.
-          </p>
-        </div>
-      </Reveal>
-
-      {/* Card de código */}
-      <Reveal delay={0.12} y={24}>
-        <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 p-6 shadow-elegant backdrop-blur-xl md:p-8">
-          {/* glow gradient borda */}
+    <div className="relative mx-auto max-w-3xl py-2">
+      {/* MONITOR DE UTI */}
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative overflow-hidden rounded-[28px] border border-mint/30 bg-[#070d0c] p-1 shadow-[0_30px_120px_-20px_rgba(16,185,129,0.35)]"
+      >
+        {/* moldura interna */}
+        <div className="relative rounded-[22px] border border-mint/15 bg-gradient-to-b from-[#0a1614] to-[#050908] p-6 md:p-10">
+          {/* grid bg */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-60"
+            className="pointer-events-none absolute inset-0 opacity-[0.08]"
             style={{
-              background:
-                "radial-gradient(600px circle at 0% 0%, color-mix(in oklab, var(--mint) 18%, transparent), transparent 40%), radial-gradient(500px circle at 100% 100%, color-mix(in oklab, var(--medical) 14%, transparent), transparent 45%)",
+              backgroundImage:
+                "linear-gradient(var(--mint) 1px, transparent 1px), linear-gradient(90deg, var(--mint) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
             }}
           />
-          {/* scan line animado */}
+          {/* scan */}
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-mint to-transparent"
-            animate={{ y: [0, 300, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="pointer-events-none absolute inset-x-0 h-24 bg-gradient-to-b from-transparent via-mint/10 to-transparent"
+            animate={{ y: ["-10%", "110%"] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
           />
 
-          <div className="relative">
-            <label className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              <KeyRound className="h-3.5 w-3.5 text-mint" />
-              Código da estação
+          {/* topo: status bar */}
+          <div className="relative flex items-center justify-between border-b border-mint/15 pb-4 font-mono text-[10px] uppercase tracking-[0.25em] text-mint/80">
+            <div className="flex items-center gap-2">
+              <motion.span
+                className="h-2 w-2 rounded-full bg-mint shadow-[0_0_10px_var(--mint)]"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              />
+              <span>SALA · ONLINE</span>
+            </div>
+            <div className="hidden items-center gap-4 sm:flex">
+              <span className="flex items-center gap-1.5"><Radio className="h-3 w-3" /> CH-06</span>
+              <span className="flex items-center gap-1.5"><Stethoscope className="h-3 w-3" /> REVMED</span>
+            </div>
+          </div>
+
+          {/* título */}
+          <div className="relative mt-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-mint/70">
+              // protocolo de acesso
+            </div>
+            <h1 className="mt-2 font-display text-4xl font-bold leading-[1.05] text-white md:text-5xl">
+              Bipar <span className="bg-gradient-to-r from-mint to-medical bg-clip-text text-transparent">estação</span>
+            </h1>
+            <p className="mx-auto mt-3 max-w-md text-sm text-mint/60">
+              Insira o código do mentor para abrir a sala e iniciar o atendimento.
+            </p>
+          </div>
+
+          {/* ECG */}
+          <div className="relative mt-6 h-14 overflow-hidden rounded-xl border border-mint/15 bg-black/40">
+            <svg viewBox="0 0 600 60" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+              <motion.path
+                d="M0,30 L80,30 L95,30 L105,10 L115,50 L125,20 L135,30 L220,30 L235,30 L245,5 L255,55 L265,30 L360,30 L375,30 L385,12 L395,48 L405,30 L500,30 L515,30 L525,8 L535,52 L545,30 L600,30"
+                fill="none"
+                stroke="var(--mint)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
+              />
+            </svg>
+            <div className="absolute right-3 top-2 font-mono text-[10px] text-mint/70">
+              ECG · 72 BPM
+            </div>
+          </div>
+
+          {/* DISPLAY DO CÓDIGO */}
+          <div className="relative mt-6">
+            <label className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.25em] text-mint/70">
+              <span className="flex items-center gap-2"><ScanLine className="h-3 w-3" /> código da sala</span>
+              <span>{code.length}/12</span>
             </label>
 
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-              <div className="relative flex-1">
-                <ScanLine className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-                <input
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => e.key === "Enter" && submit()}
-                  placeholder="EX: A1B2C3"
-                  maxLength={12}
-                  autoFocus
-                  className="w-full rounded-2xl border border-border/80 bg-background/60 py-4 pl-11 pr-4 text-center font-mono text-lg font-bold uppercase tracking-[0.4em] outline-none ring-mint/30 transition-all placeholder:tracking-[0.4em] placeholder:text-muted-foreground/40 focus:border-mint focus:bg-background focus:ring-4 sm:text-xl"
-                />
-                {ready && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.6 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2"
-                  >
-                    <span className="flex h-2.5 w-2.5 rounded-full bg-mint shadow-[0_0_12px_var(--mint)]" />
-                  </motion.div>
-                )}
-              </div>
-
-              <Button
-                variant="hero"
-                onClick={submit}
-                className="group relative h-[60px] overflow-hidden px-6 sm:w-auto"
-              >
-                <Search className="h-4 w-4 transition-transform group-hover:scale-110" />
-                Entrar
-              </Button>
+            <div className="relative mt-3 rounded-2xl border border-mint/30 bg-black/60 p-1">
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+                onKeyDown={(e) => e.key === "Enter" && submit()}
+                placeholder="— — — — — —"
+                maxLength={12}
+                autoFocus
+                className="w-full rounded-xl bg-transparent py-6 text-center font-mono text-3xl font-bold uppercase tracking-[0.5em] text-mint caret-mint outline-none placeholder:text-mint/20 sm:text-4xl"
+                style={{ textShadow: "0 0 24px color-mix(in oklab, var(--mint) 60%, transparent)" }}
+              />
+              {ready && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-mint"
+                >
+                  <Activity className="h-3 w-3" /> ok
+                </motion.div>
+              )}
             </div>
 
-            <p className="mt-4 text-center text-xs text-muted-foreground">
-              Dica: o código tem entre 4 e 8 caracteres, somente letras e números.
+            <Button
+              variant="hero"
+              onClick={submit}
+              disabled={!ready}
+              className="group mt-4 h-14 w-full overflow-hidden text-base font-bold uppercase tracking-[0.2em] disabled:opacity-40"
+            >
+              <ScanLine className="h-5 w-5 transition-transform group-hover:scale-110" />
+              Bipar e abrir sala
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+
+            <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-mint/50">
+              4 a 8 caracteres · letras + números · gerado pelo mentor
             </p>
           </div>
         </div>
-      </Reveal>
+      </motion.div>
 
-      {/* Dicas */}
-      <Reveal delay={0.24}>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { icon: KeyRound, title: "Código único", desc: "Cada estação tem um código gerado pelo mentor." },
-            { icon: DoorOpen, title: "Acesso direto", desc: "Sem cadastro extra — entre e treine na hora." },
-            { icon: Sparkles, title: "Resultado salvo", desc: "Seu desempenho fica registrado no histórico." },
-          ].map((tip, i) => (
-            <motion.div
-              key={tip.title}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -3 }}
-              className="rounded-2xl border border-border/60 bg-card/60 p-4 backdrop-blur-sm transition-colors hover:border-mint/40"
-            >
-              <tip.icon className="h-4 w-4 text-mint" />
-              <div className="mt-2 text-sm font-semibold">{tip.title}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{tip.desc}</div>
-            </motion.div>
-          ))}
-        </div>
-      </Reveal>
+      {/* rodapé telemetria */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        className="mt-4 grid grid-cols-3 gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground"
+      >
+        {[
+          { k: "código", v: "criptografado" },
+          { k: "latência", v: "< 80 ms" },
+          { k: "registro", v: "histórico auto" },
+        ].map((t) => (
+          <div key={t.k} className="rounded-lg border border-border/50 bg-card/40 px-3 py-2 text-center backdrop-blur-sm">
+            <div className="text-mint/70">{t.k}</div>
+            <div className="mt-0.5 text-foreground/70 normal-case tracking-normal">{t.v}</div>
+          </div>
+        ))}
+      </motion.div>
     </div>
   );
 }
