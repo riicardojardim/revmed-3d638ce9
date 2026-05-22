@@ -747,13 +747,13 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
           3: { cellWidth: 18, halign: "center" },
           4: { cellWidth: 18, halign: "center" },
         },
-        alternateRowStyles: { fillColor: [248, 251, 254] },
+        alternateRowStyles: { fillColor: [253, 247, 237] },
         tableWidth: w,
         willDrawCell: (data) => {
           if (data.section === "body" && data.column.index === 1) {
             const isAlt = data.row.index % 2 === 1;
             if (isAlt) {
-              setFill(doc, [248, 251, 254]);
+              setFill(doc, [253, 247, 237]);
             } else {
               setFill(doc, [255, 255, 255]);
             }
@@ -784,7 +784,7 @@ async function buildCandidatePDF(station: StationLike, items: ChecklistItem[]): 
       const total = items.reduce((s, it) => s + (it.points ?? 0), 0);
       let ty = finalY + 3;
       ty = ensureSpace(doc, ty, 8);
-      setFill(doc, [240, 246, 252]);
+      setFill(doc, [251, 235, 210]);
       doc.rect(x, ty, w, 7, "F");
       setText(doc, C_MEDICAL);
       doc.setFont("helvetica", "bold");
