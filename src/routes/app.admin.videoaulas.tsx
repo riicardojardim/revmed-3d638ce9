@@ -18,14 +18,8 @@ export const Route = createFileRoute("/app/admin/videoaulas")({
   head: () => ({ meta: [{ title: "Vídeo Aulas — Admin" }] }),
 });
 
-const SPECIALTIES = [
-  "Clínica Médica",
-  "Cirurgia",
-  "Pediatria",
-  "Ginecologia e Obstetrícia",
-  "Medicina de Família e Comunidade",
-  "Preventiva",
-];
+import { REVALIDA_SPECIALTIES } from "@/lib/specialtyMeta";
+const SPECIALTIES = REVALIDA_SPECIALTIES;
 
 type Lesson = {
   id: string;
