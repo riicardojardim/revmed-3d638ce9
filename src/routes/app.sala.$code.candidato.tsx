@@ -56,6 +56,7 @@ function CandidateView() {
   const [hideTimer, setHideTimer] = useState(false);
   const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const savedAttemptRef = useRef<string | null>(null);
