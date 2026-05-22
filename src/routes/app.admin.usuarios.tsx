@@ -386,20 +386,33 @@ function AssignPlanDialog({ open, onOpenChange, plans, onConfirm }: {
   );
 }
 
-function CreateUserDialog({ open, onOpenChange, onCreate }: {
+function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno" }: {
   open: boolean; onOpenChange: (v: boolean) => void;
-  onCreate: (p: { email: string; password: string; full_name: string; role: "aluno" | "professor" | "admin" }) => void;
+  onCreate: (p: { email: string; password: string; full_name: string; username?: string; role: "aluno" | "professor" | "admin" | "mentor" }) => void;
+  defaultRole?: "aluno" | "professor" | "admin" | "mentor";
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"aluno" | "professor" | "admin">("aluno");
+  const [username, setUsername] = useState("");
+  const [role, setRole] = useState<"aluno" | "professor" | "admin" | "mentor">(defaultRole);
+  useEffect(() => {
+    if (open) {
+      setRole(defaultRole);
+      setEmail(""); setPassword(""); setName(""); setUsername("");
+    }
+  }, [open, defaultRole]);
+  const usernameValid = !username || /^[a-z0-9._]{3,20}$/.test(username);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo usuário</DialogTitle>
-          <DialogDescription>O usuário será criado já confirmado.</DialogDescription>
+          <DialogTitle>{role === "mentor" ? "Novo mentor" : "Novo usuário"}</DialogTitle>
+          <DialogDescription>
+            {role === "mentor"
+              ? "Mentores recebem acesso completo automaticamente, sem cobrança, e não entram nas métricas de receita."
+              : "O usuário será criado já confirmado."}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <label className="block text-sm">Nome completo
@@ -408,12 +421,24 @@ function CreateUserDialog({ open, onOpenChange, onCreate }: {
           <label className="block text-sm">E-mail
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
+          <label className="block text-sm">Nome de usuário (opcional)
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().trim())}
+              placeholder="ex: dr.joao"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+            />
+            <span className={`mt-1 block text-[11px] ${usernameValid ? "text-muted-foreground" : "text-destructive"}`}>
+              3–20 caracteres · letras minúsculas, números, ponto ou underline · precisa ser único
+            </span>
+          </label>
           <label className="block text-sm">Senha temporária (mín. 8)
             <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
           <label className="block text-sm">Permissão
-            <select value={role} onChange={(e) => setRole(e.target.value as "aluno" | "professor" | "admin")} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2">
+            <select value={role} onChange={(e) => setRole(e.target.value as "aluno" | "professor" | "admin" | "mentor")} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2">
               <option value="aluno">Aluno</option>
+              <option value="mentor">Mentor (acesso completo, sem cobrança)</option>
               <option value="professor">Professor</option>
               <option value="admin">Admin</option>
             </select>
@@ -421,7 +446,11 @@ function CreateUserDialog({ open, onOpenChange, onCreate }: {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button variant="hero" onClick={() => onCreate({ email, password, full_name: name, role })} disabled={!email || password.length < 8 || !name}>
+          <Button
+            variant="hero"
+            onClick={() => onCreate({ email, password, full_name: name, username: username || undefined, role })}
+            disabled={!email || password.length < 8 || !name || !usernameValid}
+          >
             <Plus className="mr-2 h-4 w-4" /> Criar
           </Button>
         </DialogFooter>
