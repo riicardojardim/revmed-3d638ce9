@@ -337,7 +337,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
+            className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:mt-7 lg:max-w-2xl lg:text-2xl lg:leading-[1.55] xl:text-[1.65rem] xl:leading-[1.5]"
           >
             Sala ao vivo com ator-avaliador, cronômetro do INEP e
             checklist da banca — tudo num app que dá vontade de abrir
