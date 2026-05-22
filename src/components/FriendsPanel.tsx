@@ -75,7 +75,6 @@ export function FriendsPanel() {
   const { user } = useAuth();
   const online = useOnlinePresence();
   const [open, setOpen] = useState(false);
-  const [buddies, setBuddies] = useState<Buddy[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pending, setPending] = useState<PendingReq[]>([]);
   const [chat, setChat] = useState<ChatTarget | null>(null);
@@ -83,12 +82,10 @@ export function FriendsPanel() {
 
   const reload = useCallback(async () => {
     if (!user) return;
-    const [b, f, p] = await Promise.all([
-      supabase.rpc("list_station_buddies"),
+    const [f, p] = await Promise.all([
       supabase.rpc("list_my_friends"),
       supabase.rpc("list_pending_friend_requests"),
     ]);
-    if (!b.error) setBuddies((b.data as Buddy[]) ?? []);
     if (!f.error) setFriends((f.data as Friend[]) ?? []);
     if (!p.error) setPending((p.data as PendingReq[]) ?? []);
   }, [user]);
