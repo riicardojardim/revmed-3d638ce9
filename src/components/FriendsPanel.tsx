@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, MessageCircle, Send, Users, X } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Send, UserPlus, Users, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,7 @@ export function FriendsPanel() {
   const [pending, setPending] = useState<PendingReq[]>([]);
   const [chat, setChat] = useState<ChatTarget | null>(null);
   const [totalUnread, setTotalUnread] = useState(0);
+  const [showAdd, setShowAdd] = useState(false);
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -149,13 +150,19 @@ export function FriendsPanel() {
           className="fixed bottom-20 right-5 z-50 flex h-[min(560px,calc(100dvh-120px))] w-[min(360px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
         >
           {chat ? (
-          <ChatView
-            target={chat}
-            onBack={() => { setChat(null); reload(); }}
-            meId={user?.id ?? ""}
-            online={online}
-          />
-        ) : (
+            <ChatView
+              target={chat}
+              onBack={() => { setChat(null); reload(); }}
+              meId={user?.id ?? ""}
+              online={online}
+            />
+          ) : showAdd ? (
+            <AddFriendView
+              meId={user?.id ?? ""}
+              onBack={() => setShowAdd(false)}
+              onSent={() => { setShowAdd(false); reload(); }}
+            />
+          ) : (
           <>
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
@@ -171,14 +178,24 @@ export function FriendsPanel() {
               </button>
             </div>
             <Tabs defaultValue="friends" className="flex min-h-0 flex-1 flex-col">
-              <TabsList className="mx-3 mt-3 grid grid-cols-2">
-                <TabsTrigger value="friends">
-                  Amigos {friends.length ? `(${friends.length})` : ""}
-                </TabsTrigger>
-                <TabsTrigger value="pending">
-                  Pedidos {pending.length ? `(${pending.length})` : ""}
-                </TabsTrigger>
-              </TabsList>
+              <div className="mx-3 mt-3 flex items-center gap-2">
+                <TabsList className="grid grid-cols-2 flex-1">
+                  <TabsTrigger value="friends">
+                    Amigos {friends.length ? `(${friends.length})` : ""}
+                  </TabsTrigger>
+                  <TabsTrigger value="pending">
+                    Pedidos {pending.length ? `(${pending.length})` : ""}
+                  </TabsTrigger>
+                </TabsList>
+                <button
+                  type="button"
+                  onClick={() => setShowAdd(true)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                  aria-label="Adicionar amigo"
+                >
+                  <UserPlus className="h-4 w-4" />
+                </button>
+              </div>
 
               <TabsContent value="friends" className="m-0 min-h-0 flex-1">
                 <ScrollArea className="h-full">
@@ -453,6 +470,124 @@ function ChatView({
           <Send className="h-4 w-4" />
         </Button>
       </form>
+    </div>
+  );
+}
+
+function AddFriendView({
+  meId,
+  onBack,
+  onSent,
+}: {
+  meId: string;
+  onBack: () => void;
+  onSent: () => void;
+}) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [sendingTo, setSendingTo] = useState<string | null>(null);
+
+  async function doSearch() {
+    if (!q.trim()) return;
+    setSearching(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name, username, avatar_url")
+      .or(`full_name.ilike.%${q.trim()}%,username.ilike.%${q.trim()}%`)
+      .neq("id", meId)
+      .limit(20);
+    setResults(data ?? []);
+    setSearching(false);
+  }
+
+  async function sendRequest(toUserId: string) {
+    setSendingTo(toUserId);
+    const { data: existing } = await supabase
+      .from("friend_requests")
+      .select("id, status")
+      .eq("from_user", meId)
+      .eq("to_user", toUserId)
+      .in("status", ["pending", "accepted"])
+      .maybeSingle();
+    if (existing) {
+      toast(existing.status === "accepted" ? "Vocês já são amigos!" : "Pedido já enviado.");
+      setSendingTo(null);
+      return;
+    }
+    const { error } = await supabase.from("friend_requests").insert({
+      from_user: meId,
+      to_user: toUserId,
+      status: "pending",
+    });
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Pedido enviado!");
+      onSent();
+    }
+    setSendingTo(null);
+  }
+
+  const headerName = (n: string | null, u: string | null) => n || u || "Usuário";
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <UserPlus className="h-4 w-4 text-mint" /> Adicionar amigo
+        </div>
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Voltar"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="flex flex-col gap-3 p-3">
+        <form
+          className="flex gap-2"
+          onSubmit={(e) => { e.preventDefault(); doSearch(); }}
+        >
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar por nome ou usuário..."
+            className="h-9 flex-1"
+          />
+          <Button type="submit" size="sm" className="h-9" disabled={searching || !q.trim()}>
+            Buscar
+          </Button>
+        </form>
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="space-y-1">
+            {results.length === 0 && !searching && (
+              <EmptyState text="Digite algo para buscar usuários." />
+            )}
+            {results.map((r) => (
+              <Row
+                key={r.id}
+                userId={r.id}
+                name={headerName(r.full_name, r.username)}
+                avatarUrl={r.avatar_url}
+                online={false}
+                subtitle={`@${r.username || "usuário"}`}
+                action={
+                  <Button
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    disabled={sendingTo === r.id}
+                    onClick={() => sendRequest(r.id)}
+                  >
+                    <UserPlus className="mr-1 h-3 w-3" /> Adicionar
+                  </Button>
+                }
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 }
