@@ -20,6 +20,67 @@ const ITEMS = [
   { src: depoNicolas, name: "Dr. Nicolas Henrique" },
 ];
 
+const ROW_A = ITEMS.filter((_, i) => i % 2 === 0);
+const ROW_B = ITEMS.filter((_, i) => i % 2 === 1);
+
+function MarqueeRow({
+  items,
+  reverse = false,
+  duration = 40,
+}: {
+  items: typeof ITEMS;
+  reverse?: boolean;
+  duration?: number;
+}) {
+  const loop = [...items, ...items];
+  return (
+    <div
+      className="group/marquee relative overflow-hidden"
+      style={{
+        maskImage:
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+      }}
+    >
+      <div
+        className="flex w-max gap-3 sm:gap-6"
+        style={{
+          animation: `marquee-x ${duration}s linear infinite`,
+          animationDirection: reverse ? "reverse" : "normal",
+        }}
+      >
+        {loop.map((d, i) => (
+          <figure
+            key={`${d.name}-${i}`}
+            className="group relative shrink-0 w-[68vw] sm:w-[340px] lg:w-[380px]"
+          >
+            <div className="relative overflow-hidden rounded-xl border border-border/70 bg-card/40 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_30px_80px_-20px_color-mix(in_oklab,var(--primary)_30%,transparent)] sm:rounded-2xl">
+              <img
+                src={d.src}
+                alt={`Depoimento de ${d.name} — aprovado no Revalida INEP 25.1`}
+                loading={i < 4 ? "eager" : "lazy"}
+                decoding="async"
+                width={720}
+                height={900}
+                className="block w-full transition-transform duration-700 group-hover:scale-[1.02]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                style={{
+                  background:
+                    "linear-gradient(180deg, transparent 60%, color-mix(in oklab, var(--primary) 18%, transparent) 100%)",
+                }}
+              />
+            </div>
+          </figure>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Depoimentos() {
   return (
     <section id="depoimentos" className="relative py-16 md:py-32">
@@ -46,38 +107,16 @@ export function Depoimentos() {
           </p>
         </div>
 
-        <div className="mt-10 columns-2 gap-3 sm:columns-2 sm:gap-6 lg:columns-4 [column-fill:_balance] md:mt-14">
-          {ITEMS.map((d, i) => (
-            <motion.figure
-              key={d.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.55, delay: (i % 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="group mb-3 break-inside-avoid sm:mb-6"
-            >
-              <div className="relative overflow-hidden rounded-xl border border-border/70 bg-card/40 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_30px_80px_-20px_color-mix(in_oklab,var(--primary)_30%,transparent)] sm:rounded-2xl">
-                <img
-                  src={d.src}
-                  alt={`Depoimento de ${d.name} — aprovado no Revalida INEP 25.1`}
-                  loading={i < 4 ? "eager" : "lazy"}
-                  decoding="async"
-                  width={720}
-                  height={900}
-                  className="block w-full transition-transform duration-700 group-hover:scale-[1.02]"
-                />
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                  style={{
-                    background:
-                      "linear-gradient(180deg, transparent 60%, color-mix(in oklab, var(--primary) 18%, transparent) 100%)",
-                  }}
-                />
-              </div>
-            </motion.figure>
-          ))}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-10 space-y-3 sm:space-y-6 md:mt-14"
+        >
+          <MarqueeRow items={ROW_A} duration={45} />
+          <MarqueeRow items={ROW_B} duration={55} reverse />
+        </motion.div>
 
         <div className="mt-8 flex flex-col items-center gap-4 md:mt-12">
           <a
