@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, MessageCircle, Send, UserPlus, Users, X } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Send, Users, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,20 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useOnlinePresence } from "@/hooks/use-online-presence";
 import { cn } from "@/lib/utils";
-
-type Buddy = {
-  id: string;
-  full_name: string | null;
-  username: string | null;
-  avatar_url: string | null;
-  shared_rooms: number;
-  last_shared_at: string | null;
-  is_friend: boolean;
-  request_status: string | null;
-  request_id: string | null;
-  request_from: string | null;
-  unread_count: number;
-};
 
 type Friend = {
   id: string;
@@ -75,7 +61,6 @@ export function FriendsPanel() {
   const { user } = useAuth();
   const online = useOnlinePresence();
   const [open, setOpen] = useState(false);
-  const [buddies, setBuddies] = useState<Buddy[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pending, setPending] = useState<PendingReq[]>([]);
   const [chat, setChat] = useState<ChatTarget | null>(null);
@@ -83,12 +68,10 @@ export function FriendsPanel() {
 
   const reload = useCallback(async () => {
     if (!user) return;
-    const [b, f, p] = await Promise.all([
-      supabase.rpc("list_station_buddies"),
+    const [f, p] = await Promise.all([
       supabase.rpc("list_my_friends"),
       supabase.rpc("list_pending_friend_requests"),
     ]);
-    if (!b.error) setBuddies((b.data as Buddy[]) ?? []);
     if (!f.error) setFriends((f.data as Friend[]) ?? []);
     if (!p.error) setPending((p.data as PendingReq[]) ?? []);
   }, [user]);
@@ -123,15 +106,6 @@ export function FriendsPanel() {
   useEffect(() => {
     if (open) reload();
   }, [open, reload]);
-
-  async function addFriend(targetId: string) {
-    const { error } = await supabase.rpc("send_friend_request", { _to_user: targetId });
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Pedido enviado");
-      reload();
-    }
-  }
 
   async function acceptRequest(requestId: string) {
     const { error } = await supabase.rpc("accept_friend_request", { _request_id: requestId });
@@ -196,9 +170,8 @@ export function FriendsPanel() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <Tabs defaultValue="station" className="flex min-h-0 flex-1 flex-col">
-              <TabsList className="mx-3 mt-3 grid grid-cols-3">
-                <TabsTrigger value="station">Da estação</TabsTrigger>
+            <Tabs defaultValue="friends" className="flex min-h-0 flex-1 flex-col">
+              <TabsList className="mx-3 mt-3 grid grid-cols-2">
                 <TabsTrigger value="friends">
                   Amigos {friends.length ? `(${friends.length})` : ""}
                 </TabsTrigger>
@@ -206,43 +179,6 @@ export function FriendsPanel() {
                   Pedidos {pending.length ? `(${pending.length})` : ""}
                 </TabsTrigger>
               </TabsList>
-
-              <TabsContent value="station" className="m-0 min-h-0 flex-1">
-                <ScrollArea className="h-full">
-                  <div className="space-y-1 p-3">
-                    {buddies.length === 0 && (
-                      <EmptyState text="Quando você participar de uma estação, as pessoas aparecem aqui." />
-                    )}
-                    {buddies.map((b) => (
-                      <Row
-                        key={b.id}
-                        userId={b.id}
-                        name={headerName(b.full_name, b.username)}
-                        avatarUrl={b.avatar_url}
-                        online={online.has(b.id)}
-                        subtitle={`${b.shared_rooms} sala${b.shared_rooms > 1 ? "s" : ""} • ${timeAgo(b.last_shared_at)}`}
-                        unread={b.unread_count}
-                        onChat={() => setChat({ id: b.id, name: headerName(b.full_name, b.username), avatar_url: b.avatar_url })}
-                        action={
-                          b.is_friend ? (
-                            <span className="rounded-full bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint">Amigo</span>
-                          ) : b.request_status === "pending" && b.request_from === b.id ? (
-                            <Button size="sm" variant="secondary" className="h-7 px-2 text-xs" onClick={() => acceptRequest(b.request_id!)}>
-                              <Check className="mr-1 h-3 w-3" /> Aceitar
-                            </Button>
-                          ) : b.request_status === "pending" ? (
-                            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">Pendente</span>
-                          ) : (
-                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => addFriend(b.id)}>
-                              <UserPlus className="mr-1 h-3 w-3" /> Adicionar
-                            </Button>
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
 
               <TabsContent value="friends" className="m-0 min-h-0 flex-1">
                 <ScrollArea className="h-full">
