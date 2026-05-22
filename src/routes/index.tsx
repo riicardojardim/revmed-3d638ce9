@@ -281,61 +281,6 @@ function TopNav({
           )}
         </div>
       </div>
-      {menuOpen && (
-        <div className="border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
-          <div className="flex flex-col gap-1 px-5 py-4">
-            {NAV_LINKS.map((l) => (
-              <a
-                key={l.id}
-                href={`#${l.id}`}
-                onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                {l.label}
-              </a>
-            ))}
-            {isLogged ? (
-              <>
-                <Link
-                  to="/app"
-                  onClick={() => setMenuOpen(false)}
-                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  <HomeIcon className="h-4 w-4" />
-                  Início
-                </Link>
-                <Link
-                  to="/app/perfil"
-                  onClick={() => setMenuOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-center text-sm font-semibold"
-                >
-                  <UserIcon className="h-4 w-4" />
-                  Meu perfil
-                </Link>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setMenuOpen(false);
-                    await onSignOut();
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-sm font-semibold text-destructive"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sair
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setMenuOpen(false)}
-                className="mt-2 rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
-              >
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 }
