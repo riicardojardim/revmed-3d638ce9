@@ -233,6 +233,8 @@ function StationsPage() {
                       <motion.li
                         key={s.id}
                         variants={staggerItem}
+                        whileHover={{ x: 3 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 24 }}
                         className="flex min-w-0 items-center gap-2 px-3 py-3 transition-colors hover:bg-muted/40 sm:gap-3 sm:px-4"
                       >
                         <span className={cn("inline-flex h-7 min-w-7 shrink-0 items-center justify-center rounded-md px-1.5 font-mono text-[10px] font-bold", m.badge)}>
