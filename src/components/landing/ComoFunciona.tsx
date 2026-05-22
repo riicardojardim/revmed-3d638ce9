@@ -36,7 +36,7 @@ export function ComoFunciona() {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Como funciona
           </p>
-          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
             Do diagnóstico à aprovação <br />
             em <span className="text-primary">4 passos</span>.
           </h2>
@@ -96,7 +96,7 @@ export function Comparativo() {
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Comparativo
           </p>
-          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
             Estudar sozinho <span className="text-muted-foreground">vs.</span>{" "}
             <span className="text-primary">estudar com REVMED</span>
           </h2>
