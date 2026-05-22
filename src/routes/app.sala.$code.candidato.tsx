@@ -507,7 +507,12 @@ function CandidateView() {
     <>
       {introOverlay}
       {user && room && (
-        <RoomVideoCall roomCode={room.code} displayName={displayName ?? undefined} role={isSpectator ? "espectador" : "candidato"} />
+        <RoomVideoCall
+          roomCode={room.code}
+          displayName={displayName ?? undefined}
+          role={isSpectator ? "espectador" : "candidato"}
+          allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
+        />
       )}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
