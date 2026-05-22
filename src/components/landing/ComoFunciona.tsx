@@ -83,7 +83,7 @@ const COMPARISON = [
   { feature: "Cronômetro travado no servidor (não dá pra burlar)", sozinho: false, revmed: true },
   { feature: "Impressos (ECG, exame, RX) entregues em tempo real", sozinho: false, revmed: true },
   { feature: "Checklist 3 níveis com PEP igual ao INEP", sozinho: false, revmed: true },
-  { feature: "Flashcards com SM-2 (algoritmo do Anki)", sozinho: false, revmed: true },
+  { feature: "Flashcards que voltam só com o que você esquece", sozinho: false, revmed: true },
   { feature: "Nota de corte INEP comparada à sua nota", sozinho: false, revmed: true },
   { feature: "Patentes, troféus por especialidade e ranking", sozinho: false, revmed: true },
   { feature: "Comunidade ao vivo: amigos online, DMs, feed", sozinho: false, revmed: true },
