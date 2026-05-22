@@ -1378,6 +1378,13 @@ function SimuladoRunner({ id }: { id: string }) {
         </DialogContent>
       </Dialog>
     </div>
+    {sim?.roomCode && (
+      <RoomVideoCall
+        roomCode={sim.roomCode}
+        displayName={(profile?.full_name?.trim()) || user?.email || "Ator"}
+        role="ator"
+      />
+    )}
     </>
   );
 }
