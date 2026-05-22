@@ -16,8 +16,8 @@
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Treinar agora", "url": "/app/treinar", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Estações", "url": "/app/estacoes", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Treinar agora", "url": "/app/checklists", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Estações", "url": "/app", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
     { "name": "Flashcards", "url": "/app/flashcards", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }

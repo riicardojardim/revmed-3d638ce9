@@ -60,6 +60,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { useSubscription } from "@/hooks/use-subscription";
+import { PaywallGate } from "@/components/PaywallGate";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app")({
@@ -90,6 +91,21 @@ function AppLayout() {
   const isAdmin = roles.includes("admin");
   const isTeacher = roles.includes("professor") || isAdmin;
   const isCompleto = isCompletoLike;
+
+  // Rotas que exigem assinatura ativa (privileged/admin/prof passam direto via PaywallGate)
+  const PAID_PREFIXES = [
+    "/app/checklists",
+    "/app/flashcards",
+    "/app/resumos",
+    "/app/videoaulas",
+    "/app/simulacao",
+    "/app/resultado",
+    "/app/historico",
+    "/app/sala",
+    "/app/entrar",
+    "/app/aulas",
+  ];
+  const isPaidRoute = PAID_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
   // View-mode switcher (admins can preview the app as different plans).
   const VIEW_MODE_KEY = "revmed:viewMode";
@@ -412,7 +428,13 @@ function AppLayout() {
 
         <main className="relative mx-auto w-full max-w-7xl min-w-0 flex-1 overflow-x-clip px-3 pb-12 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8">
           <RouteProgress />
-          <Outlet />
+          {isPaidRoute ? (
+            <PaywallGate>
+              <Outlet />
+            </PaywallGate>
+          ) : (
+            <Outlet />
+          )}
         </main>
       </SidebarInset>
     </div>
