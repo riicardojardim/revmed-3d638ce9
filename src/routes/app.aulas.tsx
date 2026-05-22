@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { GraduationCap, Search } from "lucide-react";
 
 export const Route = createFileRoute("/app/aulas")({
@@ -15,6 +16,8 @@ const areas = [
 ];
 
 function Aulas() {
+  const [query, setQuery] = useState("");
+  const filtered = areas.filter((a) => a.name.toLowerCase().includes(query.toLowerCase().trim()));
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
@@ -25,14 +28,21 @@ function Aulas() {
       <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
         <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
           <Search className="h-4 w-4 text-muted-foreground" />
-          <input placeholder="Buscar uma aula..." className="flex-1 bg-transparent text-sm outline-none" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar uma aula..."
+            className="flex-1 bg-transparent text-sm outline-none"
+          />
         </div>
       </div>
 
       <div>
         <h2 className="font-display text-lg font-bold">Esqueletos das Grandes Áreas</h2>
         <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3">
-          {areas.map((a) => (
+          {filtered.length === 0 ? (
+            <p className="col-span-full text-sm text-muted-foreground">Nenhuma aula encontrada.</p>
+          ) : filtered.map((a) => (
             <div
               key={a.name}
               className={`group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl bg-gradient-to-br ${a.color} p-4 text-white shadow-card transition-transform hover:scale-[1.02]`}
