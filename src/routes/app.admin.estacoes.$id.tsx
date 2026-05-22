@@ -319,7 +319,7 @@ function StationEditor() {
 }
 
 function EditorBody({
-  station, items, id, saving, totalPts, up, load, saveStation, togglePublish, setStation, setItems,
+  station, items, id, saving, totalPts, up, load, saveStation, togglePublish,
 }: {
   station: Station;
   items: Item[];
@@ -330,140 +330,16 @@ function EditorBody({
   load: () => Promise<void>;
   saveStation: (opts?: { silent?: boolean }) => Promise<unknown>;
   togglePublish: () => Promise<unknown>;
-  setStation: React.Dispatch<React.SetStateAction<Station | null>>;
-  setItems: React.Dispatch<React.SetStateAction<Item[]>>;
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
-  const [aiDialogOpen, setAiDialogOpen] = useState(false);
-  const [linkedRefreshKey, setLinkedRefreshKey] = useState(0);
   return (
     <div className="space-y-6">
-      {/* PDF Import — Passo 1: importe o PDF para preencher tudo automaticamente */}
-      <PdfImportSection
-        stationId={id}
-        currentItemsCount={items.length}
-        applyResult={async (r) => {
-          if (!station) return;
-          // 1) Build merged station object
-          const mergedDeliverables = r.deliverable_materials?.length
-            ? r.deliverable_materials.map((m, i) => ({
-                id: `imp${i + 1}`,
-                name: (m.name ?? "").replace(/^\s*impresso\s*\d+\s*[-—–:.)]*\s*/i, "").trim() || (m.type ?? ""),
-                type: m.type || "Impresso",
-                description: m.description ?? "",
-                content: m.content ?? "",
-                autoDeliver: false,
-              }))
-            : station.deliverable_materials;
-          const merged: Station = {
-            ...station,
-            title: r.title || station.title,
-            specialty: r.specialty || station.specialty,
-            educational_goal: r.educational_goal ?? station.educational_goal,
-            competencies: r.competencies?.length ? r.competencies : station.competencies,
-            clinical_case: r.clinical_case ?? station.clinical_case,
-            case_description: r.case_description ?? station.case_description,
-            candidate_task: r.candidate_task ?? station.candidate_task,
-            patient_info: r.patient_info ?? station.patient_info,
-            patient_script: r.patient_script ?? station.patient_script,
-            support_materials: r.support_materials ?? station.support_materials,
-            patient_profile: r.patient_profile ?? station.patient_profile,
-            deliverable_materials: mergedDeliverables,
-            expected_conduct: r.expected_conduct ?? station.expected_conduct,
-            common_mistakes: r.common_mistakes ?? station.common_mistakes,
-            evaluator_notes: r.evaluator_notes ?? station.evaluator_notes,
-            scoring_criteria: r.scoring_criteria ?? station.scoring_criteria,
-          };
-          // 2) Persist merged station to DB FIRST (before any load())
-          setStation(merged);
-          const { error: upErr } = await supabase
-            .from("custom_stations")
-            .update({
-              title: merged.title,
-              specialty: merged.specialty,
-              educational_goal: merged.educational_goal,
-              competencies: merged.competencies,
-              clinical_case: merged.clinical_case,
-              case_description: merged.case_description,
-              candidate_task: merged.candidate_task,
-              patient_info: merged.patient_info,
-              patient_script: merged.patient_script,
-              support_materials: merged.support_materials,
-              patient_profile: merged.patient_profile as never,
-              deliverable_materials: merged.deliverable_materials as never,
-              expected_conduct: merged.expected_conduct,
-              common_mistakes: merged.common_mistakes,
-              evaluator_notes: merged.evaluator_notes,
-              scoring_criteria: merged.scoring_criteria,
-            } as never)
-            .eq("id", id);
-          if (upErr) {
-            toast.error("Falha ao salvar campos importados", { description: upErr.message });
-            return;
-          }
-          // 3) Insert checklist items
-          if (r.checklist_items?.length) {
-            const startIdx = items.length;
-            const rows = r.checklist_items.map((ci, idx) => {
-              const pts = Number(ci.points) > 0 ? Number(ci.points) : 1;
-              const { description, category } = normalizeChecklistFields(ci.description, ci.category);
-              return {
-                station_id: id,
-                description,
-                category,
-                points: pts,
-                helper_text: ci.helper_text ?? null,
-                order_index: startIdx + idx,
-                levels: ci.levels?.length ? ci.levels : defaultLevels(pts),
-              };
-            });
-            const { error } = await supabase.from("station_checklist_items").insert(rows as never);
-            if (error) toast.error("Falha ao importar checklist", { description: error.message });
-          }
-          // 4) Auto-suggest title (preserves siglas already typed)
-          try {
-            const pepDescriptions = (r.checklist_items ?? [])
-              .map((it) => (it.description ?? "").trim())
-              .filter((s) => s.length > 0);
-            const sugg = await suggestStationTitle({
-              data: {
-                currentTitle: merged.title ?? "",
-                specialty: merged.specialty ?? "",
-                clinical_case: merged.clinical_case ?? "",
-                case_description: merged.case_description ?? "",
-                candidate_task: merged.candidate_task ?? "",
-                patient_script: merged.patient_script ?? "",
-                pep_items: pepDescriptions,
-              },
-            });
-            if (sugg?.title && sugg.title.trim() && sugg.title.trim() !== merged.title?.trim()) {
-              await supabase
-                .from("custom_stations")
-                .update({ title: sugg.title.trim() } as never)
-                .eq("id", id);
-            }
-          } catch (e) {
-            console.warn("Falha ao sugerir título automaticamente", e);
-          }
-          // 5) Reload from DB (now contains everything)
-          await load();
-          toast.success("PDF importado e campos preenchidos");
-          if (r.checklist_items?.length) setAiDialogOpen(true);
-        }}
-      />
-
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link to="/app/admin/estacoes" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar para a lista
         </Link>
         <div className="flex flex-wrap gap-2">
-          <GrammarReviewButton
-            station={station as never}
-            items={items as never}
-            setStation={setStation as never}
-            setItems={setItems as never}
-          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
@@ -543,7 +419,7 @@ function EditorBody({
             materials={station.deliverable_materials}
             onChange={(m) => up("deliverable_materials", m)}
           />
-          <SectionChecklist stationId={id} items={items} reload={load} onChecklistFilled={() => setAiDialogOpen(true)} />
+          <SectionChecklist stationId={id} items={items} reload={load} />
           <SectionPedagogical station={station} up={up} />
         </>
       ) : (
@@ -556,17 +432,7 @@ function EditorBody({
         <StationLivePreview station={station} items={items} />
       </Section>
 
-      <SectionGenerateFlashcards station={station} items={items} refreshKey={linkedRefreshKey} />
-      <SectionGenerateSummary station={station} items={items} refreshKey={linkedRefreshKey} />
       <SectionPublish station={station} togglePublish={togglePublish} />
-
-      <PostChecklistAIDialog
-        open={aiDialogOpen}
-        onOpenChange={setAiDialogOpen}
-        station={station}
-        items={items}
-        onGenerated={() => setLinkedRefreshKey((k) => k + 1)}
-      />
     </div>
   );
 }
