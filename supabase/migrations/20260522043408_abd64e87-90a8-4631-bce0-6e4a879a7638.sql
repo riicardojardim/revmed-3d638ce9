@@ -1,0 +1,1 @@
+ALTER TABLE public.video_lessons ALTER COLUMN specialty DROP NOT NULL;
