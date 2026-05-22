@@ -679,12 +679,12 @@ function EvaluatorView() {
         <aside className="lg:sticky lg:top-32 lg:self-start">
           <div className="space-y-4">
             {/* Score card */}
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-6 text-white shadow-elegant">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-4 text-white shadow-elegant sm:rounded-3xl sm:p-6">
               <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-mint/20 blur-3xl" />
               <div className="relative">
                 <div className="text-[11px] font-semibold uppercase tracking-widest text-mint/90">Resultado ao vivo</div>
                 <div className="mt-1 flex items-baseline gap-2">
-                  <span className="font-display text-6xl font-bold tabular-nums">{score.toFixed(2)}</span>
+                  <span className="font-display text-5xl font-bold tabular-nums sm:text-6xl">{score.toFixed(2)}</span>
                   <span className="text-lg text-white/50">/ 10</span>
                 </div>
                 <div className="mt-1 text-xs text-white/60">
