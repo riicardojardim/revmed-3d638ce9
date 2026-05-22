@@ -1230,14 +1230,14 @@ function ActorView() {
 
                   {/* Resultado */}
                   {/* Resultado ao vivo — visível desde o início para o ator. */}
-                  <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-to-br from-night via-night to-night/80 p-5 text-white shadow-elegant">
+                  <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-to-br from-night via-night to-night/80 p-4 text-white shadow-elegant sm:p-5">
                     <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-mint/20 blur-3xl" />
                     <div className="relative">
                       <div className="text-[10px] font-semibold uppercase tracking-widest text-mint/90">
                         Resultado ao vivo
                       </div>
                       <div className="mt-1 flex items-baseline gap-2">
-                        <span className="font-display text-5xl font-bold tabular-nums">{score.toFixed(2)}</span>
+                        <span className="font-display text-4xl font-bold tabular-nums sm:text-5xl">{score.toFixed(2)}</span>
                         <span className="text-base text-white/50">/ 10</span>
                       </div>
                       <div className="mt-1 text-[11px] text-white/60">
