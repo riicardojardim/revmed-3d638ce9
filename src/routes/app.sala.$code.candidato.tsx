@@ -28,7 +28,7 @@ export const Route = createFileRoute("/app/sala/$code/candidato")({
   head: () => ({ meta: [{ title: "Estação — Candidato" }] }),
 });
 
-type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; starting_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null };
+type Room = { id: string; code: string; station_id: string; station_title: string; status: string; started_at: string | null; starting_at: string | null; duration_minutes: number | null; evaluated_candidate_id: string | null; host_id: string | null };
 type Delivery = {
   id: string;
   material_id: string;
@@ -72,7 +72,7 @@ function CandidateView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id")
+        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id, host_id")
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
@@ -137,7 +137,7 @@ function CandidateView() {
     // Fallback: polling para garantir sincronia mesmo se realtime atrasar
     const pollId = setInterval(async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id")
+        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id, host_id")
         .eq("id", room.id).maybeSingle();
       if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
       await loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
@@ -507,7 +507,12 @@ function CandidateView() {
     <>
       {introOverlay}
       {user && room && (
-        <RoomVideoCall roomCode={room.code} displayName={displayName ?? undefined} role={isSpectator ? "espectador" : "candidato"} />
+        <RoomVideoCall
+          roomCode={room.code}
+          displayName={displayName ?? undefined}
+          role={isSpectator ? "espectador" : "candidato"}
+          allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
+        />
       )}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">

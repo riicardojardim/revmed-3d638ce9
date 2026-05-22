@@ -1383,6 +1383,7 @@ function SimuladoRunner({ id }: { id: string }) {
         roomCode={sim.roomCode}
         displayName={(profile?.full_name?.trim()) || user?.email || "Ator"}
         role="ator"
+        allowedIdentities={[user?.id, evaluatedCandidateId]}
       />
     )}
     </>
