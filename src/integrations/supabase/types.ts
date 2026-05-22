@@ -224,6 +224,33 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          body: string
+          created_at: string
+          from_user: string
+          id: string
+          read_at: string | null
+          to_user: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          from_user: string
+          id?: string
+          read_at?: string | null
+          to_user: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          from_user?: string
+          id?: string
+          read_at?: string | null
+          to_user?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -1265,6 +1292,45 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      list_my_friends: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          friended_at: string
+          full_name: string
+          id: string
+          last_message_at: string
+          unread_count: number
+          username: string
+        }[]
+      }
+      list_pending_friend_requests: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          from_user: string
+          full_name: string
+          request_id: string
+          username: string
+        }[]
+      }
+      list_station_buddies: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+          is_friend: boolean
+          last_shared_at: string
+          request_from: string
+          request_id: string
+          request_status: string
+          shared_rooms: number
+          unread_count: number
+          username: string
+        }[]
       }
       lookup_login_email: { Args: { _identifier: string }; Returns: string }
       move_to_dlq: {
