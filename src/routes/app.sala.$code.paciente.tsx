@@ -1413,7 +1413,6 @@ function ActorView() {
 
 
         {/* RIGHT: control panel (timer, participantes, convite) */}
-        {(() => {
         {/* Desktop sidebar */}
         <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:self-start">
           {controlPanel}
