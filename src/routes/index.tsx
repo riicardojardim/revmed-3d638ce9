@@ -320,7 +320,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-4 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
-            A plataforma que <br />
+            Candidato, ator e banca. <br />
             <span
               style={{
                 backgroundImage:
@@ -330,9 +330,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              treina pra valer
+              Na mesma sala. Ao vivo.
             </span>{" "}
-            o Revalida.
+            Igual ao INEP.
           </motion.h1>
 
           <motion.p
@@ -341,10 +341,12 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
           >
-            Estações ao vivo com cronômetro INEP, banco gigante de checklists
-            oficiais, flashcards com revisão espaçada, resumos enxutos e
-            desempenho em tempo real. Tudo num só lugar — sem travar, mesmo com
-            todo mundo treinando junto.
+            Vídeo integrado, cronômetro sincronizado no servidor, impressos
+            (ECG, exame, RX) chegando em tempo real, checklist 3 níveis igual
+            ao da banca e PEP liberada na hora. Mais flashcards com revisão
+            espaçada (SM-2), resumos cruzados por tema, simulados, ranking,
+            patentes, troféus por especialidade e comunidade ao vivo. Tudo
+            num só lugar — sem travar.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
