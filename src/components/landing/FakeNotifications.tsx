@@ -214,16 +214,16 @@ export function UrgencyBanner() {
   if (closed) return null;
   return (
     <div className="relative z-50 bg-gradient-to-r from-primary via-[#e85d1c] to-primary text-primary-foreground pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-5 py-2 pl-[max(env(safe-area-inset-left),1.25rem)] pr-[max(env(safe-area-inset-right),1.25rem)] text-center text-xs font-semibold md:px-8 md:text-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-3 py-2 pl-[max(env(safe-area-inset-left),0.75rem)] pr-[max(env(safe-area-inset-right),0.75rem)] text-center text-[0.7rem] font-semibold md:gap-3 md:px-8 md:text-sm">
         <Sparkles className="h-3.5 w-3.5 shrink-0 animate-pulse" />
-        <span>
-          <span className="font-bold">Treine agora — </span>
-          entre numa sessão na <span className="font-bold underline underline-offset-2">plataforma mais completa</span> para revalidação
+        <span className="truncate whitespace-nowrap">
+          <span className="font-bold">Treine agora</span> na{" "}
+          <span className="font-bold underline underline-offset-2">plataforma mais completa</span> do Revalida
         </span>
         <button
           onClick={() => setClosed(true)}
           aria-label="Fechar"
-          className="ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/10"
+          className="ml-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/10 md:h-9 md:w-9"
         >
           <X className="h-4 w-4" />
         </button>
