@@ -1393,20 +1393,6 @@ function ActorView() {
             </PRBlock>
           )}
 
-          {/* Feedback */}
-          <PRBlock icon={MessageSquareWarning} title="Feedback | Erro, Dúvida ou Sugestão">
-            <p className="text-sm text-muted-foreground">
-              Encontrou algum problema ou tem sugestões sobre esta estação? Envie um feedback para a equipe.
-            </p>
-            <Button
-              variant="hero"
-              className="mt-3"
-              onClick={() => toast.success("Obrigado! Seu feedback foi registrado.")}
-            >
-              <MessageCircle className="mr-1 h-4 w-4" /> Enviar feedback
-            </Button>
-          </PRBlock>
-
           {/* (Resumo movido para a lateral como botão/modal) */}
         </div>
 
@@ -1420,6 +1406,21 @@ function ActorView() {
         {/* Mobile/tablet: stacked below PEP */}
         <div className="min-w-0 lg:hidden">
           {controlPanel}
+        </div>
+        {/* Feedback (movido para o fim da página em mobile/tablet; desktop mantém na coluna principal acima) */}
+        <div className="min-w-0 lg:col-start-1">
+          <PRBlock icon={MessageSquareWarning} title="Feedback | Erro, Dúvida ou Sugestão">
+            <p className="text-sm text-muted-foreground">
+              Encontrou algum problema ou tem sugestões sobre esta estação? Envie um feedback para a equipe.
+            </p>
+            <Button
+              variant="hero"
+              className="mt-3"
+              onClick={() => toast.success("Obrigado! Seu feedback foi registrado.")}
+            >
+              <MessageCircle className="mr-1 h-4 w-4" /> Enviar feedback
+            </Button>
+          </PRBlock>
         </div>
         {/* Mobile/tablet popup with the same controls */}
         <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
