@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight, X, Eye, Frown, Meh, Smile } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeckCover } from "./DeckCover";
@@ -14,6 +14,7 @@ type Props = {
   specialty: string;
   topic?: string | null;
   cards: Card[];
+  belowCta?: ReactNode;
 };
 
 type Step = "cover" | "play";
@@ -22,7 +23,7 @@ type Step = "cover" | "play";
  * Pré-visualização "exatamente como o aluno vê" — capa + cards (frente/verso).
  * Usa os mesmos componentes (DeckCover / FlashcardFace) da tela de estudo.
  */
-export function DeckPreview({ open, onClose, title, specialty, topic, cards }: Props) {
+export function DeckPreview({ open, onClose, title, specialty, topic, cards, belowCta }: Props) {
   const [step, setStep] = useState<Step>("cover");
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -84,6 +85,7 @@ export function DeckPreview({ open, onClose, title, specialty, topic, cards }: P
               >
                 {cards.length === 0 ? "Sem cards para visualizar" : "Iniciar Flashcard"}
               </Button>
+              {belowCta ? <div className="mt-4">{belowCta}</div> : null}
             </div>
           </div>
         )}
