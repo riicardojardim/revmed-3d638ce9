@@ -481,7 +481,7 @@ function EvaluatorView() {
           {/* === CHECKLIST PEP === */}
           {tab === "checklist" && (
             <div className="space-y-5">
-              <div className="rounded-2xl border border-indigo-300/30 bg-gradient-to-r from-indigo-50/60 to-mint/5 px-5 py-3 text-xs dark:from-indigo-950/20">
+              <div className="rounded-2xl border border-indigo-300/30 bg-gradient-to-r from-indigo-50/60 to-mint/5 px-4 py-3 text-xs dark:from-indigo-950/20 sm:px-5">
                 <div className="flex items-center gap-2 font-semibold text-indigo-700 dark:text-indigo-300">
                   <ClipboardCheck className="h-3.5 w-3.5" /> Checklist (PEP)
                 </div>
@@ -494,7 +494,7 @@ function EvaluatorView() {
 
               {grouped.map(([cat, items]) => (
                 <div key={cat} className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm">
-                  <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-indigo-50/60 to-transparent px-5 py-3 dark:from-indigo-950/30">
+                  <div className="flex items-center justify-between border-b border-border/60 bg-gradient-to-r from-indigo-50/60 to-transparent px-4 py-3 dark:from-indigo-950/30 sm:px-5">
                     <div className="flex items-center gap-2">
                       <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/10 text-[11px] font-bold text-indigo-600 dark:text-indigo-300">
                         {items.length}
@@ -510,7 +510,7 @@ function EvaluatorView() {
                       const lvl = levels[it.id];
                       return (
                         <li key={it.id} className={cn(
-                          "p-5 transition",
+                          "p-3 transition sm:p-5",
                           lvl === 1 && "bg-emerald-50/30 dark:bg-emerald-950/10",
                           lvl === 0.5 && "bg-amber-50/30 dark:bg-amber-950/10",
                           lvl === 0 && "bg-rose-50/30 dark:bg-rose-950/10",
@@ -595,7 +595,7 @@ function EvaluatorView() {
               {(station.expectedConduct || station.commonMistakes || station.scoringCriteria || station.evaluatorNotes) && (
                 <div className="overflow-hidden rounded-2xl border border-indigo-200/40 bg-gradient-to-br from-indigo-50/40 to-mint/5 dark:from-indigo-950/20">
                   <button type="button" onClick={() => setOpenAnalysis((o) => !o)}
-                    className="flex w-full items-center justify-between px-5 py-4 text-left">
+                    className="flex w-full items-center justify-between px-4 py-3 text-left sm:px-5 sm:py-4">
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-indigo-500" />
                       <span className="font-semibold">Análise da estação (gabarito da banca)</span>
@@ -603,7 +603,7 @@ function EvaluatorView() {
                     <ChevronDown className={cn("h-4 w-4 transition-transform", openAnalysis && "rotate-180")} />
                   </button>
                   {openAnalysis && (
-                    <div className="space-y-4 border-t border-indigo-200/30 px-5 py-5 text-sm">
+                    <div className="space-y-4 border-t border-indigo-200/30 px-4 py-4 text-sm sm:px-5 sm:py-5">
                       {station.expectedConduct && (
                         <InfoCard color="emerald" icon={Target} title="Conduta esperada" content={station.expectedConduct} />
                       )}
@@ -619,7 +619,7 @@ function EvaluatorView() {
               )}
 
               {station.references && station.references.length > 0 && (
-                <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
+                <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:p-5">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <BookOpen className="h-4 w-4 text-indigo-500" />
                     Referências bibliográficas
