@@ -1,19 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
-  Sparkles,
   Eye,
   EyeOff,
   Pencil,
   Trash2,
   Search,
   FileText,
-  Loader2,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
   Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,18 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
-import { generateOneSummaryByStationId } from "@/lib/summary-batch.functions";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/admin/resumos/")({
@@ -64,10 +48,7 @@ type Summary = {
   created_at: string;
 };
 
-type StationRow = { id: string; title: string; specialty: string; published: boolean };
-
 function AdminResumosPage() {
-  const generateOne = useServerFn(generateOneSummaryByStationId);
   const { user } = useAuth();
   const nav = useNavigate();
   const [creating, setCreating] = useState(false);
@@ -76,24 +57,6 @@ function AdminResumosPage() {
   const [q, setQ] = useState("");
   const [spec, setSpec] = useState("all");
   const [status, setStatus] = useState("all");
-
-  const [batchOpen, setBatchOpen] = useState(false);
-  const [stations, setStations] = useState<StationRow[]>([]);
-  const [stationSearch, setStationSearch] = useState("");
-  const [stationSpec, setStationSpec] = useState("all");
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [running, setRunning] = useState(false);
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [batchResults, setBatchResults] = useState<
-    Array<{
-      station_id: string;
-      title: string;
-      status: "ok" | "error" | "skipped";
-      message?: string;
-      verdict?: string;
-      blocking?: boolean;
-    }>
-  >([]);
 
   async function load() {
     setLoading(true);
@@ -132,23 +95,6 @@ function AdminResumosPage() {
     void load();
   }, []);
 
-  async function loadStations() {
-    const { data } = await supabase
-      .from("custom_stations")
-      .select("id, title, specialty, published")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setStations((data ?? []) as StationRow[]);
-  }
-
-  function openBatch() {
-    setSelected(new Set());
-    setBatchResults([]);
-    setProgress(null);
-    setBatchOpen(true);
-    void loadStations();
-  }
-
   async function togglePublish(s: Summary) {
     const { error } = await supabase
       .from("summaries")
@@ -176,99 +122,18 @@ function AdminResumosPage() {
     });
   }, [items, q, spec, status]);
 
-  const filteredStations = useMemo(() => {
-    return stations.filter((s) => {
-      if (stationSpec !== "all" && s.specialty !== stationSpec) return false;
-      if (stationSearch && !s.title.toLowerCase().includes(stationSearch.toLowerCase()))
-        return false;
-      return true;
-    });
-  }, [stations, stationSearch, stationSpec]);
-
-  async function runBatch() {
-    const ids = Array.from(selected);
-    if (ids.length === 0) return toast.error("Selecione ao menos uma estação.");
-    if (ids.length > 30) return toast.error("Máximo 30 estações por lote.");
-    setRunning(true);
-    setBatchResults([]);
-    setProgress({ done: 0, total: ids.length });
-    const titleById = new Map(stations.map((s) => [s.id, s.title]));
-
-    type BR = {
-      station_id: string;
-      title: string;
-      status: "ok" | "error" | "skipped";
-      message?: string;
-      verdict?: string;
-      blocking?: boolean;
-    };
-    const results: BR[] = [];
-
-    // Um por vez para evitar saturar a IA e reduzir timeouts em estações longas.
-    const CONCURRENCY = 1;
-    let cursor = 0;
-    let doneCount = 0;
-    async function worker() {
-      while (true) {
-        const idx = cursor++;
-        if (idx >= ids.length) return;
-        const id = ids[idx];
-        const title = titleById.get(id) ?? id.slice(0, 8);
-        try {
-          const out = await generateOne({ data: { station_id: id } });
-          results.push({
-            station_id: id,
-            title,
-            status: "ok",
-            verdict: out.verdict,
-            blocking: out.blocking,
-          });
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          const isSkip = /checklist|PEP/i.test(msg);
-          results.push({
-            station_id: id,
-            title,
-            status: isSkip ? "skipped" : "error",
-            message: msg.slice(0, 240),
-          });
-        } finally {
-          doneCount++;
-          setProgress({ done: doneCount, total: ids.length });
-          setBatchResults([...results]);
-        }
-      }
-    }
-
-    try {
-      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, ids.length) }, () => worker()));
-      const ok = results.filter((r) => r.status === "ok").length;
-      const errors = results.filter((r) => r.status === "error").length;
-      const skipped = results.filter((r) => r.status === "skipped").length;
-      toast.success(
-        `Lote concluído: ${ok}/${ids.length} gerados${errors ? ` · ${errors} falha(s)` : ""}${skipped ? ` · ${skipped} sem PEP` : ""}.`,
-      );
-      void load();
-    } finally {
-      setRunning(false);
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold">Resumos clínicos</h2>
           <p className="text-sm text-muted-foreground">
-            Gere resumos a partir das estações, edite, publique e mantenha a curadoria.
+            Crie, edite e publique resumos manualmente.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={createNew} disabled={creating}>
+          <Button variant="hero" onClick={createNew} disabled={creating}>
             <Plus className="h-4 w-4" /> {creating ? "Criando..." : "Novo resumo"}
-          </Button>
-          <Button variant="hero" onClick={openBatch}>
-            <Sparkles className="h-4 w-4" /> Gerar em lote
           </Button>
         </div>
       </div>
@@ -315,7 +180,7 @@ function AdminResumosPage() {
           <FileText className="mx-auto h-10 w-10 text-mint" />
           <h3 className="mt-3 font-display text-lg font-semibold">Nenhum resumo ainda</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use “Gerar em lote” para criar resumos a partir das estações publicadas.
+            Clique em “Novo resumo” para começar.
           </p>
         </div>
       ) : (
@@ -366,165 +231,6 @@ function AdminResumosPage() {
           ))}
         </div>
       )}
-
-      <Dialog open={batchOpen} onOpenChange={(o) => !running && setBatchOpen(o)}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-mint" /> Gerar resumos em lote
-            </DialogTitle>
-            <DialogDescription>
-              Selecione as estações. Cada resumo é gerado por IA, validado e salvo como rascunho.
-            </DialogDescription>
-          </DialogHeader>
-
-          {batchResults.length === 0 ? (
-            <>
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="relative flex-1 min-w-[200px]">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    className="pl-8"
-                    placeholder="Buscar estação..."
-                    value={stationSearch}
-                    onChange={(e) => setStationSearch(e.target.value)}
-                  />
-                </div>
-                <Select value={stationSpec} onValueChange={setStationSpec}>
-                  <SelectTrigger className="w-[220px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas as áreas</SelectItem>
-                    {SPECIALTIES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                <span>{selected.size} selecionada(s) · máx. 30 por lote</span>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="text-medical hover:underline"
-                    onClick={() => {
-                      const next = new Set(selected);
-                      filteredStations.slice(0, 30).forEach((s) => next.add(s.id));
-                      setSelected(next);
-                    }}
-                  >
-                    Selecionar visíveis
-                  </button>
-                  <button
-                    type="button"
-                    className="text-muted-foreground hover:underline"
-                    onClick={() => setSelected(new Set())}
-                  >
-                    Limpar
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-2 max-h-[360px] overflow-y-auto rounded-lg border border-border">
-                {filteredStations.length === 0 ? (
-                  <div className="p-6 text-center text-sm text-muted-foreground">
-                    Nenhuma estação encontrada.
-                  </div>
-                ) : (
-                  filteredStations.map((s) => {
-                    const checked = selected.has(s.id);
-                    return (
-                      <label
-                        key={s.id}
-                        className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-muted/40"
-                      >
-                        <Checkbox
-                          checked={checked}
-                          onCheckedChange={(v) => {
-                            const next = new Set(selected);
-                            if (v) next.add(s.id);
-                            else next.delete(s.id);
-                            setSelected(next);
-                          }}
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium">{s.title}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {s.specialty} · {s.published ? "Publicada" : "Rascunho"}
-                          </div>
-                        </div>
-                      </label>
-                    );
-                  })
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="max-h-[420px] space-y-2 overflow-y-auto">
-              {batchResults.map((r) => (
-                <div
-                  key={r.station_id}
-                  className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
-                >
-                  {r.status === "ok" ? (
-                    r.blocking ? (
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-                    ) : (
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                    )
-                  ) : r.status === "skipped" ? (
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-                  ) : (
-                    <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{r.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {r.status === "ok"
-                        ? `Gerado${r.blocking ? " · requer revisão antes de publicar" : ""}`
-                        : (r.message ?? r.status)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <DialogFooter className="flex items-center justify-between gap-2">
-            {running && progress ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Gerando lote... isso pode levar alguns
-                minutos.
-              </div>
-            ) : (
-              <span />
-            )}
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setBatchOpen(false)} disabled={running}>
-                {batchResults.length > 0 ? "Fechar" : "Cancelar"}
-              </Button>
-              {batchResults.length === 0 && (
-                <Button variant="hero" onClick={runBatch} disabled={running || selected.size === 0}>
-                  {running ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Gerando...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4" /> Gerar{" "}
-                      {selected.size > 0 ? `(${selected.size})` : ""}
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
