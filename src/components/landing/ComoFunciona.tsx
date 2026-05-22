@@ -79,12 +79,14 @@ export function ComoFunciona() {
 import { X, Check } from "lucide-react";
 
 const COMPARISON = [
-  { feature: "Cronograma feito por você", sozinho: false, revmed: true },
-  { feature: "Estudo do que realmente cai no INEP", sozinho: false, revmed: true },
-  { feature: "Simulação com cronômetro e ator", sozinho: false, revmed: true },
-  { feature: "Correção objetiva por critério", sozinho: false, revmed: true },
-  { feature: "Mentor acompanhando toda semana", sozinho: false, revmed: true },
-  { feature: "Acompanhamento psicológico", sozinho: false, revmed: true },
+  { feature: "Sala ao vivo com vídeo (candidato + ator + banca)", sozinho: false, revmed: true },
+  { feature: "Cronômetro travado no servidor (não dá pra burlar)", sozinho: false, revmed: true },
+  { feature: "Impressos (ECG, exame, RX) entregues em tempo real", sozinho: false, revmed: true },
+  { feature: "Checklist 3 níveis com PEP igual à da banca", sozinho: false, revmed: true },
+  { feature: "Flashcards com SM-2 (algoritmo do Anki)", sozinho: false, revmed: true },
+  { feature: "Nota de corte INEP comparada à sua nota", sozinho: false, revmed: true },
+  { feature: "Patentes, troféus por especialidade e ranking", sozinho: false, revmed: true },
+  { feature: "Comunidade ao vivo: amigos online, DMs, feed", sozinho: false, revmed: true },
   { feature: "Ansiedade até a véspera da prova", sozinho: true, revmed: false },
 ];
 
