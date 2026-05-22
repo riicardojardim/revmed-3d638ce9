@@ -41,6 +41,7 @@ import {
   Headphones,
   ShieldCheck,
   Video,
+  Users2,
 } from "lucide-react";
 import {
   Sidebar,
