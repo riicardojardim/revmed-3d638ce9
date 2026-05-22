@@ -310,7 +310,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-primary md:px-3 md:py-1.5 md:text-xs md:tracking-[0.18em]"
           >
             <Flame className="h-3.5 w-3.5" />
-            Plataforma oficial • Revalida INEP
+            Plataforma de treino • Revalida INEP
           </motion.div>
 
           <motion.h1
