@@ -629,17 +629,17 @@ const PILLARS = [
 
 function Manifesto() {
   return (
-    <section id="manifesto" className="relative py-16 md:py-32">
+    <section id="manifesto" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="grid gap-8 md:gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Método
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Aprovação não é sorte. É <em className="not-italic text-primary">método</em>.
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
+            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-base lg:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
               treinou certo. A REVMED foi feita pra você praticar conduta,
               marcar checklist como banca e medir o próprio progresso, no
@@ -683,53 +683,53 @@ function Manifesto() {
 
 function Plataforma() {
   return (
-    <section id="plataforma" className="relative py-16 md:py-32">
+    <section id="plataforma" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4 md:gap-6">
           <div className="max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Plataforma
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Estação, checklist, flashcard e resumo. Num só lugar.
             </h2>
           </div>
-          <p className="max-w-md text-sm text-muted-foreground md:text-base">
+          <p className="max-w-md text-sm text-muted-foreground md:text-[0.95rem] lg:text-base">
             Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
             sem travar. Tudo integrado ao seu painel de desempenho, com
             histórico, tempo médio e nota por critério.
           </p>
         </div>
 
-        <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-6 md:gap-4">
+        <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-2 md:gap-4 lg:grid-cols-6">
           <FeatureCard
-            className="md:col-span-4"
+            className="md:col-span-2 lg:col-span-4"
             tag="Estação"
             title="Sala ao vivo com cronômetro INEP"
             desc="Candidato, ator e avaliador na mesma sala — 10 minutos, impressos, roteiro padronizado. Roda estável mesmo com a turma toda treinando junto."
             accent="primary"
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-2 lg:col-span-2"
             tag="Checklist"
             title="Pontuação igual à da banca"
             desc="Marque critério por critério, no mesmo modelo do INEP."
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-1 lg:col-span-2"
             tag="Flashcards"
             title="Revisão espaçada por área"
             desc="Centenas de cards prontos. Você só revisa o que tá perdendo."
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-1 lg:col-span-2"
             tag="Resumos"
             title="Resumos curtos, do jeito que cai"
             desc="Sem manual de 800 páginas. Só o que vira ponto na prova."
             accent="mint"
           />
           <FeatureCard
-            className="md:col-span-2"
+            className="md:col-span-2 lg:col-span-2"
             tag="Desempenho"
             title="Painel com nota, tempo e evolução"
             desc="Acompanhe sua média por estação, área e critério em tempo real."
