@@ -44,6 +44,7 @@ import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 import { FlashcardsPerformanceCard } from "@/components/FlashcardsPerformanceCard";
+import { OnlineFriendsCard, CommunityFeedCard } from "@/components/DashboardSocialCards";
 import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
 
@@ -318,6 +319,12 @@ function Dashboard() {
           <InsigniaCard bySpec={stats.bySpec} />
           <RecommendationCard rec={recommendation} />
           <FlashcardsPerformanceCard />
+        </motion.section>
+
+        {/* ============ ROW 3: SOCIAL (AMIGOS ONLINE + COMUNIDADE) ============ */}
+        <motion.section variants={staggerItem} className="grid gap-4 lg:grid-cols-[1fr_2fr]">
+          <OnlineFriendsCard />
+          <CommunityFeedCard />
         </motion.section>
 
         {/* ============ DESEMPENHO POR EIXO ============ */}
