@@ -252,25 +252,30 @@ function Dashboard() {
                 Painel · {todayLabel}
               </div>
               <div>
-                <h1 className="font-display text-[1.75rem] font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
-                  {salutation},<br />
-                  <span className="text-medical">{greetingName}.</span>
+                <h1 className="font-display text-[1.35rem] font-bold leading-[1.1] tracking-tight sm:text-5xl sm:leading-[1.05] md:text-6xl">
+                  <span className="sm:hidden">
+                    {salutation}, <span className="text-medical">{greetingName}.</span>
+                  </span>
+                  <span className="hidden sm:inline">
+                    {salutation},<br />
+                    <span className="text-medical">{greetingName}.</span>
+                  </span>
                 </h1>
                 <p className="mt-3 max-w-md text-[0.8rem] leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
                   Sua bancada particular de treino para o Revalida — sem firula, com método.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="flex flex-nowrap items-stretch gap-2 sm:flex-wrap sm:gap-3">
                 <Link
                   to="/app/checklists"
-                  className="group inline-flex items-center gap-2 rounded-full bg-medical px-4 py-2 text-[0.8rem] font-semibold text-night transition-all hover:shadow-glow sm:px-5 sm:py-2.5 sm:text-sm"
+                  className="group inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-medical px-3 py-2 text-[0.72rem] font-semibold text-night transition-all hover:shadow-glow sm:flex-none sm:px-5 sm:py-2.5 sm:text-sm"
                 >
                   Começar treino agora
-                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  <ArrowUpRight className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
                 </Link>
                 <Link
                   to="/app/progresso"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-[0.8rem] font-medium text-muted-foreground transition-colors hover:border-medical hover:text-foreground sm:px-4 sm:py-2.5 sm:text-sm"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-border px-3 py-2 text-[0.72rem] font-medium text-muted-foreground transition-colors hover:border-medical hover:text-foreground sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
                 >
                   Ver progresso detalhado
                 </Link>
