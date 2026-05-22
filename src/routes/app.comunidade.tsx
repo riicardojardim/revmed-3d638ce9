@@ -481,7 +481,9 @@ function PostCard({
             </Button>
           </div>
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </Card>
   );
 }
