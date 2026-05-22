@@ -24,7 +24,7 @@ type Lesson = {
   cover_image_url: string | null;
 };
 
-import { REVALIDA_SPECIALTIES } from "@/lib/specialtyMeta";
+import { REVALIDA_SPECIALTIES, specialtyRank } from "@/lib/specialtyMeta";
 const SPECIALTIES = REVALIDA_SPECIALTIES;
 
 function VideoAulas() {
@@ -52,7 +52,7 @@ function VideoAulas() {
       if (spec !== "all" && l.specialty !== spec) return false;
       if (q.trim() && !`${l.title} ${l.topic ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
       return true;
-    });
+    }).sort((a, b) => specialtyRank(a.specialty) - specialtyRank(b.specialty));
   }, [items, q, spec]);
 
   return (
