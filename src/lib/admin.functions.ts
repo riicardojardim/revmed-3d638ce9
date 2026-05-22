@@ -23,7 +23,7 @@ async function getInternalUserIds(): Promise<Set<string>> {
   const { data } = await supabaseAdmin
     .from("user_roles")
     .select("user_id, role")
-    .in("role", INTERNAL_ROLES as unknown as string[]);
+    .in("role", [...INTERNAL_ROLES]);
   return new Set((data ?? []).map((r) => r.user_id));
 }
 
