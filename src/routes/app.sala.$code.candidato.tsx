@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
 import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
-import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
@@ -43,8 +42,6 @@ type Delivery = {
 function CandidateView() {
   const { code } = Route.useParams();
   const { user, profile } = useAuth();
-  const { settings } = useSiteSettings();
-  const introVariant = (settings?.intro_animation_variant === "badge" ? "badge" : "pulse") as "pulse" | "badge";
   const nav = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
@@ -415,7 +412,6 @@ function CandidateView() {
   // Overlay institucional de entrada (3..2..1) — renderizado COMO OVERLAY.
   const introOverlay = showIntro && user ? (
     <IntroOverlay
-      variant={introVariant}
       role={"candidato" as IntroRole}
       stationTitle={room.station_title ?? station.title}
       specialty={station.specialty}
