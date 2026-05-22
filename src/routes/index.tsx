@@ -1141,15 +1141,23 @@ const FAQS = [
   },
   {
     q: "A sala ao vivo trava com muita gente junto?",
-    a: "Não. A sala foi feita pra rodar estável com várias estações acontecendo ao mesmo tempo — candidato, ator e avaliador na mesma chamada, com cronômetro INEP.",
+    a: "Não. A chamada de vídeo roda em LiveKit (mesma stack usada por plataformas de telemedicina) e o cronômetro é sincronizado no servidor — todo mundo vê o mesmo tempo, mesmo com a turma inteira treinando ao mesmo tempo.",
+  },
+  {
+    q: "Como funciona o checklist da estação?",
+    a: "Igual ao do INEP: 3 níveis (adequado, parcial, inadequado) marcados pela banca enquanto a estação acontece. Quando o cronômetro fecha, a PEP é liberada na hora pro candidato — com nota por critério e tempo gasto.",
+  },
+  {
+    q: "Os flashcards usam qual método?",
+    a: "SM-2 — o mesmo algoritmo de revisão espaçada do Anki. Cada deck tem dashboard de desempenho por área e pode ser gerado a partir da estação que você acabou de fazer. Você só revisa o que tá esquecendo.",
+  },
+  {
+    q: "Tem comunidade e gamificação?",
+    a: "Tem. Você vê amigos online em tempo real, troca DM, chama pra estação direto do chat, posta caso no feed da comunidade e recebe convite por notificação. Tem ainda patentes (Interno a Mestre), troféus por especialidade, ranking e heatmap de 84 dias com streak.",
   },
   {
     q: "Preciso entrar na mentoria pra usar a plataforma?",
-    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a checklists, flashcards, simulados cronometrados, resumos e painel de desempenho — sem precisar de mentor.",
-  },
-  {
-    q: "Consigo acompanhar meu desempenho?",
-    a: "Sim. Tudo que você faz na plataforma vira número no seu painel — nota por critério, tempo médio por estação, evolução por área e histórico completo de simulações.",
+    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards SM-2, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
   },
   {
     q: "Tem garantia?",
@@ -1157,7 +1165,7 @@ const FAQS = [
   },
   {
     q: "Funciona no celular?",
-    a: "Funciona em qualquer tela. A plataforma é PWA — você instala no celular e revisa flashcard e resumo em qualquer lugar.",
+    a: "Funciona em qualquer tela. A plataforma é PWA — você instala no celular e revisa flashcard, resumo e até entra na sala em qualquer lugar.",
   },
 ];
 
