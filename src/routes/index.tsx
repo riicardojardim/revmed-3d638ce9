@@ -839,19 +839,19 @@ const MENTORIA_BENEFITS = [
 
 function Mentoria() {
   return (
-    <section id="mentoria" className="relative py-16 md:py-32">
+    <section id="mentoria" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="grid items-stretch gap-8 md:gap-10 lg:grid-cols-12">
           <div className="text-center lg:col-span-5 lg:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Quer alguém <br />
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-lg lg:mx-0 lg:max-w-none">
+            <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
@@ -866,7 +866,7 @@ function Mentoria() {
             </Link>
           </div>
           <div className="relative lg:col-span-7">
-            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:rounded-[2rem] sm:p-8 md:p-10">
+            <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-primary/40 bg-gradient-to-br from-primary/10 via-card to-card p-6 sm:rounded-[2rem] sm:p-8 md:p-8 lg:p-10">
               <div
                 aria-hidden
                 className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl"
@@ -875,7 +875,7 @@ function Mentoria() {
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
-                <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-4xl">
+                <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-3xl lg:text-4xl">
                   O que vem na mentoria
                 </h3>
                 <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
