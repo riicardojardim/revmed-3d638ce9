@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { listInternalUserIdsAdmin } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -30,13 +32,17 @@ function AdminPayments() {
   const [plans, setPlans] = useState<PlanRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [internalIds, setInternalIds] = useState<Set<string>>(new Set());
+  const fetchInternalIds = useServerFn(listInternalUserIdsAdmin);
 
   const load = async () => {
     setLoading(true);
-    const [{ data: subData }, { data: planData }] = await Promise.all([
+    const [{ data: subData }, { data: planData }, internalRes] = await Promise.all([
       supabase.from("user_subscriptions").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("plans").select("id, name, slug, price_cents").order("price_cents"),
+      fetchInternalIds().catch(() => ({ ids: [] as string[] })),
     ]);
+    setInternalIds(new Set(internalRes?.ids ?? []));
     const ids = Array.from(new Set((subData ?? []).map((s: any) => s.user_id)));
     let profileMap = new Map<string, any>();
     if (ids.length) {
@@ -52,8 +58,12 @@ function AdminPayments() {
 
   const planById = new Map(plans.map((p) => [p.id, p]));
 
-  const activeSubs = subs.filter((s) => s.status === "active" || s.status === "trialing");
-  const mrr = activeSubs.reduce((acc, s) => acc + (planById.get(s.plan_id)?.price_cents ?? 0), 0);
+  // Métricas: ignoram contas internas (admin / professor / mentor)
+  const externalSubs = subs.filter((s) => !internalIds.has(s.user_id));
+  const activeSubs = externalSubs.filter((s) => s.status === "active" || s.status === "trialing");
+  const mrr = activeSubs
+    .filter((s) => (planById.get(s.plan_id)?.price_cents ?? 0) > 0)
+    .reduce((acc, s) => acc + (planById.get(s.plan_id)?.price_cents ?? 0), 0);
   const paidActive = activeSubs.filter((s) => (planById.get(s.plan_id)?.price_cents ?? 0) > 0).length;
 
   const filtered = subs.filter((s) => {
