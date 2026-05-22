@@ -59,15 +59,15 @@ function SimulationPage() {
   const finished = remaining === 0;
 
   const totalPoints = useMemo(
-    () => station.checklist.reduce((s, i) => s + i.points, 0),
+    () => station?.checklist.reduce((s, i) => s + i.points, 0) ?? 0,
     [station],
   );
   const earned = useMemo(
     () =>
-      station.checklist.reduce(
+      station?.checklist.reduce(
         (s, i) => s + (checked[i.id] ? i.points : 0),
         0,
-      ),
+      ) ?? 0,
     [checked, station],
   );
 
@@ -107,6 +107,18 @@ function SimulationPage() {
     } else {
       nav({ to: `/app/resultado/${station.id}` });
     }
+  }
+
+  if (!station) {
+    return (
+      <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-8 text-center">
+        <h1 className="font-display text-xl font-bold">Estação não encontrada</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Esta estação não existe ou foi removida.</p>
+        <Link to="/app/checklists" className="mt-4 inline-block text-sm text-mint underline">
+          Voltar à biblioteca
+        </Link>
+      </div>
+    );
   }
 
   return (
