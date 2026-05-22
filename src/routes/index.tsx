@@ -615,23 +615,23 @@ const PILLARS = [
   {
     n: "01",
     icon: Target,
-    title: "Treine de verdade.",
+    title: "Sala igual à da prova.",
     body:
-      "Estação ao vivo, ator do outro lado, cronômetro do INEP rodando. Você não simula no papel — você executa, do mesmo jeito que vai fazer na prova.",
+      "Candidato, ator e avaliador na mesma chamada de vídeo. Cronômetro travado no servidor, impressos entregues em tempo real e checklist 3 níveis (adequado, parcial, inadequado) liberado pela banca igual ao INEP.",
   },
   {
     n: "02",
     icon: Compass,
-    title: "Veja onde está.",
+    title: "Sabe sua nota de corte.",
     body:
-      "Cada checklist, flashcard e estação vira número no seu painel de desempenho. Você sabe exatamente em qual área está perdendo ponto — e onde já é prova.",
+      "Cada estação, flashcard e simulado vira número: PEP por critério, nota de corte do Revalida 25.2, evolução por área, tempo médio e histórico completo. Você sabe se hoje passaria.",
   },
   {
     n: "03",
     icon: Layers,
-    title: "Repetição que cura.",
+    title: "Repetição com SM-2.",
     body:
-      "Checklist, flashcard e simulado cronometrado em looping. Nada de revisar uma vez e esquecer — você ensaia até a conduta sair em automático.",
+      "Flashcards com revisão espaçada (algoritmo SM-2) só te trazem o que você está esquecendo. Resumos cruzados por tema te levam direto do card pro conteúdo. Patente e troféu por especialidade pra você ver o que falta.",
   },
 ];
 
