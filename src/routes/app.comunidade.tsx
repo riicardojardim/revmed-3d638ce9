@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Heart, MessageCircle, Send, Trash2, Users2, Image as ImageIcon, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -20,6 +20,10 @@ import { STAGGER } from "@/lib/stagger";
 export const Route = createFileRoute("/app/comunidade")({
   component: ComunidadePage,
 });
+
+// Cache em memória do feed — sobrevive entre navegações dentro da mesma sessão
+// para que ao voltar para a página o feed apareça instantâneo (sem "Carregando…").
+const feedCache: { posts: Post[] } = { posts: [] };
 
 type Profile = { id: string; full_name: string | null; username: string | null; avatar_url: string | null };
 type Comment = {
@@ -45,16 +49,19 @@ type Post = {
 
 function ComunidadePage() {
   const { user, profile } = useAuth();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Cache em memória entre navegações para feed aparecer instantâneo ao voltar.
+  const [posts, setPosts] = useState<Post[]>(() => feedCache.posts);
+  const [loading, setLoading] = useState(() => feedCache.posts.length === 0);
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [showImage, setShowImage] = useState(false);
   const [posting, setPosting] = useState(false);
+  const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
     if (!user) return;
-    setLoading(true);
+    // Só mostra "Carregando…" no primeiro fetch — refetches são silenciosos.
+    setLoading((prev) => (posts.length === 0 ? true : prev));
     const { data: rawPosts, error } = await supabase
       .from("community_posts")
       .select("*")
@@ -96,17 +103,26 @@ function ComunidadePage() {
       commentsByPost.set(c.post_id, (commentsByPost.get(c.post_id) ?? 0) + 1);
     });
 
-    setPosts(
-      list.map((p: any) => ({
-        ...p,
-        author: profileMap.get(p.author_id),
-        likes_count: likesByPost.get(p.id)?.count ?? 0,
-        liked_by_me: likesByPost.get(p.id)?.liked ?? false,
-        comments_count: commentsByPost.get(p.id) ?? 0,
-      })),
-    );
+    const next = list.map((p: any) => ({
+      ...p,
+      author: profileMap.get(p.author_id),
+      likes_count: likesByPost.get(p.id)?.count ?? 0,
+      liked_by_me: likesByPost.get(p.id)?.liked ?? false,
+      comments_count: commentsByPost.get(p.id) ?? 0,
+    })) as Post[];
+    feedCache.posts = next;
+    setPosts(next);
     setLoading(false);
-  }, [user]);
+  }, [user, posts.length]);
+
+  // Debounce de reloads disparados por realtime — evita refetch em rajada.
+  const scheduleReload = useCallback(() => {
+    if (reloadTimer.current) clearTimeout(reloadTimer.current);
+    reloadTimer.current = setTimeout(() => {
+      reloadTimer.current = null;
+      load();
+    }, 600);
+  }, [load]);
 
   useEffect(() => {
     load();
@@ -115,14 +131,15 @@ function ComunidadePage() {
   useEffect(() => {
     const ch = supabase
       .channel("community-feed")
-      .on("postgres_changes", { event: "*", schema: "public", table: "community_posts" }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "community_post_likes" }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "community_post_comments" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_posts" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_post_likes" }, scheduleReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_post_comments" }, scheduleReload)
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
+      if (reloadTimer.current) clearTimeout(reloadTimer.current);
     };
-  }, [load]);
+  }, [scheduleReload]);
 
   async function createPost() {
     if (!user) return;
