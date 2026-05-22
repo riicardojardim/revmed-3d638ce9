@@ -61,7 +61,7 @@ export function RoomVideoCall({ roomCode, displayName, role, position = "bottom-
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-mint opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-mint" />
         </span>
-        <Video className="h-4 w-4" /> Iniciar vídeo
+        <Video className="h-4 w-4" /> Call
       </button>
     );
   }
@@ -76,7 +76,7 @@ export function RoomVideoCall({ roomCode, displayName, role, position = "bottom-
     >
       <header className="flex items-center justify-between gap-2 border-b border-white/10 px-3 py-2 text-xs">
         <span className="inline-flex items-center gap-2 font-semibold uppercase tracking-wider text-mint">
-          <Video className="h-3.5 w-3.5" /> Vídeo da estação
+          <Video className="h-3.5 w-3.5" /> Call
         </span>
         <div className="flex items-center gap-1">
           <Button size="icon" variant="ghost" className="h-7 w-7 text-white/80 hover:bg-white/10" onClick={() => setMinimized((m) => !m)} aria-label={minimized ? "Expandir" : "Minimizar"}>
