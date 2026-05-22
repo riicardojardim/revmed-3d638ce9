@@ -312,8 +312,6 @@ function StationEditor() {
       load={load}
       saveStation={saveStation}
       togglePublish={togglePublish}
-      setStation={setStation}
-      setItems={setItems}
     />
   );
 }
@@ -772,8 +770,6 @@ function SectionChecklist({ stationId, items, reload, onChecklistFilled }: { sta
           onChange={(e) => setDraft({ ...draft, points: Number(e.target.value) })} />
         <Button type="submit" variant="hero"><Plus className="h-4 w-4" /> Adicionar</Button>
       </form>
-
-      <ChecklistBulkImport stationId={stationId} currentCount={items.length} reload={reload} onFilled={onChecklistFilled} />
 
       <div className="text-xs text-muted-foreground">
         {items.length} itens · {totalPts.toFixed(2)} pts totais
