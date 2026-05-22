@@ -981,21 +981,21 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
   return (
     <section
       id="investimento"
-      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             Planos
           </p>
-          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl">
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
             Escolha como você quer treinar.
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-lg">
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
             Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
           </p>
         </div>
-        <div className="mt-10 grid gap-5 md:mt-14 md:gap-7 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
           {PLANS.map((p, idx) => {
             const Icon = p.icon;
             return (
@@ -1005,7 +1005,7 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-8 md:p-9 ${
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 ${
                   p.highlight
                     ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
                     : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
@@ -1043,8 +1043,8 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                     {p.desc}
                   </p>
 
-                  <div className="mt-5 flex items-end gap-1.5 sm:mt-6">
-                    <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-5xl">
+                  <div className="mt-5 flex flex-wrap items-end gap-1.5 sm:mt-6">
+                    <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-4xl lg:text-5xl">
                       {p.price}
                     </span>
                     {p.cadence && (
