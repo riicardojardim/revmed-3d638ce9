@@ -1227,9 +1227,9 @@ function Footer() {
   return (
     <footer className="border-t border-border bg-card/30 pt-12 pb-8">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="flex flex-col items-center gap-10 text-center md:flex-row md:items-start md:justify-between md:text-left">
+        <div className="grid gap-10 text-center md:grid-cols-3 md:items-start md:gap-8 md:text-left">
           {/* brand */}
-          <div className="flex flex-col items-center gap-3 md:items-start">
+          <div className="flex flex-col items-center gap-3 md:items-start md:col-span-3 lg:col-span-1">
             <Logo />
             <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
               A plataforma de prática do candidato Revalida INEP — estações,
@@ -1238,7 +1238,7 @@ function Footer() {
           </div>
 
           {/* contact */}
-          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground md:items-start">
+          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground md:items-start md:col-span-2 lg:col-span-1">
             <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
               Contato
             </p>
@@ -1266,7 +1266,7 @@ function Footer() {
           </div>
 
           {/* links */}
-          <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:items-end">
+          <div className="flex flex-col items-center gap-4 text-sm text-muted-foreground md:col-span-1 md:items-start lg:items-end">
             <p className="text-xs font-semibold uppercase tracking-widest text-foreground">
               Plataforma
             </p>
