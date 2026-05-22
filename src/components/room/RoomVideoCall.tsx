@@ -10,7 +10,7 @@ import {
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import "@livekit/components-styles";
-import { Video, X, Minimize2, Maximize2, GripVertical } from "lucide-react";
+import { Video, X, Minimize2, Maximize2, GripVertical, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getLivekitToken } from "@/lib/livekit.functions";
@@ -140,7 +140,15 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }
       >
         <span className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-wider text-mint">
           <GripVertical className="h-3 w-3 opacity-60" />
-          <Video className="h-3 w-3" /> Call
+          {minimized ? (
+            <span className="relative inline-flex items-center">
+              <span className="absolute -left-1 -top-1 inline-flex h-4 w-4 animate-ping rounded-full bg-mint/50" />
+              <Mic className="relative h-3 w-3 text-mint" />
+            </span>
+          ) : (
+            <Video className="h-3 w-3" />
+          )}
+          {minimized ? "Ao vivo" : "Call"}
         </span>
         <div className="flex items-center gap-0.5">
           <Button
