@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as LoginRouteImport } from './routes/login'
@@ -72,6 +73,11 @@ import { Route as AppAdminResumosIdRouteImport } from './routes/app.admin.resumo
 import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
 
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
@@ -454,6 +461,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
   '/app/comunidade': typeof AppComunidadeRoute
@@ -513,6 +521,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacidade'
     | '/reset-password'
+    | '/termos'
     | '/app/admin'
     | '/app/aulas'
     | '/app/checklists'
@@ -642,6 +652,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacidade'
     | '/reset-password'
+    | '/termos'
     | '/app/aulas'
     | '/app/checklists'
     | '/app/comunidade'
@@ -700,6 +711,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacidade'
     | '/reset-password'
+    | '/termos'
     | '/app/admin'
     | '/app/aulas'
     | '/app/checklists'
@@ -765,6 +777,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermosRoute: typeof TermosRoute
   ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -772,6 +785,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1428,6 +1448,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermosRoute: TermosRoute,
   ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
