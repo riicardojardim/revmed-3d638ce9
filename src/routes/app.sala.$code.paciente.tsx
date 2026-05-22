@@ -1158,7 +1158,9 @@ function ActorView() {
 
 
         {/* RIGHT: control panel (timer, participantes, convite) */}
-        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
+        {(() => {
+          const controlPanel = (
+            <div className="space-y-3">
                   {/* Timer */}
                   <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
                     <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
