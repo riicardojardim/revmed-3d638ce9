@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, MessageCircle, Send, UserPlus, Users, X } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Send, Users, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,20 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useOnlinePresence } from "@/hooks/use-online-presence";
 import { cn } from "@/lib/utils";
-
-type Buddy = {
-  id: string;
-  full_name: string | null;
-  username: string | null;
-  avatar_url: string | null;
-  shared_rooms: number;
-  last_shared_at: string | null;
-  is_friend: boolean;
-  request_status: string | null;
-  request_id: string | null;
-  request_from: string | null;
-  unread_count: number;
-};
 
 type Friend = {
   id: string;
