@@ -396,7 +396,7 @@ function drawHeartIcon(doc: jsPDF, cx: number, cy: number, size: number) {
 }
 
 function drawEcgLine(doc: jsPDF, y: number) {
-  setStroke(doc, [210, 235, 232]);
+  setStroke(doc, [244, 220, 184]);
   doc.setLineWidth(0.35);
   const segW = 14;
   let x = 0;
@@ -419,7 +419,7 @@ function drawEcgLine(doc: jsPDF, y: number) {
 }
 
 function drawPageBackground(doc: jsPDF) {
-  setFill(doc, [228, 244, 241]);
+  setFill(doc, [250, 232, 205]);
   const step = 26;
   for (let row = 0, yy = 22; yy < PAGE_H - 16; yy += step, row++) {
     const offset = (row % 2) * (step / 2);
@@ -427,7 +427,7 @@ function drawPageBackground(doc: jsPDF) {
       drawPlusIcon(doc, xx, yy, 1.4);
     }
   }
-  setFill(doc, [243, 232, 236]);
+  setFill(doc, [246, 222, 196]);
   const hearts: [number, number, number][] = [
     [32, 70, 2.0], [168, 95, 2.4], [55, 165, 2.2],
     [150, 200, 2.0], [25, 250, 2.4], [180, 270, 2.0],
