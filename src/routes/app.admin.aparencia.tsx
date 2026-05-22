@@ -73,7 +73,7 @@ function AdminAppearance() {
           <p className="mt-1 text-[11px] text-muted-foreground">Texto exibido na barra laranja no topo da landing page.</p>
         </label>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           {(["logo_url", "favicon_url"] as const).map((k) => (
             <div key={k} className="rounded-xl border border-border bg-background p-3">
               <div className="text-xs font-semibold text-muted-foreground">{k === "logo_url" ? "Logo" : "Favicon"}</div>

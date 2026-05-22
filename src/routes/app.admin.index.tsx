@@ -239,7 +239,7 @@ function AdminOverview() {
             <Label htmlFor="wa-enabled" className="text-xs">{waEnabled ? "Ativo" : "Desativado"}</Label>
           </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2">
           <div>
             <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Frase exibida</Label>
             <Input
@@ -313,7 +313,7 @@ function AdminOverview() {
       )}
 
       {/* Charts row 1: signups + attempts */}
-      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
           <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Novos cadastros (30 dias)</h3>
           <div className="h-56 sm:h-64">
@@ -352,7 +352,7 @@ function AdminOverview() {
       </div>
 
       {/* Charts row 2: plan distribution + paid vs free */}
-      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
           <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Distribuição de assinantes por plano</h3>
           {planBuckets.length === 0 ? (
