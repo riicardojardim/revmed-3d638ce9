@@ -4,6 +4,7 @@ import { ClipboardEdit, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/professor/correcoes")({
   component: ReviewQueuePage,
@@ -20,23 +21,27 @@ interface Row {
 }
 
 function ReviewQueuePage() {
+  const { user } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [tab, setTab] = useState<"pending" | "done">("pending");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
     setLoading(true);
     let q = supabase
       .from("attempts")
       .select("id, station_title, specialty, score, created_at, reviewed_at, professor_score")
       .order("created_at", { ascending: false })
       .limit(50);
-    q = tab === "pending" ? q.is("reviewed_at", null) : q.not("reviewed_at", "is", null);
+    q = tab === "pending"
+      ? q.is("reviewed_at", null)
+      : q.not("reviewed_at", "is", null).eq("reviewed_by", user.id);
     q.then(({ data }) => {
       setRows((data ?? []) as Row[]);
       setLoading(false);
     });
-  }, [tab]);
+  }, [tab, user?.id]);
 
   return (
     <div className="space-y-4">
