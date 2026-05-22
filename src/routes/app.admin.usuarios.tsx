@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
-import { Loader2, MoreHorizontal, Plus, Shield, UserPlus } from "lucide-react";
+import { Loader2, MoreHorizontal, Plus, Shield, UserPlus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -52,6 +52,7 @@ function AdminUsers() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [openCreate, setOpenCreate] = useState(false);
+  const [createDefaultRole, setCreateDefaultRole] = useState<"aluno" | "professor" | "admin" | "mentor">("aluno");
   const [acting, setActing] = useState<string | null>(null);
 
   async function load() {
@@ -110,9 +111,27 @@ function AdminUsers() {
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Atualizar"}
         </Button>
         <div className="ml-auto">
-          <Button variant="hero" onClick={() => setOpenCreate(true)}>
-            <UserPlus className="mr-2 h-4 w-4" /> Novo usuário
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCreateDefaultRole("mentor");
+                setOpenCreate(true);
+              }}
+              title="Cria conta de mentor com acesso completo e sem cobrança"
+            >
+              <Sparkles className="mr-2 h-4 w-4 text-mint" /> Novo mentor
+            </Button>
+            <Button
+              variant="hero"
+              onClick={() => {
+                setCreateDefaultRole("aluno");
+                setOpenCreate(true);
+              }}
+            >
+              <UserPlus className="mr-2 h-4 w-4" /> Novo usuário
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -130,7 +149,13 @@ function AdminUsers() {
           </thead>
           <tbody>
             {visible.map((u) => {
-              const role = u.roles.includes("admin") ? "admin" : u.roles.includes("professor") ? "professor" : "aluno";
+              const role = u.roles.includes("admin")
+                ? "admin"
+                : u.roles.includes("professor")
+                ? "professor"
+                : u.roles.includes("mentor")
+                ? "mentor"
+                : "aluno";
               const end = u.subscription?.current_period_end ? new Date(u.subscription.current_period_end) : null;
               const expired = end && end.getTime() < Date.now();
               return (
@@ -155,8 +180,12 @@ function AdminUsers() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={role === "admin" ? "destructive" : role === "professor" ? "default" : "outline"} className="text-[10px]">
+                    <Badge
+                      variant={role === "admin" ? "destructive" : role === "professor" ? "default" : role === "mentor" ? "secondary" : "outline"}
+                      className={`text-[10px] ${role === "mentor" ? "bg-mint/15 text-mint hover:bg-mint/15" : ""}`}
+                    >
                       {role === "admin" && <Shield className="mr-1 h-3 w-3" />}
+                      {role === "mentor" && <Sparkles className="mr-1 h-3 w-3" />}
                       {role}
                     </Badge>
                   </td>
@@ -195,6 +224,7 @@ function AdminUsers() {
       <CreateUserDialog
         open={openCreate}
         onOpenChange={setOpenCreate}
+        defaultRole={createDefaultRole}
         onCreate={async (payload) => {
           try {
             await createFn({ data: payload });
