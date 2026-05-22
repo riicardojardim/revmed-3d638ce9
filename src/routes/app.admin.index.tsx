@@ -194,10 +194,10 @@ function AdminOverview() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5 space-y-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-4 space-y-3 sm:p-5 sm:space-y-4">
         <div>
-          <h3 className="font-display font-semibold flex items-center gap-2">
+          <h3 className="font-display text-sm font-semibold flex items-center gap-2 sm:text-base">
             <Play className="h-4 w-4 text-mint" /> Animação de entrada da estação
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
@@ -226,10 +226,10 @@ function AdminOverview() {
       )}
 
       {/* Banner do grupo de WhatsApp (topo do app) */}
-      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-5 space-y-4">
+      <div className="rounded-2xl border border-mint/30 bg-mint/5 p-4 space-y-3 sm:p-5 sm:space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display font-semibold">Banner do grupo de WhatsApp (topo do app)</h3>
+            <h3 className="font-display text-sm font-semibold sm:text-base">Banner do grupo de WhatsApp (topo do app)</h3>
             <p className="text-xs text-muted-foreground mt-1">
               Controla o link clicável que aparece no topo de todas as páginas do app, ao lado da nota de corte.
             </p>
@@ -285,16 +285,16 @@ function AdminOverview() {
         variants={staggerContainer}
         initial="hidden"
         animate="show"
-        className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-3 grid-cols-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
         {cards.map((c) => (
           <motion.div key={c.label} variants={staggerItem}>
-            <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-5 shadow-card">
+            <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
               <c.icon className={`h-5 w-5 ${c.color}`} />
-              <div className="mt-3 text-2xl font-bold font-display">
+              <div className="mt-2 text-xl font-bold font-display sm:mt-3 sm:text-2xl">
                 {loading ? "—" : c.isText ? c.value : <AnimatedNumber value={Number(c.value)} />}
               </div>
-              <div className="text-sm text-muted-foreground">{c.label}</div>
+              <div className="text-[11px] text-muted-foreground sm:text-sm">{c.label}</div>
             </MotionCard>
           </motion.div>
         ))}
@@ -313,10 +313,10 @@ function AdminOverview() {
       )}
 
       {/* Charts row 1: signups + attempts */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h3 className="font-display font-semibold mb-2">Novos cadastros (30 dias)</h3>
-          <div className="h-64">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
+          <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Novos cadastros (30 dias)</h3>
+          <div className="h-56 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={signupSeries}>
                 <defs>
@@ -335,9 +335,9 @@ function AdminOverview() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h3 className="font-display font-semibold mb-2">Tentativas por dia (30 dias)</h3>
-          <div className="h-64">
+        <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
+          <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Tentativas por dia (30 dias)</h3>
+          <div className="h-56 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={attemptSeries}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -352,13 +352,13 @@ function AdminOverview() {
       </div>
 
       {/* Charts row 2: plan distribution + paid vs free */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h3 className="font-display font-semibold mb-2">Distribuição de assinantes por plano</h3>
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
+          <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Distribuição de assinantes por plano</h3>
           {planBuckets.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhum assinante ativo ainda.</p>
           ) : (
-            <div className="h-64">
+            <div className="h-56 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={planBuckets}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -376,8 +376,8 @@ function AdminOverview() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
-          <h3 className="font-display font-semibold mb-2">Pagantes vs Free</h3>
+        <div className="rounded-2xl border border-border bg-card p-3 shadow-card sm:p-5">
+          <h3 className="font-display text-sm font-semibold mb-2 sm:text-base">Pagantes vs Free</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
