@@ -72,7 +72,7 @@ function CandidateView() {
   useEffect(() => {
     (async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id")
+        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id, host_id")
         .eq("code", code).maybeSingle();
       if (!r) return;
       setRoom(r as Room);
@@ -137,7 +137,7 @@ function CandidateView() {
     // Fallback: polling para garantir sincronia mesmo se realtime atrasar
     const pollId = setInterval(async () => {
       const { data: r } = await supabase.from("training_rooms")
-        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id")
+        .select("id, code, station_id, station_title, status, started_at, starting_at, duration_minutes, evaluated_candidate_id, host_id")
         .eq("id", room.id).maybeSingle();
       if (r) setRoom((prev) => prev ? { ...prev, ...(r as Room) } : (r as Room));
       await loadEvaluation(room.id, room.station_id, room.evaluated_candidate_id);
