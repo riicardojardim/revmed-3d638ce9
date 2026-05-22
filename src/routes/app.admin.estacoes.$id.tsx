@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   ArrowLeft, Save, Eye, EyeOff, Plus, Trash2, ChevronUp, ChevronDown, Copy,
-  Upload, Sparkles, FileText, MessageSquare, ListChecks, Inbox, StickyNote,
+  Upload, FileText, MessageSquare, ListChecks, Inbox, StickyNote,
   User, Stethoscope, ClipboardCheck, Target, AlertTriangle, BookOpen, Clock,
   Image as ImageIcon, X, Theater, Send, Play, Square, Lock,
   UserPlus, Link2, BarChart3, MessageCircle, MessageSquareWarning, Check,
@@ -23,18 +23,6 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { parseStationPdfs, parseStationText } from "@/lib/stations-ai.functions";
-import { parseChecklistBulk } from "@/lib/checklist-ai.functions";
-import { generateDeckFromStation } from "@/lib/deck-from-station.functions";
-import { generateSummaryFromStation } from "@/lib/summary-from-station.functions";
-import { DeckCover } from "@/components/flashcards/DeckCover";
-import { FlashcardFace } from "@/components/flashcards/FlashcardFace";
-import { DeckPreview } from "@/components/flashcards/DeckPreview";
-import { GrammarReviewButton } from "@/components/station/GrammarReviewButton";
-import { suggestStationTitle } from "@/lib/title-suggest.functions";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Loader2, Wand2, Brain } from "lucide-react";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
