@@ -799,10 +799,10 @@ function Resultados() {
   return (
     <section
       id="resultados"
-      className="relative border-y border-border/60 bg-card/30 py-16 md:py-32"
+      className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
           {NUMBERS.map((n, i) => (
             <motion.div
               key={n.l}
@@ -810,9 +810,9 @@ function Resultados() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="rounded-2xl border border-border bg-background p-5 sm:rounded-3xl sm:p-7"
+              className="rounded-2xl border border-border bg-background p-5 sm:rounded-3xl sm:p-6 md:p-7"
             >
-              <div className="font-display text-3xl font-black tracking-[-0.03em] text-primary sm:text-5xl md:text-6xl">
+              <div className="font-display text-3xl font-black tracking-[-0.03em] text-primary sm:text-4xl md:text-5xl lg:text-6xl">
                 {n.v}
               </div>
               <div className="mt-2 text-xs font-medium text-muted-foreground sm:mt-3 sm:text-sm">
