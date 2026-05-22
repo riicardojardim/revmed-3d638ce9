@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { Button } from "@/components/ui/button";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -1394,6 +1395,13 @@ function ActorView() {
             Clique fora ou pressione × para fechar
           </div>
         </div>
+      )}
+      {room && (
+        <RoomVideoCall
+          roomCode={room.code}
+          displayName={user?.user_metadata?.full_name ?? user?.email ?? undefined}
+          role="ator"
+        />
       )}
     </div>
   );
