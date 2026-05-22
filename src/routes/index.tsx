@@ -229,7 +229,7 @@ function TopNav({
             </a>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="flex items-center gap-3">
           {isLogged ? (
             <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
               <DropdownMenuTrigger asChild>
@@ -273,20 +273,13 @@ function TopNav({
           ) : (
             <Link
               to="/login"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] sm:px-5 sm:py-2.5"
             >
               Login
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           )}
         </div>
-        <button
-          aria-label="Abrir menu"
-          className="rounded-lg border border-border p-2 lg:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
       </div>
       {menuOpen && (
         <div className="border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
