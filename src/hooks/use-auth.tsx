@@ -34,6 +34,50 @@ function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T | null> 
   ]);
 }
 
+const AUTH_CACHE_KEY = "er_auth_cache_v1";
+
+type AuthCache = {
+  user: { id: string; email: string | null } | null;
+  profile: Profile | null;
+  roles: AppRole[];
+};
+
+function readAuthCache(): AuthCache | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(AUTH_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as AuthCache;
+  } catch {
+    return null;
+  }
+}
+
+function writeAuthCache(cache: AuthCache | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!cache || !cache.user) {
+      localStorage.removeItem(AUTH_CACHE_KEY);
+    } else {
+      localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(cache));
+    }
+  } catch {}
+}
+
+function hasPersistedSupabaseSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+        const v = localStorage.getItem(k);
+        if (v && v.length > 10) return true;
+      }
+    }
+  } catch {}
+  return false;
+}
+
 const DEVICE_KEY = "er_device_id";
 function getDeviceId(): string {
   try {
@@ -59,11 +103,21 @@ async function claimActiveSession(userId: string) {
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Seed sincronamente a partir do cache local para evitar o "flicker" de
+  // mostrar Login antes do estado autenticado ser carregado.
+  const cached = typeof window !== "undefined" ? readAuthCache() : null;
+  const hasPersisted = hasPersistedSupabaseSession();
+  const seedUser = cached?.user && hasPersisted
+    ? ({ id: cached.user.id, email: cached.user.email ?? undefined } as unknown as User)
+    : null;
+
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [roles, setRoles] = useState<AppRole[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(seedUser);
+  const [profile, setProfile] = useState<Profile | null>(seedUser ? cached?.profile ?? null : null);
+  const [roles, setRoles] = useState<AppRole[]>(seedUser ? cached?.roles ?? [] : []);
+  // Se há sessão persistida e cache, considera "não loading" para a UI já
+  // renderizar o avatar imediatamente.
+  const [loading, setLoading] = useState(!seedUser);
 
   async function loadExtras(uid: string) {
     try {
@@ -73,8 +127,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ]), 2000);
       if (!result) return;
       const [{ data: prof }, { data: rs }] = result;
-      setProfile((prof as Profile | null) ?? null);
-      setRoles(((rs ?? []) as { role: AppRole }[]).map((r) => r.role));
+      const nextProfile = (prof as Profile | null) ?? null;
+      const nextRoles = ((rs ?? []) as { role: AppRole }[]).map((r) => r.role);
+      setProfile(nextProfile);
+      setRoles(nextRoles);
+      // Atualiza cache para próximo carregamento
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user) {
+          writeAuthCache({
+            user: { id: data.user.id, email: data.user.email ?? null },
+            profile: nextProfile,
+            roles: nextRoles,
+          });
+        }
+      } catch {}
     } catch {
       setProfile(null);
       setRoles([]);
@@ -96,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setRoles([]);
+        writeAuthCache(null);
       }
     });
 
@@ -107,6 +175,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Background: não trava o render do app.
         void loadExtras(s.user.id);
         void claimActiveSession(s.user.id);
+      } else {
+        writeAuthCache(null);
       }
     }).catch(() => {
       setSession(null);
