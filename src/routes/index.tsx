@@ -842,7 +842,7 @@ function Mentoria() {
     <section id="mentoria" className="relative py-16 md:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="grid items-stretch gap-8 md:gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+          <div className="text-center lg:col-span-5 lg:text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Mentoria (opcional)
             </p>
@@ -851,7 +851,7 @@ function Mentoria() {
               do seu lado? <br />
               <span className="text-primary">Tem mentoria.</span>
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-lg">
+            <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-lg lg:mx-0 lg:max-w-none">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
