@@ -302,7 +302,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
         }}
       />
       <div className="mx-auto grid max-w-7xl items-stretch gap-6 px-5 pt-3 pb-14 md:px-8 md:pt-12 md:pb-20 md:gap-10 lg:pt-16 lg:pb-28 lg:gap-8 lg:grid-cols-12">
-        <div className="lg:col-span-6 lg:order-2 lg:flex lg:h-full lg:flex-col lg:justify-between">
+        <div className="lg:col-span-6 lg:order-2">
           <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
