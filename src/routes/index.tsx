@@ -699,48 +699,61 @@ function Plataforma() {
               Plataforma
             </p>
             <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
-              Estação, checklist, flashcard e resumo. Num só lugar.
+              Tudo que o INEP cobra. E tudo que ajuda a treinar.
             </h2>
           </div>
           <p className="max-w-md text-sm text-muted-foreground md:text-[0.95rem] lg:text-base">
-            Sala estável pra dezenas de candidatos treinarem ao mesmo tempo,
-            sem travar. Tudo integrado ao seu painel de desempenho, com
-            histórico, tempo médio e nota por critério.
+            Sala ao vivo com vídeo, checklist 3 níveis, flashcards SM-2,
+            resumos, simulados, comunidade, ranking e gamificação. Tudo
+            integrado, conectado ao seu painel de desempenho e à nota de
+            corte do INEP.
           </p>
         </div>
 
         <div className="mt-8 grid auto-rows-[minmax(160px,_auto)] gap-3 md:mt-12 md:auto-rows-[minmax(180px,_auto)] md:grid-cols-2 md:gap-4 lg:grid-cols-6">
           <FeatureCard
             className="md:col-span-2 lg:col-span-4"
-            tag="Estação"
-            title="Sala ao vivo com cronômetro INEP"
-            desc="Candidato, ator e avaliador na mesma sala — 10 minutos, impressos, roteiro padronizado. Roda estável mesmo com a turma toda treinando junto."
+            tag="Sala ao vivo"
+            title="Candidato + ator + banca, com vídeo integrado"
+            desc="Vídeo em chamada (LiveKit), cronômetro travado no servidor, impressos (ECG, exame, RX) entregues em tempo real, intro de 30s e roteiro padronizado. Os 3 papéis na mesma sala, igual ao INEP."
             accent="primary"
           />
           <FeatureCard
             className="md:col-span-2 lg:col-span-2"
-            tag="Checklist"
-            title="Pontuação igual à da banca"
-            desc="Marque critério por critério, no mesmo modelo do INEP."
+            tag="Checklist 3 níveis"
+            title="PEP liberada na hora"
+            desc="Adequado, parcial, inadequado — igual à banca. Você vê critério por critério assim que a estação fecha."
           />
           <FeatureCard
             className="md:col-span-1 lg:col-span-2"
-            tag="Flashcards"
-            title="Revisão espaçada por área"
-            desc="Centenas de cards prontos. Você só revisa o que tá perdendo."
+            tag="Flashcards SM-2"
+            title="Só revisa o que tá esquecendo"
+            desc="Algoritmo SM-2 (mesmo do Anki), dashboard de desempenho por área e deck pronto a partir de cada estação."
           />
           <FeatureCard
             className="md:col-span-1 lg:col-span-2"
             tag="Resumos"
-            title="Resumos curtos, do jeito que cai"
-            desc="Sem manual de 800 páginas. Só o que vira ponto na prova."
+            title="Cruzados por tema"
+            desc="Resumo estruturado com link pro flashcard e pra estação do mesmo tema. Estudo conectado, sem manual de 800 páginas."
             accent="mint"
           />
           <FeatureCard
             className="md:col-span-2 lg:col-span-2"
-            tag="Desempenho"
-            title="Painel com nota, tempo e evolução"
-            desc="Acompanhe sua média por estação, área e critério em tempo real."
+            tag="Progresso & gamificação"
+            title="Patentes, troféus e nota de corte"
+            desc="Patente de Interno a Mestre, troféu por especialidade, heatmap de 84 dias com streak e sua nota comparada ao corte do Revalida 25.2."
+          />
+          <FeatureCard
+            className="md:col-span-2 lg:col-span-3"
+            tag="Comunidade"
+            title="Amigos online, DMs e feed"
+            desc="Veja quem está logado agora, chame pra estação direto no chat, troque caso clínico no feed e receba convites por notificação em tempo real."
+          />
+          <FeatureCard
+            className="md:col-span-2 lg:col-span-3"
+            tag="Simulados & histórico"
+            title="Cronograma e replay de cada estação"
+            desc="Monte simulados cronometrados, acompanhe seu cronograma de estudos e revise o histórico de cada simulação com PEP e tempo por critério."
           />
         </div>
       </div>
