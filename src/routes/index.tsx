@@ -372,13 +372,6 @@ function Hero({ isLogged }: { isLogged: boolean }) {
               Começar a treinar
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
             </Link>
-            <a
-              href="#plataforma"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card/50 px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-card sm:w-auto md:py-3.5 md:text-base"
-            >
-              <PlayCircle className="h-4 w-4 text-primary md:h-5 md:w-5" />
-              Ver por dentro
-            </a>
           </motion.div>
 
           <motion.div
