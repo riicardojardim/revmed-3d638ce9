@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Send } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/feedback")({
   component: Feedback,
@@ -10,7 +12,27 @@ export const Route = createFileRoute("/app/feedback")({
 });
 
 function Feedback() {
+  const { user } = useAuth();
   const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  async function handleSend() {
+    if (!text.trim()) return toast.error("Escreva algo primeiro.");
+    if (!user) return toast.error("Faça login para enviar feedback.");
+    setSending(true);
+    const { error } = await supabase.from("user_feedback").insert({
+      user_id: user.id,
+      message: text.trim(),
+      page: typeof window !== "undefined" ? window.location.pathname : null,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+    });
+    setSending(false);
+    if (error) {
+      toast.error("Não foi possível enviar. Tente novamente.");
+      return;
+    }
+    toast.success("Feedback enviado! Obrigado.");
+    setText("");
+  }
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
@@ -29,16 +51,8 @@ function Feedback() {
           placeholder="Escreva seu feedback..."
           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint"
         />
-        <Button
-          variant="hero"
-          className="mt-4"
-          onClick={() => {
-            if (!text.trim()) return toast.error("Escreva algo primeiro.");
-            toast.success("Feedback enviado! Obrigado.");
-            setText("");
-          }}
-        >
-          <Send className="h-4 w-4" /> Enviar
+        <Button variant="hero" className="mt-4" onClick={handleSend} disabled={sending}>
+          <Send className="h-4 w-4" /> {sending ? "Enviando..." : "Enviar"}
         </Button>
       </div>
     </div>
