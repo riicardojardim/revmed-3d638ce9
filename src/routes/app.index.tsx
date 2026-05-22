@@ -270,14 +270,14 @@ function Dashboard() {
                   to="/app/checklists"
                   className="group inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-medical px-3 py-2 text-[0.72rem] font-semibold text-night transition-all hover:shadow-glow sm:flex-none sm:px-5 sm:py-2.5 sm:text-sm"
                 >
-                  Começar treino agora
+                  Começar treino
                   <ArrowUpRight className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4" />
                 </Link>
                 <Link
                   to="/app/progresso"
                   className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-border px-3 py-2 text-[0.72rem] font-medium text-muted-foreground transition-colors hover:border-medical hover:text-foreground sm:flex-none sm:px-4 sm:py-2.5 sm:text-sm"
                 >
-                  Ver progresso detalhado
+                  Ver progresso
                 </Link>
               </div>
             </div>
