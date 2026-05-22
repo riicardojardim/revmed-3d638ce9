@@ -30,6 +30,7 @@ import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { RelatedResources } from "@/components/RelatedResources";
+import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
@@ -1377,6 +1378,13 @@ function SimuladoRunner({ id }: { id: string }) {
         </DialogContent>
       </Dialog>
     </div>
+    {sim?.roomCode && (
+      <RoomVideoCall
+        roomCode={sim.roomCode}
+        displayName={(profile?.full_name?.trim()) || user?.email || "Ator"}
+        role="ator"
+      />
+    )}
     </>
   );
 }
