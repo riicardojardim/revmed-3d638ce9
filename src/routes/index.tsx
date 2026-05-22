@@ -34,10 +34,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "@tanstack/react-router";
-import mockupDashboard from "@/assets/mockup-dashboard.jpg";
-import mockupChecklists from "@/assets/mockup-checklists.jpg";
-import mockupFlashcards from "@/assets/mockup-flashcards.jpg";
-import mockupResumos from "@/assets/mockup-resumos.jpg";
+import mockupDashboard from "@/assets/mockup-dashboard.png";
+import mockupChecklists from "@/assets/mockup-checklists.png";
+import mockupFlashcards from "@/assets/mockup-flashcards.png";
+import mockupResumos from "@/assets/mockup-resumos.png";
 import avatar1 from "@/assets/hero-avatar-1.jpg";
 import avatar2 from "@/assets/hero-avatar-2.jpg";
 import avatar3 from "@/assets/hero-avatar-3.jpg";
