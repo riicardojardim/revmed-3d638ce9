@@ -1229,13 +1229,62 @@ function ActorView() {
 
 
                   {/* Resultado */}
-                  <div className="rounded-2xl border border-border bg-card p-4">
-                    <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Resultado
-                    </div>
-                    <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-                      <div className="font-display text-xl font-bold tabular-nums text-mint">
-                        {totals.earned.toFixed(2)}
+                  {/* Resultado ao vivo — visível desde o início para o ator. */}
+                  <div className="relative overflow-hidden rounded-2xl border border-mint/20 bg-gradient-to-br from-night via-night to-night/80 p-5 text-white shadow-elegant">
+                    <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-mint/20 blur-3xl" />
+                    <div className="relative">
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-mint/90">
+                        Resultado ao vivo
+                      </div>
+                      <div className="mt-1 flex items-baseline gap-2">
+                        <span className="font-display text-5xl font-bold tabular-nums">{score.toFixed(2)}</span>
+                        <span className="text-base text-white/50">/ 10</span>
+                      </div>
+                      <div className="mt-1 text-[11px] text-white/60">
+                        {totals.earned.toFixed(2)} / {totals.total} pts · {pct.toFixed(0)}%
+                      </div>
+
+                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-mint via-emerald-400 to-mint transition-all"
+                          style={{ width: `${totals.count > 0 ? (totals.scored / totals.count) * 100 : 0}%` }}
+                        />
+                      </div>
+                      <div className="mt-1 text-[10px] text-white/50">
+                        Progresso do PEP · {totals.scored}/{totals.count} itens
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
+                        {(() => {
+                          let adq = 0, parc = 0, inad = 0;
+                          station.checklist.forEach((it) => {
+                            const v = checks[it.id];
+                            if (typeof v !== "number") return;
+                            const max = it.levels && it.levels.length > 0
+                              ? Math.max(...it.levels.map((l) => l.points))
+                              : it.points;
+                            if (v === 0) inad++;
+                            else if (v >= max) adq++;
+                            else parc++;
+                          });
+                          return [
+                            { c: "bg-emerald-500", n: adq, l: "Adq." },
+                            { c: "bg-amber-500", n: parc, l: "Parc." },
+                            { c: "bg-rose-500", n: inad, l: "Inad." },
+                          ];
+                        })().map((x, i) => (
+                          <div key={i} className="rounded-lg border border-white/10 bg-white/5 px-1.5 py-1.5">
+                            <div className={cn("mx-auto h-1 w-5 rounded-full", x.c)} />
+                            <div className="mt-1 font-display text-base font-bold tabular-nums">{x.n}</div>
+                            <div className="text-[9px] uppercase tracking-wider text-white/60">{x.l}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-3 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[10px] text-white/70">
+                        {previewEnabled
+                          ? "🔓 Candidato está vendo a nota ao vivo."
+                          : "🔒 Visível apenas para você. O candidato só verá ao encerrar."}
                       </div>
                     </div>
                   </div>
