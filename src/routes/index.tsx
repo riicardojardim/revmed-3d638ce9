@@ -61,13 +61,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Sala ao vivo com ator-avaliador, cronômetro INEP, checklist 3 níveis com PEP na hora e flashcards SM-2. Descubra semana a semana se já passaria no Revalida.",
+          "Sala ao vivo com ator-avaliador, cronômetro do INEP, checklist nos 3 níveis da banca e flashcards inteligentes. Descubra semana a semana se já passaria no Revalida.",
       },
       { property: "og:title", content: "REVMED — Chegue na prova já tendo feito a prova" },
       {
         property: "og:description",
         content:
-          "Estação ao vivo com ator-avaliador, checklist igual ao INEP, flashcards SM-2 e sua nota comparada ao corte. Comece em 1 minuto.",
+          "Estação ao vivo com ator-avaliador, checklist igual ao INEP, flashcards inteligentes e sua nota comparada ao corte. Comece em 1 minuto.",
       },
     ],
     links: NOTIFICATION_AVATAR_SOURCES.map((src) => ({
@@ -340,9 +340,10 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
           >
-            Sala ao vivo com ator-avaliador, cronômetro INEP, checklist
-            3 níveis e flashcards SM-2. Um app que dá vontade de abrir
-            todo dia — e te mostra, semana a semana, se já passaria.
+            Sinta como é estar diante do avaliador antes do dia da prova.
+            Sala ao vivo, cronômetro do INEP, checklist nos 3 níveis da
+            banca e seu desempenho comparado à nota de corte — tudo num
+            app que dá vontade de abrir todo dia.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
@@ -582,7 +583,7 @@ function MarqueeStrip() {
     "Cronômetro sincronizado no servidor",
     "Checklist 3 níveis igual ao INEP",
     "Impressos em tempo real",
-    "Flashcards com algoritmo SM-2",
+    "Flashcards inteligentes que voltam na hora certa",
     "Resumos cruzados por tema",
     "Patentes, troféus e ranking",
     "Heatmap de 84 dias e streak",
@@ -620,14 +621,14 @@ const PILLARS = [
     icon: Compass,
     title: "Sabe sua nota de corte.",
     body:
-      "Cada estação, flashcard e simulado vira número: PEP por critério, nota de corte do Revalida 25.2, evolução por área, tempo médio e histórico completo. Você sabe se hoje passaria.",
+      "Cada estação, flashcard e simulado vira número: nota por critério, nota de corte do Revalida 25.2, evolução por área, tempo médio e histórico completo. Você sabe se hoje passaria.",
   },
   {
     n: "03",
     icon: Layers,
-    title: "Repetição com SM-2.",
+    title: "Só revisa o que você esquece.",
     body:
-      "Flashcards com revisão espaçada (algoritmo SM-2) só te trazem o que você está esquecendo. Resumos cruzados por tema te levam direto do card pro conteúdo. Patente e troféu por especialidade pra você ver o que falta.",
+      "Os flashcards voltam no momento certo — quando o conteúdo está prestes a sair da sua cabeça. Resumos cruzados te levam direto do card pro tema. Patente e troféu por especialidade pra você ver o que ainda falta dominar.",
   },
 ];
 
@@ -699,7 +700,7 @@ function Plataforma() {
             </h2>
           </div>
           <p className="max-w-md text-sm text-muted-foreground md:text-[0.95rem] lg:text-base">
-            Sala ao vivo com vídeo, checklist 3 níveis, flashcards SM-2,
+            Sala ao vivo com vídeo, checklist 3 níveis, flashcards inteligentes,
             resumos, simulados, comunidade, ranking e gamificação. Tudo
             integrado, conectado ao seu painel de desempenho e à nota de
             corte do INEP.
@@ -711,20 +712,20 @@ function Plataforma() {
             className="md:col-span-2 lg:col-span-4"
             tag="Sala ao vivo"
             title="Candidato + ator-avaliador, com vídeo integrado"
-            desc="Vídeo em chamada (LiveKit), cronômetro travado no servidor, impressos (ECG, exame, RX) entregues em tempo real, intro de 30s e roteiro padronizado. Os dois papéis na mesma sala, igual ao INEP."
+            desc="Chamada de vídeo, cronômetro travado no servidor, impressos (ECG, exame, RX) entregues em tempo real, intro de 30s e roteiro padronizado. Os dois papéis na mesma sala, igual ao INEP."
             accent="primary"
           />
           <FeatureCard
             className="md:col-span-2 lg:col-span-2"
             tag="Checklist 3 níveis"
-            title="PEP liberada na hora"
+            title="Sua nota sai na hora"
             desc="Adequado, parcial, inadequado — igual ao INEP. Você vê critério por critério assim que a estação fecha."
           />
           <FeatureCard
             className="md:col-span-1 lg:col-span-2"
-            tag="Flashcards SM-2"
+            tag="Flashcards inteligentes"
             title="Só revisa o que tá esquecendo"
-            desc="Algoritmo SM-2 (mesmo do Anki), dashboard de desempenho por área e deck pronto a partir de cada estação."
+            desc="Os cards voltam no momento certo, quando você ainda está esquecendo. Dashboard por área e deck pronto a partir de cada estação."
           />
           <FeatureCard
             className="md:col-span-1 lg:col-span-2"
@@ -749,7 +750,7 @@ function Plataforma() {
             className="md:col-span-2 lg:col-span-3"
             tag="Simulados & histórico"
             title="Cronograma e replay de cada estação"
-            desc="Monte simulados cronometrados, acompanhe seu cronograma de estudos e revise o histórico de cada simulação com PEP e tempo por critério."
+            desc="Monte simulados cronometrados, acompanhe seu cronograma de estudos e revise o histórico de cada simulação com nota e tempo por critério."
           />
         </div>
       </div>
@@ -1137,15 +1138,15 @@ const FAQS = [
   },
   {
     q: "A sala ao vivo trava com muita gente junto?",
-    a: "Não. A chamada de vídeo roda em LiveKit (mesma stack usada por plataformas de telemedicina) e o cronômetro é sincronizado no servidor — todo mundo vê o mesmo tempo, mesmo com a turma inteira treinando ao mesmo tempo.",
+    a: "Não. A chamada de vídeo usa a mesma tecnologia das plataformas de telemedicina e o cronômetro é sincronizado no servidor — todo mundo vê o mesmo tempo, mesmo com a turma inteira treinando ao mesmo tempo.",
   },
   {
     q: "Como funciona o checklist da estação?",
-    a: "Igual ao do INEP: 3 níveis (adequado, parcial, inadequado) marcados pelo ator-avaliador enquanto a estação acontece. Quando o cronômetro fecha, a PEP é liberada na hora pro candidato — com nota por critério e tempo gasto.",
+    a: "Igual ao do INEP: 3 níveis (adequado, parcial, inadequado) marcados pelo ator-avaliador enquanto a estação acontece. Quando o cronômetro fecha, sua nota sai na hora — critério por critério e tempo gasto em cada um.",
   },
   {
     q: "Os flashcards usam qual método?",
-    a: "SM-2 — o mesmo algoritmo de revisão espaçada do Anki. Cada deck tem dashboard de desempenho por área e pode ser gerado a partir da estação que você acabou de fazer. Você só revisa o que tá esquecendo.",
+    a: "Revisão espaçada inteligente: os cards voltam no momento exato em que você está prestes a esquecer o conteúdo (a mesma lógica do Anki). Cada deck tem dashboard por área e pode ser gerado a partir da estação que você acabou de fazer.",
   },
   {
     q: "Tem comunidade e gamificação?",
@@ -1153,7 +1154,7 @@ const FAQS = [
   },
   {
     q: "Preciso entrar na mentoria pra usar a plataforma?",
-    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards SM-2, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
+    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards inteligentes, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
   },
   {
     q: "Tem garantia?",
@@ -1230,7 +1231,7 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
           <span className="text-primary">cobra na prova.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">
-          Sala ao vivo com vídeo, checklist 3 níveis, flashcards SM-2,
+          Sala ao vivo com vídeo, checklist 3 níveis, flashcards inteligentes,
           resumos, simulados, comunidade e gamificação. Tudo num só lugar,
           até o dia da prova.
         </p>
@@ -1258,7 +1259,7 @@ function Footer() {
             <Logo />
             <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
               A plataforma de prática do candidato Revalida INEP — sala ao
-              vivo com vídeo, checklist 3 níveis, flashcards SM-2, resumos,
+              vivo com vídeo, checklist 3 níveis, flashcards inteligentes, resumos,
               comunidade e gamificação num só lugar.
             </p>
           </div>
