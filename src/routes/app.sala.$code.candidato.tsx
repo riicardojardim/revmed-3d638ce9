@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp, X, ZoomIn,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp, X, ZoomIn, SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
@@ -21,6 +21,7 @@ import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 import { RelatedResources } from "@/components/RelatedResources";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
@@ -55,6 +56,7 @@ function CandidateView() {
   const [hideTimer, setHideTimer] = useState(false);
   const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
   const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const savedAttemptRef = useRef<string | null>(null);
@@ -499,6 +501,74 @@ function CandidateView() {
     );
   }
 
+  const controlPanel = (
+    <div className="min-w-0 space-y-3">
+      {/* Timer */}
+      <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+        <div className="flex items-center justify-between">
+          <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+            {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando"}
+          </div>
+          <button
+            type="button"
+            onClick={() => setHideTimer((v) => !v)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/20 bg-white/10 text-white/80 hover:text-white"
+            title={hideTimer ? "Mostrar cronômetro" : "Ocultar cronômetro"}
+          >
+            {hideTimer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+        <div className={cn(
+          "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
+          isRunning ? "bg-mint/15" : "bg-white/5",
+        )}>
+          <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
+            {hideTimer ? "— —" : `${mm}:${ss}`}
+          </div>
+        </div>
+        {isWaiting && (
+          <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-medium text-white/90">
+            Aguardando o ator iniciar a estação...
+          </div>
+        )}
+        {isFinished && (
+          <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-semibold text-white">
+            Estação encerrada.
+          </div>
+        )}
+      </div>
+      {isFinished && (
+        <RelatedResources
+          specialty={station.specialty}
+          title={room.station_title ?? station.title}
+          stationId={station.id}
+          show={{ resumo: true, flashcard: true }}
+          excludeStationId={station.id}
+          heading="Sugestões para este tema"
+          className="p-3"
+        />
+      )}
+      {!isSpectator && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Resultado
+          </div>
+          <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
+            {correctionReady ? (
+              <div className="font-display text-xl font-bold tabular-nums text-mint">
+                {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
+              </div>
+            ) : (
+              <div className="font-display text-base font-semibold text-muted-foreground">
+                Aguardando...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       {introOverlay}
@@ -606,7 +676,7 @@ function CandidateView() {
         </div>
       )}
 
-      <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
         {/* LEFT */}
         <div className="min-w-0 space-y-4">
 
@@ -784,80 +854,36 @@ function CandidateView() {
         </div>
 
         {/* RIGHT */}
-        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
-          {/* Timer */}
-          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
-            <div className="flex items-center justify-between">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
-                {isRunning ? "Em andamento" : isFinished ? "Encerrada" : "Aguardando"}
-              </div>
-              <button
-                type="button"
-                onClick={() => setHideTimer((v) => !v)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-white/20 bg-white/10 text-white/80 hover:text-white"
-                title={hideTimer ? "Mostrar cronômetro" : "Ocultar cronômetro"}
-              >
-                {hideTimer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              </button>
-            </div>
-            <div className={cn(
-              "mt-2 rounded-xl px-5 py-6 text-center transition-colors",
-              isRunning ? "bg-mint/15" : "bg-white/5",
-            )}>
-              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">
-                {hideTimer ? "— —" : `${mm}:${ss}`}
-              </div>
-            </div>
-
-            {isWaiting && (
-              <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-medium text-white/90">
-                Aguardando o ator iniciar a estação...
-              </div>
-            )}
-            {isRunning && null}
-            {isFinished && (
-              <div className="mt-3 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-center text-sm font-semibold text-white">
-                Estação encerrada.
-              </div>
-            )}
-          </div>
-
-          {isFinished && (
-            <RelatedResources
-              specialty={station.specialty}
-              title={room.station_title ?? station.title}
-              stationId={station.id}
-              show={{ resumo: true, flashcard: true }}
-              excludeStationId={station.id}
-              heading="Sugestões para este tema"
-              className="p-3"
-            />
-          )}
-
-          {/* Resultado — só para o candidato avaliado */}
-          {!isSpectator && (
-            <div className="rounded-2xl border border-border bg-card p-4">
-              <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Resultado
-              </div>
-              <div className="mt-2 rounded-xl bg-background/60 px-4 py-3 text-center">
-                {correctionReady ? (
-                  <div className="font-display text-xl font-bold tabular-nums text-mint">
-                    {evaluation!.final_score?.toFixed(2)} / {pct.toFixed(0)}%
-                  </div>
-                ) : (
-                  <div className="font-display text-base font-semibold text-muted-foreground">
-                    Aguardando...
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
+        <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:self-start">
+          {controlPanel}
         </aside>
+        {/* Mobile/tablet: stacked below content */}
+        <div className="min-w-0 lg:hidden">
+          {controlPanel}
+        </div>
+        {/* Mobile/tablet popup with the same controls */}
+        <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
+          <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4 sm:max-w-lg">
+            <SheetHeader className="mb-3">
+              <SheetTitle className="text-base">Controles da estação</SheetTitle>
+            </SheetHeader>
+            {controlPanel}
+          </SheetContent>
+        </Sheet>
       </div>
       <ImageZoomOverlay zoomImage={zoomImage} onClose={() => setZoomImage(null)} />
       </div>
+      {/* Floating shortcut to controls panel (mobile/tablet only) */}
+      <button
+        type="button"
+        onClick={() => setControlsOpen(true)}
+        className="fixed bottom-5 right-5 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-gradient-hero px-4 text-sm font-semibold text-white shadow-elegant ring-1 ring-mint/30 transition hover:scale-[1.02] active:scale-[0.98] lg:hidden"
+        aria-label="Abrir controles da estação"
+      >
+        <SlidersHorizontal className="h-4 w-4" />
+        <span className="hidden sm:inline">Controles</span>
+        <span className="font-mono text-[11px] text-white/80">{hideTimer ? "— —" : `${mm}:${ss}`}</span>
+      </button>
     </>
   );
 }
