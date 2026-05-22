@@ -1260,7 +1260,7 @@ function SectionChecklist({ stationId, items, reload, onChecklistFilled }: { sta
 
   return (
     <Section title="Checklist PEP graduado" hint="Cada item tem 3 níveis: Inadequado / Parcialmente adequado / Adequado.">
-      <form onSubmit={addItem} className="grid gap-2 rounded-xl border border-border bg-background/40 p-3 md:grid-cols-[1fr,200px,90px,auto]">
+      <form onSubmit={addItem} className="grid gap-2 rounded-xl border border-border bg-background/40 p-3 lg:grid-cols-[1fr,200px,90px,auto]">
         <Textarea rows={3} placeholder="Descrição do item (pode usar várias linhas, ;, . etc.)" value={draft.description}
           onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
         <Input placeholder="Categoria (ex: Anamnese)" value={draft.category}
@@ -1400,7 +1400,7 @@ function LevelsEditor({
             : row.kind === "Parcialmente adequado" ? "border-warning/30 bg-warning/5"
               : "border-destructive/30 bg-destructive/5";
         return (
-          <div key={row.kind} className={cn("grid items-center gap-2 rounded-lg border p-2 md:grid-cols-[200px,110px,1fr]", tone, !checked && "opacity-60")}>
+          <div key={row.kind} className={cn("grid items-center gap-2 rounded-lg border p-2 lg:grid-cols-[200px,110px,1fr]", tone, !checked && "opacity-60")}>
             <label className="flex items-center gap-2 text-sm font-medium">
               {row.locked ? (
                 <span className="flex h-5 w-5 items-center justify-center rounded bg-mint text-white" title="Obrigatório">
@@ -1478,7 +1478,7 @@ function SectionPedagogical({
         <Label>Erros comuns</Label>
         <Textarea rows={3} value={station.common_mistakes ?? ""} onChange={(e) => up("common_mistakes", e.target.value)} />
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         <div>
           <Label>Observações para o ator / banca</Label>
           <Textarea rows={3} value={station.evaluator_notes ?? ""} onChange={(e) => up("evaluator_notes", e.target.value)} />
@@ -1519,7 +1519,7 @@ function SectionReferences({
       </div>
       <div className="space-y-2">
         {(station.bibliographic_references ?? []).map((r, i) => (
-          <div key={i} className="grid gap-2 md:grid-cols-[2fr,2fr,auto]">
+          <div key={i} className="grid gap-2 lg:grid-cols-[2fr,2fr,auto]">
             <Input placeholder="Título / citação" value={r.label} onChange={(e) => updateRef(i, { label: e.target.value })} />
             <Input placeholder="URL (opcional)" value={r.url ?? ""} onChange={(e) => updateRef(i, { url: e.target.value })} />
             <Button variant="ghost" size="icon" onClick={() => removeRef(i)}><Trash2 className="h-4 w-4" /></Button>
@@ -1783,7 +1783,7 @@ function InlineDeckPreview({ deck }: { deck: GeneratedDeck }) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start">
         <div className="mx-auto w-full max-w-[320px]">
           <DeckCover title={deck.title} specialty={deck.specialty} topic={deck.topic} />
         </div>
@@ -1956,7 +1956,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
 
       <div className="rounded-2xl border border-border bg-background/60 p-4 md:p-6">
         {mode === "candidato" && (
-          <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+          <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
             <div className="space-y-4">
               <PRBlock icon={MessageSquare} title="Cenário de atuação">
                 <ScriptText text={station.clinical_case || "—"} />
@@ -2000,7 +2000,7 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
               </div>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+            <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4">
                   <div className="flex min-w-0 items-center gap-2">
