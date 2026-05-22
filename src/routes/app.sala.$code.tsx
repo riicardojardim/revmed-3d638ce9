@@ -13,7 +13,7 @@ import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, ArrowRight, ClipboardCheck, Lock, Trophy, Eye, EyeOff,
   MessageSquare, ListChecks, Theater, Inbox, FileText, PackageCheck, Send,
-  Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail,
+  Play, Square, ChevronDown, BookOpen, Link2, BarChart3, MessageSquareWarning, MessageCircle, UserPlus, CheckCheck, Copy, Check, Share2, Mail, SlidersHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -30,6 +30,7 @@ import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { RelatedResources } from "@/components/RelatedResources";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
@@ -39,11 +40,24 @@ export const Route = createFileRoute("/app/sala/$code")({
 function SalaDispatcher() {
   const { code } = Route.useParams();
   const { user, loading } = useAuth();
-  if (loading) {
+  const [hydrated, setHydrated] = useState(false);
+  const [hasSimulado, setHasSimulado] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setHasSimulado(false);
+      setHydrated(true);
+      return;
+    }
+
+    setHasSimulado(!!getSimulado(user.id, code));
+    setHydrated(true);
+  }, [code, user?.id]);
+
+  if (loading || !hydrated) {
     return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>;
   }
-  const sim = user ? getSimulado(user.id, code) : null;
-  if (sim) return <SimuladoRunner id={code} />;
+  if (hasSimulado) return <SimuladoRunner id={code} />;
   // Não é simulado do usuário atual → fluxo normal de sala (lobby/candidato/paciente/banca)
   return <Outlet />;
 }
@@ -101,6 +115,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
 
 
 
