@@ -1112,7 +1112,7 @@ function SimuladoRunner({ id }: { id: string }) {
         </div>
 
         {/* RIGHT: control panel */}
-        <aside className="min-w-0 space-y-3 lg:sticky lg:top-20 lg:self-start">
+        <aside className="hidden min-w-0 space-y-3 lg:sticky lg:top-20 lg:block lg:self-start">
           {/* Timer */}
           <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
             <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
@@ -1362,7 +1362,270 @@ function SimuladoRunner({ id }: { id: string }) {
             </div>
           )}
         </aside>
+
+        <div className="min-w-0 space-y-3 lg:hidden">
+          {/* Timer */}
+          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+              {running ? "Em andamento" : finishedStation ? "Encerrada" : "Aguardando início"}
+            </div>
+            <div className={cn("mt-2 rounded-xl px-5 py-6 text-center transition-colors", running ? "bg-mint/15" : "bg-white/5")}>
+              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
+        <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4 sm:max-w-lg">
+          <SheetHeader className="mb-3">
+            <SheetTitle className="text-base">Controles da estação</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-3">
+            {/* Timer */}
+            <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+              <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                {running ? "Em andamento" : finishedStation ? "Encerrada" : "Aguardando início"}
+              </div>
+              <div className={cn("mt-2 rounded-xl px-5 py-6 text-center transition-colors", running ? "bg-mint/15" : "bg-white/5")}>
+                <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
+                {isWaiting && (
+                  <div className="mt-3">
+                    <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
+                      <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0.0833">5 segundos (teste)</SelectItem>
+                        {[5, 6, 7, 8, 9, 10].map((m) => (
+                          <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
+                  </div>
+                )}
+              </div>
+              {isWaiting && (
+                <button
+                  type="button"
+                  disabled={!allCandidatesPresent}
+                  onClick={() => {
+                    if (!allCandidatesPresent) {
+                      toast.error("Aguarde candidatos entrarem na sala.");
+                      return;
+                    }
+                    if (!evaluatedCandidateId) { setSelectCandidateOpen(true); return; }
+                    startTimer();
+                    setControlsOpen(false);
+                  }}
+                  style={allCandidatesPresent ? { color: "var(--medical)" } : undefined}
+                  className={cn(
+                    "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
+                    allCandidatesPresent
+                      ? "bg-white hover:bg-white/90 hover:shadow"
+                      : "cursor-not-allowed bg-white/30 text-white/70",
+                  )}
+                  title={!allCandidatesPresent ? "Aguarde candidatos entrarem na sala" : undefined}
+                >
+                  <Play className="h-4 w-4" /> Iniciar cronômetro
+                </button>
+              )}
+              {isWaiting && (
+                <div
+                  className={cn(
+                    "mt-2 rounded-lg px-3 py-2 text-[11px] leading-snug",
+                    allCandidatesPresent
+                      ? "bg-mint/20 text-white"
+                      : "bg-white/10 text-white/85",
+                  )}
+                >
+                  {candidates.length === 0 ? (
+                    <>⏳ Aguardando candidatos entrarem na sala...</>
+                  ) : (
+                    <>✅ Candidatos na sala — pode iniciar o cronômetro.</>
+                  )}
+                </div>
+              )}
+              {running && (
+                <button
+                  type="button"
+                  onClick={() => { void finishTimer(); setControlsOpen(false); }}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 active:scale-[0.98]"
+                >
+                  Encerrar estação
+                </button>
+              )}
+              {finishedStation && (
+                <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
+                  Estação encerrada — preencha o PEP abaixo.
+                </div>
+              )}
+            </div>
+
+            {station && (
+              <div className="rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-night/80 p-4 text-white shadow-elegant">
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
+                    Resultado (ao vivo)
+                  </div>
+                  <span className="rounded-full bg-mint/15 px-2 py-0.5 text-[10px] font-semibold text-mint">
+                    {totals.scored}/{totals.count} itens
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline justify-center gap-1">
+                  <span className="font-display text-4xl font-bold tabular-nums text-mint">
+                    {((totals.total > 0 ? (totals.earned / totals.total) * 10 : 0)).toFixed(2)}
+                  </span>
+                  <span className="text-sm text-white/60">/ 10</span>
+                </div>
+                <div className="mt-1 text-center text-[11px] text-white/60">
+                  {totals.earned.toFixed(2)} de {totals.total.toFixed(2)} pts
+                </div>
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full bg-mint transition-all" style={{ width: `${totals.count > 0 ? (totals.scored / totals.count) * 100 : 0}%` }} />
+                </div>
+                <div className="mt-2 text-center text-[10px] text-white/50">
+                  Visível só para você — atualiza conforme preenche o PEP
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Participantes ({candidates.length})
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setInviteOpen(true); setControlsOpen(false); }}
+                  className="inline-flex items-center gap-1 rounded-full border border-mint/40 bg-mint/10 px-2 py-0.5 text-[10px] font-semibold text-mint transition hover:bg-mint/20"
+                >
+                  <UserPlus className="h-3 w-3" /> Convidar amigo
+                </button>
+              </div>
+              {!evaluatedCandidateId && candidates.length >= 2 && !running && (
+                <div className="mt-2 rounded-xl border border-mint/40 bg-mint/10 px-3 py-2 text-xs font-medium text-mint">
+                  👇 Selecione o próximo candidato a ser avaliado
+                </div>
+              )}
+              {candidates.length === 0 ? (
+                <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                  <UserPlus className="h-4 w-4" />
+                  Aguardando participantes.
+                </div>
+              ) : (
+                <ul className="mt-2 space-y-1.5">
+                  {candidates.map((c) => {
+                    const isEvaluated = c.id === evaluatedCandidateId;
+                    return (
+                      <li key={c.id}>
+                        <button
+                          type="button"
+                          onClick={() => setEvaluatedCandidate(c.id)}
+                          disabled={!isWaiting}
+                          className={cn(
+                            "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                            isEvaluated
+                              ? "border-mint/50 bg-mint/10 text-foreground"
+                              : "border-border bg-background/40 text-foreground hover:border-mint/40",
+                            !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
+                            !isWaiting && isEvaluated && "cursor-default",
+                          )}
+                          title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
+                        >
+                          <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                          <span className="flex-1 truncate font-medium">{c.name}</span>
+                          <span className={cn(
+                            "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                            isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
+                          )}>
+                            {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
+                          </span>
+                          {isEvaluated && <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {sim.roomCode && (
+              <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Convite do candidato</div>
+                  <button
+                    type="button"
+                    onClick={copyInviteCode}
+                    title="Copiar código"
+                    className="inline-flex items-center gap-1 rounded-full bg-mint/15 px-2 py-0.5 font-mono text-[10px] font-bold text-mint transition hover:bg-mint/25"
+                  >
+                    {sim.roomCode}
+                    {codeCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  </button>
+                </div>
+
+                <button
+                  onClick={copyInviteLink}
+                  className="mt-2 flex w-full items-center gap-2 rounded-lg border border-border bg-background px-2.5 py-2 text-left transition hover:border-mint/50"
+                >
+                  <Link2 className="h-3.5 w-3.5 shrink-0 text-mint" />
+                  <span className="flex-1 truncate font-mono text-[11px] text-foreground">revmed.app.br/convite/{sim.roomCode}</span>
+                  {copied ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-mint">
+                      <Check className="h-3 w-3" /> Copiado
+                    </span>
+                  ) : (
+                    <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </button>
+                <div className="mt-2 grid grid-cols-3 gap-1.5">
+                  <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareWhatsApp}>
+                    <MessageCircle className="h-3.5 w-3.5 text-mint" /> WhatsApp
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareEmail}>
+                    <Mail className="h-3.5 w-3.5 text-mint" /> E-mail
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" className="h-8 gap-1 px-2 text-[11px]" onClick={shareNative}>
+                    <Share2 className="h-3.5 w-3.5 text-mint" /> Reenviar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <RelatedResources
+              specialty={station.specialty}
+              title={station.title}
+              stationId={station.id}
+              show={{ flashcard: true, resumo: true }}
+              excludeStationId={station.id}
+              heading="Sugestões para este tema"
+              className="p-3"
+            />
+
+            {sim.stations.length >= 2 && (
+              <div className="rounded-2xl border border-dashed border-mint/30 bg-gradient-to-br from-mint/5 to-transparent p-3">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-mint">Progresso do simulado</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Estação <span className="font-bold text-foreground">{sim.currentIndex + 1}</span> de <span className="font-bold text-foreground">{sim.stations.length}</span>
+                </div>
+                <div className="mt-2 flex gap-1">
+                  {sim.stations.map((_, i) => (
+                    <div key={i} className={cn(
+                      "h-1.5 flex-1 rounded-full",
+                      i < sim.currentIndex ? "bg-mint" : i === sim.currentIndex ? "bg-mint/60" : "bg-muted",
+                    )} />
+                  ))}
+                </div>
+                <div className="mt-2 text-[10px] text-muted-foreground/70 italic">
+                  Os títulos das próximas estações ficam ocultos para não revelar o conteúdo ao candidato.
+                </div>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {zoomImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out animate-in fade-in" onClick={() => setZoomImage(null)}>
@@ -1428,6 +1691,16 @@ function SimuladoRunner({ id }: { id: string }) {
         allowedIdentities={[user?.id, evaluatedCandidateId]}
       />
     )}
+    <button
+      type="button"
+      onClick={() => setControlsOpen(true)}
+      className="fixed bottom-20 right-5 z-[65] inline-flex h-12 items-center gap-2 rounded-full bg-gradient-hero px-4 text-sm font-semibold text-white shadow-elegant ring-1 ring-mint/30 transition hover:scale-[1.02] active:scale-[0.98] lg:hidden"
+      aria-label="Abrir controles da estação"
+    >
+      <SlidersHorizontal className="h-4 w-4" />
+      <span className="hidden sm:inline">Controles</span>
+      <span className="font-mono text-[11px] text-white/80">{mm}:{ss}</span>
+    </button>
     </>
   );
 }
