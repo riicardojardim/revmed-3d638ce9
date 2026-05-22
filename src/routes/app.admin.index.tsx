@@ -201,25 +201,10 @@ function AdminOverview() {
             <Play className="h-4 w-4 text-mint" /> Animação de entrada da estação
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Escolha qual animação ator e candidato veem ao iniciar uma estação. O preview usa a opção selecionada abaixo.
+            Animação institucional REVMED exibida para o candidato e para o ator ao iniciar uma estação. Use os botões abaixo para pré-visualizar.
           </p>
         </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex-1 min-w-[240px]">
-            <label className="text-[11px] uppercase tracking-wider text-muted-foreground">Animação ativa</label>
-            <Select value={variant} onValueChange={(v) => setVariant(v as IntroVariant)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pulse">{INTRO_VARIANT_LABEL.pulse}</SelectItem>
-                <SelectItem value="badge">{INTRO_VARIANT_LABEL.badge}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={saveVariant} disabled={savingVariant || variant === (settings?.intro_animation_variant ?? "pulse")}>
-            {savingVariant ? "Salvando..." : "Salvar"}
-          </Button>
-        </div>
-        <div className="flex flex-wrap gap-2 pt-1 border-t border-mint/20">
+        <div className="flex flex-wrap gap-2">
           <span className="text-xs text-muted-foreground self-center mr-1">Pré-visualizar:</span>
           <Button size="sm" variant="outline" onClick={() => setTestRole("candidato")}>
             <Play className="h-3.5 w-3.5" /> Ver como Candidato
@@ -232,11 +217,10 @@ function AdminOverview() {
 
       {testRole && (
         <IntroOverlay
-          variant={variant}
           role={testRole}
           stationTitle="Estação de Teste — Dor Torácica Aguda"
           specialty="Clínica Médica"
-          displayName="Dr. Teste"
+          displayName={testRole === "candidato" ? "Dr. João Silva" : "João Silva"}
           onComplete={() => setTestRole(null)}
         />
       )}
