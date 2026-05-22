@@ -26,8 +26,8 @@ export const Route = createFileRoute("/app/simulacao/$id")({
 function SimulationPage() {
   const { id } = Route.useParams();
   const nav = useNavigate();
-  const station = STATIONS.find((s) => s.id === id) ?? STATIONS[0];
-  const total = station.durationMinutes * 60;
+  const station = STATIONS.find((s) => s.id === id);
+  const total = (station?.durationMinutes ?? 10) * 60;
 
   const [remaining, setRemaining] = useState(total);
   const [running, setRunning] = useState(false);
@@ -72,16 +72,18 @@ function SimulationPage() {
   );
 
   async function finish() {
+    if (!station) return;
     const score = (earned / totalPoints) * 10;
     const checkedIds = Object.entries(checked).filter(([, v]) => v).map(([k]) => k);
     const used = total - remaining;
 
-    // Persist attempt (best-effort)
+    // Persist attempt
+    let attemptId: string | null = null;
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from("attempts").insert({
+        const { data } = await supabase.from("attempts").insert({
           user_id: user.id,
           station_id: station.id,
           station_title: station.title,
@@ -93,20 +95,18 @@ function SimulationPage() {
           checked_items: checkedIds,
           notes: notes || null,
           status: "concluida",
-        });
+        }).select("id").single();
+        attemptId = data?.id ?? null;
       }
     } catch (e) {
       console.error("Falha ao salvar tentativa", e);
     }
 
-    const params = new URLSearchParams({
-      score: score.toFixed(2),
-      earned: String(earned),
-      total: String(totalPoints),
-      used: String(used),
-      checked: checkedIds.join(","),
-    });
-    nav({ to: `/app/resultado/${station.id}?${params.toString()}` });
+    if (attemptId) {
+      nav({ to: `/app/resultado/${station.id}?attempt=${attemptId}` });
+    } else {
+      nav({ to: `/app/resultado/${station.id}` });
+    }
   }
 
   return (
