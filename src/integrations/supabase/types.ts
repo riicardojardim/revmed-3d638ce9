@@ -1371,6 +1371,24 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_my_profile: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          birth_date: string
+          cpf: string
+          exam_year: string
+          first_name: string
+          full_name: string
+          gender: string
+          id: string
+          last_name: string
+          selected_plan: string
+          title: string
+          username: string
+          whatsapp: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

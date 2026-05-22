@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadExtras(uid: string) {
     try {
       const result = await withTimeout(Promise.all([
-        supabase.from("profiles").select("id, full_name, whatsapp, exam_year, avatar_url, title, gender, username").eq("id", uid).maybeSingle(),
+        supabase.rpc("get_my_profile").maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", uid),
       ]), 2000);
       if (!result) return;
