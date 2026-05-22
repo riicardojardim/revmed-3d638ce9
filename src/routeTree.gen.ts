@@ -58,6 +58,7 @@ import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoe
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
 import { Route as AppAdminAparenciaRouteImport } from './routes/app.admin.aparencia'
 import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.index'
+import { Route as AppAdminResumosIndexRouteImport } from './routes/app.admin.resumos.index'
 import { Route as AppAdminFlashcardsIndexRouteImport } from './routes/app.admin.flashcards.index'
 import { Route as AppAdminEstacoesIndexRouteImport } from './routes/app.admin.estacoes.index'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -315,6 +316,11 @@ const AppSalaCodeIndexRoute = AppSalaCodeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppSalaCodeRoute,
 } as any)
+const AppAdminResumosIndexRoute = AppAdminResumosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminResumosRoute,
+} as any)
 const AppAdminFlashcardsIndexRoute = AppAdminFlashcardsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -432,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
+  '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
   '/app/sala/$code/': typeof AppSalaCodeIndexRoute
 }
 export interface FileRoutesByTo {
@@ -460,7 +467,6 @@ export interface FileRoutesByTo {
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
-  '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -488,6 +494,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards': typeof AppAdminFlashcardsIndexRoute
+  '/app/admin/resumos': typeof AppAdminResumosIndexRoute
   '/app/sala/$code': typeof AppSalaCodeIndexRoute
 }
 export interface FileRoutesById {
@@ -551,6 +558,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
+  '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
   '/app/sala/$code/': typeof AppSalaCodeIndexRoute
 }
 export interface FileRouteTypes {
@@ -615,6 +623,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
+    | '/app/admin/resumos/'
     | '/app/sala/$code/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -643,7 +652,6 @@ export interface FileRouteTypes {
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
-    | '/app/admin/resumos'
     | '/app/admin/usuarios'
     | '/app/admin/videoaulas'
     | '/app/entrar/$code'
@@ -671,6 +679,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/app/admin/estacoes'
     | '/app/admin/flashcards'
+    | '/app/admin/resumos'
     | '/app/sala/$code'
   id:
     | '__root__'
@@ -733,6 +742,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
+    | '/app/admin/resumos/'
     | '/app/sala/$code/'
   fileRoutesById: FileRoutesById
 }
@@ -1092,6 +1102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSalaCodeIndexRouteImport
       parentRoute: typeof AppSalaCodeRoute
     }
+    '/app/admin/resumos/': {
+      id: '/app/admin/resumos/'
+      path: '/'
+      fullPath: '/app/admin/resumos/'
+      preLoaderRoute: typeof AppAdminResumosIndexRouteImport
+      parentRoute: typeof AppAdminResumosRoute
+    }
     '/app/admin/flashcards/': {
       id: '/app/admin/flashcards/'
       path: '/'
@@ -1200,10 +1217,12 @@ const AppAdminFlashcardsRouteWithChildren =
 
 interface AppAdminResumosRouteChildren {
   AppAdminResumosIdRoute: typeof AppAdminResumosIdRoute
+  AppAdminResumosIndexRoute: typeof AppAdminResumosIndexRoute
 }
 
 const AppAdminResumosRouteChildren: AppAdminResumosRouteChildren = {
   AppAdminResumosIdRoute: AppAdminResumosIdRoute,
+  AppAdminResumosIndexRoute: AppAdminResumosIndexRoute,
 }
 
 const AppAdminResumosRouteWithChildren = AppAdminResumosRoute._addFileChildren(
