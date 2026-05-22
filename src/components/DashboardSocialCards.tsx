@@ -69,7 +69,7 @@ export function OnlineFriendsCard() {
           {onlineFriends.map((f) => (
             <li key={f.id} className="flex items-center gap-3 rounded-lg p-1.5 transition-colors hover:bg-muted/50">
               <div className="relative">
-                <UserAvatar name={f.full_name ?? f.username ?? "?"} src={f.avatar_url} size="md" />
+                <UserAvatar name={f.full_name ?? f.username ?? "?"} avatarUrl={f.avatar_url} size="md" />
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-success" />
               </div>
               <div className="min-w-0 flex-1">
@@ -148,7 +148,7 @@ export function CommunityFeedCard() {
             <li key={p.id}>
               <Link to="/app/comunidade" className="block rounded-lg p-2 transition-colors hover:bg-muted/50">
                 <div className="flex items-start gap-2.5">
-                    <UserAvatar name={p.author?.full_name ?? p.author?.username ?? "?"} src={p.author?.avatar_url ?? null} size="sm" />
+                    <UserAvatar name={p.author?.full_name ?? p.author?.username ?? "?"} avatarUrl={p.author?.avatar_url ?? null} size="sm" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-1.5">
                       <span className="truncate text-xs font-semibold">
