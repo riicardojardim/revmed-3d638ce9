@@ -582,13 +582,16 @@ function MockupCarousel() {
 
 function MarqueeStrip() {
   const items = [
-    "Estações com cronômetro INEP",
-    "Checklists oficiais",
-    "Flashcards com revisão espaçada",
-    "Resumos enxutos",
-    "Desempenho em tempo real",
-    "Sala estável pra prática ao vivo",
-    "Banco com centenas de casos",
+    "Sala ao vivo com vídeo integrado",
+    "Cronômetro sincronizado no servidor",
+    "Checklist 3 níveis igual ao INEP",
+    "Impressos em tempo real",
+    "Flashcards com algoritmo SM-2",
+    "Resumos cruzados por tema",
+    "Patentes, troféus e ranking",
+    "Heatmap de 84 dias e streak",
+    "Amigos online, DMs e comunidade",
+    "Nota de corte INEP no painel",
   ];
   return (
     <section className="border-y border-border/60 bg-card/40 py-5">
