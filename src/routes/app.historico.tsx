@@ -6,6 +6,8 @@ import { Clock, ChevronRight, ChevronDown, ListOrdered } from "lucide-react";
 import { HistoricoDetailModal } from "@/components/HistoricoDetailModal";
 import { Reveal } from "@/components/ui/reveal";
 import { Shimmer } from "@/components/ui/shimmer";
+import { motion, AnimatePresence } from "framer-motion";
+import { listContainer, listItem } from "@/components/motion/MotionPrimitives";
 
 
 export const Route = createFileRoute("/app/historico")({
@@ -101,7 +103,12 @@ function Historico() {
           className="mt-3 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint"
         />
 
-        <div className="mt-5 space-y-3">
+        <motion.div
+          variants={listContainer}
+          initial="hidden"
+          animate="show"
+          className="mt-5 space-y-3"
+        >
           {loading ? (
             <Shimmer rows={4} className="h-14 rounded-xl" />
           ) : rows.length === 0 ? (
@@ -110,7 +117,14 @@ function Historico() {
             if (row.kind === "single") {
               const a = row.attempt;
               return (
-                <div key={a.id} className="overflow-hidden rounded-xl border border-border">
+                <motion.div
+                  key={a.id}
+                  variants={listItem}
+                  layout
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                  className="overflow-hidden rounded-xl border border-border"
+                >
                   <button
                     type="button"
                     onClick={() => setDetailId(a.id)}
@@ -128,14 +142,21 @@ function Historico() {
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                   </button>
-                </div>
+                </motion.div>
               );
             }
             const g = row;
             const open = !!openSim[g.id];
             const totalStations = g.total || g.stations.length;
             return (
-              <div key={g.id} className="overflow-hidden rounded-xl border border-border">
+              <motion.div
+                key={g.id}
+                variants={listItem}
+                layout
+                whileHover={{ y: -2 }}
+                transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                className="overflow-hidden rounded-xl border border-border"
+              >
                 <button
                   type="button"
                   onClick={() => setOpenSim((s) => ({ ...s, [g.id]: !open }))}
@@ -154,7 +175,15 @@ function Historico() {
                   </div>
                   {open ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                 </button>
+                <AnimatePresence initial={false}>
                 {open && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
                   <table className="w-full text-sm">
                     <tbody>
                       {g.stations.map((a, i) => (
@@ -178,11 +207,13 @@ function Historico() {
                       ))}
                     </tbody>
                   </table>
+                  </motion.div>
                 )}
-              </div>
+                </AnimatePresence>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </Reveal>
       <HistoricoDetailModal
         attemptId={detailId}

@@ -18,6 +18,10 @@ import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from "recharts";
+import { motion } from "framer-motion";
+import { staggerContainer, staggerItem } from "@/lib/stagger";
+import { MotionCard } from "@/components/motion/MotionPrimitives";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 
 export const Route = createFileRoute("/app/admin/")({
   component: AdminOverview,
@@ -313,15 +317,24 @@ function AdminOverview() {
       </div>
 
 
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4"
+      >
         {cards.map((c) => (
-          <div key={c.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <c.icon className={`h-5 w-5 ${c.color}`} />
-            <div className="mt-3 text-2xl font-bold font-display">{loading ? "—" : c.value}</div>
-            <div className="text-sm text-muted-foreground">{c.label}</div>
-          </div>
+          <motion.div key={c.label} variants={staggerItem}>
+            <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-5 shadow-card">
+              <c.icon className={`h-5 w-5 ${c.color}`} />
+              <div className="mt-3 text-2xl font-bold font-display">
+                {loading ? "—" : c.isText ? c.value : <AnimatedNumber value={Number(c.value)} />}
+              </div>
+              <div className="text-sm text-muted-foreground">{c.label}</div>
+            </MotionCard>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {stats.pendingReviews > 0 && (
         <Link to="/app/professor/correcoes" className="block">
