@@ -39,6 +39,7 @@ import {
   MessageSquare,
   Headphones,
   ShieldCheck,
+  Video,
 } from "lucide-react";
 import {
   Sidebar,
@@ -117,6 +118,7 @@ function AppLayout() {
           { to: "/app/admin/estacoes", label: "Checklists", icon: Stethoscope },
           { to: "/app/admin/flashcards", label: "Flashcards", icon: Brain },
           { to: "/app/admin/resumos", label: "Resumos", icon: FileText },
+          { to: "/app/admin/videoaulas", label: "Vídeo Aulas", icon: Video },
           { to: "/app/admin/usuarios", label: "Usuários", icon: Users },
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
@@ -150,6 +152,7 @@ function AppLayout() {
             { to: "/app/flashcards/desempenho", label: "Desempenho" },
           ]},
           { to: "/app/resumos", label: "Resumos", icon: BookOpen },
+          { to: "/app/videoaulas", label: "Vídeo Aulas", icon: Video },
           { to: "/app/entrar", label: "Entrar", icon: DoorOpen },
         ],
       },
@@ -182,6 +185,7 @@ function AppLayout() {
           { to: "/app/checklists", label: "Checklists", icon: ClipboardList },
           { to: "/app/flashcards", label: "Flashcards", icon: Brain },
           { to: "/app/resumos", label: "Resumos", icon: BookOpen },
+          { to: "/app/videoaulas", label: "Vídeo Aulas", icon: Video },
           ...(isTeacher ? [{ to: "/app/professor", label: "Professor", icon: GraduationCap } as NavItem] : []),
           { to: "/app/perfil", label: "Perfil", icon: User },
           ...(isAdmin ? [{ to: "/app/admin", label: "Painel Admin", icon: ShieldCheck } as NavItem] : []),

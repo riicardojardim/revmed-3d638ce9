@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as ECodeRouteImport } from './routes/e.$code'
 import { Route as ConviteCodeRouteImport } from './routes/convite.$code'
+import { Route as AppVideoaulasRouteImport } from './routes/app.videoaulas'
 import { Route as AppSuporteRouteImport } from './routes/app.suporte'
 import { Route as AppResumosRouteImport } from './routes/app.resumos'
 import { Route as AppProgressoRouteImport } from './routes/app.progresso'
@@ -45,6 +46,7 @@ import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professo
 import { Route as AppHistoricoIdRouteImport } from './routes/app.historico.$id'
 import { Route as AppFlashcardsDesempenhoRouteImport } from './routes/app.flashcards.desempenho'
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
+import { Route as AppAdminVideoaulasRouteImport } from './routes/app.admin.videoaulas'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminResumosRouteImport } from './routes/app.admin.resumos'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
@@ -107,6 +109,11 @@ const ConviteCodeRoute = ConviteCodeRouteImport.update({
   id: '/convite/$code',
   path: '/convite/$code',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppVideoaulasRoute = AppVideoaulasRouteImport.update({
+  id: '/videoaulas',
+  path: '/videoaulas',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSuporteRoute = AppSuporteRouteImport.update({
   id: '/suporte',
@@ -248,6 +255,11 @@ const AppEntrarCodeRoute = AppEntrarCodeRouteImport.update({
   path: '/entrar/$code',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminVideoaulasRoute = AppAdminVideoaulasRouteImport.update({
+  id: '/videoaulas',
+  path: '/videoaulas',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminUsuariosRoute = AppAdminUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -379,6 +391,7 @@ export interface FileRoutesByFullPath {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
@@ -391,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
@@ -436,6 +450,7 @@ export interface FileRoutesByTo {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app': typeof AppIndexRoute
@@ -445,6 +460,7 @@ export interface FileRoutesByTo {
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
@@ -493,6 +509,7 @@ export interface FileRoutesById {
   '/app/progresso': typeof AppProgressoRoute
   '/app/resumos': typeof AppResumosRouteWithChildren
   '/app/suporte': typeof AppSuporteRoute
+  '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
   '/app/': typeof AppIndexRoute
@@ -505,6 +522,7 @@ export interface FileRoutesById {
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
@@ -555,6 +573,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
     | '/app/'
@@ -567,6 +586,7 @@ export interface FileRouteTypes {
     | '/app/admin/planos'
     | '/app/admin/resumos'
     | '/app/admin/usuarios'
+    | '/app/admin/videoaulas'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
     | '/app/historico/$id'
@@ -612,6 +632,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
     | '/app'
@@ -621,6 +642,7 @@ export interface FileRouteTypes {
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
+    | '/app/admin/videoaulas'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
     | '/app/historico/$id'
@@ -668,6 +690,7 @@ export interface FileRouteTypes {
     | '/app/progresso'
     | '/app/resumos'
     | '/app/suporte'
+    | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
     | '/app/'
@@ -680,6 +703,7 @@ export interface FileRouteTypes {
     | '/app/admin/planos'
     | '/app/admin/resumos'
     | '/app/admin/usuarios'
+    | '/app/admin/videoaulas'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
     | '/app/historico/$id'
@@ -778,6 +802,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/convite/$code'
       preLoaderRoute: typeof ConviteCodeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/videoaulas': {
+      id: '/app/videoaulas'
+      path: '/videoaulas'
+      fullPath: '/app/videoaulas'
+      preLoaderRoute: typeof AppVideoaulasRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/suporte': {
       id: '/app/suporte'
@@ -974,6 +1005,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/entrar/$code'
       preLoaderRoute: typeof AppEntrarCodeRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/app/admin/videoaulas': {
+      id: '/app/admin/videoaulas'
+      path: '/videoaulas'
+      fullPath: '/app/admin/videoaulas'
+      preLoaderRoute: typeof AppAdminVideoaulasRouteImport
+      parentRoute: typeof AppAdminRoute
     }
     '/app/admin/usuarios': {
       id: '/app/admin/usuarios'
@@ -1182,6 +1220,7 @@ interface AppAdminRouteChildren {
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
   AppAdminResumosRoute: typeof AppAdminResumosRouteWithChildren
   AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
+  AppAdminVideoaulasRoute: typeof AppAdminVideoaulasRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
@@ -1195,6 +1234,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminPlanosRoute: AppAdminPlanosRoute,
   AppAdminResumosRoute: AppAdminResumosRouteWithChildren,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
+  AppAdminVideoaulasRoute: AppAdminVideoaulasRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
@@ -1302,6 +1342,7 @@ interface AppRouteChildren {
   AppProgressoRoute: typeof AppProgressoRoute
   AppResumosRoute: typeof AppResumosRouteWithChildren
   AppSuporteRoute: typeof AppSuporteRoute
+  AppVideoaulasRoute: typeof AppVideoaulasRoute
   AppIndexRoute: typeof AppIndexRoute
   AppEntrarCodeRoute: typeof AppEntrarCodeRoute
   AppFlashcardsDesempenhoRoute: typeof AppFlashcardsDesempenhoRoute
@@ -1326,6 +1367,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProgressoRoute: AppProgressoRoute,
   AppResumosRoute: AppResumosRouteWithChildren,
   AppSuporteRoute: AppSuporteRoute,
+  AppVideoaulasRoute: AppVideoaulasRoute,
   AppIndexRoute: AppIndexRoute,
   AppEntrarCodeRoute: AppEntrarCodeRoute,
   AppFlashcardsDesempenhoRoute: AppFlashcardsDesempenhoRoute,
@@ -1351,13 +1393,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

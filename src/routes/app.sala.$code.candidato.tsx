@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
 import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
+import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
@@ -505,6 +506,9 @@ function CandidateView() {
   return (
     <>
       {introOverlay}
+      {user && room && (
+        <RoomVideoCall roomCode={room.code} displayName={displayName ?? undefined} role={isSpectator ? "espectador" : "candidato"} />
+      )}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 sm:gap-3">
         <button

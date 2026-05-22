@@ -1194,6 +1194,54 @@ export type Database = {
           },
         ]
       }
+      video_lessons: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_seconds: number
+          id: string
+          position: number
+          published: boolean
+          specialty: string
+          title: string
+          topic: string | null
+          updated_at: string
+          video_url: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_seconds?: number
+          id?: string
+          position?: number
+          published?: boolean
+          specialty: string
+          title: string
+          topic?: string | null
+          updated_at?: string
+          video_url: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_seconds?: number
+          id?: string
+          position?: number
+          published?: boolean
+          specialty?: string
+          title?: string
+          topic?: string | null
+          updated_at?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
