@@ -10,6 +10,8 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
+import { CookieConsent } from "@/components/CookieConsent";
+import { SiteScriptsInjector } from "@/components/SiteScriptsInjector";
 
 import appCss from "../styles.css?url";
 
@@ -134,6 +136,8 @@ function RootComponent() {
       <AuthProvider>
         <Outlet />
         <PWAInstallBanner />
+        <SiteScriptsInjector />
+        <CookieConsent />
         <Toaster richColors position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
