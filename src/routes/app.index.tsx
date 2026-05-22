@@ -547,14 +547,14 @@ function KpiTile({
   emphasis?: boolean;
 }) {
   return (
-    <div className={`flex flex-col justify-between rounded-2xl border p-4 ${emphasis ? "border-medical/40 bg-medical/5" : "border-border bg-background/50"}`}>
-      <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+    <div className={`flex flex-col justify-between rounded-xl border p-3 sm:rounded-2xl sm:p-4 ${emphasis ? "border-medical/40 bg-medical/5" : "border-border bg-background/50"}`}>
+      <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-muted-foreground sm:text-[10px]">
         {icon}{eyebrow}
       </div>
-      <div className={`mt-2 font-display font-bold tabular-nums ${emphasis ? "text-medical text-4xl sm:text-5xl" : "text-2xl sm:text-3xl"}`}>
+      <div className={`mt-1.5 font-display font-bold tabular-nums sm:mt-2 ${emphasis ? "text-medical text-3xl sm:text-5xl" : "text-xl sm:text-3xl"}`}>
         {value}
       </div>
-      {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground sm:text-[11px]">{hint}</div>}
     </div>
   );
 }
