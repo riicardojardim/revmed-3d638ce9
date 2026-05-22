@@ -1411,7 +1411,30 @@ function ActorView() {
                       </Button>
                     </div>
                   </div>
-        </aside>
+            </div>
+          );
+          return (
+            <>
+              {/* Desktop sidebar */}
+              <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:self-start">
+                {controlPanel}
+              </aside>
+              {/* Mobile/tablet: stacked below PEP */}
+              <div className="min-w-0 lg:hidden">
+                {controlPanel}
+              </div>
+              {/* Mobile/tablet popup with the same controls */}
+              <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
+                <SheetContent side="right" className="w-full max-w-md overflow-y-auto p-4 sm:max-w-lg">
+                  <SheetHeader className="mb-3">
+                    <SheetTitle className="text-base">Controles da estação</SheetTitle>
+                  </SheetHeader>
+                  {controlPanel}
+                </SheetContent>
+              </Sheet>
+            </>
+          );
+        })()}
       </div>
 
       {room && (
