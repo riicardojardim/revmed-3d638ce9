@@ -13,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { UserAvatar } from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { listContainer, listItem } from "@/components/motion/MotionPrimitives";
+import { STAGGER } from "@/lib/stagger";
 
 export const Route = createFileRoute("/app/comunidade")({
   component: ComunidadePage,
@@ -254,18 +257,26 @@ function ComunidadePage() {
           Ainda sem posts. Seja o primeiro a publicar! 🎉
         </Card>
       ) : (
-        <div className="space-y-3">
-          {posts.map((p) => (
-            <PostCard
-              key={p.id}
-              post={p}
-              currentUserId={user.id}
-              onToggleLike={() => toggleLike(p)}
-              onDelete={() => deletePost(p)}
-              onCommentAdded={load}
-            />
-          ))}
-        </div>
+        <motion.div variants={listContainer} initial="hidden" animate="show" className="space-y-3">
+          <AnimatePresence initial={false}>
+            {posts.map((p) => (
+              <motion.div
+                key={p.id}
+                variants={listItem}
+                layout
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+              >
+                <PostCard
+                  post={p}
+                  currentUserId={user.id}
+                  onToggleLike={() => toggleLike(p)}
+                  onDelete={() => deletePost(p)}
+                  onCommentAdded={load}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   );
@@ -379,9 +390,29 @@ function PostCard({
         </div>
 
         <div className="mt-3 flex items-center gap-1 border-t pt-2">
-          <Button variant="ghost" size="sm" onClick={onToggleLike} className={cn(post.liked_by_me && "text-rose-500")}>
-            <Heart className={cn("mr-2 h-4 w-4", post.liked_by_me && "fill-current")} />
-            {post.likes_count > 0 ? post.likes_count : ""} Curtir
+          <Button variant="ghost" size="sm" onClick={onToggleLike} className={cn("group", post.liked_by_me && "text-rose-500")}>
+            <motion.span
+              key={post.liked_by_me ? "liked" : "unliked"}
+              initial={{ scale: 0.6 }}
+              animate={{ scale: post.liked_by_me ? [1, 1.4, 1] : 1 }}
+              transition={{ duration: 0.35, ease: STAGGER.ease }}
+              className="mr-2 inline-flex"
+            >
+              <Heart className={cn("h-4 w-4 transition-transform group-hover:scale-110", post.liked_by_me && "fill-current")} />
+            </motion.span>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={post.likes_count}
+                initial={{ y: 6, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -6, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="inline-block"
+              >
+                {post.likes_count > 0 ? `${post.likes_count} ` : ""}
+              </motion.span>
+            </AnimatePresence>
+            Curtir
           </Button>
           <Button variant="ghost" size="sm" onClick={toggleComments}>
             <MessageCircle className="mr-2 h-4 w-4" />
@@ -390,8 +421,17 @@ function PostCard({
         </div>
       </div>
 
+      <AnimatePresence initial={false}>
       {showComments && (
-        <div className="space-y-3 border-t bg-muted/20 p-4">
+        <motion.div
+          key="comments"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.28, ease: STAGGER.ease }}
+          className="overflow-hidden border-t bg-muted/20"
+        >
+        <div className="space-y-3 p-4">
           {loadingComments ? (
             <p className="text-center text-xs text-muted-foreground">Carregando comentários…</p>
           ) : comments.length === 0 ? (
