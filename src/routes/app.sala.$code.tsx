@@ -70,8 +70,7 @@ function formatCandidateName(
 function SimuladoRunner({ id }: { id: string }) {
   const nav = useNavigate();
   const { user, profile } = useAuth();
-  const { settings } = useSiteSettings();
-  const introVariant = (settings?.intro_animation_variant === "badge" ? "badge" : "pulse") as "pulse" | "badge";
+  useSiteSettings(); // mantém o hook ativo (settings usado por outras seções)
   const [sim, setSim] = useState<Simulado | null>(null);
   const [station, setStation] = useState<LoadedStation | null>(null);
   const [loading, setLoading] = useState(true);
