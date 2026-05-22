@@ -1480,7 +1480,7 @@ function ActorView() {
       <button
         type="button"
         onClick={() => setControlsOpen(true)}
-        className="fixed bottom-5 right-5 z-40 inline-flex h-12 items-center gap-2 rounded-full bg-gradient-hero px-4 text-sm font-semibold text-white shadow-elegant ring-1 ring-mint/30 transition hover:scale-[1.02] active:scale-[0.98] lg:hidden"
+        className="fixed bottom-20 right-5 z-[55] inline-flex h-12 items-center gap-2 rounded-full bg-gradient-hero px-4 text-sm font-semibold text-white shadow-elegant ring-1 ring-mint/30 transition hover:scale-[1.02] active:scale-[0.98] lg:hidden"
         aria-label="Abrir controles da estação"
       >
         <SlidersHorizontal className="h-4 w-4" />
