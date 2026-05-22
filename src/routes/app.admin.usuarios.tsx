@@ -247,7 +247,7 @@ function UserActions(props: {
   onEditEmail: (email: string) => void;
   onSetPassword: (password: string) => void;
   onSendLink: () => void;
-  onSetRole: (role: "aluno" | "professor" | "admin") => void;
+  onSetRole: (role: "aluno" | "professor" | "admin" | "mentor") => void;
   onAssignPlan: (plan_id: string, days: number) => void;
   onAdjustDays: (days: number) => void;
   onCancel: () => void;
@@ -282,6 +282,7 @@ function UserActions(props: {
           <DropdownMenuLabel>Permissão</DropdownMenuLabel>
           <DropdownMenuItem onSelect={() => props.onSetRole("aluno")}>Tornar aluno</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => props.onSetRole("professor")}>Tornar professor</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => props.onSetRole("mentor")}>Tornar mentor</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => props.onSetRole("admin")}>Tornar admin</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={props.onDelete} className="text-destructive">Excluir usuário</DropdownMenuItem>
