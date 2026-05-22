@@ -82,6 +82,7 @@ export const Route = createFileRoute("/")({
 const NAV_LINKS = [
   { id: "plataforma", label: "Plataforma" },
   { id: "manifesto", label: "Método" },
+  { id: "comunidade", label: "Comunidade" },
   { id: "resultados", label: "Resultados" },
   { id: "mentoria", label: "Mentoria" },
   { id: "investimento", label: "Planos" },
