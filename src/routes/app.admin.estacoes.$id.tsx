@@ -347,6 +347,7 @@ function EditorBody({
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [linkedRefreshKey, setLinkedRefreshKey] = useState(0);
   return (
     <div className="space-y-6">
       {/* PDF Import — Passo 1: importe o PDF para preencher tudo automaticamente */}
