@@ -8,6 +8,7 @@ import logoIconOnlyUrl from "@/assets/logo-revmed-icon.png";
 
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { FriendsPanel } from "@/components/FriendsPanel";
 import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
@@ -344,6 +345,7 @@ function AppLayout() {
             )}
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
+            <FriendsPanel />
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
