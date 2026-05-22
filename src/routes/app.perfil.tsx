@@ -18,6 +18,8 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 import { AvatarUploader } from "@/components/AvatarUploader";
+import { Reveal } from "@/components/ui/reveal";
+import { MotionCard } from "@/components/motion/MotionPrimitives";
 
 export const Route = createFileRoute("/app/perfil")({
   component: ProfilePage,
@@ -242,7 +244,8 @@ function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-12">
       {/* Header card */}
-      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+      <Reveal>
+      <MotionCard lift={2} glow className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <div className="flex items-center gap-4">
           {user && (
             <AvatarUploader
