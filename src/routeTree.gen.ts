@@ -46,6 +46,7 @@ import { Route as AppProfessorCorrecoesRouteImport } from './routes/app.professo
 import { Route as AppHistoricoIdRouteImport } from './routes/app.historico.$id'
 import { Route as AppFlashcardsDesempenhoRouteImport } from './routes/app.flashcards.desempenho'
 import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
+import { Route as AppAdminVideoaulasRouteImport } from './routes/app.admin.videoaulas'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminResumosRouteImport } from './routes/app.admin.resumos'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
@@ -254,6 +255,11 @@ const AppEntrarCodeRoute = AppEntrarCodeRouteImport.update({
   path: '/entrar/$code',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminVideoaulasRoute = AppAdminVideoaulasRouteImport.update({
+  id: '/videoaulas',
+  path: '/videoaulas',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminUsuariosRoute = AppAdminUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -398,6 +404,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
@@ -453,6 +460,7 @@ export interface FileRoutesByTo {
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
+  '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
   '/app/flashcards/desempenho': typeof AppFlashcardsDesempenhoRoute
   '/app/historico/$id': typeof AppHistoricoIdRoute
@@ -577,6 +586,7 @@ export interface FileRouteTypes {
     | '/app/admin/planos'
     | '/app/admin/resumos'
     | '/app/admin/usuarios'
+    | '/app/admin/videoaulas'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
     | '/app/historico/$id'
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
     | '/app/admin/usuarios'
+    | '/app/admin/videoaulas'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
     | '/app/historico/$id'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/app/admin/planos'
     | '/app/admin/resumos'
     | '/app/admin/usuarios'
+    | '/app/admin/videoaulas'
     | '/app/entrar/$code'
     | '/app/flashcards/desempenho'
     | '/app/historico/$id'
@@ -994,6 +1006,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEntrarCodeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/admin/videoaulas': {
+      id: '/app/admin/videoaulas'
+      path: '/videoaulas'
+      fullPath: '/app/admin/videoaulas'
+      preLoaderRoute: typeof AppAdminVideoaulasRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/usuarios': {
       id: '/app/admin/usuarios'
       path: '/usuarios'
@@ -1201,6 +1220,7 @@ interface AppAdminRouteChildren {
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
   AppAdminResumosRoute: typeof AppAdminResumosRouteWithChildren
   AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
+  AppAdminVideoaulasRoute: typeof AppAdminVideoaulasRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
@@ -1214,6 +1234,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminPlanosRoute: AppAdminPlanosRoute,
   AppAdminResumosRoute: AppAdminResumosRouteWithChildren,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
+  AppAdminVideoaulasRoute: AppAdminVideoaulasRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
