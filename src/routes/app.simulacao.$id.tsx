@@ -118,7 +118,7 @@ function SimulationPage() {
         <ArrowLeft className="h-4 w-4" /> Voltar à biblioteca
       </Link>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr,360px]">
+      <div className="grid gap-6 xl:grid-cols-[1fr,360px]">
         <div className="space-y-6">
           {/* Header */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-card md:p-6">
