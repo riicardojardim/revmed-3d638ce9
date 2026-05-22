@@ -437,7 +437,7 @@ function FlashcardsPage() {
 function FlashcardModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-40 bg-background flex flex-col">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border sm:px-6 sm:py-4" style={{ paddingTop: "max(env(safe-area-inset-top), 0.75rem)" }}>
         <div className="inline-flex items-center gap-2 text-sm">
           <List className="h-4 w-4 text-muted-foreground" />
           <span className="font-display font-bold">{title}</span>
@@ -446,10 +446,10 @@ function FlashcardModalShell({ title, onClose, children }: { title: string; onCl
           <X className="h-5 w-5" />
         </button>
       </div>
-      <div className="flex-1 flex flex-col py-8 overflow-y-auto">
+      <div className="flex-1 flex flex-col py-4 sm:py-8 overflow-y-auto">
         {children}
       </div>
-      <div className="flex justify-end px-6 py-3 border-t border-border">
+      <div className="flex justify-end px-4 py-2 border-t border-border sm:px-6 sm:py-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)" }}>
         <Button variant="ghost" size="sm" onClick={onClose}>Fechar</Button>
       </div>
     </div>
