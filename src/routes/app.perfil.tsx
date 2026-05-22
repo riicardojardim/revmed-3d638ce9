@@ -458,7 +458,7 @@ function ProfilePage() {
         <div className="mt-5 flex flex-wrap gap-2">
           <Button variant="hero">Fazer upgrade</Button>
           <a
-            href="https://wa.me/5500000000000?text=Ol%C3%A1%2C%20quero%20ativar%20minha%20assinatura%20na%20Esta%C3%A7%C3%A3o%20Revalida."
+            href="https://wa.me/5521987860985?text=Ol%C3%A1%2C%20quero%20ativar%20minha%20assinatura%20na%20Esta%C3%A7%C3%A3o%20Revalida."
             target="_blank"
             rel="noreferrer"
           >

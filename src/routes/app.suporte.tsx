@@ -23,7 +23,7 @@ function Suporte() {
           <MessageCircle className="h-6 w-6 text-mint" />
           <h3 className="mt-3 font-display text-lg font-bold">WhatsApp</h3>
           <p className="mt-1 text-sm text-muted-foreground">Resposta rápida em horário comercial.</p>
-          <a href="https://wa.me/5500000000000" target="_blank" rel="noreferrer" className="mt-4 inline-block">
+          <a href="https://wa.me/5521987860985?text=Ol%C3%A1!%20Preciso%20de%20suporte%20REVMED." target="_blank" rel="noreferrer" className="mt-4 inline-block">
             <Button variant="hero">Abrir WhatsApp</Button>
           </a>
         </div>
