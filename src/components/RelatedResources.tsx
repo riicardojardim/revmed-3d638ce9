@@ -242,6 +242,48 @@ export function RelatedResources({
           specialty={bestDeck.specialty}
           topic={bestDeck.topic}
           cards={deckCards}
+          belowCta={
+            (bestResumo || bestStation) ? (
+              <div className="rounded-2xl border border-mint/25 bg-mint/[0.04] p-3">
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-mint">
+                  <Sparkles className="h-3.5 w-3.5" /> Continue estudando
+                </div>
+                <div className="mt-2 grid gap-2">
+                  {bestResumo && (
+                    <button
+                      type="button"
+                      onClick={() => { setDeckOpen(false); setSummaryOpen(true); }}
+                      className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5 text-left hover:border-mint/40 hover:bg-mint/[0.06] transition"
+                    >
+                      <BookOpen className="h-4 w-4 text-medical shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-semibold uppercase tracking-wide text-medical">Resumo vinculado</div>
+                        <div className="line-clamp-1 text-sm font-display font-bold leading-snug">{bestResumo.title}</div>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  )}
+                  {bestStation && (
+                    <button
+                      type="button"
+                      onClick={() => { setDeckOpen(false); startStation(); }}
+                      className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5 text-left hover:border-mint/40 hover:bg-mint/[0.06] transition"
+                    >
+                      <ListChecks className="h-4 w-4 text-medical shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-semibold uppercase tracking-wide text-medical">Checklist vinculado</div>
+                        <div className="line-clamp-1 text-sm font-display font-bold leading-snug">{bestStation.title}</div>
+                        <div className="line-clamp-1 text-[11px] text-muted-foreground">
+                          {data?.checklistCount ?? 0} {(data?.checklistCount ?? 0) === 1 ? "item" : "itens"}
+                        </div>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : null
+          }
         />
       )}
     </section>
