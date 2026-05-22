@@ -568,8 +568,8 @@ function EditorBody({
         <StationLivePreview station={station} items={items} />
       </Section>
 
-      <SectionGenerateFlashcards station={station} items={items} />
-      <SectionGenerateSummary station={station} items={items} />
+      <SectionGenerateFlashcards station={station} items={items} refreshKey={linkedRefreshKey} />
+      <SectionGenerateSummary station={station} items={items} refreshKey={linkedRefreshKey} />
       <SectionPublish station={station} togglePublish={togglePublish} />
 
       <PostChecklistAIDialog
@@ -577,6 +577,7 @@ function EditorBody({
         onOpenChange={setAiDialogOpen}
         station={station}
         items={items}
+        onGenerated={() => setLinkedRefreshKey((k) => k + 1)}
       />
     </div>
   );
