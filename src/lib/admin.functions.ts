@@ -321,14 +321,16 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
     const d7 = new Date(now - 7 * 86400_000).toISOString();
     const d30 = new Date(now - 30 * 86400_000).toISOString();
 
-    const [users, subs, plans] = await Promise.all([
+    const [users, subs, plans, internalIds] = await Promise.all([
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1 }),
-      supabaseAdmin.from("user_subscriptions").select("plan_id, status, current_period_end, created_at"),
+      supabaseAdmin.from("user_subscriptions").select("plan_id, status, current_period_end, created_at, user_id"),
       supabaseAdmin.from("plans").select("id, name, slug, price_cents"),
+      getInternalUserIds(),
     ]);
 
     const planMap = new Map((plans.data ?? []).map((p) => [p.id, p]));
-    const subsArr = subs.data ?? [];
+    // Ignora contas internas (admin / professor / mentor) em TODAS as métricas
+    const subsArr = (subs.data ?? []).filter((s) => !internalIds.has(s.user_id));
 
     const activePaid = subsArr.filter(
       (s) =>
@@ -371,8 +373,9 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       .sort()
       .map(([day, count]) => ({ day, count }));
 
+    const total_users_raw = ("total" in users.data ? (users.data.total ?? 0) : 0);
     return {
-      total_users: ("total" in users.data ? (users.data.total ?? 0) : 0),
+      total_users: Math.max(total_users_raw - internalIds.size, 0),
       new_subs_7d: subsArr.filter((s) => s.created_at && s.created_at >= d7).length,
       new_subs_30d: subsArr.filter((s) => s.created_at && s.created_at >= d30).length,
       paying_users: activePaid.length,
@@ -380,5 +383,6 @@ export const getAdminDashboardStats = createServerFn({ method: "GET" })
       by_plan: Array.from(byPlan.values()),
       status_count: statusCount,
       daily_series: dailySeries,
+      internal_users: internalIds.size,
     };
   });
