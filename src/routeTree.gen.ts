@@ -28,6 +28,7 @@ import { Route as AppLiveRouteImport } from './routes/app.live'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppFeedbackRouteImport } from './routes/app.feedback'
 import { Route as AppCronogramaRouteImport } from './routes/app.cronograma'
+import { Route as AppComunidadeRouteImport } from './routes/app.comunidade'
 import { Route as AppChecklistsRouteImport } from './routes/app.checklists'
 import { Route as AppAulasRouteImport } from './routes/app.aulas'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
@@ -163,6 +164,11 @@ const AppFeedbackRoute = AppFeedbackRouteImport.update({
 const AppCronogramaRoute = AppCronogramaRouteImport.update({
   id: '/cronograma',
   path: '/cronograma',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppComunidadeRoute = AppComunidadeRouteImport.update({
+  id: '/comunidade',
+  path: '/comunidade',
   getParentRoute: () => AppRoute,
 } as any)
 const AppChecklistsRoute = AppChecklistsRouteImport.update({
@@ -381,6 +387,7 @@ export interface FileRoutesByFullPath {
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
+  '/app/comunidade': typeof AppComunidadeRoute
   '/app/cronograma': typeof AppCronogramaRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/historico': typeof AppHistoricoRouteWithChildren
@@ -441,6 +448,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
+  '/app/comunidade': typeof AppComunidadeRoute
   '/app/cronograma': typeof AppCronogramaRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/historico': typeof AppHistoricoRouteWithChildren
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
+  '/app/comunidade': typeof AppComunidadeRoute
   '/app/cronograma': typeof AppCronogramaRoute
   '/app/feedback': typeof AppFeedbackRoute
   '/app/historico': typeof AppHistoricoRouteWithChildren
@@ -563,6 +572,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/aulas'
     | '/app/checklists'
+    | '/app/comunidade'
     | '/app/cronograma'
     | '/app/feedback'
     | '/app/historico'
@@ -623,6 +633,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/app/aulas'
     | '/app/checklists'
+    | '/app/comunidade'
     | '/app/cronograma'
     | '/app/feedback'
     | '/app/historico'
@@ -680,6 +691,7 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/aulas'
     | '/app/checklists'
+    | '/app/comunidade'
     | '/app/cronograma'
     | '/app/feedback'
     | '/app/historico'
@@ -878,6 +890,13 @@ declare module '@tanstack/react-router' {
       path: '/cronograma'
       fullPath: '/app/cronograma'
       preLoaderRoute: typeof AppCronogramaRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/comunidade': {
+      id: '/app/comunidade'
+      path: '/comunidade'
+      fullPath: '/app/comunidade'
+      preLoaderRoute: typeof AppComunidadeRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/checklists': {
@@ -1332,6 +1351,7 @@ interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppAulasRoute: typeof AppAulasRoute
   AppChecklistsRoute: typeof AppChecklistsRoute
+  AppComunidadeRoute: typeof AppComunidadeRoute
   AppCronogramaRoute: typeof AppCronogramaRoute
   AppFeedbackRoute: typeof AppFeedbackRoute
   AppHistoricoRoute: typeof AppHistoricoRouteWithChildren
@@ -1357,6 +1377,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRouteWithChildren,
   AppAulasRoute: AppAulasRoute,
   AppChecklistsRoute: AppChecklistsRoute,
+  AppComunidadeRoute: AppComunidadeRoute,
   AppCronogramaRoute: AppCronogramaRoute,
   AppFeedbackRoute: AppFeedbackRoute,
   AppHistoricoRoute: AppHistoricoRouteWithChildren,
@@ -1393,13 +1414,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

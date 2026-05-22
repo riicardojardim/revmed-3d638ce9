@@ -41,6 +41,7 @@ import {
   Headphones,
   ShieldCheck,
   Video,
+  Users2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -158,6 +159,12 @@ function AppLayout() {
         ],
       },
       {
+        label: "Social",
+        items: [
+          { to: "/app/comunidade", label: "Comunidade", icon: Users2 },
+        ],
+      },
+      {
         label: "Contato",
         items: [
           { to: "/app/feedback", label: "Feedback", icon: MessageSquare },
@@ -183,6 +190,7 @@ function AppLayout() {
           { to: "/app/videoaulas", label: "Vídeo Aulas", icon: Video },
           
           { to: "/app/perfil", label: "Perfil", icon: User },
+          { to: "/app/comunidade", label: "Comunidade", icon: Users2 },
           ...(isAdmin ? [{ to: "/app/admin", label: "Painel Admin", icon: ShieldCheck } as NavItem] : []),
         ],
       },
