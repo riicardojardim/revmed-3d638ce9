@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { listInternalUserIdsAdmin } from "@/lib/admin.functions";
 import {
   Users, BookOpen, ClipboardList, Layers, CheckCircle2, FileText,
   AlertCircle, Stethoscope, Play, TrendingUp, DollarSign, UserPlus,
@@ -35,6 +37,7 @@ interface DailyPoint { date: string; label: string; value: number }
 function AdminOverview() {
   const [testRole, setTestRole] = useState<IntroRole | null>(null);
   const { settings } = useSiteSettings();
+  const fetchInternalIds = useServerFn(listInternalUserIdsAdmin);
 
   // === Banner do grupo de WhatsApp (topo do app) ===
   const [waEnabled, setWaEnabled] = useState(true);
@@ -81,7 +84,7 @@ function AdminOverview() {
       const d7 = new Date(now.getTime() - 7 * 86400000).toISOString();
       const d30 = new Date(now.getTime() - 30 * 86400000).toISOString();
 
-      const [u, aAll, a7, a30, sPub, sDraft, fc, sum, pend, subs, plans, recentAttempts, profiles30, attempts30list, internalRoles] = await Promise.all([
+      const [u, aAll, a7, a30, sPub, sDraft, fc, sum, pend, subs, plans, recentAttempts, profiles30, attempts30list, internalRes] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }),
         supabase.from("attempts").select("id", { count: "exact", head: true }).gte("created_at", d7),
@@ -96,11 +99,11 @@ function AdminOverview() {
         supabase.from("attempts").select("station_id, station_title").gte("created_at", d30).limit(2000),
         supabase.from("profiles").select("created_at").gte("created_at", d30).limit(5000),
         supabase.from("attempts").select("created_at").gte("created_at", d30).limit(5000),
-        supabase.from("user_roles").select("user_id").in("role", ["admin", "professor", "mentor"]),
+        fetchInternalIds().catch(() => ({ ids: [] as string[] })),
       ]);
 
       // IDs de contas internas (admin / professor / mentor) — NÃO contam em métricas
-      const internalIds = new Set<string>((internalRoles.data ?? []).map((r: any) => r.user_id));
+      const internalIds = new Set<string>(internalRes?.ids ?? []);
 
       // Plan buckets + MRR
       const planMap = new Map<string, { name: string; slug: string; price_cents: number }>();
