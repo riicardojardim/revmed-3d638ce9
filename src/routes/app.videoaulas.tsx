@@ -106,7 +106,7 @@ function VideoAulas() {
               key={l.id}
               type="button"
               onClick={() => setPlaying(l)}
-              className="group block text-left transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
+              className="group flex flex-col text-left transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-mint"
             >
               <LessonCover
                 title={l.title}
@@ -115,7 +115,7 @@ function VideoAulas() {
                 durationSeconds={l.duration_seconds}
                 imageUrl={l.cover_image_url}
               />
-              <div className="mt-2 line-clamp-2 px-1 text-sm font-medium">{l.title}</div>
+              <div className="mt-2 line-clamp-2 min-h-[2.5rem] px-1 text-sm font-medium leading-tight">{l.title}</div>
               <div className="px-1 text-xs text-muted-foreground">{l.specialty}</div>
             </button>
           ))}
