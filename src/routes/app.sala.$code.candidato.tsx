@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import {
   ArrowLeft, Square, MessageSquare, ListChecks, Inbox, FileText, StickyNote,
-  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp, X, ZoomIn,
+  Lock, Sparkles, ClipboardCheck, Hourglass, CheckCheck, Play, ShieldCheck, Clock, Eye, EyeOff, ChevronDown, ChevronUp, X, ZoomIn, SlidersHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
@@ -21,6 +21,7 @@ import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 import { RelatedResources } from "@/components/RelatedResources";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
