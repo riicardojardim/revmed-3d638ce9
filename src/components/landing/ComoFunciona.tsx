@@ -18,7 +18,7 @@ const STEPS = [
     icon: Timer,
     n: "03",
     title: "Prática real",
-    body: "Simulados cronometrados no padrão INEP, com banca, ator e correção objetiva por critério.",
+    body: "Simulados cronometrados no padrão INEP, com ator-avaliador e correção objetiva por critério.",
   },
   {
     icon: Trophy,
@@ -79,10 +79,10 @@ export function ComoFunciona() {
 import { X, Check } from "lucide-react";
 
 const COMPARISON = [
-  { feature: "Sala ao vivo com vídeo (candidato + ator + banca)", sozinho: false, revmed: true },
+  { feature: "Sala ao vivo com vídeo (candidato + ator-avaliador)", sozinho: false, revmed: true },
   { feature: "Cronômetro travado no servidor (não dá pra burlar)", sozinho: false, revmed: true },
   { feature: "Impressos (ECG, exame, RX) entregues em tempo real", sozinho: false, revmed: true },
-  { feature: "Checklist 3 níveis com PEP igual à da banca", sozinho: false, revmed: true },
+  { feature: "Checklist 3 níveis com PEP igual ao INEP", sozinho: false, revmed: true },
   { feature: "Flashcards com SM-2 (algoritmo do Anki)", sozinho: false, revmed: true },
   { feature: "Nota de corte INEP comparada à sua nota", sozinho: false, revmed: true },
   { feature: "Patentes, troféus por especialidade e ranking", sozinho: false, revmed: true },

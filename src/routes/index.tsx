@@ -57,17 +57,17 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "REVMED — Sala ao vivo, checklist INEP e flashcards SM-2 pro Revalida" },
+      { title: "REVMED — Treine a estação do Revalida como se fosse hoje" },
       {
         name: "description",
         content:
-          "Sala ao vivo com vídeo (candidato + ator + banca), cronômetro no servidor, impressos em tempo real, checklist 3 níveis, flashcards SM-2, resumos cruzados, patentes, troféus e comunidade. Mentoria 1:5 opcional.",
+          "Sala ao vivo com ator-avaliador, cronômetro INEP, checklist 3 níveis com PEP na hora e flashcards SM-2. Descubra semana a semana se já passaria no Revalida.",
       },
-      { property: "og:title", content: "REVMED — Treine como o INEP cobra na prova" },
+      { property: "og:title", content: "REVMED — Chegue na prova já tendo feito a prova" },
       {
         property: "og:description",
         content:
-          "Sala ao vivo com vídeo integrado, cronômetro INEP no servidor, checklist 3 níveis com PEP liberada na hora, flashcards SM-2, resumos cruzados, ranking, patentes e comunidade.",
+          "Estação ao vivo com ator-avaliador, checklist igual ao INEP, flashcards SM-2 e sua nota comparada ao corte. Comece em 1 minuto.",
       },
     ],
     links: NOTIFICATION_AVATAR_SOURCES.map((src) => ({
@@ -320,7 +320,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-4 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
-            Candidato, ator e banca. <br />
+            Chegue na prova{" "}
             <span
               style={{
                 backgroundImage:
@@ -330,9 +330,8 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              Na mesma sala. Ao vivo.
-            </span>{" "}
-            Igual ao INEP.
+              já tendo feito a prova.
+            </span>
           </motion.h1>
 
           <motion.p
@@ -341,12 +340,9 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
           >
-            Vídeo integrado, cronômetro sincronizado no servidor, impressos
-            (ECG, exame, RX) chegando em tempo real, checklist 3 níveis igual
-            ao da banca e PEP liberada na hora. Mais flashcards com revisão
-            espaçada (SM-2), resumos cruzados por tema, simulados, ranking,
-            patentes, troféus por especialidade e comunidade ao vivo. Tudo
-            num só lugar — sem travar.
+            Sala ao vivo com ator-avaliador, cronômetro INEP, checklist
+            3 níveis e flashcards SM-2. Um app que dá vontade de abrir
+            todo dia — e te mostra, semana a semana, se já passaria.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
@@ -617,7 +613,7 @@ const PILLARS = [
     icon: Target,
     title: "Sala igual à da prova.",
     body:
-      "Candidato, ator e avaliador na mesma chamada de vídeo. Cronômetro travado no servidor, impressos entregues em tempo real e checklist 3 níveis (adequado, parcial, inadequado) liberado pela banca igual ao INEP.",
+      "Candidato e ator-avaliador na mesma chamada de vídeo. Cronômetro travado no servidor, impressos entregues em tempo real e checklist 3 níveis (adequado, parcial, inadequado) marcado pelo avaliador igual ao INEP.",
   },
   {
     n: "02",
@@ -650,7 +646,7 @@ function Manifesto() {
             <p className="mt-4 text-sm text-muted-foreground md:mt-6 md:text-base lg:text-lg">
               O Revalida não recompensa quem estudou mais — recompensa quem
               treinou certo. A REVMED foi feita pra você praticar conduta,
-              marcar checklist como banca e medir o próprio progresso, no
+              marcar checklist como avaliador e medir o próprio progresso, no
               tempo que a sua rotina permite.
             </p>
           </div>
@@ -714,15 +710,15 @@ function Plataforma() {
           <FeatureCard
             className="md:col-span-2 lg:col-span-4"
             tag="Sala ao vivo"
-            title="Candidato + ator + banca, com vídeo integrado"
-            desc="Vídeo em chamada (LiveKit), cronômetro travado no servidor, impressos (ECG, exame, RX) entregues em tempo real, intro de 30s e roteiro padronizado. Os 3 papéis na mesma sala, igual ao INEP."
+            title="Candidato + ator-avaliador, com vídeo integrado"
+            desc="Vídeo em chamada (LiveKit), cronômetro travado no servidor, impressos (ECG, exame, RX) entregues em tempo real, intro de 30s e roteiro padronizado. Os dois papéis na mesma sala, igual ao INEP."
             accent="primary"
           />
           <FeatureCard
             className="md:col-span-2 lg:col-span-2"
             tag="Checklist 3 níveis"
             title="PEP liberada na hora"
-            desc="Adequado, parcial, inadequado — igual à banca. Você vê critério por critério assim que a estação fecha."
+            desc="Adequado, parcial, inadequado — igual ao INEP. Você vê critério por critério assim que a estação fecha."
           />
           <FeatureCard
             className="md:col-span-1 lg:col-span-2"
@@ -1145,7 +1141,7 @@ const FAQS = [
   },
   {
     q: "Como funciona o checklist da estação?",
-    a: "Igual ao do INEP: 3 níveis (adequado, parcial, inadequado) marcados pela banca enquanto a estação acontece. Quando o cronômetro fecha, a PEP é liberada na hora pro candidato — com nota por critério e tempo gasto.",
+    a: "Igual ao do INEP: 3 níveis (adequado, parcial, inadequado) marcados pelo ator-avaliador enquanto a estação acontece. Quando o cronômetro fecha, a PEP é liberada na hora pro candidato — com nota por critério e tempo gasto.",
   },
   {
     q: "Os flashcards usam qual método?",
