@@ -1,23 +1,32 @@
 import { motion } from "framer-motion";
 import { Quote, Instagram } from "lucide-react";
-import depoAlexandre from "@/assets/depoimento-alexandre.webp";
-import depoRenaldo from "@/assets/depoimento-renaldo.webp";
-import depoMarilice from "@/assets/depoimento-marilice.webp";
-import depoMaressa from "@/assets/depoimento-maressa.webp";
-import depoAndressa from "@/assets/depoimento-andressa.webp";
-import depoCristhian from "@/assets/depoimento-cristhian.webp";
-import depoAndre from "@/assets/depoimento-andre.webp";
-import depoNicolas from "@/assets/depoimento-nicolas.webp";
+// vite-imagetools: gera variantes 320/480/720 em webp e devolve um srcset pronto.
+import depoAlexandreSet from "@/assets/depoimento-alexandre.webp?w=320;480;720&format=webp&as=srcset";
+import depoAlexandreSrc from "@/assets/depoimento-alexandre.webp?w=480&format=webp";
+import depoRenaldoSet from "@/assets/depoimento-renaldo.webp?w=320;480;720&format=webp&as=srcset";
+import depoRenaldoSrc from "@/assets/depoimento-renaldo.webp?w=480&format=webp";
+import depoMariliceSet from "@/assets/depoimento-marilice.webp?w=320;480;720&format=webp&as=srcset";
+import depoMariliceSrc from "@/assets/depoimento-marilice.webp?w=480&format=webp";
+import depoMaressaSet from "@/assets/depoimento-maressa.webp?w=320;480;720&format=webp&as=srcset";
+import depoMaressaSrc from "@/assets/depoimento-maressa.webp?w=480&format=webp";
+import depoAndressaSet from "@/assets/depoimento-andressa.webp?w=320;480;720&format=webp&as=srcset";
+import depoAndressaSrc from "@/assets/depoimento-andressa.webp?w=480&format=webp";
+import depoCristhianSet from "@/assets/depoimento-cristhian.webp?w=320;480;720&format=webp&as=srcset";
+import depoCristhianSrc from "@/assets/depoimento-cristhian.webp?w=480&format=webp";
+import depoAndreSet from "@/assets/depoimento-andre.webp?w=320;480;720&format=webp&as=srcset";
+import depoAndreSrc from "@/assets/depoimento-andre.webp?w=480&format=webp";
+import depoNicolasSet from "@/assets/depoimento-nicolas.webp?w=320;480;720&format=webp&as=srcset";
+import depoNicolasSrc from "@/assets/depoimento-nicolas.webp?w=480&format=webp";
 
 const ITEMS = [
-  { src: depoAlexandre, name: "Dr. Alexandre Severino Siqueira" },
-  { src: depoRenaldo, name: "Dr. Renaldo Caron" },
-  { src: depoMarilice, name: "Dra. Marilice Winckler" },
-  { src: depoMaressa, name: "Dra. Maressa" },
-  { src: depoAndressa, name: "Dra. Andressa Letielly" },
-  { src: depoCristhian, name: "Dr. Cristhian Herran Giacomozzi" },
-  { src: depoAndre, name: "Dr. André Teixeira Siqueira" },
-  { src: depoNicolas, name: "Dr. Nicolas Henrique" },
+  { src: depoAlexandreSrc, srcSet: depoAlexandreSet, name: "Dr. Alexandre Severino Siqueira" },
+  { src: depoRenaldoSrc, srcSet: depoRenaldoSet, name: "Dr. Renaldo Caron" },
+  { src: depoMariliceSrc, srcSet: depoMariliceSet, name: "Dra. Marilice Winckler" },
+  { src: depoMaressaSrc, srcSet: depoMaressaSet, name: "Dra. Maressa" },
+  { src: depoAndressaSrc, srcSet: depoAndressaSet, name: "Dra. Andressa Letielly" },
+  { src: depoCristhianSrc, srcSet: depoCristhianSet, name: "Dr. Cristhian Herran Giacomozzi" },
+  { src: depoAndreSrc, srcSet: depoAndreSet, name: "Dr. André Teixeira Siqueira" },
+  { src: depoNicolasSrc, srcSet: depoNicolasSet, name: "Dr. Nicolas Henrique" },
 ];
 
 const ROW_A = ITEMS.filter((_, i) => i % 2 === 0);
@@ -58,8 +67,11 @@ function MarqueeRow({
             <div className="relative overflow-hidden rounded-xl border border-border/70 bg-card/40 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_30px_80px_-20px_color-mix(in_oklab,var(--primary)_30%,transparent)] sm:rounded-2xl">
               <img
                 src={d.src}
+                srcSet={d.srcSet}
+                sizes="(max-width: 640px) 68vw, (max-width: 1024px) 340px, 380px"
                 alt={`Depoimento de ${d.name} — aprovado no Revalida INEP 25.1`}
-                loading={i < 4 ? "eager" : "lazy"}
+                loading={i < 2 ? "eager" : "lazy"}
+                fetchPriority={i < 2 ? "high" : "low"}
                 decoding="async"
                 width={720}
                 height={900}
