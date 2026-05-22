@@ -192,15 +192,6 @@ function normalizeChecklistFields(rawDesc: string, rawCategory?: string | null):
   return { description: cleanedDescription, category: chosen };
 }
 
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(String(r.result));
-    r.onerror = () => reject(r.error);
-    r.readAsDataURL(file);
-  });
-}
-
 function StationEditor() {
   const { id } = Route.useParams();
   const nav = useNavigate();
