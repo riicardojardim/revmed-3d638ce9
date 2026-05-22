@@ -347,6 +347,7 @@ function EditorBody({
 }) {
   const [tab, setTab] = useState<"ator" | "avaliado">("ator");
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [linkedRefreshKey, setLinkedRefreshKey] = useState(0);
   return (
     <div className="space-y-6">
       {/* PDF Import — Passo 1: importe o PDF para preencher tudo automaticamente */}
@@ -567,8 +568,8 @@ function EditorBody({
         <StationLivePreview station={station} items={items} />
       </Section>
 
-      <SectionGenerateFlashcards station={station} items={items} />
-      <SectionGenerateSummary station={station} items={items} />
+      <SectionGenerateFlashcards station={station} items={items} refreshKey={linkedRefreshKey} />
+      <SectionGenerateSummary station={station} items={items} refreshKey={linkedRefreshKey} />
       <SectionPublish station={station} togglePublish={togglePublish} />
 
       <PostChecklistAIDialog
@@ -576,6 +577,7 @@ function EditorBody({
         onOpenChange={setAiDialogOpen}
         station={station}
         items={items}
+        onGenerated={() => setLinkedRefreshKey((k) => k + 1)}
       />
     </div>
   );
@@ -1560,7 +1562,7 @@ type GeneratedDeck = {
   cards: GeneratedCard[];
 };
 
-function SectionGenerateFlashcards({ station, items }: { station: Station; items: Item[] }) {
+function SectionGenerateFlashcards({ station, items, refreshKey = 0 }: { station: Station; items: Item[]; refreshKey?: number }) {
   const generate = useServerFn(generateDeckFromStation);
   const [loading, setLoading] = useState(false);
   const [deck, setDeck] = useState<GeneratedDeck | null>(null);
@@ -1588,7 +1590,7 @@ function SectionGenerateFlashcards({ station, items }: { station: Station; items
     setLinkedDecks(rows);
   }
 
-  useEffect(() => { void loadLinked(); }, [station.id]);
+  useEffect(() => { void loadLinked(); }, [station.id, refreshKey]);
 
   async function run() {
     if (!station.title?.trim() || !station.specialty?.trim()) {
@@ -2440,7 +2442,7 @@ type GeneratedSummary = {
   content_md: string | null;
 };
 
-function SectionGenerateSummary({ station, items }: { station: Station; items: Item[] }) {
+function SectionGenerateSummary({ station, items, refreshKey = 0 }: { station: Station; items: Item[]; refreshKey?: number }) {
   const generate = useServerFn(generateSummaryFromStation);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState<GeneratedSummary | null>(null);
@@ -2465,7 +2467,7 @@ function SectionGenerateSummary({ station, items }: { station: Station; items: I
       .limit(8);
     setLinked((data ?? []) as Array<{ id: string; title: string; published: boolean; created_at: string }>);
   }
-  useEffect(() => { void loadLinked(); }, [station.id]);
+  useEffect(() => { void loadLinked(); }, [station.id, refreshKey]);
 
 
   const checklistCount = checklistItems.length;
@@ -2812,12 +2814,13 @@ type AIArtifact = {
 };
 
 function PostChecklistAIDialog({
-  open, onOpenChange, station, items,
+  open, onOpenChange, station, items, onGenerated,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   station: Station;
   items: Item[];
+  onGenerated?: () => void;
 }) {
   const generateDeck = useServerFn(generateDeckFromStation);
   const generateSummary = useServerFn(generateSummaryFromStation);
@@ -2891,6 +2894,7 @@ function PostChecklistAIDialog({
       };
       setArtifact((a) => ({ ...a, deck, deckPublished: false }));
       toast.success(`Deck pronto com ${res.count} cards!`);
+      onGenerated?.();
       return true;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -2934,6 +2938,7 @@ function PostChecklistAIDialog({
       setArtifact((a) => ({ ...a, summary: res.summary as GeneratedSummary, summaryValidation: v, summaryPublished: false }));
       if (v?.blocking) toast.warning("Resumo gerado com alertas críticos — revise antes de publicar.");
       else toast.success("Resumo pronto!");
+      onGenerated?.();
       return true;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
