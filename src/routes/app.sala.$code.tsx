@@ -742,14 +742,14 @@ function SimuladoRunner({ id }: { id: string }) {
     <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
       {/* Progress header */}
       {sim.stations.length >= 2 && (
-        <div className="sticky top-16 z-20 -mx-3 border-y border-border bg-background/95 px-3 py-3 backdrop-blur-xl sm:-mx-4 sm:px-4 lg:-mx-8 lg:px-8">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3">
+        <div className="rounded-2xl border border-border bg-card/60 px-4 py-3 backdrop-blur-sm">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="text-sm font-semibold">{sim.name}</div>
             <Badge variant="outline" className="ml-auto">
               Estação {sim.currentIndex + 1} de {sim.stations.length}
             </Badge>
           </div>
-          <div className="mx-auto mt-2 h-1.5 max-w-7xl overflow-hidden rounded-full bg-muted">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
             <div className="h-full bg-gradient-mint transition-all" style={{ width: `${progress}%` }} />
           </div>
         </div>
