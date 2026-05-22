@@ -608,7 +608,7 @@ function CandidateView() {
         </div>
       )}
 
-      <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-5">
         {/* LEFT */}
         <div className="min-w-0 space-y-4">
 
