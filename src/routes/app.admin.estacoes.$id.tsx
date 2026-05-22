@@ -1562,7 +1562,7 @@ type GeneratedDeck = {
   cards: GeneratedCard[];
 };
 
-function SectionGenerateFlashcards({ station, items }: { station: Station; items: Item[] }) {
+function SectionGenerateFlashcards({ station, items, refreshKey = 0 }: { station: Station; items: Item[]; refreshKey?: number }) {
   const generate = useServerFn(generateDeckFromStation);
   const [loading, setLoading] = useState(false);
   const [deck, setDeck] = useState<GeneratedDeck | null>(null);
@@ -1590,7 +1590,7 @@ function SectionGenerateFlashcards({ station, items }: { station: Station; items
     setLinkedDecks(rows);
   }
 
-  useEffect(() => { void loadLinked(); }, [station.id]);
+  useEffect(() => { void loadLinked(); }, [station.id, refreshKey]);
 
   async function run() {
     if (!station.title?.trim() || !station.specialty?.trim()) {
