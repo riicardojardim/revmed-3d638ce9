@@ -1204,7 +1204,7 @@ export type Database = {
           id: string
           position: number
           published: boolean
-          specialty: string
+          specialty: string | null
           title: string
           topic: string | null
           updated_at: string
@@ -1219,7 +1219,7 @@ export type Database = {
           id?: string
           position?: number
           published?: boolean
-          specialty: string
+          specialty?: string | null
           title: string
           topic?: string | null
           updated_at?: string
@@ -1234,7 +1234,7 @@ export type Database = {
           id?: string
           position?: number
           published?: boolean
-          specialty?: string
+          specialty?: string | null
           title?: string
           topic?: string | null
           updated_at?: string

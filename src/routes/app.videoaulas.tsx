@@ -16,7 +16,7 @@ export const Route = createFileRoute("/app/videoaulas")({
 type Lesson = {
   id: string;
   title: string;
-  specialty: string;
+  specialty: string | null;
   topic: string | null;
   description: string | null;
   video_url: string;
@@ -52,7 +52,12 @@ function VideoAulas() {
       if (spec !== "all" && l.specialty !== spec) return false;
       if (q.trim() && !`${l.title} ${l.topic ?? ""}`.toLowerCase().includes(q.toLowerCase())) return false;
       return true;
-    }).sort((a, b) => specialtyRank(a.specialty) - specialtyRank(b.specialty));
+    }).sort((a, b) => {
+      // Welcome / sem especialidade vai primeiro
+      if (!a.specialty && b.specialty) return -1;
+      if (a.specialty && !b.specialty) return 1;
+      return specialtyRank(a.specialty) - specialtyRank(b.specialty);
+    });
   }, [items, q, spec]);
 
   return (
@@ -110,7 +115,7 @@ function VideoAulas() {
                 imageUrl={l.cover_image_url}
               />
               <div className="mt-2 line-clamp-2 min-h-[2.5rem] px-1 text-sm font-medium leading-tight">{l.title}</div>
-              <div className="px-1 text-xs text-muted-foreground">{l.specialty}</div>
+              <div className="px-1 text-xs text-muted-foreground">{l.specialty ?? "Boas-vindas"}</div>
             </button>
           ))}
         </div>
@@ -130,7 +135,7 @@ function VideoAulas() {
               </div>
               <div className="space-y-2 p-5">
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{playing.specialty}</Badge>
+                  {playing.specialty && <Badge variant="secondary">{playing.specialty}</Badge>}
                   {playing.topic && <Badge variant="outline">{playing.topic}</Badge>}
                 </div>
                 <h2 className="font-display text-xl font-bold">{playing.title}</h2>

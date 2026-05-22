@@ -24,7 +24,7 @@ const SPECIALTIES = REVALIDA_SPECIALTIES;
 type Lesson = {
   id: string;
   title: string;
-  specialty: string;
+  specialty: string | null;
   topic: string | null;
   description: string | null;
   video_url: string;
