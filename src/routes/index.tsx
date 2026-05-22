@@ -301,7 +301,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             "radial-gradient(60% 60% at 80% 0%, color-mix(in oklab, var(--primary) 30%, transparent) 0%, transparent 60%), radial-gradient(40% 50% at 10% 100%, color-mix(in oklab, var(--mint) 18%, transparent) 0%, transparent 70%)",
         }}
       />
-      <div className="mx-auto grid max-w-7xl items-stretch gap-8 px-5 pt-6 pb-14 md:px-8 md:pt-12 md:pb-20 md:gap-10 lg:pt-16 lg:pb-28 lg:gap-8 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-7xl items-stretch gap-6 px-5 pt-3 pb-14 md:px-8 md:pt-12 md:pb-20 md:gap-10 lg:pt-16 lg:pb-28 lg:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-6 lg:order-2">
           <motion.div
             initial={{ opacity: 1, y: 0 }}
@@ -317,7 +317,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-4 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
+            className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
             Chegue na prova{" "}
             <span
@@ -337,7 +337,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
+            className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:text-lg"
           >
             Sala ao vivo com ator-avaliador, cronômetro do INEP e
             checklist da banca — tudo num app que dá vontade de abrir
@@ -345,7 +345,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
-          <div className="relative mt-5 lg:hidden">
+          <div className="relative mt-4 lg:hidden">
             <div
               aria-hidden
               className="absolute -inset-6 -z-10 rounded-[2rem] blur-3xl"
