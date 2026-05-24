@@ -815,6 +815,33 @@ export type Database = {
           },
         ]
       }
+      room_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          id: string
+          payload: Json
+          room_id: string
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          room_id: string
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          room_id?: string
+          type?: string
+        }
+        Relationships: []
+      }
       room_invites: {
         Row: {
           created_at: string
