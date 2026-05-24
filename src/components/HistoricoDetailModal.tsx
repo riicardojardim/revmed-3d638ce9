@@ -347,11 +347,6 @@ export function HistoricoDetailModal({
                   )}
                 </PRBlock>
 
-                {attempt.notes && (
-                  <PRBlock icon={NotebookPen} title="Suas anotações">
-                    <p className="whitespace-pre-wrap text-sm">{attempt.notes}</p>
-                  </PRBlock>
-                )}
               </div>
 
               {/* RIGHT */}
