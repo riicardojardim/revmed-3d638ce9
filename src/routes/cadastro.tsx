@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
+import { formatCPF, isValidCPF, normalizeCPF } from "@/lib/cpf";
 
 const planSchema = z.object({
   plano: z.enum(["completo", "mensal", "ator"]).optional(),
@@ -30,29 +31,6 @@ const PLAN_META: Record<PlanSlug, { name: string; icon: typeof Crown }> = {
   mensal: { name: "Completo Mensal", icon: Repeat },
   ator: { name: "Ator", icon: Users },
 };
-
-/* ---------------- Helpers ---------------- */
-function formatCPF(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 11);
-  return d
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-}
-function isValidCPF(cpf: string) {
-  const d = cpf.replace(/\D/g, "");
-  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
-  let s = 0;
-  for (let i = 0; i < 9; i++) s += parseInt(d[i]) * (10 - i);
-  let r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  if (r !== parseInt(d[9])) return false;
-  s = 0;
-  for (let i = 0; i < 10; i++) s += parseInt(d[i]) * (11 - i);
-  r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  return r === parseInt(d[10]);
-}
 
 function SignupPage() {
   const nav = useNavigate();
@@ -135,7 +113,7 @@ function SignupPage() {
 
     setSubmitting(true);
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
-    const cpfDigits = form.cpf.replace(/\D/g, "");
+    const cpfDigits = normalizeCPF(form.cpf);
 
     const { data: signupData, error } = await supabase.auth.signUp({
       email: form.email.trim().toLowerCase(),
