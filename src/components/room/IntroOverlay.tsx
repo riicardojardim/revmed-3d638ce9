@@ -132,8 +132,9 @@ export function IntroOverlay({
       transition={{ duration: 0.4 }}
       className="fixed inset-0 z-[100] overflow-hidden"
       style={{
-        background:
-          "radial-gradient(ellipse at 50% 38%, color-mix(in oklab, var(--medical) 28%, transparent) 0%, var(--night) 58%, #050303 100%)",
+        backgroundColor: "#050303",
+        backgroundImage:
+          "radial-gradient(ellipse at 50% 38%, color-mix(in oklab, var(--medical) 35%, #0a0604) 0%, #0a0604 55%, #050303 100%)",
       }}
       aria-live="polite"
     >
@@ -264,23 +265,17 @@ export function IntroOverlay({
           </motion.svg>
           {/* disco interior + logo */}
           <div
-            className="absolute inset-[14%] flex items-center justify-center rounded-full"
+            className="absolute inset-[10%] flex items-center justify-center"
             style={{
-              background:
-                "radial-gradient(circle at 50% 40%, color-mix(in oklab, var(--medical) 22%, var(--night)), var(--night))",
-              boxShadow:
-                "0 0 50px color-mix(in oklab, var(--medical) 50%, transparent), inset 0 0 0 1px color-mix(in oklab, var(--medical) 40%, transparent)",
+              filter:
+                "drop-shadow(0 0 24px color-mix(in oklab, var(--medical) 75%, transparent)) drop-shadow(0 0 60px color-mix(in oklab, var(--medical) 40%, transparent))",
             }}
           >
             <img
               src={logoUrl}
               alt="REVMED"
               draggable={false}
-              className="h-7 w-auto select-none md:h-8"
-              style={{
-                filter:
-                  "drop-shadow(0 0 14px color-mix(in oklab, var(--medical) 70%, transparent))",
-              }}
+              className="h-10 w-auto select-none md:h-12"
             />
           </div>
         </div>
