@@ -1896,7 +1896,6 @@ function SimuladoRunner({ id }: { id: string }) {
                     onClick={async () => {
                       await setEvaluatedCandidate(c.id);
                       setSelectCandidateOpen(false);
-                      setTimeout(() => { void startTimer(); }, 50);
                     }}
                     className="flex w-full items-center gap-3 rounded-xl border border-border bg-background/40 px-3 py-2.5 text-left text-sm transition hover:border-mint/50 hover:bg-mint/5"
                   >
