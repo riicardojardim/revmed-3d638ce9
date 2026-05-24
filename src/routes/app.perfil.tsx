@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
+import { formatCPF, isValidCPF, normalizeCPF } from "@/lib/cpf";
 import { AvatarUploader } from "@/components/AvatarUploader";
 import { Reveal } from "@/components/ui/reveal";
 import { MotionCard } from "@/components/motion/MotionPrimitives";
@@ -38,28 +39,6 @@ const GENDER_OPTIONS = [
   { value: "nao_binario", label: "Não-binário" },
   { value: "prefiro_nao_dizer", label: "Prefiro não dizer" },
 ];
-
-function formatCPF(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 11);
-  return d
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-}
-function isValidCPF(cpf: string) {
-  const d = cpf.replace(/\D/g, "");
-  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
-  let s = 0;
-  for (let i = 0; i < 9; i++) s += parseInt(d[i]) * (10 - i);
-  let r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  if (r !== parseInt(d[9])) return false;
-  s = 0;
-  for (let i = 0; i < 10; i++) s += parseInt(d[i]) * (11 - i);
-  r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  return r === parseInt(d[10]);
-}
 
 function deduceExamYear(): string {
   const now = new Date();
@@ -159,7 +138,7 @@ function ProfilePage() {
     const uErr = validateUsername(uname);
     if (uErr) { setUsernameError(uErr); toast.error(uErr); return; }
     setUsernameError(null);
-    const cpfDigits = cpf.replace(/\D/g, "");
+    const cpfDigits = normalizeCPF(cpf);
     if (cpfDigits && !isValidCPF(cpfDigits)) {
       toast.error("CPF inválido.");
       return;

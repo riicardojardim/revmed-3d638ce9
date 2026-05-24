@@ -8,6 +8,7 @@ import { ArrowRight, Crown, Repeat, Users, CreditCard, QrCode, ShieldCheck, X } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
+import { formatCPF, isValidCPF } from "@/lib/cpf";
 import { cn } from "@/lib/utils";
 
 export type CheckoutPlanSlug = "completo" | "mensal" | "ator";
@@ -17,28 +18,6 @@ const PLAN_META: Record<CheckoutPlanSlug, { name: string; price: string; period:
   mensal: { name: "Completo Mensal", price: "R$ 197", period: "por mês", icon: Repeat },
   ator: { name: "Ator", price: "R$ 97", period: "até a prova", icon: Users },
 };
-
-function formatCPF(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 11);
-  return d
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-}
-function isValidCPF(cpf: string) {
-  const d = cpf.replace(/\D/g, "");
-  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
-  let s = 0;
-  for (let i = 0; i < 9; i++) s += parseInt(d[i]) * (10 - i);
-  let r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  if (r !== parseInt(d[9])) return false;
-  s = 0;
-  for (let i = 0; i < 10; i++) s += parseInt(d[i]) * (11 - i);
-  r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  return r === parseInt(d[10]);
-}
 
 type PaymentMethod = "pix" | "card";
 
