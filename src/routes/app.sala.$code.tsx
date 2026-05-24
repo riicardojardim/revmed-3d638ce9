@@ -31,6 +31,8 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { RelatedResources } from "@/components/RelatedResources";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { RoomEventLog } from "@/components/room/RoomEventLog";
+import { logRoomEvent } from "@/lib/roomEvents";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
@@ -121,6 +123,31 @@ function SimuladoRunner({ id }: { id: string }) {
   const handleCallIdentities = useCallback((ids: string[]) => {
     setCallIdentities(ids);
   }, []);
+
+  // Log entries into the call (actor logs itself, actor also logs candidate join).
+  const loggedJoinsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!sim?.roomId || !user?.id) return;
+    const roomId = sim.roomId;
+    if (callIdentities.includes(user.id)) {
+      const key = `actor:${roomId}:${user.id}`;
+      if (!loggedJoinsRef.current.has(key)) {
+        loggedJoinsRef.current.add(key);
+        void logRoomEvent(roomId, user.id, "actor_joined_call", {}, key);
+      }
+    }
+    if (evaluatedCandidateId && callIdentities.includes(evaluatedCandidateId)) {
+      const key = `cand:${roomId}:${evaluatedCandidateId}`;
+      if (!loggedJoinsRef.current.has(key)) {
+        loggedJoinsRef.current.add(key);
+        const name = candidates.find((c) => c.id === evaluatedCandidateId)?.name ?? "";
+        void logRoomEvent(roomId, user.id, "candidate_joined_call", {
+          candidate_id: evaluatedCandidateId,
+          name,
+        }, key);
+      }
+    }
+  }, [callIdentities, evaluatedCandidateId, candidates, sim?.roomId, user?.id]);
 
 
 
@@ -363,6 +390,10 @@ function SimuladoRunner({ id }: { id: string }) {
     setEvaluatedCandidateId(candId);
     const name = candidates.find((c) => c.id === candId)?.name ?? "Candidato";
     toast.success(`Avaliado: ${name}`);
+    void logRoomEvent(sim.roomId, user?.id ?? null, "candidate_selected", {
+      candidate_id: candId,
+      name,
+    }, `cand:${candId}`);
   }
 
   async function copyInviteLink() {
@@ -595,6 +626,9 @@ function SimuladoRunner({ id }: { id: string }) {
         .eq("id", sim.roomId)
         .eq("status", "starting");
       setRoomStatus("running");
+      void logRoomEvent(sim.roomId, user?.id ?? null, "station_started", {
+        duration_minutes: duration,
+      }, `start:${sim.roomId}:${sim.currentIndex}`);
     }
   }
   async function finishTimer(auto = false) {
@@ -638,6 +672,9 @@ function SimuladoRunner({ id }: { id: string }) {
         return;
       }
       setRoomStatus("finished");
+      void logRoomEvent(sim.roomId, user?.id ?? null, "station_finished", {
+        auto,
+      }, `finish:${sim.roomId}:${sim.currentIndex}`);
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
@@ -1280,6 +1317,9 @@ function SimuladoRunner({ id }: { id: string }) {
               </div>
             </div>
           )}
+
+          {/* Histórico de eventos */}
+          {sim?.roomId && <RoomEventLog roomId={sim.roomId} />}
 
           {/* Participantes */}
           <div className="rounded-2xl border border-border bg-card p-4">
