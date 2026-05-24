@@ -417,27 +417,66 @@ export function IntroOverlay({
         {phase === "countdown" && (
           <motion.div
             key={`cd-${count}`}
-            initial={{ opacity: 0, scale: 0.6, filter: "blur(8px)" }}
+            initial={{ opacity: 0, scale: 0.7, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 1.6, filter: "blur(6px)" }}
-            transition={{ duration: 0.45 }}
+            exit={{ opacity: 0, scale: 1.4, filter: "blur(8px)" }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-x-0 bottom-[12%] flex flex-col items-center justify-center"
           >
             {count > 0 ? (
-              <div
-                className="font-display font-bold leading-none text-[clamp(5rem,18vw,13rem)]"
-                style={{
-                  color: "var(--medical)",
-                  textShadow:
-                    "0 0 50px color-mix(in oklab, var(--medical) 70%, transparent)",
-                }}
-              >
-                {count}
+              <div className="relative h-[clamp(9rem,20vw,15rem)] w-[clamp(9rem,20vw,15rem)]">
+                {/* anel de progresso */}
+                <svg viewBox="0 0 120 120" className="absolute inset-0 h-full w-full -rotate-90">
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="54"
+                    fill="none"
+                    stroke="color-mix(in oklab, var(--medical) 20%, transparent)"
+                    strokeWidth="3"
+                  />
+                  <motion.circle
+                    cx="60"
+                    cy="60"
+                    r="54"
+                    fill="none"
+                    stroke="var(--medical)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 54}
+                    initial={{ strokeDashoffset: 0 }}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 54 }}
+                    transition={{ duration: COUNT_STEP_MS / 1000, ease: "linear" }}
+                    style={{
+                      filter:
+                        "drop-shadow(0 0 12px color-mix(in oklab, var(--medical) 80%, transparent))",
+                    }}
+                  />
+                </svg>
+                <div
+                  className="absolute inset-0 flex items-center justify-center font-display font-bold leading-none text-[clamp(4.5rem,12vw,9rem)]"
+                  style={{
+                    color: "var(--medical)",
+                    textShadow:
+                      "0 0 40px color-mix(in oklab, var(--medical) 80%, transparent)",
+                  }}
+                >
+                  {count}
+                </div>
               </div>
             ) : (
-              <div className="font-display font-bold text-white text-[clamp(1.75rem,4.5vw,3rem)]">
+              <motion.div
+                initial={{ letterSpacing: "0.4em", opacity: 0 }}
+                animate={{ letterSpacing: "0.05em", opacity: 1 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="font-display font-bold text-white text-[clamp(1.75rem,4.5vw,3rem)]"
+                style={{
+                  textShadow:
+                    "0 0 30px color-mix(in oklab, var(--medical) 60%, transparent)",
+                }}
+              >
                 Estação iniciada
-              </div>
+              </motion.div>
             )}
             <div
               className="mt-4 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] text-white/85"
