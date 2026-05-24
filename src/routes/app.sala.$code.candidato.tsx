@@ -445,6 +445,7 @@ function CandidateView() {
   // Ele acompanha a estação (vê cenário, tarefa, materiais) mas não recebe PEP nem resultado,
   // (recebe apenas o que o candidato avaliado vê, sem PEP nem resultado).
   const isSpectator = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id !== user.id);
+  const isSelectedCandidate = !!(room.evaluated_candidate_id && user && room.evaluated_candidate_id === user.id);
   // Lobby só quando a sala ainda não começou (ou está entre estações). Espectador NÃO fica no lobby
   // durante uma estação rodando — ele acompanha junto.
   const isWaiting = room.status !== "running" && room.status !== "starting" && room.status !== "finished" && !finished;
@@ -488,6 +489,19 @@ function CandidateView() {
           <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-white/5 to-transparent" />
 
           <div className="relative flex flex-col items-center">
+            {isSelectedCandidate && (
+              <div className="mb-6 w-full rounded-2xl border-2 border-mint/60 bg-gradient-to-br from-mint/30 via-mint/15 to-transparent px-6 py-5 text-center shadow-[0_0_40px_rgba(52,211,153,0.35)] animate-in fade-in zoom-in-95 duration-500">
+                <div className="inline-flex items-center gap-2 rounded-full bg-mint/30 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-mint ring-1 ring-mint/50">
+                  <Sparkles className="h-3.5 w-3.5" /> Você foi selecionado
+                </div>
+                <h2 className="mt-3 font-display text-2xl font-bold text-white drop-shadow md:text-3xl">
+                  Você é o candidato avaliado nesta estação!
+                </h2>
+                <p className="mt-2 text-sm text-mint/90 md:text-base">
+                  Seu microfone e câmera foram liberados. Prepare-se — o ator vai iniciar o cronômetro a qualquer momento.
+                </p>
+              </div>
+            )}
             <div className="relative">
               <span className="absolute inset-0 -m-4 animate-ping rounded-full bg-mint/25" />
               <span className="absolute inset-0 -m-2 animate-pulse rounded-full bg-mint/40" />
