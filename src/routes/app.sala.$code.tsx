@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -116,6 +116,10 @@ function SimuladoRunner({ id }: { id: string }) {
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [callIdentities, setCallIdentities] = useState<string[]>([]);
+  const handleCallIdentities = useCallback((ids: string[]) => {
+    setCallIdentities(ids);
+  }, []);
 
 
 
@@ -734,7 +738,10 @@ function SimuladoRunner({ id }: { id: string }) {
   const materials = station.deliverableMaterials ?? [];
   const p = station.patientProfile;
   const isWaiting = !running && !finishedStation;
-  const allCandidatesPresent = candidates.length > 0;
+  const actorInCall = !!user?.id && callIdentities.includes(user.id);
+  const candidateInCall = !!evaluatedCandidateId && callIdentities.includes(evaluatedCandidateId);
+  const hasEvaluated = !!evaluatedCandidateId;
+  const allReadyToStart = hasEvaluated && actorInCall && candidateInCall;
   const totalSec = Math.max(0, Math.floor(remaining));
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
   const ss = String(totalSec % 60).padStart(2, "0");
@@ -1317,42 +1324,71 @@ function SimuladoRunner({ id }: { id: string }) {
               {isWaiting && (
                 <button
                   type="button"
-                  disabled={!allCandidatesPresent}
+                  disabled={!allReadyToStart}
                   onClick={() => {
-                    if (!allCandidatesPresent) {
-                      toast.error("Aguarde candidatos entrarem na sala.");
+                    if (!hasEvaluated) {
+                      setSelectCandidateOpen(true);
                       return;
                     }
-                    if (!evaluatedCandidateId) { setSelectCandidateOpen(true); return; }
+                    if (!actorInCall) {
+                      toast.error("Entre na chamada de voz para poder iniciar.");
+                      return;
+                    }
+                    if (!candidateInCall) {
+                      toast.error("Aguardando o candidato selecionado entrar na chamada de voz.");
+                      return;
+                    }
                     startTimer();
                     setControlsOpen(false);
                   }}
-                  style={allCandidatesPresent ? { color: "var(--medical)" } : undefined}
+                  style={allReadyToStart ? { color: "var(--medical)" } : undefined}
                   className={cn(
                     "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
-                    allCandidatesPresent
+                    allReadyToStart
                       ? "bg-white hover:bg-white/90 hover:shadow"
                       : "cursor-not-allowed bg-white/30 text-white/70",
                   )}
-                  title={!allCandidatesPresent ? "Aguarde candidatos entrarem na sala" : undefined}
+                  title={
+                    !hasEvaluated
+                      ? "Selecione o candidato avaliado"
+                      : !actorInCall
+                        ? "Entre na chamada de voz"
+                        : !candidateInCall
+                          ? "Aguardando o candidato entrar na chamada"
+                          : undefined
+                  }
                 >
                   <Play className="h-4 w-4" /> Iniciar cronômetro
                 </button>
               )}
               {isWaiting && (
-                <div
-                  className={cn(
-                    "mt-2 rounded-lg px-3 py-2 text-[11px] leading-snug",
-                    allCandidatesPresent
-                      ? "bg-mint/20 text-white"
-                      : "bg-white/10 text-white/85",
-                  )}
-                >
-                  {candidates.length === 0 ? (
-                    <>⏳ Aguardando candidatos entrarem na sala...</>
-                  ) : (
-                    <>✅ Candidatos na sala — pode iniciar o cronômetro.</>
-                  )}
+                <div className="mt-2 rounded-xl border border-medical/25 bg-medical/5 p-3">
+                  <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-medical">
+                    Para iniciar o cronômetro
+                  </div>
+                  <ul className="space-y-1.5">
+                    {[
+                      { ok: hasEvaluated, label: "Selecionar o candidato avaliado" },
+                      { ok: actorInCall, label: "Você (ator) precisa entrar na chamada de voz" },
+                      { ok: candidateInCall, label: hasEvaluated ? "O candidato selecionado precisa entrar na chamada" : "Após selecionar, o candidato entra na chamada" },
+                    ].map((r, i) => (
+                      <li key={i} className="flex items-start gap-2 text-[11.5px] leading-snug">
+                        <span
+                          className={cn(
+                            "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                            r.ok
+                              ? "border-mint bg-mint/20 text-mint"
+                              : "border-medical/50 text-medical/70",
+                          )}
+                        >
+                          {r.ok ? "✓" : "•"}
+                        </span>
+                        <span className={r.ok ? "text-white/85 line-through decoration-mint/40" : "text-white/80"}>
+                          {r.label}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
               {running && (
@@ -1597,6 +1633,7 @@ function SimuladoRunner({ id }: { id: string }) {
         displayName={(profile?.full_name?.trim()) || user?.email || "Ator"}
         role="ator"
         allowedIdentities={[user?.id, evaluatedCandidateId]}
+        onIdentitiesChange={handleCallIdentities}
       />
     )}
     <button
