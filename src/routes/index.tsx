@@ -51,6 +51,7 @@ import {
   WhatsAppFloat,
   UrgencyBanner,
 } from "@/components/landing/FakeNotifications";
+import { SignupPaymentModal, type SignupModalPlan } from "@/components/landing/SignupPaymentModal";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -93,6 +94,7 @@ function LandingPage() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [signupPlan, setSignupPlan] = useState<SignupModalPlan | null>(null);
   const lastY = useRef(0);
 
   useEffect(() => setMounted(true), []);
@@ -169,13 +171,21 @@ function LandingPage() {
         <Resultados />
         <Depoimentos />
         <Mentoria />
-        <Investimento isLogged={mounted && !!user} />
+        <Investimento
+          isLogged={mounted && !!user}
+          onChoosePlan={(p) => setSignupPlan(p)}
+        />
         <FAQ />
         <FinalCTA isLogged={mounted && !!user} />
       </main>
       <Footer />
       <FakeNotifications />
       <WhatsAppFloat />
+      <SignupPaymentModal
+        open={!!signupPlan}
+        onOpenChange={(v) => { if (!v) setSignupPlan(null); }}
+        plan={signupPlan}
+      />
     </div>
   );
 }
@@ -370,13 +380,23 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.25 }}
             className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center md:mt-8"
           >
-            <Link
-              to={isLogged ? "/app" : "/cadastro"}
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
-            >
-              Começar a treinar
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
-            </Link>
+            {isLogged ? (
+              <Link
+                to="/app"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
+              >
+                Começar a treinar
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
+              </Link>
+            ) : (
+              <a
+                href="#planos"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
+              >
+                Começar a treinar
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
+              </a>
+            )}
           </motion.div>
 
           <motion.div
@@ -992,12 +1012,19 @@ const PLANS: Plan[] = [
   },
 ];
 
-function Investimento({ isLogged }: { isLogged: boolean }) {
+function Investimento({
+  isLogged,
+  onChoosePlan,
+}: {
+  isLogged: boolean;
+  onChoosePlan: (p: SignupModalPlan) => void;
+}) {
   return (
     <section
       id="investimento"
       className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
+      <span id="planos" className="absolute -top-20" aria-hidden />
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -1100,9 +1127,9 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                       <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2.4} />
                       {p.cta}
                     </a>
-                  ) : (
+                  ) : isLogged ? (
                     <Link
-                      to={isLogged ? "/app" : "/cadastro"}
+                      to="/app"
                       className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
                           ? "bg-primary text-primary-foreground shadow-elegant"
@@ -1112,6 +1139,26 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                       {p.cta}
                       <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onChoosePlan({
+                          slug: p.name === "Full" ? "completo" : "ator",
+                          name: p.name,
+                          price: p.price,
+                          cadence: p.cadence,
+                        })
+                      }
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
+                        p.highlight
+                          ? "bg-primary text-primary-foreground shadow-elegant"
+                          : "border border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {p.cta}
+                      <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </button>
                   )}
                 </div>
               </motion.div>
@@ -1233,13 +1280,23 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
           resumos, simulados, comunidade e gamificação. Tudo num só lugar,
           até o dia da prova.
         </p>
-        <Link
-          to={isLogged ? "/app" : "/cadastro"}
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
-        >
-          Entrar na plataforma
-          <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
-        </Link>
+        {isLogged ? (
+          <Link
+            to="/app"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
+          >
+            Entrar na plataforma
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Link>
+        ) : (
+          <a
+            href="#planos"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
+          >
+            Escolher meu plano
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </a>
+        )}
       </div>
     </section>
   );
