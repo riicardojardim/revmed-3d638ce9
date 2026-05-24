@@ -41,6 +41,7 @@ export function SignupPaymentModal({
 }) {
   const nav = useNavigate();
   const [form, setForm] = useState({
+    title: "",
     first_name: "",
     last_name: "",
     username: "",
@@ -79,6 +80,10 @@ export function SignupPaymentModal({
       return;
     }
 
+    if (!form.title) {
+      toast.error("Selecione como quer ser chamado(a): Dr. ou Dra.");
+      return;
+    }
     if (!form.first_name.trim() || !form.last_name.trim()) {
       toast.error("Informe nome e sobrenome."); return;
     }
@@ -119,6 +124,7 @@ export function SignupPaymentModal({
         emailRedirectTo: `${window.location.origin}/app`,
         data: {
           full_name: fullName,
+          title: form.title,
           first_name: form.first_name.trim(),
           last_name: form.last_name.trim(),
           username: form.username.trim(),
@@ -143,6 +149,7 @@ export function SignupPaymentModal({
         {
           id: uid,
           full_name: fullName,
+          title: form.title,
           first_name: form.first_name.trim(),
           last_name: form.last_name.trim(),
           username: form.username.trim(),
@@ -196,6 +203,26 @@ export function SignupPaymentModal({
             <div>
               <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Seus dados</h3>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <Label>Como quer ser chamado(a)</Label>
+                  <div className="mt-1 grid grid-cols-2 gap-2">
+                    {(["Dr.", "Dra."] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => update("title", t)}
+                        className={`rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
+                          form.title === t
+                            ? "border-primary bg-primary/15 text-primary ring-2 ring-primary/40"
+                            : "border-border bg-card text-foreground hover:border-primary/50"
+                        }`}
+                        aria-pressed={form.title === t}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div>
                   <Label htmlFor="m_first">Nome</Label>
                   <Input id="m_first" value={form.first_name} onChange={(e) => update("first_name", e.target.value)} required autoComplete="given-name" />
