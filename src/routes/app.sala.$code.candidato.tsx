@@ -606,6 +606,7 @@ function CandidateView() {
           displayName={displayName ?? undefined}
           role={isSpectator ? "espectador" : "candidato"}
           allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
+          onIdentitiesChange={handleCallIdentities}
         />
       )}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">
