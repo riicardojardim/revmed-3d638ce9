@@ -262,6 +262,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Single-session enforcement: listen for active-session changes
   useEffect(() => {
     if (!user) return;
+    // Admin não é deslogado ao logar em outro dispositivo.
+    if (roles.includes("admin")) return;
     const myDevice = getDeviceId();
     const channel = supabase
       .channel(`active-session-${user.id}`)
@@ -271,20 +273,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         (payload) => {
           const row = (payload.new ?? payload.old) as { device_id?: string } | null;
           if (row?.device_id && row.device_id !== myDevice) {
-            void supabase.auth.signOut().then(() => {
-              try {
-                toast.error("Sessão encerrada", {
-                  description: "Você entrou em outro dispositivo.",
-                });
-              } catch {}
-              window.location.href = "/login";
+            try {
+              toast.error("Sessão encerrada", {
+                description: "Você fez login em outro dispositivo.",
+                duration: 6000,
+              });
+            } catch {}
+            // Pequeno delay para o toast aparecer antes do redirect.
+            void supabase.auth.signOut().finally(() => {
+              window.setTimeout(() => {
+                window.location.href = "/login?reason=other-device";
+              }, 800);
             });
           }
         }
       )
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, roles]);
 
   async function signOut() {
     await supabase.auth.signOut();
