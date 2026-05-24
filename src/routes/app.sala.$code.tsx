@@ -223,6 +223,7 @@ function SimuladoRunner({ id }: { id: string }) {
               started_at: null,
               starting_at: null,
               finished_at: null,
+              evaluated_candidate_id: null,
               simulado_id: sim.id,
               simulado_name: sim.name,
               simulado_index: sim.currentIndex,
@@ -232,9 +233,12 @@ function SimuladoRunner({ id }: { id: string }) {
           if (!cancelled) {
             setRoomStatus("waiting");
             setRoomStartedAtMs(null);
+            setEvaluatedCandidateId(null);
           }
         }
-        if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
+        if (!cancelled && r?.status === "finished") {
+          setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
+        }
         await refreshCandidates(sim.roomId);
         return;
       }
