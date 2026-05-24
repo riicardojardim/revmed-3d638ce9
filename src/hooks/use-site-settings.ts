@@ -37,7 +37,7 @@ export function useSiteSettings() {
     listeners.add(fn);
     if (!cache) {
       void (async () => {
-        const { data } = await supabase.from("site_settings_public" as any).select("*").limit(1).maybeSingle();
+        const { data } = await (supabase as any).from("site_settings_public").select("*").limit(1).maybeSingle();
         if (data) {
           cache = {
             ...data,
@@ -55,7 +55,7 @@ export function useSiteSettings() {
 }
 
 export async function refreshSiteSettings() {
-  const { data } = await supabase.from("site_settings_public" as any).select("*").limit(1).maybeSingle();
+  const { data } = await (supabase as any).from("site_settings_public").select("*").limit(1).maybeSingle();
   if (data) {
     cache = { ...data, colors: (data.colors as Record<string, string>) ?? {} } as SiteSettings;
     listeners.forEach((l) => l(cache));
