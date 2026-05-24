@@ -401,7 +401,6 @@ type CreatePayload = {
   whatsapp: string;
   cpf: string;
   birth_date: string;
-  gender: "masculino" | "feminino" | "outro";
   role: "aluno" | "professor" | "admin" | "mentor";
   plan_id?: string;
   plan_days: number;
@@ -411,7 +410,6 @@ type EditProfilePayload = {
   first_name?: string | null;
   last_name?: string | null;
   title?: string | null;
-  gender?: string | null;
   username?: string | null;
   whatsapp?: string | null;
   cpf?: string | null;
@@ -428,7 +426,6 @@ function EditProfileDialog({ open, onOpenChange, user, onConfirm }: {
     first_name: "",
     last_name: "",
     title: "" as "" | "Dr." | "Dra." | "Sem título",
-    gender: "" as "" | "masculino" | "feminino" | "outro",
     username: "",
     whatsapp: "",
     cpf: "",
@@ -441,7 +438,6 @@ function EditProfileDialog({ open, onOpenChange, user, onConfirm }: {
       first_name: user.first_name ?? "",
       last_name: user.last_name ?? "",
       title: (user.title as "" | "Dr." | "Dra." | "Sem título") ?? "",
-      gender: (user.gender as "" | "masculino" | "feminino" | "outro") ?? "",
       username: user.username ?? "",
       whatsapp: formatWhatsapp(user.whatsapp ?? ""),
       cpf: formatCPF(user.cpf ?? ""),
@@ -463,7 +459,6 @@ function EditProfileDialog({ open, onOpenChange, user, onConfirm }: {
       first_name: f.first_name.trim() || null,
       last_name: f.last_name.trim() || null,
       title: f.title || null,
-      gender: f.gender || null,
       username: f.username.trim().toLowerCase() || null,
       whatsapp: wppDigits || null,
       cpf: cpfDigits || null,
@@ -487,21 +482,13 @@ function EditProfileDialog({ open, onOpenChange, user, onConfirm }: {
               <input value={f.last_name} onChange={(e) => setF({ ...f, last_name: e.target.value })} className={inputCls} />
             </label>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div>
             <label className="block text-sm">Título
               <select value={f.title} onChange={(e) => setF({ ...f, title: e.target.value as typeof f.title })} className={inputCls}>
                 <option value="">—</option>
                 <option value="Dr.">Dr.</option>
                 <option value="Dra.">Dra.</option>
                 <option value="Sem título">Sem título</option>
-              </select>
-            </label>
-            <label className="block text-sm">Sexo
-              <select value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value as typeof f.gender })} className={inputCls}>
-                <option value="">—</option>
-                <option value="masculino">Masculino</option>
-                <option value="feminino">Feminino</option>
-                <option value="outro">Outro</option>
               </select>
             </label>
           </div>
