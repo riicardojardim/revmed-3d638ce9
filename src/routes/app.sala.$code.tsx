@@ -687,6 +687,9 @@ function SimuladoRunner({ id }: { id: string }) {
       void logRoomEvent(sim.roomId, user?.id ?? null, "station_finished", {
         auto,
       }, `finish:${sim.roomId}:${sim.currentIndex}`);
+      if (sim.roomCode) {
+        try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+      }
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
