@@ -188,6 +188,11 @@ export function NotificationBell() {
       <DropdownMenuContent align="end" className="w-96 p-0">
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <span className="text-sm font-semibold">Notificações</span>
+          {items.length > 1 && (
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground" onClick={(e) => { e.preventDefault(); e.stopPropagation(); void clearAll(); }}>
+              <Trash2 className="h-3 w-3" /> Limpar todas
+            </Button>
+          )}
         </div>
         <div className="max-h-96 overflow-y-auto">
           {items.length === 0 ? (
