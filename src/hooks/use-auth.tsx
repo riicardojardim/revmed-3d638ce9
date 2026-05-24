@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export type AppRole = "aluno" | "professor" | "admin";
 
@@ -265,7 +266,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (row?.device_id && row.device_id !== myDevice) {
             void supabase.auth.signOut().then(() => {
               try {
-                const { toast } = require("sonner");
                 toast.error("Sessão encerrada", {
                   description: "Você entrou em outro dispositivo.",
                 });

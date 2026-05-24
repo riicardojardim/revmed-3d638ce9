@@ -1383,7 +1383,99 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          first_name: string | null
+          full_name: string | null
+          gender: string | null
+          id: string | null
+          last_name: string | null
+          title: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          last_name?: string | null
+          title?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          last_name?: string | null
+          title?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      site_settings_public: {
+        Row: {
+          colors: Json | null
+          contact_email: string | null
+          created_at: string | null
+          favicon_url: string | null
+          id: string | null
+          intro_animation_variant: string | null
+          is_singleton: boolean | null
+          logo_url: string | null
+          privacy_md: string | null
+          site_name: string | null
+          tagline: string | null
+          terms_md: string | null
+          updated_at: string | null
+          urgency_banner_text: string | null
+          whatsapp_banner_enabled: boolean | null
+          whatsapp_banner_label: string | null
+          whatsapp_banner_url: string | null
+        }
+        Insert: {
+          colors?: Json | null
+          contact_email?: string | null
+          created_at?: string | null
+          favicon_url?: string | null
+          id?: string | null
+          intro_animation_variant?: string | null
+          is_singleton?: boolean | null
+          logo_url?: string | null
+          privacy_md?: string | null
+          site_name?: string | null
+          tagline?: string | null
+          terms_md?: string | null
+          updated_at?: string | null
+          urgency_banner_text?: string | null
+          whatsapp_banner_enabled?: boolean | null
+          whatsapp_banner_label?: string | null
+          whatsapp_banner_url?: string | null
+        }
+        Update: {
+          colors?: Json | null
+          contact_email?: string | null
+          created_at?: string | null
+          favicon_url?: string | null
+          id?: string | null
+          intro_animation_variant?: string | null
+          is_singleton?: boolean | null
+          logo_url?: string | null
+          privacy_md?: string | null
+          site_name?: string | null
+          tagline?: string | null
+          terms_md?: string | null
+          updated_at?: string | null
+          urgency_banner_text?: string | null
+          whatsapp_banner_enabled?: boolean | null
+          whatsapp_banner_label?: string | null
+          whatsapp_banner_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_friend_request: {

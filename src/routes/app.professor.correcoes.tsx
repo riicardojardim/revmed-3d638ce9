@@ -31,11 +31,11 @@ function ReviewQueuePage() {
     setLoading(true);
     let q = supabase
       .from("attempts")
-      .select("id, station_title, specialty, score, created_at, reviewed_at, professor_score")
+      .select("id, station_title, specialty, score, created_at, reviewed_at, professor_score, status")
       .order("created_at", { ascending: false })
       .limit(50);
     q = tab === "pending"
-      ? q.is("reviewed_at", null)
+      ? q.is("reviewed_at", null).eq("status", "aguardando_correcao")
       : q.not("reviewed_at", "is", null).eq("reviewed_by", user.id);
     q.then(({ data }) => {
       setRows((data ?? []) as Row[]);
