@@ -1318,6 +1318,9 @@ function SimuladoRunner({ id }: { id: string }) {
             </div>
           )}
 
+          {/* Histórico de eventos */}
+          {sim?.roomId && <RoomEventLog roomId={sim.roomId} />}
+
           {/* Participantes */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
