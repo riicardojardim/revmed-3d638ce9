@@ -737,6 +737,9 @@ function SimuladoRunner({ id }: { id: string }) {
           .eq("id", sim.roomId);
         setEvaluatedCandidateId(null);
         setRoomStatus("waiting");
+        if (sim.roomCode) {
+          try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+        }
       }
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
       saveSimulado(user!.id, next);
