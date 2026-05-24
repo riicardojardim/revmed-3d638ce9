@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, Check, UserPlus, DoorOpen, Sparkles, X } from "lucide-react";
+import { Bell, Check, UserPlus, DoorOpen, Sparkles, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
