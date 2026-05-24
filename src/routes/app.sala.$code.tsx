@@ -170,7 +170,7 @@ function SimuladoRunner({ id }: { id: string }) {
       if (sim.roomId) {
         const cur = sim.stations[sim.currentIndex];
         const { data: r } = await supabase.from("training_rooms")
-          .select("station_id, status, evaluated_candidate_id, duration_minutes").eq("id", sim.roomId).maybeSingle();
+          .select("station_id, status, evaluated_candidate_id, duration_minutes, started_at").eq("id", sim.roomId).maybeSingle();
         if (r?.station_id === cur.id && r.status === "finished") {
           if (!cancelled) {
             setRoomStatus("finished");
@@ -179,12 +179,16 @@ function SimuladoRunner({ id }: { id: string }) {
             setRunning(false);
             setRemaining(0);
             setDuration((r.duration_minutes as number | null) ?? station.durationMinutes ?? 10);
+            setRoomStartedAtMs(r?.started_at ? new Date(r.started_at as string).getTime() : null);
           }
         } else {
           await supabase.from("training_rooms")
             .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null, simulado_id: sim.id, simulado_name: sim.name, simulado_index: sim.currentIndex, simulado_total: sim.stations.length })
             .eq("id", sim.roomId);
-          if (!cancelled) setRoomStatus("waiting");
+          if (!cancelled) {
+            setRoomStatus("waiting");
+            setRoomStartedAtMs(null);
+          }
         }
         if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
         await refreshCandidates(sim.roomId);
