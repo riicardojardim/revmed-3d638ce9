@@ -25,6 +25,22 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Exibe aviso quando o usuário foi deslogado por login em outro dispositivo.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reason") === "other-device") {
+      toast.error("Sessão encerrada", {
+        description: "Você fez login em outro dispositivo. Entre novamente para continuar.",
+        duration: 7000,
+      });
+      params.delete("reason");
+      const qs = params.toString();
+      const url = window.location.pathname + (qs ? `?${qs}` : "");
+      window.history.replaceState({}, "", url);
+    }
+  }, []);
+
   function formatIdentifier(raw: string): string {
     const v = raw.trim();
     if (!v) return "";
