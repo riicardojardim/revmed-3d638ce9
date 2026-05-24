@@ -310,51 +310,32 @@ function ProfilePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="firstName">Nome</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="Seu nome"
-              autoComplete="given-name"
-            />
+            <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Seu nome" autoComplete="given-name" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lastName">Sobrenome</Label>
-            <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Seu sobrenome"
-              autoComplete="family-name"
-            />
+            <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Seu sobrenome" autoComplete="family-name" />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="title">Como quer ser chamado(a)</Label>
             <Select value={title} onValueChange={setTitle}>
-              <SelectTrigger id="title">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
+              <SelectTrigger id="title"><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
-                {TITLE_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
+                {TITLE_OPTIONS.map((o) => (<SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="gender">Sexo</Label>
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger id="gender"><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectContent>
+                {GENDER_OPTIONS.map((o) => (<SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="gender">Sexo</Label>
-            <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger id="gender">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {GENDER_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="username">@username</Label>
             <div className="flex items-center gap-2">
@@ -372,7 +353,6 @@ function ProfilePage() {
               {usernameError ?? "Como seus amigos vão te encontrar. 3–20 caracteres, letras minúsculas, números, ponto ou _."}
             </p>
           </div>
-        </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="whatsapp">WhatsApp</Label>
@@ -387,7 +367,28 @@ function ProfilePage() {
               maxLength={16}
             />
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="birthDate">Data de nascimento</Label>
+            <Input
+              id="birthDate"
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              max={new Date().toISOString().slice(0, 10)}
+            />
+          </div>
 
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="cpf">CPF</Label>
+            <Input
+              id="cpf"
+              inputMode="numeric"
+              value={cpf}
+              onChange={(e) => setCpf(formatCPF(e.target.value))}
+              placeholder="000.000.000-00"
+              maxLength={14}
+            />
+          </div>
         </div>
 
         <div>
