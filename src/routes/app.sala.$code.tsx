@@ -1633,6 +1633,7 @@ function SimuladoRunner({ id }: { id: string }) {
         displayName={(profile?.full_name?.trim()) || user?.email || "Ator"}
         role="ator"
         allowedIdentities={[user?.id, evaluatedCandidateId]}
+        onIdentitiesChange={handleCallIdentities}
       />
     )}
     <button
