@@ -771,8 +771,6 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
           <label className="block text-sm">Permissão
             <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className={inputCls}>
               <option value="aluno">Aluno</option>
-              <option value="mentor">Mentor (acesso completo, sem cobrança)</option>
-              <option value="professor">Professor</option>
               <option value="admin">Admin</option>
             </select>
           </label>
