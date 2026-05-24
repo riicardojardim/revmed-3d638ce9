@@ -39,6 +39,28 @@ const GENDER_OPTIONS = [
   { value: "prefiro_nao_dizer", label: "Prefiro não dizer" },
 ];
 
+function formatCPF(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+function isValidCPF(cpf: string) {
+  const d = cpf.replace(/\D/g, "");
+  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
+  let s = 0;
+  for (let i = 0; i < 9; i++) s += parseInt(d[i]) * (10 - i);
+  let r = (s * 10) % 11;
+  if (r === 10) r = 0;
+  if (r !== parseInt(d[9])) return false;
+  s = 0;
+  for (let i = 0; i < 10; i++) s += parseInt(d[i]) * (11 - i);
+  r = (s * 10) % 11;
+  if (r === 10) r = 0;
+  return r === parseInt(d[10]);
+}
+
 function deduceExamYear(): string {
   const now = new Date();
   const y = now.getFullYear();
@@ -100,17 +122,21 @@ function ProfilePage() {
   const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
   const [username, setUsername] = useState<string>(profile?.username ?? "");
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [cpf, setCpf] = useState<string>(formatCPF(profile?.cpf ?? ""));
+  const [birthDate, setBirthDate] = useState<string>(profile?.birth_date ?? "");
   const examYear = profile?.exam_year || deduceExamYear();
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     const [f, l] = splitName(profile?.full_name);
-    setFirstName(f);
-    setLastName(l);
+    setFirstName(profile?.first_name ?? f);
+    setLastName(profile?.last_name ?? l);
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
     setUsername(profile?.username ?? "");
+    setCpf(formatCPF(profile?.cpf ?? ""));
+    setBirthDate(profile?.birth_date ?? "");
   }, [profile]);
 
   function validateUsername(v: string): string | null {
@@ -133,6 +159,11 @@ function ProfilePage() {
     const uErr = validateUsername(uname);
     if (uErr) { setUsernameError(uErr); toast.error(uErr); return; }
     setUsernameError(null);
+    const cpfDigits = cpf.replace(/\D/g, "");
+    if (cpfDigits && !isValidCPF(cpfDigits)) {
+      toast.error("CPF inválido.");
+      return;
+    }
     setSavingProfile(true);
     const composedName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
     const { error } = await supabase
@@ -146,6 +177,8 @@ function ProfilePage() {
         whatsapp: digits || null,
         exam_year: examYear || null,
         username: uname || null,
+        cpf: cpfDigits || null,
+        birth_date: birthDate || null,
       })
       .eq("id", user.id);
     setSavingProfile(false);
