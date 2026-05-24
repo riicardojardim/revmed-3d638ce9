@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -116,6 +116,10 @@ function SimuladoRunner({ id }: { id: string }) {
   const [roomStatus, setRoomStatus] = useState("waiting");
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const [callIdentities, setCallIdentities] = useState<string[]>([]);
+  const handleCallIdentities = useCallback((ids: string[]) => {
+    setCallIdentities(ids);
+  }, []);
 
 
 
