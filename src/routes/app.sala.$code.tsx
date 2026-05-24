@@ -1120,6 +1120,106 @@ function SimuladoRunner({ id }: { id: string }) {
 
         {/* RIGHT: control panel */}
         <aside className="hidden min-w-0 space-y-3 lg:sticky lg:top-20 lg:block lg:self-start">
+          {/* Timer (desktop) */}
+          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
+            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
+              {running ? "Em andamento" : finishedStation ? "Encerrada" : "Aguardando início"}
+            </div>
+            <div className={cn("mt-2 rounded-xl px-5 py-6 text-center transition-colors", running ? "bg-mint/15" : "bg-white/5")}>
+              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
+              {isWaiting && (
+                <div className="mt-3">
+                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
+                    <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0.0833">5 segundos (teste)</SelectItem>
+                      {[5, 6, 7, 8, 9, 10].map((m) => (
+                        <SelectItem key={m} value={String(m)}>{m} minutos</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="mt-1 text-[10px] text-white/60">Tempo da estação</div>
+                </div>
+              )}
+            </div>
+            {isWaiting && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!hasEvaluated) {
+                    toast.error("Selecione primeiro o candidato avaliado.");
+                    setSelectCandidateOpen(true);
+                    return;
+                  }
+                  if (!actorInCall) {
+                    toast.error("Entre na chamada de voz para poder iniciar.");
+                    return;
+                  }
+                  if (!candidateInCall) {
+                    toast.error("Aguardando o candidato selecionado entrar na chamada de voz.");
+                    return;
+                  }
+                  startTimer();
+                }}
+                style={allReadyToStart ? { color: "var(--medical)" } : undefined}
+                className={cn(
+                  "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
+                  allReadyToStart
+                    ? "bg-white hover:bg-white/90 hover:shadow"
+                    : "bg-white/30 text-white/70 hover:bg-white/40",
+                )}
+              >
+                <Play className="h-4 w-4" /> Iniciar cronômetro
+              </button>
+            )}
+            {isWaiting && (
+              <div className="mt-2 rounded-xl border border-medical/25 bg-medical/5 p-3">
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-medical">
+                  Para iniciar o cronômetro
+                </div>
+                <ul className="space-y-1.5">
+                  {[
+                    { ok: hasEvaluated, label: "Selecionar o candidato avaliado" },
+                    { ok: actorInCall, label: "Você (ator) precisa entrar na chamada de voz" },
+                    { ok: candidateInCall, label: hasEvaluated ? "O candidato selecionado precisa entrar na chamada" : "Após selecionar, o candidato entra na chamada" },
+                  ].map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-[11.5px] leading-snug">
+                      <span
+                        className={cn(
+                          "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
+                          r.ok
+                            ? "border-mint bg-mint/20 text-mint"
+                            : "border-medical/50 text-medical/70",
+                        )}
+                      >
+                        {r.ok ? "✓" : "•"}
+                      </span>
+                      <span className={r.ok ? "text-white/85 line-through decoration-mint/40" : "text-white/80"}>
+                        {r.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {running && (
+              <button
+                type="button"
+                onClick={() => { void finishTimer(); }}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 active:scale-[0.98]"
+              >
+                Encerrar estação
+              </button>
+            )}
+            {finishedStation && (
+              <div className="mt-3 rounded-lg bg-mint/10 px-3 py-2 text-center text-xs text-mint">
+                Estação encerrada — preencha o PEP abaixo.
+              </div>
+            )}
+          </div>
+
           {/* Live score (visible to actor from the start) */}
           {station && (
             <div className="rounded-2xl border border-mint/30 bg-gradient-to-br from-night via-night to-night/80 p-4 text-white shadow-elegant">
