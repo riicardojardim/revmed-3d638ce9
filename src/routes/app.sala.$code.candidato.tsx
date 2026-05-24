@@ -594,6 +594,7 @@ function CandidateView() {
           </div>
         </div>
       )}
+      {room?.id && <RoomEventLog roomId={room.id} />}
     </div>
   );
 
