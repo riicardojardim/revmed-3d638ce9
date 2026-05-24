@@ -579,7 +579,6 @@ function ActorView() {
       status: "waiting",
       started_at: null,
     } : prev);
-    setShowIntro(false);
     setStarting(false);
     setFinished(false);
     const name = candidates.find((c) => c.id === id)?.name ?? "Candidato";
