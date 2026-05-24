@@ -1282,17 +1282,6 @@ function SimuladoRunner({ id }: { id: string }) {
           )}
         </aside>
 
-        <div className="min-w-0 space-y-3 lg:hidden">
-          {/* Timer */}
-          <div className="rounded-2xl border border-border bg-gradient-hero p-4 text-white shadow-elegant">
-            <div className="text-center text-[11px] font-semibold uppercase tracking-wider text-white/70">
-              {running ? "Em andamento" : finishedStation ? "Encerrada" : "Aguardando início"}
-            </div>
-            <div className={cn("mt-2 rounded-xl px-5 py-6 text-center transition-colors", running ? "bg-mint/15" : "bg-white/5")}>
-              <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <Sheet open={controlsOpen} onOpenChange={setControlsOpen}>
