@@ -593,6 +593,20 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
             )}
           </label>
 
+          <label className="block text-sm">Sexo <span className="text-destructive">*</span>
+            <select
+              value={f.gender}
+              onChange={(e) => setF({ ...f, gender: e.target.value as typeof f.gender })}
+              className={inputCls}
+              required
+            >
+              <option value="">Selecione…</option>
+              <option value="masculino">Masculino</option>
+              <option value="feminino">Feminino</option>
+              <option value="outro">Outro</option>
+            </select>
+          </label>
+
           <label className="block text-sm">Senha (mín. 8) <span className="text-destructive">*</span>
             <input type="text" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} className={inputCls} required minLength={8} />
           </label>
