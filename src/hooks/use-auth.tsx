@@ -104,6 +104,61 @@ async function claimActiveSession(userId: string) {
   } catch {}
 }
 
+const ACCESS_BLOCK_NOTICE_KEY = "er_access_block_notice";
+
+/**
+ * Confere se o usuário tem acesso pago (plano não expirado).
+ * Admin/Professor passam livre. Sem plano ativo → sign out + redirect /#planos.
+ */
+async function enforcePlanAccess(userId: string) {
+  try {
+    // Privilegiados (admin/professor) sempre têm acesso.
+    const { data: rs } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const roles = ((rs ?? []) as { role: AppRole }[]).map((r) => r.role);
+    if (roles.includes("admin") || roles.includes("professor")) return;
+
+    const { data: sub } = await supabase
+      .from("user_subscriptions")
+      .select("status, current_period_end, plans:plan_id ( slug )")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const plan = sub?.plans as { slug: string } | null | undefined;
+    const expired = sub?.current_period_end
+      ? new Date(sub.current_period_end).getTime() < Date.now()
+      : false;
+    const hasAccess = !!sub && !!plan && plan.slug !== "free" && !expired;
+
+    if (hasAccess) return;
+
+    // Sem plano → bloqueia.
+    try {
+      sessionStorage.setItem(
+        ACCESS_BLOCK_NOTICE_KEY,
+        JSON.stringify({
+          reason: "no_plan",
+          ts: Date.now(),
+        }),
+      );
+    } catch {}
+    await supabase.auth.signOut();
+    try {
+      const { toast } = await import("sonner");
+      toast.error("Acesso bloqueado", {
+        description: "Você precisa de um plano ativo para entrar. Escolha um plano para continuar.",
+      });
+    } catch {}
+    if (typeof window !== "undefined") {
+      window.location.href = "/#planos";
+    }
+  } catch {
+    // Em caso de falha de rede, não derruba a sessão.
+  }
+}
+
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -163,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTimeout(() => { void loadExtras(s.user.id); }, 0);
         if (event === "SIGNED_IN") {
           setTimeout(() => { void claimActiveSession(s.user.id); }, 0);
+          setTimeout(() => { void enforcePlanAccess(s.user.id); }, 0);
         }
       } else {
         setProfile(null);
@@ -179,6 +235,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Background: não trava o render do app.
         void loadExtras(s.user.id);
         void claimActiveSession(s.user.id);
+        void enforcePlanAccess(s.user.id);
       } else {
         writeAuthCache(null);
       }
