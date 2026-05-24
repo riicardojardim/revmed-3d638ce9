@@ -99,6 +99,13 @@ function getDeviceId(): string {
 async function claimActiveSession(userId: string) {
   const device_id = getDeviceId();
   try {
+    // Admin pode ficar logado em vários lugares — não reivindica a sessão única.
+    const { data: rolesRows } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const isAdmin = (rolesRows ?? []).some((r) => r.role === "admin");
+    if (isAdmin) return;
     await supabase
       .from("user_active_session")
       .upsert({ user_id: userId, device_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
