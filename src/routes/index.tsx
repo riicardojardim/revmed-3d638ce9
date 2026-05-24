@@ -51,6 +51,7 @@ import {
   WhatsAppFloat,
   UrgencyBanner,
 } from "@/components/landing/FakeNotifications";
+import { SignupPaymentModal, type SignupModalPlan } from "@/components/landing/SignupPaymentModal";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -93,6 +94,7 @@ function LandingPage() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [signupPlan, setSignupPlan] = useState<SignupModalPlan | null>(null);
   const lastY = useRef(0);
 
   useEffect(() => setMounted(true), []);
@@ -169,13 +171,21 @@ function LandingPage() {
         <Resultados />
         <Depoimentos />
         <Mentoria />
-        <Investimento isLogged={mounted && !!user} />
+        <Investimento
+          isLogged={mounted && !!user}
+          onChoosePlan={(p) => setSignupPlan(p)}
+        />
         <FAQ />
         <FinalCTA isLogged={mounted && !!user} />
       </main>
       <Footer />
       <FakeNotifications />
       <WhatsAppFloat />
+      <SignupPaymentModal
+        open={!!signupPlan}
+        onOpenChange={(v) => { if (!v) setSignupPlan(null); }}
+        plan={signupPlan}
+      />
     </div>
   );
 }
