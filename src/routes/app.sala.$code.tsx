@@ -126,6 +126,10 @@ function SimuladoRunner({ id }: { id: string }) {
     setCallIdentities(ids);
   }, []);
 
+  // Sincroniza permissões de áudio/vídeo no LiveKit a partir do estado da sala
+  // (host = ator, evaluated_candidate = candidato avaliado, status finished = todos).
+  const syncCallPerms = useServerFn(syncLivekitPermissions);
+
   // Log entries into the call (actor logs itself, actor also logs candidate join).
   const loggedJoinsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
