@@ -15,6 +15,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 import {
   listUsersAdmin,
   createUserAdmin,
@@ -225,6 +226,7 @@ function AdminUsers() {
         open={openCreate}
         onOpenChange={setOpenCreate}
         defaultRole={createDefaultRole}
+        plans={plans}
         onCreate={async (payload) => {
           try {
             await createFn({ data: payload });
