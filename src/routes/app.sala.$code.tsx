@@ -402,9 +402,20 @@ function SimuladoRunner({ id }: { id: string }) {
     if (running) return toast.error("Estação em andamento — o candidato avaliado não pode ser alterado.");
     if (finishedStation) return toast.error("Estação encerrada — não é possível trocar o candidato avaliado.");
     const { error } = await supabase.from("training_rooms")
-      .update({ evaluated_candidate_id: candId }).eq("id", sim.roomId);
+      .update({
+        evaluated_candidate_id: candId,
+        status: "waiting",
+        starting_at: null,
+        started_at: null,
+        finished_at: null,
+      }).eq("id", sim.roomId);
     if (error) return toast.error(error.message);
     setEvaluatedCandidateId(candId);
+    setRoomStatus("waiting");
+    setRoomStartedAtMs(null);
+    setShowIntro(false);
+    setIntroStartAt(null);
+    setRunning(false);
     const name = candidates.find((c) => c.id === candId)?.name ?? "Candidato";
     toast.success(`Avaliado: ${name}`);
     void logRoomEvent(sim.roomId, user?.id ?? null, "candidate_selected", {
