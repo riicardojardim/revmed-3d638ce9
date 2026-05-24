@@ -400,6 +400,9 @@ function SimuladoRunner({ id }: { id: string }) {
       candidate_id: candId,
       name,
     }, `cand:${candId}`);
+    if (sim.roomCode) {
+      try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+    }
   }
 
   async function copyInviteLink() {
