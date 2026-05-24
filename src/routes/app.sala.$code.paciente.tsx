@@ -721,17 +721,36 @@ function ActorView() {
             </div>
             {isWaiting && (
               <>
+                {(() => null)()}
                 <Button
                   variant="hero"
                   className="mt-3 w-full"
                   onClick={startStation}
-                  disabled={starting || !room.evaluated_candidate_id}
+                  disabled={
+                    starting ||
+                    !room.evaluated_candidate_id ||
+                    !callIdentities.includes(user?.id ?? "") ||
+                    !callIdentities.includes(room.evaluated_candidate_id ?? "")
+                  }
                 >
                   <Play className="mr-1 h-4 w-4" />
                   {!room.evaluated_candidate_id
                     ? "Aguardando candidato..."
-                    : "Iniciar cronômetro"}
+                    : !callIdentities.includes(user?.id ?? "")
+                      ? "Entre na call para iniciar..."
+                      : !callIdentities.includes(room.evaluated_candidate_id ?? "")
+                        ? "Aguardando candidato entrar na call..."
+                        : "Iniciar cronômetro"}
                 </Button>
+                {room.evaluated_candidate_id && (
+                  <div className="mt-2 text-center text-[11px] text-white/70">
+                    {callIdentities.includes(user?.id ?? "") && callIdentities.includes(room.evaluated_candidate_id) ? (
+                      <span className="text-mint">✓ Ator e candidato conectados na call</span>
+                    ) : (
+                      <span>Ambos precisam estar na chamada de vídeo antes de iniciar.</span>
+                    )}
+                  </div>
+                )}
               </>
             )}
             {isRunning && (
