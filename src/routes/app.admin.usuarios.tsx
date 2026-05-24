@@ -430,6 +430,151 @@ type CreatePayload = {
   plan_days: number;
 };
 
+type EditProfilePayload = {
+  first_name?: string | null;
+  last_name?: string | null;
+  title?: string | null;
+  gender?: string | null;
+  username?: string | null;
+  whatsapp?: string | null;
+  cpf?: string | null;
+  birth_date?: string | null;
+};
+
+function EditProfileDialog({ open, onOpenChange, user, onConfirm }: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  user: ApiUser;
+  onConfirm: (p: EditProfilePayload) => void;
+}) {
+  const [f, setF] = useState({
+    first_name: "",
+    last_name: "",
+    title: "" as "" | "Dr." | "Dra." | "Sem título",
+    gender: "" as "" | "masculino" | "feminino" | "outro",
+    username: "",
+    whatsapp: "",
+    cpf: "",
+    birth_date: "",
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    setF({
+      first_name: user.first_name ?? "",
+      last_name: user.last_name ?? "",
+      title: (user.title as "" | "Dr." | "Dra." | "Sem título") ?? "",
+      gender: (user.gender as "" | "masculino" | "feminino" | "outro") ?? "",
+      username: user.username ?? "",
+      whatsapp: formatWhatsapp(user.whatsapp ?? ""),
+      cpf: formatCPF(user.cpf ?? ""),
+      birth_date: user.birth_date ?? "",
+    });
+  }, [open, user]);
+
+  const inputCls = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint";
+  const cpfDigits = f.cpf.replace(/\D/g, "");
+  const wppDigits = normalizeWhatsapp(f.whatsapp);
+  const cpfOk = !cpfDigits || isValidCPF(f.cpf);
+  const wppOk = !wppDigits || isValidWhatsapp(wppDigits);
+  const usernameOk = !f.username || /^[a-z0-9._]{3,20}$/.test(f.username);
+  const allOk = cpfOk && wppOk && usernameOk;
+
+  function submit() {
+    if (!allOk) return;
+    onConfirm({
+      first_name: f.first_name.trim() || null,
+      last_name: f.last_name.trim() || null,
+      title: f.title || null,
+      gender: f.gender || null,
+      username: f.username.trim().toLowerCase() || null,
+      whatsapp: wppDigits || null,
+      cpf: cpfDigits || null,
+      birth_date: f.birth_date || null,
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar perfil</DialogTitle>
+          <DialogDescription>{user.email}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-sm">Nome
+              <input value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} className={inputCls} />
+            </label>
+            <label className="block text-sm">Sobrenome
+              <input value={f.last_name} onChange={(e) => setF({ ...f, last_name: e.target.value })} className={inputCls} />
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-sm">Título
+              <select value={f.title} onChange={(e) => setF({ ...f, title: e.target.value as typeof f.title })} className={inputCls}>
+                <option value="">—</option>
+                <option value="Dr.">Dr.</option>
+                <option value="Dra.">Dra.</option>
+                <option value="Sem título">Sem título</option>
+              </select>
+            </label>
+            <label className="block text-sm">Sexo
+              <select value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value as typeof f.gender })} className={inputCls}>
+                <option value="">—</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+                <option value="outro">Outro</option>
+              </select>
+            </label>
+          </div>
+          <label className="block text-sm">@username
+            <input
+              value={f.username}
+              onChange={(e) => setF({ ...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, "").slice(0, 20) })}
+              className={inputCls}
+            />
+            {!usernameOk && <span className="mt-1 block text-[11px] text-destructive">3–20 caracteres: letras minúsculas, números, . ou _</span>}
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-sm">WhatsApp
+              <input
+                type="tel" inputMode="numeric" maxLength={16}
+                value={f.whatsapp}
+                onChange={(e) => setF({ ...f, whatsapp: formatWhatsapp(e.target.value) })}
+                className={inputCls}
+              />
+              {!wppOk && <span className="mt-1 block text-[11px] text-destructive">WhatsApp inválido.</span>}
+            </label>
+            <label className="block text-sm">Data de nascimento
+              <input
+                type="date"
+                value={f.birth_date}
+                onChange={(e) => setF({ ...f, birth_date: e.target.value })}
+                max={new Date().toISOString().slice(0, 10)}
+                className={inputCls}
+              />
+            </label>
+          </div>
+          <label className="block text-sm">CPF
+            <input
+              inputMode="numeric" maxLength={14}
+              value={f.cpf}
+              onChange={(e) => setF({ ...f, cpf: formatCPF(e.target.value) })}
+              className={inputCls}
+            />
+            {!cpfOk && <span className="mt-1 block text-[11px] text-destructive">CPF inválido.</span>}
+          </label>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button variant="hero" onClick={submit} disabled={!allOk}>Salvar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno", plans }: {
   open: boolean; onOpenChange: (v: boolean) => void;
   onCreate: (p: CreatePayload) => void;
