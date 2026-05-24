@@ -30,6 +30,12 @@ type Props = {
   autoOpen?: boolean;
   /** Callback com as identidades atualmente presentes na call (inclui local). */
   onIdentitiesChange?: (identities: string[]) => void;
+  /**
+   * Sempre que mudar (ex.: novo candidato avaliado, status da estação),
+   * o componente solicita um novo token ao servidor para atualizar
+   * permissões de publicação (microfone/câmera) do usuário local.
+   */
+  permissionsKey?: string;
 };
 
 /**
@@ -37,7 +43,7 @@ type Props = {
  * - Compacto e arrastável
  * - Ao minimizar, a chamada continua ativa (apenas o vídeo é ocultado)
  */
-export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, autoOpen, onIdentitiesChange }: Props) {
+export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, autoOpen, onIdentitiesChange, permissionsKey }: Props) {
   const [open, setOpen] = useState(!!autoOpen);
   useEffect(() => {
     if (autoOpen) setOpen(true);
@@ -47,6 +53,14 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const issueToken = useServerFn(getLivekitToken);
+
+  // Quando a chave de permissões mudar, força refresh do token (reconnect com
+  // novas grants). É o gatilho para promover o candidato selecionado
+  // (passa a publicar) ou rebaixar o anterior (vira espectador).
+  useEffect(() => {
+    if (!open || !permissionsKey) return;
+    setConn(null);
+  }, [permissionsKey, open]);
 
   // Posição flutuante (px a partir do canto superior esquerdo da viewport).
   const PANEL_W = 240;
