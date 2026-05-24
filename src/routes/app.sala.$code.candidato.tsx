@@ -472,6 +472,7 @@ function CandidateView() {
             role={isSpectator ? "espectador" : "candidato"}
             allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
             autoOpen
+            onIdentitiesChange={handleCallIdentities}
           />
         )}
         <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
