@@ -30,6 +30,8 @@ import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { RelatedResources } from "@/components/RelatedResources";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
+import { syncLivekitPermissions } from "@/lib/livekit.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { RoomEventLog } from "@/components/room/RoomEventLog";
 import { logRoomEvent } from "@/lib/roomEvents";
@@ -123,6 +125,10 @@ function SimuladoRunner({ id }: { id: string }) {
   const handleCallIdentities = useCallback((ids: string[]) => {
     setCallIdentities(ids);
   }, []);
+
+  // Sincroniza permissões de áudio/vídeo no LiveKit a partir do estado da sala
+  // (host = ator, evaluated_candidate = candidato avaliado, status finished = todos).
+  const syncCallPerms = useServerFn(syncLivekitPermissions);
 
   // Log entries into the call (actor logs itself, actor also logs candidate join).
   const loggedJoinsRef = useRef<Set<string>>(new Set());
@@ -394,6 +400,9 @@ function SimuladoRunner({ id }: { id: string }) {
       candidate_id: candId,
       name,
     }, `cand:${candId}`);
+    if (sim.roomCode) {
+      try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+    }
   }
 
   async function copyInviteLink() {
@@ -629,6 +638,9 @@ function SimuladoRunner({ id }: { id: string }) {
       void logRoomEvent(sim.roomId, user?.id ?? null, "station_started", {
         duration_minutes: duration,
       }, `start:${sim.roomId}:${sim.currentIndex}`);
+      if (sim.roomCode) {
+        try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+      }
     }
   }
   async function finishTimer(auto = false) {
@@ -675,6 +687,9 @@ function SimuladoRunner({ id }: { id: string }) {
       void logRoomEvent(sim.roomId, user?.id ?? null, "station_finished", {
         auto,
       }, `finish:${sim.roomId}:${sim.currentIndex}`);
+      if (sim.roomCode) {
+        try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+      }
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
@@ -722,6 +737,9 @@ function SimuladoRunner({ id }: { id: string }) {
           .eq("id", sim.roomId);
         setEvaluatedCandidateId(null);
         setRoomStatus("waiting");
+        if (sim.roomCode) {
+          try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
+        }
       }
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
       saveSimulado(user!.id, next);
@@ -1800,6 +1818,7 @@ function SimuladoRunner({ id }: { id: string }) {
         role="ator"
         allowedIdentities={[user?.id, evaluatedCandidateId]}
         onIdentitiesChange={handleCallIdentities}
+        permissionsKey={`${evaluatedCandidateId ?? "none"}:${roomStatus}`}
       />
     )}
     <button

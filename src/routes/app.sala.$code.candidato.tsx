@@ -473,6 +473,7 @@ function CandidateView() {
             allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
             autoOpen
             onIdentitiesChange={handleCallIdentities}
+          permissionsKey={`${room.evaluated_candidate_id ?? "none"}:${room.status ?? "waiting"}`}
           />
         )}
         <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
@@ -608,6 +609,7 @@ function CandidateView() {
           role={isSpectator ? "espectador" : "candidato"}
           allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
           onIdentitiesChange={handleCallIdentities}
+          permissionsKey={`${room.evaluated_candidate_id ?? "none"}:${room.status ?? "waiting"}`}
         />
       )}
       <div className="mx-auto w-full max-w-7xl min-w-0 space-y-4 overflow-x-hidden">

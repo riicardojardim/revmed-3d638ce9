@@ -30,6 +30,12 @@ type Props = {
   autoOpen?: boolean;
   /** Callback com as identidades atualmente presentes na call (inclui local). */
   onIdentitiesChange?: (identities: string[]) => void;
+  /**
+   * Sempre que mudar (ex.: novo candidato avaliado, status da estação),
+   * o componente solicita um novo token ao servidor para atualizar
+   * permissões de publicação (microfone/câmera) do usuário local.
+   */
+  permissionsKey?: string;
 };
 
 /**
@@ -37,16 +43,24 @@ type Props = {
  * - Compacto e arrastável
  * - Ao minimizar, a chamada continua ativa (apenas o vídeo é ocultado)
  */
-export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, autoOpen, onIdentitiesChange }: Props) {
+export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, autoOpen, onIdentitiesChange, permissionsKey }: Props) {
   const [open, setOpen] = useState(!!autoOpen);
   useEffect(() => {
     if (autoOpen) setOpen(true);
   }, [autoOpen]);
   const [minimized, setMinimized] = useState(false);
-  const [conn, setConn] = useState<{ token: string; url: string } | null>(null);
+  const [conn, setConn] = useState<{ token: string; url: string; canPublish: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const issueToken = useServerFn(getLivekitToken);
+
+  // Quando a chave de permissões mudar, força refresh do token (reconnect com
+  // novas grants). É o gatilho para promover o candidato selecionado
+  // (passa a publicar) ou rebaixar o anterior (vira espectador).
+  useEffect(() => {
+    if (!open || !permissionsKey) return;
+    setConn(null);
+  }, [permissionsKey, open]);
 
   // Posição flutuante (px a partir do canto superior esquerdo da viewport).
   const PANEL_W = 240;
@@ -101,7 +115,7 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, 
     setLoading(true);
     setError(null);
     issueToken({ data: { roomCode, displayName, role } })
-      .then((r) => setConn({ token: r.token, url: r.url }))
+      .then((r) => setConn({ token: r.token, url: r.url, canPublish: !!r.canPublish }))
       .catch((e) => setError(e?.message ?? "Falha ao conectar"))
       .finally(() => setLoading(false));
   }, [open, conn, loading, issueToken, roomCode, displayName, role]);
@@ -190,8 +204,8 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, 
             token={conn.token}
             serverUrl={conn.url}
             connect
-            video
-            audio
+            video={conn.canPublish}
+            audio={conn.canPublish}
             data-lk-theme="default"
             className="flex min-h-0 flex-1 flex-col"
             onDisconnected={() => { setOpen(false); setConn(null); setMinimized(false); }}
@@ -203,7 +217,23 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, 
             <RoomAudioRenderer />
             {onIdentitiesChange && <PresenceReporter onChange={onIdentitiesChange} />}
             {!minimized && (
-              <ControlBar variation="minimal" controls={{ microphone: true, camera: true, screenShare: false, leave: true }} />
+              conn.canPublish ? (
+                <ControlBar variation="minimal" controls={{ microphone: true, camera: true, screenShare: false, leave: true }} />
+              ) : (
+                <div className="flex items-center justify-between gap-2 border-t border-white/10 bg-night/80 px-2 py-1.5 text-[10px] text-white/70">
+                  <span className="inline-flex items-center gap-1 truncate">
+                    <Mic className="h-3 w-3 opacity-60" /> Modo espectador — só ouve
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2 text-[10px] text-white/80 hover:bg-white/10"
+                    onClick={() => { setOpen(false); setConn(null); setMinimized(false); }}
+                  >
+                    Sair
+                  </Button>
+                </div>
+              )
             )}
           </LiveKitRoom>
         )}
