@@ -647,6 +647,9 @@ function SimuladoRunner({ id }: { id: string }) {
         return;
       }
       setRoomStatus("finished");
+      void logRoomEvent(sim.roomId, user?.id ?? null, "station_finished", {
+        auto,
+      }, `finish:${sim.roomId}:${sim.currentIndex}`);
     }
     toast.success(auto ? "Tempo encerrado. PEP liberado para o candidato." : "Estação encerrada. PEP liberado para o candidato.");
   }
