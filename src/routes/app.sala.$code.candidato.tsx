@@ -22,6 +22,8 @@ import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 import { RelatedResources } from "@/components/RelatedResources";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { RoomEventLog } from "@/components/room/RoomEventLog";
+import { logRoomEvent } from "@/lib/roomEvents";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
