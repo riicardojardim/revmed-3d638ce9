@@ -410,6 +410,7 @@ type CreatePayload = {
   whatsapp: string;
   cpf: string;
   birth_date: string;
+  gender: "masculino" | "feminino" | "outro";
   role: "aluno" | "professor" | "admin" | "mentor";
   plan_id?: string;
   plan_days: number;
@@ -430,6 +431,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
     whatsapp: "",
     birth_date: "",
     cpf: "",
+    gender: "" as "" | "masculino" | "feminino" | "outro",
     password: "",
   };
   const [f, setF] = useState(initial);
@@ -470,6 +472,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
     wppValid &&
     birthValid &&
     cpfValid &&
+    f.gender !== "" &&
     f.password.length >= 8 &&
     !!planId;
 
@@ -485,6 +488,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
       whatsapp: wppDigits,
       cpf: cpfDigits,
       birth_date: f.birth_date,
+      gender: f.gender as "masculino" | "feminino" | "outro",
       role,
       plan_id: planId,
       plan_days: planDays,
@@ -587,6 +591,20 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
             {f.cpf && !cpfValid && (
               <span className="mt-1 block text-[11px] text-destructive">CPF inválido.</span>
             )}
+          </label>
+
+          <label className="block text-sm">Sexo <span className="text-destructive">*</span>
+            <select
+              value={f.gender}
+              onChange={(e) => setF({ ...f, gender: e.target.value as typeof f.gender })}
+              className={inputCls}
+              required
+            >
+              <option value="">Selecione…</option>
+              <option value="masculino">Masculino</option>
+              <option value="feminino">Feminino</option>
+              <option value="outro">Outro</option>
+            </select>
           </label>
 
           <label className="block text-sm">Senha (mín. 8) <span className="text-destructive">*</span>
