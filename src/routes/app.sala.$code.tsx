@@ -400,23 +400,36 @@ function SimuladoRunner({ id }: { id: string }) {
     copyInviteLink();
   }
 
-  // Timer
+  // Timer sincronizado: deriva o tempo restante de started_at + duration_minutes
+  // do servidor, para que ator e candidato vejam exatamente o mesmo cronômetro.
   useEffect(() => {
     if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
-    if (!running) return;
-    tickRef.current = window.setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          if (tickRef.current) clearInterval(tickRef.current);
-          tickRef.current = null;
-          void finishTimer(true);
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
-    return () => { if (tickRef.current) clearInterval(tickRef.current); };
-  }, [running]);
+    if (!running || !roomStartedAtMs) return;
+    const startedMs = roomStartedAtMs;
+    const totalSec = Math.max(1, Math.round(duration * 60));
+    const compute = () => {
+      const elapsed = Math.floor((serverNow() - startedMs) / 1000);
+      const left = Math.max(0, totalSec - elapsed);
+      setRemaining(left);
+      if (left <= 0) {
+        if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+        void finishTimer(true);
+      }
+    };
+    compute();
+    tickRef.current = window.setInterval(compute, 250);
+    return () => { if (tickRef.current) clearInterval(tickRef.current); tickRef.current = null; };
+  }, [running, roomStartedAtMs, duration]);
+
+  // Mantém running em sincronia com o status da sala (e dispara o overlay
+  // de intro no ator caso ele recarregue a página durante o "starting").
+  useEffect(() => {
+    if (roomStatus === "running" && !running && !finishedStation) {
+      setRunning(true);
+    } else if (roomStatus === "finished" && running) {
+      setRunning(false);
+    }
+  }, [roomStatus, running, finishedStation]);
 
   const current: SimuladoStationState | undefined = sim?.stations[sim.currentIndex];
 
