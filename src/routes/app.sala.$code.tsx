@@ -31,6 +31,8 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { RelatedResources } from "@/components/RelatedResources";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { RoomEventLog } from "@/components/room/RoomEventLog";
+import { logRoomEvent } from "@/lib/roomEvents";
 
 export const Route = createFileRoute("/app/sala/$code")({
   component: SalaDispatcher,
@@ -363,6 +365,10 @@ function SimuladoRunner({ id }: { id: string }) {
     setEvaluatedCandidateId(candId);
     const name = candidates.find((c) => c.id === candId)?.name ?? "Candidato";
     toast.success(`Avaliado: ${name}`);
+    void logRoomEvent(sim.roomId, user?.id ?? null, "candidate_selected", {
+      candidate_id: candId,
+      name,
+    }, `cand:${candId}`);
   }
 
   async function copyInviteLink() {
