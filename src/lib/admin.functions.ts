@@ -154,20 +154,24 @@ export const createUserAdmin = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
 
-    // Garante profile com todos os campos preenchidos
+    // Garante profile com todos os campos preenchidos (upsert — pode ainda
+    // não existir caso não haja trigger handle_new_user)
     const { error: upErr } = await supabaseAdmin
       .from("profiles")
-      .update({
-        username: data.username,
-        full_name,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        title: data.title,
-        whatsapp: data.whatsapp,
-        cpf: data.cpf,
-        birth_date: data.birth_date,
-      })
-      .eq("id", created.user.id);
+      .upsert(
+        {
+          id: created.user.id,
+          username: data.username,
+          full_name,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          title: data.title,
+          whatsapp: data.whatsapp,
+          cpf: data.cpf,
+          birth_date: data.birth_date,
+        },
+        { onConflict: "id" },
+      );
     if (upErr) {
       if (upErr.code === "23505") {
         throw new Error(`Conflito de cadastro (username ou CPF já em uso).`);
