@@ -1424,9 +1424,9 @@ function SimuladoRunner({ id }: { id: string }) {
               {isWaiting && (
                 <button
                   type="button"
-                  disabled={!allReadyToStart}
                   onClick={() => {
                     if (!hasEvaluated) {
+                      toast.error("Selecione primeiro o candidato avaliado.");
                       setSelectCandidateOpen(true);
                       return;
                     }
@@ -1446,7 +1446,7 @@ function SimuladoRunner({ id }: { id: string }) {
                     "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition active:scale-[0.98]",
                     allReadyToStart
                       ? "bg-white hover:bg-white/90 hover:shadow"
-                      : "cursor-not-allowed bg-white/30 text-white/70",
+                      : "bg-white/30 text-white/70 hover:bg-white/40",
                   )}
                   title={
                     !hasEvaluated
