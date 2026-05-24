@@ -216,7 +216,18 @@ function SimuladoRunner({ id }: { id: string }) {
           }
         } else {
           await supabase.from("training_rooms")
-            .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null, simulado_id: sim.id, simulado_name: sim.name, simulado_index: sim.currentIndex, simulado_total: sim.stations.length })
+            .update({
+              station_id: cur.id,
+              station_title: cur.title,
+              status: "waiting",
+              started_at: null,
+              starting_at: null,
+              finished_at: null,
+              simulado_id: sim.id,
+              simulado_name: sim.name,
+              simulado_index: sim.currentIndex,
+              simulado_total: sim.stations.length,
+            })
             .eq("id", sim.roomId);
           if (!cancelled) {
             setRoomStatus("waiting");
