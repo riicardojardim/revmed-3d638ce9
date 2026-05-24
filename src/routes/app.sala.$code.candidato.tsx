@@ -60,7 +60,6 @@ function CandidateView() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const savedAttemptRef = useRef<string | null>(null);
-  const loggedJoinRef = useRef<string | null>(null);
   const displayName =
     profile?.full_name?.trim() ||
     (user?.user_metadata?.full_name as string | undefined)?.trim() ||
