@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ScriptText, formatPepHeading, parseSubItems, levelTone } from "@/components/station/shared";
-import { IntroOverlay, type IntroRole } from "@/components/room/IntroOverlay";
+import { IntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/IntroOverlay";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
 import { formatDoctorName } from "@/lib/doctorName";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
@@ -62,6 +62,7 @@ function CandidateView() {
   const savedAttemptRef = useRef<string | null>(null);
   const prevStatusRef = useRef<string | null>(null);
   const prevEvaluatedRef = useRef<string | null | undefined>(undefined);
+  const introAnchorSeenRef = useRef<number | null>(null);
   const displayName =
     profile?.full_name?.trim() ||
     (user?.user_metadata?.full_name as string | undefined)?.trim() ||
@@ -321,28 +322,43 @@ function CandidateView() {
   }, [deliveries, station]);
 
   // Dispara o overlay institucional quando o ator inicia a estação.
-  // Só roda para o candidato selecionado da vez (evaluated_candidate_id).
-  // Se ninguém estiver selecionado ainda, ninguém vê a animação.
+  // Também recupera o início caso o candidato receba a atualização um pouco
+  // depois e a sala já tenha virado para "running".
   useEffect(() => {
     if (!room || !user) return;
     const prev = prevStatusRef.current;
     prevStatusRef.current = room.status;
     const isSelected = room.evaluated_candidate_id === user.id;
-    if (room.status !== "starting" || introDone || !isSelected) return;
-    // Só dispara em TRANSIÇÃO real para "starting" — evita disparar quando o
-    // candidato carrega a página com status="starting" ranço de um run anterior
-    // ou quando apenas o evaluated_candidate_id mudou.
-    if (prev !== null && prev === "starting") return;
-    // Valida que o starting_at é recente — se for antigo (ranço), ignora.
-    if (room.starting_at) {
-      const startAtMs = new Date(room.starting_at).getTime();
-      const ageMs = Date.now() - startAtMs;
-      if (ageMs > 15000 || ageMs < -5000) return;
-    }
-    // Sincroniza relógio com o servidor antes de mostrar, para que o cálculo
-    // de fase pulada (catch-up) bata com o ator.
-    void getServerOffset(true).then(() => setShowIntro(true));
-  }, [room?.status, room?.evaluated_candidate_id, room?.starting_at, user?.id, introDone]);
+    if (introDone || showIntro || !isSelected) return;
+
+    const anchorMs = room.starting_at
+      ? new Date(room.starting_at).getTime()
+      : room.status === "running" && room.started_at
+        ? new Date(room.started_at).getTime() - INTRO_DURATION_MS
+        : null;
+
+    if (!anchorMs) return;
+    if (introAnchorSeenRef.current === anchorMs && prev === room.status) return;
+
+    let cancelled = false;
+
+    // Sincroniza com o relógio do servidor para não depender do relógio local
+    // do celular do candidato, que pode estar adiantado/atrasado e bloquear a intro.
+    void getServerOffset(true).then(() => {
+      if (cancelled) return;
+
+      const ageMs = serverNow() - anchorMs;
+      const isFreshEnough = ageMs >= -5000 && ageMs <= INTRO_DURATION_MS + 1500;
+      if (!isFreshEnough) return;
+
+      introAnchorSeenRef.current = anchorMs;
+      setShowIntro(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [room?.status, room?.evaluated_candidate_id, room?.starting_at, room?.started_at, user?.id, introDone, showIntro]);
 
   // Notifica o candidato quando ele for selecionado pelo ator.
   useEffect(() => {
@@ -362,6 +378,7 @@ function CandidateView() {
       setFinished(false);
       setIntroDone(false);
       setShowIntro(false);
+      introAnchorSeenRef.current = null;
       setEvaluation(null);
       savedAttemptRef.current = null;
     }
