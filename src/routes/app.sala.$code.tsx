@@ -294,9 +294,20 @@ function SimuladoRunner({ id }: { id: string }) {
         }
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${roomId}` }, (payload) => {
-        const row = payload.new as { evaluated_candidate_id: string | null; status?: string | null };
+        const row = payload.new as {
+          evaluated_candidate_id: string | null;
+          status?: string | null;
+          started_at?: string | null;
+          duration_minutes?: number | null;
+        };
         setEvaluatedCandidateId(row.evaluated_candidate_id ?? null);
         if (row.status) setRoomStatus(row.status);
+        if ("started_at" in row) {
+          setRoomStartedAtMs(row.started_at ? new Date(row.started_at).getTime() : null);
+        }
+        if (typeof row.duration_minutes === "number") {
+          setDuration(row.duration_minutes);
+        }
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
