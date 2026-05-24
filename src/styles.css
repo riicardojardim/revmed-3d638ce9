@@ -325,15 +325,15 @@
 .auth-blob-3 {
   width: 380px; height: 380px;
   top: 30%; right: -100px;
-  background: radial-gradient(circle at 40% 60%, #34d399, #059669 55%, transparent 70%);
-  opacity: 0.35;
+  background: radial-gradient(circle at 40% 60%, #ffcf80, #d97706 55%, transparent 70%);
+  opacity: 0.4;
   animation: auth-float-c 26s ease-in-out infinite;
 }
 .auth-blob-4 {
   width: 340px; height: 340px;
   bottom: 10%; left: -80px;
-  background: radial-gradient(circle at 50% 50%, #a855f7, #6d28d9 55%, transparent 70%);
-  opacity: 0.3;
+  background: radial-gradient(circle at 50% 50%, #ffa94d, #92400e 55%, transparent 70%);
+  opacity: 0.35;
   animation: auth-float-d 30s ease-in-out infinite;
 }
 @keyframes auth-float-a {
