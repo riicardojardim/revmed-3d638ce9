@@ -265,7 +265,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (row?.device_id && row.device_id !== myDevice) {
             void supabase.auth.signOut().then(() => {
               try {
-                const { toast } = require("sonner");
                 toast.error("Sessão encerrada", {
                   description: "Você entrou em outro dispositivo.",
                 });

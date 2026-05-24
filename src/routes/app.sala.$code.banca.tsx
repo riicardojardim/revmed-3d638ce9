@@ -206,7 +206,7 @@ function EvaluatorView() {
       submitted_at: submit ? new Date().toISOString() : null,
     };
     const { error } = await supabase.from("room_evaluations")
-      .upsert(payload, { onConflict: "room_id,evaluator_id" });
+      .upsert(payload, { onConflict: "room_id,evaluator_id,candidate_id,station_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(submit ? "Correção enviada com sucesso" : "Rascunho salvo");
