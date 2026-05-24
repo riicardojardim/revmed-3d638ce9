@@ -227,12 +227,6 @@ function HistoricoDetalhe() {
         </div>
       )}
 
-      {attempt.notes && (
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Suas anotações</div>
-          <p className="mt-2 whitespace-pre-wrap text-sm">{attempt.notes}</p>
-        </div>
-      )}
     </div>
   );
 }
