@@ -201,8 +201,19 @@ function ActorView() {
       const list = await refreshCandidates((r as Room).id);
       // Auto-select apenas se houver UM único candidato. Com 2+ o ator escolhe quem é o da vez.
       if (!(r as Room).evaluated_candidate_id && list.length === 1) {
-        await supabase.from("training_rooms").update({ evaluated_candidate_id: list[0].id }).eq("id", (r as Room).id);
-        setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: list[0].id } : prev);
+        await supabase.from("training_rooms").update({
+          evaluated_candidate_id: list[0].id,
+          status: "waiting",
+          starting_at: null,
+          started_at: null,
+          finished_at: null,
+        }).eq("id", (r as Room).id);
+        setRoom((prev) => prev ? {
+          ...prev,
+          evaluated_candidate_id: list[0].id,
+          status: "waiting",
+          started_at: null,
+        } : prev);
       }
 
       const { data: dels } = await supabase.from("room_material_deliveries")
@@ -319,7 +330,13 @@ function ActorView() {
           setCandidates((prev) => prev.some((c) => c.id === row.user_id) ? prev : [...prev, { id: row.user_id, name, avatarUrl }]);
           toast.success(`${name} entrou na sala`);
           if (!room.evaluated_candidate_id) {
-            await supabase.from("training_rooms").update({ evaluated_candidate_id: row.user_id }).eq("id", room.id);
+            await supabase.from("training_rooms").update({
+              evaluated_candidate_id: row.user_id,
+              status: "waiting",
+              starting_at: null,
+              started_at: null,
+              finished_at: null,
+            }).eq("id", room.id);
           }
         }
       })
@@ -548,9 +565,23 @@ function ActorView() {
     if (!room) return;
     if (room.status === "running") return toast.error("Encerre a estação atual antes de trocar o avaliado.");
     const { error } = await supabase.from("training_rooms")
-      .update({ evaluated_candidate_id: id }).eq("id", room.id);
+      .update({
+        evaluated_candidate_id: id,
+        status: "waiting",
+        starting_at: null,
+        started_at: null,
+        finished_at: null,
+      }).eq("id", room.id);
     if (error) return toast.error(error.message);
-    setRoom((prev) => prev ? { ...prev, evaluated_candidate_id: id } : prev);
+    setRoom((prev) => prev ? {
+      ...prev,
+      evaluated_candidate_id: id,
+      status: "waiting",
+      started_at: null,
+    } : prev);
+    setShowIntro(false);
+    setStarting(false);
+    setFinished(false);
     const name = candidates.find((c) => c.id === id)?.name ?? "Candidato";
     toast.success(`Avaliado da vez: ${name}`);
   }
