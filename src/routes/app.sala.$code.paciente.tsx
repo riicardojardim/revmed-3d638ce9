@@ -124,6 +124,10 @@ function ActorView() {
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [callIdentities, setCallIdentities] = useState<string[]>([]);
+  const handleCallIdentities = React.useCallback((ids: string[]) => {
+    setCallIdentities(ids);
+  }, []);
   const [copied, setCopied] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
