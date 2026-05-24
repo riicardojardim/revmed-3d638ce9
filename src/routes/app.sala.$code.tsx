@@ -601,6 +601,9 @@ function SimuladoRunner({ id }: { id: string }) {
         .eq("id", sim.roomId)
         .eq("status", "starting");
       setRoomStatus("running");
+      void logRoomEvent(sim.roomId, user?.id ?? null, "station_started", {
+        duration_minutes: duration,
+      }, `start:${sim.roomId}:${sim.currentIndex}`);
     }
   }
   async function finishTimer(auto = false) {
