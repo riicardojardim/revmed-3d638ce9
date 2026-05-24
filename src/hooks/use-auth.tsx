@@ -13,6 +13,10 @@ export interface Profile {
   title: string | null;
   gender: string | null;
   username: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  cpf?: string | null;
+  birth_date?: string | null;
 }
 
 interface AuthContextValue {
