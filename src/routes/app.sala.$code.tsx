@@ -1158,7 +1158,7 @@ function SimuladoRunner({ id }: { id: string }) {
               <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
               {isWaiting && (
                 <div className="mt-3">
-                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
+                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); if (sim?.roomId) { void supabase.from("training_rooms").update({ duration_minutes: n }).eq("id", sim.roomId); } }}>
                     <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -1435,7 +1435,7 @@ function SimuladoRunner({ id }: { id: string }) {
                 <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
                 {isWaiting && (
                   <div className="mt-3">
-                    <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
+                    <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); if (sim?.roomId) { void supabase.from("training_rooms").update({ duration_minutes: n }).eq("id", sim.roomId); } }}>
                       <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                         <SelectValue />
                       </SelectTrigger>
