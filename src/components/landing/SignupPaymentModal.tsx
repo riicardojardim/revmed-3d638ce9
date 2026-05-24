@@ -281,14 +281,31 @@ export function SignupPaymentModal({
               </Tabs>
             </div>
 
-            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting}>
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-3">
+              <Checkbox
+                id="m_terms"
+                checked={acceptedTerms}
+                onCheckedChange={(v) => setAcceptedTerms(v === true)}
+                className="mt-0.5"
+              />
+              <Label htmlFor="m_terms" className="text-xs font-normal leading-relaxed text-muted-foreground">
+                Li e concordo com os{" "}
+                <Link to="/termos" target="_blank" rel="noopener noreferrer" className="font-medium text-mint underline-offset-2 hover:underline">
+                  Termos de Uso
+                </Link>{" "}
+                e a{" "}
+                <Link to="/privacidade" target="_blank" rel="noopener noreferrer" className="font-medium text-mint underline-offset-2 hover:underline">
+                  Política de Privacidade
+                </Link>{" "}
+                da REVMED.
+              </Label>
+            </div>
+
+            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={submitting || !acceptedTerms}>
               {submitting ? "Processando..." : (
                 <>Criar conta e pagar {plan.price} <ArrowRight className="h-4 w-4" /></>
               )}
             </Button>
-            <p className="text-center text-[11px] text-muted-foreground">
-              Ao continuar você concorda com os Termos e a Política de Privacidade.
-            </p>
           </form>
         </div>
       </DialogContent>
