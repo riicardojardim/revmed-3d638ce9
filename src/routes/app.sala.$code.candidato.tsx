@@ -61,6 +61,7 @@ function CandidateView() {
   const seenIds = useRef<Set<string>>(new Set());
   const savedAttemptRef = useRef<string | null>(null);
   const prevStatusRef = useRef<string | null>(null);
+  const prevEvaluatedRef = useRef<string | null | undefined>(undefined);
   const displayName =
     profile?.full_name?.trim() ||
     (user?.user_metadata?.full_name as string | undefined)?.trim() ||
@@ -342,6 +343,17 @@ function CandidateView() {
     // de fase pulada (catch-up) bata com o ator.
     void getServerOffset(true).then(() => setShowIntro(true));
   }, [room?.status, room?.evaluated_candidate_id, room?.starting_at, user?.id, introDone]);
+
+  // Notifica o candidato quando ele for selecionado pelo ator.
+  useEffect(() => {
+    if (!room || !user) return;
+    const prev = prevEvaluatedRef.current;
+    const curr = room.evaluated_candidate_id;
+    if (prev !== undefined && prev !== curr && curr === user.id) {
+      toast.success("Você foi selecionado para a próxima estação!", { duration: 6000 });
+    }
+    prevEvaluatedRef.current = curr;
+  }, [room?.evaluated_candidate_id, user?.id]);
 
   // Reset entre estações: quando a sala volta para "waiting" (próxima estação),
   // limpa estado local pra que o lobby/animação funcione de novo.
