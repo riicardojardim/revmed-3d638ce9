@@ -124,6 +124,31 @@ function SimuladoRunner({ id }: { id: string }) {
     setCallIdentities(ids);
   }, []);
 
+  // Log entries into the call (actor logs itself, actor also logs candidate join).
+  const loggedJoinsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!sim?.roomId || !user?.id) return;
+    const roomId = sim.roomId;
+    if (callIdentities.includes(user.id)) {
+      const key = `actor:${roomId}:${user.id}`;
+      if (!loggedJoinsRef.current.has(key)) {
+        loggedJoinsRef.current.add(key);
+        void logRoomEvent(roomId, user.id, "actor_joined_call", {}, key);
+      }
+    }
+    if (evaluatedCandidateId && callIdentities.includes(evaluatedCandidateId)) {
+      const key = `cand:${roomId}:${evaluatedCandidateId}`;
+      if (!loggedJoinsRef.current.has(key)) {
+        loggedJoinsRef.current.add(key);
+        const name = candidates.find((c) => c.id === evaluatedCandidateId)?.name ?? "";
+        void logRoomEvent(roomId, user.id, "candidate_joined_call", {
+          candidate_id: evaluatedCandidateId,
+          name,
+        }, key);
+      }
+    }
+  }, [callIdentities, evaluatedCandidateId, candidates, sim?.roomId, user?.id]);
+
 
 
 
