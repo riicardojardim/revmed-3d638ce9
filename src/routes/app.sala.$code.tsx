@@ -114,6 +114,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [introStartAt, setIntroStartAt] = useState<number | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
+  const [roomStartedAtMs, setRoomStartedAtMs] = useState<number | null>(null);
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [callIdentities, setCallIdentities] = useState<string[]>([]);
@@ -169,7 +170,7 @@ function SimuladoRunner({ id }: { id: string }) {
       if (sim.roomId) {
         const cur = sim.stations[sim.currentIndex];
         const { data: r } = await supabase.from("training_rooms")
-          .select("station_id, status, evaluated_candidate_id, duration_minutes").eq("id", sim.roomId).maybeSingle();
+          .select("station_id, status, evaluated_candidate_id, duration_minutes, started_at").eq("id", sim.roomId).maybeSingle();
         if (r?.station_id === cur.id && r.status === "finished") {
           if (!cancelled) {
             setRoomStatus("finished");
@@ -178,12 +179,16 @@ function SimuladoRunner({ id }: { id: string }) {
             setRunning(false);
             setRemaining(0);
             setDuration((r.duration_minutes as number | null) ?? station.durationMinutes ?? 10);
+            setRoomStartedAtMs(r?.started_at ? new Date(r.started_at as string).getTime() : null);
           }
         } else {
           await supabase.from("training_rooms")
             .update({ station_id: cur.id, station_title: cur.title, status: "waiting", started_at: null, simulado_id: sim.id, simulado_name: sim.name, simulado_index: sim.currentIndex, simulado_total: sim.stations.length })
             .eq("id", sim.roomId);
-          if (!cancelled) setRoomStatus("waiting");
+          if (!cancelled) {
+            setRoomStatus("waiting");
+            setRoomStartedAtMs(null);
+          }
         }
         if (!cancelled) setEvaluatedCandidateId((r?.evaluated_candidate_id as string | null) ?? null);
         await refreshCandidates(sim.roomId);
@@ -289,9 +294,20 @@ function SimuladoRunner({ id }: { id: string }) {
         }
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "training_rooms", filter: `id=eq.${roomId}` }, (payload) => {
-        const row = payload.new as { evaluated_candidate_id: string | null; status?: string | null };
+        const row = payload.new as {
+          evaluated_candidate_id: string | null;
+          status?: string | null;
+          started_at?: string | null;
+          duration_minutes?: number | null;
+        };
         setEvaluatedCandidateId(row.evaluated_candidate_id ?? null);
         if (row.status) setRoomStatus(row.status);
+        if ("started_at" in row) {
+          setRoomStartedAtMs(row.started_at ? new Date(row.started_at).getTime() : null);
+        }
+        if (typeof row.duration_minutes === "number") {
+          setDuration(row.duration_minutes);
+        }
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -384,23 +400,36 @@ function SimuladoRunner({ id }: { id: string }) {
     copyInviteLink();
   }
 
-  // Timer
+  // Timer sincronizado: deriva o tempo restante de started_at + duration_minutes
+  // do servidor, para que ator e candidato vejam exatamente o mesmo cronômetro.
   useEffect(() => {
     if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
-    if (!running) return;
-    tickRef.current = window.setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          if (tickRef.current) clearInterval(tickRef.current);
-          tickRef.current = null;
-          void finishTimer(true);
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
-    return () => { if (tickRef.current) clearInterval(tickRef.current); };
-  }, [running]);
+    if (!running || !roomStartedAtMs) return;
+    const startedMs = roomStartedAtMs;
+    const totalSec = Math.max(1, Math.round(duration * 60));
+    const compute = () => {
+      const elapsed = Math.floor((serverNow() - startedMs) / 1000);
+      const left = Math.max(0, totalSec - elapsed);
+      setRemaining(left);
+      if (left <= 0) {
+        if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+        void finishTimer(true);
+      }
+    };
+    compute();
+    tickRef.current = window.setInterval(compute, 250);
+    return () => { if (tickRef.current) clearInterval(tickRef.current); tickRef.current = null; };
+  }, [running, roomStartedAtMs, duration]);
+
+  // Mantém running em sincronia com o status da sala (e dispara o overlay
+  // de intro no ator caso ele recarregue a página durante o "starting").
+  useEffect(() => {
+    if (roomStatus === "running" && !running && !finishedStation) {
+      setRunning(true);
+    } else if (roomStatus === "finished" && running) {
+      setRunning(false);
+    }
+  }, [roomStatus, running, finishedStation]);
 
   const current: SimuladoStationState | undefined = sim?.stations[sim.currentIndex];
 
@@ -1129,7 +1158,7 @@ function SimuladoRunner({ id }: { id: string }) {
               <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
               {isWaiting && (
                 <div className="mt-3">
-                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
+                  <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); if (sim?.roomId) { void supabase.from("training_rooms").update({ duration_minutes: n }).eq("id", sim.roomId); } }}>
                     <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -1406,7 +1435,7 @@ function SimuladoRunner({ id }: { id: string }) {
                 <div className="font-display text-4xl font-bold tabular-nums text-white sm:text-5xl">{mm}:{ss}</div>
                 {isWaiting && (
                   <div className="mt-3">
-                    <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); }}>
+                    <Select value={String(duration)} onValueChange={(v) => { const n = Number(v); setDuration(n); setRemaining(Math.round(n * 60)); if (sim?.roomId) { void supabase.from("training_rooms").update({ duration_minutes: n }).eq("id", sim.roomId); } }}>
                       <SelectTrigger className="mx-auto h-8 w-auto gap-1 border-white/20 bg-white/10 px-3 text-xs text-white">
                         <SelectValue />
                       </SelectTrigger>
