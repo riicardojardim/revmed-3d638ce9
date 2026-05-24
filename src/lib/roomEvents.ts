@@ -56,7 +56,7 @@ export async function logRoomEvent(
       room_id: roomId,
       type,
       actor_id: actorId,
-      payload: dedupeKey ? { ...payload, dedupe_key: dedupeKey } : payload,
+      payload: (dedupeKey ? { ...payload, dedupe_key: dedupeKey } : payload) as never,
     });
   } catch (err) {
     console.warn("[roomEvents] insert failed", err);
