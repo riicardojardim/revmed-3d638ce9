@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { loadStation, type LoadedStation } from "@/lib/stationLoader";
 import { getServerOffset, serverNow } from "@/lib/serverClock";
+import { INTRO_DURATION_MS } from "@/components/room/IntroOverlay";
 import {
   ArrowLeft, MessageSquare, ListChecks, Theater, Inbox, Copy, Link2,
   Play, UserPlus, CheckCheck, ClipboardCheck, Send, FileText, PackageCheck,
@@ -554,11 +555,30 @@ function ActorView() {
     if (!room) return;
     if (!room.evaluated_candidate_id) return toast.error("Selecione o candidato que será avaliado.");
     setStarting(true);
-    const { error } = await supabase.from("training_rooms")
-      .update({ status: "running", started_at: new Date().toISOString() })
-      .eq("id", room.id);
-    setStarting(false);
-    if (error) return toast.error(error.message);
+    try {
+      await getServerOffset(true);
+      const anchorMs = serverNow();
+      const startsAtIso = new Date(anchorMs + INTRO_DURATION_MS).toISOString();
+      const { error } = await supabase.from("training_rooms")
+        .update({
+          status: "starting",
+          starting_at: new Date(anchorMs).toISOString(),
+          started_at: startsAtIso,
+        })
+        .eq("id", room.id);
+      setStarting(false);
+      if (error) return toast.error(error.message);
+      // Transition to "running" after intro completes so the timer effect kicks in on both sides.
+      setTimeout(() => {
+        void supabase.from("training_rooms")
+          .update({ status: "running" })
+          .eq("id", room.id)
+          .eq("status", "starting");
+      }, INTRO_DURATION_MS);
+    } catch (e: any) {
+      setStarting(false);
+      return toast.error(e?.message ?? "Falha ao iniciar a estação.");
+    }
     try {
       localStorage.setItem("ator:activeRoom", JSON.stringify({ code, title: room.station_title ?? station?.title ?? "Treinamento" }));
       window.dispatchEvent(new Event("ator:activeRoom"));
