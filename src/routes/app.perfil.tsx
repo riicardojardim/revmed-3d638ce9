@@ -139,6 +139,8 @@ function ProfilePage() {
       .from("profiles")
       .update({
         full_name: composedName || null,
+        first_name: firstName.trim() || null,
+        last_name: lastName.trim() || null,
         title: title || null,
         gender: gender || null,
         whatsapp: digits || null,
