@@ -20,6 +20,7 @@ import {
   listUsersAdmin,
   createUserAdmin,
   updateUserEmailAdmin,
+  updateUserProfileAdmin,
   resetPasswordAdmin,
   sendPasswordResetLinkAdmin,
   setUserRoleAdmin,
@@ -40,6 +41,7 @@ function AdminUsers() {
   const list = useServerFn(listUsersAdmin);
   const createFn = useServerFn(createUserAdmin);
   const setEmail = useServerFn(updateUserEmailAdmin);
+  const setProfile = useServerFn(updateUserProfileAdmin);
   const setPass = useServerFn(resetPasswordAdmin);
   const sendLink = useServerFn(sendPasswordResetLinkAdmin);
   const setRole = useServerFn(setUserRoleAdmin);
@@ -189,6 +191,7 @@ function AdminUsers() {
                       plans={plans}
                       acting={acting === u.id}
                       onEditEmail={async (email) => run(u.id, setEmail({ data: { user_id: u.id, email } }), "E-mail atualizado")}
+                      onEditProfile={async (payload) => run(u.id, setProfile({ data: { user_id: u.id, ...payload } }), "Perfil atualizado")}
                       onSetPassword={async (password) => run(u.id, setPass({ data: { user_id: u.id, password } }), "Senha redefinida")}
                       onSendLink={async () => run(u.id, sendLink({ data: { email: u.email } }), "Link enviado")}
                       onSetRole={async (r) => run(u.id, setRole({ data: { user_id: u.id, role: r } }), "Permissão atualizada")}
