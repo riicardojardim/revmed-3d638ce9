@@ -1002,12 +1002,19 @@ const PLANS: Plan[] = [
   },
 ];
 
-function Investimento({ isLogged }: { isLogged: boolean }) {
+function Investimento({
+  isLogged,
+  onChoosePlan,
+}: {
+  isLogged: boolean;
+  onChoosePlan: (p: SignupModalPlan) => void;
+}) {
   return (
     <section
       id="investimento"
       className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
+      <span id="planos" className="absolute -top-20" aria-hidden />
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
@@ -1110,9 +1117,9 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                       <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2.4} />
                       {p.cta}
                     </a>
-                  ) : (
+                  ) : isLogged ? (
                     <Link
-                      to={isLogged ? "/app" : "/cadastro"}
+                      to="/app"
                       className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
                           ? "bg-primary text-primary-foreground shadow-elegant"
@@ -1122,6 +1129,26 @@ function Investimento({ isLogged }: { isLogged: boolean }) {
                       {p.cta}
                       <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onChoosePlan({
+                          slug: p.name === "Full" ? "completo" : "ator",
+                          name: p.name,
+                          price: p.price,
+                          cadence: p.cadence,
+                        })
+                      }
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
+                        p.highlight
+                          ? "bg-primary text-primary-foreground shadow-elegant"
+                          : "border border-border bg-card text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {p.cta}
+                      <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </button>
                   )}
                 </div>
               </motion.div>
