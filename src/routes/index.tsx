@@ -380,13 +380,23 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.25 }}
             className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center md:mt-8"
           >
-            <Link
-              to={isLogged ? "/app" : "/cadastro"}
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
-            >
-              Começar a treinar
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
-            </Link>
+            {isLogged ? (
+              <Link
+                to="/app"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
+              >
+                Começar a treinar
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
+              </Link>
+            ) : (
+              <a
+                href="#planos"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--primary)_60%,transparent)] transition-transform hover:scale-[1.02] sm:w-auto md:py-3.5 md:text-base"
+              >
+                Começar a treinar
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
+              </a>
+            )}
           </motion.div>
 
           <motion.div
@@ -1270,13 +1280,23 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
           resumos, simulados, comunidade e gamificação. Tudo num só lugar,
           até o dia da prova.
         </p>
-        <Link
-          to={isLogged ? "/app" : "/cadastro"}
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
-        >
-          Entrar na plataforma
-          <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
-        </Link>
+        {isLogged ? (
+          <Link
+            to="/app"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
+          >
+            Entrar na plataforma
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </Link>
+        ) : (
+          <a
+            href="#planos"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.03] sm:mt-10 sm:px-7 sm:py-4 sm:text-base"
+          >
+            Escolher meu plano
+            <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </a>
+        )}
       </div>
     </section>
   );
