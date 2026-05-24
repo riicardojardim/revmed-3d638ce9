@@ -721,7 +721,6 @@ function ActorView() {
             </div>
             {isWaiting && (
               <>
-                {(() => null)()}
                 <Button
                   variant="hero"
                   className="mt-3 w-full"
