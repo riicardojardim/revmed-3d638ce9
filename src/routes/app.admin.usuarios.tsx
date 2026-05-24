@@ -281,8 +281,6 @@ function UserActions(props: {
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Permissão</DropdownMenuLabel>
           <DropdownMenuItem onSelect={() => props.onSetRole("aluno")}>Tornar aluno</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => props.onSetRole("professor")}>Tornar professor</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => props.onSetRole("mentor")}>Tornar mentor</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => props.onSetRole("admin")}>Tornar admin</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={props.onDelete} className="text-destructive">Excluir usuário</DropdownMenuItem>
