@@ -114,16 +114,6 @@ function AdminUsers() {
         <div className="ml-auto">
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              onClick={() => {
-                setCreateDefaultRole("mentor");
-                setOpenCreate(true);
-              }}
-              title="Cria conta de mentor com acesso completo e sem cobrança"
-            >
-              <Sparkles className="mr-2 h-4 w-4 text-mint" /> Novo mentor
-            </Button>
-            <Button
               variant="hero"
               onClick={() => {
                 setCreateDefaultRole("aluno");
