@@ -28,6 +28,8 @@ async function getInternalUserIds(): Promise<Set<string>> {
 }
 
 const USERNAME_RE = /^[a-z0-9._]{3,20}$/;
+const CPF_RE = /^\d{11}$/;
+const WHATSAPP_RE = /^\d{11}$/;
 
 // ───────────── Listagem completa de usuários (junta auth.users + profiles + roles + assinatura) ─────────────
 export const listUsersAdmin = createServerFn({ method: "POST" })
@@ -112,55 +114,91 @@ export const createUserAdmin = createServerFn({ method: "POST" })
     z.object({
       email: z.string().email(),
       password: z.string().min(8),
-      full_name: z.string().min(1).max(120),
-      username: z.string().trim().toLowerCase().regex(USERNAME_RE, "Nome de usuário deve ter 3–20 caracteres (letras minúsculas, números, ponto ou underline).").optional(),
+      first_name: z.string().trim().min(1).max(60),
+      last_name: z.string().trim().min(1).max(60),
+      username: z.string().trim().toLowerCase().regex(USERNAME_RE, "Nome de usuário deve ter 3–20 caracteres (letras minúsculas, números, ponto ou underline)."),
+      title: z.enum(["Dr.", "Dra."]),
+      whatsapp: z.string().regex(WHATSAPP_RE, "WhatsApp deve ter 11 dígitos."),
+      cpf: z.string().regex(CPF_RE, "CPF deve ter 11 dígitos."),
+      birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento inválida."),
       role: z.enum(["aluno", "professor", "admin", "mentor"]).default("aluno"),
+      plan_id: z.string().uuid().optional(),
+      plan_days: z.number().int().min(0).max(3650).default(30),
     }).parse,
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
 
-    // Checa unicidade do username ANTES de criar o usuário
-    if (data.username) {
-      const { data: exists, error: chkErr } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("username", data.username)
-        .maybeSingle();
-      if (chkErr) throw new Error(chkErr.message);
-      if (exists) throw new Error(`Já existe um usuário com o nome "${data.username}". Escolha outro.`);
-    }
+    const full_name = `${data.first_name} ${data.last_name}`.trim();
+
+    // Checa unicidade do username e CPF ANTES de criar o usuário
+    const { data: existsUser } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("username", data.username)
+      .maybeSingle();
+    if (existsUser) throw new Error(`Já existe um usuário com o nome "${data.username}". Escolha outro.`);
+
+    const { data: existsCpf } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("cpf", data.cpf)
+      .maybeSingle();
+    if (existsCpf) throw new Error("Já existe um usuário com esse CPF.");
 
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { full_name: data.full_name },
+      user_metadata: { full_name },
     });
     if (error) throw new Error(error.message);
 
-    // Garante profile + username
-    if (data.username) {
-      const { error: upErr } = await supabaseAdmin
-        .from("profiles")
-        .update({ username: data.username, full_name: data.full_name })
-        .eq("id", created.user.id);
-      if (upErr) {
-        // Mensagem amigável para conflito de username (índice único)
-        if (upErr.code === "23505") {
-          throw new Error(`Já existe um usuário com o nome "${data.username}". Escolha outro.`);
-        }
-        throw new Error(upErr.message);
+    // Garante profile com todos os campos preenchidos
+    const { error: upErr } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        username: data.username,
+        full_name,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        title: data.title,
+        whatsapp: data.whatsapp,
+        cpf: data.cpf,
+        birth_date: data.birth_date,
+      })
+      .eq("id", created.user.id);
+    if (upErr) {
+      if (upErr.code === "23505") {
+        throw new Error(`Conflito de cadastro (username ou CPF já em uso).`);
       }
+      throw new Error(upErr.message);
     }
 
     if (data.role !== "aluno") {
       await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role });
     }
 
+    // Plano escolhido manualmente pelo admin (opcional)
+    if (data.plan_id) {
+      const period_end =
+        data.plan_days > 0
+          ? new Date(Date.now() + data.plan_days * 86400_000).toISOString()
+          : null;
+      await supabaseAdmin.from("user_subscriptions").upsert(
+        {
+          user_id: created.user.id,
+          plan_id: data.plan_id,
+          status: "active",
+          current_period_end: period_end,
+        },
+        { onConflict: "user_id" },
+      );
+    }
+
     // Mentor: libera acesso completo sem cobrar — atribui plano pago mais caro
     // sem data de expiração. Mesmo assim, métricas o ignoram (INTERNAL_ROLES).
-    if (data.role === "mentor") {
+    if (data.role === "mentor" && !data.plan_id) {
       const { data: topPlan } = await supabaseAdmin
         .from("plans")
         .select("id")
