@@ -121,6 +121,7 @@ export const createUserAdmin = createServerFn({ method: "POST" })
       whatsapp: z.string().regex(WHATSAPP_RE, "WhatsApp deve ter 11 dígitos."),
       cpf: z.string().regex(CPF_RE, "CPF deve ter 11 dígitos."),
       birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento inválida."),
+      gender: z.enum(["masculino", "feminino", "outro"]),
       role: z.enum(["aluno", "professor", "admin", "mentor"]).default("aluno"),
       plan_id: z.string().uuid().optional(),
       plan_days: z.number().int().min(0).max(3650).default(30),
@@ -169,6 +170,7 @@ export const createUserAdmin = createServerFn({ method: "POST" })
           whatsapp: data.whatsapp,
           cpf: data.cpf,
           birth_date: data.birth_date,
+          gender: data.gender,
         },
         { onConflict: "id" },
       );
