@@ -114,6 +114,7 @@ function SimuladoRunner({ id }: { id: string }) {
   const [introStartAt, setIntroStartAt] = useState<number | null>(null);
   const [previewEnabled, setPreviewEnabled] = useState(false);
   const [roomStatus, setRoomStatus] = useState("waiting");
+  const [roomStartedAtMs, setRoomStartedAtMs] = useState<number | null>(null);
   const [selectCandidateOpen, setSelectCandidateOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [callIdentities, setCallIdentities] = useState<string[]>([]);
