@@ -22,8 +22,6 @@ import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
 import { ImageZoomOverlay } from "@/components/ImageZoomOverlay";
 import { RelatedResources } from "@/components/RelatedResources";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { RoomEventLog } from "@/components/room/RoomEventLog";
-import { logRoomEvent } from "@/lib/roomEvents";
 
 export const Route = createFileRoute("/app/sala/$code/candidato")({
   component: CandidateView,
@@ -70,19 +68,8 @@ function CandidateView() {
     user?.email?.split("@")[0] ||
     null;
 
-  const handleCallIdentities = (ids: string[]) => {
-    if (!room?.id || !user?.id) return;
-    if (!ids.includes(user.id)) return;
-    const isEvaluated = room.evaluated_candidate_id === user.id;
-    const type = isEvaluated ? "candidate_joined_call" : null;
-    if (!type) return;
-    const key = `cand:${room.id}:${user.id}`;
-    if (loggedJoinRef.current === key) return;
-    loggedJoinRef.current = key;
-    void logRoomEvent(room.id, user.id, type, {
-      candidate_id: user.id,
-      name: displayName ?? "",
-    }, key);
+  const handleCallIdentities = (_ids: string[]) => {
+    // no-op: histórico removido a pedido do usuário
   };
 
   // Carrega/sincroniza a sala. station_id muda quando o ator avança no simulado.
@@ -595,7 +582,6 @@ function CandidateView() {
           </div>
         </div>
       )}
-      {room?.id && <RoomEventLog roomId={room.id} />}
     </div>
   );
 
