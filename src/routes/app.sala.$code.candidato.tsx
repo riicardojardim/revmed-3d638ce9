@@ -62,12 +62,28 @@ function CandidateView() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const seenIds = useRef<Set<string>>(new Set());
   const savedAttemptRef = useRef<string | null>(null);
+  const loggedJoinRef = useRef<string | null>(null);
   const displayName =
     profile?.full_name?.trim() ||
     (user?.user_metadata?.full_name as string | undefined)?.trim() ||
     (user?.user_metadata?.name as string | undefined)?.trim() ||
     user?.email?.split("@")[0] ||
     null;
+
+  const handleCallIdentities = (ids: string[]) => {
+    if (!room?.id || !user?.id) return;
+    if (!ids.includes(user.id)) return;
+    const isEvaluated = room.evaluated_candidate_id === user.id;
+    const type = isEvaluated ? "candidate_joined_call" : null;
+    if (!type) return;
+    const key = `cand:${room.id}:${user.id}`;
+    if (loggedJoinRef.current === key) return;
+    loggedJoinRef.current = key;
+    void logRoomEvent(room.id, user.id, type, {
+      candidate_id: user.id,
+      name: displayName ?? "",
+    }, key);
+  };
 
   // Carrega/sincroniza a sala. station_id muda quando o ator avança no simulado.
   useEffect(() => {
