@@ -33,13 +33,6 @@ const TITLE_OPTIONS = [
   { value: "Sem título", label: "Sem título" },
 ];
 
-const GENDER_OPTIONS = [
-  { value: "masculino", label: "Masculino" },
-  { value: "feminino", label: "Feminino" },
-  { value: "nao_binario", label: "Não-binário" },
-  { value: "prefiro_nao_dizer", label: "Prefiro não dizer" },
-];
-
 function deduceExamYear(): string {
   const now = new Date();
   const y = now.getFullYear();
@@ -97,7 +90,6 @@ function ProfilePage() {
   const [firstName, setFirstName] = useState(initialFirst);
   const [lastName, setLastName] = useState(initialLast);
   const [title, setTitle] = useState<string>(profile?.title ?? "");
-  const [gender, setGender] = useState<string>(profile?.gender ?? "");
   const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
   const [username, setUsername] = useState<string>(profile?.username ?? "");
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -111,7 +103,6 @@ function ProfilePage() {
     setFirstName(profile?.first_name ?? f);
     setLastName(profile?.last_name ?? l);
     setTitle(profile?.title ?? "");
-    setGender(profile?.gender ?? "");
     setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
     setUsername(profile?.username ?? "");
     setCpf(formatCPF(profile?.cpf ?? ""));
@@ -152,7 +143,6 @@ function ProfilePage() {
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
         title: title || null,
-        gender: gender || null,
         whatsapp: digits || null,
         exam_year: examYear || null,
         username: uname || null,
@@ -302,15 +292,6 @@ function ProfilePage() {
               <SelectTrigger id="title"><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 {TITLE_OPTIONS.map((o) => (<SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="gender">Sexo</Label>
-            <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger id="gender"><SelectValue placeholder="Selecione" /></SelectTrigger>
-              <SelectContent>
-                {GENDER_OPTIONS.map((o) => (<SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>
