@@ -50,7 +50,10 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
     if (ids.length === 0) return { users: [], total: ("total" in authData ? (authData.total ?? 0) : 0) };
 
     const [{ data: profiles }, { data: roles }, { data: subs }, { data: plans }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, full_name, avatar_url, whatsapp, exam_year").in("id", ids),
+      supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, first_name, last_name, title, gender, username, avatar_url, whatsapp, exam_year, cpf, birth_date")
+        .in("id", ids),
       supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids),
       supabaseAdmin.from("user_subscriptions").select("user_id, plan_id, status, current_period_end").in("user_id", ids),
       supabaseAdmin.from("plans").select("id, name, slug, price_cents"),
@@ -76,6 +79,13 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
           id: u.id,
           email: u.email ?? "",
           full_name: profile?.full_name ?? null,
+          first_name: profile?.first_name ?? null,
+          last_name: profile?.last_name ?? null,
+          title: profile?.title ?? null,
+          gender: profile?.gender ?? null,
+          username: profile?.username ?? null,
+          cpf: profile?.cpf ?? null,
+          birth_date: profile?.birth_date ?? null,
           avatar_url: profile?.avatar_url ?? null,
           whatsapp: profile?.whatsapp ?? null,
           exam_year: profile?.exam_year ?? null,
@@ -238,6 +248,66 @@ export const updateUserEmailAdmin = createServerFn({ method: "POST" })
     await assertAdmin(context.userId);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, { email: data.email });
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ───────────── Atualizar perfil completo (admin) ─────────────
+export const updateUserProfileAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      user_id: z.string().uuid(),
+      first_name: z.string().trim().max(60).optional().nullable(),
+      last_name: z.string().trim().max(60).optional().nullable(),
+      title: z.string().trim().max(20).optional().nullable(),
+      gender: z.string().trim().max(30).optional().nullable(),
+      username: z.string().trim().toLowerCase().regex(USERNAME_RE).optional().nullable(),
+      whatsapp: z.string().regex(WHATSAPP_RE).optional().nullable(),
+      cpf: z.string().regex(CPF_RE).optional().nullable(),
+      birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+      exam_year: z.string().trim().max(10).optional().nullable(),
+    }).parse,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const first = (data.first_name ?? "").trim();
+    const last = (data.last_name ?? "").trim();
+    const full_name = [first, last].filter(Boolean).join(" ") || null;
+
+    // unicidade username / cpf (ignorando o próprio)
+    if (data.username) {
+      const { data: ex } = await supabaseAdmin
+        .from("profiles").select("id").eq("username", data.username).maybeSingle();
+      if (ex && ex.id !== data.user_id) throw new Error(`@${data.username} já está em uso.`);
+    }
+    if (data.cpf) {
+      const { data: ex } = await supabaseAdmin
+        .from("profiles").select("id").eq("cpf", data.cpf).maybeSingle();
+      if (ex && ex.id !== data.user_id) throw new Error("CPF já está em uso por outro usuário.");
+    }
+
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .upsert(
+        {
+          id: data.user_id,
+          full_name,
+          first_name: first || null,
+          last_name: last || null,
+          title: data.title || null,
+          gender: data.gender || null,
+          username: data.username || null,
+          whatsapp: data.whatsapp || null,
+          cpf: data.cpf || null,
+          birth_date: data.birth_date || null,
+          exam_year: data.exam_year || null,
+        },
+        { onConflict: "id" },
+      );
+    if (error) {
+      if (error.code === "23505") throw new Error("Conflito: @username ou CPF já em uso.");
+      throw new Error(error.message);
+    }
     return { ok: true };
   });
 
