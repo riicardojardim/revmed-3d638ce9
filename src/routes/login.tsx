@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
+import { AnimatedAuthBackground } from "@/components/auth/AnimatedAuthBackground";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -174,6 +175,7 @@ function LoginPage() {
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
+      <AnimatedAuthBackground />
       <div className="container relative mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-4 py-6">
         <div className="mb-4 flex justify-center">
           <Logo className="h-12 w-auto select-none md:h-14" />
