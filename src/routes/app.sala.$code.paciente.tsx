@@ -1498,6 +1498,8 @@ function ActorView() {
           displayName={user?.user_metadata?.full_name ?? user?.email ?? undefined}
           role="ator"
           allowedIdentities={[user?.id, room.evaluated_candidate_id]}
+          autoOpen
+          onIdentitiesChange={handleCallIdentities}
         />
       )}
       {/* Floating shortcut to controls panel (mobile/tablet only) */}
