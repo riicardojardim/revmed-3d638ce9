@@ -721,35 +721,64 @@ function ActorView() {
             </div>
             {isWaiting && (
               <>
-                <Button
-                  variant="hero"
-                  className="mt-3 w-full"
-                  onClick={startStation}
-                  disabled={
-                    starting ||
-                    !room.evaluated_candidate_id ||
-                    !callIdentities.includes(user?.id ?? "") ||
-                    !callIdentities.includes(room.evaluated_candidate_id ?? "")
-                  }
-                >
-                  <Play className="mr-1 h-4 w-4" />
-                  {!room.evaluated_candidate_id
-                    ? "Aguardando candidato..."
-                    : !callIdentities.includes(user?.id ?? "")
-                      ? "Entre na call para iniciar..."
-                      : !callIdentities.includes(room.evaluated_candidate_id ?? "")
-                        ? "Aguardando candidato entrar na call..."
-                        : "Iniciar cronômetro"}
-                </Button>
-                {room.evaluated_candidate_id && (
-                  <div className="mt-2 text-center text-[11px] text-white/70">
-                    {callIdentities.includes(user?.id ?? "") && callIdentities.includes(room.evaluated_candidate_id) ? (
-                      <span className="text-mint">✓ Ator e candidato conectados na call</span>
-                    ) : (
-                      <span>Ambos precisam estar na chamada de vídeo antes de iniciar.</span>
-                    )}
-                  </div>
-                )}
+                {(() => {
+                  const hasCandidate = !!room.evaluated_candidate_id;
+                  const actorInCall = callIdentities.includes(user?.id ?? "");
+                  const candidateInCall = hasCandidate && callIdentities.includes(room.evaluated_candidate_id!);
+                  const allReady = hasCandidate && actorInCall && candidateInCall;
+                  const reqs = [
+                    { ok: hasCandidate, label: "Selecionar o candidato avaliado" },
+                    { ok: actorInCall, label: "Você (ator) precisa entrar na chamada de voz" },
+                    { ok: candidateInCall, label: hasCandidate ? "O candidato selecionado precisa entrar na chamada" : "Após selecionar, o candidato entra na chamada" },
+                  ];
+                  return (
+                    <>
+                      <div className="mt-3 rounded-xl border border-medical/25 bg-medical/5 p-3">
+                        <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-medical">
+                          Para iniciar o cronômetro
+                        </div>
+                        <ul className="space-y-1.5">
+                          {reqs.map((r, i) => (
+                            <li key={i} className="flex items-start gap-2 text-[11.5px] leading-snug">
+                              <span
+                                className={
+                                  "mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border " +
+                                  (r.ok
+                                    ? "border-mint bg-mint/20 text-mint"
+                                    : "border-medical/50 text-medical/70")
+                                }
+                              >
+                                {r.ok ? "✓" : "•"}
+                              </span>
+                              <span className={r.ok ? "text-white/85 line-through decoration-mint/40" : "text-white/80"}>
+                                {r.label}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mt-2 text-[10.5px] text-white/55">
+                          Apenas o candidato <span className="text-medical">selecionado</span> pode entrar na chamada de voz desta estação.
+                        </p>
+                      </div>
+                      <Button
+                        variant="hero"
+                        className="mt-3 w-full"
+                        disabled={starting}
+                        onClick={() => {
+                          if (!allReady) {
+                            if (!hasCandidate) return toast.error("Selecione o candidato avaliado abaixo.");
+                            if (!actorInCall) return toast.error("Entre na chamada de voz para poder iniciar.");
+                            if (!candidateInCall) return toast.error("Aguardando o candidato selecionado entrar na chamada de voz.");
+                          }
+                          startStation();
+                        }}
+                      >
+                        <Play className="mr-1 h-4 w-4" />
+                        {allReady ? "Iniciar cronômetro" : "Iniciar cronômetro (pendente)"}
+                      </Button>
+                    </>
+                  );
+                })()}
               </>
             )}
             {isRunning && (
