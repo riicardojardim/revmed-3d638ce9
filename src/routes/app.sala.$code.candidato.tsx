@@ -323,13 +323,24 @@ function CandidateView() {
   // Se ninguém estiver selecionado ainda, ninguém vê a animação.
   useEffect(() => {
     if (!room || !user) return;
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = room.status;
     const isSelected = room.evaluated_candidate_id === user.id;
-    if (room.status === "starting" && !introDone && isSelected) {
-      // Sincroniza relógio com o servidor antes de mostrar, para que o cálculo
-      // de fase pulada (catch-up) bata com o ator.
-      void getServerOffset(true).then(() => setShowIntro(true));
+    if (room.status !== "starting" || introDone || !isSelected) return;
+    // Só dispara em TRANSIÇÃO real para "starting" — evita disparar quando o
+    // candidato carrega a página com status="starting" ranço de um run anterior
+    // ou quando apenas o evaluated_candidate_id mudou.
+    if (prev !== null && prev === "starting") return;
+    // Valida que o starting_at é recente — se for antigo (ranço), ignora.
+    if (room.starting_at) {
+      const startAtMs = new Date(room.starting_at).getTime();
+      const ageMs = Date.now() - startAtMs;
+      if (ageMs > 15000 || ageMs < -5000) return;
     }
-  }, [room?.status, room?.evaluated_candidate_id, user?.id, introDone]);
+    // Sincroniza relógio com o servidor antes de mostrar, para que o cálculo
+    // de fase pulada (catch-up) bata com o ator.
+    void getServerOffset(true).then(() => setShowIntro(true));
+  }, [room?.status, room?.evaluated_candidate_id, room?.starting_at, user?.id, introDone]);
 
   // Reset entre estações: quando a sala volta para "waiting" (próxima estação),
   // limpa estado local pra que o lobby/animação funcione de novo.
