@@ -30,6 +30,8 @@ import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { RelatedResources } from "@/components/RelatedResources";
 import { RoomVideoCall } from "@/components/room/RoomVideoCall";
+import { syncLivekitPermissions } from "@/lib/livekit.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { RoomEventLog } from "@/components/room/RoomEventLog";
 import { logRoomEvent } from "@/lib/roomEvents";
