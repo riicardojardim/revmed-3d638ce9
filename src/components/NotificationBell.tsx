@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, Check, UserPlus, DoorOpen, Sparkles, X } from "lucide-react";
+import { Bell, Check, UserPlus, DoorOpen, Sparkles, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -111,6 +111,14 @@ export function NotificationBell() {
     await supabase.from("notifications").update({ read_at: new Date().toISOString() }).in("id", ids);
   }
 
+  async function clearAll() {
+    if (!user || items.length === 0) return;
+    const ids = items.map((n) => n.id);
+    setItems([]);
+    await supabase.from("notifications").delete().in("id", ids);
+    toast.success("Todas as notificações foram removidas");
+  }
+
   function iconFor(type: string) {
     if (type === "friend_request_received") return UserPlus;
     if (type === "friend_request_accepted") return Check;
@@ -180,6 +188,11 @@ export function NotificationBell() {
       <DropdownMenuContent align="end" className="w-96 p-0">
         <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <span className="text-sm font-semibold">Notificações</span>
+          {items.length > 1 && (
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground" onClick={(e) => { e.preventDefault(); e.stopPropagation(); void clearAll(); }}>
+              <Trash2 className="h-3 w-3" /> Limpar todas
+            </Button>
+          )}
         </div>
         <div className="max-h-96 overflow-y-auto">
           {items.length === 0 ? (
