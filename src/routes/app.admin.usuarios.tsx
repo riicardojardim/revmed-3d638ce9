@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
+import { formatCPF, isValidCPF, normalizeCPF } from "@/lib/cpf";
 import {
   listUsersAdmin,
   createUserAdmin,
@@ -390,28 +391,6 @@ function AssignPlanDialog({ open, onOpenChange, plans, onConfirm }: {
   );
 }
 
-function formatCPF(v: string) {
-  const d = v.replace(/\D/g, "").slice(0, 11);
-  return d
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-}
-function isValidCPF(cpf: string) {
-  const d = cpf.replace(/\D/g, "");
-  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
-  let s = 0;
-  for (let i = 0; i < 9; i++) s += parseInt(d[i]) * (10 - i);
-  let r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  if (r !== parseInt(d[9])) return false;
-  s = 0;
-  for (let i = 0; i < 10; i++) s += parseInt(d[i]) * (11 - i);
-  r = (s * 10) % 11;
-  if (r === 10) r = 0;
-  return r === parseInt(d[10]);
-}
-
 type CreatePayload = {
   email: string;
   password: string;
@@ -471,7 +450,7 @@ function EditProfileDialog({ open, onOpenChange, user, onConfirm }: {
   }, [open, user]);
 
   const inputCls = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-mint";
-  const cpfDigits = f.cpf.replace(/\D/g, "");
+  const cpfDigits = normalizeCPF(f.cpf);
   const wppDigits = normalizeWhatsapp(f.whatsapp);
   const cpfOk = !cpfDigits || isValidCPF(f.cpf);
   const wppOk = !wppDigits || isValidWhatsapp(wppDigits);
@@ -607,7 +586,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
   }, [open, defaultRole]);
 
   const usernameValid = /^[a-z0-9._]{3,20}$/.test(f.username) && !/^[._]|[._]$|[._]{2,}/.test(f.username);
-  const cpfDigits = f.cpf.replace(/\D/g, "");
+  const cpfDigits = normalizeCPF(f.cpf);
   const cpfValid = isValidCPF(f.cpf);
   const wppDigits = normalizeWhatsapp(f.whatsapp);
   const wppValid = isValidWhatsapp(wppDigits);
