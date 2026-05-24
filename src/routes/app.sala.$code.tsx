@@ -1347,7 +1347,7 @@ function SimuladoRunner({ id }: { id: string }) {
             </div>
           )}
 
-          {/* Participantes */}
+          {/* Participantes — separados: candidato avaliado + espectadores */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1361,50 +1361,90 @@ function SimuladoRunner({ id }: { id: string }) {
                 <UserPlus className="h-3 w-3" /> Convidar amigo
               </button>
             </div>
+
             {!evaluatedCandidateId && candidates.length >= 2 && !running && (
               <div className="mt-2 rounded-xl border border-mint/40 bg-mint/10 px-3 py-2 text-xs font-medium text-mint">
                 👇 Selecione o próximo candidato a ser avaliado
               </div>
             )}
+
             {candidates.length === 0 ? (
               <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                 <UserPlus className="h-4 w-4" />
                 Aguardando participantes.
               </div>
             ) : (
-              <ul className="mt-2 space-y-1.5">
-                {candidates.map((c) => {
-                  const isEvaluated = c.id === evaluatedCandidateId;
-                  return (
-                    <li key={c.id}>
-                      <button
-                        type="button"
-                        onClick={() => setEvaluatedCandidate(c.id)}
-                        disabled={!isWaiting}
-                        className={cn(
-                          "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
-                          isEvaluated
-                            ? "border-mint/50 bg-mint/10 text-foreground"
-                            : "border-border bg-background/40 text-foreground hover:border-mint/40",
-                          !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
-                          !isWaiting && isEvaluated && "cursor-default",
-                        )}
-                        title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
-                      >
-                        <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
-                        <span className="flex-1 truncate font-medium">{c.name}</span>
-                        <span className={cn(
-                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                          isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
-                        )}>
-                          {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
-                        </span>
-                        {isEvaluated && <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              <div className="mt-2 space-y-3">
+                {/* Candidato avaliado */}
+                {evaluatedCandidateId && (
+                  <div>
+                    <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-mint">
+                      Candidato avaliado
+                    </div>
+                    <ul className="space-y-1.5">
+                      {candidates
+                        .filter((c) => c.id === evaluatedCandidateId)
+                        .map((c) => (
+                          <li key={c.id}>
+                            <button
+                              type="button"
+                              onClick={() => setEvaluatedCandidate(c.id)}
+                              disabled={!isWaiting}
+                              className={cn(
+                                "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                                "border-mint/50 bg-mint/10 text-foreground",
+                                !isWaiting && "cursor-default",
+                              )}
+                              title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
+                            >
+                              <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                              <span className="flex-1 truncate font-medium">{c.name}</span>
+                              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mint bg-mint/20">
+                                <CheckCheck className="h-3 w-3 text-mint" />
+                              </span>
+                              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Espectadores */}
+                {candidates.filter((c) => c.id !== evaluatedCandidateId).length > 0 && (
+                  <div>
+                    <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Espectadores
+                    </div>
+                    <ul className="space-y-1.5">
+                      {candidates
+                        .filter((c) => c.id !== evaluatedCandidateId)
+                        .map((c) => {
+                          const isEvaluated = c.id === evaluatedCandidateId;
+                          return (
+                            <li key={c.id}>
+                              <button
+                                type="button"
+                                onClick={() => setEvaluatedCandidate(c.id)}
+                                disabled={!isWaiting}
+                                className={cn(
+                                  "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                                  "border-border bg-background/40 text-foreground hover:border-mint/40",
+                                  !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
+                                )}
+                                title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
+                              >
+                                <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                                <span className="flex-1 truncate font-medium">{c.name}</span>
+                                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-muted-foreground/40" />
+                              </button>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -1654,39 +1694,77 @@ function SimuladoRunner({ id }: { id: string }) {
                   Aguardando participantes.
                 </div>
               ) : (
-                <ul className="mt-2 space-y-1.5">
-                  {candidates.map((c) => {
-                    const isEvaluated = c.id === evaluatedCandidateId;
-                    return (
-                      <li key={c.id}>
-                        <button
-                          type="button"
-                          onClick={() => setEvaluatedCandidate(c.id)}
-                          disabled={!isWaiting}
-                          className={cn(
-                            "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
-                            isEvaluated
-                              ? "border-mint/50 bg-mint/10 text-foreground"
-                              : "border-border bg-background/40 text-foreground hover:border-mint/40",
-                            !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
-                            !isWaiting && isEvaluated && "cursor-default",
-                          )}
-                          title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
-                        >
-                          <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
-                          <span className="flex-1 truncate font-medium">{c.name}</span>
-                          <span className={cn(
-                            "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                            isEvaluated ? "border-mint bg-mint/20" : "border-muted-foreground/40",
-                          )}>
-                            {isEvaluated && <CheckCheck className="h-3 w-3 text-mint" />}
-                          </span>
-                          {isEvaluated && <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div className="mt-2 space-y-3">
+                  {/* Candidato avaliado */}
+                  {evaluatedCandidateId && (
+                    <div>
+                      <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-mint">
+                        Candidato avaliado
+                      </div>
+                      <ul className="space-y-1.5">
+                        {candidates
+                          .filter((c) => c.id === evaluatedCandidateId)
+                          .map((c) => (
+                            <li key={c.id}>
+                              <button
+                                type="button"
+                                onClick={() => setEvaluatedCandidate(c.id)}
+                                disabled={!isWaiting}
+                                className={cn(
+                                  "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                                  "border-mint/50 bg-mint/10 text-foreground",
+                                  !isWaiting && "cursor-default",
+                                )}
+                                title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
+                              >
+                                <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                                <span className="flex-1 truncate font-medium">{c.name}</span>
+                                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-mint bg-mint/20">
+                                  <CheckCheck className="h-3 w-3 text-mint" />
+                                </span>
+                                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-mint" />
+                              </button>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Espectadores */}
+                  {candidates.filter((c) => c.id !== evaluatedCandidateId).length > 0 && (
+                    <div>
+                      <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Espectadores
+                      </div>
+                      <ul className="space-y-1.5">
+                        {candidates
+                          .filter((c) => c.id !== evaluatedCandidateId)
+                          .map((c) => {
+                            const isEvaluated = c.id === evaluatedCandidateId;
+                            return (
+                              <li key={c.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => setEvaluatedCandidate(c.id)}
+                                  disabled={!isWaiting}
+                                  className={cn(
+                                    "flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition",
+                                    "border-border bg-background/40 text-foreground hover:border-mint/40",
+                                    !isWaiting && !isEvaluated && "opacity-50 cursor-not-allowed",
+                                  )}
+                                  title={!isWaiting ? "Candidato travado após o início da estação" : undefined}
+                                >
+                                  <UserAvatar avatarUrl={c.avatarUrl} name={c.name} size="sm" />
+                                  <span className="flex-1 truncate font-medium">{c.name}</span>
+                                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-muted-foreground/40" />
+                                </button>
+                              </li>
+                            );
+                          })}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
