@@ -111,6 +111,14 @@ export function NotificationBell() {
     await supabase.from("notifications").update({ read_at: new Date().toISOString() }).in("id", ids);
   }
 
+  async function clearAll() {
+    if (!user || items.length === 0) return;
+    const ids = items.map((n) => n.id);
+    setItems([]);
+    await supabase.from("notifications").delete().in("id", ids);
+    toast.success("Todas as notificações foram removidas");
+  }
+
   function iconFor(type: string) {
     if (type === "friend_request_received") return UserPlus;
     if (type === "friend_request_accepted") return Check;
