@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Stethoscope, UserRound, Activity } from "lucide-react";
+import { Stethoscope, UserRound, Activity, Sparkles } from "lucide-react";
 import logoUrl from "@/assets/logo-revmed-horizontal.png";
 
 export type IntroRole = "candidato" | "paciente";
@@ -133,66 +133,166 @@ export function IntroOverlay({
       className="fixed inset-0 z-[100] overflow-hidden"
       style={{
         background:
-          "radial-gradient(ellipse at 50% 30%, color-mix(in oklab, var(--medical) 22%, transparent) 0%, var(--night) 55%, #050303 100%)",
+          "radial-gradient(ellipse at 50% 38%, color-mix(in oklab, var(--medical) 28%, transparent) 0%, var(--night) 58%, #050303 100%)",
       }}
       aria-live="polite"
     >
-      {/* Grade sutil em bronze */}
+      {/* Grade isométrica em bronze */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage:
             "linear-gradient(var(--medical) 1px, transparent 1px), linear-gradient(90deg, var(--medical) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
+          backgroundSize: "72px 72px",
+          maskImage:
+            "radial-gradient(ellipse at center, black 30%, transparent 75%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse at center, black 30%, transparent 75%)",
         }}
       />
-      {/* Halos quentes */}
-      <div
-        className="pointer-events-none absolute -left-32 -top-32 h-[440px] w-[440px] rounded-full blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in oklab, var(--medical) 35%, transparent), transparent 70%)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute -right-32 -bottom-32 h-[440px] w-[440px] rounded-full blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in oklab, var(--mint) 30%, transparent), transparent 70%)",
-        }}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.75)_100%)]" />
-
-      {/* Logo no topo */}
+      {/* Halos quentes (paleta REVMED) */}
       <motion.div
-        initial={{ opacity: 0, y: -16, scale: 0.92 }}
-        animate={{
-          opacity: phase === "countdown" ? 0.35 : 1,
-          y: 0,
-          scale: phase === "logo" ? 1 : 0.88,
+        className="pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--medical) 45%, transparent), transparent 70%)",
         }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute left-1/2 top-[11%] -translate-x-1/2 text-center"
+        animate={reduce ? undefined : { x: [0, 40, 0], y: [0, 20, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="pointer-events-none absolute -right-40 -bottom-40 h-[520px] w-[520px] rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--mint) 35%, transparent), transparent 70%)",
+        }}
+        animate={reduce ? undefined : { x: [0, -30, 0], y: [0, -20, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      />
+      {/* Pulsos radiais a partir do centro */}
+      {!reduce && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-full border"
+              style={{
+                borderColor:
+                  "color-mix(in oklab, var(--medical) 55%, transparent)",
+                width: 220,
+                height: 220,
+              }}
+              initial={{ scale: 0.4, opacity: 0.6 }}
+              animate={{ scale: 5, opacity: 0 }}
+              transition={{
+                duration: 3.4,
+                repeat: Infinity,
+                delay: i * 1.1,
+                ease: "easeOut",
+              }}
+            />
+          ))}
+        </div>
+      )}
+      {/* ECG cruzando a tela */}
+      <div className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 overflow-hidden">
+        <svg
+          viewBox="0 0 1200 80"
+          preserveAspectRatio="none"
+          className="absolute -top-10 h-20 w-full"
+        >
+          <motion.path
+            d="M0,40 L180,40 L200,40 L210,12 L222,68 L234,40 L420,40 L440,40 L452,8 L464,72 L476,40 L680,40 L700,40 L712,15 L724,65 L736,40 L920,40 L940,40 L952,10 L964,70 L976,40 L1200,40"
+            fill="none"
+            stroke="var(--medical)"
+            strokeWidth="1.5"
+            strokeOpacity="0.65"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.7 }}
+            transition={{ duration: 2.4, ease: "easeInOut" }}
+          />
+        </svg>
+      </div>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_45%,rgba(0,0,0,0.8)_100%)]" />
+
+      {/* Selo / carimbo REVMED no topo com anéis girando */}
+      <motion.div
+        initial={{ opacity: 0, y: -24, scale: 0.85 }}
+        animate={{
+          opacity: phase === "countdown" ? 0.4 : 1,
+          y: 0,
+          scale: phase === "logo" ? 1 : 0.85,
+        }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute left-1/2 top-[10%] -translate-x-1/2 text-center"
       >
-        <img
-          src={logoUrl}
-          alt="REVMED"
-          draggable={false}
-          className="mx-auto h-14 w-auto select-none md:h-16"
-          style={{
-            filter:
-              "drop-shadow(0 0 30px color-mix(in oklab, var(--medical) 55%, transparent))",
-          }}
-        />
+        <div className="relative mx-auto h-[120px] w-[120px] md:h-[140px] md:w-[140px]">
+          {/* anel externo girando */}
+          <motion.svg
+            viewBox="0 0 100 100"
+            className="absolute inset-0 h-full w-full"
+            animate={reduce ? undefined : { rotate: 360 }}
+            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke="color-mix(in oklab, var(--medical) 70%, transparent)"
+              strokeWidth="0.6"
+              strokeDasharray="2 4"
+            />
+          </motion.svg>
+          {/* anel interno girando ao contrário */}
+          <motion.svg
+            viewBox="0 0 100 100"
+            className="absolute inset-0 h-full w-full"
+            animate={reduce ? undefined : { rotate: -360 }}
+            transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke="color-mix(in oklab, var(--mint) 55%, transparent)"
+              strokeWidth="0.5"
+              strokeDasharray="1 6"
+            />
+          </motion.svg>
+          {/* disco interior + logo */}
+          <div
+            className="absolute inset-[14%] flex items-center justify-center rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 40%, color-mix(in oklab, var(--medical) 22%, var(--night)), var(--night))",
+              boxShadow:
+                "0 0 50px color-mix(in oklab, var(--medical) 50%, transparent), inset 0 0 0 1px color-mix(in oklab, var(--medical) 40%, transparent)",
+            }}
+          >
+            <img
+              src={logoUrl}
+              alt="REVMED"
+              draggable={false}
+              className="h-7 w-auto select-none md:h-8"
+              style={{
+                filter:
+                  "drop-shadow(0 0 14px color-mix(in oklab, var(--medical) 70%, transparent))",
+              }}
+            />
+          </div>
+        </div>
         <div
-          className="mx-auto mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em]"
+          className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em]"
           style={{
             borderColor: "color-mix(in oklab, var(--medical) 45%, transparent)",
-            background: "color-mix(in oklab, var(--medical) 12%, transparent)",
+            background: "color-mix(in oklab, var(--medical) 14%, transparent)",
             color: "var(--medical)",
           }}
         >
-          <Activity className="h-3 w-3" /> Estação ativa
+          <Sparkles className="h-3 w-3" /> Revmed · Estação
         </div>
       </motion.div>
 
