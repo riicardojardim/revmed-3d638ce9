@@ -447,6 +447,15 @@ function CandidateView() {
     return (
       <>
         {introOverlay}
+        {user && room && (
+          <RoomVideoCall
+            roomCode={room.code}
+            displayName={displayName ?? undefined}
+            role={isSpectator ? "espectador" : "candidato"}
+            allowedIdentities={[user.id, room.host_id, room.evaluated_candidate_id]}
+            autoOpen
+          />
+        )}
         <div className="mx-auto flex min-h-[80vh] max-w-2xl flex-col items-center justify-center px-4 text-center">
         <button
           type="button"
