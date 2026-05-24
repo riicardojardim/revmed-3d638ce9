@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRight, CreditCard, QrCode, Crown, Drama, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 import { formatCPF, isValidCPF } from "@/lib/cpf";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 
 export type PlanSlug = "ator" | "completo";
 
@@ -54,10 +54,12 @@ export function SignupPaymentModal({
   const [payment, setPayment] = useState<"pix" | "cartao">("pix");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     if (open) {
       setPayment("pix");
+      setAcceptedTerms(false);
     }
   }, [open]);
 
@@ -68,19 +70,14 @@ export function SignupPaymentModal({
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  async function handleGoogle() {
-    if (!plan) return;
-    try { localStorage.setItem("er_selected_plan", plan.slug); } catch {}
-    try { localStorage.setItem("er_payment_method", payment); } catch {}
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/app",
-    });
-    if (result.error) toast.error("Erro no Google", { description: String(result.error) });
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!plan) return;
+
+    if (!acceptedTerms) {
+      toast.error("Aceite os Termos de Uso e a Política de Privacidade para continuar.");
+      return;
+    }
 
     if (!form.first_name.trim() || !form.last_name.trim()) {
       toast.error("Informe nome e sobrenome."); return;
