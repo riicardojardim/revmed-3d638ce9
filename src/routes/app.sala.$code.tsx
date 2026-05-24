@@ -755,17 +755,22 @@ function SimuladoRunner({ id }: { id: string }) {
   async function goNext() {
     if (!sim || !allScored) return;
     if (sim.currentIndex < sim.stations.length - 1) {
-      // Limpa o candidato avaliado da sala antes de avançar — a próxima estação
-      // pode ter outro "candidato da vez". Se restar só 1 participante, será re-selecionado automaticamente.
+      // Limpa o candidato avaliado da sala antes de avançar — todo mundo volta
+      // pro lobby e o ator precisa selecionar manualmente o próximo candidato.
       if (sim.roomId) {
         await supabase.from("training_rooms")
           .update({ evaluated_candidate_id: null, status: "waiting", started_at: null, starting_at: null, finished_at: null })
           .eq("id", sim.roomId);
+        // Reseta o ready de todos os participantes pra forçar nova rodada de seleção.
+        await supabase.from("training_room_participants")
+          .update({ is_ready: false })
+          .eq("room_id", sim.roomId);
         setEvaluatedCandidateId(null);
         setRoomStatus("waiting");
         if (sim.roomCode) {
           try { await syncCallPerms({ data: { roomCode: sim.roomCode } }); } catch { /* noop */ }
         }
+        toast.info("Selecione o candidato avaliado para a próxima estação.");
       }
       const next = { ...sim, currentIndex: sim.currentIndex + 1 };
       saveSimulado(user!.id, next);
