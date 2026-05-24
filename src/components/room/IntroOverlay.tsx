@@ -228,10 +228,11 @@ export function IntroOverlay({
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="absolute left-1/2 top-[10%] -translate-x-1/2 text-center"
       >
-        <div className="relative mx-auto h-[120px] w-[120px] md:h-[140px] md:w-[140px]">
+        <div className="relative mx-auto h-[140px] w-[200px] md:h-[160px] md:w-[240px]">
           {/* anel externo girando */}
           <motion.svg
             viewBox="0 0 100 100"
+            preserveAspectRatio="none"
             className="absolute inset-0 h-full w-full"
             animate={reduce ? undefined : { rotate: 360 }}
             transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
@@ -249,6 +250,7 @@ export function IntroOverlay({
           {/* anel interno girando ao contrário */}
           <motion.svg
             viewBox="0 0 100 100"
+            preserveAspectRatio="none"
             className="absolute inset-0 h-full w-full"
             animate={reduce ? undefined : { rotate: -360 }}
             transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
@@ -265,7 +267,7 @@ export function IntroOverlay({
           </motion.svg>
           {/* disco interior + logo */}
           <div
-            className="absolute inset-[10%] flex items-center justify-center"
+            className="absolute inset-0 flex items-center justify-center px-4"
             style={{
               filter:
                 "drop-shadow(0 0 24px color-mix(in oklab, var(--medical) 75%, transparent)) drop-shadow(0 0 60px color-mix(in oklab, var(--medical) 40%, transparent))",
@@ -275,7 +277,7 @@ export function IntroOverlay({
               src={logoUrl}
               alt="REVMED"
               draggable={false}
-              className="h-10 w-auto select-none md:h-12"
+              className="h-auto w-full max-w-[160px] select-none object-contain md:max-w-[200px]"
             />
           </div>
         </div>
