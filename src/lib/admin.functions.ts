@@ -50,7 +50,10 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
     if (ids.length === 0) return { users: [], total: ("total" in authData ? (authData.total ?? 0) : 0) };
 
     const [{ data: profiles }, { data: roles }, { data: subs }, { data: plans }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, full_name, avatar_url, whatsapp, exam_year").in("id", ids),
+      supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, first_name, last_name, title, gender, username, avatar_url, whatsapp, exam_year, cpf, birth_date")
+        .in("id", ids),
       supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids),
       supabaseAdmin.from("user_subscriptions").select("user_id, plan_id, status, current_period_end").in("user_id", ids),
       supabaseAdmin.from("plans").select("id, name, slug, price_cents"),
@@ -76,6 +79,13 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
           id: u.id,
           email: u.email ?? "",
           full_name: profile?.full_name ?? null,
+          first_name: profile?.first_name ?? null,
+          last_name: profile?.last_name ?? null,
+          title: profile?.title ?? null,
+          gender: profile?.gender ?? null,
+          username: profile?.username ?? null,
+          cpf: profile?.cpf ?? null,
+          birth_date: profile?.birth_date ?? null,
           avatar_url: profile?.avatar_url ?? null,
           whatsapp: profile?.whatsapp ?? null,
           exam_year: profile?.exam_year ?? null,
