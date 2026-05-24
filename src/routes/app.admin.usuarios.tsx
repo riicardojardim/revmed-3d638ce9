@@ -240,6 +240,7 @@ function UserActions(props: {
   plans: Plan[];
   acting: boolean;
   onEditEmail: (email: string) => void;
+  onEditProfile: (p: EditProfilePayload) => void;
   onSetPassword: (password: string) => void;
   onSendLink: () => void;
   onSetRole: (role: "aluno" | "professor" | "admin" | "mentor") => void;
@@ -252,6 +253,7 @@ function UserActions(props: {
   const [emailDialog, setEmailDialog] = useState(false);
   const [passDialog, setPassDialog] = useState(false);
   const [daysDialog, setDaysDialog] = useState(false);
+  const [profileDialog, setProfileDialog] = useState(false);
 
   return (
     <>
@@ -262,6 +264,9 @@ function UserActions(props: {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuLabel>Perfil</DropdownMenuLabel>
+          <DropdownMenuItem onSelect={() => setProfileDialog(true)}>Editar perfil</DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuLabel>Plano</DropdownMenuLabel>
           <DropdownMenuItem onSelect={() => setPlanDialog(true)}>Atribuir plano</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setDaysDialog(true)}>+ / − dias</DropdownMenuItem>
@@ -298,6 +303,12 @@ function UserActions(props: {
       <AssignPlanDialog
         open={planDialog} onOpenChange={setPlanDialog} plans={props.plans}
         onConfirm={(plan_id, days) => { props.onAssignPlan(plan_id, days); setPlanDialog(false); }}
+      />
+      <EditProfileDialog
+        open={profileDialog}
+        onOpenChange={setProfileDialog}
+        user={props.user}
+        onConfirm={(payload) => { props.onEditProfile(payload); setProfileDialog(false); }}
       />
     </>
   );
