@@ -124,6 +124,10 @@ function ActorView() {
   const [evalStatus, setEvalStatus] = useState<"em_andamento" | "aprovado" | "reprovado" | "repetir">("em_andamento");
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [callIdentities, setCallIdentities] = useState<string[]>([]);
+  const handleCallIdentities = React.useCallback((ids: string[]) => {
+    setCallIdentities(ids);
+  }, []);
   const [copied, setCopied] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
@@ -721,13 +725,31 @@ function ActorView() {
                   variant="hero"
                   className="mt-3 w-full"
                   onClick={startStation}
-                  disabled={starting || !room.evaluated_candidate_id}
+                  disabled={
+                    starting ||
+                    !room.evaluated_candidate_id ||
+                    !callIdentities.includes(user?.id ?? "") ||
+                    !callIdentities.includes(room.evaluated_candidate_id ?? "")
+                  }
                 >
                   <Play className="mr-1 h-4 w-4" />
                   {!room.evaluated_candidate_id
                     ? "Aguardando candidato..."
-                    : "Iniciar cronômetro"}
+                    : !callIdentities.includes(user?.id ?? "")
+                      ? "Entre na call para iniciar..."
+                      : !callIdentities.includes(room.evaluated_candidate_id ?? "")
+                        ? "Aguardando candidato entrar na call..."
+                        : "Iniciar cronômetro"}
                 </Button>
+                {room.evaluated_candidate_id && (
+                  <div className="mt-2 text-center text-[11px] text-white/70">
+                    {callIdentities.includes(user?.id ?? "") && callIdentities.includes(room.evaluated_candidate_id) ? (
+                      <span className="text-mint">✓ Ator e candidato conectados na call</span>
+                    ) : (
+                      <span>Ambos precisam estar na chamada de vídeo antes de iniciar.</span>
+                    )}
+                  </div>
+                )}
               </>
             )}
             {isRunning && (
@@ -1494,6 +1516,8 @@ function ActorView() {
           displayName={user?.user_metadata?.full_name ?? user?.email ?? undefined}
           role="ator"
           allowedIdentities={[user?.id, room.evaluated_candidate_id]}
+          autoOpen
+          onIdentitiesChange={handleCallIdentities}
         />
       )}
       {/* Floating shortcut to controls panel (mobile/tablet only) */}

@@ -5,6 +5,7 @@ import {
   ParticipantTile,
   TrackRefContext,
   useTracks,
+  useParticipants,
   ControlBar,
   RoomAudioRenderer,
 } from "@livekit/components-react";
@@ -25,6 +26,10 @@ type Props = {
    * nesta lista (mais o próprio usuário) serão exibidos.
    */
   allowedIdentities?: (string | null | undefined)[];
+  /** Se true, abre o painel automaticamente ao montar. */
+  autoOpen?: boolean;
+  /** Callback com as identidades atualmente presentes na call (inclui local). */
+  onIdentitiesChange?: (identities: string[]) => void;
 };
 
 /**
@@ -32,8 +37,11 @@ type Props = {
  * - Compacto e arrastável
  * - Ao minimizar, a chamada continua ativa (apenas o vídeo é ocultado)
  */
-export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }: Props) {
-  const [open, setOpen] = useState(false);
+export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities, autoOpen, onIdentitiesChange }: Props) {
+  const [open, setOpen] = useState(!!autoOpen);
+  useEffect(() => {
+    if (autoOpen) setOpen(true);
+  }, [autoOpen]);
   const [minimized, setMinimized] = useState(false);
   const [conn, setConn] = useState<{ token: string; url: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -193,6 +201,7 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }
               <VideoGrid allowSet={allowSet} />
             </div>
             <RoomAudioRenderer />
+            {onIdentitiesChange && <PresenceReporter onChange={onIdentitiesChange} />}
             {!minimized && (
               <ControlBar variation="minimal" controls={{ microphone: true, camera: true, screenShare: false, leave: true }} />
             )}
@@ -201,6 +210,15 @@ export function RoomVideoCall({ roomCode, displayName, role, allowedIdentities }
       </div>
     </div>
   );
+}
+
+function PresenceReporter({ onChange }: { onChange: (ids: string[]) => void }) {
+  const participants = useParticipants();
+  useEffect(() => {
+    const ids = participants.map((p) => p.identity).filter(Boolean);
+    onChange(ids);
+  }, [participants, onChange]);
+  return null;
 }
 
 function VideoGrid({ allowSet }: { allowSet: Set<string> | null }) {
