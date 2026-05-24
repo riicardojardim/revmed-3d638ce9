@@ -422,7 +422,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
   plans: Plan[];
 }) {
   const initial = {
-    title: "Dr." as "Dr." | "Dra.",
+    title: "" as "" | "Dr." | "Dra.",
     first_name: "",
     last_name: "",
     username: "",
@@ -462,6 +462,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
   })();
 
   const allValid =
+    f.title !== "" &&
     f.first_name.trim().length > 0 &&
     f.last_name.trim().length > 0 &&
     usernameValid &&
@@ -480,7 +481,7 @@ function CreateUserDialog({ open, onOpenChange, onCreate, defaultRole = "aluno",
       first_name: f.first_name.trim(),
       last_name: f.last_name.trim(),
       username: f.username.trim(),
-      title: f.title,
+      title: f.title as "Dr." | "Dra.",
       whatsapp: wppDigits,
       cpf: cpfDigits,
       birth_date: f.birth_date,
