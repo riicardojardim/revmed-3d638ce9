@@ -39,6 +39,28 @@ const GENDER_OPTIONS = [
   { value: "prefiro_nao_dizer", label: "Prefiro não dizer" },
 ];
 
+function formatCPF(v: string) {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+function isValidCPF(cpf: string) {
+  const d = cpf.replace(/\D/g, "");
+  if (d.length !== 11 || /^(\d)\1+$/.test(d)) return false;
+  let s = 0;
+  for (let i = 0; i < 9; i++) s += parseInt(d[i]) * (10 - i);
+  let r = (s * 10) % 11;
+  if (r === 10) r = 0;
+  if (r !== parseInt(d[9])) return false;
+  s = 0;
+  for (let i = 0; i < 10; i++) s += parseInt(d[i]) * (11 - i);
+  r = (s * 10) % 11;
+  if (r === 10) r = 0;
+  return r === parseInt(d[10]);
+}
+
 function deduceExamYear(): string {
   const now = new Date();
   const y = now.getFullYear();
@@ -100,17 +122,21 @@ function ProfilePage() {
   const [whatsapp, setWhatsapp] = useState(formatWhatsapp(profile?.whatsapp ?? ""));
   const [username, setUsername] = useState<string>(profile?.username ?? "");
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [cpf, setCpf] = useState<string>(formatCPF(profile?.cpf ?? ""));
+  const [birthDate, setBirthDate] = useState<string>(profile?.birth_date ?? "");
   const examYear = profile?.exam_year || deduceExamYear();
   const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     const [f, l] = splitName(profile?.full_name);
-    setFirstName(f);
-    setLastName(l);
+    setFirstName(profile?.first_name ?? f);
+    setLastName(profile?.last_name ?? l);
     setTitle(profile?.title ?? "");
     setGender(profile?.gender ?? "");
     setWhatsapp(formatWhatsapp(profile?.whatsapp ?? ""));
     setUsername(profile?.username ?? "");
+    setCpf(formatCPF(profile?.cpf ?? ""));
+    setBirthDate(profile?.birth_date ?? "");
   }, [profile]);
 
   function validateUsername(v: string): string | null {
@@ -133,6 +159,11 @@ function ProfilePage() {
     const uErr = validateUsername(uname);
     if (uErr) { setUsernameError(uErr); toast.error(uErr); return; }
     setUsernameError(null);
+    const cpfDigits = cpf.replace(/\D/g, "");
+    if (cpfDigits && !isValidCPF(cpfDigits)) {
+      toast.error("CPF inválido.");
+      return;
+    }
     setSavingProfile(true);
     const composedName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
     const { error } = await supabase
@@ -146,6 +177,8 @@ function ProfilePage() {
         whatsapp: digits || null,
         exam_year: examYear || null,
         username: uname || null,
+        cpf: cpfDigits || null,
+        birth_date: birthDate || null,
       })
       .eq("id", user.id);
     setSavingProfile(false);
@@ -277,51 +310,32 @@ function ProfilePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="firstName">Nome</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="Seu nome"
-              autoComplete="given-name"
-            />
+            <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Seu nome" autoComplete="given-name" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="lastName">Sobrenome</Label>
-            <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Seu sobrenome"
-              autoComplete="family-name"
-            />
+            <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Seu sobrenome" autoComplete="family-name" />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="title">Como quer ser chamado(a)</Label>
             <Select value={title} onValueChange={setTitle}>
-              <SelectTrigger id="title">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
+              <SelectTrigger id="title"><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
-                {TITLE_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
+                {TITLE_OPTIONS.map((o) => (<SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="gender">Sexo</Label>
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger id="gender"><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectContent>
+                {GENDER_OPTIONS.map((o) => (<SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="gender">Sexo</Label>
-            <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger id="gender">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {GENDER_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="username">@username</Label>
             <div className="flex items-center gap-2">
@@ -339,7 +353,6 @@ function ProfilePage() {
               {usernameError ?? "Como seus amigos vão te encontrar. 3–20 caracteres, letras minúsculas, números, ponto ou _."}
             </p>
           </div>
-        </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="whatsapp">WhatsApp</Label>
@@ -354,7 +367,28 @@ function ProfilePage() {
               maxLength={16}
             />
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="birthDate">Data de nascimento</Label>
+            <Input
+              id="birthDate"
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              max={new Date().toISOString().slice(0, 10)}
+            />
+          </div>
 
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="cpf">CPF</Label>
+            <Input
+              id="cpf"
+              inputMode="numeric"
+              value={cpf}
+              onChange={(e) => setCpf(formatCPF(e.target.value))}
+              placeholder="000.000.000-00"
+              maxLength={14}
+            />
+          </div>
         </div>
 
         <div>
