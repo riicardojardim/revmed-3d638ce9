@@ -1818,6 +1818,7 @@ function SimuladoRunner({ id }: { id: string }) {
         role="ator"
         allowedIdentities={[user?.id, evaluatedCandidateId]}
         onIdentitiesChange={handleCallIdentities}
+        permissionsKey={`${evaluatedCandidateId ?? "none"}:${roomStatus}`}
       />
     )}
     <button
