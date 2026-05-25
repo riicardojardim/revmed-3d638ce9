@@ -147,6 +147,7 @@ function AppLayout() {
           { to: "/app/admin/geral", label: "Geral", icon: Settings2 },
           { to: "/app/admin/aparencia", label: "Aparência", icon: Sparkles },
           { to: "/app/admin/integracoes", label: "Integrações", icon: Activity },
+          { to: "/app/admin/provedores", label: "Provedores", icon: KeyRound },
           { to: "/app/perfil", label: "Perfil", icon: User },
         ],
       },
