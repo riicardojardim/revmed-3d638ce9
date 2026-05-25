@@ -17,12 +17,13 @@ import {
 } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { importStationsFromPdf, bulkCreateStations, type ImportedStation } from "@/lib/pdf-import.functions";
+import { renderAndUploadPdf, type RenderProgress } from "@/lib/pdf-page-renderer";
 
 export const Route = createFileRoute("/app/admin/estacoes/importar")({
   component: ImportPdfPage,
 });
 
-type FileStatus = "pending" | "reading" | "extracting" | "done" | "error";
+type FileStatus = "pending" | "rendering" | "uploading" | "extracting" | "done" | "error";
 
 interface PdfJob {
   id: string;
@@ -32,6 +33,7 @@ interface PdfJob {
   error?: string;
   pages?: number;
   truncated?: boolean;
+  progress?: { current: number; total: number; label: string };
   actorInfo?: { pages: number; segments: number; matched: number } | null;
   stations: (ImportedStation & { _selected: boolean })[];
 }
@@ -43,15 +45,6 @@ const SPECIALTIES = [
   "Ginecologia e Obstetrícia",
   "Medicina de Família e Comunidade",
 ];
-
-async function fileToDataUrl(f: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result as string);
-    r.onerror = () => reject(r.error);
-    r.readAsDataURL(f);
-  });
-}
 
 // ───── Pareamento automático principal × orientação do ator ─────
 function normalizeName(name: string): string {
@@ -172,10 +165,9 @@ function ImportPdfPage() {
   }
 
   async function processOne(jobId: string, file: File) {
-    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "reading", error: undefined } : j)));
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "rendering", error: undefined, progress: undefined } : j)));
     try {
-      if (file.size > 120 * 1024 * 1024) throw new Error("PDF maior que 120 MB.");
-      // pega o actorFile atual da fila (pode ter sido removido manualmente)
+      if (file.size > 200 * 1024 * 1024) throw new Error("PDF maior que 200 MB.");
       let actorFile: File | undefined;
       setJobs((prev) => {
         const j = prev.find((x) => x.id === jobId);
@@ -183,20 +175,38 @@ function ImportPdfPage() {
         return prev;
       });
       await new Promise((r) => setTimeout(r, 0));
-      if (actorFile && actorFile.size > 120 * 1024 * 1024) {
-        throw new Error("PDF de orientações do ator maior que 120 MB.");
+      if (actorFile && actorFile.size > 200 * 1024 * 1024) {
+        throw new Error("PDF de orientações do ator maior que 200 MB.");
       }
 
-      const dataUrl = await fileToDataUrl(file);
-      const actorDataUrl = actorFile ? await fileToDataUrl(actorFile) : undefined;
-      setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "extracting" } : j)));
+      const updateProgress = (p: RenderProgress, label: string) => {
+        setJobs((prev) =>
+          prev.map((j) =>
+            j.id === jobId
+              ? {
+                  ...j,
+                  status: p.phase === "render" ? "rendering" : "uploading",
+                  progress: { current: p.current, total: p.total, label },
+                }
+              : j,
+          ),
+        );
+      };
+
+      const mainPaths = await renderAndUploadPdf(file, jobId, "main", (p) => updateProgress(p, "Principal"));
+      let actorPaths: string[] | undefined;
+      if (actorFile) {
+        actorPaths = await renderAndUploadPdf(actorFile, jobId, "actor", (p) => updateProgress(p, "Ator"));
+      }
+
+      setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "extracting", progress: undefined } : j)));
 
       const res = await parsePdf({
         data: {
           filename: file.name,
-          dataUrl,
+          pagePaths: mainPaths,
           actorFilename: actorFile?.name,
-          actorDataUrl,
+          actorPagePaths: actorPaths,
         },
       });
       setJobs((prev) =>
