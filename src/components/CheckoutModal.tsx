@@ -374,26 +374,48 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
           className="shrink-0 border-t border-border/60 bg-background/95 px-4 pb-4 pt-3 backdrop-blur-md sm:px-6"
           style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
         >
-          <Button
-            type="submit"
-            form="checkout-form"
-            size="lg"
-            className="h-12 w-full rounded-xl bg-mint text-sm font-bold text-night shadow-glow hover:bg-mint/90"
-            disabled={submitting || cpfInvalid || confirmMismatch}
-          >
-            {submitting ? (
-              "Processando..."
-            ) : (
-              <>
-                Finalizar e pagar com {method === "pix" ? "Pix" : "cartão"}
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </>
-            )}
-          </Button>
-          <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5 text-mint" />
-            7 dias de garantia · 100% do valor de volta
-          </p>
+          {checkoutUrl ? (
+            <div className="space-y-3">
+              <div className="rounded-xl border border-mint/30 bg-mint/10 p-3 text-center">
+                <p className="text-sm font-semibold">Conta criada com sucesso!</p>
+                <p className="text-xs text-muted-foreground mt-1">Clique abaixo para finalizar o pagamento no site seguro do provedor.</p>
+              </div>
+              <a
+                href={checkoutUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-mint text-sm font-bold text-night shadow-glow hover:bg-mint/90"
+              >
+                Pagar agora <ExternalLink className="ml-1 h-4 w-4" />
+              </a>
+              <Button variant="ghost" size="sm" className="w-full" onClick={() => { setCheckoutUrl(null); onOpenChange(false); }}>
+                Fechar
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Button
+                type="submit"
+                form="checkout-form"
+                size="lg"
+                className="h-12 w-full rounded-xl bg-mint text-sm font-bold text-night shadow-glow hover:bg-mint/90"
+                disabled={submitting || cpfInvalid || confirmMismatch}
+              >
+                {submitting ? (
+                  "Processando..."
+                ) : (
+                  <>
+                    Finalizar e pagar com {method === "pix" ? "Pix" : "cartão"}
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+              <p className="mt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-mint" />
+                7 dias de garantia · 100% do valor de volta
+              </p>
+            </>
+          )}
         </div>
       </SheetContent>
     </Dialog>
