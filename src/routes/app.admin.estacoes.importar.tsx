@@ -92,7 +92,7 @@ function pairFiles(files: File[]): { main: File; actor?: File }[] {
   files.forEach((f) => (isActorFilename(f.name) ? actors.push(f) : mains.push(f)));
 
   const usedActors = new Set<File>();
-  const pairs = mains.map((main) => {
+  const pairs: { main: File; actor?: File }[] = mains.map((main) => {
     let best: { actor: File; score: number } | null = null;
     actors.forEach((a) => {
       if (usedActors.has(a)) return;
@@ -340,11 +340,13 @@ function StatusBadge({ status }: { status: FileStatus }) {
 interface PdfJobCardProps {
   job: PdfJob;
   onRemove: () => void;
+  onRemoveActor: () => void;
+  onAttachActor: (file: File) => void;
   onUpdateStation: (idx: number, patch: Partial<ImportedStation & { _selected: boolean }>) => void;
   onRetry: () => void;
 }
 
-function PdfJobCard({ job, onRemove, onUpdateStation, onRetry }: PdfJobCardProps) {
+function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStation, onRetry }: PdfJobCardProps) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex flex-wrap items-center gap-3">
