@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2, XCircle, Trash2, Save } from "lucide-react";
+import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2, XCircle, Trash2, Save, UserSquare2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,10 +27,12 @@ type FileStatus = "pending" | "reading" | "extracting" | "done" | "error";
 interface PdfJob {
   id: string;
   file: File;
+  actorFile?: File;
   status: FileStatus;
   error?: string;
   pages?: number;
   truncated?: boolean;
+  actorInfo?: { pages: number; segments: number; matched: number } | null;
   stations: (ImportedStation & { _selected: boolean })[];
 }
 
@@ -51,6 +53,68 @@ async function fileToDataUrl(f: File): Promise<string> {
   });
 }
 
+// ───── Pareamento automático principal × orientação do ator ─────
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\.pdf$/i, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+const ACTOR_KEYWORDS = ["orientacao", "orientacoes", "orientac", "ator", "atriz", "paciente"];
+
+function isActorFilename(name: string): boolean {
+  const n = normalizeName(name);
+  return ACTOR_KEYWORDS.some((k) => n.includes(k));
+}
+
+function tokens(name: string): string[] {
+  return normalizeName(name)
+    .split(" ")
+    .filter((t) => t && !ACTOR_KEYWORDS.includes(t));
+}
+
+function similarity(a: File, b: File): number {
+  const A = new Set(tokens(a.name));
+  const B = new Set(tokens(b.name));
+  if (A.size === 0 || B.size === 0) return 0;
+  let inter = 0;
+  A.forEach((t) => { if (B.has(t)) inter++; });
+  return inter / Math.max(A.size, B.size);
+}
+
+function pairFiles(files: File[]): { main: File; actor?: File }[] {
+  const mains: File[] = [];
+  const actors: File[] = [];
+  files.forEach((f) => (isActorFilename(f.name) ? actors.push(f) : mains.push(f)));
+
+  const usedActors = new Set<File>();
+  const pairs: { main: File; actor?: File }[] = mains.map((main) => {
+    let bestActor: File | null = null;
+    let bestScore = 0;
+    actors.forEach((a) => {
+      if (usedActors.has(a)) return;
+      const score = similarity(main, a);
+      if (score > 0 && score > bestScore) {
+        bestActor = a;
+        bestScore = score;
+      }
+    });
+    if (bestActor) usedActors.add(bestActor);
+    return { main, actor: bestActor ?? undefined };
+  });
+
+  // Atores não pareados viram "main" (sem actor) para o usuário decidir
+  actors.forEach((a) => {
+    if (!usedActors.has(a)) pairs.push({ main: a });
+  });
+
+  return pairs;
+}
+
 function ImportPdfPage() {
   const nav = useNavigate();
   const parsePdf = useServerFn(importStationsFromPdf);
@@ -65,15 +129,19 @@ function ImportPdfPage() {
       toast.error("Selecione PDFs válidos");
       return;
     }
+    const pairs = pairFiles(arr);
     setJobs((prev) => [
       ...prev,
-      ...arr.map((file) => ({
-        id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        file,
+      ...pairs.map(({ main, actor }) => ({
+        id: `${main.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        file: main,
+        actorFile: actor,
         status: "pending" as FileStatus,
         stations: [],
       })),
     ]);
+    const paired = pairs.filter((p) => p.actor).length;
+    if (paired > 0) toast.success(`${paired} PDF(s) pareado(s) com orientações do ator automaticamente`);
   }
 
   async function processAll() {
@@ -107,11 +175,30 @@ function ImportPdfPage() {
     setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "reading", error: undefined } : j)));
     try {
       if (file.size > 22 * 1024 * 1024) throw new Error("PDF maior que 22 MB.");
+      // pega o actorFile atual da fila (pode ter sido removido manualmente)
+      let actorFile: File | undefined;
+      setJobs((prev) => {
+        const j = prev.find((x) => x.id === jobId);
+        actorFile = j?.actorFile;
+        return prev;
+      });
+      await new Promise((r) => setTimeout(r, 0));
+      if (actorFile && actorFile.size > 22 * 1024 * 1024) {
+        throw new Error("PDF de orientações do ator maior que 22 MB.");
+      }
 
       const dataUrl = await fileToDataUrl(file);
+      const actorDataUrl = actorFile ? await fileToDataUrl(actorFile) : undefined;
       setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "extracting" } : j)));
 
-      const res = await parsePdf({ data: { filename: file.name, dataUrl } });
+      const res = await parsePdf({
+        data: {
+          filename: file.name,
+          dataUrl,
+          actorFilename: actorFile?.name,
+          actorDataUrl,
+        },
+      });
       setJobs((prev) =>
         prev.map((j) =>
           j.id === jobId
@@ -120,6 +207,7 @@ function ImportPdfPage() {
                 status: "done",
                 pages: res.pages,
                 truncated: res.truncated,
+                actorInfo: res.actor,
                 stations: res.stations.map((s) => ({ ...s, _selected: true })),
               }
             : j,
@@ -144,6 +232,14 @@ function ImportPdfPage() {
 
   function removeJob(jobId: string) {
     setJobs((prev) => prev.filter((j) => j.id !== jobId));
+  }
+
+  function removeActor(jobId: string) {
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, actorFile: undefined } : j)));
+  }
+
+  function attachActor(jobId: string, file: File) {
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, actorFile: file } : j)));
   }
 
   const allSelected = jobs.flatMap((j) => j.stations.filter((s) => s._selected));
@@ -218,6 +314,8 @@ function ImportPdfPage() {
               key={job.id}
               job={job}
               onRemove={() => removeJob(job.id)}
+              onRemoveActor={() => removeActor(job.id)}
+              onAttachActor={(f) => attachActor(job.id, f)}
               onUpdateStation={(idx, patch) => updateStation(job.id, idx, patch)}
               onRetry={() => processOne(job.id, job.file)}
             />
@@ -246,11 +344,13 @@ function StatusBadge({ status }: { status: FileStatus }) {
 interface PdfJobCardProps {
   job: PdfJob;
   onRemove: () => void;
+  onRemoveActor: () => void;
+  onAttachActor: (file: File) => void;
   onUpdateStation: (idx: number, patch: Partial<ImportedStation & { _selected: boolean }>) => void;
   onRetry: () => void;
 }
 
-function PdfJobCard({ job, onRemove, onUpdateStation, onRetry }: PdfJobCardProps) {
+function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStation, onRetry }: PdfJobCardProps) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex flex-wrap items-center gap-3">
@@ -269,6 +369,42 @@ function PdfJobCard({ job, onRemove, onUpdateStation, onRetry }: PdfJobCardProps
           <Button variant="outline" size="sm" onClick={onRetry}>Tentar novamente</Button>
         )}
         <Button variant="ghost" size="icon" onClick={onRemove}><Trash2 className="h-4 w-4" /></Button>
+      </div>
+
+      {/* Pareamento com PDF de orientações do ator */}
+      <div className="mt-3 rounded-lg border border-dashed border-border bg-muted/20 p-3">
+        {job.actorFile ? (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <UserSquare2 className="h-4 w-4 text-mint" />
+            <span className="font-medium">Orientações do ator:</span>
+            <span className="text-muted-foreground">{job.actorFile.name}</span>
+            {job.actorInfo && (
+              <Badge variant="outline" className="ml-1">
+                {job.actorInfo.matched}/{job.stations.length} casadas
+              </Badge>
+            )}
+            {job.status === "pending" || job.status === "error" ? (
+              <Button variant="ghost" size="icon" className="ml-auto h-7 w-7" onClick={onRemoveActor}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            ) : null}
+          </div>
+        ) : (
+          <label className="flex cursor-pointer flex-wrap items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            <UserSquare2 className="h-4 w-4" />
+            <span>Anexar PDF de orientações do ator/atriz (opcional)</span>
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onAttachActor(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        )}
       </div>
 
       {job.error && (

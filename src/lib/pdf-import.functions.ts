@@ -195,6 +195,8 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     z.object({
       filename: z.string().min(1).max(255),
       dataUrl: z.string().min(20).max(25_000_000),
+      actorFilename: z.string().min(1).max(255).optional(),
+      actorDataUrl: z.string().min(20).max(25_000_000).optional(),
     }).parse,
   )
   .handler(async ({ data, context }) => {
@@ -223,14 +225,77 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
       }
     }
 
+    // ───── Merge do PDF de orientações do ator (opcional) ─────
+    let actorPages = 0;
+    let actorMatched = 0;
+    let actorSegments = 0;
+    if (data.actorDataUrl) {
+      try {
+        const actorExtract = await extractPdfText(data.actorDataUrl);
+        actorPages = actorExtract.pages;
+        const segments = splitActorByStation(actorExtract.text);
+        actorSegments = segments.length;
+        // Casa por número: estação N do principal recebe segmento de número N.
+        // Fallback: se não houver números explícitos, casa pela ordem sequencial.
+        const byNumber = new Map<number, string>();
+        segments.forEach((seg) => {
+          if (seg.number != null) byNumber.set(seg.number, seg.text);
+        });
+        result.stations = result.stations.map((st, idx) => {
+          const n = extractStationNumber(st.title);
+          let actorText: string | null = null;
+          if (n != null && byNumber.has(n)) actorText = byNumber.get(n) ?? null;
+          else if (segments[idx]) actorText = segments[idx].text;
+          if (actorText && actorText.trim().length > 0) {
+            actorMatched++;
+            return { ...st, patient_script: actorText.trim() };
+          }
+          return st;
+        });
+      } catch (e) {
+        console.error("[pdf-import] actor merge failed", e);
+      }
+    }
+
     return {
       filename: data.filename,
       pages,
       textLength: text.length,
       truncated: text.length > MAX,
       stations: result.stations,
+      actor: data.actorDataUrl
+        ? { filename: data.actorFilename ?? null, pages: actorPages, segments: actorSegments, matched: actorMatched }
+        : null,
     };
   });
+
+// ─────────── Helpers para parsear PDF de orientações do ator ───────────
+function splitActorByStation(raw: string): { number: number | null; text: string }[] {
+  if (!raw || raw.trim().length === 0) return [];
+  // Regex captura cabeçalhos tipo "Estação 1", "ESTAÇÃO 02", "Estacao 3", etc.
+  const re = /(^|\n)\s*(?:esta[çc][ãa]o|estacao)\s*(\d{1,3})\b[^\n]*/gi;
+  const matches: { index: number; number: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) !== null) {
+    matches.push({ index: m.index + (m[1] ? m[1].length : 0), number: parseInt(m[2], 10) });
+  }
+  if (matches.length === 0) {
+    // Sem marcador — retorna tudo como um único bloco
+    return [{ number: null, text: raw }];
+  }
+  const out: { number: number | null; text: string }[] = [];
+  for (let i = 0; i < matches.length; i++) {
+    const start = matches[i].index;
+    const end = i + 1 < matches.length ? matches[i + 1].index : raw.length;
+    out.push({ number: matches[i].number, text: raw.slice(start, end) });
+  }
+  return out;
+}
+
+function extractStationNumber(title: string): number | null {
+  const m = title.match(/esta[çc][ãa]o\s*(\d{1,3})/i);
+  return m ? parseInt(m[1], 10) : null;
+}
 
 // ─────────── Bulk insert das estações revisadas ───────────
 export const bulkCreateStations = createServerFn({ method: "POST" })
