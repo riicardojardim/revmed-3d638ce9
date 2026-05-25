@@ -39,11 +39,13 @@ export const getLivekitToken = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const url = process.env.LIVEKIT_URL;
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
+    // Busca config do provedor ativo em live_video (fallback para env vars)
+    const provider = await getActiveProvider("live_video");
+    const url = provider?.api_url ?? process.env.LIVEKIT_URL;
+    const apiKey = provider?.api_key ?? process.env.LIVEKIT_API_KEY;
+    const apiSecret = provider?.api_secret ?? process.env.LIVEKIT_API_SECRET;
     if (!url || !apiKey || !apiSecret) {
-      throw new Error("LiveKit não está configurado");
+      throw new Error("LiveKit não está configurado. Vá em Admin > Provedores e ative o LiveKit com API Key, API Secret e URL.");
     }
 
     const { data: room, error: roomErr } = await context.supabase
