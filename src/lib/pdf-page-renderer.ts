@@ -24,6 +24,18 @@ const SCALE = 2.0; // ~144 DPI — equilíbrio entre fidelidade e tamanho
 const JPEG_QUALITY = 0.72;
 const UPLOAD_CONCURRENCY = 4;
 
+function sanitizeStorageSegment(value: string): string {
+  const normalized = value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-_.]+|[-_.]+$/g, "");
+
+  return normalized || `job-${Date.now()}`;
+}
+
 async function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -44,6 +56,7 @@ export async function renderAndUploadPdf(
   variant: "main" | "actor",
   onProgress?: (p: RenderProgress) => void,
 ): Promise<string[]> {
+  const safeJobId = sanitizeStorageSegment(jobId);
   const pdfjs = await loadPdfjs();
   const buf = await file.arrayBuffer();
   const doc = await pdfjs.getDocument({ data: new Uint8Array(buf) }).promise;
@@ -78,7 +91,7 @@ export async function renderAndUploadPdf(
     while (queue.length) {
       const i = queue.shift();
       if (i === undefined) break;
-      const path = `${jobId}/${variant}/${String(i + 1).padStart(3, "0")}.jpg`;
+      const path = `${safeJobId}/${variant}/${String(i + 1).padStart(3, "0")}.jpg`;
       const { error } = await supabase.storage.from("pdf-pages").upload(path, blobs[i], {
         contentType: "image/jpeg",
         upsert: true,
