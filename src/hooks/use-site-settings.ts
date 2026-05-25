@@ -36,40 +36,87 @@ export type SiteSettings = {
   footer_description: string | null;
 };
 
-let cache: SiteSettings | null = null;
-const listeners = new Set<(s: SiteSettings | null) => void>();
+type SiteSettingsScope = "public" | "admin";
 
-export function useSiteSettings() {
-  const [settings, setSettings] = useState<SiteSettings | null>(cache);
-  const [loading, setLoading] = useState(!cache);
+const caches: Record<SiteSettingsScope, SiteSettings | null> = {
+  public: null,
+  admin: null,
+};
 
-  useEffect(() => {
-    const fn = (s: SiteSettings | null) => setSettings(s);
-    listeners.add(fn);
-    if (!cache) {
-      void (async () => {
-        const { data } = await (supabase as any).from("site_settings_public").select("*").limit(1).maybeSingle();
-        if (data) {
-          cache = {
-            ...data,
-            colors: (data.colors as Record<string, string>) ?? {},
-          } as SiteSettings;
-          listeners.forEach((l) => l(cache));
-        }
-        setLoading(false);
-      })();
-    }
-    return () => { listeners.delete(fn); };
-  }, []);
+const listeners: Record<SiteSettingsScope, Set<(s: SiteSettings | null) => void>> = {
+  public: new Set(),
+  admin: new Set(),
+};
 
-  return { settings, loading, refresh: refreshSiteSettings };
+function normalizeSiteSettings(data: unknown): SiteSettings {
+  const value = (data ?? {}) as Record<string, unknown>;
+
+  return {
+    ...value,
+    colors: (value.colors as Record<string, string>) ?? {},
+  } as SiteSettings;
 }
 
-export async function refreshSiteSettings() {
-  const { data } = await (supabase as any).from("site_settings_public").select("*").limit(1).maybeSingle();
-  if (data) {
-    cache = { ...data, colors: (data.colors as Record<string, string>) ?? {} } as SiteSettings;
-    listeners.forEach((l) => l(cache));
+async function fetchSiteSettings(scope: SiteSettingsScope) {
+  const table = scope === "admin" ? "site_settings" : "site_settings_public";
+  const { data, error } = await (supabase as any).from(table).select("*").limit(1).maybeSingle();
+
+  if (error) throw error;
+  return data ? normalizeSiteSettings(data) : null;
+}
+
+function publishSiteSettings(scope: SiteSettingsScope, settings: SiteSettings | null) {
+  caches[scope] = settings;
+  listeners[scope].forEach((listener) => listener(settings));
+}
+
+export function useSiteSettings(options?: { scope?: SiteSettingsScope }) {
+  const scope = options?.scope ?? "public";
+  const [settings, setSettings] = useState<SiteSettings | null>(caches[scope]);
+  const [loading, setLoading] = useState(!caches[scope]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fn = (value: SiteSettings | null) => setSettings(value);
+    listeners[scope].add(fn);
+
+    if (caches[scope]) {
+      setLoading(false);
+      return () => {
+        listeners[scope].delete(fn);
+      };
+    }
+
+    void (async () => {
+      try {
+        const data = await fetchSiteSettings(scope);
+        publishSiteSettings(scope, data);
+        setSettings(data);
+        setError(null);
+      } catch (err) {
+        console.error(`Erro ao carregar configurações (${scope})`, err);
+        setSettings(null);
+        setError(err instanceof Error ? err.message : "Falha ao carregar configurações.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      listeners[scope].delete(fn);
+    };
+  }, [scope]);
+
+  return { settings, loading, error, refresh: () => refreshSiteSettings(scope) };
+}
+
+export async function refreshSiteSettings(scope: SiteSettingsScope = "public") {
+  try {
+    const data = await fetchSiteSettings(scope);
+    publishSiteSettings(scope, data);
+    return data;
+  } catch (err) {
+    console.error(`Erro ao atualizar configurações (${scope})`, err);
+    return caches[scope];
   }
-  return cache;
 }
