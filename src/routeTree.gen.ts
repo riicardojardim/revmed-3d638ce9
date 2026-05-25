@@ -74,6 +74,7 @@ import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.profes
 import { Route as AppAdminResumosIdRouteImport } from './routes/app.admin.resumos.$id'
 import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
+import { Route as ApiPublicWebhooksPaymentSplatRouteImport } from './routes/api/public/webhooks/payment/$'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -401,6 +402,12 @@ const AppAdminEstacoesIdRoute = AppAdminEstacoesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
+const ApiPublicWebhooksPaymentSplatRoute =
+  ApiPublicWebhooksPaymentSplatRouteImport.update({
+    id: '/api/public/webhooks/payment/$',
+    path: '/api/public/webhooks/payment/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -468,6 +475,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
   '/app/sala/$code/': typeof AppSalaCodeIndexRoute
+  '/api/public/webhooks/payment/$': typeof ApiPublicWebhooksPaymentSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -528,6 +536,7 @@ export interface FileRoutesByTo {
   '/app/admin/flashcards': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos': typeof AppAdminResumosIndexRoute
   '/app/sala/$code': typeof AppSalaCodeIndexRoute
+  '/api/public/webhooks/payment/$': typeof ApiPublicWebhooksPaymentSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -596,6 +605,7 @@ export interface FileRoutesById {
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
   '/app/sala/$code/': typeof AppSalaCodeIndexRoute
+  '/api/public/webhooks/payment/$': typeof ApiPublicWebhooksPaymentSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -665,6 +675,7 @@ export interface FileRouteTypes {
     | '/app/admin/flashcards/'
     | '/app/admin/resumos/'
     | '/app/sala/$code/'
+    | '/api/public/webhooks/payment/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -725,6 +736,7 @@ export interface FileRouteTypes {
     | '/app/admin/flashcards'
     | '/app/admin/resumos'
     | '/app/sala/$code'
+    | '/api/public/webhooks/payment/$'
   id:
     | '__root__'
     | '/'
@@ -792,6 +804,7 @@ export interface FileRouteTypes {
     | '/app/admin/flashcards/'
     | '/app/admin/resumos/'
     | '/app/sala/$code/'
+    | '/api/public/webhooks/payment/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -805,6 +818,7 @@ export interface RootRouteChildren {
   ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  ApiPublicWebhooksPaymentSplatRoute: typeof ApiPublicWebhooksPaymentSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1264,6 +1278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminEstacoesIdRouteImport
       parentRoute: typeof AppAdminEstacoesRoute
     }
+    '/api/public/webhooks/payment/$': {
+      id: '/api/public/webhooks/payment/$'
+      path: '/api/public/webhooks/payment/$'
+      fullPath: '/api/public/webhooks/payment/$'
+      preLoaderRoute: typeof ApiPublicWebhooksPaymentSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1494,6 +1515,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  ApiPublicWebhooksPaymentSplatRoute: ApiPublicWebhooksPaymentSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
