@@ -226,6 +226,16 @@ async function extractStationsViaVision(
     const m = content.match(/\{[\s\S]*\}/);
     parsed = m ? JSON.parse(m[0]) : {};
   }
+  // Gemini às vezes retorna direto o array de estações em vez de { stations: [...] }
+  if (Array.isArray(parsed)) parsed = { stations: parsed };
+  else if (parsed && typeof parsed === "object") {
+    const obj = parsed as Record<string, unknown>;
+    if (!Array.isArray(obj.stations)) {
+      // tenta achar a primeira chave que seja array de objetos
+      const arrKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
+      if (arrKey) parsed = { stations: obj[arrKey] };
+    }
+  }
   return StationsResultSchema.parse(parsed);
 }
 
