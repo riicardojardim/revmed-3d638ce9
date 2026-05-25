@@ -756,6 +756,51 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_settings: {
+        Row: {
+          api_key: string | null
+          api_url: string | null
+          category: string
+          created_at: string
+          extra: Json
+          id: string
+          is_active: boolean
+          provider_key: string
+          provider_label: string
+          updated_at: string
+          webhook_secret: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          api_url?: string | null
+          category: string
+          created_at?: string
+          extra?: Json
+          id?: string
+          is_active?: boolean
+          provider_key: string
+          provider_label: string
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          api_url?: string | null
+          category?: string
+          created_at?: string
+          extra?: Json
+          id?: string
+          is_active?: boolean
+          provider_key?: string
+          provider_label?: string
+          updated_at?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       room_evaluations: {
         Row: {
           candidate_id: string | null
