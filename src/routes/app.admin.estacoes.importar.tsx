@@ -93,14 +93,18 @@ function pairFiles(files: File[]): { main: File; actor?: File }[] {
 
   const usedActors = new Set<File>();
   const pairs: { main: File; actor?: File }[] = mains.map((main) => {
-    let best: { actor: File; score: number } | null = null;
+    let bestActor: File | null = null;
+    let bestScore = 0;
     actors.forEach((a) => {
       if (usedActors.has(a)) return;
       const score = similarity(main, a);
-      if (score > 0 && (!best || score > best.score)) best = { actor: a, score };
+      if (score > 0 && score > bestScore) {
+        bestActor = a;
+        bestScore = score;
+      }
     });
-    if (best) usedActors.add(best.actor);
-    return { main, actor: best?.actor };
+    if (bestActor) usedActors.add(bestActor);
+    return { main, actor: bestActor ?? undefined };
   });
 
   // Atores não pareados viram "main" (sem actor) para o usuário decidir
