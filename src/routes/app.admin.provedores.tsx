@@ -85,6 +85,7 @@ function AdminProviders() {
       .from("provider_settings")
       .update({
         api_key: row.api_key,
+        api_secret: row.api_secret,
         api_url: row.api_url,
         webhook_secret: row.webhook_secret,
         webhook_url: row.webhook_url,
