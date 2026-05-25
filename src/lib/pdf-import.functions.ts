@@ -100,30 +100,54 @@ Schema esperado:
   }]
 }`;
 
-async function extractPdfText(base64: string): Promise<{ text: string; pages: number }> {
-  // Strip data URI prefix
-  const clean = base64.includes(",") ? base64.split(",")[1] : base64;
-  const bin = Uint8Array.from(atob(clean), (c) => c.charCodeAt(0));
-  const { extractText, getDocumentProxy } = await import("unpdf");
-  const pdf = await getDocumentProxy(bin);
-  const { text, totalPages } = await extractText(pdf, { mergePages: true });
-  return {
-    text: Array.isArray(text) ? text.join("\n\n") : text,
-    pages: totalPages,
-  };
+async function signPagePaths(paths: string[]): Promise<string[]> {
+  if (paths.length === 0) return [];
+  const { data, error } = await supabaseAdmin.storage
+    .from("pdf-pages")
+    .createSignedUrls(paths, 60 * 60);
+  if (error) throw new Error(`Falha ao gerar URLs assinadas: ${error.message}`);
+  const urls = (data ?? []).map((d) => d.signedUrl).filter((u): u is string => Boolean(u));
+  if (urls.length !== paths.length) {
+    throw new Error("Algumas páginas não puderam ser assinadas no Storage.");
+  }
+  return urls;
 }
 
-async function callAiExtract(
+async function deletePagePaths(paths: string[]): Promise<void> {
+  if (paths.length === 0) return;
+  try {
+    await supabaseAdmin.storage.from("pdf-pages").remove(paths);
+  } catch (e) {
+    console.error("[pdf-import] cleanup failed", e);
+  }
+}
+
+async function callGemini(
   apiKey: string,
-  rawText: string,
   model: string,
-  timeoutMs: number,
-  userId: string,
-): Promise<z.infer<typeof StationsResultSchema>> {
+  systemPrompt: string,
+  userText: string,
+  imageUrls: string[],
+  options: { jsonMode: boolean; timeoutMs: number; userId: string; kind: "station" | "transcript" },
+): Promise<{ content: string; usage: unknown }> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), options.timeoutMs);
   const start = Date.now();
   let res: Response;
+  const body: Record<string, unknown> = {
+    model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: [
+          { type: "text", text: userText },
+          ...imageUrls.map((url) => ({ type: "image_url", image_url: { url } })),
+        ],
+      },
+    ],
+  };
+  if (options.jsonMode) body.response_format = { type: "json_object" };
   try {
     res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -131,17 +155,7 @@ async function callAiExtract(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: `Extraia TODAS as estações clínicas presentes no texto abaixo. Retorne SOMENTE JSON conforme o schema, copiando o texto LITERALMENTE.\n\n=== TEXTO BRUTO DO PDF ===\n${rawText}\n=== FIM DO TEXTO ===`,
-          },
-        ],
-        response_format: { type: "json_object" },
-      }),
+      body: JSON.stringify(body),
       signal: controller.signal,
     });
   } finally {
@@ -151,9 +165,9 @@ async function callAiExtract(
   if (!res.ok) {
     const txt = await res.text();
     await logAiUsage({
-      kind: "station",
+      kind: options.kind,
       model,
-      userId,
+      userId: options.userId,
       status: "error",
       errorMessage: `HTTP ${res.status}: ${txt.slice(0, 200)}`,
       durationMs: Date.now() - start,
@@ -168,19 +182,46 @@ async function callAiExtract(
     usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
   };
   await logAiUsage({
-    kind: "station",
+    kind: options.kind,
     model,
-    userId,
+    userId: options.userId,
     usage: json.usage ?? null,
     durationMs: Date.now() - start,
   });
   if (json.choices?.[0]?.finish_reason === "length") {
-    throw new Error("Resposta da IA foi truncada (PDF muito grande). Tente dividi-lo.");
+    throw new Error("Resposta da IA foi truncada (PDF muito grande).");
   }
-  const content = json.choices?.[0]?.message?.content ?? "{}";
+  return { content: json.choices?.[0]?.message?.content ?? "", usage: json.usage ?? null };
+}
+
+async function extractStationsViaVision(
+  apiKey: string,
+  imageUrls: string[],
+  userId: string,
+): Promise<z.infer<typeof StationsResultSchema>> {
+  const userText =
+    "Você está vendo TODAS as páginas escaneadas de um PDF de checklists clínicos, em ordem. Aplique a REGRA DE OURO e o schema. Retorne SOMENTE JSON.";
+  let content: string;
+  try {
+    ({ content } = await callGemini(apiKey, "google/gemini-2.5-pro", SYSTEM_PROMPT, userText, imageUrls, {
+      jsonMode: true,
+      timeoutMs: 300_000,
+      userId,
+      kind: "station",
+    }));
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!/abort|timeout|504|502/i.test(msg)) throw err;
+    ({ content } = await callGemini(apiKey, "google/gemini-2.5-flash", SYSTEM_PROMPT, userText, imageUrls, {
+      jsonMode: true,
+      timeoutMs: 240_000,
+      userId,
+      kind: "station",
+    }));
+  }
   let parsed: unknown;
   try {
-    parsed = JSON.parse(content);
+    parsed = JSON.parse(content || "{}");
   } catch {
     const m = content.match(/\{[\s\S]*\}/);
     parsed = m ? JSON.parse(m[0]) : {};
@@ -188,15 +229,34 @@ async function callAiExtract(
   return StationsResultSchema.parse(parsed);
 }
 
-// ─────────── Parse de UM PDF: extrai texto + chama IA ───────────
+const TRANSCRIBE_PROMPT = `Você TRANSCREVE LITERALMENTE o texto de páginas escaneadas de um PDF. Regras inegociáveis:
+- Copie o texto EXATAMENTE como aparece, palavra por palavra, pontuação por pontuação.
+- NUNCA parafraseie, NUNCA resuma, NUNCA corrija, NUNCA traduza, NUNCA invente.
+- Preserve quebras de linha, listas, numeração, símbolos.
+- Mantenha cabeçalhos visíveis como aparecem (ex.: "Estação 1", "Orientações ao ator").
+- Não adicione comentários, marcações de markdown extras ou notas suas.`;
+
+async function transcribeViaVision(apiKey: string, imageUrls: string[], userId: string): Promise<string> {
+  const userText = "Transcreva LITERALMENTE todo o conteúdo das páginas a seguir, em ordem.";
+  const { content } = await callGemini(apiKey, "google/gemini-2.5-pro", TRANSCRIBE_PROMPT, userText, imageUrls, {
+    jsonMode: false,
+    timeoutMs: 240_000,
+    userId,
+    kind: "transcript",
+  });
+  return content;
+}
+
+// ─────────── Parse de UM PDF a partir das páginas no Storage ───────────
 export const importStationsFromPdf = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
     z.object({
       filename: z.string().min(1).max(255),
-      dataUrl: z.string().min(20).max(200_000_000),
+      pagePaths: z.array(z.string().min(1).max(500)).min(1).max(400),
       actorFilename: z.string().min(1).max(255).optional(),
-      actorDataUrl: z.string().min(20).max(200_000_000).optional(),
+      actorPagePaths: z.array(z.string().min(1).max(500)).max(400).optional(),
+      cleanup: z.boolean().default(true),
     }).parse,
   )
   .handler(async ({ data, context }) => {
@@ -204,51 +264,32 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    const { text, pages } = await extractPdfText(data.dataUrl);
-    if (!text || text.trim().length < 50) {
-      throw new Error("Não foi possível extrair texto do PDF (talvez seja escaneado/imagem).");
-    }
-
-    // Trunca textos absurdamente grandes para caber no contexto
-    const MAX = 200_000;
-    const truncated = text.length > MAX ? text.slice(0, MAX) : text;
-
-    let result: z.infer<typeof StationsResultSchema>;
-    try {
-      result = await callAiExtract(apiKey, truncated, "google/gemini-2.5-pro", 180_000, context.userId);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (/abort|timeout|504|502/i.test(msg)) {
-        result = await callAiExtract(apiKey, truncated, "google/gemini-2.5-flash", 120_000, context.userId);
-      } else {
-        throw err;
-      }
-    }
+    const mainUrls = await signPagePaths(data.pagePaths);
+    const result = await extractStationsViaVision(apiKey, mainUrls, context.userId);
 
     // ───── Merge do PDF de orientações do ator (opcional) ─────
     let actorPages = 0;
     let actorMatched = 0;
     let actorSegments = 0;
-    if (data.actorDataUrl) {
+    if (data.actorPagePaths && data.actorPagePaths.length > 0) {
       try {
-        const actorExtract = await extractPdfText(data.actorDataUrl);
-        actorPages = actorExtract.pages;
-        const segments = splitActorByStation(actorExtract.text);
+        actorPages = data.actorPagePaths.length;
+        const actorUrls = await signPagePaths(data.actorPagePaths);
+        const actorText = await transcribeViaVision(apiKey, actorUrls, context.userId);
+        const segments = splitActorByStation(actorText);
         actorSegments = segments.length;
-        // Casa por número: estação N do principal recebe segmento de número N.
-        // Fallback: se não houver números explícitos, casa pela ordem sequencial.
         const byNumber = new Map<number, string>();
         segments.forEach((seg) => {
           if (seg.number != null) byNumber.set(seg.number, seg.text);
         });
         result.stations = result.stations.map((st, idx) => {
           const n = extractStationNumber(st.title);
-          let actorText: string | null = null;
-          if (n != null && byNumber.has(n)) actorText = byNumber.get(n) ?? null;
-          else if (segments[idx]) actorText = segments[idx].text;
-          if (actorText && actorText.trim().length > 0) {
+          let txt: string | null = null;
+          if (n != null && byNumber.has(n)) txt = byNumber.get(n) ?? null;
+          else if (segments[idx]) txt = segments[idx].text;
+          if (txt && txt.trim().length > 0) {
             actorMatched++;
-            return { ...st, patient_script: actorText.trim() };
+            return { ...st, patient_script: txt.trim() };
           }
           return st;
         });
@@ -257,15 +298,20 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
       }
     }
 
+    if (data.cleanup) {
+      await deletePagePaths([...(data.pagePaths ?? []), ...(data.actorPagePaths ?? [])]);
+    }
+
     return {
       filename: data.filename,
-      pages,
-      textLength: text.length,
-      truncated: text.length > MAX,
+      pages: data.pagePaths.length,
+      textLength: 0,
+      truncated: false,
       stations: result.stations,
-      actor: data.actorDataUrl
-        ? { filename: data.actorFilename ?? null, pages: actorPages, segments: actorSegments, matched: actorMatched }
-        : null,
+      actor:
+        data.actorPagePaths && data.actorPagePaths.length > 0
+          ? { filename: data.actorFilename ?? null, pages: actorPages, segments: actorSegments, matched: actorMatched }
+          : null,
     };
   });
 
