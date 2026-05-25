@@ -23,6 +23,7 @@ interface ProviderRow {
   provider_label: string;
   is_active: boolean;
   api_key: string | null;
+  api_secret: string | null;
   api_url: string | null;
   webhook_secret: string | null;
   webhook_url: string | null;
