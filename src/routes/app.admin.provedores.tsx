@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CreditCard, Video, Upload, Loader2, KeyRound, Copy, Check } from "lucide-react";
+import { CreditCard, Video, Upload, Loader2, KeyRound, Copy, Check, BookOpen } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export const Route = createFileRoute("/app/admin/provedores")({
   component: AdminProviders,
@@ -53,11 +54,126 @@ const CATEGORIES: { key: Category; label: string; icon: typeof CreditCard; descr
   },
 ];
 
+// Passo-a-passo de configuração por provedor.
+// As chaves correspondem a `provider_key` no banco.
+const PROVIDER_GUIDES: Record<string, { docsUrl?: string; steps: string[]; extraExample?: string }> = {
+  mercado_pago: {
+    docsUrl: "https://www.mercadopago.com.br/developers/pt/docs",
+    steps: [
+      "Acesse mercadopago.com.br/developers e faça login.",
+      "Vá em 'Suas integrações' → 'Criar aplicação' (tipo: Pagamentos online).",
+      "Em 'Credenciais de produção', copie o Access Token e cole no campo API Key acima.",
+      "Em 'Webhooks', adicione um novo webhook colando a URL de Webhook gerada abaixo. Eventos: payment.",
+      "Copie a 'Chave secreta' do webhook e cole no campo Webhook Secret.",
+      "No campo Extra (JSON) coloque: {\"checkout_url\":\"https://link.mercadopago.com.br/SEUUSUARIO\"} — link do produto/assinatura.",
+      "Ative o provedor no botão acima e teste com uma compra real em modo de produção.",
+    ],
+    extraExample: '{"checkout_url":"https://link.mercadopago.com.br/seuusuario"}',
+  },
+  hotmart: {
+    docsUrl: "https://developers.hotmart.com/",
+    steps: [
+      "Entre na sua conta Hotmart e acesse 'Ferramentas' → 'Hotmart Webhook'.",
+      "Cadastre uma nova integração colando a URL de Webhook abaixo. Marque os eventos: PURCHASE_APPROVED, PURCHASE_CANCELED, PURCHASE_REFUNDED.",
+      "Copie o 'HotTok' (token de segurança) e cole no campo Webhook Secret.",
+      "Em 'Ferramentas' → 'API Hotmart', gere uma credencial e cole o Client Secret no campo API Key.",
+      "Pegue o ID do produto em 'Produtos' → seu produto → 'Configurações'. Cole no Extra (JSON) como product_id.",
+      "No campo Extra (JSON) coloque: {\"product_id\":\"SEU_ID\",\"checkout_base_url\":\"https://pay.hotmart.com/SEU_ID\"}.",
+      "Ative o provedor e teste com uma compra de teste.",
+    ],
+    extraExample: '{"product_id":"X1234567Y","checkout_base_url":"https://pay.hotmart.com/X1234567Y"}',
+  },
+  stripe: {
+    docsUrl: "https://stripe.com/docs",
+    steps: [
+      "Acesse dashboard.stripe.com e copie a 'Secret key' (sk_live_... ou sk_test_...) em 'Developers' → 'API keys'. Cole no campo API Key.",
+      "Crie um produto e preço em 'Products'. Copie o price_id (price_xxx).",
+      "Crie um Payment Link em 'Payment Links' usando esse preço. Copie a URL.",
+      "Em 'Developers' → 'Webhooks' adicione um endpoint com a URL de Webhook abaixo. Eventos: checkout.session.completed, invoice.paid, customer.subscription.deleted.",
+      "Copie o 'Signing secret' (whsec_...) e cole no campo Webhook Secret.",
+      "No campo Extra (JSON) coloque: {\"price_id\":\"price_xxx\",\"checkout_base_url\":\"https://buy.stripe.com/SEU_LINK\"}.",
+      "Ative o provedor e teste com cartão de teste 4242 4242 4242 4242.",
+    ],
+    extraExample: '{"price_id":"price_1AbcDef","checkout_base_url":"https://buy.stripe.com/test_xxx"}',
+  },
+  herospark: {
+    docsUrl: "https://herospark.com/ajuda",
+    steps: [
+      "Entre na Herospark e acesse 'Configurações' → 'Integrações' → 'API e Webhooks'.",
+      "Clique em 'Nova Integração via Webhook' e cole a URL de Webhook gerada abaixo.",
+      "Marque os eventos: Compra Aprovada, Compra Cancelada, Reembolso.",
+      "A Herospark vai gerar um Token de segurança — copie e cole no campo Webhook Secret.",
+      "Em 'Configurações' → 'API', gere uma chave de API e cole no campo API Key.",
+      "No produto que você quer vender, copie a URL do checkout (botão 'Compartilhar' → 'Link de checkout').",
+      "No campo Extra (JSON) coloque: {\"checkout_url\":\"https://pay.herospark.com/SEU-PRODUTO\"}.",
+      "Ative o provedor e faça uma compra de teste para confirmar que o webhook chega e a assinatura é ativada.",
+    ],
+    extraExample: '{"checkout_url":"https://pay.herospark.com/seu-produto-12345"}',
+  },
+  livekit: {
+    docsUrl: "https://docs.livekit.io/home/cloud/keys-and-tokens/",
+    steps: [
+      "Acesse cloud.livekit.io e crie um projeto (ou abra um existente).",
+      "Em 'Settings' → 'Keys', clique em 'Create Key'. Copie o API Key e o API Secret.",
+      "Cole o API Key no campo API Key e o API Secret no campo API Secret acima.",
+      "Em 'Settings' → 'Project', copie a 'WebSocket URL' (wss://seu-projeto.livekit.cloud) e cole no campo URL da API.",
+      "Ative o provedor. As salas ao vivo passarão a usar esta conta automaticamente.",
+    ],
+    extraExample: undefined,
+  },
+  boonstream: {
+    docsUrl: "https://boonstream.com/",
+    steps: [
+      "Crie uma conta em boonstream.com e acesse o painel.",
+      "Em 'API' ou 'Integrações', gere uma chave de API e cole no campo API Key.",
+      "Copie a URL base da API (ex: https://api.boonstream.com) e cole no campo URL da API.",
+      "Ative o provedor. (Integração completa será implementada quando você decidir usar.)",
+    ],
+  },
+  bunny: {
+    docsUrl: "https://docs.bunny.net/reference/bunnynet-api-overview",
+    steps: [
+      "Acesse dash.bunny.net e crie uma 'Stream Video Library'.",
+      "Em 'API' → 'Account API Key', copie a chave e cole no campo API Key.",
+      "Em 'Stream' → sua Library → 'API', copie a 'Library ID' e a 'API Key' da library.",
+      "No campo URL da API coloque: https://video.bunnycdn.com/library/SUA_LIBRARY_ID",
+      "No campo Extra (JSON) coloque: {\"library_id\":\"123456\",\"cdn_hostname\":\"vz-xxxxxxxx.b-cdn.net\"}.",
+      "Ative o provedor para usar como host de vídeos das aulas.",
+    ],
+    extraExample: '{"library_id":"123456","cdn_hostname":"vz-xxxxxxxx.b-cdn.net"}',
+  },
+  cloudflare_stream: {
+    docsUrl: "https://developers.cloudflare.com/stream/",
+    steps: [
+      "Acesse dash.cloudflare.com, vá em 'Stream' e ative o serviço.",
+      "Em 'My Profile' → 'API Tokens', crie um token com permissão 'Stream: Edit'. Cole no campo API Key.",
+      "Copie o Account ID (canto direito do dashboard) e cole no campo Extra (JSON) como account_id.",
+      "No campo URL da API coloque: https://api.cloudflare.com/client/v4/accounts/SEU_ACCOUNT_ID/stream",
+      "Extra (JSON): {\"account_id\":\"SEU_ACCOUNT_ID\",\"customer_subdomain\":\"customer-xxxx.cloudflarestream.com\"}.",
+      "Ative o provedor.",
+    ],
+    extraExample: '{"account_id":"abc123","customer_subdomain":"customer-xxxx.cloudflarestream.com"}',
+  },
+  mux: {
+    docsUrl: "https://docs.mux.com/",
+    steps: [
+      "Acesse dashboard.mux.com e crie um Access Token em 'Settings' → 'Access Tokens'.",
+      "Marque as permissões 'Mux Video' (Read + Write). Copie o Token ID e Token Secret.",
+      "Cole o Token ID no campo API Key e o Token Secret no campo API Secret.",
+      "Em 'Settings' → 'Webhooks', adicione um webhook com a URL gerada abaixo.",
+      "Copie o 'Signing Secret' do webhook e cole no campo Webhook Secret.",
+      "Ative o provedor.",
+    ],
+    extraExample: undefined,
+  },
+};
+
 function AdminProviders() {
   const [rows, setRows] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [openGuide, setOpenGuide] = useState<string | null>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -271,6 +387,51 @@ function AdminProviders() {
                         Salvar
                       </Button>
                     </div>
+
+                    {PROVIDER_GUIDES[row.provider_key] && (
+                      <Collapsible
+                        open={openGuide === row.id}
+                        onOpenChange={(o) => setOpenGuide(o ? row.id : null)}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+                            <BookOpen className="h-4 w-4" />
+                            {openGuide === row.id ? "Ocultar" : "Ver"} passo a passo para configurar {row.provider_label}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-3 space-y-3 rounded-xl bg-muted/30 p-4 text-sm">
+                          <ol className="list-decimal pl-5 space-y-1.5 text-foreground/90">
+                            {PROVIDER_GUIDES[row.provider_key].steps.map((s, i) => (
+                              <li key={i}>{s}</li>
+                            ))}
+                          </ol>
+                          {PROVIDER_GUIDES[row.provider_key].extraExample && (
+                            <div>
+                              <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                                Exemplo do campo Extra (JSON)
+                              </Label>
+                              <code className="block mt-1 rounded-lg bg-background border border-border p-2 font-mono text-[11px] break-all">
+                                {PROVIDER_GUIDES[row.provider_key].extraExample}
+                              </code>
+                              <p className="text-[11px] text-muted-foreground mt-1">
+                                (Este campo ainda não tem editor visual — cole o JSON via SQL ou peça a Lovable
+                                para adicionar editor de Extra.)
+                              </p>
+                            </div>
+                          )}
+                          {PROVIDER_GUIDES[row.provider_key].docsUrl && (
+                            <a
+                              href={PROVIDER_GUIDES[row.provider_key].docsUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-block text-xs text-medical underline"
+                            >
+                              Documentação oficial do {row.provider_label} ↗
+                            </a>
+                          )}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )}
                   </div>
                 );
               })}
