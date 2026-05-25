@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getActiveProvider } from "./provider-settings.server";
 
 /**
  * Regras de áudio/vídeo dentro da sala da estação:
