@@ -66,5 +66,17 @@ export const getCheckoutLink = createServerFn({ method: "POST" })
       return { ok: false, error: "Mercado Pago: configure checkout_url ou preference_url no Extra (JSON) do provedor." };
     }
 
+    if (provider.provider_key === "herospark") {
+      // Herospark: usa URL de checkout direta por produto (página de venda)
+      const checkoutUrl = extra.checkout_url as string | undefined;
+      if (!checkoutUrl) {
+        return { ok: false, error: "Herospark: configure checkout_url no Extra (JSON) do provedor (URL do checkout do produto)." };
+      }
+      const url = new URL(checkoutUrl);
+      url.searchParams.set("email", data.userEmail);
+      url.searchParams.set("name", data.userName);
+      return { ok: true, url: url.toString(), provider: "herospark" };
+    }
+
     return { ok: false, error: `Provedor ${provider.provider_label} não tem integração de checkout automática ainda.` };
   });

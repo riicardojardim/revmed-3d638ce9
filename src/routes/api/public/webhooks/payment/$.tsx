@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
     handlers: {
       POST: async ({ request, params }) => {
         const providerKey = params._splat as string;
-        const allowed = ["mercado_pago", "hotmart", "stripe"];
+        const allowed = ["mercado_pago", "hotmart", "stripe", "herospark"];
         if (!allowed.includes(providerKey)) {
           return new Response("Provedor não suportado", { status: 400 });
         }
@@ -40,6 +40,18 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
               .digest("hex");
             if (!signature || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
               return new Response("Assinatura Hotmart inválida", { status: 401 });
+            }
+          } else if (providerKey === "herospark") {
+            // Herospark envia token via header `x-herospark-token` ou assinatura HMAC
+            const token = request.headers.get("x-herospark-token") || signature;
+            if (!token || token !== provider.webhook_secret) {
+              // fallback HMAC-SHA256
+              const expected = createHmac("sha256", provider.webhook_secret)
+                .update(body)
+                .digest("hex");
+              if (!signature || signature !== expected) {
+                return new Response("Assinatura Herospark inválida", { status: 401 });
+              }
             }
           }
         }
@@ -74,6 +86,15 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
           const paymentStatus = data?.status || payload.type || "";
           status = paymentStatus === "approved" || paymentStatus === "authorized" ? "active" : null;
           planSlug = data?.external_reference ? slugifyPlan(data.external_reference) : null;
+        }
+        else if (providerKey === "herospark") {
+          const data = payload.data || payload;
+          userEmail = data?.buyer?.email || data?.customer?.email || data?.email || null;
+          const eventType = (payload.event || data?.status || "").toString().toLowerCase();
+          status = eventType.includes("approved") || eventType.includes("paid") || eventType.includes("active")
+            ? "active"
+            : eventType.includes("canceled") || eventType.includes("refund") ? "canceled" : null;
+          planSlug = data?.product?.name ? slugifyPlan(data.product.name) : null;
         }
 
         if (!userEmail) {
