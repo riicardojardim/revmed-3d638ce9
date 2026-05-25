@@ -194,9 +194,9 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       filename: z.string().min(1).max(255),
-      dataUrl: z.string().min(20).max(25_000_000),
+      dataUrl: z.string().min(20).max(200_000_000),
       actorFilename: z.string().min(1).max(255).optional(),
-      actorDataUrl: z.string().min(20).max(25_000_000).optional(),
+      actorDataUrl: z.string().min(20).max(200_000_000).optional(),
     }).parse,
   )
   .handler(async ({ data, context }) => {
