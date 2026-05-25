@@ -23,6 +23,7 @@ interface ProviderRow {
   provider_label: string;
   is_active: boolean;
   api_key: string | null;
+  api_secret: string | null;
   api_url: string | null;
   webhook_secret: string | null;
   webhook_url: string | null;
@@ -84,6 +85,7 @@ function AdminProviders() {
       .from("provider_settings")
       .update({
         api_key: row.api_key,
+        api_secret: row.api_secret,
         api_url: row.api_url,
         webhook_secret: row.webhook_secret,
         webhook_url: row.webhook_url,
@@ -203,6 +205,19 @@ function AdminProviders() {
                           placeholder="Cole a chave secreta aqui"
                           className="font-mono text-xs"
                         />
+                      </div>
+                      <div>
+                        <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">API Secret</Label>
+                        <Input
+                          type="password"
+                          value={row.api_secret ?? ""}
+                          onChange={(e) => patchLocal(row.id, { api_secret: e.target.value })}
+                          placeholder="Segredo da API (ex: LiveKit API Secret)"
+                          className="font-mono text-xs"
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          Usado por provedores com par key+secret (ex: LiveKit).
+                        </p>
                       </div>
                       <div>
                         <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">URL da API</Label>
