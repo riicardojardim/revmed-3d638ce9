@@ -174,7 +174,7 @@ function ImportPdfPage() {
   async function processOne(jobId: string, file: File) {
     setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "reading", error: undefined } : j)));
     try {
-      if (file.size > 22 * 1024 * 1024) throw new Error("PDF maior que 22 MB.");
+      if (file.size > 120 * 1024 * 1024) throw new Error("PDF maior que 120 MB.");
       // pega o actorFile atual da fila (pode ter sido removido manualmente)
       let actorFile: File | undefined;
       setJobs((prev) => {
@@ -183,8 +183,8 @@ function ImportPdfPage() {
         return prev;
       });
       await new Promise((r) => setTimeout(r, 0));
-      if (actorFile && actorFile.size > 22 * 1024 * 1024) {
-        throw new Error("PDF de orientações do ator maior que 22 MB.");
+      if (actorFile && actorFile.size > 120 * 1024 * 1024) {
+        throw new Error("PDF de orientações do ator maior que 120 MB.");
       }
 
       const dataUrl = await fileToDataUrl(file);
@@ -293,7 +293,7 @@ function ImportPdfPage() {
         <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/30 p-8 text-center transition hover:bg-muted/50">
           <Upload className="h-8 w-8 text-muted-foreground" />
           <div className="font-medium">Clique ou arraste PDFs aqui</div>
-          <div className="text-xs text-muted-foreground">Máx. 22 MB por arquivo</div>
+          <div className="text-xs text-muted-foreground">Máx. 120 MB por arquivo</div>
           <input
             type="file"
             multiple
