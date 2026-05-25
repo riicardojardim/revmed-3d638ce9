@@ -168,11 +168,25 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
       );
     }
 
+    // Gera link de checkout real via provedor ativo
+    const checkoutRes = await getCheckout({
+      data: {
+        planSlug: plan,
+        userEmail: form.email.trim().toLowerCase(),
+        userName: fullName,
+      },
+    }).catch(() => null);
+
     setSubmitting(false);
-    toast.success("Conta criada!", {
-      description: `Plano ${meta.name} • ${method === "pix" ? "Pix" : "Cartão"}. Em breve liberaremos o checkout.`,
-    });
-    onOpenChange(false);
+
+    if (checkoutRes?.ok && checkoutRes.url) {
+      setCheckoutUrl(checkoutRes.url);
+    } else {
+      toast.success("Conta criada!", {
+        description: `Plano ${meta.name} • ${method === "pix" ? "Pix" : "Cartão"}. ${checkoutRes?.error ?? "Aguarde liberação do pagamento."}`,
+      });
+      onOpenChange(false);
+    }
   }
 
   const inputCls =
