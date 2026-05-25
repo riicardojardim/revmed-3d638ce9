@@ -142,6 +142,7 @@ function AppLayout() {
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
           { to: "/app/admin/pagamentos", label: "Pagamentos", icon: DollarSign },
+          { to: "/app/admin/geral", label: "Geral", icon: Settings2 },
           { to: "/app/admin/aparencia", label: "Aparência", icon: Sparkles },
           { to: "/app/admin/integracoes", label: "Integrações", icon: Activity },
           { to: "/app/perfil", label: "Perfil", icon: User },
