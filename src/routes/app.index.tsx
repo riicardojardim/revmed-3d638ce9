@@ -32,6 +32,12 @@ import {
   type SpecStats,
 } from "@/components/SpecialtyMedals";
 import { useExamSettings } from "@/hooks/use-exam-settings";
+import { DEFAULT_NOTA_DE_CORTE, DEFAULT_EXAM_EDITION } from "@/hooks/use-exam-settings";
+
+// Fallbacks for non-hook contexts (sub-components). Live values come from useExamSettings.
+const NOTA_DE_CORTE = DEFAULT_NOTA_DE_CORTE;
+const NOTA_DE_CORTE_ESCALA10 = DEFAULT_NOTA_DE_CORTE / 10;
+const NOTA_DE_CORTE_EDICAO = DEFAULT_EXAM_EDITION;
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
