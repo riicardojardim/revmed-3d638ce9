@@ -219,7 +219,7 @@ function ImportPdfPage() {
               job={job}
               onRemove={() => removeJob(job.id)}
               onUpdateStation={(idx, patch) => updateStation(job.id, idx, patch)}
-              onRetry={() => processOne(job.id)}
+              onRetry={() => processOne(job.id, job.file)}
             />
           ))}
         </div>
