@@ -52,6 +52,7 @@ import { Route as AppEntrarCodeRouteImport } from './routes/app.entrar.$code'
 import { Route as AppAdminVideoaulasRouteImport } from './routes/app.admin.videoaulas'
 import { Route as AppAdminUsuariosRouteImport } from './routes/app.admin.usuarios'
 import { Route as AppAdminResumosRouteImport } from './routes/app.admin.resumos'
+import { Route as AppAdminProvedoresRouteImport } from './routes/app.admin.provedores'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
 import { Route as AppAdminPagamentosRouteImport } from './routes/app.admin.pagamentos'
 import { Route as AppAdminIntegracoesRouteImport } from './routes/app.admin.integracoes'
@@ -289,6 +290,11 @@ const AppAdminResumosRoute = AppAdminResumosRouteImport.update({
   path: '/resumos',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminProvedoresRoute = AppAdminProvedoresRouteImport.update({
+  id: '/provedores',
+  path: '/provedores',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminPlanosRoute = AppAdminPlanosRouteImport.update({
   id: '/planos',
   path: '/planos',
@@ -430,6 +436,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
+  '/app/admin/provedores': typeof AppAdminProvedoresRoute
   '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
@@ -491,6 +498,7 @@ export interface FileRoutesByTo {
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
+  '/app/admin/provedores': typeof AppAdminProvedoresRoute
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
   '/app/entrar/$code': typeof AppEntrarCodeRoute
@@ -556,6 +564,7 @@ export interface FileRoutesById {
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
+  '/app/admin/provedores': typeof AppAdminProvedoresRoute
   '/app/admin/resumos': typeof AppAdminResumosRouteWithChildren
   '/app/admin/usuarios': typeof AppAdminUsuariosRoute
   '/app/admin/videoaulas': typeof AppAdminVideoaulasRoute
@@ -624,6 +633,7 @@ export interface FileRouteTypes {
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
+    | '/app/admin/provedores'
     | '/app/admin/resumos'
     | '/app/admin/usuarios'
     | '/app/admin/videoaulas'
@@ -685,6 +695,7 @@ export interface FileRouteTypes {
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
+    | '/app/admin/provedores'
     | '/app/admin/usuarios'
     | '/app/admin/videoaulas'
     | '/app/entrar/$code'
@@ -749,6 +760,7 @@ export interface FileRouteTypes {
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
+    | '/app/admin/provedores'
     | '/app/admin/resumos'
     | '/app/admin/usuarios'
     | '/app/admin/videoaulas'
@@ -1098,6 +1110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminResumosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/provedores': {
+      id: '/app/admin/provedores'
+      path: '/provedores'
+      fullPath: '/app/admin/provedores'
+      preLoaderRoute: typeof AppAdminProvedoresRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/planos': {
       id: '/app/admin/planos'
       path: '/planos'
@@ -1297,6 +1316,7 @@ interface AppAdminRouteChildren {
   AppAdminIntegracoesRoute: typeof AppAdminIntegracoesRoute
   AppAdminPagamentosRoute: typeof AppAdminPagamentosRoute
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
+  AppAdminProvedoresRoute: typeof AppAdminProvedoresRoute
   AppAdminResumosRoute: typeof AppAdminResumosRouteWithChildren
   AppAdminUsuariosRoute: typeof AppAdminUsuariosRoute
   AppAdminVideoaulasRoute: typeof AppAdminVideoaulasRoute
@@ -1312,6 +1332,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminIntegracoesRoute: AppAdminIntegracoesRoute,
   AppAdminPagamentosRoute: AppAdminPagamentosRoute,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
+  AppAdminProvedoresRoute: AppAdminProvedoresRoute,
   AppAdminResumosRoute: AppAdminResumosRouteWithChildren,
   AppAdminUsuariosRoute: AppAdminUsuariosRoute,
   AppAdminVideoaulasRoute: AppAdminVideoaulasRoute,
