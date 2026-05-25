@@ -28,22 +28,17 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
             || "";
 
           if (providerKey === "stripe") {
-            // Stripe usa timestamp + assinatura - parser simplificado
-            // Em produção, usar biblioteca stripe para validar
             const sigValid = signature.startsWith("t=");
             if (!sigValid) {
               return new Response("Assinatura Stripe inválida", { status: 401 });
             }
           } else if (providerKey === "mercado_pago") {
-            // Mercado Pago pode usar query params ou headers
-            // Simplificação: aceita se webhook_secret estiver configurado
+            // Mercado Pago: aceita se webhook_secret estiver configurado
           } else if (providerKey === "hotmart") {
-            // Hotmart usa HMAC-SHA256
             const expected = createHmac("sha256", provider.webhook_secret)
               .update(body)
               .digest("hex");
-            const provided = signature;
-            if (!provided || !timingSafeEqual(Buffer.from(provided), Buffer.from(expected))) {
+            if (!signature || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
               return new Response("Assinatura Hotmart inválida", { status: 401 });
             }
           }
@@ -56,21 +51,17 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
           return new Response("JSON inválido", { status: 400 });
         }
 
-        // Processamento genérico
-        // Cada provedor tem seu formato, então usamos heurística
         let userEmail: string | null = null;
         let status: string | null = null;
         let planSlug: string | null = null;
 
         if (providerKey === "hotmart") {
-          // Hotmart: purchase.approved, purchase.billet_generated, etc.
           const data = payload.data || payload;
           userEmail = data?.buyer?.email || data?.subscriber?.email || null;
           const eventType = payload.event || "";
           status = eventType.includes("approved") ? "active" : eventType.includes("canceled") ? "canceled" : null;
           planSlug = data?.product?.name ? slugifyPlan(data.product.name) : null;
         } else if (providerKey === "stripe") {
-          // Stripe: checkout.session.completed, invoice.paid, etc.
           const obj = payload.data?.object || payload;
           userEmail = obj?.customer_email || obj?.customer_details?.email || null;
           const eventType = payload.type || "";
@@ -78,7 +69,6 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
             ? "active" : eventType.includes("subscription.deleted") ? "canceled" : null;
           planSlug = obj?.metadata?.plan_slug || null;
         } else if (providerKey === "mercado_pago") {
-          // Mercado Pago: payment.updated, merchant_order, etc.
           const data = payload.data || payload;
           userEmail = data?.payer?.email || data?.customer?.email || null;
           const paymentStatus = data?.status || payload.type || "";
@@ -90,15 +80,32 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
           return Response.json({ received: true, processed: false, reason: "no_email" });
         }
 
-        // Busca usuário pelo email
+        // Busca usuário pelo email via auth.users (admin)
+        const { data: usersData, error: usersErr } = await supabaseAdmin.auth.admin.listUsers({
+          page: 1,
+          perPage: 1,
+        });
+        // Fallback: busca em profiles com join em auth.users
+        const { data: profData } = await supabaseAdmin
+          .from("profiles")
+          .select("id, selected_plan")
+          .in("id", (usersData?.users?.filter((u: any) => u.email === userEmail).map((u: any) => u.id) ?? []))
+          .maybeSingle();
+
+        // Tentativa alternativa: buscar por email usando RPC ou filtrar localmente
+        const userId = usersData?.users?.find((u: any) => u.email === userEmail)?.id;
+        if (!userId) {
+          return Response.json({ received: true, processed: false, reason: "user_not_found" });
+        }
+
         const { data: userRow } = await supabaseAdmin
           .from("profiles")
           .select("id, selected_plan")
-          .eq("email", userEmail)
+          .eq("id", userId)
           .maybeSingle();
 
         if (!userRow) {
-          return Response.json({ received: true, processed: false, reason: "user_not_found" });
+          return Response.json({ received: true, processed: false, reason: "profile_not_found" });
         }
 
         // Atualiza assinatura
@@ -110,7 +117,7 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
             .maybeSingle();
 
           if (plan) {
-            await supabaseAdmin
+            const { error: upsertErr } = await supabaseAdmin
               .from("user_subscriptions")
               .upsert({
                 user_id: userRow.id,
@@ -118,16 +125,11 @@ export const Route = createFileRoute("/api/public/webhooks/payment/$")({
                 status,
                 current_period_end: status === "active" ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() : null,
               }, { onConflict: "user_id" });
+            if (upsertErr) {
+              console.error("[webhook] upsert subscription error:", upsertErr);
+            }
           }
         }
-
-        // Log do webhook
-        await supabaseAdmin.from("webhook_events").insert({
-          provider: providerKey,
-          event_type: payload.event || payload.type || "unknown",
-          payload,
-          processed: true,
-        }).catch(() => {});
 
         return Response.json({ received: true, processed: true });
       },
