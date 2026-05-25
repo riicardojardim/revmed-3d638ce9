@@ -9,7 +9,7 @@ import logoIconOnlyUrl from "@/assets/logo-revmed-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { FriendsPanel } from "@/components/FriendsPanel";
-import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
+import { useExamSettings } from "@/hooks/use-exam-settings";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
   DropdownMenu,
