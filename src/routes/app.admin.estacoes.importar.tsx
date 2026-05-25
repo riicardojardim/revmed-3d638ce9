@@ -371,6 +371,42 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
         <Button variant="ghost" size="icon" onClick={onRemove}><Trash2 className="h-4 w-4" /></Button>
       </div>
 
+      {/* Pareamento com PDF de orientações do ator */}
+      <div className="mt-3 rounded-lg border border-dashed border-border bg-muted/20 p-3">
+        {job.actorFile ? (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <UserSquare2 className="h-4 w-4 text-mint" />
+            <span className="font-medium">Orientações do ator:</span>
+            <span className="text-muted-foreground">{job.actorFile.name}</span>
+            {job.actorInfo && (
+              <Badge variant="outline" className="ml-1">
+                {job.actorInfo.matched}/{job.stations.length} casadas
+              </Badge>
+            )}
+            {job.status === "pending" || job.status === "error" ? (
+              <Button variant="ghost" size="icon" className="ml-auto h-7 w-7" onClick={onRemoveActor}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            ) : null}
+          </div>
+        ) : (
+          <label className="flex cursor-pointer flex-wrap items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+            <UserSquare2 className="h-4 w-4" />
+            <span>Anexar PDF de orientações do ator/atriz (opcional)</span>
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) onAttachActor(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        )}
+      </div>
+
       {job.error && (
         <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
           {job.error}
