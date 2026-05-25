@@ -78,16 +78,24 @@ function ImportPdfPage() {
 
   async function processAll() {
     setBusy(true);
-    const pending = jobs.filter((j) => j.status === "pending" || j.status === "error");
-    // Processa em paralelo, max 3 simultâneos
-    const queue = [...pending];
+    // Snapshot atual da fila pendente
+    const queue: PdfJob[] = [];
+    setJobs((prev) => {
+      prev.forEach((j) => {
+        if (j.status === "pending" || j.status === "error") queue.push(j);
+      });
+      return prev;
+    });
+    // Aguarda flush do setState
+    await new Promise((r) => setTimeout(r, 0));
+
     const workers = Array.from({ length: Math.min(3, queue.length) }, () => worker());
 
     async function worker() {
       while (queue.length) {
         const job = queue.shift();
         if (!job) break;
-        await processOne(job.id);
+        await processOne(job.id, job.file);
       }
     }
 
@@ -95,19 +103,15 @@ function ImportPdfPage() {
     setBusy(false);
   }
 
-  async function processOne(jobId: string) {
+  async function processOne(jobId: string, file: File) {
     setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "reading", error: undefined } : j)));
     try {
-      const job = jobs.find((j) => j.id === jobId);
-      // Re-read from state ref:
-      const current = job ?? (await new Promise<PdfJob | undefined>((r) => setJobs((p) => { r(p.find((x) => x.id === jobId)); return p; })));
-      if (!current) return;
-      if (current.file.size > 22 * 1024 * 1024) throw new Error("PDF maior que 22 MB.");
+      if (file.size > 22 * 1024 * 1024) throw new Error("PDF maior que 22 MB.");
 
-      const dataUrl = await fileToDataUrl(current.file);
+      const dataUrl = await fileToDataUrl(file);
       setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "extracting" } : j)));
 
-      const res = await parsePdf({ data: { filename: current.file.name, dataUrl } });
+      const res = await parsePdf({ data: { filename: file.name, dataUrl } });
       setJobs((prev) =>
         prev.map((j) =>
           j.id === jobId
