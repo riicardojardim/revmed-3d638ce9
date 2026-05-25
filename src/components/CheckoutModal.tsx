@@ -74,6 +74,8 @@ export function CheckoutModal({ plan, open, onOpenChange }: Props) {
   });
   const [method, setMethod] = useState<PaymentMethod>("pix");
   const [submitting, setSubmitting] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const getCheckout = useServerFn(getCheckoutLink);
 
   const cpfDigits = form.cpf.replace(/\D/g, "");
   const cpfInvalid = cpfDigits.length === 11 && !isValidCPF(form.cpf);
