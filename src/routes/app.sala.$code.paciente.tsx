@@ -26,7 +26,7 @@ import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";
 import { UserAvatar } from "@/components/UserAvatar";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { cancelRoom, cancelRoomBeacon } from "@/lib/roomCancel";
-import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
+import { DEFAULT_NOTA_DE_CORTE as NOTA_DE_CORTE } from "@/hooks/use-exam-settings";
 import { StationSummaryDialog } from "@/components/StationSummaryDialog";
 import { RelatedResources } from "@/components/RelatedResources";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
