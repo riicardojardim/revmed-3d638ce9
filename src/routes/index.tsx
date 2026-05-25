@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
   DropdownMenu,
@@ -1305,6 +1306,17 @@ function FinalCTA({ isLogged }: { isLogged: boolean }) {
 /* ----------------------------- FOOTER ----------------------------- */
 
 function Footer() {
+  const { settings } = useSiteSettings();
+  const phone1 = settings?.contact_phone_primary ?? "+5521987860985";
+  const phone1Label = settings?.contact_phone_primary_label ?? "(21) 98786-0985 — Suporte REVMED";
+  const phone2 = settings?.contact_phone_secondary ?? "+5521983786198";
+  const phone2Label = settings?.contact_phone_secondary_label ?? "(21) 98378-6198 — Dr. Anoar Jezini";
+  const email = settings?.contact_email ?? "contato@revmed.app.br";
+  const igUrl = settings?.instagram_url ?? "https://instagram.com/revmedmentoria";
+  const igHandle = settings?.instagram_handle ?? "@revmedmentoria";
+  const cnpj = settings?.cnpj ?? "CNPJ 48.442.973/0001-07";
+  const desc = settings?.footer_description ??
+    "A plataforma de prática do candidato Revalida INEP — sala ao vivo com vídeo, checklist 3 níveis, flashcards inteligentes, resumos, comunidade e gamificação num só lugar.";
   return (
     <footer className="border-t border-border bg-card/30 pt-12 pb-8">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -1313,9 +1325,7 @@ function Footer() {
           <div className="flex flex-col items-center gap-3 md:items-start md:col-span-3 lg:col-span-1">
             <Logo />
             <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground md:text-left">
-              A plataforma de prática do candidato Revalida INEP — sala ao
-              vivo com vídeo, checklist 3 níveis, flashcards inteligentes, resumos,
-              comunidade e gamificação num só lugar.
+              {desc}
             </p>
           </div>
 
@@ -1325,25 +1335,25 @@ function Footer() {
               Contato
             </p>
             <a
-              href="tel:+5521987860985"
+              href={`tel:${phone1}`}
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Phone className="h-4 w-4 text-primary" />
-              (21) 98786-0985 — Suporte REVMED
+              {phone1Label}
             </a>
             <a
-              href="tel:+5521983786198"
+              href={`tel:${phone2}`}
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Phone className="h-4 w-4 text-primary" />
-              (21) 98378-6198 — Dr. Anoar Jezini
+              {phone2Label}
             </a>
             <a
-              href="mailto:contato@revmed.app.br"
+              href={`mailto:${email}`}
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Mail className="h-4 w-4 text-primary" />
-              contato@revmed.app.br
+              {email}
             </a>
           </div>
 
@@ -1353,13 +1363,13 @@ function Footer() {
               Plataforma
             </p>
             <a
-              href="https://instagram.com/revmedmentoria"
+              href={igUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 hover:text-foreground"
             >
               <Instagram className="h-4 w-4" />
-              @revmedmentoria
+              {igHandle}
             </a>
             <a href="#plataforma" className="hover:text-foreground">
               Como funciona
@@ -1372,7 +1382,7 @@ function Footer() {
 
         {/* legal bar */}
         <div className="mt-10 flex flex-col items-center gap-2 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground/70 md:flex-row md:justify-between md:text-left">
-          <p>CNPJ 48.442.973/0001-07</p>
+          <p>{cnpj}</p>
           <p>© {new Date().getFullYear()} REVMED. Todos os direitos reservados.</p>
         </div>
       </div>
