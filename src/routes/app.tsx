@@ -43,6 +43,7 @@ import {
   Video,
   Users2,
   Settings2,
+  KeyRound,
 } from "lucide-react";
 import {
   Sidebar,
