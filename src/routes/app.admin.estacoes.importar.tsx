@@ -340,8 +340,10 @@ function StatusBadge({ status }: { status: FileStatus }) {
   switch (status) {
     case "pending":
       return <Badge variant="outline">Aguardando</Badge>;
-    case "reading":
-      return <Badge variant="outline" className="border-blue-500/30 text-blue-500"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Lendo PDF</Badge>;
+    case "rendering":
+      return <Badge variant="outline" className="border-blue-500/30 text-blue-500"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Renderizando páginas</Badge>;
+    case "uploading":
+      return <Badge variant="outline" className="border-blue-500/30 text-blue-500"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Enviando páginas</Badge>;
     case "extracting":
       return <Badge variant="outline" className="border-mint/40 text-mint"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Analisando com IA</Badge>;
     case "done":
