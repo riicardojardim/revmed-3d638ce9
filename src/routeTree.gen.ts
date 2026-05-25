@@ -55,6 +55,7 @@ import { Route as AppAdminResumosRouteImport } from './routes/app.admin.resumos'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
 import { Route as AppAdminPagamentosRouteImport } from './routes/app.admin.pagamentos'
 import { Route as AppAdminIntegracoesRouteImport } from './routes/app.admin.integracoes'
+import { Route as AppAdminGeralRouteImport } from './routes/app.admin.geral'
 import { Route as AppAdminFlashcardsRouteImport } from './routes/app.admin.flashcards'
 import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoes'
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
@@ -303,6 +304,11 @@ const AppAdminIntegracoesRoute = AppAdminIntegracoesRouteImport.update({
   path: '/integracoes',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminGeralRoute = AppAdminGeralRouteImport.update({
+  id: '/geral',
+  path: '/geral',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminFlashcardsRoute = AppAdminFlashcardsRouteImport.update({
   id: '/flashcards',
   path: '/flashcards',
@@ -420,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
   '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
+  '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
@@ -480,6 +487,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
+  '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
@@ -544,6 +552,7 @@ export interface FileRoutesById {
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
   '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
+  '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
@@ -611,6 +620,7 @@ export interface FileRouteTypes {
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
     | '/app/admin/flashcards'
+    | '/app/admin/geral'
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
@@ -671,6 +681,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
+    | '/app/admin/geral'
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
@@ -734,6 +745,7 @@ export interface FileRouteTypes {
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
     | '/app/admin/flashcards'
+    | '/app/admin/geral'
     | '/app/admin/integracoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
@@ -1107,6 +1119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminIntegracoesRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/geral': {
+      id: '/app/admin/geral'
+      path: '/geral'
+      fullPath: '/app/admin/geral'
+      preLoaderRoute: typeof AppAdminGeralRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/flashcards': {
       id: '/app/admin/flashcards'
       path: '/flashcards'
@@ -1274,6 +1293,7 @@ interface AppAdminRouteChildren {
   AppAdminConteudoRoute: typeof AppAdminConteudoRoute
   AppAdminEstacoesRoute: typeof AppAdminEstacoesRouteWithChildren
   AppAdminFlashcardsRoute: typeof AppAdminFlashcardsRouteWithChildren
+  AppAdminGeralRoute: typeof AppAdminGeralRoute
   AppAdminIntegracoesRoute: typeof AppAdminIntegracoesRoute
   AppAdminPagamentosRoute: typeof AppAdminPagamentosRoute
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
@@ -1288,6 +1308,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminConteudoRoute: AppAdminConteudoRoute,
   AppAdminEstacoesRoute: AppAdminEstacoesRouteWithChildren,
   AppAdminFlashcardsRoute: AppAdminFlashcardsRouteWithChildren,
+  AppAdminGeralRoute: AppAdminGeralRoute,
   AppAdminIntegracoesRoute: AppAdminIntegracoesRoute,
   AppAdminPagamentosRoute: AppAdminPagamentosRoute,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
