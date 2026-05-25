@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, BookOpen, Eye, EyeOff, Pencil, Trash2, Copy, Search } from "lucide-react";
+import { Plus, BookOpen, Eye, EyeOff, Pencil, Trash2, Copy, Search, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -153,6 +153,11 @@ function AdminStationsPage() {
           <p className="text-sm text-muted-foreground">Crie, edite e publique checklists para todos os assinantes.</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link to="/app/admin/estacoes/importar">
+            <Button variant="outline">
+              <FileUp className="h-4 w-4" /> Importar PDFs
+            </Button>
+          </Link>
           <Button variant="hero" onClick={createNew} disabled={creating}>
             <Plus className="h-4 w-4" /> {creating ? "Criando..." : "Nova estação"}
           </Button>
