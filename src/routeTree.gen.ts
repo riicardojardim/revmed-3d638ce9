@@ -73,6 +73,7 @@ import { Route as AppProfessorEstacoesIdRouteImport } from './routes/app.profess
 import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.professor.correcoes.$id'
 import { Route as AppAdminResumosIdRouteImport } from './routes/app.admin.resumos.$id'
 import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
+import { Route as AppAdminEstacoesImportarRouteImport } from './routes/app.admin.estacoes.importar'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
 import { Route as ApiPublicWebhooksPaymentSplatRouteImport } from './routes/api/public/webhooks/payment/$'
 
@@ -397,6 +398,12 @@ const AppAdminFlashcardsIdRoute = AppAdminFlashcardsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppAdminFlashcardsRoute,
 } as any)
+const AppAdminEstacoesImportarRoute =
+  AppAdminEstacoesImportarRouteImport.update({
+    id: '/importar',
+    path: '/importar',
+    getParentRoute: () => AppAdminEstacoesRoute,
+  } as any)
 const AppAdminEstacoesIdRoute = AppAdminEstacoesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -463,6 +470,7 @@ export interface FileRoutesByFullPath {
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -524,6 +532,7 @@ export interface FileRoutesByTo {
   '/app/flashcards': typeof AppFlashcardsIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -593,6 +602,7 @@ export interface FileRoutesById {
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
   '/app/professor/correcoes/$id': typeof AppProfessorCorrecoesIdRoute
@@ -663,6 +673,7 @@ export interface FileRouteTypes {
     | '/app/flashcards/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/estacoes/importar'
     | '/app/admin/flashcards/$id'
     | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
@@ -724,6 +735,7 @@ export interface FileRouteTypes {
     | '/app/flashcards'
     | '/app/professor'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/estacoes/importar'
     | '/app/admin/flashcards/$id'
     | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
@@ -792,6 +804,7 @@ export interface FileRouteTypes {
     | '/app/flashcards/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/estacoes/importar'
     | '/app/admin/flashcards/$id'
     | '/app/admin/resumos/$id'
     | '/app/professor/correcoes/$id'
@@ -1271,6 +1284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminFlashcardsIdRouteImport
       parentRoute: typeof AppAdminFlashcardsRoute
     }
+    '/app/admin/estacoes/importar': {
+      id: '/app/admin/estacoes/importar'
+      path: '/importar'
+      fullPath: '/app/admin/estacoes/importar'
+      preLoaderRoute: typeof AppAdminEstacoesImportarRouteImport
+      parentRoute: typeof AppAdminEstacoesRoute
+    }
     '/app/admin/estacoes/$id': {
       id: '/app/admin/estacoes/$id'
       path: '/$id'
@@ -1290,11 +1310,13 @@ declare module '@tanstack/react-router' {
 
 interface AppAdminEstacoesRouteChildren {
   AppAdminEstacoesIdRoute: typeof AppAdminEstacoesIdRoute
+  AppAdminEstacoesImportarRoute: typeof AppAdminEstacoesImportarRoute
   AppAdminEstacoesIndexRoute: typeof AppAdminEstacoesIndexRoute
 }
 
 const AppAdminEstacoesRouteChildren: AppAdminEstacoesRouteChildren = {
   AppAdminEstacoesIdRoute: AppAdminEstacoesIdRoute,
+  AppAdminEstacoesImportarRoute: AppAdminEstacoesImportarRoute,
   AppAdminEstacoesIndexRoute: AppAdminEstacoesIndexRoute,
 }
 
@@ -1520,13 +1542,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -1,62 +1,72 @@
-# Responsividade Tablet — Sweep Completo
+# Importador de Checklists via PDF (Admin)
 
-Você está vendo o preview em **768px** (tablet) e várias seções estão estourando: texto cortando, cards apertados, mockup mal posicionado no Hero. Vou tratar tablet (`md:` 768–1023) como uma faixa própria — não como "desktop pequeno".
+Nova página em `/app/admin/estacoes/importar` que processa **vários PDFs de uma vez**, usa IA pra detectar e separar cada checklist dentro do PDF, mantém o texto **100% literal** e salva tudo nas tabelas existentes (`custom_stations` + `station_checklist_items`).
 
-A estratégia geral em todas as telas será a mesma:
-- Layouts em grid 2/3 colunas viram **1 coluna empilhada** no tablet (quebra só em `lg:` 1024+).
-- Fontes do tipo `text-5xl/6xl` caem para `text-3xl/4xl` no tablet.
-- Padding/gaps reduzidos (`md:p-6` em vez de `md:p-10`).
-- Botões/CTAs ganham `w-full` ou empilham quando o texto não cabe lado a lado.
-- Mockups e ilustrações vão **abaixo** do texto principal (ordem natural do fluxo) até `lg:`.
+## Fluxo do usuário
 
-## Fase 1 — Landing page (`/`)
+1. Admin entra em **Estações → Importar PDFs**
+2. Arrasta 1+ PDFs (até 10 por vez, 20MB cada)
+3. Cada PDF aparece numa fila com status: `Lendo PDF → Analisando com IA → Pronto`
+4. Quando termina, mostra um **preview agrupado** com todas as estações detectadas (PDF de origem, título, especialidade, nº de itens do checklist)
+5. Admin pode:
+   - Expandir cada estação e ver/editar todos os campos antes de salvar
+   - Desmarcar estações que não quer importar
+   - Reprocessar um PDF individual
+6. Botão **"Importar X estações"** → salva tudo como rascunho (não publicado) e redireciona pra lista de estações
 
-A página inteira (`src/routes/index.tsx`, ~1300 linhas) precisa de passada seção por seção:
+## Como a IA processa (estratégia anti-alucinação)
 
-1. **Hero**: mockup vai pra baixo do título no tablet, botões abaixo do mockup, fontes reduzidas, KPI tiles em 2 colunas (não 4).
-2. **Faixa de stats "+320 / +1.2k / 87% / 10min"** — visível na sua screenshot estourando: vira grid 2x2 no tablet em vez de 4 colunas.
-3. **Como Funciona** (`ComoFunciona.tsx`) — passos empilhados, ícones e tipografia menores.
-4. **Comparativo** — tabela responsiva, scroll horizontal se necessário.
-5. **Depoimentos** (`Depoimentos.tsx`) — cards do marquee com largura adequada pra tablet.
-6. **Mentoria** — já está OK (usa `lg:` no grid), só ajuste fino de fontes.
-7. **Investimento/Planos** — cards 1 coluna no tablet (não 3).
-8. **FAQ** — padding e largura.
-9. **CTA final "Pronto pra treinar"** — fonte menor, botão tamanho proporcional (sua screenshot mostra ele OK mas o título está enorme).
-10. **Footer** — colunas reorganizadas (2 em vez de 4 no tablet).
+Como o PDF não tem padrão fixo, fazemos em **2 passos** pra garantir texto literal:
 
-## Fase 2 — Shell do app autenticado
+**Passo 1 — Segmentação:** mando o texto bruto extraído do PDF pra IA com instrução: *"Identifique onde cada estação clínica começa e termina. Retorne APENAS os índices de caractere de início/fim de cada uma. Não reescreva nada."*  
+Retorno: `[{start: 0, end: 1823}, {start: 1824, end: 3500}, ...]`
 
-- **AppLayout** (`app.tsx`) + **AppSideNav** — sidebar deve **colapsar/recolher** no tablet (atualmente o sidebar fixo come muita largura).
-- **Topbar** do app: ações resumidas, evitar overflow.
-- **Dashboard** (`app.index.tsx`) — KPIs em 2 colunas, painéis lado-a-lado viram empilhados.
+**Passo 2 — Extração estruturada por estação:** pra cada fatia, mando o texto da estação isolado e peço pra IA preencher os campos (`title`, `specialty`, `difficulty`, `clinical_case`, `candidate_task`, `patient_info`, `patient_script`, `evaluator_notes`, `scoring_criteria`, `competencies`, `post_materials`, `checklist_items[]`) **copiando trechos literais do texto fornecido**. Schema Zod com `Output.object` da AI SDK força JSON estruturado.
 
-## Fase 3 — Páginas principais do usuário
+Prompt explícito: *"NUNCA reescreva, parafraseie ou resuma. Copie o texto exatamente como aparece, incluindo pontuação. Se um campo não existir no texto, deixe null."*
 
-Cobertura sistemática em:
-- `app.checklists.tsx`, `app.flashcards.index.tsx`, `app.flashcards.desempenho.tsx`
-- `app.resumos.tsx`, `app.resumos.$id.tsx`
-- `app.videoaulas.tsx`, `app.aulas.tsx`
-- `app.sala.$code.{index,banca,candidato,paciente}.tsx` (sala de simulação)
-- `app.simulacao.$id.tsx`, `app.resultado.$id.tsx`, `app.historico.tsx`
-- `app.progresso.tsx`, `app.cronograma.tsx`
-- `app.perfil.tsx`, `app.comunidade.tsx`, `app.novidades.tsx`, `app.suporte.tsx`, `app.feedback.tsx`
+Modelo: `google/gemini-2.5-pro` (contexto grande + bom em extração literal). Fallback para `gemini-3-flash-preview` se der rate limit.
 
-## Fase 4 — Admin
+## Detalhes técnicos
 
-Cobertura em todas as `app.admin.*.tsx` (usuários, estações, flashcards, resumos, vídeoaulas, planos, pagamentos, aparência, conteúdo, integrações). Tabelas viram cards no tablet quando muitas colunas; ações dos cards reorganizadas.
+**Extração de PDF:** biblioteca `unpdf` (pure JS, funciona no Cloudflare Worker — `pdf-parse` e `pdfjs-dist` quebram).
 
-## Fase 5 — Páginas públicas de auth
+**Server functions** (em `src/lib/checklist-import.functions.ts`):
+- `extractPdfText({ pdfBase64 })` → retorna texto + nº páginas
+- `segmentStations({ rawText })` → IA retorna ranges
+- `extractStation({ stationText })` → IA retorna objeto estruturado tipado
+- `bulkInsertStations({ stations })` → insere em `custom_stations` + `station_checklist_items` numa transação, todas como `published: false`
 
-`login.tsx`, `cadastro.tsx`, `reset-password.tsx`, `convite.$code.tsx`, `e.$code.tsx`, `app.entrar.*` — ajuste do card central + ilustração lateral.
+Tudo protegido por middleware que valida `has_role(user, 'admin')`.
+
+**UI:**
+- `src/routes/app.admin.estacoes.importar.tsx` — página com dropzone + fila + preview
+- Processamento client-side em paralelo (max 3 PDFs simultâneos), barra de progresso por arquivo
+- Preview usa `<Accordion>` com formulário editável idêntico ao do editor de estação existente
+
+**Limites e custo:**
+- Cada PDF é processado individualmente pra não estourar contexto
+- Aviso visual de custo estimado antes de processar ("~X requisições de IA")
+- Erros por estação não bloqueiam o resto (parcial > nada)
+
+## O que NÃO muda
+
+- Tabelas `custom_stations` e `station_checklist_items` — uso o schema atual
+- Fluxo de edição/publicação individual continua igual
+- Nada relacionado a fluxos de aluno, simulação, salas
+
+## Arquivos
+
+**Novos:**
+- `src/routes/app.admin.estacoes.importar.tsx`
+- `src/lib/checklist-import.functions.ts`
+- `src/lib/pdf-extract.server.ts`
+
+**Modificados:**
+- `src/routes/app.admin.estacoes.index.tsx` — adicionar botão "Importar PDFs"
+
+**Dependência nova:** `unpdf` (~150KB, edge-compatible)
 
 ---
 
-## Como vou executar
-
-Isso são **50+ arquivos** e ~15.000 linhas. **Não vou tentar fazer tudo em uma única resposta** — o resultado seria superficial e quebraria coisas. Proponho dois caminhos:
-
-**Opção A — Fazer agora a Fase 1 inteira (Landing)**, que é onde a maior parte dos visitantes vão entrar pelo tablet, e te entregar isso polido nesta rodada. Depois seguimos Fase 2/3/4 nas próximas mensagens, uma por vez.
-
-**Opção B — Fazer Fase 1 (Landing) + Fase 2 (Shell + Dashboard)** nesta rodada, deixando o app autenticado já navegável em tablet, e depois entrar nas telas internas.
-
-Recomendo **Opção A** — landing é a porta de entrada e tem mais variedade visual (cada seção é diferente); fazendo bem feito ela já me dá os padrões (breakpoints, tamanhos de fonte, gaps) que reaplico mecanicamente nas telas internas depois. Me diz qual prefere e eu sigo.
+Posso seguir com essa abordagem? Se topar, eu já começo pelos server functions + extrator de PDF, depois monto a UI.
