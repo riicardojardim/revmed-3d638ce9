@@ -24,7 +24,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { IntroOverlay, INTRO_DURATION_MS, type IntroRole } from "@/components/room/IntroOverlay";
 import { InviteUserDialog } from "@/components/InviteUserDialog";
 import { UserAvatar } from "@/components/UserAvatar";
-import { NOTA_DE_CORTE } from "@/components/SpecialtyMedals";
+import { DEFAULT_NOTA_DE_CORTE as NOTA_DE_CORTE } from "@/hooks/use-exam-settings";
 import { serverNow, getServerOffset } from "@/lib/serverClock";
 import ecgRitmoSinusal from "@/assets/ecg-ritmo-sinusal.jpg";
 import aranhaArmadeira from "@/assets/aranha-armadeira.jpeg";

@@ -9,7 +9,7 @@ import logoIconOnlyUrl from "@/assets/logo-revmed-icon.png";
 import { UserAvatar } from "@/components/UserAvatar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { FriendsPanel } from "@/components/FriendsPanel";
-import { NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO } from "@/components/SpecialtyMedals";
+import { useExamSettings } from "@/hooks/use-exam-settings";
 import { OnlinePresenceProvider } from "@/hooks/use-online-presence";
 import {
   DropdownMenu,
@@ -42,6 +42,7 @@ import {
   ShieldCheck,
   Video,
   Users2,
+  Settings2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -91,6 +92,7 @@ function AppLayout() {
   const isAdmin = roles.includes("admin");
   const isTeacher = roles.includes("professor") || isAdmin;
   const isCompleto = isCompletoLike;
+  const { notaDeCorte, edicao } = useExamSettings();
 
   // Rotas que exigem assinatura ativa (privileged/admin/prof passam direto via PaywallGate)
   const PAID_PREFIXES = [
@@ -141,6 +143,7 @@ function AppLayout() {
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
           { to: "/app/admin/pagamentos", label: "Pagamentos", icon: DollarSign },
+          { to: "/app/admin/geral", label: "Geral", icon: Settings2 },
           { to: "/app/admin/aparencia", label: "Aparência", icon: Sparkles },
           { to: "/app/admin/integracoes", label: "Integrações", icon: Activity },
           { to: "/app/perfil", label: "Perfil", icon: User },
@@ -342,13 +345,13 @@ function AppLayout() {
           </div>
           <div className="hidden flex-1 items-center justify-end gap-2 overflow-hidden font-sans md:flex">
             <span
-              title={`Nota de corte da prova de habilidades clínicas — ${NOTA_DE_CORTE_EDICAO} (INEP)`}
+              title={`Nota de corte da prova de habilidades clínicas — ${edicao} (INEP)`}
               className="inline-flex shrink-0 items-center gap-2 rounded-full border border-mint/40 bg-mint/10 px-3 py-1.5 text-xs font-semibold tracking-tight text-foreground"
             >
               <span className="text-muted-foreground">Nota de corte INEP</span>
-              <span className="font-display font-bold tabular-nums text-mint">{NOTA_DE_CORTE.toFixed(3)} pts</span>
+              <span className="font-display font-bold tabular-nums text-mint">{notaDeCorte.toFixed(3)} pts</span>
               <span className="inline-block h-3 w-px bg-mint/40" />
-              <span className="text-muted-foreground">{NOTA_DE_CORTE_EDICAO}</span>
+              <span className="text-muted-foreground">{edicao}</span>
             </span>
             {waEnabled && (
               <a

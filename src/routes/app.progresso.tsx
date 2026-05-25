@@ -4,7 +4,8 @@ import { STATIONS } from "@/data/stations";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { SpecialtyMedals, NOTA_DE_CORTE, NOTA_DE_CORTE_EDICAO, NOTA_DE_CORTE_ESCALA10, MEDAL_SPECIALTIES, getSpecAvg } from "@/components/SpecialtyMedals";
+import { SpecialtyMedals, MEDAL_SPECIALTIES, getSpecAvg } from "@/components/SpecialtyMedals";
+import { useExamSettings } from "@/hooks/use-exam-settings";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
 import { ResetStatsButton } from "@/components/ResetStatsButton";
 import { Reveal } from "@/components/ui/reveal";
@@ -33,6 +34,7 @@ interface DbAttempt {
 
 function ProgressPage() {
   const { user } = useAuth();
+  const { notaDeCorte, notaDeCorteEscala10, edicao } = useExamSettings();
   const [attempts, setAttempts] = useState<DbAttempt[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -93,10 +95,10 @@ function ProgressPage() {
         <MotionCard lift={3} glow className="rounded-2xl border border-border bg-card p-5 shadow-card transition-colors hover:border-mint/40">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Nota de corte INEP</div>
           <div className="mt-2 font-display text-3xl font-bold text-mint">
-            {NOTA_DE_CORTE.toFixed(3)}
+            {notaDeCorte.toFixed(3)}
           </div>
           <div className="mt-1 text-[11px] text-muted-foreground">
-            {NOTA_DE_CORTE_EDICAO} · equivale a {NOTA_DE_CORTE_ESCALA10.toFixed(2)} na escala 0–10
+            {edicao} · equivale a {notaDeCorteEscala10.toFixed(2)} na escala 0–10
           </div>
         </MotionCard>
       </Reveal>
@@ -105,7 +107,7 @@ function ProgressPage() {
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="font-display font-bold">Média por especialidade</h3>
           <span className="text-xs text-muted-foreground">
-            Meta: ≥ <span className="font-semibold text-foreground">{NOTA_DE_CORTE_ESCALA10.toFixed(2)}</span> (nota de corte INEP)
+            Meta: ≥ <span className="font-semibold text-foreground">{notaDeCorteEscala10.toFixed(2)}</span> (nota de corte INEP)
           </span>
         </div>
         <ul className="mt-4 space-y-3">
@@ -113,8 +115,8 @@ function ProgressPage() {
             const meta = getSpecialtyMeta(s.key);
             const { avg, n } = getSpecAvg(specStats, s.key);
             const pct = Math.max(0, Math.min(100, (avg / 10) * 100));
-            const target = NOTA_DE_CORTE; // 0–100 scale
-            const hit = avg >= NOTA_DE_CORTE_ESCALA10 && n > 0;
+            const target = notaDeCorte; // 0–100 scale
+            const hit = avg >= notaDeCorteEscala10 && n > 0;
             return (
               <li key={s.key} className="space-y-1.5">
                 <div className="flex items-baseline justify-between gap-2 text-sm">
@@ -139,7 +141,7 @@ function ProgressPage() {
                   <div
                     className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-foreground/60"
                     style={{ left: `${target}%` }}
-                    title={`Nota de corte INEP — ${NOTA_DE_CORTE.toFixed(3)} pts`}
+                    title={`Nota de corte INEP — ${notaDeCorte.toFixed(3)} pts`}
                   />
                 </div>
               </li>

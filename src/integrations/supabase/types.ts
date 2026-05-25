@@ -927,20 +927,30 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          cnpj: string | null
           colors: Json
           contact_email: string | null
+          contact_phone_primary: string | null
+          contact_phone_primary_label: string | null
+          contact_phone_secondary: string | null
+          contact_phone_secondary_label: string | null
           created_at: string
           custom_body_html: string | null
           custom_head_html: string | null
+          exam_edition: string | null
           favicon_url: string | null
           fb_pixel_id: string | null
+          footer_description: string | null
           ga4_id: string | null
           gtm_id: string | null
           id: string
+          instagram_handle: string | null
+          instagram_url: string | null
           intro_animation_variant: string
           is_singleton: boolean
           logo_url: string | null
           meta_capi_token: string | null
+          nota_de_corte: number | null
           privacy_md: string | null
           site_name: string
           tagline: string | null
@@ -953,20 +963,30 @@ export type Database = {
           whatsapp_banner_url: string | null
         }
         Insert: {
+          cnpj?: string | null
           colors?: Json
           contact_email?: string | null
+          contact_phone_primary?: string | null
+          contact_phone_primary_label?: string | null
+          contact_phone_secondary?: string | null
+          contact_phone_secondary_label?: string | null
           created_at?: string
           custom_body_html?: string | null
           custom_head_html?: string | null
+          exam_edition?: string | null
           favicon_url?: string | null
           fb_pixel_id?: string | null
+          footer_description?: string | null
           ga4_id?: string | null
           gtm_id?: string | null
           id?: string
+          instagram_handle?: string | null
+          instagram_url?: string | null
           intro_animation_variant?: string
           is_singleton?: boolean
           logo_url?: string | null
           meta_capi_token?: string | null
+          nota_de_corte?: number | null
           privacy_md?: string | null
           site_name?: string
           tagline?: string | null
@@ -979,20 +999,30 @@ export type Database = {
           whatsapp_banner_url?: string | null
         }
         Update: {
+          cnpj?: string | null
           colors?: Json
           contact_email?: string | null
+          contact_phone_primary?: string | null
+          contact_phone_primary_label?: string | null
+          contact_phone_secondary?: string | null
+          contact_phone_secondary_label?: string | null
           created_at?: string
           custom_body_html?: string | null
           custom_head_html?: string | null
+          exam_edition?: string | null
           favicon_url?: string | null
           fb_pixel_id?: string | null
+          footer_description?: string | null
           ga4_id?: string | null
           gtm_id?: string | null
           id?: string
+          instagram_handle?: string | null
+          instagram_url?: string | null
           intro_animation_variant?: string
           is_singleton?: boolean
           logo_url?: string | null
           meta_capi_token?: string | null
+          nota_de_corte?: number | null
           privacy_md?: string | null
           site_name?: string
           tagline?: string | null
@@ -1445,14 +1475,24 @@ export type Database = {
       }
       site_settings_public: {
         Row: {
+          cnpj: string | null
           colors: Json | null
           contact_email: string | null
+          contact_phone_primary: string | null
+          contact_phone_primary_label: string | null
+          contact_phone_secondary: string | null
+          contact_phone_secondary_label: string | null
           created_at: string | null
+          exam_edition: string | null
           favicon_url: string | null
+          footer_description: string | null
           id: string | null
+          instagram_handle: string | null
+          instagram_url: string | null
           intro_animation_variant: string | null
           is_singleton: boolean | null
           logo_url: string | null
+          nota_de_corte: number | null
           privacy_md: string | null
           site_name: string | null
           tagline: string | null
@@ -1464,14 +1504,24 @@ export type Database = {
           whatsapp_banner_url: string | null
         }
         Insert: {
+          cnpj?: string | null
           colors?: Json | null
           contact_email?: string | null
+          contact_phone_primary?: string | null
+          contact_phone_primary_label?: string | null
+          contact_phone_secondary?: string | null
+          contact_phone_secondary_label?: string | null
           created_at?: string | null
+          exam_edition?: string | null
           favicon_url?: string | null
+          footer_description?: string | null
           id?: string | null
+          instagram_handle?: string | null
+          instagram_url?: string | null
           intro_animation_variant?: string | null
           is_singleton?: boolean | null
           logo_url?: string | null
+          nota_de_corte?: number | null
           privacy_md?: string | null
           site_name?: string | null
           tagline?: string | null
@@ -1483,14 +1533,24 @@ export type Database = {
           whatsapp_banner_url?: string | null
         }
         Update: {
+          cnpj?: string | null
           colors?: Json | null
           contact_email?: string | null
+          contact_phone_primary?: string | null
+          contact_phone_primary_label?: string | null
+          contact_phone_secondary?: string | null
+          contact_phone_secondary_label?: string | null
           created_at?: string | null
+          exam_edition?: string | null
           favicon_url?: string | null
+          footer_description?: string | null
           id?: string | null
+          instagram_handle?: string | null
+          instagram_url?: string | null
           intro_animation_variant?: string | null
           is_singleton?: boolean | null
           logo_url?: string | null
+          nota_de_corte?: number | null
           privacy_md?: string | null
           site_name?: string | null
           tagline?: string | null
