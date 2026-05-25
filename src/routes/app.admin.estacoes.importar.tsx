@@ -375,6 +375,11 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
             {job.stations.length ? ` · ${job.stations.length} estação(ões) detectada(s)` : ""}
             {job.truncated ? " · ⚠️ texto truncado" : ""}
           </div>
+          {job.progress && (
+            <div className="mt-1 text-xs text-mint">
+              {job.progress.label}: {job.progress.current}/{job.progress.total} {job.status === "rendering" ? "renderizadas" : "enviadas"}
+            </div>
+          )}
         </div>
         <StatusBadge status={job.status} />
         {job.status === "error" && (
