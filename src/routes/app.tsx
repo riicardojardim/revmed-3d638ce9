@@ -42,6 +42,7 @@ import {
   ShieldCheck,
   Video,
   Users2,
+  Settings2,
 } from "lucide-react";
 import {
   Sidebar,
