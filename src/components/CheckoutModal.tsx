@@ -4,12 +4,14 @@ import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Crown, Repeat, Users, CreditCard, QrCode, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Crown, Repeat, Users, CreditCard, QrCode, ShieldCheck, X, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 import { formatCPF, isValidCPF } from "@/lib/cpf";
 import { cn } from "@/lib/utils";
+import { useServerFn } from "@tanstack/react-start";
+import { getCheckoutLink } from "@/lib/checkout.functions";
 
 export type CheckoutPlanSlug = "completo" | "mensal" | "ator";
 
