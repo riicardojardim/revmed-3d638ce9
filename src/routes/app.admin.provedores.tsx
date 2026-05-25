@@ -207,6 +207,19 @@ function AdminProviders() {
                         />
                       </div>
                       <div>
+                        <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">API Secret</Label>
+                        <Input
+                          type="password"
+                          value={row.api_secret ?? ""}
+                          onChange={(e) => patchLocal(row.id, { api_secret: e.target.value })}
+                          placeholder="Segredo da API (ex: LiveKit API Secret)"
+                          className="font-mono text-xs"
+                        />
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          Usado por provedores com par key+secret (ex: LiveKit).
+                        </p>
+                      </div>
+                      <div>
                         <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">URL da API</Label>
                         <Input
                           value={row.api_url ?? ""}
