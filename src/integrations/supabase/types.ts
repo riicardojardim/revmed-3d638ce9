@@ -759,6 +759,7 @@ export type Database = {
       provider_settings: {
         Row: {
           api_key: string | null
+          api_secret: string | null
           api_url: string | null
           category: string
           created_at: string
@@ -773,6 +774,7 @@ export type Database = {
         }
         Insert: {
           api_key?: string | null
+          api_secret?: string | null
           api_url?: string | null
           category: string
           created_at?: string
@@ -787,6 +789,7 @@ export type Database = {
         }
         Update: {
           api_key?: string | null
+          api_secret?: string | null
           api_url?: string | null
           category?: string
           created_at?: string
