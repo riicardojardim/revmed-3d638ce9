@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/app/admin/geral")({ component: AdminGeral });
 
 function AdminGeral() {
-  const { settings, loading } = useSiteSettings();
+  const { settings, loading, error } = useSiteSettings({ scope: "admin" });
   const [draft, setDraft] = useState<typeof settings>(null);
   const [saving, setSaving] = useState(false);
 
@@ -36,16 +36,20 @@ function AdminGeral() {
     } as never).eq("id", draft.id);
     setSaving(false);
     if (error) return toast.error("Erro ao salvar", { description: error.message });
-    await refreshSiteSettings();
+    await refreshSiteSettings("admin");
     toast.success("Configurações gerais salvas");
   }
 
-  if (loading || !draft) {
+  if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" /> Carregando...
       </div>
     );
+  }
+
+  if (error || !draft) {
+    return <div className="text-sm text-destructive">Não foi possível carregar as configurações gerais.</div>;
   }
 
   const set = <K extends keyof NonNullable<typeof draft>>(k: K, v: NonNullable<typeof draft>[K]) =>

@@ -9,7 +9,7 @@ import { refreshSiteSettings, useSiteSettings } from "@/hooks/use-site-settings"
 export const Route = createFileRoute("/app/admin/aparencia")({ component: AdminAppearance });
 
 function AdminAppearance() {
-  const { settings, loading } = useSiteSettings();
+  const { settings, loading, error } = useSiteSettings({ scope: "admin" });
   const [draft, setDraft] = useState<typeof settings>(null);
   const [saving, setSaving] = useState(false);
 
@@ -39,11 +39,12 @@ function AdminAppearance() {
     }).eq("id", draft.id);
     setSaving(false);
     if (error) return toast.error(error.message);
-    await refreshSiteSettings();
+    await refreshSiteSettings("admin");
     toast.success("Aparência salva");
   }
 
-  if (loading || !draft) return <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Carregando...</div>;
+  if (loading) return <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Carregando...</div>;
+  if (error || !draft) return <div className="text-sm text-destructive">Não foi possível carregar as configurações de aparência.</div>;
 
   return (
     <div className="space-y-5 max-w-3xl">
