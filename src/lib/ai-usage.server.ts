@@ -6,6 +6,7 @@ export type AiUsageKind =
   | "summary"
   | "summary_batch"
   | "station"
+  | "transcript"
   | "title"
   | "grammar";
 
