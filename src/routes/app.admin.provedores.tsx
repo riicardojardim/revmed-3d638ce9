@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CreditCard, Video, Upload, Loader2, KeyRound, Copy, Check, BookOpen } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useServerFn } from "@tanstack/react-start";
+import { getProviderEnvStatus, importLivekitFromEnv } from "@/lib/provider-env.functions";
 
 export const Route = createFileRoute("/app/admin/provedores")({
   component: AdminProviders,
@@ -174,6 +176,11 @@ function AdminProviders() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [openGuide, setOpenGuide] = useState<string | null>(null);
+  const [envStatus, setEnvStatus] = useState<{ livekit: { api_key: boolean; api_secret: boolean; api_url: boolean } } | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  const fetchEnvStatus = useServerFn(getProviderEnvStatus);
+  const importLivekit = useServerFn(importLivekitFromEnv);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -190,6 +197,27 @@ function AdminProviders() {
   }
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    fetchEnvStatus().then(setEnvStatus).catch(() => setEnvStatus(null));
+  }, []);
+
+  async function handleImportLivekit() {
+    setImporting(true);
+    try {
+      const res = await importLivekit({ data: {} });
+      if (res.ok) {
+        toast.success("LiveKit importado dos secrets do servidor e ativado");
+        load();
+      } else {
+        toast.error(res.error ?? "Falha ao importar");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao importar");
+    } finally {
+      setImporting(false);
+    }
+  }
 
   function patchLocal(id: string, patch: Partial<ProviderRow>) {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -300,6 +328,11 @@ function AdminProviders() {
                         {row.is_active && (
                           <Badge className="bg-mint/15 text-mint hover:bg-mint/15">Ativo</Badge>
                         )}
+                        {row.provider_key === "livekit" && !row.is_active && envStatus?.livekit.api_key && envStatus?.livekit.api_secret && envStatus?.livekit.api_url && (
+                          <Badge className="bg-amber-500/15 text-amber-500 hover:bg-amber-500/15">
+                            Em uso via secrets do servidor
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <Switch
@@ -310,6 +343,22 @@ function AdminProviders() {
                         <Label className="text-xs">{row.is_active ? "Ativo" : "Inativo"}</Label>
                       </div>
                     </div>
+
+                    {row.provider_key === "livekit" && !row.is_active && envStatus?.livekit.api_key && envStatus?.livekit.api_secret && envStatus?.livekit.api_url && (
+                      <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-xs space-y-2">
+                        <p>
+                          As chamadas ao vivo das estações <strong>já estão funcionando</strong> usando os secrets
+                          <code className="mx-1">LIVEKIT_URL</code>,
+                          <code className="mx-1">LIVEKIT_API_KEY</code> e
+                          <code className="mx-1">LIVEKIT_API_SECRET</code> do servidor (fallback automático).
+                          Para o painel mostrar "Ativo" e centralizar tudo aqui, importe os valores:
+                        </p>
+                        <Button size="sm" variant="outline" onClick={handleImportLivekit} disabled={importing}>
+                          {importing && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                          Importar secrets do servidor & ativar
+                        </Button>
+                      </div>
+                    )}
 
                     <div className="grid gap-3">
                       <div>
