@@ -23,6 +23,17 @@ export type SiteSettings = {
   whatsapp_banner_label: string | null;
   whatsapp_banner_url: string | null;
   urgency_banner_text: string | null;
+  // Institutional / editable from admin
+  exam_edition: string | null;
+  nota_de_corte: number | null;
+  contact_phone_primary: string | null;
+  contact_phone_primary_label: string | null;
+  contact_phone_secondary: string | null;
+  contact_phone_secondary_label: string | null;
+  instagram_url: string | null;
+  instagram_handle: string | null;
+  cnpj: string | null;
+  footer_description: string | null;
 };
 
 let cache: SiteSettings | null = null;
