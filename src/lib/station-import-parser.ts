@@ -126,6 +126,10 @@ function isDividerLine(value: string): boolean {
   return /^[=\-_.~*]{3,}$/.test(value.trim());
 }
 
+function isPageMarkerLine(value: string): boolean {
+  return /^\s*-{2,}\s*P[aá]gina\s+\d+\s*-{0,}\s*$/i.test(value.trim());
+}
+
 function emptyToNull(value: string | null | undefined): string | null {
   const cleaned = cleanMultilineText(value ?? "");
   if (!cleaned) return null;
@@ -250,7 +254,11 @@ function splitChecklistBlocks(text: string): string[] {
   let current: string[] = [];
 
   for (const line of lines) {
-    if (isDividerLine(line) || /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizeHeader(line))) {
+    if (
+      isDividerLine(line) ||
+      isPageMarkerLine(line) ||
+      /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizeHeader(line))
+    ) {
       continue;
     }
     if (isChecklistItemStart(line) && current.some((entry) => entry.trim())) {
@@ -461,7 +469,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       let currentSection: SectionKey | null = null;
 
       block.body.split(/\r?\n/).forEach((line) => {
-        if (isDividerLine(line)) {
+        if (isDividerLine(line) || isPageMarkerLine(line)) {
           return;
         }
 
