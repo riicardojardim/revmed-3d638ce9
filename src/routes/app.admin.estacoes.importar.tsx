@@ -637,3 +637,91 @@ function StationEditor({
     </div>
   );
 }
+
+function ChecklistEditor({
+  items,
+  onChange,
+}: {
+  items: ImportedStation["checklist_items"];
+  onChange: (items: ImportedStation["checklist_items"]) => void;
+}) {
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+
+  const allSelected = items.length > 0 && selected.size === items.length;
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(items.map((_, i) => i)));
+    }
+  }
+
+  function toggleOne(idx: number) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  }
+
+  function deleteSelected() {
+    const next = items.filter((_, i) => !selected.has(i));
+    onChange(next);
+    setSelected(new Set());
+  }
+
+  // Reset selection when items change externally
+  useState(() => {
+    setSelected(new Set());
+  });
+
+  return (
+    <div className="rounded-xl border border-border bg-muted/20 p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+          <h4 className="font-display text-sm font-semibold">Checklist extraído ({items.length} itens)</h4>
+        </div>
+        <div className="flex items-center gap-2">
+          {selected.size > 1 && (
+            <Button variant="ghost" size="sm" className="h-7 text-destructive hover:text-destructive" onClick={deleteSelected}>
+              <Trash2 className="mr-1 h-3.5 w-3.5" />
+              Excluir {selected.size}
+            </Button>
+          )}
+          <Badge variant="outline">{items.reduce((s, i) => s + (i.points || 0), 0).toFixed(2)} pts totais</Badge>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {items.map((it, i) => (
+          <div key={i} className="rounded-lg border border-border bg-card p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Checkbox checked={selected.has(i)} onCheckedChange={() => toggleOne(i)} />
+                <div className="text-xs font-semibold text-mint">{it.category || "—"}</div>
+              </div>
+              <Badge variant="outline">{it.points} pts</Badge>
+            </div>
+            {it.description && (
+              <div className="mt-1 whitespace-pre-wrap text-sm pl-6">{it.description}</div>
+            )}
+            {it.levels.length > 0 && (
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground pl-6">
+                {it.levels.map((lv, li) => (
+                  <div key={li}>
+                    <strong>{lv.label}</strong> ({lv.points}): {lv.description}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+        {items.length === 0 && (
+          <p className="text-xs text-muted-foreground">Nenhum item de checklist detectado neste PDF.</p>
+        )}
+      </div>
+    </div>
+  );
+}
