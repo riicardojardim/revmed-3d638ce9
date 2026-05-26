@@ -347,6 +347,15 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
     return [{ header: "", body: text }];
   }
 
+  // Se houver conteúdo "de seção" significativo ANTES do primeiro marcador
+  // (ex.: TAREFAS DO CANDIDATO, ORIENTAÇÕES...), preserva tudo no primeiro bloco
+  // ao invés de descartar.
+  const preMarkerText = lines.slice(0, sortedMarkers[0]).join("\n");
+  const preHasSection = countRecognizedHeaders(preMarkerText) > 0;
+  if (preHasSection && sortedMarkers[0] > 0) {
+    sortedMarkers[0] = 0;
+  }
+
   return sortedMarkers.map((start, index) => {
     const end = index + 1 < sortedMarkers.length ? sortedMarkers[index + 1] : lines.length;
     const header = lines.slice(start, Math.min(end, start + 2)).filter((line) => line.trim()).join(" — ").trim();
