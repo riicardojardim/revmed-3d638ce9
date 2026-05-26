@@ -211,9 +211,9 @@ function extractPointValuesFromLine(value: string): number[] {
 function extractInlineLevelScores(value: string): Record<string, number> {
   const result: Record<string, number> = {};
   const patterns: Array<{ label: string; regex: RegExp }> = [
-    { label: "Inadequado", regex: /INADEQUADO\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
-    { label: "Parcialmente adequado", regex: /PARCIALMENTE\s+ADEQUADO\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
-    { label: "Adequado", regex: /ADEQUADO\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Inadequado", regex: /\bINADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Parcialmente adequado", regex: /\bPARCIALMENTE\s+ADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Adequado", regex: /\bADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
   ];
 
   for (const pattern of patterns) {
@@ -353,6 +353,20 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   const explicitMarkers = new Set<number>();
   const fallbackMarkers = new Set<number>();
 
+  const hasActorHeaderBefore = (index: number) => {
+    for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
+      const normalized = normalizeHeader(lines[back] ?? "");
+      if (!normalized) continue;
+      if (/^(ORIENTACOES|INSTRUCOES)\s+(AO|A|DO|DA|PARA O|PARA A)\s+(ATOR|ATRIZ|PACIENTE)\b/.test(normalized)) {
+        return true;
+      }
+      if (!/^(ORIENTACOES|INSTRUCOES|AO|A|DO|DA|ATOR|ATRIZ|PACIENTE)\b/.test(normalized)) {
+        break;
+      }
+    }
+    return false;
+  };
+
   const collectMarker = (index: number) => {
     let start = index;
     for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
@@ -375,6 +389,7 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   lines.forEach((line, index) => {
     const trimmed = line.trim();
     if (isStationMarker(trimmed)) {
+      if (hasActorHeaderBefore(index)) return;
       explicitMarkers.add(collectMarker(index));
       return;
     }
