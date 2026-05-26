@@ -34,9 +34,9 @@ type PendingItem = {
 };
 
 const PLACEHOLDER_RE =
-  /\[IMAGEM[^\]]*?(?:CAPTURAR\s*TELA|CAPTURA\s*DE\s*TELA|SCREENSHOT|IMAGEM\s*NECESS[ÁA]RIA)[^\]]*?\]?/i;
+  /\[IMAGEM[^\]]*?(?:CAPTURAR\s*TELA|CAPTURA\s*DE\s*TELA|SCREENSHOT|IMAGEM\s*NECESS[ÁA]RIA)[^\]]*\]/i;
 const PAGE_RE = /P[ÁA]GINA\s*(\d+)/i;
-const DAY_RE = /DIA\s*([\wÀ-ÿ\-]+)/i;
+const DAY_RE = /DIA\s*(\d+)/i;
 
 function detectPlaceholder(content: string | undefined): {
   match: string;
