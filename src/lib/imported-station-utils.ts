@@ -2,7 +2,7 @@ export type ImportedDeliverableMaterial = {
   id?: string;
   name: string;
   type: string;
-  description?: string;
+  description: string;
   content: string;
   imageUrl?: string;
   autoDeliver?: boolean;
