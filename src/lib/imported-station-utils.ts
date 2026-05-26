@@ -85,23 +85,25 @@ export function parseDeliverableMaterialsFromSupportText(
       }))
     : [{ title: "", body: text }];
 
-  return blocks
-    .map((block, index) => {
+  const materials: ImportedDeliverableMaterial[] = [];
+
+  blocks.forEach((block, index) => {
       const cleanedBody = cleanBlock(
         block.body
           .replace(/^\[IMAGEM NECESS[ÁA]RIA:\s*(SIM|N[ÃA]O)\]\s*$/gim, "")
           .replace(/^IMPRESSOS?\s*:?\s*$/gim, ""),
       );
       const title = cleanBlock(block.title) || `Impresso ${index + 1}`;
-      if (!cleanedBody && !title) return null;
-      return {
+      if (!cleanedBody && !title) return;
+      materials.push({
         id: `imp${index + 1}`,
         name: title,
         type: inferMaterialType(title, cleanedBody),
         description: "",
         content: cleanedBody,
         autoDeliver: false,
-      } satisfies ImportedDeliverableMaterial;
-    })
-    .filter((item): item is ImportedDeliverableMaterial => Boolean(item && (item.name || item.content)));
+      });
+  });
+
+  return materials.filter((item) => Boolean(item.name || item.content));
 }
