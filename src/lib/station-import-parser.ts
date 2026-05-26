@@ -42,15 +42,30 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
     key: "candidate_task",
     aliases: [
       "TAREFAS DO CANDIDATO",
+      "TAREFA DO CANDIDATO",
+      "ATIVIDADES DO CANDIDATO",
       "TAREFAS",
       "NOS PROXIMOS",
       "O CANDIDATO DEVERA",
       "VOCE DEVERA",
+      "INFORMACOES PARA O PARTICIPANTE",
+      "INFORMACOES PARA O CANDIDATO",
       "INSTRUCOES PARA O PARTICIPANTE",
       "INSTRUCOES PARA O A PARTICIPANTE",
     ],
   },
-  { key: "patient_info", aliases: ["DESCRICAO DO CASO", "FICHA DO PACIENTE", "FICHA DE ATENDIMENTO"] },
+  {
+    key: "patient_info",
+    aliases: [
+      "DESCRICAO DO CASO",
+      "DESCRICAO DO CASO CLINICO",
+      "HISTORIA CLINICA",
+      "QUADRO CLINICO",
+      "FICHA DO PACIENTE",
+      "FICHA DE ATENDIMENTO",
+      "FICHA DE ACOLHIMENTO",
+    ],
+  },
   {
     key: "patient_script",
     aliases: [
@@ -63,7 +78,18 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "INSTRUCOES PARA O ATO",
     ],
   },
-  { key: "support_materials", aliases: ["IMPRESSOS", "IMPRESSO", "IMPRESSOS E MATERIAIS ENTREGAVEIS", "MATERIAIS ENTREGAVEIS"] },
+  {
+    key: "support_materials",
+    aliases: [
+      "IMPRESSOS",
+      "IMPRESSO",
+      "IMPRESSOS E MATERIAIS ENTREGAVEIS",
+      "MATERIAIS ENTREGAVEIS",
+      "MATERIAIS DE APOIO",
+      "MATERIAL DE APOIO",
+      "MATERIAL IMPRESSO",
+    ],
+  },
   {
     key: "pep",
     aliases: [
@@ -83,6 +109,8 @@ const STATION_START_ALIASES = [
   "INSTRUCOES PARA O A PARTICIPANTE",
   "INSTRUCOES AO PARTICIPANTE",
   "INSTRUCOES PARA O CANDIDATO",
+  "INFORMACOES PARA O PARTICIPANTE",
+  "INFORMACOES PARA O CANDIDATO",
 ];
 
 function normalizeHeader(value: string): string {
@@ -513,7 +541,9 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
 }
 
 export function parseStructuredStationsFromText(text: string, sourceLabel = "Texto colado"): ParsedImportedStation[] {
-  if (countRecognizedHeaders(text) < 2) return [];
+  const recognizedHeaders = countRecognizedHeaders(text);
+  const hasStationMarker = /esta[çc][ãa]o\s*\d{1,3}/i.test(text);
+  if (recognizedHeaders === 0 && !hasStationMarker) return [];
 
   return splitStationBlocks(text)
     .map((block, index) => {

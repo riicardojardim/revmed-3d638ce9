@@ -5,6 +5,39 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
 import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
+function normalizeForSourceCheck(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cropForSourceCheck(value: string | null | undefined, limit = 1200): string {
+  return (value ?? "").trim().slice(0, limit);
+}
+
+function stationLooksGroundedInTranscript(station: ImportedStation, transcript: string): boolean {
+  const source = normalizeForSourceCheck(transcript);
+  const samples = [
+    cropForSourceCheck(station.title, 180),
+    cropForSourceCheck(station.clinical_case, 500),
+    cropForSourceCheck(station.patient_info, 500),
+    cropForSourceCheck(station.candidate_task, 500),
+    cropForSourceCheck(station.patient_script, 500),
+    cropForSourceCheck(station.support_materials, 500),
+  ]
+    .map(normalizeForSourceCheck)
+    .filter((value) => value.length >= 24);
+
+  if (samples.length === 0) return false;
+
+  const hits = samples.filter((sample) => source.includes(sample)).length;
+  return hits >= Math.max(1, Math.ceil(samples.length / 3));
+}
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
@@ -415,7 +448,12 @@ async function extractStationsFromTranscript(
     }
   }
 
-  return StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) }).stations;
+  const normalizedStations = StationsResultSchema.parse({
+    stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations),
+  }).stations;
+
+  const groundedStations = normalizedStations.filter((station) => stationLooksGroundedInTranscript(station, transcript));
+  return groundedStations.length > 0 ? groundedStations : normalizedStations;
 }
 
 // ─────────── Parse de UM PDF a partir das páginas no Storage ───────────
@@ -442,10 +480,22 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
   let parserFailed = false;
   try {
     transcript = data.extractedText?.trim() || "";
-    if (transcript.length < 200) {
-      transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+    const deterministicFromRawText = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
+
+    if (deterministicFromRawText.length > 0) {
+      allStations = StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicFromRawText) }).stations;
+    } else {
+      if (transcript.length < 200) {
+        transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+      }
+
+      const deterministicAfterOcr = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
+      if (deterministicAfterOcr.length > 0) {
+        allStations = StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicAfterOcr) }).stations;
+      } else {
+        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+      }
     }
-    allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
   } catch (e) {
     parserFailed = true;
     console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
