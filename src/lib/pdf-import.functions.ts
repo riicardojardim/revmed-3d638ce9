@@ -134,7 +134,8 @@ CAMPOS RESTANTES:
 - title: título/nome literal da estação (ex.: "ESTAÇÃO 10 — TABAGISMO").
 - specialty: uma de "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade". Inferir SOMENTE de "ÁREA: ..." declarada; senão "Clínica Médica".
 - duration_minutes: número entre 3 e 30 (procure "Nos próximos X minutos"; default 10).
-- evaluator_notes, scoring_criteria, post_materials, competencies: copiar LITERAL quando existir; null/[] caso contrário. NÃO duplique conteúdo de outras seções.
+- competencies: copiar LITERAL quando existir; [] caso contrário.
+- evaluator_notes, scoring_criteria, post_materials: SEMPRE null. NÃO extraia esses campos.
 
 Schema esperado:
 {
@@ -578,9 +579,9 @@ export const bulkCreateStations = createServerFn({ method: "POST" })
           patient_info: st.patient_info,
           support_materials: st.support_materials,
           patient_script: st.patient_script,
-          evaluator_notes: st.evaluator_notes,
-          scoring_criteria: st.scoring_criteria,
-          post_materials: st.post_materials,
+          evaluator_notes: null,
+          scoring_criteria: null,
+          post_materials: null,
           competencies: st.competencies,
           published: false,
         })
