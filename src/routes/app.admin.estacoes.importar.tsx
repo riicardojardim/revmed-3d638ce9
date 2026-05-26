@@ -541,9 +541,9 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
                   />
                   <div className="flex-1 text-left">
                     <div className="font-medium">{st.title}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {st.specialty} · {st.difficulty} · {st.checklist_items.length} itens
-                    </div>
+                     <div className="text-xs text-muted-foreground">
+                       {st.specialty} · {st.checklist_items.length} itens
+                     </div>
                   </div>
                 </div>
               </AccordionTrigger>
@@ -567,7 +567,7 @@ function StationEditor({
 }) {
   return (
     <div className="space-y-3 p-2">
-      <div className="grid gap-3 md:grid-cols-[2fr,1fr,1fr]">
+      <div className="grid gap-3 md:grid-cols-[2fr,1fr]">
         <div>
           <Label>Título</Label>
           <Input value={station.title} onChange={(e) => onChange({ title: e.target.value })} />
@@ -578,17 +578,6 @@ function StationEditor({
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {SPECIALTIES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Dificuldade</Label>
-          <Select value={station.difficulty} onValueChange={(v) => onChange({ difficulty: v as ImportedStation["difficulty"] })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Fácil">Fácil</SelectItem>
-              <SelectItem value="Intermediário">Intermediário</SelectItem>
-              <SelectItem value="Avançado">Avançado</SelectItem>
             </SelectContent>
           </Select>
         </div>
