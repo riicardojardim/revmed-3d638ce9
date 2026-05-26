@@ -135,7 +135,9 @@ function normalizeHeader(value: string): string {
 
 function isStationMarker(line: string): boolean {
   const normalized = normalizeHeader(line).replace(/^=+\s*|\s*=+$/g, "");
-  return /^ESTACAO\s*\d{0,3}\b/.test(normalized);
+  // Exige pelo menos 1 dígito para evitar capturar a palavra "ESTAÇÃO" sozinha
+  // (que aparece no meio de orientações/contexto).
+  return /^ESTACAO\s*\d{1,3}\b/.test(normalized);
 }
 
 function isStationStartLine(line: string): boolean {
@@ -149,7 +151,7 @@ function isStationMetaLine(line: string): boolean {
     normalized &&
       (/^AREA\b/.test(normalized) ||
         /^ESPECIALIDADE\b/.test(normalized) ||
-        /^ESTACAO\b/.test(normalized) ||
+        /^ESTACAO(?:\s+\d{1,3})?\b/.test(normalized) ||
         /^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)),
   );
 }
