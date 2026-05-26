@@ -121,7 +121,10 @@ const StationsResultSchema = z.object({
 
 export type ImportedStation = z.infer<typeof StationSchema>;
 
-function normalizeImportedStationPayload(station: ImportedStation): ImportedStation {
+type ImportedStationInput = Omit<ImportedStation, "case_description" | "deliverable_materials"> &
+  Partial<Pick<ImportedStation, "case_description" | "deliverable_materials">>;
+
+function normalizeImportedStationPayload(station: ImportedStationInput): ImportedStation {
   const { caseDescription, candidateTask } = splitCaseDescriptionAndTaskBlock(station.case_description ?? station.patient_info, station.candidate_task);
   const deliverableMaterials = (station.deliverable_materials?.length
     ? station.deliverable_materials
@@ -136,7 +139,7 @@ function normalizeImportedStationPayload(station: ImportedStation): ImportedStat
   };
 }
 
-function normalizeImportedStationList(stations: ImportedStation[]): ImportedStation[] {
+function normalizeImportedStationList(stations: ImportedStationInput[]): ImportedStation[] {
   return stations.map(normalizeImportedStationPayload);
 }
 
