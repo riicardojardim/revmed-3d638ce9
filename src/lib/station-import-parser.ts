@@ -189,6 +189,37 @@ function roundPoint(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+// Recupera pontuações por sub-item que ficaram "embutidas" no meio do texto
+// quando o PDF tem coluna "Nota" alinhada com cada sub-item. Ex.:
+//   "(2) pergunta algum dado de identificação (idade, estado civil, 0,5 profissão);"
+//   "(7) Doenças prévias/ familiar; 0,5"
+// Soma os números decimais soltos (0,5 / 1,0 / 0.5 / 1.5 etc.) presentes no texto.
+// Conservador: só considera números com vírgula/ponto decimal para evitar
+// capturar números do conteúdo (idades, "4 itens", etc.).
+function sumInlineSubItemScores(value: string): number {
+  if (!value) return 0;
+  // Remove trechos entre parênteses (ex.: "(1)", "(10)", "(0,5)") para não duplicar.
+  // Mantemos números soltos fora de parênteses.
+  const stripped = value.replace(/\([^)]*\)/g, " ");
+  const matches = stripped.matchAll(/(?:^|[\s;,:.\-–—])(\d[.,]\d{1,2})(?=$|[\s;,:.\-–—])/g);
+  let total = 0;
+  for (const m of matches) {
+    const n = Number(m[1].replace(",", "."));
+    if (Number.isFinite(n) && n > 0 && n <= 3) total += n;
+  }
+  return roundPoint(total);
+}
+
+// Remove números decimais soltos (pontuações inline do PDF) do texto.
+function stripInlineSubItemScores(value: string): string {
+  if (!value) return value;
+  return value
+    .replace(/(^|[\s;,:.\-–—])\d[.,]\d{1,2}(?=$|[\s;,:.\-–—])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([;,.])/g, "$1")
+    .trim();
+}
+
 function extractPoints(value: string): number | null {
   // Exige a unidade (pt/pts/ponto/pontos) para evitar capturar números do texto
   // (ex.: "pergunta sobre 4 itens" não deve virar 4 pontos).
@@ -885,6 +916,13 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
       const adequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "ADEQUADO");
       const partialIndex = levels.findIndex((level) => normalizeHeader(level.label) === "PARCIALMENTE ADEQUADO");
 
+      // Se a IA/parser não capturou a pontuação (tudo 0), tenta recuperar
+      // somando os números inline (0,5 / 1,0) que o PDF colocou ao lado de cada sub-item.
+      if (maxPoints <= 0) {
+        const inferred = sumInlineSubItemScores(item.description ?? "");
+        if (inferred > 0) maxPoints = inferred;
+      }
+
       if (adequateIndex >= 0 && levels[adequateIndex].points <= 0 && maxPoints > 0) {
         levels[adequateIndex] = { ...levels[adequateIndex], points: maxPoints };
       }
@@ -897,7 +935,7 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
       return {
         ...item,
         category: cleanMultilineText(item.category ?? "") || "Sem categoria",
-        description: cleanMultilineText(item.description ?? ""),
+        description: cleanMultilineText(stripInlineSubItemScores(item.description ?? "")),
         points: maxPoints,
         levels,
       };
