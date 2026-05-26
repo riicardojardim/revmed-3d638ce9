@@ -184,6 +184,38 @@ function extractPointValuesFromLine(value: string): number[] {
     .filter((point) => Number.isFinite(point));
 }
 
+// Extrai pontuações inline do tipo:
+//   "INADEQUADO = 0 | PARCIALMENTE ADEQUADO = 0,5 | ADEQUADO = 1"
+//   "Inadequado: 0   Adequado: 1,0"
+// Retorna mapa rótulo->pontos quando encontrado.
+function extractInlineLevelScores(value: string): Record<string, number> {
+  const result: Record<string, number> = {};
+  const regex = /(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*[:=\-–—]\s*(\d+(?:[.,]\d+)?)/gi;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(value)) !== null) {
+    const normalized = normalizeHeader(match[1]);
+    const label =
+      normalized === "PARCIALMENTE ADEQUADO"
+        ? "Parcialmente adequado"
+        : normalized === "ADEQUADO"
+          ? "Adequado"
+          : "Inadequado";
+    const points = Number(match[2].replace(",", "."));
+    if (Number.isFinite(points)) result[label] = points;
+  }
+  return result;
+}
+
+// Remove o trecho "PONTUAÇÃO (...): INADEQUADO = X | ADEQUADO = Y" de uma linha de título.
+function stripInlineScoringFromHeading(value: string): string {
+  return value
+    .replace(/PONTUA[CÇ][AÃ]O[^:]*:\s*/i, "")
+    .replace(/(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*[:=]\s*\d+(?:[.,]\d+)?\s*\|?\s*/gi, "")
+    .replace(/\s*\|\s*$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function parseDurationMinutes(value: string): number {
   const match = value.match(/(\d{1,2})\s*(?:min|minutos?)/i);
   if (!match) return 10;
