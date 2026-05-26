@@ -448,7 +448,12 @@ async function extractStationsFromTranscript(
     }
   }
 
-  return StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) }).stations;
+  const normalizedStations = StationsResultSchema.parse({
+    stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations),
+  }).stations;
+
+  const groundedStations = normalizedStations.filter((station) => stationLooksGroundedInTranscript(station, transcript));
+  return groundedStations.length > 0 ? groundedStations : normalizedStations;
 }
 
 // ─────────── Parse de UM PDF a partir das páginas no Storage ───────────
@@ -475,10 +480,22 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
   let parserFailed = false;
   try {
     transcript = data.extractedText?.trim() || "";
-    if (transcript.length < 200) {
-      transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+    const deterministicFromRawText = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
+
+    if (deterministicFromRawText.length > 0) {
+      allStations = StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicFromRawText) }).stations;
+    } else {
+      if (transcript.length < 200) {
+        transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+      }
+
+      const deterministicAfterOcr = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
+      if (deterministicAfterOcr.length > 0) {
+        allStations = StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicAfterOcr) }).stations;
+      } else {
+        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+      }
     }
-    allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
   } catch (e) {
     parserFailed = true;
     console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
