@@ -176,6 +176,12 @@ function extractPoints(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function extractPointValuesFromLine(value: string): number[] {
+  return Array.from(value.matchAll(/\b(\d+(?:[.,]\d+)?)\b/g))
+    .map((match) => Number(match[1].replace(",", ".")))
+    .filter((point) => Number.isFinite(point));
+}
+
 function parseDurationMinutes(value: string): number {
   const match = value.match(/(\d{1,2})\s*(?:min|minutos?)/i);
   if (!match) return 10;
@@ -409,6 +415,14 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
       }
     }
 
+    if (!currentLevel) {
+      const compactPoints = extractPointValuesFromLine(trimmed);
+      if (compactPoints.length >= 2 && compactPoints.length <= 3 && trimmed.replace(/[0-9.,\s\t]+/g, "").length === 0) {
+        numericOnlyValues.push(...compactPoints);
+        continue;
+      }
+    }
+
     if (currentLevel) {
       currentLevel.descriptionLines.push(line);
       continue;
@@ -425,13 +439,17 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   const inadequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "INADEQUADO");
 
   if (numericOnlyValues.length >= 2 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex === -1) {
-    levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: 0 };
     levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[numericOnlyValues.length - 1] };
   }
   if (numericOnlyValues.length >= 3 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex >= 0) {
-    levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: 0 };
     levels[partialIndex] = { ...levels[partialIndex], points: numericOnlyValues[1] };
     levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[2] };
+  }
+
+  if (inadequateIndex >= 0) {
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: 0 };
   }
 
   if (adequateIndex >= 0 && levels[adequateIndex].points <= 0 && maxPoints > 0) {
@@ -494,10 +512,10 @@ function isTitleNoiseLine(line: string): boolean {
   return false;
 }
 
-function parseStationTitle(body: string, fallback: string): string {
+function parseStationTitle(body: string, fallback: string, metaTitle?: string): string {
   const lines = body.replace(/\r\n/g, "\n").split("\n");
   let stationLabel = "";
-  let topic = "";
+  let topic = metaTitle && !isGenericTitlePlaceholder(metaTitle) ? cleanTitlePart(metaTitle) : "";
 
   for (const raw of lines) {
     const line = raw.trim();
@@ -672,12 +690,14 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       const specialtyContext = [meta.AREA, meta.ESPECIALIDADE, extractHeaderSpecialtyContext(block.body)]
         .filter(Boolean)
         .join("\n");
+      const metaTitle = meta.TITULO ?? meta["TITULO DA ESTACAO"] ?? meta["NOME DA ESTACAO"];
+      const durationContext = [meta.TEMPO, meta.DURACAO, meta["TEMPO DA ESTACAO"], block.body].filter(Boolean).join("\n");
 
       const station: ParsedImportedStation = {
-        title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`),
+        title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`, metaTitle),
         specialty: normalizeSpecialty(specialtyContext),
         difficulty: "Intermediário",
-        duration_minutes: 10,
+        duration_minutes: parseDurationMinutes(durationContext),
         clinical_case: cleanMultilineText(sections.clinical_case.join("\n")),
         candidate_task: cleanMultilineText(sections.candidate_task.join("\n")),
         patient_info: emptyToNull(sections.patient_info.join("\n")),
