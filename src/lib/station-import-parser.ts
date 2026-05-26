@@ -54,8 +54,6 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
   { key: "pep", aliases: ["PEP", "CHECKLIST", "PEP CHECKLIST DE AVALIACAO", "PADRAO ESPERADO DE PROCEDIMENTO"] },
 ];
 
-const STATION_MARKER_RE = /^\s*(?:=+\s*)?ESTA[ÇC]A?O\s*\d{0,3}.*$/i;
-
 function normalizeHeader(value: string): string {
   return value
     .normalize("NFD")
@@ -64,6 +62,11 @@ function normalizeHeader(value: string): string {
     .replace(/[^A-Z0-9/ ]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function isStationMarker(line: string): boolean {
+  const normalized = normalizeHeader(line).replace(/^=+\s*|\s*=+$/g, "");
+  return /^ESTACAO\s*\d{0,3}\b/.test(normalized);
 }
 
 function cleanMultilineText(value: string): string {
@@ -112,7 +115,7 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   const markers: number[] = [];
 
   lines.forEach((line, index) => {
-    if (STATION_MARKER_RE.test(line.trim())) markers.push(index);
+    if (isStationMarker(line.trim())) markers.push(index);
   });
 
   if (markers.length === 0) {
