@@ -1100,6 +1100,48 @@ function cleanPatientScriptContent(value: string): string | null {
   return emptyToNull(result.join("\n"));
 }
 
+function cleanSupportMaterialsContent(value: string): string | null {
+  const cleaned = emptyToNull(value);
+  if (!cleaned) return null;
+  const lines = cleaned.split("\n");
+  const result: string[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const upper = trimmed
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
+    if (/^AVALIACAO\s+DE\s+HABILIDADES\s+CLINICAS\b/.test(upper)) continue;
+    if (/^AREA\s*:/.test(upper)) continue;
+    if (/^ESPECIALIDADE\s*:/.test(upper)) continue;
+    result.push(line);
+  }
+  // collapse leading blank lines per impresso block
+  const out: string[] = [];
+  let prevBlank = false;
+  let afterHeader = false;
+  for (const line of result) {
+    const isHeader = /^IMPRESSO\s*\d{1,3}\b/i.test(line.trim());
+    if (isHeader) {
+      out.push(line);
+      afterHeader = true;
+      prevBlank = false;
+      continue;
+    }
+    if (!line.trim()) {
+      if (afterHeader) continue;
+      if (prevBlank) continue;
+      prevBlank = true;
+      out.push(line);
+      continue;
+    }
+    afterHeader = false;
+    prevBlank = false;
+    out.push(line);
+  }
+  return emptyToNull(out.join("\n"));
+}
+
 export function parseStructuredStationsFromText(text: string, sourceLabel = "Texto colado"): ParsedImportedStation[] {
   const recognizedHeaders = countRecognizedHeaders(text);
   const hasStationMarker = /esta[çc][ãa]o\s*\d{1,3}/i.test(text);
