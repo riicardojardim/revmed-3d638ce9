@@ -415,12 +415,10 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
       }
     }
 
-    if (!currentLevel) {
-      const compactPoints = extractPointValuesFromLine(trimmed);
-      if (compactPoints.length >= 2 && compactPoints.length <= 3 && trimmed.replace(/[0-9.,\s\t]+/g, "").length === 0) {
-        numericOnlyValues.push(...compactPoints);
-        continue;
-      }
+    const compactPoints = extractPointValuesFromLine(trimmed);
+    if (compactPoints.length >= 2 && compactPoints.length <= 3 && trimmed.replace(/[0-9.,\s\t]+/g, "").length === 0) {
+      numericOnlyValues.push(...compactPoints);
+      continue;
     }
 
     if (currentLevel) {
@@ -657,7 +655,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         if (!currentSection) {
           const normalizedLine = normalizeHeader(line);
 
-          if (/^(AREA|ESPECIALIDADE)$/.test(normalizedLine)) {
+          if (/^(AREA|ESPECIALIDADE|TITULO|TITULO DA ESTACAO|NOME DA ESTACAO|TEMPO|DURACAO|TEMPO DA ESTACAO)$/.test(normalizedLine)) {
             pendingMetaKey = normalizedLine;
             return;
           }
