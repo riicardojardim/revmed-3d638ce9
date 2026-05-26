@@ -230,6 +230,10 @@ Schema esperado:
   }]
 }`;
 
+const PDF_IMPORT_PRIMARY_MODEL = "google/gemini-2.5-pro";
+const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-flash";
+const PDF_IMPORT_FALLBACK_ERROR_RE = /abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json|not supported in the v1\/chat\/completions|not a chat model/i;
+
 async function signPagePaths(paths: string[]): Promise<string[]> {
   if (paths.length === 0) return [];
   const { data, error } = await supabaseAdmin.storage
@@ -399,11 +403,11 @@ async function extractStationsViaVision(
 
   let parsed: unknown;
   try {
-    parsed = await requestAndParse("openai/gpt-5.5-pro", 300_000);
+    parsed = await requestAndParse(PDF_IMPORT_PRIMARY_MODEL, 300_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-    parsed = await requestAndParse("openai/gpt-5.4-pro", 240_000);
+    if (!PDF_IMPORT_FALLBACK_ERROR_RE.test(msg)) throw err;
+    parsed = await requestAndParse(PDF_IMPORT_FALLBACK_MODEL, 240_000);
   }
   // Gemini às vezes retorna direto o array de estações em vez de { stations: [...] }
   if (Array.isArray(parsed)) parsed = { stations: parsed };
@@ -427,13 +431,25 @@ const TRANSCRIBE_PROMPT = `Você TRANSCREVE LITERALMENTE o texto de páginas esc
 
 async function transcribeViaVision(apiKey: string, imageUrls: string[], userId: string): Promise<string> {
   const userText = "Transcreva LITERALMENTE todo o conteúdo das páginas a seguir, em ordem.";
-  const { content } = await callGemini(apiKey, "openai/gpt-5.5-pro", TRANSCRIBE_PROMPT, userText, imageUrls, {
-    jsonMode: false,
-    timeoutMs: 240_000,
-    userId,
-    kind: "transcript",
-  });
-  return content;
+  try {
+    const { content } = await callGemini(apiKey, PDF_IMPORT_PRIMARY_MODEL, TRANSCRIBE_PROMPT, userText, imageUrls, {
+      jsonMode: false,
+      timeoutMs: 240_000,
+      userId,
+      kind: "transcript",
+    });
+    return content;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!PDF_IMPORT_FALLBACK_ERROR_RE.test(msg)) throw err;
+    const { content } = await callGemini(apiKey, PDF_IMPORT_FALLBACK_MODEL, TRANSCRIBE_PROMPT, userText, imageUrls, {
+      jsonMode: false,
+      timeoutMs: 180_000,
+      userId,
+      kind: "transcript",
+    });
+    return content;
+  }
 }
 
 async function transcribePdfInBatches(apiKey: string, pagePaths: string[], userId: string): Promise<string> {
@@ -483,11 +499,11 @@ async function extractStationsFromTranscript(
 
   let parsed: unknown;
   try {
-    parsed = await requestAndParse("openai/gpt-5.5-pro", 300_000);
+    parsed = await requestAndParse(PDF_IMPORT_PRIMARY_MODEL, 300_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-    parsed = await requestAndParse("openai/gpt-5.4-pro", 240_000);
+    if (!PDF_IMPORT_FALLBACK_ERROR_RE.test(msg)) throw err;
+    parsed = await requestAndParse(PDF_IMPORT_FALLBACK_MODEL, 240_000);
   }
 
   if (Array.isArray(parsed)) parsed = { stations: parsed };
