@@ -153,6 +153,7 @@ function ImportPdfPage() {
   const [pasteLabel, setPasteLabel] = useState("");
   const [pasteText, setPasteText] = useState("");
   const [pasteBusy, setPasteBusy] = useState(false);
+  const [txtBusy, setTxtBusy] = useState(false);
   const [done, setDone] = useState<Set<string>>(() => loadProgress());
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
 
@@ -220,6 +221,52 @@ function ImportPdfPage() {
     } finally {
       setPasteBusy(false);
     }
+  }
+
+  async function processTxtFiles(files: FileList | File[]) {
+    const arr = Array.from(files).filter(
+      (f) => f.type === "text/plain" || f.name.toLowerCase().endsWith(".txt"),
+    );
+    if (!arr.length) {
+      toast.error("Selecione arquivos .txt válidos");
+      return;
+    }
+    setTxtBusy(true);
+    let ok = 0;
+    let fail = 0;
+    for (const file of arr) {
+      const label = file.name.replace(/\.txt$/i, "");
+      const jobId = `txt-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      setJobs((prev) => [
+        ...prev,
+        {
+          id: jobId,
+          file: new File([], `${label}.txt`, { type: "text/plain" }),
+          status: "extracting",
+          stations: [],
+        },
+      ]);
+      try {
+        const text = await file.text();
+        if (text.trim().length < 20) throw new Error("Arquivo vazio ou muito curto");
+        const res = await parseText({ data: { text, sourceLabel: label } });
+        setJobs((prev) =>
+          prev.map((j) =>
+            j.id === jobId
+              ? { ...j, status: "done", stations: res.stations.map((s) => ({ ...s, _selected: true })) }
+              : j,
+          ),
+        );
+        ok++;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "error", error: msg } : j)));
+        fail++;
+      }
+    }
+    setTxtBusy(false);
+    if (ok) toast.success(`${ok} arquivo(s) TXT processado(s)`);
+    if (fail) toast.error(`${fail} arquivo(s) falharam`);
   }
 
   function addFiles(files: FileList | File[]) {
