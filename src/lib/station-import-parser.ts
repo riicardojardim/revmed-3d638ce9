@@ -599,6 +599,10 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   const levels: ParsedChecklistLevel[] = [];
   const numericOnlyValues: number[] = [];
   let currentLevel: { label: string; points: number | null; descriptionLines: string[] } | null = null;
+  // Rótulos cujo valor numérico foi capturado explicitamente (inline na heading/linha,
+  // ou no remainder do próprio rótulo "Inadequado: 0,5"). Esses NUNCA são sobrescritos
+  // por defaults — respeitamos exatamente o que o PDF diz, inclusive Inadequado = 0,5.
+  const explicitLabels = new Set<string>(Object.keys(inlineScores));
 
   const flushLevel = () => {
     if (!currentLevel) return;
@@ -625,6 +629,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
     if (level) {
       flushLevel();
       const { points: sameLinePoints, remainder: cleanedRemainder } = extractLevelPointsFromRemainder(level.remainder);
+      if (sameLinePoints != null) explicitLabels.add(level.label);
       currentLevel = {
         label: level.label,
         points: sameLinePoints,
@@ -637,7 +642,10 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
       const linePoints = extractPoints(trimmed);
       if (linePoints != null) {
         numericOnlyValues.push(linePoints);
-        if (currentLevel && currentLevel.points == null) currentLevel.points = linePoints;
+        if (currentLevel && currentLevel.points == null) {
+          currentLevel.points = linePoints;
+          explicitLabels.add(currentLevel.label);
+        }
         continue;
       }
     }
@@ -677,24 +685,37 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   const partialIndex = levels.findIndex((level) => normalizeHeader(level.label) === "PARCIALMENTE ADEQUADO");
   const inadequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "INADEQUADO");
 
+  // Fallbacks numéricos só preenchem rótulos SEM valor explícito — respeitamos
+  // qualquer pontuação literal vinda do PDF (inclusive Inadequado = 0,5).
   if (numericOnlyValues.length >= 2 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex === -1) {
-    levels[inadequateIndex] = { ...levels[inadequateIndex], points: 0 };
-    levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[numericOnlyValues.length - 1] };
+    if (!explicitLabels.has("Inadequado")) {
+      levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    }
+    if (!explicitLabels.has("Adequado")) {
+      levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[numericOnlyValues.length - 1] };
+    }
   }
   if (numericOnlyValues.length >= 3 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex >= 0) {
-    levels[inadequateIndex] = { ...levels[inadequateIndex], points: 0 };
-    levels[partialIndex] = { ...levels[partialIndex], points: numericOnlyValues[1] };
-    levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[2] };
+    if (!explicitLabels.has("Inadequado")) {
+      levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    }
+    if (!explicitLabels.has("Parcialmente adequado")) {
+      levels[partialIndex] = { ...levels[partialIndex], points: numericOnlyValues[1] };
+    }
+    if (!explicitLabels.has("Adequado")) {
+      levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[2] };
+    }
   }
 
-  if (inadequateIndex >= 0) {
+  // Default só quando o PDF não trouxe nada: Inadequado = 0.
+  if (inadequateIndex >= 0 && !explicitLabels.has("Inadequado") && levels[inadequateIndex].points <= 0) {
     levels[inadequateIndex] = { ...levels[inadequateIndex], points: 0 };
   }
 
-  if (adequateIndex >= 0 && levels[adequateIndex].points <= 0 && maxPoints > 0) {
+  if (adequateIndex >= 0 && !explicitLabels.has("Adequado") && levels[adequateIndex].points <= 0 && maxPoints > 0) {
     levels[adequateIndex] = { ...levels[adequateIndex], points: maxPoints };
   }
-  if (partialIndex >= 0 && levels[partialIndex].points <= 0 && maxPoints > 0) {
+  if (partialIndex >= 0 && !explicitLabels.has("Parcialmente adequado") && levels[partialIndex].points <= 0 && maxPoints > 0) {
     levels[partialIndex] = { ...levels[partialIndex], points: roundPoint(maxPoints / 2) };
   }
 
