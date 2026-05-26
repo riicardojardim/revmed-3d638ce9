@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
+import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
@@ -323,7 +324,7 @@ async function extractStationsViaVision(
       if (arrKey) parsed = { stations: obj[arrKey] };
     }
   }
-  return StationsResultSchema.parse(parsed);
+  return StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) });
 }
 
 const TRANSCRIBE_PROMPT = `Você TRANSCREVE LITERALMENTE o texto de páginas escaneadas de um PDF. Regras inegociáveis:
@@ -541,7 +542,15 @@ export const importStationsFromText = createServerFn({ method: "POST" })
         if (arrKey) parsed = { stations: obj[arrKey] };
       }
     }
-    const result = StationsResultSchema.parse(parsed);
+    const deterministicStations = parseStructuredStationsFromText(data.text, data.sourceLabel);
+    if (deterministicStations.length > 0) {
+      return {
+        sourceLabel: data.sourceLabel,
+        stations: StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicStations) }).stations,
+      };
+    }
+
+    const result = StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) });
     return {
       sourceLabel: data.sourceLabel,
       stations: result.stations,

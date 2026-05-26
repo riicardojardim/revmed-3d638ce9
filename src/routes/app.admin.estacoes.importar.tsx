@@ -596,25 +596,25 @@ function StationEditor({
         </div>
       </div>
       <div>
-        <Label>Caso clínico</Label>
+        <Label>Cenário de atuação</Label>
         <Textarea rows={5} value={station.clinical_case} onChange={(e) => onChange({ clinical_case: e.target.value })} />
       </div>
       <div>
-        <Label>Tarefa do candidato</Label>
+        <Label>Tarefas do candidato</Label>
         <Textarea rows={3} value={station.candidate_task} onChange={(e) => onChange({ candidate_task: e.target.value })} />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <Label>Dados do paciente</Label>
+          <Label>Descrição do caso</Label>
           <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => onChange({ patient_info: e.target.value || null })} />
         </div>
         <div>
-          <Label>Materiais disponíveis</Label>
+          <Label>Impressos</Label>
           <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => onChange({ support_materials: e.target.value || null })} />
         </div>
       </div>
       <div>
-        <Label>Roteiro do paciente/ator</Label>
+        <Label>Orientações do atriz/ator</Label>
         <Textarea rows={5} value={station.patient_script ?? ""} onChange={(e) => onChange({ patient_script: e.target.value || null })} />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
