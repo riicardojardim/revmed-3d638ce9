@@ -318,10 +318,12 @@ function splitChecklistBlocks(text: string): string[] {
   let current: string[] = [];
 
   for (const line of lines) {
+    const normalizedLine = normalizeHeader(line);
     if (
       isDividerLine(line) ||
       isPageMarkerLine(line) ||
-      /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizeHeader(line))
+      /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizedLine) ||
+      /^(PEP\s+CHECKLIST\s+DE\s+AVALIACAO|PADRAO\s+ESPERADO|ITENS\s+DE\s+DESEMPENHO\s+AVALIADOS)\b/.test(normalizedLine)
     ) {
       continue;
     }
