@@ -305,6 +305,7 @@ function AdminStationsPage() {
               checked={allSelected ? true : someSelected ? "indeterminate" : false}
               onCheckedChange={(c) => toggleAll(c === true)}
               aria-label="Selecionar todos"
+              className="h-5 w-5 border-2 border-foreground/60 bg-background data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
             <span>Selecionar todos ({filtered.length})</span>
           </div>
