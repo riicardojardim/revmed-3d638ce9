@@ -425,6 +425,18 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   });
 }
 
+export function splitTranscriptIntoStationSegments(text: string): string[] {
+  const blocks = splitStationBlocks(text)
+    .map((block) => cleanMultilineText(block.body))
+    .filter((block) => Boolean(block))
+    .filter((block) => countRecognizedHeaders(block) > 0 || /esta[çc][ãa]o\s*\d{1,3}/i.test(block));
+
+  if (blocks.length > 1) return blocks;
+
+  const fallback = cleanMultilineText(text);
+  return fallback ? [fallback] : [];
+}
+
 function detectSection(line: string): { key: SectionKey; inline: string } | null {
   const normalized = normalizeHeader(line);
   const trimmedLine = line.trim();

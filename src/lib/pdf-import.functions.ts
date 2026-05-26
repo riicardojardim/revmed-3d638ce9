@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
 import { extractPatientInfoFromSupportText, mergeDeliverableMaterials, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
-import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
+import { normalizeImportedStations, parseStructuredStationsFromText, splitTranscriptIntoStationSegments } from "./station-import-parser";
 
 function normalizeForSourceCheck(value: string): string {
   return value
@@ -583,6 +583,41 @@ async function extractStationsFromTranscript(
   return groundedStations.length > 0 ? groundedStations : normalizedStations;
 }
 
+async function extractStationsFromTranscriptSegments(
+  apiKey: string,
+  transcript: string,
+  userId: string,
+  sourceLabel: string,
+): Promise<ImportedStation[]> {
+  const segments = splitTranscriptIntoStationSegments(transcript);
+  if (segments.length <= 1) {
+    return extractStationsFromTranscript(apiKey, transcript, userId, sourceLabel);
+  }
+
+  const collected: ImportedStation[] = [];
+
+  for (let index = 0; index < segments.length; index++) {
+    const segment = segments[index];
+    const deterministicStations = parseStructuredStationsFromText(segment, `${sourceLabel} — Parte ${index + 1}`);
+
+    if (deterministicStations.length > 0) {
+      const groundedDeterministic = groundStationsAgainstTranscript(
+        StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations,
+        segment,
+      );
+      if (!stationsNeedAiFallback(groundedDeterministic, segment)) {
+        collected.push(...groundedDeterministic);
+        continue;
+      }
+    }
+
+    const extracted = await extractStationsFromTranscript(apiKey, segment, userId, `${sourceLabel} — Parte ${index + 1}`);
+    collected.push(...groundStationsAgainstTranscript(extracted, segment));
+  }
+
+  return collected.length > 0 ? normalizeImportedStationList(normalizeImportedStations(collected)) : [];
+}
+
 // ─────────── Parse de UM PDF a partir das páginas no Storage ───────────
 export const importStationsFromPdf = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -615,7 +650,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
         transcript,
       );
       if (stationsNeedAiFallback(allStations, transcript)) {
-        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+        allStations = await extractStationsFromTranscriptSegments(apiKey, transcript, context.userId, data.filename);
       }
     } else {
       if (transcript.length < 200) {
@@ -629,10 +664,10 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
           transcript,
         );
         if (stationsNeedAiFallback(allStations, transcript)) {
-          allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+          allStations = await extractStationsFromTranscriptSegments(apiKey, transcript, context.userId, data.filename);
         }
       } else {
-        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+        allStations = await extractStationsFromTranscriptSegments(apiKey, transcript, context.userId, data.filename);
       }
     }
   } catch (e) {
