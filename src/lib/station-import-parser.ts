@@ -303,7 +303,7 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
         (alias === "MATERIAL/IMPRESSO" && /^MATERIAL\/?IMPRESSO\s*\d{1,3}\b/.test(normalized))
       ) {
         const inline =
-          alias === "NOS PROXIMOS"
+          alias === "NOS PROXIMOS" || alias === "IMPRESSO" || alias === "MATERIAL/IMPRESSO"
             ? trimmedLine
             : trimmedLine
                 .slice(Math.min(trimmedLine.length, alias.length))
