@@ -472,6 +472,7 @@ function ImportPdfPage() {
         <Tabs defaultValue="pdf" className="mt-4">
           <TabsList>
             <TabsTrigger value="pdf"><Upload className="mr-1.5 h-3.5 w-3.5" /> Enviar PDF</TabsTrigger>
+            <TabsTrigger value="txt"><FileText className="mr-1.5 h-3.5 w-3.5" /> Enviar TXT</TabsTrigger>
             <TabsTrigger value="text"><ClipboardPaste className="mr-1.5 h-3.5 w-3.5" /> Colar texto</TabsTrigger>
           </TabsList>
 
@@ -487,6 +488,25 @@ function ImportPdfPage() {
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files) addFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </TabsContent>
+
+          <TabsContent value="txt">
+            <label className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/30 p-8 text-center transition hover:bg-muted/50 ${txtBusy ? "pointer-events-none opacity-60" : ""}`}>
+              {txtBusy ? <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /> : <FileText className="h-8 w-8 text-muted-foreground" />}
+              <div className="font-medium">Clique ou arraste arquivos .txt aqui</div>
+              <div className="text-xs text-muted-foreground">Selecione vários de uma vez (1 estação por arquivo). O nome do arquivo vira a identificação.</div>
+              <input
+                type="file"
+                multiple
+                accept="text/plain,.txt"
+                className="hidden"
+                disabled={txtBusy}
+                onChange={(e) => {
+                  if (e.target.files) processTxtFiles(e.target.files);
                   e.target.value = "";
                 }}
               />
