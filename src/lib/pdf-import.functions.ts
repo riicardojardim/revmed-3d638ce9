@@ -540,8 +540,8 @@ async function extractStationsFromTranscript(
   userId: string,
   sourceLabel: string,
 ): Promise<ImportedStation[]> {
-  const deterministicStations = parseStructuredStationsFromText(transcript, sourceLabel);
-  const deterministicLooksReliable = deterministicStations.some(
+  const groundedDeterministic = parseDeterministicTranscriptStations(transcript, sourceLabel);
+  const deterministicLooksReliable = groundedDeterministic.some(
     (station) =>
       Boolean(station.patient_script?.trim()) ||
       Boolean(station.patient_info?.trim()) ||
@@ -549,11 +549,10 @@ async function extractStationsFromTranscript(
       station.checklist_items.length > 0,
   );
 
-  if (deterministicStations.length > 0 && deterministicLooksReliable) {
-    const groundedDeterministic = groundStationsAgainstTranscript(
-      StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations,
-      transcript,
-    );
+  if (groundedDeterministic.length > 0 && deterministicLooksReliable) {
+    if (transcript.length > MAX_TRANSCRIPT_AI_CHARS) {
+      return groundedDeterministic;
+    }
     if (!stationsNeedAiFallback(groundedDeterministic, transcript)) {
       return groundedDeterministic;
     }
@@ -605,6 +604,10 @@ async function extractStationsFromTranscriptSegments(
 ): Promise<ImportedStation[]> {
   const segments = splitTranscriptIntoStationSegments(transcript);
   if (segments.length <= 1) {
+    const deterministicSingleSegment = parseDeterministicTranscriptStations(transcript, sourceLabel);
+    if (deterministicSingleSegment.length > 0 && transcript.length > MAX_TRANSCRIPT_AI_CHARS) {
+      return deterministicSingleSegment;
+    }
     return extractStationsFromTranscript(apiKey, transcript, userId, sourceLabel);
   }
 
@@ -612,15 +615,11 @@ async function extractStationsFromTranscriptSegments(
 
   for (let index = 0; index < segments.length; index++) {
     const segment = segments[index];
-    const deterministicStations = parseStructuredStationsFromText(segment, `${sourceLabel} — Parte ${index + 1}`);
+    const deterministicStations = parseDeterministicTranscriptStations(segment, `${sourceLabel} — Parte ${index + 1}`);
 
     if (deterministicStations.length > 0) {
-      const groundedDeterministic = groundStationsAgainstTranscript(
-        StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations,
-        segment,
-      );
-      if (!stationsNeedAiFallback(groundedDeterministic, segment)) {
-        collected.push(...groundedDeterministic);
+      if (segment.length > MAX_TRANSCRIPT_AI_CHARS || !stationsNeedAiFallback(deterministicStations, segment)) {
+        collected.push(...deterministicStations);
         continue;
       }
     }
