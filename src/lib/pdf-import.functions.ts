@@ -323,11 +323,11 @@ async function extractStationsViaVision(
 
   let parsed: unknown;
   try {
-    parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+    parsed = await requestAndParse("google/gemini-3.1-pro-preview", 300_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-    parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
+    parsed = await requestAndParse("google/gemini-3.5-flash", 240_000);
   }
   // Gemini às vezes retorna direto o array de estações em vez de { stations: [...] }
   if (Array.isArray(parsed)) parsed = { stations: parsed };
@@ -351,7 +351,7 @@ const TRANSCRIBE_PROMPT = `Você TRANSCREVE LITERALMENTE o texto de páginas esc
 
 async function transcribeViaVision(apiKey: string, imageUrls: string[], userId: string): Promise<string> {
   const userText = "Transcreva LITERALMENTE todo o conteúdo das páginas a seguir, em ordem.";
-  const { content } = await callGemini(apiKey, "google/gemini-2.5-pro", TRANSCRIBE_PROMPT, userText, imageUrls, {
+  const { content } = await callGemini(apiKey, "google/gemini-3.1-pro-preview", TRANSCRIBE_PROMPT, userText, imageUrls, {
     jsonMode: false,
     timeoutMs: 240_000,
     userId,
@@ -399,11 +399,11 @@ async function extractStationsFromTranscript(
 
   let parsed: unknown;
   try {
-    parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+    parsed = await requestAndParse("google/gemini-3.1-pro-preview", 300_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-    parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
+    parsed = await requestAndParse("google/gemini-3.5-flash", 240_000);
   }
 
   if (Array.isArray(parsed)) parsed = { stations: parsed };
