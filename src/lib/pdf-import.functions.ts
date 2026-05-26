@@ -458,3 +458,53 @@ export const bulkCreateStations = createServerFn({ method: "POST" })
 
     return { created };
   });
+
+// ─────────── Importar estações a partir de TEXTO colado (ChatGPT, etc.) ───────────
+export const importStationsFromText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    z.object({
+      text: z.string().min(20).max(400_000),
+      sourceLabel: z.string().min(1).max(255).default("Texto colado"),
+    }).parse,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
+
+    const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal absoluta) e o schema. Retorne SOMENTE JSON com { "stations": [...] }.\n\n=== TEXTO ===\n${data.text}\n=== FIM ===`;
+
+    async function requestAndParse(model: string, timeoutMs: number) {
+      const { content } = await callGemini(apiKey!, model, SYSTEM_PROMPT, userText, [], {
+        jsonMode: true,
+        timeoutMs,
+        userId: context.userId,
+        kind: "station",
+      });
+      return parseJsonResponse(content || "{}");
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = await requestAndParse("google/gemini-2.5-flash", 180_000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
+      parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+    }
+
+    if (Array.isArray(parsed)) parsed = { stations: parsed };
+    else if (parsed && typeof parsed === "object") {
+      const obj = parsed as Record<string, unknown>;
+      if (!Array.isArray(obj.stations)) {
+        const arrKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
+        if (arrKey) parsed = { stations: obj[arrKey] };
+      }
+    }
+    const result = StationsResultSchema.parse(parsed);
+    return {
+      sourceLabel: data.sourceLabel,
+      stations: result.stations,
+    };
+  });
