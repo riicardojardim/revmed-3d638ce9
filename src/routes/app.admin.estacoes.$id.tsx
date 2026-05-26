@@ -409,7 +409,6 @@ function EditorBody({
             onChange={(m) => up("deliverable_materials", m)}
           />
           <SectionChecklist stationId={id} items={items} reload={load} />
-          <SectionPedagogical station={station} up={up} />
         </>
       ) : (
         <SectionCaseCandidate station={station} up={up} />
@@ -949,40 +948,6 @@ function LevelsEditor({
         );
       })}
     </div>
-  );
-}
-
-function SectionPedagogical({
-  station, up,
-}: {
-  station: Station;
-  up: <K extends keyof Station>(k: K, v: Station[K]) => void;
-}) {
-  return (
-    <Section title="Notas pedagógicas (para o ator)" hint="Conteúdo que o ator usa para conduzir e avaliar, e que aparece no feedback final.">
-      <div>
-        <Label>Conduta esperada</Label>
-        <Textarea rows={4} value={station.expected_conduct ?? ""} onChange={(e) => up("expected_conduct", e.target.value)} />
-      </div>
-      <div>
-        <Label>Erros comuns</Label>
-        <Textarea rows={3} value={station.common_mistakes ?? ""} onChange={(e) => up("common_mistakes", e.target.value)} />
-      </div>
-      <div className="grid gap-3 lg:grid-cols-2">
-        <div>
-          <Label>Observações para o ator / banca</Label>
-          <Textarea rows={3} value={station.evaluator_notes ?? ""} onChange={(e) => up("evaluator_notes", e.target.value)} />
-        </div>
-        <div>
-          <Label>Material de apoio pós-estação</Label>
-          <Textarea rows={3} value={station.post_materials ?? ""} onChange={(e) => up("post_materials", e.target.value)} />
-        </div>
-      </div>
-      <div>
-        <Label>Critérios de pontuação (resumo textual)</Label>
-        <Textarea rows={3} value={station.scoring_criteria ?? ""} onChange={(e) => up("scoring_criteria", e.target.value)} />
-      </div>
-    </Section>
   );
 }
 
