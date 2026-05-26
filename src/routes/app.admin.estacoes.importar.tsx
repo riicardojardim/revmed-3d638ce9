@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2, XCircle, Trash2, Save, UserSquare2, X, ClipboardPaste, Sparkles } from "lucide-react";
@@ -20,6 +20,38 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { importStationsFromPdf, importStationsFromText, bulkCreateStations, type ImportedStation } from "@/lib/pdf-import.functions";
 import { parseDeliverableMaterialsFromSupportText } from "@/lib/imported-station-utils";
 import { renderAndUploadPdf, type RenderProgress } from "@/lib/pdf-page-renderer";
+
+// ───── Grid de progresso "Dia × Estação" (20 dias × 10 estações) ─────
+const PROGRESS_STORAGE_KEY = "revmed.admin.import.progress.v1";
+const DAYS = 20;
+const STATIONS_PER_DAY = 10;
+
+function loadProgress(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(PROGRESS_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveProgress(set: Set<string>) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch { /* ignore */ }
+}
+
+function cellKey(day: number, station: number) {
+  return `D${day}E${station}`;
+}
+
+function cellLabel(day: number, station: number) {
+  return `Dia ${day} - Estação ${station}`;
+}
 
 export const Route = createFileRoute("/app/admin/estacoes/importar")({
   component: ImportPdfPage,
