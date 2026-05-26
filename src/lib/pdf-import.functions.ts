@@ -40,6 +40,29 @@ function stationLooksGroundedInTranscript(station: ImportedStation, transcript: 
   return hits >= Math.max(1, Math.ceil(samples.length / 3));
 }
 
+function checklistItemLooksGroundedInTranscript(item: ImportedStation["checklist_items"][number], transcript: string): boolean {
+  const source = normalizeForSourceCheck(transcript);
+  const samples = [
+    cropForSourceCheck(item.category, 180),
+    cropForSourceCheck(item.description, 600),
+    ...((item.levels ?? []).flatMap((level) => [cropForSourceCheck(level.label, 60), cropForSourceCheck(level.description, 300)])),
+  ]
+    .map(normalizeForSourceCheck)
+    .filter((value) => value.length >= 12);
+
+  if (samples.length === 0) return false;
+
+  const hits = samples.filter((sample) => source.includes(sample)).length;
+  return hits >= Math.max(1, Math.ceil(samples.length / 3));
+}
+
+function filterChecklistItemsGroundedInTranscript(stations: ImportedStation[], transcript: string): ImportedStation[] {
+  return stations.map((station) => ({
+    ...station,
+    checklist_items: (station.checklist_items ?? []).filter((item) => checklistItemLooksGroundedInTranscript(item, transcript)),
+  }));
+}
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
@@ -519,7 +542,10 @@ async function extractStationsFromTranscript(
     stations: normalizeImportedStationList(normalizeImportedStations(StationsResultSchema.parse(parsed).stations)),
   }).stations;
 
-  const groundedStations = normalizedStations.filter((station) => stationLooksGroundedInTranscript(station, transcript));
+  const groundedStations = filterChecklistItemsGroundedInTranscript(
+    normalizedStations.filter((station) => stationLooksGroundedInTranscript(station, transcript)),
+    transcript,
+  );
   return groundedStations.length > 0 ? groundedStations : normalizedStations;
 }
 
