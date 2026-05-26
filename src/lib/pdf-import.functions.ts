@@ -63,6 +63,10 @@ function filterChecklistItemsGroundedInTranscript(stations: ImportedStation[], t
   }));
 }
 
+function groundStationsAgainstTranscript(stations: ImportedStation[], transcript: string): ImportedStation[] {
+  return filterChecklistItemsGroundedInTranscript(stations, transcript).filter((station) => stationLooksGroundedInTranscript(station, transcript));
+}
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
@@ -505,7 +509,10 @@ async function extractStationsFromTranscript(
   );
 
   if (deterministicStations.length > 0 && deterministicLooksReliable) {
-    return StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations;
+    return groundStationsAgainstTranscript(
+      StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations,
+      transcript,
+    );
   }
 
   const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "IMPRESSO" / "IMPRESSOS" → support_materials (copie TODO o bloco literal até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" / "PADRÃO ESPERADO DE RESPOSTA" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n- Quando o PEP terminar e a próxima estação começar, PARE imediatamente a estação atual. NÃO puxe nada da próxima estação.\n\n=== TEXTO ===\n${transcript}\n=== FIM ===`;
@@ -542,10 +549,7 @@ async function extractStationsFromTranscript(
     stations: normalizeImportedStationList(normalizeImportedStations(StationsResultSchema.parse(parsed).stations)),
   }).stations;
 
-  const groundedStations = filterChecklistItemsGroundedInTranscript(
-    normalizedStations.filter((station) => stationLooksGroundedInTranscript(station, transcript)),
-    transcript,
-  );
+  const groundedStations = groundStationsAgainstTranscript(normalizedStations, transcript);
   return groundedStations.length > 0 ? groundedStations : normalizedStations;
 }
 
@@ -576,7 +580,10 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     const deterministicFromRawText = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
 
     if (deterministicFromRawText.length > 0) {
-      allStations = StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicFromRawText)) }).stations;
+      allStations = groundStationsAgainstTranscript(
+        StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicFromRawText)) }).stations,
+        transcript,
+      );
     } else {
       if (transcript.length < 200) {
         transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
@@ -584,7 +591,10 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
 
       const deterministicAfterOcr = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
       if (deterministicAfterOcr.length > 0) {
-        allStations = StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicAfterOcr)) }).stations;
+        allStations = groundStationsAgainstTranscript(
+          StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicAfterOcr)) }).stations,
+          transcript,
+        );
       } else {
         allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
       }
