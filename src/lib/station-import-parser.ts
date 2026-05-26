@@ -1080,6 +1080,26 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
   });
 }
 
+function cleanPatientScriptContent(value: string): string | null {
+  const cleaned = emptyToNull(value);
+  if (!cleaned) return null;
+  const lines = cleaned.split("\n");
+  const result: string[] = [];
+  let started = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed && !started) continue;
+    if (!started) {
+      if (isStationMarker(line) || isStationMetaLine(line)) continue;
+      if (isGenericTitlePlaceholder(trimmed) || isTitleNoiseLine(trimmed)) continue;
+      if (/^ORIENTA[CÇ][OÕ]ES?\b/i.test(trimmed)) continue;
+    }
+    started = true;
+    result.push(line);
+  }
+  return emptyToNull(result.join("\n"));
+}
+
 export function parseStructuredStationsFromText(text: string, sourceLabel = "Texto colado"): ParsedImportedStation[] {
   const recognizedHeaders = countRecognizedHeaders(text);
   const hasStationMarker = /esta[çc][ãa]o\s*\d{1,3}/i.test(text);
