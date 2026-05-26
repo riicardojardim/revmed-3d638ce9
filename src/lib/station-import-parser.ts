@@ -415,12 +415,23 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
 
   const heading = rawLines[firstIndex].trim();
   const headingPoints = (heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1] ? Number(heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1]?.replace(",", ".")) : null) ?? 0;
-  const category = heading
-    .replace(/^#/, "")
-    .replace(/^\d{1,3}\s*[.)\-–—]?\s*/, "")
-    .replace(/\(?\d+(?:[.,]\d+)?\s*(?:pt|pts|pontos?)\)?/gi, "")
-    .replace(/\s*[:\-–—]\s*$/g, "")
-    .trim();
+  const headingInlineScores = extractInlineLevelScores(heading);
+  const category = stripInlineScoringFromHeading(
+    heading
+      .replace(/^#/, "")
+      .replace(/^\d{1,3}\s*[.)\-–—]?\s*/, "")
+      .replace(/\(?\d+(?:[.,]\d+)?\s*(?:pt|pts|pontos?)\)?/gi, "")
+      .replace(/\s*[:\-–—]\s*$/g, ""),
+  );
+
+  // Coleta pontuações inline encontradas em qualquer linha do bloco (heading, "Itens:", etc.)
+  const inlineScores: Record<string, number> = { ...headingInlineScores };
+  for (const line of rawLines) {
+    const scores = extractInlineLevelScores(line);
+    for (const [label, points] of Object.entries(scores)) {
+      if (inlineScores[label] == null) inlineScores[label] = points;
+    }
+  }
 
   const descriptionLines: string[] = [];
   const levels: ParsedChecklistLevel[] = [];
@@ -482,6 +493,20 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   }
 
   flushLevel();
+
+  // Garante que todos os níveis com pontuação inline existam, mesmo sem descrição própria.
+  for (const [label, points] of Object.entries(inlineScores)) {
+    const existingIndex = levels.findIndex((level) => level.label === label);
+    if (existingIndex === -1) {
+      levels.push({ label, points, description: "" });
+    } else if (levels[existingIndex].points <= 0) {
+      levels[existingIndex] = { ...levels[existingIndex], points };
+    }
+  }
+
+  // Reordena para Inadequado → Parcialmente adequado → Adequado.
+  const labelOrder: Record<string, number> = { Inadequado: 0, "Parcialmente adequado": 1, Adequado: 2 };
+  levels.sort((a, b) => (labelOrder[a.label] ?? 99) - (labelOrder[b.label] ?? 99));
 
   let maxPoints = Math.max(headingPoints, ...levels.map((level) => level.points), 0);
   const adequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "ADEQUADO");
