@@ -51,6 +51,44 @@ async function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise
   });
 }
 
+function extractPageText(content: Awaited<ReturnType<import("pdfjs-dist")["getDocument"]>> extends never ? never : Awaited<ReturnType<any>>): string {
+  const items = ((content as { items?: unknown[] }).items ?? []) as Array<{
+    str?: string;
+    hasEOL?: boolean;
+    transform?: number[];
+  }>;
+  const lines: string[] = [];
+  let currentLine: string[] = [];
+  let currentY: number | null = null;
+
+  const flush = () => {
+    const text = currentLine.join(" ").replace(/\s+/g, " ").trim();
+    if (text) lines.push(text);
+    currentLine = [];
+    currentY = null;
+  };
+
+  for (const item of items) {
+    const raw = typeof item.str === "string" ? item.str.trim() : "";
+    const y = Array.isArray(item.transform) ? Math.round(item.transform[5] ?? 0) : null;
+
+    if (raw) {
+      if (currentY != null && y != null && Math.abs(currentY - y) > 2) {
+        flush();
+      }
+      if (currentY == null && y != null) currentY = y;
+      currentLine.push(raw);
+    }
+
+    if (item.hasEOL) {
+      flush();
+    }
+  }
+
+  flush();
+  return lines.join("\n").trim();
+}
+
 /**
  * Renderiza cada página do PDF como JPEG e faz upload direto pro bucket
  * pdf-pages. Retorna os paths salvos.
@@ -77,11 +115,7 @@ export async function renderAndUploadPdf(
   for (let i = 1; i <= total; i++) {
     const page = await doc.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = textContent.items
-      .map((item) => ("str" in item ? item.str : ""))
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
+    const pageText = extractPageText(textContent);
     if (pageText) {
       textParts.push(`--- Página ${i} ---\n${pageText}`);
     }
