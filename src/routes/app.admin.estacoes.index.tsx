@@ -346,7 +346,7 @@ function AdminStationRow({ station, selected, onToggleSelect, onTogglePublish, o
         checked={selected}
         onCheckedChange={(c) => onToggleSelect(c === true)}
         aria-label={`Selecionar ${station.title}`}
-        className="ml-1"
+        className="ml-1 h-5 w-5 border-2 border-foreground/60 bg-background data-[state=checked]:bg-primary data-[state=checked]:border-primary"
       />
       <div className="flex-1 min-w-[200px]">
         <div className="flex flex-wrap items-center gap-2">
