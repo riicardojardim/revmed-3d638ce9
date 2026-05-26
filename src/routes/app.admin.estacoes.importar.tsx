@@ -411,6 +411,13 @@ function ImportPdfPage() {
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <h2 className="font-display text-xl font-bold">Importar checklists de PDFs</h2>
+        <ProgressGrid
+          done={done}
+          selectedCell={selectedCell}
+          onPick={pickCell}
+          onToggleDone={toggleDone}
+          onReset={resetProgress}
+        />
         <p className="mt-1 text-sm text-muted-foreground">
           Envie PDFs ou cole o texto já organizado (ex.: vindo do ChatGPT). A IA monta o checklist <strong>literalmente</strong> e você revisa antes de salvar.
         </p>
