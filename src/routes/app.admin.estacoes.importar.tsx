@@ -602,36 +602,16 @@ function StationEditor({
         <Textarea rows={5} value={station.clinical_case} onChange={(e) => onChange({ clinical_case: e.target.value })} />
       </div>
       <div>
-        <Label>Tarefas do candidato</Label>
-        <Textarea rows={3} value={station.candidate_task} onChange={(e) => onChange({ candidate_task: e.target.value })} />
+        <Label>Descrição do caso</Label>
+        <Textarea rows={5} value={station.patient_info ?? ""} onChange={(e) => onChange({ patient_info: e.target.value || null })} />
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <Label>Descrição do caso</Label>
-          <Textarea rows={3} value={station.patient_info ?? ""} onChange={(e) => onChange({ patient_info: e.target.value || null })} />
-        </div>
-        <div>
-          <Label>Impressos</Label>
-          <Textarea rows={3} value={station.support_materials ?? ""} onChange={(e) => onChange({ support_materials: e.target.value || null })} />
-        </div>
+      <div>
+        <Label>Tarefas do candidato</Label>
+        <Textarea rows={4} value={station.candidate_task} onChange={(e) => onChange({ candidate_task: e.target.value })} />
       </div>
       <div>
         <Label>Orientações do atriz/ator</Label>
-        <Textarea rows={5} value={station.patient_script ?? ""} onChange={(e) => onChange({ patient_script: e.target.value || null })} />
-      </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <Label>Observações para o avaliador</Label>
-          <Textarea rows={3} value={station.evaluator_notes ?? ""} onChange={(e) => onChange({ evaluator_notes: e.target.value || null })} />
-        </div>
-        <div>
-          <Label>Critérios de pontuação</Label>
-          <Textarea rows={3} value={station.scoring_criteria ?? ""} onChange={(e) => onChange({ scoring_criteria: e.target.value || null })} />
-        </div>
-      </div>
-      <div>
-        <Label>Material pós-estação</Label>
-        <Textarea rows={3} value={station.post_materials ?? ""} onChange={(e) => onChange({ post_materials: e.target.value || null })} />
+        <Textarea rows={8} value={station.patient_script ?? ""} onChange={(e) => onChange({ patient_script: e.target.value || null })} />
       </div>
 
       <ChecklistEditor items={station.checklist_items} onChange={(items) => onChange({ checklist_items: items })} />
