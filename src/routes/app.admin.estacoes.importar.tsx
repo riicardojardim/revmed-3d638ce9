@@ -521,6 +521,100 @@ function StatusBadge({ status }: { status: FileStatus }) {
   }
 }
 
+function ProgressGrid({
+  done,
+  selectedCell,
+  onPick,
+  onToggleDone,
+  onReset,
+}: {
+  done: Set<string>;
+  selectedCell: string | null;
+  onPick: (day: number, station: number) => void;
+  onToggleDone: (day: number, station: number, e: React.MouseEvent) => void;
+  onReset: () => void;
+}) {
+  const total = DAYS * STATIONS_PER_DAY;
+  const completed = done.size;
+  const pct = Math.round((completed / total) * 100);
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="font-display text-sm font-semibold">Progresso de importação (Dia × Estação)</div>
+          <div className="text-xs text-muted-foreground">
+            Clique numa célula para preencher o rótulo. Clique no “✓” para marcar/desmarcar como já enviada.
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline">{completed}/{total} • {pct}%</Badge>
+          <Button variant="ghost" size="sm" className="h-7" onClick={onReset}>Limpar</Button>
+        </div>
+      </div>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full border-separate border-spacing-1 text-[10px]">
+          <thead>
+            <tr>
+              <th className="w-10 text-left text-muted-foreground">Dia</th>
+              {Array.from({ length: STATIONS_PER_DAY }, (_, i) => (
+                <th key={i} className="text-center font-medium text-muted-foreground">E{i + 1}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: DAYS }, (_, di) => {
+              const day = di + 1;
+              return (
+                <tr key={day}>
+                  <td className="pr-2 text-right text-muted-foreground">{day}</td>
+                  {Array.from({ length: STATIONS_PER_DAY }, (_, si) => {
+                    const station = si + 1;
+                    const key = cellKey(day, station);
+                    const isDone = done.has(key);
+                    const isSelected = selectedCell === key;
+                    return (
+                      <td key={station} className="p-0">
+                        <button
+                          type="button"
+                          onClick={() => onPick(day, station)}
+                          title={cellLabel(day, station)}
+                          className={
+                            "group relative flex h-8 w-full items-center justify-center rounded-md border text-[10px] font-medium transition-all " +
+                            (isDone
+                              ? "border-success/40 bg-success/15 text-success"
+                              : isSelected
+                                ? "border-mint bg-mint/15 text-foreground ring-1 ring-mint"
+                                : "border-border bg-card text-muted-foreground hover:border-mint/40 hover:text-foreground")
+                          }
+                        >
+                          <span>{day}.{station}</span>
+                          <span
+                            role="button"
+                            aria-label="Alternar concluído"
+                            onClick={(e) => onToggleDone(day, station, e)}
+                            className={
+                              "absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[8px] leading-none transition-opacity " +
+                              (isDone
+                                ? "border-success/60 bg-success text-success-foreground opacity-100"
+                                : "border-border bg-background opacity-0 group-hover:opacity-100")
+                            }
+                          >
+                            ✓
+                          </span>
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 interface PdfJobCardProps {
   job: PdfJob;
   onRemove: () => void;
