@@ -1210,7 +1210,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         clinical_case: cleanMultilineText(sections.clinical_case.join("\n")),
         candidate_task: cleanMultilineText(sections.candidate_task.join("\n")),
         patient_info: emptyToNull(sections.patient_info.join("\n")),
-        support_materials: emptyToNull(sections.support_materials.join("\n")),
+        support_materials: cleanSupportMaterialsContent(sections.support_materials.join("\n")),
         patient_script: cleanPatientScriptContent(sections.patient_script.join("\n")),
         evaluator_notes: null,
         scoring_criteria: null,
