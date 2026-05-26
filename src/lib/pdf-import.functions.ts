@@ -425,8 +425,10 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     z.object({
       filename: z.string().min(1).max(255),
       pagePaths: z.array(z.string().min(1).max(500)).min(1).max(400),
+      extractedText: z.string().max(2_000_000).optional(),
       actorFilename: z.string().min(1).max(255).optional(),
       actorPagePaths: z.array(z.string().min(1).max(500)).max(400).optional(),
+      actorExtractedText: z.string().max(2_000_000).optional(),
       cleanup: z.boolean().default(true),
     }).parse,
   )
@@ -438,7 +440,10 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     let transcript = "";
     let allStations: ImportedStation[] = [];
     try {
-      transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+      transcript = data.extractedText?.trim() || "";
+      if (transcript.length < 200) {
+        transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+      }
       allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
     } catch (e) {
       console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
@@ -478,7 +483,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     if (data.actorPagePaths && data.actorPagePaths.length > 0) {
       try {
         actorPages = data.actorPagePaths.length;
-        const actorText = await transcribePdfInBatches(apiKey, data.actorPagePaths, context.userId);
+        const actorText = data.actorExtractedText?.trim() || await transcribePdfInBatches(apiKey, data.actorPagePaths, context.userId);
         const segments = splitActorByStation(actorText);
         actorSegments = segments.length;
         const byNumber = new Map<number, string>();
