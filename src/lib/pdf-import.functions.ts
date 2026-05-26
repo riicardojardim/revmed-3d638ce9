@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
+import { parseDeliverableMaterialsFromSupportText, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
 import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
 function normalizeForSourceCheck(value: string): string {
@@ -72,6 +73,16 @@ const ChecklistItemSchema = z.object({
   levels: z.array(LevelSchema).default([]),
 });
 
+const DeliverableMaterialSchema = z.object({
+  id: z.string().optional(),
+  name: str(""),
+  type: str("Impresso"),
+  description: str(""),
+  content: str(""),
+  imageUrl: z.string().optional(),
+  autoDeliver: z.boolean().optional(),
+});
+
 const StationSchema = z.object({
   title: str("Estação sem título"),
   specialty: str("Clínica Médica"),
@@ -88,9 +99,11 @@ const StationSchema = z.object({
     z.number().int().min(3).max(30),
   ),
   clinical_case: str(""),
+  case_description: nstr(),
   candidate_task: str(""),
   patient_info: nstr(),
   support_materials: nstr(),
+  deliverable_materials: z.array(DeliverableMaterialSchema).default([]),
   patient_script: nstr(),
   evaluator_notes: nstr(),
   scoring_criteria: nstr(),
