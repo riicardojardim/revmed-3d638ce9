@@ -167,6 +167,12 @@ function isStationMetaLine(line: string): boolean {
 function cleanMultilineText(value: string): string {
   return value
     .replace(/\r\n/g, "\n")
+    .replace(
+      /\s*(?:Notas?\s+vis[ií]veis\s+na\s+tabela\s*:?\s*)?\(?\s*somente\s+os\s+valores\s+exibidos\s+no\s+PDF[\s\S]*$/i,
+      "",
+    )
+    .replace(/\s*(?:Notas?\s+vis[ií]veis\s+na\s+tabela\s*:?\s*)?(?=Item\s+\d+\s*[:\-–—]\s*(?:INADEQUADO|PARCIALMENTE\s+ADEQUADO|ADEQUADO))[\s\S]*$/i, "")
+    .replace(/\s*Notas?\s+vis[ií]veis\s+na\s+tabela\s*:?\s*$/i, "")
     .replace(/^\s+|\s+$/g, "")
     .replace(/\n{3,}/g, "\n\n");
 }
