@@ -184,6 +184,38 @@ function extractPointValuesFromLine(value: string): number[] {
     .filter((point) => Number.isFinite(point));
 }
 
+// Extrai pontuações inline do tipo:
+//   "INADEQUADO = 0 | PARCIALMENTE ADEQUADO = 0,5 | ADEQUADO = 1"
+//   "Inadequado: 0   Adequado: 1,0"
+// Retorna mapa rótulo->pontos quando encontrado.
+function extractInlineLevelScores(value: string): Record<string, number> {
+  const result: Record<string, number> = {};
+  const regex = /(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*[:=\-–—]\s*(\d+(?:[.,]\d+)?)/gi;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(value)) !== null) {
+    const normalized = normalizeHeader(match[1]);
+    const label =
+      normalized === "PARCIALMENTE ADEQUADO"
+        ? "Parcialmente adequado"
+        : normalized === "ADEQUADO"
+          ? "Adequado"
+          : "Inadequado";
+    const points = Number(match[2].replace(",", "."));
+    if (Number.isFinite(points)) result[label] = points;
+  }
+  return result;
+}
+
+// Remove o trecho "PONTUAÇÃO (...): INADEQUADO = X | ADEQUADO = Y" de uma linha de título.
+function stripInlineScoringFromHeading(value: string): string {
+  return value
+    .replace(/PONTUA[CÇ][AÃ]O[^:]*:\s*/i, "")
+    .replace(/(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*[:=]\s*\d+(?:[.,]\d+)?\s*\|?\s*/gi, "")
+    .replace(/\s*\|\s*$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function parseDurationMinutes(value: string): number {
   const match = value.match(/(\d{1,2})\s*(?:min|minutos?)/i);
   if (!match) return 10;
@@ -383,12 +415,23 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
 
   const heading = rawLines[firstIndex].trim();
   const headingPoints = (heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1] ? Number(heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1]?.replace(",", ".")) : null) ?? 0;
-  const category = heading
-    .replace(/^#/, "")
-    .replace(/^\d{1,3}\s*[.)\-–—]?\s*/, "")
-    .replace(/\(?\d+(?:[.,]\d+)?\s*(?:pt|pts|pontos?)\)?/gi, "")
-    .replace(/\s*[:\-–—]\s*$/g, "")
-    .trim();
+  const headingInlineScores = extractInlineLevelScores(heading);
+  const category = stripInlineScoringFromHeading(
+    heading
+      .replace(/^#/, "")
+      .replace(/^\d{1,3}\s*[.)\-–—]?\s*/, "")
+      .replace(/\(?\d+(?:[.,]\d+)?\s*(?:pt|pts|pontos?)\)?/gi, "")
+      .replace(/\s*[:\-–—]\s*$/g, ""),
+  );
+
+  // Coleta pontuações inline encontradas em qualquer linha do bloco (heading, "Itens:", etc.)
+  const inlineScores: Record<string, number> = { ...headingInlineScores };
+  for (const line of rawLines) {
+    const scores = extractInlineLevelScores(line);
+    for (const [label, points] of Object.entries(scores)) {
+      if (inlineScores[label] == null) inlineScores[label] = points;
+    }
+  }
 
   const descriptionLines: string[] = [];
   const levels: ParsedChecklistLevel[] = [];
@@ -450,6 +493,20 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   }
 
   flushLevel();
+
+  // Garante que todos os níveis com pontuação inline existam, mesmo sem descrição própria.
+  for (const [label, points] of Object.entries(inlineScores)) {
+    const existingIndex = levels.findIndex((level) => level.label === label);
+    if (existingIndex === -1) {
+      levels.push({ label, points, description: "" });
+    } else if (levels[existingIndex].points <= 0) {
+      levels[existingIndex] = { ...levels[existingIndex], points };
+    }
+  }
+
+  // Reordena para Inadequado → Parcialmente adequado → Adequado.
+  const labelOrder: Record<string, number> = { Inadequado: 0, "Parcialmente adequado": 1, Adequado: 2 };
+  levels.sort((a, b) => (labelOrder[a.label] ?? 99) - (labelOrder[b.label] ?? 99));
 
   let maxPoints = Math.max(headingPoints, ...levels.map((level) => level.points), 0);
   const adequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "ADEQUADO");
