@@ -226,8 +226,17 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   const collectMarker = (index: number) => {
     let start = index;
     for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
-      if (!lines[back].trim()) continue;
-      if (isStationMetaLine(lines[back])) start = back;
+      const trimmed = lines[back].trim();
+      if (!trimmed) continue;
+      const normalized = normalizeHeader(trimmed);
+      const prevNormalized = back > 0 ? normalizeHeader(lines[back - 1]) : "";
+      if (
+        isStationMetaLine(lines[back]) ||
+        /^(AREA|ESPECIALIDADE)$/.test(normalized) ||
+        (/^(AREA|ESPECIALIDADE)$/.test(prevNormalized) && trimmed.length > 0)
+      ) {
+        start = back;
+      }
       else break;
     }
     return start;
