@@ -133,14 +133,13 @@ MAPEAMENTO DE SEÇÕES → CAMPOS (estrito):
 CAMPOS RESTANTES:
 - title: título/nome literal da estação (ex.: "ESTAÇÃO 10 — TABAGISMO").
 - specialty: uma de "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade". Inferir SOMENTE de "ÁREA: ..." declarada; senão "Clínica Médica".
-- difficulty: "Intermediário" se não estiver explícito.
 - duration_minutes: número entre 3 e 30 (procure "Nos próximos X minutos"; default 10).
 - evaluator_notes, scoring_criteria, post_materials, competencies: copiar LITERAL quando existir; null/[] caso contrário. NÃO duplique conteúdo de outras seções.
 
 Schema esperado:
 {
   "stations": [{
-    "title": string, "specialty": string, "difficulty": "Fácil"|"Intermediário"|"Avançado",
+    "title": string, "specialty": string,
     "duration_minutes": number,
     "clinical_case": string, "candidate_task": string,
     "patient_info": string|null, "support_materials": string|null,
