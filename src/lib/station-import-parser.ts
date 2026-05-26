@@ -264,6 +264,90 @@ function extractInlineLevelScores(value: string): Record<string, number> {
   return result;
 }
 
+function extractChecklistScoreSummary(text: string): Map<number, Record<string, number>> {
+  const summaryByItem = new Map<number, Record<string, number>>();
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  let insideSummary = false;
+
+  for (const rawLine of lines) {
+    const trimmed = rawLine.trim();
+    const normalized = normalizeHeader(trimmed);
+
+    if (/^RESUMO DAS NOTAS VISIVEIS(?: NAS COLUNAS DO PDF)?/.test(normalized)) {
+      insideSummary = true;
+      continue;
+    }
+
+    if (!insideSummary) continue;
+
+    if (!trimmed || /^\(.+\)$/.test(trimmed)) continue;
+
+    if (
+      isChecklistItemStart(trimmed) ||
+      /^(PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?|ITENS DE DESEMPENHO AVALIADOS)\b/.test(normalized)
+    ) {
+      break;
+    }
+
+    const match = trimmed.match(/^ITEM\s*(\d+)\s*[:\-–—]\s*(.+)$/i);
+    if (!match) continue;
+
+    const itemNumber = Number(match[1]);
+    if (!Number.isFinite(itemNumber) || itemNumber <= 0) continue;
+
+    const scores = extractInlineLevelScores(match[2] ?? "");
+    if (Object.keys(scores).length === 0) continue;
+
+    summaryByItem.set(itemNumber, scores);
+  }
+
+  return summaryByItem;
+}
+
+function applyChecklistScoreSummary(
+  items: ParsedChecklistItem[],
+  summaryByItem: Map<number, Record<string, number>>,
+): ParsedChecklistItem[] {
+  if (summaryByItem.size === 0) return items;
+
+  const labelOrder: Record<string, number> = { Inadequado: 0, "Parcialmente adequado": 1, Adequado: 2 };
+
+  return items.map((item, index) => {
+    const summary = summaryByItem.get(index + 1);
+    if (!summary) return item;
+
+    const levels = [...(item.levels ?? [])];
+    for (const [label, points] of Object.entries(summary)) {
+      const existingIndex = levels.findIndex(
+        (level) => normalizeHeader(level.label) === normalizeHeader(label),
+      );
+
+      if (existingIndex >= 0) {
+        levels[existingIndex] = { ...levels[existingIndex], points };
+      } else {
+        levels.push({ label, points, description: "" });
+      }
+    }
+
+    levels.sort((a, b) => (labelOrder[a.label] ?? 99) - (labelOrder[b.label] ?? 99));
+
+    const summaryLabels = new Set(Object.keys(summary).map((label) => normalizeHeader(label)));
+    const maxPoints = Math.max(
+      0,
+      ...Object.values(summary),
+      ...levels
+        .filter((level) => !summaryLabels.has(normalizeHeader(level.label)))
+        .map((level) => level.points),
+    );
+
+    return {
+      ...item,
+      points: roundPoint(maxPoints),
+      levels,
+    };
+  });
+}
+
 // Remove o trecho "PONTUAÇÃO (...): INADEQUADO = X | ADEQUADO = Y" de uma linha de título.
 function stripInlineScoringFromHeading(value: string): string {
   return value
@@ -741,9 +825,11 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
 function parsePepChecklist(text: string): ParsedChecklistItem[] {
   const cleaned = emptyToNull(text);
   if (!cleaned) return [];
-  return splitChecklistBlocks(cleaned)
+  const items = splitChecklistBlocks(cleaned)
     .map(parseChecklistItem)
     .filter((item): item is ParsedChecklistItem => Boolean(item));
+
+  return applyChecklistScoreSummary(items, extractChecklistScoreSummary(cleaned));
 }
 
 function cleanTitlePart(value: string): string {
