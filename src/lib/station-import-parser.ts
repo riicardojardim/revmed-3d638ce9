@@ -206,18 +206,17 @@ function extractPointValuesFromLine(value: string): number[] {
 // Retorna mapa rótulo->pontos quando encontrado.
 function extractInlineLevelScores(value: string): Record<string, number> {
   const result: Record<string, number> = {};
-  const regex = /(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*(?:(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)(?:\s*\)\s*[:=\-–—]?\s*|\s+))/gi;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(value)) !== null) {
-    const normalized = normalizeHeader(match[1]);
-    const label =
-      normalized === "PARCIALMENTE ADEQUADO"
-        ? "Parcialmente adequado"
-        : normalized === "ADEQUADO"
-          ? "Adequado"
-          : "Inadequado";
-    const points = Number(match[2].replace(",", "."));
-    if (Number.isFinite(points)) result[label] = points;
+  const patterns: Array<{ label: string; regex: RegExp }> = [
+    { label: "Inadequado", regex: /INADEQUADO\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Parcialmente adequado", regex: /PARCIALMENTE\s+ADEQUADO\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Adequado", regex: /ADEQUADO\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+  ];
+
+  for (const pattern of patterns) {
+    const match = value.match(pattern.regex);
+    if (!match?.[1]) continue;
+    const points = Number(match[1].replace(",", "."));
+    if (Number.isFinite(points)) result[pattern.label] = points;
   }
   return result;
 }
