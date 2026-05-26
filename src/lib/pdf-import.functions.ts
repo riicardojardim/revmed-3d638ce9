@@ -360,6 +360,64 @@ async function transcribeViaVision(apiKey: string, imageUrls: string[], userId: 
   return content;
 }
 
+async function transcribePdfInBatches(apiKey: string, pagePaths: string[], userId: string): Promise<string> {
+  const BATCH_SIZE = 20;
+  const parts: string[] = [];
+
+  for (let i = 0; i < pagePaths.length; i += BATCH_SIZE) {
+    const batch = pagePaths.slice(i, i + BATCH_SIZE);
+    const urls = await signPagePaths(batch);
+    const text = await transcribeViaVision(apiKey, urls, userId);
+    if (text.trim()) parts.push(text.trim());
+  }
+
+  return parts.join("\n\n");
+}
+
+async function extractStationsFromTranscript(
+  apiKey: string,
+  transcript: string,
+  userId: string,
+  sourceLabel: string,
+): Promise<ImportedStation[]> {
+  const deterministicStations = parseStructuredStationsFromText(transcript, sourceLabel);
+  if (deterministicStations.length > 0) {
+    return StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicStations) }).stations;
+  }
+
+  const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "IMPRESSO" / "IMPRESSOS" → support_materials (copie TODO o bloco literal até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" / "PADRÃO ESPERADO DE RESPOSTA" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n- Quando o PEP terminar e a próxima estação começar, PARE imediatamente a estação atual. NÃO puxe nada da próxima estação.\n\n=== TEXTO ===\n${transcript}\n=== FIM ===`;
+
+  async function requestAndParse(model: string, timeoutMs: number) {
+    const { content } = await callGemini(apiKey, model, SYSTEM_PROMPT, userText, [], {
+      jsonMode: true,
+      timeoutMs,
+      userId,
+      kind: "station",
+    });
+    return parseJsonResponse(content || "{}");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
+    parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
+  }
+
+  if (Array.isArray(parsed)) parsed = { stations: parsed };
+  else if (parsed && typeof parsed === "object") {
+    const obj = parsed as Record<string, unknown>;
+    if (!Array.isArray(obj.stations)) {
+      const arrKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
+      if (arrKey) parsed = { stations: obj[arrKey] };
+    }
+  }
+
+  return StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) }).stations;
+}
+
 // ─────────── Parse de UM PDF a partir das páginas no Storage ───────────
 export const importStationsFromPdf = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -377,28 +435,36 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    // Processa o PDF em LOTES de páginas. PDFs grandes (>30 páginas) em uma
-    // única chamada fazem o Gemini retornar resposta vazia silenciosamente.
-    const BATCH_SIZE = 20;
-    const batches: string[][] = [];
-    for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {
-      batches.push(data.pagePaths.slice(i, i + BATCH_SIZE));
+    let transcript = "";
+    let allStations: ImportedStation[] = [];
+    try {
+      transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+      allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+    } catch (e) {
+      console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
     }
 
-    const allStations: ImportedStation[] = [];
-    for (let i = 0; i < batches.length; i++) {
-      const urls = await signPagePaths(batches[i]);
-      try {
-        const partial = await extractStationsViaVision(apiKey, urls, context.userId);
-        allStations.push(...partial.stations);
-      } catch (e) {
-        console.error(`[pdf-import] batch ${i + 1}/${batches.length} failed`, e);
+    if (allStations.length === 0) {
+      const BATCH_SIZE = 20;
+      const batches: string[][] = [];
+      for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {
+        batches.push(data.pagePaths.slice(i, i + BATCH_SIZE));
+      }
+
+      for (let i = 0; i < batches.length; i++) {
+        const urls = await signPagePaths(batches[i]);
+        try {
+          const partial = await extractStationsViaVision(apiKey, urls, context.userId);
+          allStations.push(...partial.stations);
+        } catch (e) {
+          console.error(`[pdf-import] batch ${i + 1}/${batches.length} failed`, e);
+        }
       }
     }
 
     if (allStations.length === 0) {
       throw new Error(
-        `A IA não conseguiu extrair nenhuma estação deste PDF (${data.pagePaths.length} páginas, ${batches.length} lotes). ` +
+        `A IA não conseguiu extrair nenhuma estação deste PDF (${data.pagePaths.length} páginas). ` +
         `Verifique se o PDF tem texto/imagens legíveis ou tente a opção "Colar texto".`,
       );
     }
@@ -412,8 +478,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     if (data.actorPagePaths && data.actorPagePaths.length > 0) {
       try {
         actorPages = data.actorPagePaths.length;
-        const actorUrls = await signPagePaths(data.actorPagePaths);
-        const actorText = await transcribeViaVision(apiKey, actorUrls, context.userId);
+        const actorText = await transcribePdfInBatches(apiKey, data.actorPagePaths, context.userId);
         const segments = splitActorByStation(actorText);
         actorSegments = segments.length;
         const byNumber = new Map<number, string>();
@@ -551,48 +616,8 @@ export const importStationsFromText = createServerFn({ method: "POST" })
     await assertAdmin(context.userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
-
-    const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n\n=== TEXTO ===\n${data.text}\n=== FIM ===`;
-
-    async function requestAndParse(model: string, timeoutMs: number) {
-      const { content } = await callGemini(apiKey!, model, SYSTEM_PROMPT, userText, [], {
-        jsonMode: true,
-        timeoutMs,
-        userId: context.userId,
-        kind: "station",
-      });
-      return parseJsonResponse(content || "{}");
-    }
-
-    let parsed: unknown;
-    try {
-      // Pro como padrão para texto: precisão de segmentação importa mais que custo.
-      parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-      parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
-    }
-
-    if (Array.isArray(parsed)) parsed = { stations: parsed };
-    else if (parsed && typeof parsed === "object") {
-      const obj = parsed as Record<string, unknown>;
-      if (!Array.isArray(obj.stations)) {
-        const arrKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
-        if (arrKey) parsed = { stations: obj[arrKey] };
-      }
-    }
-    const deterministicStations = parseStructuredStationsFromText(data.text, data.sourceLabel);
-    if (deterministicStations.length > 0) {
-      return {
-        sourceLabel: data.sourceLabel,
-        stations: StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicStations) }).stations,
-      };
-    }
-
-    const result = StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) });
     return {
       sourceLabel: data.sourceLabel,
-      stations: result.stations,
+      stations: await extractStationsFromTranscript(apiKey, data.text, context.userId, data.sourceLabel),
     };
   });

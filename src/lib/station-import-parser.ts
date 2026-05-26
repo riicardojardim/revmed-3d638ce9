@@ -37,9 +37,20 @@ type SectionKey =
   | "pep";
 
 const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
-  { key: "clinical_case", aliases: ["CENARIO DE ATUACAO"] },
-  { key: "candidate_task", aliases: ["TAREFAS DO CANDIDATO", "TAREFAS"] },
-  { key: "patient_info", aliases: ["DESCRICAO DO CASO"] },
+  { key: "clinical_case", aliases: ["CENARIO DE ATUACAO", "CENARIO"] },
+  {
+    key: "candidate_task",
+    aliases: [
+      "TAREFAS DO CANDIDATO",
+      "TAREFAS",
+      "NOS PROXIMOS",
+      "O CANDIDATO DEVERA",
+      "VOCE DEVERA",
+      "INSTRUCOES PARA O PARTICIPANTE",
+      "INSTRUCOES PARA O A PARTICIPANTE",
+    ],
+  },
+  { key: "patient_info", aliases: ["DESCRICAO DO CASO", "FICHA DO PACIENTE", "FICHA DE ATENDIMENTO"] },
   {
     key: "patient_script",
     aliases: [
@@ -48,10 +59,30 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "ORIENTACOES AO ATOR/ATRIZ",
       "ORIENTACOES AO ATOR",
       "ORIENTACOES A ATRIZ",
+      "INSTRUCOES PARA O ATOR",
+      "INSTRUCOES PARA O ATO",
     ],
   },
-  { key: "support_materials", aliases: ["IMPRESSOS"] },
-  { key: "pep", aliases: ["PEP", "CHECKLIST", "PEP CHECKLIST DE AVALIACAO", "PADRAO ESPERADO DE PROCEDIMENTO"] },
+  { key: "support_materials", aliases: ["IMPRESSOS", "IMPRESSO", "IMPRESSOS E MATERIAIS ENTREGAVEIS", "MATERIAIS ENTREGAVEIS"] },
+  {
+    key: "pep",
+    aliases: [
+      "PEP",
+      "CHECKLIST",
+      "PEP CHECKLIST DE AVALIACAO",
+      "PADRAO ESPERADO DE PROCEDIMENTO",
+      "PADRAO ESPERADO DE RESPOSTA",
+      "PADRAO ESPERADO",
+      "ITENS DE DESEMPENHO AVALIADOS",
+    ],
+  },
+];
+
+const STATION_START_ALIASES = [
+  "INSTRUCOES PARA O PARTICIPANTE",
+  "INSTRUCOES PARA O A PARTICIPANTE",
+  "INSTRUCOES AO PARTICIPANTE",
+  "INSTRUCOES PARA O CANDIDATO",
 ];
 
 function normalizeHeader(value: string): string {
@@ -67,6 +98,21 @@ function normalizeHeader(value: string): string {
 function isStationMarker(line: string): boolean {
   const normalized = normalizeHeader(line).replace(/^=+\s*|\s*=+$/g, "");
   return /^ESTACAO\s*\d{0,3}\b/.test(normalized);
+}
+
+function isStationStartLine(line: string): boolean {
+  const normalized = normalizeHeader(line);
+  return isStationMarker(line) || STATION_START_ALIASES.includes(normalized);
+}
+
+function isStationMetaLine(line: string): boolean {
+  const normalized = normalizeHeader(line);
+  return Boolean(
+    normalized &&
+      (/^AREA\b/.test(normalized) ||
+        /^ESTACAO\b/.test(normalized) ||
+        /^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)),
+  );
 }
 
 function cleanMultilineText(value: string): string {
@@ -112,21 +158,31 @@ function normalizeSpecialty(value: string | undefined): ParsedImportedStation["s
 
 function splitStationBlocks(text: string): Array<{ header: string; body: string }> {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const markers: number[] = [];
+  const markers = new Set<number>();
 
   lines.forEach((line, index) => {
-    if (isStationMarker(line.trim())) markers.push(index);
+    if (!isStationStartLine(line.trim())) return;
+    let start = index;
+    for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
+      if (!lines[back].trim()) continue;
+      if (isStationMetaLine(lines[back])) start = back;
+      else break;
+    }
+    markers.add(start);
   });
 
-  if (markers.length === 0) {
+  const sortedMarkers = Array.from(markers).sort((a, b) => a - b);
+
+  if (sortedMarkers.length === 0) {
     return [{ header: "", body: text }];
   }
 
-  return markers.map((start, index) => {
-    const end = index + 1 < markers.length ? markers[index + 1] : lines.length;
+  return sortedMarkers.map((start, index) => {
+    const end = index + 1 < sortedMarkers.length ? sortedMarkers[index + 1] : lines.length;
+    const header = lines.slice(start, Math.min(end, start + 2)).filter((line) => line.trim()).join(" — ").trim();
     return {
-      header: lines[start].trim(),
-      body: lines.slice(start + 1, end).join("\n"),
+      header,
+      body: lines.slice(start, end).join("\n"),
     };
   });
 }
@@ -135,7 +191,13 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
   const normalized = normalizeHeader(line);
   for (const section of SECTION_LABELS) {
     for (const alias of section.aliases) {
-      if (normalized === alias || normalized.startsWith(`${alias} `)) {
+      if (
+        normalized === alias ||
+        normalized.startsWith(`${alias} `) ||
+        normalized.startsWith(`${alias}:`) ||
+        (alias === "NOS PROXIMOS" && /^NOS PROXIMOS\s+\d{1,2}\s+MINUTOS/.test(normalized)) ||
+        (alias === "IMPRESSO" && /^IMPRESSO\s*\d{1,3}\b/.test(normalized))
+      ) {
         const inline = line.includes(":") ? line.slice(line.indexOf(":") + 1).trim() : "";
         return { key: section.key, inline };
       }
@@ -194,7 +256,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   if (firstIndex === -1) return null;
 
   const heading = rawLines[firstIndex].trim();
-  const headingPoints = extractPoints(heading) ?? 0;
+  const headingPoints = (heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1] ? Number(heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1]?.replace(",", ".")) : null) ?? 0;
   const category = heading
     .replace(/^#/, "")
     .replace(/^\d{1,3}\s*[.)\-–—]?\s*/, "")
@@ -204,6 +266,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
 
   const descriptionLines: string[] = [];
   const levels: ParsedChecklistLevel[] = [];
+  const numericOnlyValues: number[] = [];
   let currentLevel: { label: string; points: number | null; descriptionLines: string[] } | null = null;
 
   const flushLevel = () => {
@@ -237,15 +300,16 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
       continue;
     }
 
-    if (currentLevel) {
-      if (currentLevel.points == null) {
-        const linePoints = extractPoints(trimmed);
-        const isPointsOnly = /^\d+(?:[.,]\d+)?$/.test(trimmed);
-        if (linePoints != null && isPointsOnly) {
-          currentLevel.points = linePoints;
-          continue;
-        }
+    if (/^\d+(?:[.,]\d+)?$/.test(trimmed)) {
+      const linePoints = extractPoints(trimmed);
+      if (linePoints != null) {
+        numericOnlyValues.push(linePoints);
+        if (currentLevel && currentLevel.points == null) currentLevel.points = linePoints;
+        continue;
       }
+    }
+
+    if (currentLevel) {
       currentLevel.descriptionLines.push(line);
       continue;
     }
@@ -258,6 +322,17 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   let maxPoints = Math.max(headingPoints, ...levels.map((level) => level.points), 0);
   const adequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "ADEQUADO");
   const partialIndex = levels.findIndex((level) => normalizeHeader(level.label) === "PARCIALMENTE ADEQUADO");
+  const inadequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "INADEQUADO");
+
+  if (numericOnlyValues.length >= 2 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex === -1) {
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[numericOnlyValues.length - 1] };
+  }
+  if (numericOnlyValues.length >= 3 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex >= 0) {
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    levels[partialIndex] = { ...levels[partialIndex], points: numericOnlyValues[1] };
+    levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[2] };
+  }
 
   if (adequateIndex >= 0 && levels[adequateIndex].points <= 0 && maxPoints > 0) {
     levels[adequateIndex] = { ...levels[adequateIndex], points: maxPoints };
@@ -285,7 +360,12 @@ function parsePepChecklist(text: string): ParsedChecklistItem[] {
 }
 
 function parseStationTitle(header: string, fallback: string): string {
-  const cleaned = header.replace(/^=+\s*|\s*=+$/g, "").trim();
+  const cleaned =
+    header
+      .replace(/^=+\s*|\s*=+$/g, "")
+      .split(" — ")
+      .map((part) => part.trim())
+      .find((part) => /^ESTA[ÇC][ÃA]O\b/i.test(part) || /^ESTACAO\b/i.test(normalizeHeader(part))) ?? header.trim();
   if (cleaned) return cleaned;
   return fallback;
 }
@@ -355,9 +435,21 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       let currentSection: SectionKey | null = null;
 
       block.body.split(/\r?\n/).forEach((line) => {
+        if (currentSection === "pep" && isStationStartLine(line.trim())) {
+          currentSection = null;
+          return;
+        }
+
         const section = detectSection(line);
         if (section) {
+          if (currentSection === "pep" && section.key !== "pep") {
+            currentSection = null;
+          }
           currentSection = section.key;
+          if (section.key === "support_materials" && /^IMPRESSO\s*\d{1,3}\b/i.test(line.trim())) {
+            sections[section.key].push(line.trim());
+            return;
+          }
           if (section.inline) sections[section.key].push(section.inline);
           return;
         }
