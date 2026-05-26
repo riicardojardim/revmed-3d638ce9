@@ -616,48 +616,8 @@ export const importStationsFromText = createServerFn({ method: "POST" })
     await assertAdmin(context.userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
-
-    const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n\n=== TEXTO ===\n${data.text}\n=== FIM ===`;
-
-    async function requestAndParse(model: string, timeoutMs: number) {
-      const { content } = await callGemini(apiKey!, model, SYSTEM_PROMPT, userText, [], {
-        jsonMode: true,
-        timeoutMs,
-        userId: context.userId,
-        kind: "station",
-      });
-      return parseJsonResponse(content || "{}");
-    }
-
-    let parsed: unknown;
-    try {
-      // Pro como padrão para texto: precisão de segmentação importa mais que custo.
-      parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-      parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
-    }
-
-    if (Array.isArray(parsed)) parsed = { stations: parsed };
-    else if (parsed && typeof parsed === "object") {
-      const obj = parsed as Record<string, unknown>;
-      if (!Array.isArray(obj.stations)) {
-        const arrKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
-        if (arrKey) parsed = { stations: obj[arrKey] };
-      }
-    }
-    const deterministicStations = parseStructuredStationsFromText(data.text, data.sourceLabel);
-    if (deterministicStations.length > 0) {
-      return {
-        sourceLabel: data.sourceLabel,
-        stations: StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicStations) }).stations,
-      };
-    }
-
-    const result = StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) });
     return {
       sourceLabel: data.sourceLabel,
-      stations: result.stations,
+      stations: await extractStationsFromTranscript(apiKey, data.text, context.userId, data.sourceLabel),
     };
   });
