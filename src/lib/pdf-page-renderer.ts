@@ -51,7 +51,7 @@ async function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise
   });
 }
 
-function extractPageText(content: Awaited<ReturnType<import("pdfjs-dist")["getDocument"]>> extends never ? never : Awaited<ReturnType<any>>): string {
+function extractPageText(content: unknown): string {
   const items = ((content as { items?: unknown[] }).items ?? []) as Array<{
     str?: string;
     hasEOL?: boolean;
