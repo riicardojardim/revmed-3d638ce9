@@ -928,6 +928,8 @@ function titleQualityScore(value: string): number {
   if (/^[A-Z0-9ÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇ \-/]+$/.test(title) && title.length <= 80) score += 4;
   if (/[a-záàâãéèêíìîóòôõúùûç]/.test(title)) score += 1;
   if (/\bESTA[ÇC][ÃA]O\b/.test(normalized)) score -= 2;
+  // Títulos no formato "ESTAÇÃO N — TEMA" são rótulos genéricos, não o título real
+  if (/^ESTA[ÇC][ÃA]O\s*\d/.test(normalized)) score -= 20;
   return score;
 }
 
