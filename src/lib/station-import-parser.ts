@@ -61,9 +61,6 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "DESCRICAO DO CASO CLINICO",
       "HISTORIA CLINICA",
       "QUADRO CLINICO",
-      "FICHA DO PACIENTE",
-      "FICHA DE ATENDIMENTO",
-      "FICHA DE ACOLHIMENTO",
     ],
   },
   {
@@ -106,6 +103,9 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "MATERIAIS DE APOIO",
       "MATERIAL DE APOIO",
       "MATERIAL IMPRESSO",
+      "FICHA DO PACIENTE",
+      "FICHA DE ATENDIMENTO",
+      "FICHA DE ACOLHIMENTO",
     ],
   },
   {
@@ -1126,6 +1126,14 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
           currentSection = section.key;
           if (section.key === "support_materials" && /^IMPRESSO\s*\d{1,3}\b/i.test(line.trim())) {
             sections[section.key].push(line.trim());
+            return;
+          }
+          if (section.key === "support_materials" && /^FICHA\s+(?:DO\s+PACIENTE|DE\s+ATENDIMENTO|DE\s+ACOLHIMENTO)\b/i.test(normalizeHeader(line))) {
+            const existing = sections.support_materials.filter((entry) => /^IMPRESSO\s*\d{1,3}\b/i.test(entry)).length;
+            const fichaLabel = normalizeHeader(line).replace(/[:\-–—].*$/, "").trim();
+            const prettyLabel = fichaLabel.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+            sections.support_materials.push(`IMPRESSO ${existing + 1} - ${prettyLabel}`);
+            if (section.inline) sections.support_materials.push(section.inline);
             return;
           }
           if (section.inline) sections[section.key].push(section.inline);
