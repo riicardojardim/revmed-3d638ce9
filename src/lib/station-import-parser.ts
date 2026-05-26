@@ -135,7 +135,9 @@ function normalizeHeader(value: string): string {
 
 function isStationMarker(line: string): boolean {
   const normalized = normalizeHeader(line).replace(/^=+\s*|\s*=+$/g, "");
-  return /^ESTACAO\s*\d{0,3}\b/.test(normalized);
+  // Exige pelo menos 1 dígito para evitar capturar a palavra "ESTAÇÃO" sozinha
+  // (que aparece no meio de orientações/contexto).
+  return /^ESTACAO\s*\d{1,3}\b/.test(normalized);
 }
 
 function isStationStartLine(line: string): boolean {
@@ -149,7 +151,7 @@ function isStationMetaLine(line: string): boolean {
     normalized &&
       (/^AREA\b/.test(normalized) ||
         /^ESPECIALIDADE\b/.test(normalized) ||
-        /^ESTACAO\b/.test(normalized) ||
+        /^ESTACAO(?:\s+\d{1,3})?\b/.test(normalized) ||
         /^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)),
   );
 }
@@ -343,6 +345,15 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
 
   if (sortedMarkers.length === 0) {
     return [{ header: "", body: text }];
+  }
+
+  // Se houver conteúdo "de seção" significativo ANTES do primeiro marcador
+  // (ex.: TAREFAS DO CANDIDATO, ORIENTAÇÕES...), preserva tudo no primeiro bloco
+  // ao invés de descartar.
+  const preMarkerText = lines.slice(0, sortedMarkers[0]).join("\n");
+  const preHasSection = countRecognizedHeaders(preMarkerText) > 0;
+  if (preHasSection && sortedMarkers[0] > 0) {
+    sortedMarkers[0] = 0;
   }
 
   return sortedMarkers.map((start, index) => {
@@ -864,6 +875,13 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
 
         const section = detectSection(line);
         if (section) {
+          // Se já estamos na mesma seção, isto é provavelmente uma continuação
+          // textual ("ORIENTAÇÕES AO ATOR DA\nESTAÇÃO\n...") e não um novo cabeçalho.
+          // Mantém como conteúdo ao invés de zerar a seção.
+          if (section.key === currentSection && section.key !== "pep" && section.key !== "support_materials") {
+            sections[currentSection].push(line);
+            return;
+          }
           pendingMetaKey = null;
           if (currentSection === "pep" && section.key !== "pep") {
             currentSection = null;
