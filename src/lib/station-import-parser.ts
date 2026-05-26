@@ -241,18 +241,26 @@ function extractPointValuesFromLine(value: string): number[] {
 // Retorna mapa rótulo->pontos quando encontrado.
 function extractInlineLevelScores(value: string): Record<string, number> {
   const result: Record<string, number> = {};
-  const patterns: Array<{ label: string; regex: RegExp }> = [
-    { label: "Inadequado", regex: /\bINADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
-    { label: "Parcialmente adequado", regex: /\bPARCIALMENTE\s+ADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
-    { label: "Adequado", regex: /\bADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
-  ];
+  const matches = value.matchAll(
+    /\b(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/gi,
+  );
 
-  for (const pattern of patterns) {
-    const match = value.match(pattern.regex);
-    if (!match?.[1]) continue;
-    const points = Number(match[1].replace(",", "."));
-    if (Number.isFinite(points)) result[pattern.label] = points;
+  for (const match of matches) {
+    const normalizedLabel = normalizeHeader(match[1] ?? "");
+    const parsedPoints = Number((match[2] ?? "").replace(",", "."));
+    if (!Number.isFinite(parsedPoints)) continue;
+
+    const label = normalizedLabel === "PARCIALMENTE ADEQUADO"
+      ? "Parcialmente adequado"
+      : normalizedLabel === "ADEQUADO"
+        ? "Adequado"
+        : normalizedLabel === "INADEQUADO"
+          ? "Inadequado"
+          : null;
+
+    if (label) result[label] = parsedPoints;
   }
+
   return result;
 }
 
@@ -548,7 +556,7 @@ function splitChecklistBlocks(text: string): string[] {
 }
 
 function parseLevelLabel(line: string): { label: string; remainder: string } | null {
-  const match = line.match(/^(Inadequado|Parcialmente adequado|Adequado)\b\s*[:\-–—]?\s*(.*)$/i);
+  const match = line.match(/^(Inadequado|Parcialmente adequado|Adequado)\b\s*[:=\-–—]?\s*(.*)$/i);
   if (!match) return null;
   const normalized = normalizeHeader(match[1]);
   const label = normalized === "PARCIALMENTE ADEQUADO" ? "Parcialmente adequado" : normalized === "ADEQUADO" ? "Adequado" : "Inadequado";
