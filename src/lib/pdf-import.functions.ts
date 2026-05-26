@@ -552,7 +552,8 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
   }
 
-  if (allStations.length === 0 && parserFailed) {
+  if (allStations.length === 0) {
+      console.warn("[pdf-import] no stations from transcript path, falling back to direct vision", { parserFailed });
       const BATCH_SIZE = 20;
       const batches: string[][] = [];
       for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {
