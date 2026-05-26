@@ -210,6 +210,16 @@ function sumInlineSubItemScores(value: string): number {
   return roundPoint(total);
 }
 
+// Remove números decimais soltos (pontuações inline do PDF) do texto.
+function stripInlineSubItemScores(value: string): string {
+  if (!value) return value;
+  return value
+    .replace(/(^|[\s;,:.\-–—])\d[.,]\d{1,2}(?=$|[\s;,:.\-–—])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+([;,.])/g, "$1")
+    .trim();
+}
+
 function extractPoints(value: string): number | null {
   // Exige a unidade (pt/pts/ponto/pontos) para evitar capturar números do texto
   // (ex.: "pergunta sobre 4 itens" não deve virar 4 pontos).
