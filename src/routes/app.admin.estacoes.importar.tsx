@@ -18,6 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { importStationsFromPdf, importStationsFromText, bulkCreateStations, type ImportedStation } from "@/lib/pdf-import.functions";
+import { parseDeliverableMaterialsFromSupportText } from "@/lib/imported-station-utils";
 import { renderAndUploadPdf, type RenderProgress } from "@/lib/pdf-page-renderer";
 
 export const Route = createFileRoute("/app/admin/estacoes/importar")({
@@ -607,6 +608,17 @@ function StationEditor({
           onChange={(e) => onChange({ support_materials: e.target.value || null })}
           placeholder="IMPRESSO 1 — ..."
         />
+        {parseDeliverableMaterialsFromSupportText(station.support_materials).length > 0 && (
+          <div className="mt-2 space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+            {parseDeliverableMaterialsFromSupportText(station.support_materials).map((material, idx) => (
+              <div key={`${material.name}-${idx}`} className="rounded-md border border-border bg-card p-3">
+                <div className="text-xs font-semibold text-mint">Impresso {idx + 1} — {material.name}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{material.type}</div>
+                {material.content && <div className="mt-2 whitespace-pre-wrap text-sm">{material.content}</div>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <ChecklistEditor items={station.checklist_items} onChange={(items) => onChange({ checklist_items: items })} />
