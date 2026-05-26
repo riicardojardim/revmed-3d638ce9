@@ -393,14 +393,68 @@ function parsePepChecklist(text: string): ParsedChecklistItem[] {
     .filter((item): item is ParsedChecklistItem => Boolean(item));
 }
 
-function parseStationTitle(header: string, fallback: string): string {
-  const cleaned =
-    header
-      .replace(/^=+\s*|\s*=+$/g, "")
-      .split(" — ")
-      .map((part) => part.trim())
-      .find((part) => /^ESTA[ÇC][ÃA]O\b/i.test(part) || /^ESTACAO\b/i.test(normalizeHeader(part))) ?? header.trim();
-  if (cleaned) return cleaned;
+function cleanTitlePart(value: string): string {
+  return value
+    .replace(/^=+\s*|\s*=+$/g, "")
+    .replace(/^[#\-–—*\s]+|[\s\-–—*]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isTitleNoiseLine(line: string): boolean {
+  const normalized = normalizeHeader(line);
+  if (!normalized) return true;
+  if (/^AREA\b/.test(normalized)) return true;
+  if (/^ESPECIALIDADE\b/.test(normalized)) return true;
+  if (/^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)) return true;
+  if (/^REVALIDA\b/.test(normalized)) return true;
+  if (/^INEP\b/.test(normalized)) return true;
+  if (/^MINISTERIO\b/.test(normalized)) return true;
+  if (/^P[AÁ]GINA\b/.test(normalized)) return true;
+  if (/^\d+\s*$/.test(normalized)) return true;
+  return false;
+}
+
+function parseStationTitle(body: string, fallback: string): string {
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  let stationLabel = "";
+  let topic = "";
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (isDividerLine(line) || isPageMarkerLine(line)) continue;
+    if (detectSection(line)) break;
+    if (isStationStartLine(line) && !isStationMarker(line)) break;
+
+    if (isStationMarker(line)) {
+      const cleaned = cleanTitlePart(line);
+      // "ESTAÇÃO 1 — TABAGISMO" → captura tudo
+      const inlineMatch = cleaned.match(/^(ESTA[ÇC][ÃA]O\s*\d{1,3})\s*[-–—:.]\s*(.+)$/i);
+      if (inlineMatch) {
+        stationLabel = inlineMatch[1].trim();
+        if (!topic) topic = inlineMatch[2].trim();
+      } else {
+        stationLabel = cleaned;
+      }
+      continue;
+    }
+
+    if (isTitleNoiseLine(line)) continue;
+
+    if (!topic) {
+      const cleaned = cleanTitlePart(line);
+      if (cleaned.length >= 3) topic = cleaned;
+    }
+    if (stationLabel && topic) break;
+  }
+
+  const label = stationLabel ? cleanTitlePart(stationLabel) : "";
+  const name = topic ? cleanTitlePart(topic) : "";
+
+  if (label && name) return `${label} — ${name}`;
+  if (name) return name;
+  if (label) return label;
   return fallback;
 }
 
@@ -510,7 +564,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       });
 
       const station: ParsedImportedStation = {
-        title: parseStationTitle(block.header, `${sourceLabel} — Estação ${index + 1}`),
+        title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`),
         specialty: normalizeSpecialty(meta.AREA),
         difficulty: "Intermediário",
         duration_minutes: 10,
