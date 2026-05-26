@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2, XCircle, Trash2, Save, UserSquare2, X, ClipboardPaste, Sparkles } from "lucide-react";
@@ -20,6 +20,38 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { importStationsFromPdf, importStationsFromText, bulkCreateStations, type ImportedStation } from "@/lib/pdf-import.functions";
 import { parseDeliverableMaterialsFromSupportText } from "@/lib/imported-station-utils";
 import { renderAndUploadPdf, type RenderProgress } from "@/lib/pdf-page-renderer";
+
+// ───── Grid de progresso "Dia × Estação" (20 dias × 10 estações) ─────
+const PROGRESS_STORAGE_KEY = "revmed.admin.import.progress.v1";
+const DAYS = 20;
+const STATIONS_PER_DAY = 10;
+
+function loadProgress(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(PROGRESS_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr.filter((x) => typeof x === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveProgress(set: Set<string>) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch { /* ignore */ }
+}
+
+function cellKey(day: number, station: number) {
+  return `D${day}E${station}`;
+}
+
+function cellLabel(day: number, station: number) {
+  return `Dia ${day} - Estação ${station}`;
+}
 
 export const Route = createFileRoute("/app/admin/estacoes/importar")({
   component: ImportPdfPage,
@@ -121,6 +153,32 @@ function ImportPdfPage() {
   const [pasteLabel, setPasteLabel] = useState("");
   const [pasteText, setPasteText] = useState("");
   const [pasteBusy, setPasteBusy] = useState(false);
+  const [done, setDone] = useState<Set<string>>(() => loadProgress());
+  const [selectedCell, setSelectedCell] = useState<string | null>(null);
+
+  useEffect(() => { saveProgress(done); }, [done]);
+
+  function pickCell(day: number, station: number) {
+    const key = cellKey(day, station);
+    setSelectedCell(key);
+    setPasteLabel(cellLabel(day, station));
+  }
+
+  function toggleDone(day: number, station: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    const key = cellKey(day, station);
+    setDone((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
+
+  function resetProgress() {
+    if (!confirm("Limpar todo o progresso marcado?")) return;
+    setDone(new Set());
+    setSelectedCell(null);
+  }
 
   async function processPastedText() {
     if (pasteText.trim().length < 20) {
@@ -313,6 +371,13 @@ function ImportPdfPage() {
       const payload = allSelected.map(({ _selected: _s, ...rest }) => rest);
       const res = await insertAll({ data: { stations: payload } });
       toast.success(`${res.created.length} estação(ões) importadas`);
+      if (selectedCell) {
+        setDone((prev) => {
+          const next = new Set(prev);
+          next.add(selectedCell);
+          return next;
+        });
+      }
       nav({ to: "/app/admin/estacoes" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -346,6 +411,13 @@ function ImportPdfPage() {
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <h2 className="font-display text-xl font-bold">Importar checklists de PDFs</h2>
+        <ProgressGrid
+          done={done}
+          selectedCell={selectedCell}
+          onPick={pickCell}
+          onToggleDone={toggleDone}
+          onReset={resetProgress}
+        />
         <p className="mt-1 text-sm text-muted-foreground">
           Envie PDFs ou cole o texto já organizado (ex.: vindo do ChatGPT). A IA monta o checklist <strong>literalmente</strong> e você revisa antes de salvar.
         </p>
@@ -447,6 +519,100 @@ function StatusBadge({ status }: { status: FileStatus }) {
     case "error":
       return <Badge variant="outline" className="border-destructive/40 text-destructive"><XCircle className="mr-1 h-3 w-3" /> Erro</Badge>;
   }
+}
+
+function ProgressGrid({
+  done,
+  selectedCell,
+  onPick,
+  onToggleDone,
+  onReset,
+}: {
+  done: Set<string>;
+  selectedCell: string | null;
+  onPick: (day: number, station: number) => void;
+  onToggleDone: (day: number, station: number, e: React.MouseEvent) => void;
+  onReset: () => void;
+}) {
+  const total = DAYS * STATIONS_PER_DAY;
+  const completed = done.size;
+  const pct = Math.round((completed / total) * 100);
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="font-display text-sm font-semibold">Progresso de importação (Dia × Estação)</div>
+          <div className="text-xs text-muted-foreground">
+            Clique numa célula para preencher o rótulo. Clique no “✓” para marcar/desmarcar como já enviada.
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline">{completed}/{total} • {pct}%</Badge>
+          <Button variant="ghost" size="sm" className="h-7" onClick={onReset}>Limpar</Button>
+        </div>
+      </div>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full border-separate border-spacing-1 text-[10px]">
+          <thead>
+            <tr>
+              <th className="w-10 text-left text-muted-foreground">Dia</th>
+              {Array.from({ length: STATIONS_PER_DAY }, (_, i) => (
+                <th key={i} className="text-center font-medium text-muted-foreground">E{i + 1}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: DAYS }, (_, di) => {
+              const day = di + 1;
+              return (
+                <tr key={day}>
+                  <td className="pr-2 text-right text-muted-foreground">{day}</td>
+                  {Array.from({ length: STATIONS_PER_DAY }, (_, si) => {
+                    const station = si + 1;
+                    const key = cellKey(day, station);
+                    const isDone = done.has(key);
+                    const isSelected = selectedCell === key;
+                    return (
+                      <td key={station} className="p-0">
+                        <button
+                          type="button"
+                          onClick={() => onPick(day, station)}
+                          title={cellLabel(day, station)}
+                          className={
+                            "group relative flex h-8 w-full items-center justify-center rounded-md border text-[10px] font-medium transition-all " +
+                            (isDone
+                              ? "border-success/40 bg-success/15 text-success"
+                              : isSelected
+                                ? "border-mint bg-mint/15 text-foreground ring-1 ring-mint"
+                                : "border-border bg-card text-muted-foreground hover:border-mint/40 hover:text-foreground")
+                          }
+                        >
+                          <span>{day}.{station}</span>
+                          <span
+                            role="button"
+                            aria-label="Alternar concluído"
+                            onClick={(e) => onToggleDone(day, station, e)}
+                            className={
+                              "absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border text-[8px] leading-none transition-opacity " +
+                              (isDone
+                                ? "border-success/60 bg-success text-success-foreground opacity-100"
+                                : "border-border bg-background opacity-0 group-hover:opacity-100")
+                            }
+                          >
+                            ✓
+                          </span>
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
 
 interface PdfJobCardProps {
