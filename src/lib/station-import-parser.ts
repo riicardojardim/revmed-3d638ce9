@@ -172,7 +172,9 @@ function roundPoint(value: number): number {
 }
 
 function extractPoints(value: string): number | null {
-  const match = value.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?\b/i);
+  // Exige a unidade (pt/pts/ponto/pontos) para evitar capturar números do texto
+  // (ex.: "pergunta sobre 4 itens" não deve virar 4 pontos).
+  const match = value.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i);
   if (!match) return null;
   const parsed = Number(match[1].replace(",", "."));
   return Number.isFinite(parsed) ? parsed : null;
