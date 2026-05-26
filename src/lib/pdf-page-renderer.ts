@@ -20,6 +20,11 @@ export interface RenderProgress {
   total: number;
 }
 
+export interface RenderedPdfAsset {
+  pagePaths: string[];
+  extractedText: string;
+}
+
 const SCALE = 2.0; // ~144 DPI — equilíbrio entre fidelidade e tamanho
 const JPEG_QUALITY = 0.72;
 const UPLOAD_CONCURRENCY = 4;
@@ -46,6 +51,44 @@ async function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise
   });
 }
 
+function extractPageText(content: unknown): string {
+  const items = ((content as { items?: unknown[] }).items ?? []) as Array<{
+    str?: string;
+    hasEOL?: boolean;
+    transform?: number[];
+  }>;
+  const lines: string[] = [];
+  let currentLine: string[] = [];
+  let currentY: number | null = null;
+
+  const flush = () => {
+    const text = currentLine.join(" ").replace(/\s+/g, " ").trim();
+    if (text) lines.push(text);
+    currentLine = [];
+    currentY = null;
+  };
+
+  for (const item of items) {
+    const raw = typeof item.str === "string" ? item.str.trim() : "";
+    const y = Array.isArray(item.transform) ? Math.round(item.transform[5] ?? 0) : null;
+
+    if (raw) {
+      if (currentY != null && y != null && Math.abs(currentY - y) > 2) {
+        flush();
+      }
+      if (currentY == null && y != null) currentY = y;
+      currentLine.push(raw);
+    }
+
+    if (item.hasEOL) {
+      flush();
+    }
+  }
+
+  flush();
+  return lines.join("\n").trim();
+}
+
 /**
  * Renderiza cada página do PDF como JPEG e faz upload direto pro bucket
  * pdf-pages. Retorna os paths salvos.
@@ -55,12 +98,13 @@ export async function renderAndUploadPdf(
   jobId: string,
   variant: "main" | "actor",
   onProgress?: (p: RenderProgress) => void,
-): Promise<string[]> {
+): Promise<RenderedPdfAsset> {
   const safeJobId = sanitizeStorageSegment(jobId);
   const pdfjs = await loadPdfjs();
   const buf = await file.arrayBuffer();
   const doc = await pdfjs.getDocument({ data: new Uint8Array(buf) }).promise;
   const total = doc.numPages;
+  const textParts: string[] = [];
 
   // Render → blobs (sequencial: 1 canvas por vez pra não estourar memória do browser)
   const blobs: Blob[] = [];
@@ -70,6 +114,11 @@ export async function renderAndUploadPdf(
 
   for (let i = 1; i <= total; i++) {
     const page = await doc.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = extractPageText(textContent);
+    if (pageText) {
+      textParts.push(`--- Página ${i} ---\n${pageText}`);
+    }
     const viewport = page.getViewport({ scale: SCALE });
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
@@ -107,5 +156,8 @@ export async function renderAndUploadPdf(
     Array.from({ length: Math.min(UPLOAD_CONCURRENCY, total) }, () => worker()),
   );
 
-  return paths;
+  return {
+    pagePaths: paths,
+    extractedText: textParts.join("\n\n"),
+  };
 }

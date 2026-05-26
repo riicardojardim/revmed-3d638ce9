@@ -158,20 +158,32 @@ function normalizeSpecialty(value: string | undefined): ParsedImportedStation["s
 
 function splitStationBlocks(text: string): Array<{ header: string; body: string }> {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const markers = new Set<number>();
+  const explicitMarkers = new Set<number>();
+  const fallbackMarkers = new Set<number>();
 
-  lines.forEach((line, index) => {
-    if (!isStationStartLine(line.trim())) return;
+  const collectMarker = (index: number) => {
     let start = index;
     for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
       if (!lines[back].trim()) continue;
       if (isStationMetaLine(lines[back])) start = back;
       else break;
     }
-    markers.add(start);
+    return start;
+  };
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    if (isStationMarker(trimmed)) {
+      explicitMarkers.add(collectMarker(index));
+      return;
+    }
+    if (STATION_START_ALIASES.includes(normalizeHeader(trimmed))) {
+      fallbackMarkers.add(collectMarker(index));
+    }
   });
 
-  const sortedMarkers = Array.from(markers).sort((a, b) => a - b);
+  const activeMarkers = explicitMarkers.size > 0 ? explicitMarkers : fallbackMarkers;
+  const sortedMarkers = Array.from(activeMarkers).sort((a, b) => a - b);
 
   if (sortedMarkers.length === 0) {
     return [{ header: "", body: text }];
@@ -189,6 +201,7 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
 
 function detectSection(line: string): { key: SectionKey; inline: string } | null {
   const normalized = normalizeHeader(line);
+  const trimmedLine = line.trim();
   for (const section of SECTION_LABELS) {
     for (const alias of section.aliases) {
       if (
@@ -198,7 +211,10 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
         (alias === "NOS PROXIMOS" && /^NOS PROXIMOS\s+\d{1,2}\s+MINUTOS/.test(normalized)) ||
         (alias === "IMPRESSO" && /^IMPRESSO\s*\d{1,3}\b/.test(normalized))
       ) {
-        const inline = line.includes(":") ? line.slice(line.indexOf(":") + 1).trim() : "";
+        const inline = trimmedLine
+          .slice(Math.min(trimmedLine.length, alias.length))
+          .replace(/^[:\-–—\s]+/, "")
+          .trim();
         return { key: section.key, inline };
       }
     }
