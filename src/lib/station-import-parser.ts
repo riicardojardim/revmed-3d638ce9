@@ -552,6 +552,7 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
     return {
       ...station,
       title: cleanMultilineText(station.title || "Estação sem título") || "Estação sem título",
+      specialty: normalizeSpecialty(station.specialty),
       clinical_case: cleanMultilineText(station.clinical_case ?? ""),
       candidate_task: cleanMultilineText(station.candidate_task ?? ""),
       patient_info: emptyToNull(station.patient_info),
