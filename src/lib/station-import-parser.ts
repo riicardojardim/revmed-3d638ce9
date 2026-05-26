@@ -443,6 +443,14 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
 
   maxPoints = Math.max(headingPoints, ...levels.map((level) => level.points), 0);
 
+  const normalizedCategory = normalizeHeader(category);
+  if (
+    /^(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?|ITENS DE DESEMPENHO AVALIADOS)\b/.test(normalizedCategory) ||
+    (!cleanMultilineText(descriptionLines.join("\n")) && levels.length === 0 && maxPoints <= 0)
+  ) {
+    return null;
+  }
+
   return {
     category: category || "Sem categoria",
     description: cleanMultilineText(descriptionLines.join("\n")),
