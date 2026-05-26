@@ -632,37 +632,8 @@ function StationEditor({
         <Textarea rows={3} value={station.post_materials ?? ""} onChange={(e) => onChange({ post_materials: e.target.value || null })} />
       </div>
 
-      <div className="rounded-xl border border-border bg-muted/20 p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h4 className="font-display text-sm font-semibold">Checklist extraído ({station.checklist_items.length} itens)</h4>
-          <Badge variant="outline">{station.checklist_items.reduce((s, i) => s + (i.points || 0), 0).toFixed(2)} pts totais</Badge>
-        </div>
-        <div className="space-y-2">
-          {station.checklist_items.map((it, i) => (
-            <div key={i} className="rounded-lg border border-border bg-card p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-xs font-semibold text-mint">{it.category || "—"}</div>
-                <Badge variant="outline">{it.points} pts</Badge>
-              </div>
-              {it.description && (
-                <div className="mt-1 whitespace-pre-wrap text-sm">{it.description}</div>
-              )}
-              {it.levels.length > 0 && (
-                <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-                  {it.levels.map((lv, li) => (
-                    <div key={li}>
-                      <strong>{lv.label}</strong> ({lv.points}): {lv.description}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-          {station.checklist_items.length === 0 && (
-            <p className="text-xs text-muted-foreground">Nenhum item de checklist detectado neste PDF.</p>
-          )}
-        </div>
-      </div>
+      <ChecklistEditor items={station.checklist_items} onChange={(items) => onChange({ checklist_items: items })} />
+
     </div>
   );
 }
