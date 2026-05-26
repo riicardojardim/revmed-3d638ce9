@@ -183,13 +183,39 @@ function parseDurationMinutes(value: string): number {
   return Math.max(3, Math.min(30, Math.round(parsed)));
 }
 
+function mapNormalizedSpecialty(normalized: string): ParsedImportedStation["specialty"] | null {
+  if (!normalized) return null;
+  if (/\bCIRURG(?:IA|ICA|ICO)?\b|\bCG\b/.test(normalized)) return "Cirurgia";
+  if (/\bPEDIATR(?:IA|ICO|ICA)?\b|\bPED\b/.test(normalized)) return "Pediatria";
+  if (/GINECO|OBST|\bGO\b|TOCOGINECO/.test(normalized)) return "Ginecologia e Obstetrícia";
+  if (/FAMILIA|COMUNIDADE|\bMFC\b|ATENCAO PRIMARIA|APS\b|UBS\b|PSF\b|SAUDE DA FAMILIA/.test(normalized)) {
+    return "Medicina de Família e Comunidade";
+  }
+  if (/CLINICA MEDICA|\bCM\b|MEDICINA INTERNA/.test(normalized)) return "Clínica Médica";
+  return null;
+}
+
 function normalizeSpecialty(value: string | undefined): ParsedImportedStation["specialty"] {
-  const normalized = normalizeHeader(value ?? "");
-  if (/CIRURG/.test(normalized)) return "Cirurgia";
-  if (/PEDIATR/.test(normalized)) return "Pediatria";
-  if (/GINECO|OBST|GO\b/.test(normalized)) return "Ginecologia e Obstetrícia";
-  if (/FAMILIA|COMUNIDADE|PREVENTIVA|ATENCAO PRIMARIA|UBS|PSF/.test(normalized)) return "Medicina de Família e Comunidade";
-  return "Clínica Médica";
+  return mapNormalizedSpecialty(normalizeHeader(value ?? "")) ?? "Clínica Médica";
+}
+
+function extractHeaderSpecialtyContext(body: string): string {
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  const headerLines: string[] = [];
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) {
+      if (headerLines.length > 0) break;
+      continue;
+    }
+    if (isDividerLine(line) || isPageMarkerLine(line)) continue;
+    if (detectSection(line)) break;
+    headerLines.push(line);
+    if (headerLines.length >= 12) break;
+  }
+
+  return headerLines.join("\n");
 }
 
 function splitStationBlocks(text: string): Array<{ header: string; body: string }> {
