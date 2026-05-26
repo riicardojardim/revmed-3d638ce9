@@ -650,7 +650,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
         transcript,
       );
       if (stationsNeedAiFallback(allStations, transcript)) {
-        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+        allStations = await extractStationsFromTranscriptSegments(apiKey, transcript, context.userId, data.filename);
       }
     } else {
       if (transcript.length < 200) {
@@ -664,10 +664,10 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
           transcript,
         );
         if (stationsNeedAiFallback(allStations, transcript)) {
-          allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+          allStations = await extractStationsFromTranscriptSegments(apiKey, transcript, context.userId, data.filename);
         }
       } else {
-        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+        allStations = await extractStationsFromTranscriptSegments(apiKey, transcript, context.userId, data.filename);
       }
     }
   } catch (e) {
