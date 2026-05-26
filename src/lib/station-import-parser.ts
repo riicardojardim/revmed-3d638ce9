@@ -69,12 +69,20 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
   {
     key: "patient_script",
     aliases: [
+      "ORIENTACOES DA ATRIZ/ATOR",
+      "ORIENTACOES DA ATOR/ATRIZ",
       "ORIENTACOES DO ATRIZ/ATOR",
       "ORIENTACOES DO ATOR/ATRIZ",
       "ORIENTACOES AO ATOR/ATRIZ",
+      "ORIENTACOES PARA O ATOR/ATRIZ",
       "ORIENTACOES AO ATOR",
       "ORIENTACOES A ATRIZ",
+      "ORIENTACOES AO PACIENTE",
+      "ORIENTACOES PARA O PACIENTE",
       "INSTRUCOES PARA O ATOR",
+      "INSTRUCOES AO ATOR",
+      "INSTRUCOES AO ATOR/ATRIZ",
+      "INSTRUCOES AO PACIENTE",
       "INSTRUCOES PARA O ATO",
     ],
   },
@@ -659,6 +667,116 @@ function parseStationTitle(body: string, fallback: string, metaTitle?: string): 
   return fallback;
 }
 
+function extractStationNumberFromBlock(value: string): number | null {
+  const match = value.match(/\bESTA[ÇC][ÃA]O\s*(\d{1,3})\b/i);
+  if (!match) return null;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function titleQualityScore(value: string): number {
+  const title = cleanMultilineText(value);
+  const normalized = normalizeHeader(title);
+  if (!normalized) return -100;
+
+  let score = 0;
+  if (isGenericTitlePlaceholder(title)) score -= 10;
+  if (/^(E|OU|COM|SEM|DE|DA|DO|DAS|DOS)\b/.test(normalized)) score -= 8;
+  if (/^(DADOS PESSOAIS|MOTIVO DA CONSULTA|HISTORIA CLINICA|QUEIXA|PACIENTE)\b/.test(normalized)) score -= 8;
+  if (title.length > 100) score -= 4;
+  if (/^[A-Z0-9ÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇ \-/]+$/.test(title) && title.length <= 80) score += 4;
+  if (/[a-záàâãéèêíìîóòôõúùûç]/.test(title)) score += 1;
+  if (/\bESTA[ÇC][ÃA]O\b/.test(normalized)) score -= 2;
+  return score;
+}
+
+function pickPreferredTitle(current: string, candidate: string): string {
+  return titleQualityScore(candidate) > titleQualityScore(current) ? candidate : current;
+}
+
+function mergeTextBlocks(...values: Array<string | null | undefined>): string | null {
+  const merged: string[] = [];
+  const seen = new Set<string>();
+
+  values.forEach((value) => {
+    const cleaned = emptyToNull(value);
+    if (!cleaned) return;
+    const key = normalizeHeader(cleaned);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    merged.push(cleaned);
+  });
+
+  return emptyToNull(merged.join("\n\n"));
+}
+
+function mergeChecklistItems(
+  left: ParsedChecklistItem[],
+  right: ParsedChecklistItem[],
+): ParsedChecklistItem[] {
+  const merged = new Map<string, ParsedChecklistItem>();
+
+  [...left, ...right].forEach((item) => {
+    const key = normalizeHeader(`${item.category} ${item.description}`);
+    const previous = merged.get(key);
+    if (!previous) {
+      merged.set(key, item);
+      return;
+    }
+
+    const previousLevelCount = previous.levels?.length ?? 0;
+    const nextLevelCount = item.levels?.length ?? 0;
+    const previousScore = previous.points + previousLevelCount;
+    const nextScore = item.points + nextLevelCount;
+    if (nextScore > previousScore) merged.set(key, item);
+  });
+
+  return Array.from(merged.values());
+}
+
+function mergeStationsByNumber(
+  stations: Array<ParsedImportedStation & { _stationNumber: number | null }>,
+): ParsedImportedStation[] {
+  const merged: Array<ParsedImportedStation & { _stationNumber: number | null }> = [];
+  const indexByNumber = new Map<number, number>();
+
+  stations.forEach((station) => {
+    if (station._stationNumber == null || !indexByNumber.has(station._stationNumber)) {
+      if (station._stationNumber != null) indexByNumber.set(station._stationNumber, merged.length);
+      merged.push(station);
+      return;
+    }
+
+    const index = indexByNumber.get(station._stationNumber);
+    if (index == null) {
+      merged.push(station);
+      return;
+    }
+
+    const previous = merged[index];
+    merged[index] = {
+      ...previous,
+      title: pickPreferredTitle(previous.title, station.title),
+      specialty: previous.specialty !== "Clínica Médica" ? previous.specialty : station.specialty,
+      difficulty: previous.difficulty,
+      duration_minutes: Math.max(previous.duration_minutes, station.duration_minutes),
+      clinical_case: mergeTextBlocks(previous.clinical_case, station.clinical_case) ?? "",
+      candidate_task: mergeTextBlocks(previous.candidate_task, station.candidate_task) ?? "",
+      patient_info: mergeTextBlocks(previous.patient_info, station.patient_info),
+      support_materials: mergeTextBlocks(previous.support_materials, station.support_materials),
+      patient_script: mergeTextBlocks(previous.patient_script, station.patient_script),
+      evaluator_notes: mergeTextBlocks(previous.evaluator_notes, station.evaluator_notes),
+      scoring_criteria: mergeTextBlocks(previous.scoring_criteria, station.scoring_criteria),
+      post_materials: mergeTextBlocks(previous.post_materials, station.post_materials),
+      competencies: Array.from(new Set([...(previous.competencies ?? []), ...(station.competencies ?? [])])),
+      checklist_items: mergeChecklistItems(previous.checklist_items ?? [], station.checklist_items ?? []),
+      _stationNumber: previous._stationNumber,
+    };
+  });
+
+  return merged.map(({ _stationNumber: _ignore, ...station }) => station);
+}
+
 export function normalizeImportedStations<T extends ParsedImportedStation>(stations: T[]): T[] {
   return stations.map((station) => {
     const checklistItems = (station.checklist_items ?? []).map((item) => {
@@ -719,7 +837,8 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
   const hasStationMarker = /esta[çc][ãa]o\s*\d{1,3}/i.test(text);
   if (recognizedHeaders === 0 && !hasStationMarker) return [];
 
-  return splitStationBlocks(text)
+  return mergeStationsByNumber(
+    splitStationBlocks(text)
     .map((block, index) => {
       const sections: Record<SectionKey, string[]> = {
         clinical_case: [],
@@ -799,7 +918,8 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
 
       const pepSource = cleanMultilineText(sections.pep.join("\n")) || extractPepFallbackFromBlock(block.body);
 
-      const station: ParsedImportedStation = {
+      const stationNumber = extractStationNumberFromBlock([block.header, block.body].filter(Boolean).join("\n"));
+      const station: ParsedImportedStation & { _stationNumber: number | null } = {
         title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`, metaTitle),
         specialty: normalizeSpecialty(specialtyContext),
         difficulty: "Intermediário",
@@ -814,6 +934,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         post_materials: null,
         competencies: [],
         checklist_items: parsePepChecklist(pepSource),
+        _stationNumber: stationNumber,
       };
 
       return station;
@@ -827,5 +948,6 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
           station.support_materials ||
           station.checklist_items.length,
       );
-    });
+    }),
+  );
 }

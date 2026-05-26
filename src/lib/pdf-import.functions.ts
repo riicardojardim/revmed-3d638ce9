@@ -457,7 +457,15 @@ async function extractStationsFromTranscript(
   sourceLabel: string,
 ): Promise<ImportedStation[]> {
   const deterministicStations = parseStructuredStationsFromText(transcript, sourceLabel);
-  if (deterministicStations.length > 0) {
+  const deterministicLooksReliable = deterministicStations.some(
+    (station) =>
+      Boolean(station.patient_script?.trim()) ||
+      Boolean(station.patient_info?.trim()) ||
+      Boolean(station.support_materials?.trim()) ||
+      station.checklist_items.length > 0,
+  );
+
+  if (deterministicStations.length > 0 && deterministicLooksReliable) {
     return StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations;
   }
 
