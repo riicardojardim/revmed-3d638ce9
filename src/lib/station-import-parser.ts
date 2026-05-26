@@ -138,6 +138,7 @@ function isStationMetaLine(line: string): boolean {
   return Boolean(
     normalized &&
       (/^AREA\b/.test(normalized) ||
+        /^ESPECIALIDADE\b/.test(normalized) ||
         /^ESTACAO\b/.test(normalized) ||
         /^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)),
   );
@@ -232,7 +233,7 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
       const prevNormalized = back > 0 ? normalizeHeader(lines[back - 1]) : "";
       if (
         isStationMetaLine(lines[back]) ||
-        /^(AREA|ESPECIALIDADE)$/.test(normalized) ||
+        /^(AREA|ESPECIALIDADE)\b/.test(normalized) ||
         (/^(AREA|ESPECIALIDADE)$/.test(prevNormalized) && trimmed.length > 0)
       ) {
         start = back;
