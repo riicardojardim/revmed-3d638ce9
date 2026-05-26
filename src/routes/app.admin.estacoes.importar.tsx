@@ -153,6 +153,32 @@ function ImportPdfPage() {
   const [pasteLabel, setPasteLabel] = useState("");
   const [pasteText, setPasteText] = useState("");
   const [pasteBusy, setPasteBusy] = useState(false);
+  const [done, setDone] = useState<Set<string>>(() => loadProgress());
+  const [selectedCell, setSelectedCell] = useState<string | null>(null);
+
+  useEffect(() => { saveProgress(done); }, [done]);
+
+  function pickCell(day: number, station: number) {
+    const key = cellKey(day, station);
+    setSelectedCell(key);
+    setPasteLabel(cellLabel(day, station));
+  }
+
+  function toggleDone(day: number, station: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    const key = cellKey(day, station);
+    setDone((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
+
+  function resetProgress() {
+    if (!confirm("Limpar todo o progresso marcado?")) return;
+    setDone(new Set());
+    setSelectedCell(null);
+  }
 
   async function processPastedText() {
     if (pasteText.trim().length < 20) {
