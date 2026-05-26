@@ -452,7 +452,7 @@ function parseStationTitle(body: string, fallback: string): string {
   const label = stationLabel ? cleanTitlePart(stationLabel) : "";
   const name = topic ? cleanTitlePart(topic) : "";
 
-  if (label && name) return `${label} — ${name}`;
+  if (label && name) return name;
   if (name) return name;
   if (label) return label;
   return fallback;
