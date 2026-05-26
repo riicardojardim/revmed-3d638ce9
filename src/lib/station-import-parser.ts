@@ -218,6 +218,30 @@ function stripInlineScoringFromHeading(value: string): string {
     .trim();
 }
 
+function normalizeChecklistContentLine(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const withoutScoringPrefix = trimmed
+    .replace(/^PONTUA[CÇ][AÃ]O\s*\([^)]*\)\s*:\s*/i, "")
+    .replace(/^PONTUA[CÇ][AÃ]O\s*:\s*/i, "");
+
+  const inlineScores = extractInlineLevelScores(withoutScoringPrefix);
+  const onlyInlineScoring = Object.keys(inlineScores).length > 0
+    && stripInlineScoringFromHeading(withoutScoringPrefix).length === 0;
+
+  if (onlyInlineScoring) return null;
+
+  if (/^ITENS?\s*:\s*$/i.test(trimmed)) return null;
+
+  const itemPrefixMatch = trimmed.match(/^ITENS?\s*:\s*(.+)$/i);
+  if (itemPrefixMatch) {
+    return itemPrefixMatch[1].trim() || null;
+  }
+
+  return value;
+}
+
 function parseDurationMinutes(value: string): number {
   const match = value.match(/(\d{1,2})\s*(?:min|minutos?)/i);
   if (!match) return 10;
@@ -451,7 +475,10 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   };
 
   for (const line of rawLines.slice(firstIndex + 1)) {
-    const trimmed = line.trim();
+    const normalizedLine = normalizeChecklistContentLine(line);
+    if (normalizedLine == null) continue;
+
+    const trimmed = normalizedLine.trim();
     if (!trimmed) {
       if (currentLevel) currentLevel.descriptionLines.push("");
       else if (descriptionLines.length > 0) descriptionLines.push("");
@@ -487,11 +514,11 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
     }
 
     if (currentLevel) {
-      currentLevel.descriptionLines.push(line);
+      currentLevel.descriptionLines.push(normalizedLine);
       continue;
     }
 
-    descriptionLines.push(line);
+    descriptionLines.push(normalizedLine);
   }
 
   flushLevel();
