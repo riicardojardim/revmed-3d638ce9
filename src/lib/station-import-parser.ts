@@ -318,10 +318,12 @@ function splitChecklistBlocks(text: string): string[] {
   let current: string[] = [];
 
   for (const line of lines) {
+    const normalizedLine = normalizeHeader(line);
     if (
       isDividerLine(line) ||
       isPageMarkerLine(line) ||
-      /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizeHeader(line))
+      /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizedLine) ||
+      /^(PEP\s+CHECKLIST\s+DE\s+AVALIACAO|PADRAO\s+ESPERADO|ITENS\s+DE\s+DESEMPENHO\s+AVALIADOS)\b/.test(normalizedLine)
     ) {
       continue;
     }
@@ -440,6 +442,14 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   }
 
   maxPoints = Math.max(headingPoints, ...levels.map((level) => level.points), 0);
+
+  const normalizedCategory = normalizeHeader(category);
+  if (
+    /^(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?|ITENS DE DESEMPENHO AVALIADOS)\b/.test(normalizedCategory) ||
+    (!cleanMultilineText(descriptionLines.join("\n")) && levels.length === 0 && maxPoints <= 0)
+  ) {
+    return null;
+  }
 
   return {
     category: category || "Sem categoria",

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
+import { parseDeliverableMaterialsFromSupportText, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
 import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
 function normalizeForSourceCheck(value: string): string {
@@ -72,6 +73,16 @@ const ChecklistItemSchema = z.object({
   levels: z.array(LevelSchema).default([]),
 });
 
+const DeliverableMaterialSchema = z.object({
+  id: z.string().optional(),
+  name: str(""),
+  type: str("Impresso"),
+  description: str(""),
+  content: str(""),
+  imageUrl: z.string().optional(),
+  autoDeliver: z.boolean().optional(),
+});
+
 const StationSchema = z.object({
   title: str("Estação sem título"),
   specialty: str("Clínica Médica"),
@@ -88,9 +99,11 @@ const StationSchema = z.object({
     z.number().int().min(3).max(30),
   ),
   clinical_case: str(""),
+  case_description: nstr(),
   candidate_task: str(""),
   patient_info: nstr(),
   support_materials: nstr(),
+  deliverable_materials: z.array(DeliverableMaterialSchema).default([]),
   patient_script: nstr(),
   evaluator_notes: nstr(),
   scoring_criteria: nstr(),
@@ -107,6 +120,28 @@ const StationsResultSchema = z.object({
 });
 
 export type ImportedStation = z.infer<typeof StationSchema>;
+
+type ImportedStationInput = Omit<ImportedStation, "case_description" | "deliverable_materials"> &
+  Partial<Pick<ImportedStation, "case_description" | "deliverable_materials">>;
+
+function normalizeImportedStationPayload(station: ImportedStationInput): ImportedStation {
+  const { caseDescription, candidateTask } = splitCaseDescriptionAndTaskBlock(station.case_description ?? station.patient_info, station.candidate_task);
+  const deliverableMaterials = (station.deliverable_materials?.length
+    ? station.deliverable_materials
+    : parseDeliverableMaterialsFromSupportText(station.support_materials)) as ImportedDeliverableMaterial[];
+
+  return {
+    ...station,
+    case_description: caseDescription,
+    patient_info: caseDescription,
+    candidate_task: candidateTask,
+    deliverable_materials: deliverableMaterials,
+  };
+}
+
+function normalizeImportedStationList(stations: ImportedStationInput[]): ImportedStation[] {
+  return stations.map(normalizeImportedStationPayload);
+}
 
 // ─────────── Prompt fortemente anti-alucinação ───────────
 const SYSTEM_PROMPT = `Você é um EXTRATOR LITERAL de PDFs de estações clínicas (OSCE/Revalida). NÃO é um gerador de conteúdo. NÃO "entende medicina". Sua única função é separar o texto literal do PDF nos campos corretos. Retorne SOMENTE JSON válido conforme o schema.
@@ -372,7 +407,7 @@ async function extractStationsViaVision(
       if (arrKey) parsed = { stations: obj[arrKey] };
     }
   }
-  return StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) });
+  return StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(StationsResultSchema.parse(parsed).stations)) });
 }
 
 const TRANSCRIBE_PROMPT = `Você TRANSCREVE LITERALMENTE o texto de páginas escaneadas de um PDF. Regras inegociáveis:
@@ -415,7 +450,7 @@ async function extractStationsFromTranscript(
 ): Promise<ImportedStation[]> {
   const deterministicStations = parseStructuredStationsFromText(transcript, sourceLabel);
   if (deterministicStations.length > 0) {
-    return StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicStations) }).stations;
+    return StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations;
   }
 
   const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "IMPRESSO" / "IMPRESSOS" → support_materials (copie TODO o bloco literal até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" / "PADRÃO ESPERADO DE RESPOSTA" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n- Quando o PEP terminar e a próxima estação começar, PARE imediatamente a estação atual. NÃO puxe nada da próxima estação.\n\n=== TEXTO ===\n${transcript}\n=== FIM ===`;
@@ -449,7 +484,7 @@ async function extractStationsFromTranscript(
   }
 
   const normalizedStations = StationsResultSchema.parse({
-    stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations),
+    stations: normalizeImportedStationList(normalizeImportedStations(StationsResultSchema.parse(parsed).stations)),
   }).stations;
 
   const groundedStations = normalizedStations.filter((station) => stationLooksGroundedInTranscript(station, transcript));
@@ -483,7 +518,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     const deterministicFromRawText = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
 
     if (deterministicFromRawText.length > 0) {
-      allStations = StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicFromRawText) }).stations;
+      allStations = StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicFromRawText)) }).stations;
     } else {
       if (transcript.length < 200) {
         transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
@@ -491,7 +526,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
 
       const deterministicAfterOcr = transcript ? parseStructuredStationsFromText(transcript, data.filename) : [];
       if (deterministicAfterOcr.length > 0) {
-        allStations = StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicAfterOcr) }).stations;
+        allStations = StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicAfterOcr)) }).stations;
       } else {
         allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
       }
@@ -625,9 +660,11 @@ export const bulkCreateStations = createServerFn({ method: "POST" })
           difficulty: st.difficulty,
           duration_minutes: st.duration_minutes,
           clinical_case: st.clinical_case,
+          case_description: st.case_description,
           candidate_task: st.candidate_task,
           patient_info: st.patient_info,
           support_materials: st.support_materials,
+          deliverable_materials: st.deliverable_materials as never,
           patient_script: st.patient_script,
           evaluator_notes: null,
           scoring_criteria: null,
