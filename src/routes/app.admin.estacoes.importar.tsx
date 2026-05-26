@@ -542,7 +542,7 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
                   <div className="flex-1 text-left">
                     <div className="font-medium">{st.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {st.specialty} · {st.difficulty} · {st.duration_minutes} min · {st.checklist_items.length} itens
+                      {st.specialty} · {st.difficulty} · {st.checklist_items.length} itens
                     </div>
                   </div>
                 </div>
