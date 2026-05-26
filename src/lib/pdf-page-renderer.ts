@@ -20,6 +20,11 @@ export interface RenderProgress {
   total: number;
 }
 
+export interface RenderedPdfAsset {
+  pagePaths: string[];
+  extractedText: string;
+}
+
 const SCALE = 2.0; // ~144 DPI — equilíbrio entre fidelidade e tamanho
 const JPEG_QUALITY = 0.72;
 const UPLOAD_CONCURRENCY = 4;
@@ -55,12 +60,13 @@ export async function renderAndUploadPdf(
   jobId: string,
   variant: "main" | "actor",
   onProgress?: (p: RenderProgress) => void,
-): Promise<string[]> {
+): Promise<RenderedPdfAsset> {
   const safeJobId = sanitizeStorageSegment(jobId);
   const pdfjs = await loadPdfjs();
   const buf = await file.arrayBuffer();
   const doc = await pdfjs.getDocument({ data: new Uint8Array(buf) }).promise;
   const total = doc.numPages;
+  const textParts: string[] = [];
 
   // Render → blobs (sequencial: 1 canvas por vez pra não estourar memória do browser)
   const blobs: Blob[] = [];
@@ -70,6 +76,15 @@ export async function renderAndUploadPdf(
 
   for (let i = 1; i <= total; i++) {
     const page = await doc.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items
+      .map((item) => ("str" in item ? item.str : ""))
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (pageText) {
+      textParts.push(`--- Página ${i} ---\n${pageText}`);
+    }
     const viewport = page.getViewport({ scale: SCALE });
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
@@ -107,5 +122,8 @@ export async function renderAndUploadPdf(
     Array.from({ length: Math.min(UPLOAD_CONCURRENCY, total) }, () => worker()),
   );
 
-  return paths;
+  return {
+    pagePaths: paths,
+    extractedText: textParts.join("\n\n"),
+  };
 }
