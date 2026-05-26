@@ -438,18 +438,20 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
     let transcript = "";
-    let allStations: ImportedStation[] = [];
-    try {
-      transcript = data.extractedText?.trim() || "";
-      if (transcript.length < 200) {
-        transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
-      }
-      allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
-    } catch (e) {
-      console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
+  let allStations: ImportedStation[] = [];
+  let parserFailed = false;
+  try {
+    transcript = data.extractedText?.trim() || "";
+    if (transcript.length < 200) {
+      transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
     }
+    allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+  } catch (e) {
+    parserFailed = true;
+    console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
+  }
 
-    if (allStations.length === 0) {
+  if (allStations.length === 0 && parserFailed) {
       const BATCH_SIZE = 20;
       const batches: string[][] = [];
       for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {

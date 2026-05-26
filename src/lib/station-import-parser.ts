@@ -122,6 +122,14 @@ function cleanMultilineText(value: string): string {
     .replace(/\n{3,}/g, "\n\n");
 }
 
+function isDividerLine(value: string): boolean {
+  return /^[=\-_.~*]{3,}$/.test(value.trim());
+}
+
+function isPageMarkerLine(value: string): boolean {
+  return /^\s*-{2,}\s*P[aá]gina\s+\d+\s*-{0,}\s*$/i.test(value.trim());
+}
+
 function emptyToNull(value: string | null | undefined): string | null {
   const cleaned = cleanMultilineText(value ?? "");
   if (!cleaned) return null;
@@ -211,10 +219,13 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
         (alias === "NOS PROXIMOS" && /^NOS PROXIMOS\s+\d{1,2}\s+MINUTOS/.test(normalized)) ||
         (alias === "IMPRESSO" && /^IMPRESSO\s*\d{1,3}\b/.test(normalized))
       ) {
-        const inline = trimmedLine
-          .slice(Math.min(trimmedLine.length, alias.length))
-          .replace(/^[:\-–—\s]+/, "")
-          .trim();
+        const inline =
+          alias === "NOS PROXIMOS"
+            ? trimmedLine
+            : trimmedLine
+                .slice(Math.min(trimmedLine.length, alias.length))
+                .replace(/^[:\-–—\s]+/, "")
+                .trim();
         return { key: section.key, inline };
       }
     }
@@ -243,6 +254,13 @@ function splitChecklistBlocks(text: string): string[] {
   let current: string[] = [];
 
   for (const line of lines) {
+    if (
+      isDividerLine(line) ||
+      isPageMarkerLine(line) ||
+      /^\s*(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?)\s*$/i.test(normalizeHeader(line))
+    ) {
+      continue;
+    }
     if (isChecklistItemStart(line) && current.some((entry) => entry.trim())) {
       blocks.push(current.join("\n"));
       current = [line];
@@ -451,6 +469,10 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       let currentSection: SectionKey | null = null;
 
       block.body.split(/\r?\n/).forEach((line) => {
+        if (isDividerLine(line) || isPageMarkerLine(line)) {
+          return;
+        }
+
         if (currentSection === "pep" && isStationStartLine(line.trim())) {
           currentSection = null;
           return;
