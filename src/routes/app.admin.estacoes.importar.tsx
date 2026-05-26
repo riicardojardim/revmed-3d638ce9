@@ -240,10 +240,10 @@ function ImportPdfPage() {
         );
       };
 
-      const mainPaths = await renderAndUploadPdf(file, jobId, "main", (p) => updateProgress(p, "Principal"));
-      let actorPaths: string[] | undefined;
+      const mainAsset = await renderAndUploadPdf(file, jobId, "main", (p) => updateProgress(p, "Principal"));
+      let actorAsset: Awaited<ReturnType<typeof renderAndUploadPdf>> | undefined;
       if (actorFile) {
-        actorPaths = await renderAndUploadPdf(actorFile, jobId, "actor", (p) => updateProgress(p, "Ator"));
+        actorAsset = await renderAndUploadPdf(actorFile, jobId, "actor", (p) => updateProgress(p, "Ator"));
       }
 
       setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "extracting", progress: undefined } : j)));
@@ -251,9 +251,11 @@ function ImportPdfPage() {
       const res = await parsePdf({
         data: {
           filename: file.name,
-          pagePaths: mainPaths,
+          pagePaths: mainAsset.pagePaths,
+          extractedText: mainAsset.extractedText,
           actorFilename: actorFile?.name,
-          actorPagePaths: actorPaths,
+          actorPagePaths: actorAsset?.pagePaths,
+          actorExtractedText: actorAsset?.extractedText,
         },
       });
       setJobs((prev) =>
