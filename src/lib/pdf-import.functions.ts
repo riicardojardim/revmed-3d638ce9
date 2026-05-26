@@ -377,8 +377,33 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    const mainUrls = await signPagePaths(data.pagePaths);
-    const result = await extractStationsViaVision(apiKey, mainUrls, context.userId);
+    // Processa o PDF em LOTES de páginas. PDFs grandes (>30 páginas) em uma
+    // única chamada fazem o Gemini retornar resposta vazia silenciosamente.
+    const BATCH_SIZE = 20;
+    const batches: string[][] = [];
+    for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {
+      batches.push(data.pagePaths.slice(i, i + BATCH_SIZE));
+    }
+
+    const allStations: ImportedStation[] = [];
+    for (let i = 0; i < batches.length; i++) {
+      const urls = await signPagePaths(batches[i]);
+      try {
+        const partial = await extractStationsViaVision(apiKey, urls, context.userId);
+        allStations.push(...partial.stations);
+      } catch (e) {
+        console.error(`[pdf-import] batch ${i + 1}/${batches.length} failed`, e);
+      }
+    }
+
+    if (allStations.length === 0) {
+      throw new Error(
+        `A IA não conseguiu extrair nenhuma estação deste PDF (${data.pagePaths.length} páginas, ${batches.length} lotes). ` +
+        `Verifique se o PDF tem texto/imagens legíveis ou tente a opção "Colar texto".`,
+      );
+    }
+
+    const result = { stations: allStations };
 
     // ───── Merge do PDF de orientações do ator (opcional) ─────
     let actorPages = 0;
