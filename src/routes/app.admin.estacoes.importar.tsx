@@ -672,7 +672,6 @@ function ChecklistEditor({
     setSelected(new Set());
   }
 
-  useState(() => new Set<number>());
 
   return (
     <div className="rounded-xl border border-border bg-muted/20 p-4">
