@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { toTitleCase } from "@/lib/title-case";
 
 type StationOption = { id: string; title: string; specialty: string };
 
@@ -112,7 +113,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
                       <Checkbox checked={isSel} onCheckedChange={() => toggle(s)} />
                       <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-sm font-medium">{toTitleCase(s.title)}</div>
                         <div className="text-xs text-muted-foreground">{s.specialty}</div>
                       </div>
                     </li>
@@ -138,7 +139,7 @@ export function SimuladoBuilder({ open, onOpenChange }: { open: boolean; onOpenC
                       <span className="w-6 text-center text-xs font-bold text-mint tabular-nums">{idx + 1}</span>
                       <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-sm font-medium">{toTitleCase(s.title)}</div>
                       </div>
                       <button type="button" className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-30" onClick={() => move(idx, -1)} disabled={idx === 0}>
                         <ChevronUp className="h-3.5 w-3.5" />
