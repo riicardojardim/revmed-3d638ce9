@@ -69,6 +69,8 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
   {
     key: "patient_script",
     aliases: [
+      "ORIENTACOES DO ATOR",
+      "ORIENTACOES DA ATRIZ",
       "ORIENTACOES DA ATRIZ/ATOR",
       "ORIENTACOES DA ATOR/ATRIZ",
       "ORIENTACOES DO ATRIZ/ATOR",
@@ -77,6 +79,8 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "ORIENTACOES PARA O ATOR/ATRIZ",
       "ORIENTACOES AO ATOR",
       "ORIENTACOES A ATRIZ",
+      "ORIENTACOES DO PACIENTE",
+      "ORIENTACOES DA PACIENTE",
       "ORIENTACOES AO PACIENTE",
       "ORIENTACOES PARA O PACIENTE",
       "INSTRUCOES PARA O ATOR",
@@ -202,7 +206,7 @@ function extractPointValuesFromLine(value: string): number[] {
 // Retorna mapa rótulo->pontos quando encontrado.
 function extractInlineLevelScores(value: string): Record<string, number> {
   const result: Record<string, number> = {};
-  const regex = /(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*[:=\-–—]\s*(\d+(?:[.,]\d+)?)/gi;
+  const regex = /(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*(?:(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)(?:\s*\)\s*[:=\-–—]?\s*|\s+))/gi;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(value)) !== null) {
     const normalized = normalizeHeader(match[1]);
@@ -231,6 +235,14 @@ function stripInlineScoringFromHeading(value: string): string {
 function normalizeChecklistContentLine(value: string): string | null {
   const trimmed = value.trim();
   if (!trimmed) return "";
+  const normalized = normalizeHeader(trimmed);
+
+  if (
+    /^(TRANSCRICAO DA TABELA DO PDF|RESUMO DAS NOTAS VISIVEIS(?: NAS COLUNAS DO PDF)?|LIST PEP|AVALIACAO DE HABILIDADES CLINICAS|AREA\b|CLINICA MEDICA\b|PAGINA\b)/.test(normalized) ||
+    /^ITEM\s*\d+\s*[:\-–—]\s*(INADEQUADO|PARCIALMENTE ADEQUADO|ADEQUADO)\b/.test(normalized)
+  ) {
+    return null;
+  }
 
   const withoutScoringPrefix = trimmed
     .replace(/^PONTUA[CÇ][AÃ]O\s*\([^)]*\)\s*:\s*/i, "")
@@ -250,6 +262,34 @@ function normalizeChecklistContentLine(value: string): string | null {
   }
 
   return value;
+}
+
+function extractLevelPointsFromRemainder(value: string): { points: number | null; remainder: string } {
+  const trimmed = value.trim();
+  if (!trimmed) return { points: null, remainder: "" };
+
+  const parseScore = (raw: string) => {
+    const parsed = Number(raw.replace(",", "."));
+    return Number.isFinite(parsed) && parsed >= 0 && parsed <= 3 ? roundPoint(parsed) : null;
+  };
+
+  const leadingMatch = trimmed.match(/^\(?\s*(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?\s*\)?\s*[:\-–—]?\s*(.*)$/i);
+  if (leadingMatch) {
+    const points = parseScore(leadingMatch[1]);
+    if (points != null) {
+      return { points, remainder: leadingMatch[2]?.trim() ?? "" };
+    }
+  }
+
+  const trailingMatch = trimmed.match(/^(.*?)\s*[,;:.\-–—]?\s*\(?\s*(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?\s*\)?\s*$/i);
+  if (trailingMatch) {
+    const points = parseScore(trailingMatch[2]);
+    if (points != null) {
+      return { points, remainder: trailingMatch[1]?.trim() ?? "" };
+    }
+  }
+
+  return { points: null, remainder: trimmed };
 }
 
 function parseDurationMinutes(value: string): number {
