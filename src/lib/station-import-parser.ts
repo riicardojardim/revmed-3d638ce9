@@ -256,7 +256,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   if (firstIndex === -1) return null;
 
   const heading = rawLines[firstIndex].trim();
-  const headingPoints = extractPoints(heading) ?? 0;
+  const headingPoints = (heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1] ? Number(heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1]?.replace(",", ".")) : null) ?? 0;
   const category = heading
     .replace(/^#/, "")
     .replace(/^\d{1,3}\s*[.)\-–—]?\s*/, "")
@@ -266,6 +266,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
 
   const descriptionLines: string[] = [];
   const levels: ParsedChecklistLevel[] = [];
+  const numericOnlyValues: number[] = [];
   let currentLevel: { label: string; points: number | null; descriptionLines: string[] } | null = null;
 
   const flushLevel = () => {
@@ -299,15 +300,16 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
       continue;
     }
 
-    if (currentLevel) {
-      if (currentLevel.points == null) {
-        const linePoints = extractPoints(trimmed);
-        const isPointsOnly = /^\d+(?:[.,]\d+)?$/.test(trimmed);
-        if (linePoints != null && isPointsOnly) {
-          currentLevel.points = linePoints;
-          continue;
-        }
+    if (/^\d+(?:[.,]\d+)?$/.test(trimmed)) {
+      const linePoints = extractPoints(trimmed);
+      if (linePoints != null) {
+        numericOnlyValues.push(linePoints);
+        if (currentLevel && currentLevel.points == null) currentLevel.points = linePoints;
+        continue;
       }
+    }
+
+    if (currentLevel) {
       currentLevel.descriptionLines.push(line);
       continue;
     }
@@ -320,6 +322,17 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   let maxPoints = Math.max(headingPoints, ...levels.map((level) => level.points), 0);
   const adequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "ADEQUADO");
   const partialIndex = levels.findIndex((level) => normalizeHeader(level.label) === "PARCIALMENTE ADEQUADO");
+  const inadequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "INADEQUADO");
+
+  if (numericOnlyValues.length >= 2 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex === -1) {
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[numericOnlyValues.length - 1] };
+  }
+  if (numericOnlyValues.length >= 3 && adequateIndex >= 0 && inadequateIndex >= 0 && partialIndex >= 0) {
+    levels[inadequateIndex] = { ...levels[inadequateIndex], points: numericOnlyValues[0] };
+    levels[partialIndex] = { ...levels[partialIndex], points: numericOnlyValues[1] };
+    levels[adequateIndex] = { ...levels[adequateIndex], points: numericOnlyValues[2] };
+  }
 
   if (adequateIndex >= 0 && levels[adequateIndex].points <= 0 && maxPoints > 0) {
     levels[adequateIndex] = { ...levels[adequateIndex], points: maxPoints };
