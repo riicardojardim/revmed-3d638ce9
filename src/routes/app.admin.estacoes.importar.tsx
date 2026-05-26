@@ -599,6 +599,16 @@ function StationEditor({
         <Textarea rows={8} value={station.patient_script ?? ""} onChange={(e) => onChange({ patient_script: e.target.value || null })} />
       </div>
 
+      <div>
+        <Label>Impressos / Materiais entregáveis</Label>
+        <Textarea
+          rows={8}
+          value={station.support_materials ?? ""}
+          onChange={(e) => onChange({ support_materials: e.target.value || null })}
+          placeholder="IMPRESSO 1 — ..."
+        />
+      </div>
+
       <ChecklistEditor items={station.checklist_items} onChange={(items) => onChange({ checklist_items: items })} />
 
     </div>
