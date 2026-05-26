@@ -76,51 +76,66 @@ const StationsResultSchema = z.object({
 export type ImportedStation = z.infer<typeof StationSchema>;
 
 // ─────────── Prompt fortemente anti-alucinação ───────────
-const SYSTEM_PROMPT = `Você EXTRAI estações clínicas (estilo OSCE/Revalida) de um TEXTO bruto vindo de um PDF. O PDF pode conter VÁRIAS estações no mesmo documento, em qualquer ordem ou formato. Retorne SOMENTE JSON válido conforme o schema.
+const SYSTEM_PROMPT = `Você é um EXTRATOR LITERAL de PDFs de estações clínicas (OSCE/Revalida). NÃO é um gerador de conteúdo. NÃO "entende medicina". Sua única função é separar o texto literal do PDF nos campos corretos. Retorne SOMENTE JSON válido conforme o schema.
 
-REGRA DE OURO — FIDELIDADE LITERAL ABSOLUTA:
-- Todo texto que você devolver (title, clinical_case, candidate_task, patient_info, support_materials, patient_script, evaluator_notes, scoring_criteria, post_materials, checklist_items[*].description/category, levels[*].label/description) precisa estar EXATAMENTE como aparece no texto fonte — palavra por palavra, pontuação por pontuação, números por extenso/algarismo como vierem.
-- NUNCA parafraseie, NUNCA resuma, NUNCA reescreva, NUNCA corrija gramática/typos, NUNCA traduza, NUNCA troque sinônimos.
-- NUNCA invente conteúdo. Se um campo não existir na fonte, use null (campos opcionais) ou string vazia.
-- Preserve quebras de linha, pontuação e símbolos exatamente como aparecem.
+REGRA ABSOLUTA — EXTRAÇÃO LITERAL:
+- NÃO inventar. NÃO completar. NÃO corrigir português. NÃO trocar palavras. NÃO melhorar texto. NÃO resumir. NÃO interpretar clinicamente. NÃO transformar o texto em outro texto. NÃO criar conteúdo que não esteja visível no PDF.
+- Apenas COPIE o que está escrito no PDF e coloque no campo correto.
+- Se algum trecho não estiver claro, escreva exatamente: [TRECHO ILEGÍVEL NO PDF]. Nunca adivinhe.
+- Preserve quebras de linha, pontuação, números, símbolos e ordem.
 
 SEGMENTAÇÃO:
-- Identifique CADA estação clínica distinta dentro do texto. Pode haver 1, 2, 5, 10+ estações por documento.
-- Marcadores comuns (use como pistas, mas não dependa de um padrão fixo): "Estação X", "Caso clínico X", "Tarefa do candidato", "Instruções ao candidato", "PEP", "Padrão Esperado de Procedimento", "Checklist", numeração, cabeçalhos repetidos.
-- Se o texto contém UMA única estação, retorne array com 1 elemento. Se contém múltiplas, retorne uma por estação.
+- O PDF pode conter VÁRIAS estações. Retorne uma entrada por estação distinta, em ordem.
 
-REGRA DE FRONTEIRA (CRÍTICA — leia com atenção):
-- O texto fonte é organizado em SEÇÕES com cabeçalhos próprios (ex.: "CENÁRIO DE ATUAÇÃO", "DESCRIÇÃO DO CASO", "TAREFAS DO CANDIDATO" / "INSTRUÇÕES PARA O(A) PARTICIPANTE", "ORIENTAÇÕES AO ATOR/ATRIZ", "PEP" / "PADRÃO ESPERADO DE PROCEDIMENTO" / "CHECKLIST", "IMPRESSOS"/"MATERIAIS").
-- Cada SEÇÃO vai para EXATAMENTE UM campo do JSON. NUNCA misture seções: se uma seção termina e começa outra (cabeçalho em CAIXA ALTA, ou linha com "DESCRIÇÃO DO CASO:", "TAREFAS:", etc.), PARE de copiar para o campo anterior e comece o próximo.
-- Quando você encontrar um cabeçalho novo, ele encerra o campo anterior. NUNCA repita o conteúdo de uma seção em outro campo.
+REGRA DE FRONTEIRA (CRÍTICA):
+- O texto fonte é organizado em SEÇÕES com cabeçalhos próprios. Quando encontrar um novo cabeçalho, ENCERRE a seção anterior. NUNCA misture seções. NUNCA repita conteúdo em mais de um campo.
 
-MAPEAMENTO DE SEÇÕES → CAMPOS (siga estritamente):
-- "CENÁRIO DE ATUAÇÃO" / "Local de atuação" / infraestrutura do local → APENAS clinical_case. PARE no próximo cabeçalho.
-- "DESCRIÇÃO DO CASO" / "Apresentação do caso" / queixa principal do paciente → APENAS patient_info (NÃO em clinical_case).
-- "TAREFAS DO CANDIDATO" / "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → APENAS candidate_task. NÃO em clinical_case.
-- "ORIENTAÇÕES AO ATOR" / "ORIENTAÇÕES À ATRIZ" / "Orientações do ator/atriz" / script do paciente simulado → APENAS patient_script. Copie TODO o bloco literal, do início ao último item, até o próximo cabeçalho.
-- "PEP" / "PADRÃO ESPERADO DE PROCEDIMENTO" / "CHECKLIST" / itens numerados com pontos e níveis (Inadequado/Parcialmente adequado/Adequado) → APENAS checklist_items (ver regras abaixo). NÃO duplique em scoring_criteria.
-- "IMPRESSOS" / "MATERIAIS ENTREGUES" / "Material de apoio" → support_materials.
-- Notas para o avaliador, gabaritos textuais → evaluator_notes.
+MAPEAMENTO DE SEÇÕES → CAMPOS (estrito):
 
-CAMPOS:
-- title: título/nome da estação literal (ex.: "Tabagismo" ou "ESTAÇÃO 10 — TABAGISMO"). Se só houver "Estação X" + tema, junte os dois.
-- specialty: uma de "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade". Inferir SOMENTE da especialidade declarada ("ÁREA: ...") ou tema óbvio; nunca inventar.
-- difficulty: "Fácil" | "Intermediário" | "Avançado". Use "Intermediário" se não estiver explícito.
-- duration_minutes: número entre 3 e 30. Procure "Nos próximos X minutos" / "duração de X minutos". Use 10 se não houver.
-- clinical_case: SOMENTE o bloco "CENÁRIO DE ATUAÇÃO" (local, infraestrutura). NÃO incluir descrição do caso nem tarefas.
-- patient_info: SOMENTE o bloco "DESCRIÇÃO DO CASO" (quem é o paciente, queixa, contexto).
-- candidate_task: SOMENTE as tarefas/instruções ao candidato.
-- patient_script: SOMENTE o bloco "ORIENTAÇÕES AO ATOR/ATRIZ" — copie LITERAL e COMPLETO, todos os itens com "*" e linhas em branco preservadas, até começar o próximo cabeçalho do texto fonte. NÃO trunque.
-- support_materials, evaluator_notes, scoring_criteria, post_materials: copie LITERALMENTE quando existirem; null quando não houver. NÃO duplique conteúdo já colocado em outro campo.
-- competencies: lista curta de competências/temas declarados na fonte (ex.: ["Anamnese", "Comunicação"]). [] se não houver.
+1) CENÁRIO DE ATUAÇÃO → clinical_case
+   Copie SOMENTE o texto abaixo do título "CENÁRIO DE ATUAÇÃO". Inclui APENAS: local de atuação, infraestrutura da unidade, nível de atenção, tipo de atendimento. PARE antes de "DESCRIÇÃO DO CASO".
+   NÃO coloque aqui: tarefas, dados do paciente, ficha do paciente, PEP.
 
-CHECKLIST (checklist_items):
-- EXTRAIA TODOS os itens do PEP, em ordem. Não pule nenhum. Itens são numerados (1, 2, 3...) e cada um tem título, ações descritas e níveis de pontuação.
-- category: COPIE LITERALMENTE o título do item, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → "Apresentação".
-- description: as ações/sub-itens listados sob a categoria (ex.: "(1) cumprimenta o paciente; (2) identifica-se; ..."). LITERAL, sem incluir as linhas dos níveis. "" se só houver título e níveis.
-- points: pontuação MÁXIMA do item (ex.: 0,50 → 0.5). Procure "Pontuação: X" ou o maior valor entre os níveis. 0 se ausente.
-- levels: SEMPRE inclua os 3 níveis quando a fonte mostrar "Inadequado / Parcialmente adequado / Adequado" (ou similar). label e description LITERAIS, points conforme a fonte (Inadequado=0, Adequado=máximo).
+2) DESCRIÇÃO DO CASO → patient_info
+   Copie o texto abaixo de "DESCRIÇÃO DO CASO". Inclua TAMBÉM a "Ficha do paciente" se ela existir em página separada (dados de acolhimento, classificação, sinais vitais, motivo da consulta). NUNCA deixe patient_info vazio se existir DESCRIÇÃO DO CASO ou Ficha do paciente.
+   NÃO coloque aqui: tarefas, orientações ao ator, PEP.
+
+3) TAREFAS DO CANDIDATO → candidate_task
+   Copie SOMENTE a lista que aparece após frases como "Nos próximos 10 minutos, deverão ser realizadas as seguintes tarefas:" ou equivalente. Copie cada item literalmente. NÃO coloque tarefas em clinical_case nem em patient_info. NÃO reescreva os itens.
+
+4) ORIENTAÇÕES DO ATOR/ATRIZ → patient_script
+   Copie LITERALMENTE o bloco completo: nome, idade, profissão, queixa, história, antecedentes, hábitos, respostas, perguntas, orientações em vermelho, instruções sobre quando entregar impressos. NÃO resuma. NÃO corrija. Se não existir, use "Não informado".
+
+5) IMPRESSOS / MATERIAIS → support_materials
+   Identifique TODO título começando com "IMPRESSO 1", "IMPRESSO 2", etc. Cada impresso é um bloco separado. Concatene-os no campo support_materials no formato literal:
+
+   === IMPRESSO 1 — <título literal> ===
+   <texto literal do impresso>
+   [IMAGEM NECESSÁRIA: SIM] (se contém foto clínica, ECG, RX, USG, TC, RM, gráfico ou imagem)
+   [IMAGEM NECESSÁRIA: NÃO] (se for apenas texto)
+
+   === IMPRESSO 2 — ... ===
+   ...
+
+   NUNCA deixe support_materials vazio se o PDF contém páginas com "IMPRESSO".
+
+6) PEP / PADRÃO ESPERADO DE PROCEDIMENTO / CHECKLIST DE AVALIAÇÃO → checklist_items
+   Copie cada item literalmente, na ordem exata do PDF. NÃO altere descrição. NÃO corrija termos. NÃO resuma.
+   - category: título literal do item, sem o número inicial e sem ":" final. Ex.: "01- Apresentação" → "Apresentação".
+   - description: ações/sub-itens listados sob a categoria (ex.: "(1) cumprimenta o paciente simulado; (2) identifica-se; ..."), LITERAL, sem incluir as linhas dos níveis.
+   - points: pontuação MÁXIMA do item (valor da coluna ADEQUADO).
+   - levels: SEMPRE preencher conforme a tabela:
+       * INADEQUADO → label "Inadequado", points = 0, description literal após "Inadequado:".
+       * PARCIALMENTE ADEQUADO (somente se a coluna existir) → label "Parcialmente adequado", points = valor da coluna, description literal.
+       * ADEQUADO → label "Adequado", points = valor da coluna ADEQUADO (NUNCA 0), description literal após "Adequado:".
+     NUNCA salve "Adequado" com points = 0. Inadequado SEMPRE = 0. Parcialmente adequado só existe se aparecer no PDF.
+
+CAMPOS RESTANTES:
+- title: título/nome literal da estação (ex.: "ESTAÇÃO 10 — TABAGISMO").
+- specialty: uma de "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade". Inferir SOMENTE de "ÁREA: ..." declarada; senão "Clínica Médica".
+- difficulty: "Intermediário" se não estiver explícito.
+- duration_minutes: número entre 3 e 30 (procure "Nos próximos X minutos"; default 10).
+- evaluator_notes, scoring_criteria, post_materials, competencies: copiar LITERAL quando existir; null/[] caso contrário. NÃO duplique conteúdo de outras seções.
 
 Schema esperado:
 {
