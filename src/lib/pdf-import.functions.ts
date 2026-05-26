@@ -67,6 +67,33 @@ function groundStationsAgainstTranscript(stations: ImportedStation[], transcript
   return filterChecklistItemsGroundedInTranscript(stations, transcript).filter((station) => stationLooksGroundedInTranscript(station, transcript));
 }
 
+function transcriptMentionsActorGuidance(transcript: string): boolean {
+  return /(orienta[cç][õo]es?|instru[cç][õo]es?)\s+(ao|a|do|da|para o|para a)\s+(ator|atriz|paciente)/i.test(transcript);
+}
+
+function transcriptMentionsPep(transcript: string): boolean {
+  return /\b(pep|checklist|padr[aã]o esperado|avalia[cç][ãa]o de habilidades cl[ií]nicas)\b/i.test(transcript);
+}
+
+function stationsNeedAiFallback(stations: ImportedStation[], transcript: string): boolean {
+  if (stations.length === 0) return true;
+
+  const needsActorGuidance = transcriptMentionsActorGuidance(transcript)
+    && stations.some((station) => !station.patient_script?.trim());
+
+  const needsPep = transcriptMentionsPep(transcript)
+    && stations.some((station) => {
+      const items = station.checklist_items ?? [];
+      if (items.length === 0) return true;
+      return items.every((item) => {
+        const adequate = item.levels?.find((level) => normalizeForSourceCheck(level.label) === "adequado");
+        return !adequate || (adequate.points ?? 0) <= 0;
+      });
+    });
+
+  return needsActorGuidance || needsPep;
+}
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
@@ -257,8 +284,8 @@ Schema esperado:
   }]
 }`;
 
-const PDF_IMPORT_PRIMARY_MODEL = "google/gemini-2.5-pro";
-const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-flash";
+const PDF_IMPORT_PRIMARY_MODEL = "openai/gpt-5.5";
+const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-pro";
 const PDF_IMPORT_FALLBACK_ERROR_RE = /abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json|not supported in the v1\/chat\/completions|not a chat model/i;
 
 async function signPagePaths(paths: string[]): Promise<string[]> {
