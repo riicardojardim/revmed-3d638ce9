@@ -121,6 +121,21 @@ const StationsResultSchema = z.object({
 
 export type ImportedStation = z.infer<typeof StationSchema>;
 
+function normalizeImportedStationPayload(station: ImportedStation): ImportedStation {
+  const { caseDescription, candidateTask } = splitCaseDescriptionAndTaskBlock(station.case_description ?? station.patient_info, station.candidate_task);
+  const deliverableMaterials = (station.deliverable_materials?.length
+    ? station.deliverable_materials
+    : parseDeliverableMaterialsFromSupportText(station.support_materials)) as ImportedDeliverableMaterial[];
+
+  return {
+    ...station,
+    case_description: caseDescription,
+    patient_info: caseDescription,
+    candidate_task: candidateTask,
+    deliverable_materials: deliverableMaterials,
+  };
+}
+
 // ─────────── Prompt fortemente anti-alucinação ───────────
 const SYSTEM_PROMPT = `Você é um EXTRATOR LITERAL de PDFs de estações clínicas (OSCE/Revalida). NÃO é um gerador de conteúdo. NÃO "entende medicina". Sua única função é separar o texto literal do PDF nos campos corretos. Retorne SOMENTE JSON válido conforme o schema.
 
