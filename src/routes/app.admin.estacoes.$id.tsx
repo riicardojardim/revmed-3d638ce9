@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { parseDeliverableMaterialsFromSupportText } from "@/lib/imported-station-utils";
+import { mergeDeliverableMaterials } from "@/lib/imported-station-utils";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
@@ -212,9 +212,10 @@ function StationEditor() {
     }
     const raw = s as Record<string, unknown>;
     const supportMaterials = (raw.support_materials as string | null) ?? null;
-    const deliverableMaterials: DeliverableMaterial[] = Array.isArray(raw.deliverable_materials) && raw.deliverable_materials.length
-      ? (raw.deliverable_materials as DeliverableMaterial[])
-      : parseDeliverableMaterialsFromSupportText(supportMaterials ?? "").map((material, index) => ({
+    const deliverableMaterials: DeliverableMaterial[] = mergeDeliverableMaterials(
+      (raw.deliverable_materials as DeliverableMaterial[] | null) ?? null,
+      supportMaterials ?? "",
+    ).map((material, index) => ({
           id: material.id ?? `imp${index + 1}`,
           name: material.name,
           type: material.type,
