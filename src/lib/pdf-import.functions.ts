@@ -536,10 +536,13 @@ async function extractStationsFromTranscript(
   );
 
   if (deterministicStations.length > 0 && deterministicLooksReliable) {
-    return groundStationsAgainstTranscript(
+    const groundedDeterministic = groundStationsAgainstTranscript(
       StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)) }).stations,
       transcript,
     );
+    if (!stationsNeedAiFallback(groundedDeterministic, transcript)) {
+      return groundedDeterministic;
+    }
   }
 
   const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "IMPRESSO" / "IMPRESSOS" → support_materials (copie TODO o bloco literal até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" / "PADRÃO ESPERADO DE RESPOSTA" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n- Quando o PEP terminar e a próxima estação começar, PARE imediatamente a estação atual. NÃO puxe nada da próxima estação.\n\n=== TEXTO ===\n${transcript}\n=== FIM ===`;
@@ -611,6 +614,9 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
         StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicFromRawText)) }).stations,
         transcript,
       );
+      if (stationsNeedAiFallback(allStations, transcript)) {
+        allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+      }
     } else {
       if (transcript.length < 200) {
         transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
@@ -622,6 +628,9 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
           StationsResultSchema.parse({ stations: normalizeImportedStationList(normalizeImportedStations(deterministicAfterOcr)) }).stations,
           transcript,
         );
+        if (stationsNeedAiFallback(allStations, transcript)) {
+          allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+        }
       } else {
         allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
       }
