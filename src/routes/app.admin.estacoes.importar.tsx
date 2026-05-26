@@ -588,7 +588,7 @@ function StationEditor({
       </div>
       <div>
         <Label>Descrição do caso</Label>
-        <Textarea rows={5} value={station.patient_info ?? ""} onChange={(e) => onChange({ patient_info: e.target.value || null })} />
+        <Textarea rows={5} value={station.case_description ?? station.patient_info ?? ""} onChange={(e) => onChange({ case_description: e.target.value || null, patient_info: e.target.value || null })} />
       </div>
       <div>
         <Label>Tarefas do candidato</Label>
