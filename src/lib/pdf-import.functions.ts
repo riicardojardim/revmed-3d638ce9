@@ -194,6 +194,61 @@ async function callGemini(
   return { content: json.choices?.[0]?.message?.content ?? "", usage: json.usage ?? null };
 }
 
+function parseJsonResponse(content: string): unknown {
+  const cleaned = content
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
+
+  if (!cleaned) return {};
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.search(/[\[{]/);
+    if (start === -1) {
+      throw new Error("A IA não retornou JSON válido.");
+    }
+
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    const opener = cleaned[start];
+    const closer = opener === "[" ? "]" : "}";
+
+    for (let i = start; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (ch === "\\") escaped = true;
+        else if (ch === '"') inString = false;
+        continue;
+      }
+
+      if (ch === '"') {
+        inString = true;
+        continue;
+      }
+
+      if (ch === opener) depth++;
+      else if (ch === closer) depth--;
+
+      if (depth === 0) {
+        const candidate = cleaned.slice(start, i + 1);
+        try {
+          return JSON.parse(candidate);
+        } catch {
+          break;
+        }
+      }
+    }
+
+    throw new Error("A resposta da IA veio com JSON incompleto ou texto extra inválido.");
+  }
+}
+
 async function extractStationsViaVision(
   apiKey: string,
   imageUrls: string[],
@@ -219,13 +274,7 @@ async function extractStationsViaVision(
       kind: "station",
     }));
   }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(content || "{}");
-  } catch {
-    const m = content.match(/\{[\s\S]*\}/);
-    parsed = m ? JSON.parse(m[0]) : {};
-  }
+  let parsed = parseJsonResponse(content || "{}");
   // Gemini às vezes retorna direto o array de estações em vez de { stations: [...] }
   if (Array.isArray(parsed)) parsed = { stations: parsed };
   else if (parsed && typeof parsed === "object") {
