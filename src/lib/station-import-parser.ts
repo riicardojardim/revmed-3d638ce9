@@ -191,7 +191,13 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
   const normalized = normalizeHeader(line);
   for (const section of SECTION_LABELS) {
     for (const alias of section.aliases) {
-      if (normalized === alias || normalized.startsWith(`${alias} `)) {
+      if (
+        normalized === alias ||
+        normalized.startsWith(`${alias} `) ||
+        normalized.startsWith(`${alias}:`) ||
+        (alias === "NOS PROXIMOS" && /^NOS PROXIMOS\s+\d{1,2}\s+MINUTOS/.test(normalized)) ||
+        (alias === "IMPRESSO" && /^IMPRESSO\s*\d{1,3}\b/.test(normalized))
+      ) {
         const inline = line.includes(":") ? line.slice(line.indexOf(":") + 1).trim() : "";
         return { key: section.key, inline };
       }
@@ -341,7 +347,12 @@ function parsePepChecklist(text: string): ParsedChecklistItem[] {
 }
 
 function parseStationTitle(header: string, fallback: string): string {
-  const cleaned = header.replace(/^=+\s*|\s*=+$/g, "").trim();
+  const cleaned =
+    header
+      .replace(/^=+\s*|\s*=+$/g, "")
+      .split(" — ")
+      .map((part) => part.trim())
+      .find((part) => /^ESTA[ÇC][ÃA]O\b/i.test(part) || /^ESTACAO\b/i.test(normalizeHeader(part))) ?? header.trim();
   if (cleaned) return cleaned;
   return fallback;
 }
@@ -411,9 +422,21 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       let currentSection: SectionKey | null = null;
 
       block.body.split(/\r?\n/).forEach((line) => {
+        if (currentSection === "pep" && isStationStartLine(line.trim())) {
+          currentSection = null;
+          return;
+        }
+
         const section = detectSection(line);
         if (section) {
+          if (currentSection === "pep" && section.key !== "pep") {
+            currentSection = null;
+          }
           currentSection = section.key;
+          if (section.key === "support_materials" && /^IMPRESSO\s*\d{1,3}\b/i.test(line.trim())) {
+            sections[section.key].push(line.trim());
+            return;
+          }
           if (section.inline) sections[section.key].push(section.inline);
           return;
         }
