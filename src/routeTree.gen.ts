@@ -74,6 +74,7 @@ import { Route as AppProfessorCorrecoesIdRouteImport } from './routes/app.profes
 import { Route as AppAdminResumosIdRouteImport } from './routes/app.admin.resumos.$id'
 import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.flashcards.$id'
 import { Route as AppAdminEstacoesImportarRouteImport } from './routes/app.admin.estacoes.importar'
+import { Route as AppAdminEstacoesImagensRouteImport } from './routes/app.admin.estacoes.imagens'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
 import { Route as ApiPublicWebhooksPaymentSplatRouteImport } from './routes/api/public/webhooks/payment/$'
 
@@ -404,6 +405,11 @@ const AppAdminEstacoesImportarRoute =
     path: '/importar',
     getParentRoute: () => AppAdminEstacoesRoute,
   } as any)
+const AppAdminEstacoesImagensRoute = AppAdminEstacoesImagensRouteImport.update({
+  id: '/imagens',
+  path: '/imagens',
+  getParentRoute: () => AppAdminEstacoesRoute,
+} as any)
 const AppAdminEstacoesIdRoute = AppAdminEstacoesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -470,6 +476,7 @@ export interface FileRoutesByFullPath {
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/estacoes/imagens': typeof AppAdminEstacoesImagensRoute
   '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
@@ -532,6 +539,7 @@ export interface FileRoutesByTo {
   '/app/flashcards': typeof AppFlashcardsIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/estacoes/imagens': typeof AppAdminEstacoesImagensRoute
   '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
@@ -602,6 +610,7 @@ export interface FileRoutesById {
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
+  '/app/admin/estacoes/imagens': typeof AppAdminEstacoesImagensRoute
   '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
   '/app/admin/flashcards/$id': typeof AppAdminFlashcardsIdRoute
   '/app/admin/resumos/$id': typeof AppAdminResumosIdRoute
@@ -673,6 +682,7 @@ export interface FileRouteTypes {
     | '/app/flashcards/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/estacoes/imagens'
     | '/app/admin/estacoes/importar'
     | '/app/admin/flashcards/$id'
     | '/app/admin/resumos/$id'
@@ -735,6 +745,7 @@ export interface FileRouteTypes {
     | '/app/flashcards'
     | '/app/professor'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/estacoes/imagens'
     | '/app/admin/estacoes/importar'
     | '/app/admin/flashcards/$id'
     | '/app/admin/resumos/$id'
@@ -804,6 +815,7 @@ export interface FileRouteTypes {
     | '/app/flashcards/'
     | '/app/professor/'
     | '/app/admin/estacoes/$id'
+    | '/app/admin/estacoes/imagens'
     | '/app/admin/estacoes/importar'
     | '/app/admin/flashcards/$id'
     | '/app/admin/resumos/$id'
@@ -1291,6 +1303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminEstacoesImportarRouteImport
       parentRoute: typeof AppAdminEstacoesRoute
     }
+    '/app/admin/estacoes/imagens': {
+      id: '/app/admin/estacoes/imagens'
+      path: '/imagens'
+      fullPath: '/app/admin/estacoes/imagens'
+      preLoaderRoute: typeof AppAdminEstacoesImagensRouteImport
+      parentRoute: typeof AppAdminEstacoesRoute
+    }
     '/app/admin/estacoes/$id': {
       id: '/app/admin/estacoes/$id'
       path: '/$id'
@@ -1310,12 +1329,14 @@ declare module '@tanstack/react-router' {
 
 interface AppAdminEstacoesRouteChildren {
   AppAdminEstacoesIdRoute: typeof AppAdminEstacoesIdRoute
+  AppAdminEstacoesImagensRoute: typeof AppAdminEstacoesImagensRoute
   AppAdminEstacoesImportarRoute: typeof AppAdminEstacoesImportarRoute
   AppAdminEstacoesIndexRoute: typeof AppAdminEstacoesIndexRoute
 }
 
 const AppAdminEstacoesRouteChildren: AppAdminEstacoesRouteChildren = {
   AppAdminEstacoesIdRoute: AppAdminEstacoesIdRoute,
+  AppAdminEstacoesImagensRoute: AppAdminEstacoesImagensRoute,
   AppAdminEstacoesImportarRoute: AppAdminEstacoesImportarRoute,
   AppAdminEstacoesIndexRoute: AppAdminEstacoesIndexRoute,
 }
