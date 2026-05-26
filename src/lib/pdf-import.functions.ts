@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
-import { parseDeliverableMaterialsFromSupportText, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
+import { extractPatientInfoFromSupportText, parseDeliverableMaterialsFromSupportText, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
 import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
 function normalizeForSourceCheck(value: string): string {
@@ -25,6 +25,7 @@ function stationLooksGroundedInTranscript(station: ImportedStation, transcript: 
   const samples = [
     cropForSourceCheck(station.title, 180),
     cropForSourceCheck(station.clinical_case, 500),
+    cropForSourceCheck(station.case_description, 500),
     cropForSourceCheck(station.patient_info, 500),
     cropForSourceCheck(station.candidate_task, 500),
     cropForSourceCheck(station.patient_script, 500),
@@ -125,16 +126,22 @@ type ImportedStationInput = Omit<ImportedStation, "case_description" | "delivera
   Partial<Pick<ImportedStation, "case_description" | "deliverable_materials">>;
 
 function normalizeImportedStationPayload(station: ImportedStationInput): ImportedStation {
-  const { caseDescription, candidateTask } = splitCaseDescriptionAndTaskBlock(station.case_description ?? station.patient_info, station.candidate_task);
+  const originalCaseDescription = station.case_description?.trim() || null;
+  const originalPatientInfo = station.patient_info?.trim() || null;
+  const { caseDescription, candidateTask } = splitCaseDescriptionAndTaskBlock(
+    originalCaseDescription ?? originalPatientInfo,
+    station.candidate_task,
+  );
   const deliverableMaterials = (station.deliverable_materials?.length
     ? station.deliverable_materials
     : parseDeliverableMaterialsFromSupportText(station.support_materials)) as ImportedDeliverableMaterial[];
+  const fallbackPatientInfo = originalPatientInfo ?? extractPatientInfoFromSupportText(station.support_materials);
 
   return {
     ...station,
-    case_description: caseDescription,
-    patient_info: caseDescription,
-    candidate_task: candidateTask,
+    case_description: originalCaseDescription ?? caseDescription,
+    patient_info: fallbackPatientInfo,
+    candidate_task: station.candidate_task?.trim() ? station.candidate_task : candidateTask,
     deliverable_materials: deliverableMaterials,
   };
 }

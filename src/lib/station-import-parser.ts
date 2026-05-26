@@ -83,6 +83,8 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
     aliases: [
       "IMPRESSOS",
       "IMPRESSO",
+      "MATERIAL/IMPRESSO",
+      "MATERIAL IMPRESSO",
       "IMPRESSOS E MATERIAIS ENTREGAVEIS",
       "MATERIAIS ENTREGAVEIS",
       "MATERIAIS DE APOIO",
@@ -206,6 +208,16 @@ function normalizeSpecialty(value: string | undefined): ParsedImportedStation["s
   return mapNormalizedSpecialty(normalizeHeader(value ?? "")) ?? "Clínica Médica";
 }
 
+function inferSpecialtyFromStationContent(station: ParsedImportedStation): ParsedImportedStation["specialty"] {
+  return normalizeSpecialty([
+    station.specialty,
+    station.title,
+    station.clinical_case,
+    station.patient_info,
+    station.candidate_task,
+  ].filter(Boolean).join("\n"));
+}
+
 function extractHeaderSpecialtyContext(body: string): string {
   const lines = body.replace(/\r\n/g, "\n").split("\n");
   const headerLines: string[] = [];
@@ -287,10 +299,11 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
         normalized.startsWith(`${alias} `) ||
         normalized.startsWith(`${alias}:`) ||
         (alias === "NOS PROXIMOS" && /^NOS PROXIMOS\s+\d{1,2}\s+MINUTOS/.test(normalized)) ||
-        (alias === "IMPRESSO" && /^IMPRESSO\s*\d{1,3}\b/.test(normalized))
+        (alias === "IMPRESSO" && /^IMPRESSO\s*\d{1,3}\b/.test(normalized)) ||
+        (alias === "MATERIAL/IMPRESSO" && /^MATERIAL\/?IMPRESSO\s*\d{1,3}\b/.test(normalized))
       ) {
         const inline =
-          alias === "NOS PROXIMOS"
+          alias === "NOS PROXIMOS" || alias === "IMPRESSO" || alias === "MATERIAL/IMPRESSO"
             ? trimmedLine
             : trimmedLine
                 .slice(Math.min(trimmedLine.length, alias.length))
@@ -301,6 +314,13 @@ function detectSection(line: string): { key: SectionKey; inline: string } | null
     }
   }
   return null;
+}
+
+function extractPepFallbackFromBlock(text: string): string {
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  const startIndex = lines.findIndex((line) => /\b(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?|ITENS DE DESEMPENHO AVALIADOS)\b/i.test(normalizeHeader(line)));
+  if (startIndex === -1) return "";
+  return lines.slice(startIndex).join("\n");
 }
 
 function countRecognizedHeaders(text: string): number {
@@ -593,7 +613,7 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
     return {
       ...station,
       title: cleanMultilineText(station.title || "Estação sem título") || "Estação sem título",
-      specialty: normalizeSpecialty(station.specialty),
+      specialty: inferSpecialtyFromStationContent(station),
       clinical_case: cleanMultilineText(station.clinical_case ?? ""),
       candidate_task: cleanMultilineText(station.candidate_task ?? ""),
       patient_info: emptyToNull(station.patient_info),
@@ -691,6 +711,8 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       const metaTitle = meta.TITULO ?? meta["TITULO DA ESTACAO"] ?? meta["NOME DA ESTACAO"];
       const durationContext = [meta.TEMPO, meta.DURACAO, meta["TEMPO DA ESTACAO"], block.body].filter(Boolean).join("\n");
 
+      const pepSource = cleanMultilineText(sections.pep.join("\n")) || extractPepFallbackFromBlock(block.body);
+
       const station: ParsedImportedStation = {
         title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`, metaTitle),
         specialty: normalizeSpecialty(specialtyContext),
@@ -705,7 +727,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         scoring_criteria: null,
         post_materials: null,
         competencies: [],
-        checklist_items: parsePepChecklist(sections.pep.join("\n")),
+        checklist_items: parsePepChecklist(pepSource),
       };
 
       return station;

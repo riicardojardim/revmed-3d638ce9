@@ -29,6 +29,21 @@ function inferMaterialType(title: string, content: string): string {
   return "Impresso";
 }
 
+function normalizeForMatch(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9/ ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isPatientInfoMaterial(title: string): boolean {
+  const normalized = normalizeForMatch(title);
+  return /(ficha do paciente|ficha de atendimento|ficha de acolhimento|ficha clinica|prontuario|dados do paciente|historia clinica)/.test(normalized);
+}
+
 export function splitCaseDescriptionAndTaskBlock(
   caseDescription: string | null | undefined,
   candidateTask: string | null | undefined,
@@ -66,10 +81,10 @@ export function parseDeliverableMaterialsFromSupportText(
   if (!text) return [];
 
   const normalizedText = text
-    .replace(/(?:^|\n)(IMPRESSO\s*\d{1,3}\b)/gi, "\n$1")
-    .replace(/(?:^|\n)(===\s*IMPRESSO\s*\d{1,3}\b)/gi, "\n$1");
+    .replace(/(?:^|\n)\s*((?:(?:MATERIAL\s*\/??\s*)?IMPRESSO)\s*\d{1,3}\b)/gi, "\n$1")
+    .replace(/(?:^|\n)\s*(===\s*(?:(?:MATERIAL\s*\/??\s*)?IMPRESSO)\s*\d{1,3}\b)/gi, "\n$1");
   const lines = normalizedText.split("\n");
-  const markerRegex = /^(?:=+\s*)?IMPRESSO\s*(\d{1,3})\b(?:\s*[-–—:]\s*(.+?))?\s*(?:=+)?$/i;
+  const markerRegex = /^(?:=+\s*)?(?:MATERIAL\s*\/??\s*)?IMPRESSO\s*(\d{1,3})\b(?:\s*[-–—:]\s*(.+?))?\s*(?:=+)?$/i;
   const markers: Array<{ index: number; title: string }> = [];
 
   lines.forEach((line, index) => {
@@ -94,7 +109,8 @@ export function parseDeliverableMaterialsFromSupportText(
       const cleanedBody = cleanBlock(
         block.body
           .replace(/^\[IMAGEM NECESS[ÁA]RIA:\s*(SIM|N[ÃA]O)\]\s*$/gim, "")
-          .replace(/^IMPRESSOS?\s*:?\s*$/gim, ""),
+          .replace(/^(?:\/\s*)?IMPRESSOS?\s*:?\s*$/gim, "")
+          .replace(/^MATERIAIS?(?:\s+ENTREG[ÁA]VEIS)?\s*:?\s*$/gim, ""),
       );
       const title = cleanBlock(block.title).replace(/^(TITULO|T[IÍ]TULO)\s*$/i, "") || `Impresso ${index + 1}`;
       if (!cleanedBody && !title) return;
@@ -109,4 +125,13 @@ export function parseDeliverableMaterialsFromSupportText(
   });
 
   return materials.filter((item) => Boolean(item.name || item.content));
+}
+
+export function extractPatientInfoFromSupportText(
+  value: string | null | undefined,
+): string | null {
+  const material = parseDeliverableMaterialsFromSupportText(value).find(
+    (item) => isPatientInfoMaterial(item.name) && cleanBlock(item.content),
+  );
+  return material ? cleanBlock(material.content) : null;
 }
