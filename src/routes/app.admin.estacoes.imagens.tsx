@@ -34,9 +34,9 @@ type PendingItem = {
 };
 
 const PLACEHOLDER_RE =
-  /\[IMAGEM[^\]]*?(?:CAPTURAR\s*TELA|CAPTURA\s*DE\s*TELA|SCREENSHOT|IMAGEM\s*NECESS[ÁA]RIA)[^\]]*?\]?/i;
+  /\[IMAGEM[^\]]*?(?:CAPTURAR\s*TELA|CAPTURA\s*DE\s*TELA|SCREENSHOT|IMAGEM\s*NECESS[ÁA]RIA)[^\]]*\]/i;
 const PAGE_RE = /P[ÁA]GINA\s*(\d+)/i;
-const DAY_RE = /DIA\s*([\wÀ-ÿ\-]+)/i;
+const DAY_RE = /DIA\s*(\d+)/i;
 
 function detectPlaceholder(content: string | undefined): {
   match: string;
@@ -132,9 +132,18 @@ function PendingImagesPage() {
       map.get(key)!.push(it);
     });
     for (const arr of map.values()) {
-      arr.sort((a, b) => (a.page ?? 9999) - (b.page ?? 9999));
+      arr.sort((a, b) => {
+        const pa = a.page ?? 9999;
+        const pb = b.page ?? 9999;
+        if (pa !== pb) return pa - pb;
+        return a.stationTitle.localeCompare(b.stationTitle);
+      });
     }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return Array.from(map.entries()).sort(([a], [b]) => {
+      const na = Number(a.replace(/\D/g, "")) || 9999;
+      const nb = Number(b.replace(/\D/g, "")) || 9999;
+      return na - nb;
+    });
   }, [filtered]);
 
   function removeItem(stationId: string, materialIndex: number) {
@@ -304,6 +313,16 @@ function PendingRow({ item, onDone }: { item: PendingItem; onDone: () => void })
       <ImageIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
+          {item.day && (
+            <Badge className="bg-primary/15 text-primary text-xs">
+              Dia {item.day}
+            </Badge>
+          )}
+          {item.page !== null && (
+            <Badge variant="secondary" className="text-xs">
+              Pág. {item.page}
+            </Badge>
+          )}
           <Link
             to="/app/admin/estacoes/$id"
             params={{ id: item.stationId }}
@@ -312,19 +331,15 @@ function PendingRow({ item, onDone }: { item: PendingItem; onDone: () => void })
           >
             {item.stationTitle}
           </Link>
+          {item.specialty && (
+            <span className="text-xs text-muted-foreground">· {item.specialty}</span>
+          )}
+          <Badge variant="outline" className="text-xs">
+            Impresso {item.materialIndex + 1}
+          </Badge>
           <Badge variant="outline" className="text-xs">
             {item.materialName}
           </Badge>
-          {item.page !== null && (
-            <Badge variant="secondary" className="text-xs">
-              Página {item.page}
-            </Badge>
-          )}
-          {item.day && (
-            <Badge variant="secondary" className="text-xs">
-              Dia {item.day}
-            </Badge>
-          )}
         </div>
         <p className="mt-1 truncate text-xs text-muted-foreground">{item.rawPlaceholder}</p>
       </div>
