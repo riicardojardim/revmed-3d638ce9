@@ -475,6 +475,11 @@ function cleanTitlePart(value: string): string {
     .trim();
 }
 
+function isGenericTitlePlaceholder(value: string): boolean {
+  const normalized = normalizeHeader(value);
+  return /^(TITULO|TITULO DA ESTACAO|NOME DA ESTACAO|ESTACAO|CASO CLINICO|CHECKLIST)$/.test(normalized);
+}
+
 function isTitleNoiseLine(line: string): boolean {
   const normalized = normalizeHeader(line);
   if (!normalized) return true;
@@ -518,7 +523,7 @@ function parseStationTitle(body: string, fallback: string): string {
 
     if (!topic) {
       const cleaned = cleanTitlePart(line);
-      if (cleaned.length >= 3) topic = cleaned;
+      if (cleaned.length >= 3 && !isGenericTitlePlaceholder(cleaned)) topic = cleaned;
     }
     if (stationLabel && topic) break;
   }

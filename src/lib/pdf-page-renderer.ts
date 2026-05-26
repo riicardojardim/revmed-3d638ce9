@@ -54,39 +54,65 @@ async function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise
 function extractPageText(content: unknown): string {
   const items = ((content as { items?: unknown[] }).items ?? []) as Array<{
     str?: string;
+    width?: number;
     hasEOL?: boolean;
     transform?: number[];
   }>;
-  const lines: string[] = [];
-  let currentLine: string[] = [];
-  let currentY: number | null = null;
 
-  const flush = () => {
-    const text = currentLine.join(" ").replace(/\s+/g, " ").trim();
-    if (text) lines.push(text);
-    currentLine = [];
-    currentY = null;
-  };
+  const positioned = items
+    .map((item) => {
+      const raw = typeof item.str === "string" ? item.str.replace(/\s+/g, " ").trim() : "";
+      const transform = Array.isArray(item.transform) ? item.transform : [];
+      const x = Number(transform[4] ?? NaN);
+      const y = Number(transform[5] ?? NaN);
+      const width = typeof item.width === "number" && Number.isFinite(item.width) ? item.width : Math.max(raw.length * 4.8, 8);
+      return {
+        raw,
+        x,
+        y,
+        width,
+        hasEOL: Boolean(item.hasEOL),
+      };
+    })
+    .filter((item) => item.raw && Number.isFinite(item.x) && Number.isFinite(item.y));
 
-  for (const item of items) {
-    const raw = typeof item.str === "string" ? item.str.trim() : "";
-    const y = Array.isArray(item.transform) ? Math.round(item.transform[5] ?? 0) : null;
+  if (positioned.length === 0) return "";
 
-    if (raw) {
-      if (currentY != null && y != null && Math.abs(currentY - y) > 2) {
-        flush();
-      }
-      if (currentY == null && y != null) currentY = y;
-      currentLine.push(raw);
-    }
+  const Y_TOLERANCE = 3;
+  const rows: Array<{ y: number; items: typeof positioned }> = [];
 
-    if (item.hasEOL) {
-      flush();
+  for (const item of positioned) {
+    const row = rows.find((candidate) => Math.abs(candidate.y - item.y) <= Y_TOLERANCE);
+    if (row) {
+      row.items.push(item);
+      row.y = (row.y * (row.items.length - 1) + item.y) / row.items.length;
+    } else {
+      rows.push({ y: item.y, items: [item] });
     }
   }
 
-  flush();
-  return lines.join("\n").trim();
+  const orderedRows = rows.sort((a, b) => b.y - a.y);
+
+  const lines = orderedRows.map((row) => {
+    const orderedItems = row.items.sort((a, b) => a.x - b.x);
+    const parts: string[] = [];
+    let lastRight = -Infinity;
+
+    for (const item of orderedItems) {
+      const gap = item.x - lastRight;
+      if (parts.length > 0) {
+        if (gap > 42) parts.push(" \t ");
+        else if (gap > 10 || item.hasEOL) parts.push(" ");
+      }
+
+      parts.push(item.raw);
+      lastRight = Math.max(lastRight, item.x + item.width);
+    }
+
+    return parts.join("").replace(/[ \t]+$/g, "").trim();
+  });
+
+  return lines.filter(Boolean).join("\n").trim();
 }
 
 /**

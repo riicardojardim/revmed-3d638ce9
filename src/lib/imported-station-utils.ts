@@ -65,7 +65,10 @@ export function parseDeliverableMaterialsFromSupportText(
   const text = cleanBlock(value ?? "");
   if (!text) return [];
 
-  const lines = text.split("\n");
+  const normalizedText = text
+    .replace(/(?:^|\n)(IMPRESSO\s*\d{1,3}\b)/gi, "\n$1")
+    .replace(/(?:^|\n)(===\s*IMPRESSO\s*\d{1,3}\b)/gi, "\n$1");
+  const lines = normalizedText.split("\n");
   const markerRegex = /^(?:=+\s*)?IMPRESSO\s*(\d{1,3})\b(?:\s*[-–—:]\s*(.+?))?\s*(?:=+)?$/i;
   const markers: Array<{ index: number; title: string }> = [];
 
@@ -93,7 +96,7 @@ export function parseDeliverableMaterialsFromSupportText(
           .replace(/^\[IMAGEM NECESS[ÁA]RIA:\s*(SIM|N[ÃA]O)\]\s*$/gim, "")
           .replace(/^IMPRESSOS?\s*:?\s*$/gim, ""),
       );
-      const title = cleanBlock(block.title) || `Impresso ${index + 1}`;
+      const title = cleanBlock(block.title).replace(/^(TITULO|T[IÍ]TULO)\s*$/i, "") || `Impresso ${index + 1}`;
       if (!cleanedBody && !title) return;
       materials.push({
         id: `imp${index + 1}`,
