@@ -360,6 +360,64 @@ async function transcribeViaVision(apiKey: string, imageUrls: string[], userId: 
   return content;
 }
 
+async function transcribePdfInBatches(apiKey: string, pagePaths: string[], userId: string): Promise<string> {
+  const BATCH_SIZE = 20;
+  const parts: string[] = [];
+
+  for (let i = 0; i < pagePaths.length; i += BATCH_SIZE) {
+    const batch = pagePaths.slice(i, i + BATCH_SIZE);
+    const urls = await signPagePaths(batch);
+    const text = await transcribeViaVision(apiKey, urls, userId);
+    if (text.trim()) parts.push(text.trim());
+  }
+
+  return parts.join("\n\n");
+}
+
+async function extractStationsFromTranscript(
+  apiKey: string,
+  transcript: string,
+  userId: string,
+  sourceLabel: string,
+): Promise<ImportedStation[]> {
+  const deterministicStations = parseStructuredStationsFromText(transcript, sourceLabel);
+  if (deterministicStations.length > 0) {
+    return StationsResultSchema.parse({ stations: normalizeImportedStations(deterministicStations) }).stations;
+  }
+
+  const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "IMPRESSO" / "IMPRESSOS" → support_materials (copie TODO o bloco literal até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" / "PADRÃO ESPERADO DE RESPOSTA" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n- Quando o PEP terminar e a próxima estação começar, PARE imediatamente a estação atual. NÃO puxe nada da próxima estação.\n\n=== TEXTO ===\n${transcript}\n=== FIM ===`;
+
+  async function requestAndParse(model: string, timeoutMs: number) {
+    const { content } = await callGemini(apiKey, model, SYSTEM_PROMPT, userText, [], {
+      jsonMode: true,
+      timeoutMs,
+      userId,
+      kind: "station",
+    });
+    return parseJsonResponse(content || "{}");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
+    parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
+  }
+
+  if (Array.isArray(parsed)) parsed = { stations: parsed };
+  else if (parsed && typeof parsed === "object") {
+    const obj = parsed as Record<string, unknown>;
+    if (!Array.isArray(obj.stations)) {
+      const arrKey = Object.keys(obj).find((k) => Array.isArray(obj[k]));
+      if (arrKey) parsed = { stations: obj[arrKey] };
+    }
+  }
+
+  return StationsResultSchema.parse({ stations: normalizeImportedStations(StationsResultSchema.parse(parsed).stations) }).stations;
+}
+
 // ─────────── Parse de UM PDF a partir das páginas no Storage ───────────
 export const importStationsFromPdf = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
