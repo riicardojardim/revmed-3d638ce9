@@ -371,6 +371,13 @@ function ImportPdfPage() {
       const payload = allSelected.map(({ _selected: _s, ...rest }) => rest);
       const res = await insertAll({ data: { stations: payload } });
       toast.success(`${res.created.length} estação(ões) importadas`);
+      if (selectedCell) {
+        setDone((prev) => {
+          const next = new Set(prev);
+          next.add(selectedCell);
+          return next;
+        });
+      }
       nav({ to: "/app/admin/estacoes" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
