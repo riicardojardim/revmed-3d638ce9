@@ -284,8 +284,8 @@ Schema esperado:
   }]
 }`;
 
-const PDF_IMPORT_PRIMARY_MODEL = "openai/gpt-5.5";
-const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-pro";
+const PDF_IMPORT_PRIMARY_MODEL = "google/gemini-2.5-pro";
+const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-flash";
 const PDF_IMPORT_FALLBACK_ERROR_RE = /abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json|not supported in the v1\/chat\/completions|not a chat model/i;
 
 async function signPagePaths(paths: string[]): Promise<string[]> {
@@ -340,7 +340,8 @@ async function callGemini(
     res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "Lovable-API-Key": apiKey,
+        "X-Lovable-AIG-SDK": "manual-fetch",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
