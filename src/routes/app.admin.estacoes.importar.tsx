@@ -542,7 +542,7 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
                   <div className="flex-1 text-left">
                     <div className="font-medium">{st.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {st.specialty} · {st.difficulty} · {st.duration_minutes} min · {st.checklist_items.length} itens
+                      {st.specialty} · {st.difficulty} · {st.checklist_items.length} itens
                     </div>
                   </div>
                 </div>
@@ -567,7 +567,7 @@ function StationEditor({
 }) {
   return (
     <div className="space-y-3 p-2">
-      <div className="grid gap-3 md:grid-cols-[2fr,1fr,1fr,1fr]">
+      <div className="grid gap-3 md:grid-cols-[2fr,1fr,1fr]">
         <div>
           <Label>Título</Label>
           <Input value={station.title} onChange={(e) => onChange({ title: e.target.value })} />
@@ -591,10 +591,6 @@ function StationEditor({
               <SelectItem value="Avançado">Avançado</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-        <div>
-          <Label>Duração (min)</Label>
-          <Input type="number" min={3} max={30} value={station.duration_minutes} onChange={(e) => onChange({ duration_minutes: Math.max(3, Math.min(30, Number(e.target.value) || 10)) })} />
         </div>
       </div>
       <div>

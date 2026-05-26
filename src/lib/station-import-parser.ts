@@ -513,7 +513,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         title: parseStationTitle(block.header, `${sourceLabel} — Estação ${index + 1}`),
         specialty: normalizeSpecialty(meta.AREA),
         difficulty: "Intermediário",
-        duration_minutes: parseDurationMinutes(meta.TEMPO ?? sections.candidate_task.join("\n")),
+        duration_minutes: 10,
         clinical_case: cleanMultilineText(sections.clinical_case.join("\n")),
         candidate_task: cleanMultilineText(sections.candidate_task.join("\n")),
         patient_info: emptyToNull(sections.patient_info.join("\n")),
