@@ -935,7 +935,7 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
       return {
         ...item,
         category: cleanMultilineText(item.category ?? "") || "Sem categoria",
-        description: cleanMultilineText(item.description ?? ""),
+        description: cleanMultilineText(stripInlineSubItemScores(item.description ?? "")),
         points: maxPoints,
         levels,
       };
