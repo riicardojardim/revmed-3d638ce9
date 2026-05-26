@@ -194,6 +194,61 @@ async function callGemini(
   return { content: json.choices?.[0]?.message?.content ?? "", usage: json.usage ?? null };
 }
 
+function parseJsonResponse(content: string): unknown {
+  const cleaned = content
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
+
+  if (!cleaned) return {};
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    const start = cleaned.search(/[\[{]/);
+    if (start === -1) {
+      throw new Error("A IA não retornou JSON válido.");
+    }
+
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    const opener = cleaned[start];
+    const closer = opener === "[" ? "]" : "}";
+
+    for (let i = start; i < cleaned.length; i++) {
+      const ch = cleaned[i];
+
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (ch === "\\") escaped = true;
+        else if (ch === '"') inString = false;
+        continue;
+      }
+
+      if (ch === '"') {
+        inString = true;
+        continue;
+      }
+
+      if (ch === opener) depth++;
+      else if (ch === closer) depth--;
+
+      if (depth === 0) {
+        const candidate = cleaned.slice(start, i + 1);
+        try {
+          return JSON.parse(candidate);
+        } catch {
+          break;
+        }
+      }
+    }
+
+    throw new Error("A resposta da IA veio com JSON incompleto ou texto extra inválido.");
+  }
+}
+
 async function extractStationsViaVision(
   apiKey: string,
   imageUrls: string[],
@@ -201,30 +256,24 @@ async function extractStationsViaVision(
 ): Promise<z.infer<typeof StationsResultSchema>> {
   const userText =
     "Você está vendo TODAS as páginas escaneadas de um PDF de checklists clínicos, em ordem. Aplique a REGRA DE OURO e o schema. Retorne SOMENTE JSON.";
-  let content: string;
-  try {
-    ({ content } = await callGemini(apiKey, "google/gemini-2.5-pro", SYSTEM_PROMPT, userText, imageUrls, {
+
+  async function requestAndParse(model: string, timeoutMs: number) {
+    const { content } = await callGemini(apiKey, model, SYSTEM_PROMPT, userText, imageUrls, {
       jsonMode: true,
-      timeoutMs: 300_000,
+      timeoutMs,
       userId,
       kind: "station",
-    }));
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (!/abort|timeout|504|502/i.test(msg)) throw err;
-    ({ content } = await callGemini(apiKey, "google/gemini-2.5-flash", SYSTEM_PROMPT, userText, imageUrls, {
-      jsonMode: true,
-      timeoutMs: 240_000,
-      userId,
-      kind: "station",
-    }));
+    });
+    return parseJsonResponse(content || "{}");
   }
+
   let parsed: unknown;
   try {
-    parsed = JSON.parse(content || "{}");
-  } catch {
-    const m = content.match(/\{[\s\S]*\}/);
-    parsed = m ? JSON.parse(m[0]) : {};
+    parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
+    parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
   }
   // Gemini às vezes retorna direto o array de estações em vez de { stations: [...] }
   if (Array.isArray(parsed)) parsed = { stations: parsed };
