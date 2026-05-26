@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import { staggerContainer, staggerItem } from "@/lib/stagger";
 import { toast } from "sonner";
 import { StationPDFButton } from "@/components/station/StationPDFButton";
+import { toTitleCase } from "@/lib/title-case";
 
 
 export const Route = createFileRoute("/app/checklists")({
@@ -241,7 +242,7 @@ function StationsPage() {
                           {m.code}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium">{s.title}</div>
+                          <div className="truncate text-sm font-medium">{toTitleCase(s.title)}</div>
                           <div className="truncate text-xs text-muted-foreground">
                             {s.specialty} • {s.checklistCount} itens
                           </div>
@@ -406,7 +407,7 @@ function StationsPage() {
                     <li key={s.id} className="flex min-w-0 items-center gap-3 px-3 py-2.5">
                       <span className={cn("inline-flex h-6 min-w-6 items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold", m.badge)}>{m.code}</span>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">{s.title}</div>
+                        <div className="truncate text-sm font-medium">{toTitleCase(s.title)}</div>
                         <div className="truncate text-xs text-muted-foreground">{s.specialty} • {s.checklistCount} itens</div>
                       </div>
                       <StationPDFButton stationId={s.id} iconOnly />
