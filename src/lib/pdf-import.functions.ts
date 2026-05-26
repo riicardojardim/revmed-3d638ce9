@@ -256,25 +256,25 @@ async function extractStationsViaVision(
 ): Promise<z.infer<typeof StationsResultSchema>> {
   const userText =
     "Você está vendo TODAS as páginas escaneadas de um PDF de checklists clínicos, em ordem. Aplique a REGRA DE OURO e o schema. Retorne SOMENTE JSON.";
-  let content: string;
-  try {
-    ({ content } = await callGemini(apiKey, "google/gemini-2.5-pro", SYSTEM_PROMPT, userText, imageUrls, {
+
+  async function requestAndParse(model: string, timeoutMs: number) {
+    const { content } = await callGemini(apiKey, model, SYSTEM_PROMPT, userText, imageUrls, {
       jsonMode: true,
-      timeoutMs: 300_000,
+      timeoutMs,
       userId,
       kind: "station",
-    }));
+    });
+    return parseJsonResponse(content || "{}");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (!/abort|timeout|504|502/i.test(msg)) throw err;
-    ({ content } = await callGemini(apiKey, "google/gemini-2.5-flash", SYSTEM_PROMPT, userText, imageUrls, {
-      jsonMode: true,
-      timeoutMs: 240_000,
-      userId,
-      kind: "station",
-    }));
+    if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
+    parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
   }
-  let parsed = parseJsonResponse(content || "{}");
   // Gemini às vezes retorna direto o array de estações em vez de { stations: [...] }
   if (Array.isArray(parsed)) parsed = { stations: parsed };
   else if (parsed && typeof parsed === "object") {
