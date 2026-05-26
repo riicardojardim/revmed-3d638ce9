@@ -61,9 +61,6 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "DESCRICAO DO CASO CLINICO",
       "HISTORIA CLINICA",
       "QUADRO CLINICO",
-      "FICHA DO PACIENTE",
-      "FICHA DE ATENDIMENTO",
-      "FICHA DE ACOLHIMENTO",
     ],
   },
   {
@@ -106,6 +103,9 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "MATERIAIS DE APOIO",
       "MATERIAL DE APOIO",
       "MATERIAL IMPRESSO",
+      "FICHA DO PACIENTE",
+      "FICHA DE ATENDIMENTO",
+      "FICHA DE ACOLHIMENTO",
     ],
   },
   {
