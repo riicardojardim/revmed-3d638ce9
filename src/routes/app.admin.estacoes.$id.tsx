@@ -212,8 +212,19 @@ function StationEditor() {
     }
     const raw = s as Record<string, unknown>;
     const supportMaterials = (raw.support_materials as string | null) ?? null;
+    const explicitDeliverableMaterials = Array.isArray(raw.deliverable_materials)
+      ? (raw.deliverable_materials as Array<Partial<DeliverableMaterial>>).map((material, index) => ({
+          id: material.id ?? `imp${index + 1}`,
+          name: material.name ?? "",
+          type: material.type ?? "Impresso",
+          description: material.description ?? "",
+          content: material.content ?? "",
+          imageUrl: material.imageUrl,
+          autoDeliver: material.autoDeliver,
+        }))
+      : null;
     const deliverableMaterials: DeliverableMaterial[] = mergeDeliverableMaterials(
-      (raw.deliverable_materials as DeliverableMaterial[] | null) ?? null,
+      explicitDeliverableMaterials,
       supportMaterials ?? "",
     ).map((material, index) => ({
           id: material.id ?? `imp${index + 1}`,

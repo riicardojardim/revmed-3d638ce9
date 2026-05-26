@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { STATIONS, type Station, type ChecklistItem, type ChecklistLevel, type PatientProfile, type DeliverableMaterial } from "@/data/stations";
+import { mergeDeliverableMaterials } from "@/lib/imported-station-utils";
 
 export interface StationReference {
   label: string;
@@ -74,6 +75,18 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
     const sx = s as unknown as Record<string, unknown>;
     const refsRaw = sx.bibliographic_references;
     const references: StationReference[] = Array.isArray(refsRaw) ? (refsRaw as StationReference[]) : [];
+    const supportMaterials = (s.support_materials ?? "") as string;
+    const explicitDeliverables = Array.isArray(sx.deliverable_materials)
+      ? (sx.deliverable_materials as Array<Partial<DeliverableMaterial>>).map((material, index) => ({
+          id: material.id ?? `imp${index + 1}`,
+          name: material.name ?? "",
+          type: material.type ?? "Impresso",
+          description: material.description ?? "",
+          content: material.content ?? "",
+          imageUrl: material.imageUrl,
+          autoDeliver: material.autoDeliver,
+        }))
+      : [];
     return {
       id: s.id,
       slug: s.id,
@@ -84,7 +97,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       clinicalCase: s.clinical_case,
       candidateTask: s.candidate_task,
       patientInfo: s.patient_info ?? "",
-      supportMaterials: s.support_materials ?? "",
+      supportMaterials,
       checklist: withDefaultLevels(checklist),
       patientScript: s.patient_script ?? "",
       evaluatorNotes: s.evaluator_notes ?? undefined,
@@ -93,11 +106,18 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
       postMaterials: s.post_materials ?? undefined,
       references,
       patientProfile: (sx.patient_profile as PatientProfile) ?? undefined,
-      deliverableMaterials: (sx.deliverable_materials as DeliverableMaterial[]) ?? [],
+      deliverableMaterials: mergeDeliverableMaterials(explicitDeliverables, supportMaterials).map((material, index) => ({
+        id: material.id ?? `imp${index + 1}`,
+        name: material.name,
+        type: material.type,
+        description: material.description,
+        content: material.content,
+        imageUrl: material.imageUrl,
+      })),
       educationalGoal: (sx.educational_goal as string) ?? undefined,
       expectedConduct: (sx.expected_conduct as string) ?? undefined,
       commonMistakes: (sx.common_mistakes as string) ?? undefined,
-      caseDescription: (sx.case_description as string) ?? undefined,
+      caseDescription: ((sx.case_description as string) ?? s.patient_info ?? undefined) || undefined,
     };
   }
   const mock = STATIONS.find((s) => s.id === id);
