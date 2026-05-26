@@ -875,6 +875,13 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
 
         const section = detectSection(line);
         if (section) {
+          // Se já estamos na mesma seção, isto é provavelmente uma continuação
+          // textual ("ORIENTAÇÕES AO ATOR DA\nESTAÇÃO\n...") e não um novo cabeçalho.
+          // Mantém como conteúdo ao invés de zerar a seção.
+          if (section.key === currentSection && section.key !== "pep" && section.key !== "support_materials") {
+            sections[currentSection].push(line);
+            return;
+          }
           pendingMetaKey = null;
           if (currentSection === "pep" && section.key !== "pep") {
             currentSection = null;
