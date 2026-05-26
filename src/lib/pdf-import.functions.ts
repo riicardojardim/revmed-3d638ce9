@@ -5,6 +5,39 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
 import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
+function normalizeForSourceCheck(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cropForSourceCheck(value: string | null | undefined, limit = 1200): string {
+  return (value ?? "").trim().slice(0, limit);
+}
+
+function stationLooksGroundedInTranscript(station: ImportedStation, transcript: string): boolean {
+  const source = normalizeForSourceCheck(transcript);
+  const samples = [
+    cropForSourceCheck(station.title, 180),
+    cropForSourceCheck(station.clinical_case, 500),
+    cropForSourceCheck(station.patient_info, 500),
+    cropForSourceCheck(station.candidate_task, 500),
+    cropForSourceCheck(station.patient_script, 500),
+    cropForSourceCheck(station.support_materials, 500),
+  ]
+    .map(normalizeForSourceCheck)
+    .filter((value) => value.length >= 24);
+
+  if (samples.length === 0) return false;
+
+  const hits = samples.filter((sample) => source.includes(sample)).length;
+  return hits >= Math.max(1, Math.ceil(samples.length / 3));
+}
+
 async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
