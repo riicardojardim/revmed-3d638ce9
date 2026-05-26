@@ -354,13 +354,14 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   const fallbackMarkers = new Set<number>();
 
   const hasActorHeaderBefore = (index: number) => {
-    for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
+    for (let back = index - 1; back >= Math.max(0, index - 6); back--) {
       const normalized = normalizeHeader(lines[back] ?? "");
       if (!normalized) continue;
+      if (normalized === "ESTACAO") continue;
       if (/^(ORIENTACOES|INSTRUCOES)\s+(AO|A|DO|DA|PARA O|PARA A)\s+(ATOR|ATRIZ|PACIENTE)\b/.test(normalized)) {
         return true;
       }
-      if (!/^(ORIENTACOES|INSTRUCOES|AO|A|DO|DA|ATOR|ATRIZ|PACIENTE)\b/.test(normalized)) {
+      if (!/^(ORIENTACOES|INSTRUCOES|AO|A|DO|DA|ATOR|ATRIZ|PACIENTE|ESTACAO)\b/.test(normalized)) {
         break;
       }
     }
