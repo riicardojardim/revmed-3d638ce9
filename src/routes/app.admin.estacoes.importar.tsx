@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2, XCircle, Trash2, Save, UserSquare2, X } from "lucide-react";
+import { ArrowLeft, Upload, FileText, Loader2, CheckCircle2, XCircle, Trash2, Save, UserSquare2, X, ClipboardPaste, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { importStationsFromPdf, bulkCreateStations, type ImportedStation } from "@/lib/pdf-import.functions";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { importStationsFromPdf, importStationsFromText, bulkCreateStations, type ImportedStation } from "@/lib/pdf-import.functions";
 import { renderAndUploadPdf, type RenderProgress } from "@/lib/pdf-page-renderer";
 
 export const Route = createFileRoute("/app/admin/estacoes/importar")({
@@ -111,10 +112,56 @@ function pairFiles(files: File[]): { main: File; actor?: File }[] {
 function ImportPdfPage() {
   const nav = useNavigate();
   const parsePdf = useServerFn(importStationsFromPdf);
+  const parseText = useServerFn(importStationsFromText);
   const insertAll = useServerFn(bulkCreateStations);
   const [jobs, setJobs] = useState<PdfJob[]>([]);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [pasteLabel, setPasteLabel] = useState("");
+  const [pasteText, setPasteText] = useState("");
+  const [pasteBusy, setPasteBusy] = useState(false);
+
+  async function processPastedText() {
+    if (pasteText.trim().length < 20) {
+      toast.error("Cole o texto da estação (mínimo 20 caracteres).");
+      return;
+    }
+    setPasteBusy(true);
+    const label = pasteLabel.trim() || `Texto colado ${new Date().toLocaleTimeString()}`;
+    const jobId = `text-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setJobs((prev) => [
+      ...prev,
+      {
+        id: jobId,
+        file: new File([], `${label}.txt`, { type: "text/plain" }),
+        status: "extracting",
+        stations: [],
+      },
+    ]);
+    try {
+      const res = await parseText({ data: { text: pasteText, sourceLabel: label } });
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === jobId
+            ? {
+                ...j,
+                status: "done",
+                stations: res.stations.map((s) => ({ ...s, _selected: true })),
+              }
+            : j,
+        ),
+      );
+      toast.success(`${res.stations.length} estação(ões) extraídas do texto`);
+      setPasteText("");
+      setPasteLabel("");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "error", error: msg } : j)));
+      toast.error("Falha ao processar texto", { description: msg });
+    } finally {
+      setPasteBusy(false);
+    }
+  }
 
   function addFiles(files: FileList | File[]) {
     const arr = Array.from(files).filter((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
@@ -297,24 +344,70 @@ function ImportPdfPage() {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
         <h2 className="font-display text-xl font-bold">Importar checklists de PDFs</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Envie um ou vários PDFs. A IA detecta cada estação dentro do PDF e extrai o texto <strong>literalmente</strong>, do jeito que está no documento. Depois você revisa e confirma a importação.
+          Envie PDFs ou cole o texto já organizado (ex.: vindo do ChatGPT). A IA monta o checklist <strong>literalmente</strong> e você revisa antes de salvar.
         </p>
 
-        <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/30 p-8 text-center transition hover:bg-muted/50">
-          <Upload className="h-8 w-8 text-muted-foreground" />
-          <div className="font-medium">Clique ou arraste PDFs aqui</div>
-          <div className="text-xs text-muted-foreground">Máx. 120 MB por arquivo</div>
-          <input
-            type="file"
-            multiple
-            accept="application/pdf,.pdf"
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files) addFiles(e.target.files);
-              e.target.value = "";
-            }}
-          />
-        </label>
+        <Tabs defaultValue="pdf" className="mt-4">
+          <TabsList>
+            <TabsTrigger value="pdf"><Upload className="mr-1.5 h-3.5 w-3.5" /> Enviar PDF</TabsTrigger>
+            <TabsTrigger value="text"><ClipboardPaste className="mr-1.5 h-3.5 w-3.5" /> Colar texto</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="pdf">
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-muted/30 p-8 text-center transition hover:bg-muted/50">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <div className="font-medium">Clique ou arraste PDFs aqui</div>
+              <div className="text-xs text-muted-foreground">Máx. 120 MB por arquivo</div>
+              <input
+                type="file"
+                multiple
+                accept="application/pdf,.pdf"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) addFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </TabsContent>
+
+          <TabsContent value="text" className="space-y-3">
+            <div className="rounded-lg border border-mint/30 bg-mint/5 p-3 text-xs text-muted-foreground">
+              Cole aqui o texto já organizado (caso, tarefas, paciente, materiais, roteiro do ator, critérios de pontuação e PEP). Use o prompt do ChatGPT que combinamos — a IA aqui só monta o checklist a partir do texto colado, sem reinterpretar.
+            </div>
+            <div>
+              <Label htmlFor="paste-label">Identificação (ex.: "Dia 1 - Estação 2")</Label>
+              <Input
+                id="paste-label"
+                value={pasteLabel}
+                onChange={(e) => setPasteLabel(e.target.value)}
+                placeholder="Opcional — só para você localizar depois"
+                disabled={pasteBusy}
+              />
+            </div>
+            <div>
+              <Label htmlFor="paste-text">Texto da(s) estação(ões)</Label>
+              <Textarea
+                id="paste-text"
+                value={pasteText}
+                onChange={(e) => setPasteText(e.target.value)}
+                placeholder="Cole aqui o texto completo vindo do ChatGPT..."
+                rows={12}
+                disabled={pasteBusy}
+                className="font-mono text-xs"
+              />
+              <div className="mt-1 text-xs text-muted-foreground">
+                {pasteText.length.toLocaleString()} caracteres
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="hero" onClick={processPastedText} disabled={pasteBusy || pasteText.trim().length < 20}>
+                {pasteBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {pasteBusy ? "Processando..." : "Extrair estações"}
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {jobs.length > 0 && (
@@ -363,14 +456,15 @@ interface PdfJobCardProps {
 }
 
 function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStation, onRetry }: PdfJobCardProps) {
+  const isText = job.file.type === "text/plain";
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex flex-wrap items-center gap-3">
-        <FileText className="h-5 w-5 text-mint" />
+        {isText ? <ClipboardPaste className="h-5 w-5 text-mint" /> : <FileText className="h-5 w-5 text-mint" />}
         <div className="flex-1 min-w-[200px]">
           <div className="font-medium">{job.file.name}</div>
           <div className="text-xs text-muted-foreground">
-            {(job.file.size / 1024 / 1024).toFixed(2)} MB
+            {isText ? "Texto colado" : `${(job.file.size / 1024 / 1024).toFixed(2)} MB`}
             {job.pages ? ` · ${job.pages} páginas` : ""}
             {job.stations.length ? ` · ${job.stations.length} estação(ões) detectada(s)` : ""}
             {job.truncated ? " · ⚠️ texto truncado" : ""}
@@ -388,7 +482,8 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
         <Button variant="ghost" size="icon" onClick={onRemove}><Trash2 className="h-4 w-4" /></Button>
       </div>
 
-      {/* Pareamento com PDF de orientações do ator */}
+      {/* Pareamento com PDF de orientações do ator (só para PDFs) */}
+      {!isText && (
       <div className="mt-3 rounded-lg border border-dashed border-border bg-muted/20 p-3">
         {job.actorFile ? (
           <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -423,6 +518,7 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
           </label>
         )}
       </div>
+      )}
 
       {job.error && (
         <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
