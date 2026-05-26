@@ -135,3 +135,27 @@ export function extractPatientInfoFromSupportText(
   );
   return material ? cleanBlock(material.content) : null;
 }
+
+export function mergeDeliverableMaterials(
+  explicitMaterials: ImportedDeliverableMaterial[] | null | undefined,
+  supportText: string | null | undefined,
+): ImportedDeliverableMaterial[] {
+  const parsedMaterials = parseDeliverableMaterialsFromSupportText(supportText);
+  const merged = new Map<string, ImportedDeliverableMaterial>();
+
+  [...(explicitMaterials ?? []), ...parsedMaterials].forEach((material, index) => {
+    const key = normalizeForMatch(material.name || material.content || `impresso-${index + 1}`);
+    const previous = merged.get(key);
+    merged.set(key, {
+      id: material.id ?? previous?.id ?? `imp${merged.size + 1}`,
+      name: material.name || previous?.name || `Impresso ${merged.size + 1}`,
+      type: material.type || previous?.type || "Impresso",
+      description: material.description || previous?.description || "",
+      content: material.content || previous?.content || "",
+      imageUrl: material.imageUrl ?? previous?.imageUrl,
+      autoDeliver: material.autoDeliver ?? previous?.autoDeliver ?? false,
+    });
+  });
+
+  return Array.from(merged.values()).filter((item) => Boolean(item.name || item.content));
+}

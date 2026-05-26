@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { logAiUsage } from "./ai-usage.server";
-import { extractPatientInfoFromSupportText, parseDeliverableMaterialsFromSupportText, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
+import { extractPatientInfoFromSupportText, mergeDeliverableMaterials, splitCaseDescriptionAndTaskBlock, type ImportedDeliverableMaterial } from "./imported-station-utils";
 import { normalizeImportedStations, parseStructuredStationsFromText } from "./station-import-parser";
 
 function normalizeForSourceCheck(value: string): string {
@@ -132,9 +132,10 @@ function normalizeImportedStationPayload(station: ImportedStationInput): Importe
     originalCaseDescription ?? originalPatientInfo,
     station.candidate_task,
   );
-  const deliverableMaterials = (station.deliverable_materials?.length
-    ? station.deliverable_materials
-    : parseDeliverableMaterialsFromSupportText(station.support_materials)) as ImportedDeliverableMaterial[];
+  const deliverableMaterials = mergeDeliverableMaterials(
+    station.deliverable_materials as ImportedDeliverableMaterial[] | undefined,
+    station.support_materials,
+  );
   const fallbackPatientInfo = originalPatientInfo ?? extractPatientInfoFromSupportText(station.support_materials);
 
   return {

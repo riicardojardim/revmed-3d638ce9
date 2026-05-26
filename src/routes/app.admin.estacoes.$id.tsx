@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { mergeDeliverableMaterials } from "@/lib/imported-station-utils";
 
 export const Route = createFileRoute("/app/admin/estacoes/$id")({
   component: StationEditor,
@@ -210,11 +211,38 @@ function StationEditor() {
       return;
     }
     const raw = s as Record<string, unknown>;
+    const supportMaterials = (raw.support_materials as string | null) ?? null;
+    const explicitDeliverableMaterials = Array.isArray(raw.deliverable_materials)
+      ? (raw.deliverable_materials as Array<Partial<DeliverableMaterial>>).map((material, index) => ({
+          id: material.id ?? `imp${index + 1}`,
+          name: material.name ?? "",
+          type: material.type ?? "Impresso",
+          description: material.description ?? "",
+          content: material.content ?? "",
+          imageUrl: material.imageUrl,
+          autoDeliver: material.autoDeliver,
+        }))
+      : null;
+    const deliverableMaterials: DeliverableMaterial[] = mergeDeliverableMaterials(
+      explicitDeliverableMaterials,
+      supportMaterials ?? "",
+    ).map((material, index) => ({
+          id: material.id ?? `imp${index + 1}`,
+          name: material.name,
+          type: material.type,
+          description: material.description,
+          content: material.content,
+          imageUrl: material.imageUrl,
+          autoDeliver: material.autoDeliver,
+        }));
+    const caseDescription = ((raw.case_description as string | null) ?? (raw.patient_info as string | null) ?? null);
     setStation({
       ...(raw as unknown as Station),
+      case_description: caseDescription,
+      support_materials: supportMaterials,
       competencies: (raw.competencies as string[]) ?? [],
       bibliographic_references: (raw.bibliographic_references as BiblioRef[]) ?? [],
-      deliverable_materials: (raw.deliverable_materials as DeliverableMaterial[]) ?? [],
+      deliverable_materials: deliverableMaterials,
       patient_profile: (raw.patient_profile as PatientProfile) ?? {},
     });
     const loaded = ((it as unknown as Item[]) ?? []).map((i) => ({
