@@ -287,6 +287,19 @@ Schema esperado:
 const PDF_IMPORT_PRIMARY_MODEL = "google/gemini-3-flash-preview";
 const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-flash";
 const PDF_IMPORT_FALLBACK_ERROR_RE = /abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json|not supported in the v1\/chat\/completions|not a chat model/i;
+const MAX_TRANSCRIPT_AI_CHARS = 20_000;
+
+function parseDeterministicTranscriptStations(transcript: string, sourceLabel: string): ImportedStation[] {
+  const deterministicStations = parseStructuredStationsFromText(transcript, sourceLabel);
+  if (deterministicStations.length === 0) return [];
+
+  return groundStationsAgainstTranscript(
+    StationsResultSchema.parse({
+      stations: normalizeImportedStationList(normalizeImportedStations(deterministicStations)),
+    }).stations,
+    transcript,
+  );
+}
 
 async function signPagePaths(paths: string[]): Promise<string[]> {
   if (paths.length === 0) return [];
