@@ -16,33 +16,55 @@ async function assertAdmin(userId: string) {
 }
 
 // ─────────── Schemas de saída da IA ───────────
+// str() aceita string, null ou undefined e sempre devolve string ("" como fallback).
+// A IA frequentemente devolve null em campos opcionais — não podemos rejeitar isso.
+const str = (fallback = "") =>
+  z.preprocess((v) => (v == null ? fallback : typeof v === "string" ? v : String(v)), z.string());
+const nstr = () =>
+  z.preprocess((v) => (v == null || v === "" ? null : typeof v === "string" ? v : String(v)), z.string().nullable());
+const num = (fallback = 0) =>
+  z.preprocess((v) => (v == null || v === "" ? fallback : typeof v === "number" ? v : Number(v) || fallback), z.number());
+
 const LevelSchema = z.object({
-  label: z.string(),
-  points: z.number().default(0),
-  description: z.string().default(""),
+  label: str(""),
+  points: num(0),
+  description: str(""),
 });
 
 const ChecklistItemSchema = z.object({
-  description: z.string().default(""),
-  category: z.string().default(""),
-  points: z.number().default(1),
+  description: str(""),
+  category: str(""),
+  points: num(1),
   levels: z.array(LevelSchema).default([]),
 });
 
 const StationSchema = z.object({
-  title: z.string().default("Estação sem título"),
-  specialty: z.string().default("Clínica Médica"),
-  difficulty: z.enum(["Fácil", "Intermediário", "Avançado"]).default("Intermediário"),
-  duration_minutes: z.number().int().min(3).max(30).default(10),
-  clinical_case: z.string().default(""),
-  candidate_task: z.string().default(""),
-  patient_info: z.string().nullable().default(null),
-  support_materials: z.string().nullable().default(null),
-  patient_script: z.string().nullable().default(null),
-  evaluator_notes: z.string().nullable().default(null),
-  scoring_criteria: z.string().nullable().default(null),
-  post_materials: z.string().nullable().default(null),
-  competencies: z.array(z.string()).default([]),
+  title: str("Estação sem título"),
+  specialty: str("Clínica Médica"),
+  difficulty: z.preprocess(
+    (v) => (v === "Fácil" || v === "Intermediário" || v === "Avançado" ? v : "Intermediário"),
+    z.enum(["Fácil", "Intermediário", "Avançado"]),
+  ),
+  duration_minutes: z.preprocess(
+    (v) => {
+      const n = typeof v === "number" ? v : Number(v);
+      if (!Number.isFinite(n)) return 10;
+      return Math.max(3, Math.min(30, Math.round(n)));
+    },
+    z.number().int().min(3).max(30),
+  ),
+  clinical_case: str(""),
+  candidate_task: str(""),
+  patient_info: nstr(),
+  support_materials: nstr(),
+  patient_script: nstr(),
+  evaluator_notes: nstr(),
+  scoring_criteria: nstr(),
+  post_materials: nstr(),
+  competencies: z.preprocess(
+    (v) => (Array.isArray(v) ? v.filter((x) => x != null).map((x) => String(x)) : []),
+    z.array(z.string()),
+  ),
   checklist_items: z.array(ChecklistItemSchema).default([]),
 });
 
