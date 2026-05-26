@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { toTitleCase } from "@/lib/title-case";
 
 type StationOption = { id: string; title: string; specialty: string };
 
