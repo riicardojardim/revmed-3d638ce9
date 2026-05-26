@@ -456,14 +456,15 @@ interface PdfJobCardProps {
 }
 
 function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStation, onRetry }: PdfJobCardProps) {
+  const isText = job.file.type === "text/plain";
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-card">
       <div className="flex flex-wrap items-center gap-3">
-        <FileText className="h-5 w-5 text-mint" />
+        {isText ? <ClipboardPaste className="h-5 w-5 text-mint" /> : <FileText className="h-5 w-5 text-mint" />}
         <div className="flex-1 min-w-[200px]">
           <div className="font-medium">{job.file.name}</div>
           <div className="text-xs text-muted-foreground">
-            {(job.file.size / 1024 / 1024).toFixed(2)} MB
+            {isText ? "Texto colado" : `${(job.file.size / 1024 / 1024).toFixed(2)} MB`}
             {job.pages ? ` · ${job.pages} páginas` : ""}
             {job.stations.length ? ` · ${job.stations.length} estação(ões) detectada(s)` : ""}
             {job.truncated ? " · ⚠️ texto truncado" : ""}
@@ -481,7 +482,8 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
         <Button variant="ghost" size="icon" onClick={onRemove}><Trash2 className="h-4 w-4" /></Button>
       </div>
 
-      {/* Pareamento com PDF de orientações do ator */}
+      {/* Pareamento com PDF de orientações do ator (só para PDFs) */}
+      {!isText && (
       <div className="mt-3 rounded-lg border border-dashed border-border bg-muted/20 p-3">
         {job.actorFile ? (
           <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -516,6 +518,7 @@ function PdfJobCard({ job, onRemove, onRemoveActor, onAttachActor, onUpdateStati
           </label>
         )}
       </div>
+      )}
 
       {job.error && (
         <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
