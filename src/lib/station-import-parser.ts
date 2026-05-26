@@ -407,11 +407,17 @@ function parseStationTitle(header: string, fallback: string): string {
 export function normalizeImportedStations<T extends ParsedImportedStation>(stations: T[]): T[] {
   return stations.map((station) => {
     const checklistItems = (station.checklist_items ?? []).map((item) => {
-      const levels = (item.levels ?? []).map((level) => ({
+      const rawLevels = (item.levels ?? []).map((level) => ({
         label: (level.label ?? "").trim(),
         points: Number.isFinite(level.points) ? roundPoint(level.points) : 0,
         description: cleanMultilineText(level.description ?? ""),
       }));
+
+      // Remove "Parcialmente adequado" se vier sem descrição real (provável alucinação).
+      const levels = rawLevels.filter((level) => {
+        if (normalizeHeader(level.label) !== "PARCIALMENTE ADEQUADO") return true;
+        return level.description.trim().length > 0;
+      });
 
       let maxPoints = Math.max(Number(item.points) || 0, ...levels.map((level) => level.points), 0);
       const adequateIndex = levels.findIndex((level) => normalizeHeader(level.label) === "ADEQUADO");
