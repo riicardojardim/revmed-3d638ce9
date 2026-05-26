@@ -499,6 +499,13 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   if (firstIndex === -1) return null;
 
   const heading = rawLines[firstIndex].trim();
+  const normalizedHeading = normalizeHeader(heading);
+  if (
+    /^(TRANSCRICAO DA TABELA DO PDF|RESUMO DAS NOTAS VISIVEIS(?: NAS COLUNAS DO PDF)?|LIST PEP|AVALIACAO DE HABILIDADES CLINICAS|AREA\b|CLINICA MEDICA\b|PAGINA\b)/.test(normalizedHeading) ||
+    /^ITEM\s*\d+\b/.test(normalizedHeading)
+  ) {
+    return null;
+  }
   const headingPoints = (heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1] ? Number(heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1]?.replace(",", ".")) : null) ?? 0;
   const headingInlineScores = extractInlineLevelScores(heading);
   const category = stripInlineScoringFromHeading(
@@ -547,8 +554,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
     const level = parseLevelLabel(trimmed);
     if (level) {
       flushLevel();
-      const sameLinePoints = extractPoints(level.remainder);
-      const cleanedRemainder = sameLinePoints == null ? level.remainder : level.remainder.replace(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?/i, "").replace(/^[:\-–—]\s*/, "").trim();
+      const { points: sameLinePoints, remainder: cleanedRemainder } = extractLevelPointsFromRemainder(level.remainder);
       currentLevel = {
         label: level.label,
         points: sameLinePoints,
@@ -627,6 +633,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   const normalizedCategory = normalizeHeader(category);
   if (
     /^(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?|ITENS DE DESEMPENHO AVALIADOS)\b/.test(normalizedCategory) ||
+    /^ITEM\s*\d+\b/.test(normalizedCategory) ||
     (!cleanMultilineText(descriptionLines.join("\n")) && levels.length === 0 && maxPoints <= 0)
   ) {
     return null;
