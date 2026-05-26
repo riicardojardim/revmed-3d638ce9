@@ -853,6 +853,6 @@ export const importStationsFromText = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
     return {
       sourceLabel: data.sourceLabel,
-      stations: await extractStationsFromTranscript(apiKey, data.text, context.userId, data.sourceLabel),
+      stations: await extractStationsFromTranscriptSegments(apiKey, data.text, context.userId, data.sourceLabel),
     };
   });
