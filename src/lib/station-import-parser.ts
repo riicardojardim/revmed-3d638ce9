@@ -69,14 +69,22 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
   {
     key: "patient_script",
     aliases: [
+      "ORIENTACOES DO ATOR",
+      "ORIENTACOES DA ATRIZ",
       "ORIENTACOES DA ATRIZ/ATOR",
       "ORIENTACOES DA ATOR/ATRIZ",
       "ORIENTACOES DO ATRIZ/ATOR",
       "ORIENTACOES DO ATOR/ATRIZ",
       "ORIENTACOES AO ATOR/ATRIZ",
       "ORIENTACOES PARA O ATOR/ATRIZ",
+      "ORIENTACOES AO ATOR DA",
+      "ORIENTACOES AO ATOR DO",
+      "ORIENTACOES A ATRIZ DA",
+      "ORIENTACOES A ATRIZ DO",
       "ORIENTACOES AO ATOR",
       "ORIENTACOES A ATRIZ",
+      "ORIENTACOES DO PACIENTE",
+      "ORIENTACOES DA PACIENTE",
       "ORIENTACOES AO PACIENTE",
       "ORIENTACOES PARA O PACIENTE",
       "INSTRUCOES PARA O ATOR",
@@ -202,18 +210,17 @@ function extractPointValuesFromLine(value: string): number[] {
 // Retorna mapa rótulo->pontos quando encontrado.
 function extractInlineLevelScores(value: string): Record<string, number> {
   const result: Record<string, number> = {};
-  const regex = /(PARCIALMENTE\s+ADEQUADO|INADEQUADO|ADEQUADO)\s*[:=\-–—]\s*(\d+(?:[.,]\d+)?)/gi;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(value)) !== null) {
-    const normalized = normalizeHeader(match[1]);
-    const label =
-      normalized === "PARCIALMENTE ADEQUADO"
-        ? "Parcialmente adequado"
-        : normalized === "ADEQUADO"
-          ? "Adequado"
-          : "Inadequado";
-    const points = Number(match[2].replace(",", "."));
-    if (Number.isFinite(points)) result[label] = points;
+  const patterns: Array<{ label: string; regex: RegExp }> = [
+    { label: "Inadequado", regex: /\bINADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Parcialmente adequado", regex: /\bPARCIALMENTE\s+ADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+    { label: "Adequado", regex: /\bADEQUADO\b\s*(?:[:=\-–—]\s*|\(\s*)(\d+(?:[.,]\d+)?)/i },
+  ];
+
+  for (const pattern of patterns) {
+    const match = value.match(pattern.regex);
+    if (!match?.[1]) continue;
+    const points = Number(match[1].replace(",", "."));
+    if (Number.isFinite(points)) result[pattern.label] = points;
   }
   return result;
 }
@@ -231,6 +238,14 @@ function stripInlineScoringFromHeading(value: string): string {
 function normalizeChecklistContentLine(value: string): string | null {
   const trimmed = value.trim();
   if (!trimmed) return "";
+  const normalized = normalizeHeader(trimmed);
+
+  if (
+    /^(TRANSCRICAO DA TABELA DO PDF|RESUMO DAS NOTAS VISIVEIS(?: NAS COLUNAS DO PDF)?|LIST PEP|AVALIACAO DE HABILIDADES CLINICAS|AREA\b|CLINICA MEDICA\b|PAGINA\b)/.test(normalized) ||
+    /^ITEM\s*\d+\s*[:\-–—]\s*(INADEQUADO|PARCIALMENTE ADEQUADO|ADEQUADO)\b/.test(normalized)
+  ) {
+    return null;
+  }
 
   const withoutScoringPrefix = trimmed
     .replace(/^PONTUA[CÇ][AÃ]O\s*\([^)]*\)\s*:\s*/i, "")
@@ -250,6 +265,34 @@ function normalizeChecklistContentLine(value: string): string | null {
   }
 
   return value;
+}
+
+function extractLevelPointsFromRemainder(value: string): { points: number | null; remainder: string } {
+  const trimmed = value.trim();
+  if (!trimmed) return { points: null, remainder: "" };
+
+  const parseScore = (raw: string) => {
+    const parsed = Number(raw.replace(",", "."));
+    return Number.isFinite(parsed) && parsed >= 0 && parsed <= 3 ? roundPoint(parsed) : null;
+  };
+
+  const leadingMatch = trimmed.match(/^\(?\s*(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?\s*\)?\s*[:\-–—]?\s*(.*)$/i);
+  if (leadingMatch) {
+    const points = parseScore(leadingMatch[1]);
+    if (points != null) {
+      return { points, remainder: leadingMatch[2]?.trim() ?? "" };
+    }
+  }
+
+  const trailingMatch = trimmed.match(/^(.*?)\s*[,;:.\-–—]?\s*\(?\s*(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?\s*\)?\s*$/i);
+  if (trailingMatch) {
+    const points = parseScore(trailingMatch[2]);
+    if (points != null) {
+      return { points, remainder: trailingMatch[1]?.trim() ?? "" };
+    }
+  }
+
+  return { points: null, remainder: trimmed };
 }
 
 function parseDurationMinutes(value: string): number {
@@ -310,6 +353,20 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   const explicitMarkers = new Set<number>();
   const fallbackMarkers = new Set<number>();
 
+  const hasActorHeaderBefore = (index: number) => {
+    for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
+      const normalized = normalizeHeader(lines[back] ?? "");
+      if (!normalized) continue;
+      if (/^(ORIENTACOES|INSTRUCOES)\s+(AO|A|DO|DA|PARA O|PARA A)\s+(ATOR|ATRIZ|PACIENTE)\b/.test(normalized)) {
+        return true;
+      }
+      if (!/^(ORIENTACOES|INSTRUCOES|AO|A|DO|DA|ATOR|ATRIZ|PACIENTE)\b/.test(normalized)) {
+        break;
+      }
+    }
+    return false;
+  };
+
   const collectMarker = (index: number) => {
     let start = index;
     for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
@@ -332,6 +389,7 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   lines.forEach((line, index) => {
     const trimmed = line.trim();
     if (isStationMarker(trimmed)) {
+      if (hasActorHeaderBefore(index)) return;
       explicitMarkers.add(collectMarker(index));
       return;
     }
@@ -459,6 +517,13 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   if (firstIndex === -1) return null;
 
   const heading = rawLines[firstIndex].trim();
+  const normalizedHeading = normalizeHeader(heading);
+  if (
+    /^(TRANSCRICAO DA TABELA DO PDF|RESUMO DAS NOTAS VISIVEIS(?: NAS COLUNAS DO PDF)?|LIST PEP|AVALIACAO DE HABILIDADES CLINICAS|AREA\b|CLINICA MEDICA\b|PAGINA\b)/.test(normalizedHeading) ||
+    /^ITEM\s*\d+\b/.test(normalizedHeading)
+  ) {
+    return null;
+  }
   const headingPoints = (heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1] ? Number(heading.match(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)\b/i)?.[1]?.replace(",", ".")) : null) ?? 0;
   const headingInlineScores = extractInlineLevelScores(heading);
   const category = stripInlineScoringFromHeading(
@@ -507,8 +572,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
     const level = parseLevelLabel(trimmed);
     if (level) {
       flushLevel();
-      const sameLinePoints = extractPoints(level.remainder);
-      const cleanedRemainder = sameLinePoints == null ? level.remainder : level.remainder.replace(/(\d+(?:[.,]\d+)?)\s*(?:pt|pts|pontos?)?/i, "").replace(/^[:\-–—]\s*/, "").trim();
+      const { points: sameLinePoints, remainder: cleanedRemainder } = extractLevelPointsFromRemainder(level.remainder);
       currentLevel = {
         label: level.label,
         points: sameLinePoints,
@@ -587,6 +651,7 @@ function parseChecklistItem(block: string): ParsedChecklistItem | null {
   const normalizedCategory = normalizeHeader(category);
   if (
     /^(PEP|CHECKLIST|PADRAO ESPERADO(?: DE (?:PROCEDIMENTO|RESPOSTA))?|ITENS DE DESEMPENHO AVALIADOS)\b/.test(normalizedCategory) ||
+    /^ITEM\s*\d+\b/.test(normalizedCategory) ||
     (!cleanMultilineText(descriptionLines.join("\n")) && levels.length === 0 && maxPoints <= 0)
   ) {
     return null;
