@@ -37,9 +37,20 @@ type SectionKey =
   | "pep";
 
 const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
-  { key: "clinical_case", aliases: ["CENARIO DE ATUACAO"] },
-  { key: "candidate_task", aliases: ["TAREFAS DO CANDIDATO", "TAREFAS"] },
-  { key: "patient_info", aliases: ["DESCRICAO DO CASO"] },
+  { key: "clinical_case", aliases: ["CENARIO DE ATUACAO", "CENARIO"] },
+  {
+    key: "candidate_task",
+    aliases: [
+      "TAREFAS DO CANDIDATO",
+      "TAREFAS",
+      "NOS PROXIMOS",
+      "O CANDIDATO DEVERA",
+      "VOCE DEVERA",
+      "INSTRUCOES PARA O PARTICIPANTE",
+      "INSTRUCOES PARA O A PARTICIPANTE",
+    ],
+  },
+  { key: "patient_info", aliases: ["DESCRICAO DO CASO", "FICHA DO PACIENTE", "FICHA DE ATENDIMENTO"] },
   {
     key: "patient_script",
     aliases: [
@@ -48,10 +59,30 @@ const SECTION_LABELS: Array<{ key: SectionKey; aliases: string[] }> = [
       "ORIENTACOES AO ATOR/ATRIZ",
       "ORIENTACOES AO ATOR",
       "ORIENTACOES A ATRIZ",
+      "INSTRUCOES PARA O ATOR",
+      "INSTRUCOES PARA O ATO",
     ],
   },
-  { key: "support_materials", aliases: ["IMPRESSOS"] },
-  { key: "pep", aliases: ["PEP", "CHECKLIST", "PEP CHECKLIST DE AVALIACAO", "PADRAO ESPERADO DE PROCEDIMENTO"] },
+  { key: "support_materials", aliases: ["IMPRESSOS", "IMPRESSO", "IMPRESSOS E MATERIAIS ENTREGAVEIS", "MATERIAIS ENTREGAVEIS"] },
+  {
+    key: "pep",
+    aliases: [
+      "PEP",
+      "CHECKLIST",
+      "PEP CHECKLIST DE AVALIACAO",
+      "PADRAO ESPERADO DE PROCEDIMENTO",
+      "PADRAO ESPERADO DE RESPOSTA",
+      "PADRAO ESPERADO",
+      "ITENS DE DESEMPENHO AVALIADOS",
+    ],
+  },
+];
+
+const STATION_START_ALIASES = [
+  "INSTRUCOES PARA O PARTICIPANTE",
+  "INSTRUCOES PARA O A PARTICIPANTE",
+  "INSTRUCOES AO PARTICIPANTE",
+  "INSTRUCOES PARA O CANDIDATO",
 ];
 
 function normalizeHeader(value: string): string {
@@ -67,6 +98,21 @@ function normalizeHeader(value: string): string {
 function isStationMarker(line: string): boolean {
   const normalized = normalizeHeader(line).replace(/^=+\s*|\s*=+$/g, "");
   return /^ESTACAO\s*\d{0,3}\b/.test(normalized);
+}
+
+function isStationStartLine(line: string): boolean {
+  const normalized = normalizeHeader(line);
+  return isStationMarker(line) || STATION_START_ALIASES.includes(normalized);
+}
+
+function isStationMetaLine(line: string): boolean {
+  const normalized = normalizeHeader(line);
+  return Boolean(
+    normalized &&
+      (/^AREA\b/.test(normalized) ||
+        /^ESTACAO\b/.test(normalized) ||
+        /^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)),
+  );
 }
 
 function cleanMultilineText(value: string): string {
@@ -112,21 +158,31 @@ function normalizeSpecialty(value: string | undefined): ParsedImportedStation["s
 
 function splitStationBlocks(text: string): Array<{ header: string; body: string }> {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const markers: number[] = [];
+  const markers = new Set<number>();
 
   lines.forEach((line, index) => {
-    if (isStationMarker(line.trim())) markers.push(index);
+    if (!isStationStartLine(line.trim())) return;
+    let start = index;
+    for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
+      if (!lines[back].trim()) continue;
+      if (isStationMetaLine(lines[back])) start = back;
+      else break;
+    }
+    markers.add(start);
   });
 
-  if (markers.length === 0) {
+  const sortedMarkers = Array.from(markers).sort((a, b) => a - b);
+
+  if (sortedMarkers.length === 0) {
     return [{ header: "", body: text }];
   }
 
-  return markers.map((start, index) => {
-    const end = index + 1 < markers.length ? markers[index + 1] : lines.length;
+  return sortedMarkers.map((start, index) => {
+    const end = index + 1 < sortedMarkers.length ? sortedMarkers[index + 1] : lines.length;
+    const header = lines.slice(start, Math.min(end, start + 2)).filter((line) => line.trim()).join(" — ").trim();
     return {
-      header: lines[start].trim(),
-      body: lines.slice(start + 1, end).join("\n"),
+      header,
+      body: lines.slice(start, end).join("\n"),
     };
   });
 }
