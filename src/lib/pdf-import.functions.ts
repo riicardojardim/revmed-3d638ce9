@@ -284,7 +284,7 @@ Schema esperado:
   }]
 }`;
 
-const PDF_IMPORT_PRIMARY_MODEL = "google/gemini-2.5-pro";
+const PDF_IMPORT_PRIMARY_MODEL = "google/gemini-3-flash-preview";
 const PDF_IMPORT_FALLBACK_MODEL = "google/gemini-2.5-flash";
 const PDF_IMPORT_FALLBACK_ERROR_RE = /abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json|not supported in the v1\/chat\/completions|not a chat model/i;
 
