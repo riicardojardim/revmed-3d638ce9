@@ -88,22 +88,38 @@ SEGMENTAÇÃO:
 - Marcadores comuns (use como pistas, mas não dependa de um padrão fixo): "Estação X", "Caso clínico X", "Tarefa do candidato", "Instruções ao candidato", "PEP", "Padrão Esperado de Procedimento", "Checklist", numeração, cabeçalhos repetidos.
 - Se o texto contém UMA única estação, retorne array com 1 elemento. Se contém múltiplas, retorne uma por estação.
 
+REGRA DE FRONTEIRA (CRÍTICA — leia com atenção):
+- O texto fonte é organizado em SEÇÕES com cabeçalhos próprios (ex.: "CENÁRIO DE ATUAÇÃO", "DESCRIÇÃO DO CASO", "TAREFAS DO CANDIDATO" / "INSTRUÇÕES PARA O(A) PARTICIPANTE", "ORIENTAÇÕES AO ATOR/ATRIZ", "PEP" / "PADRÃO ESPERADO DE PROCEDIMENTO" / "CHECKLIST", "IMPRESSOS"/"MATERIAIS").
+- Cada SEÇÃO vai para EXATAMENTE UM campo do JSON. NUNCA misture seções: se uma seção termina e começa outra (cabeçalho em CAIXA ALTA, ou linha com "DESCRIÇÃO DO CASO:", "TAREFAS:", etc.), PARE de copiar para o campo anterior e comece o próximo.
+- Quando você encontrar um cabeçalho novo, ele encerra o campo anterior. NUNCA repita o conteúdo de uma seção em outro campo.
+
+MAPEAMENTO DE SEÇÕES → CAMPOS (siga estritamente):
+- "CENÁRIO DE ATUAÇÃO" / "Local de atuação" / infraestrutura do local → APENAS clinical_case. PARE no próximo cabeçalho.
+- "DESCRIÇÃO DO CASO" / "Apresentação do caso" / queixa principal do paciente → APENAS patient_info (NÃO em clinical_case).
+- "TAREFAS DO CANDIDATO" / "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → APENAS candidate_task. NÃO em clinical_case.
+- "ORIENTAÇÕES AO ATOR" / "ORIENTAÇÕES À ATRIZ" / "Orientações do ator/atriz" / script do paciente simulado → APENAS patient_script. Copie TODO o bloco literal, do início ao último item, até o próximo cabeçalho.
+- "PEP" / "PADRÃO ESPERADO DE PROCEDIMENTO" / "CHECKLIST" / itens numerados com pontos e níveis (Inadequado/Parcialmente adequado/Adequado) → APENAS checklist_items (ver regras abaixo). NÃO duplique em scoring_criteria.
+- "IMPRESSOS" / "MATERIAIS ENTREGUES" / "Material de apoio" → support_materials.
+- Notas para o avaliador, gabaritos textuais → evaluator_notes.
+
 CAMPOS:
-- title: título/nome da estação literal (ex.: "Dor torácica na emergência"). Se não houver título explícito, gere um curto a partir do tema principal copiando palavras da fonte.
-- specialty: uma de "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade". Inferir SOMENTE da especialidade declarada ou tema; nunca inventar.
+- title: título/nome da estação literal (ex.: "Tabagismo" ou "ESTAÇÃO 10 — TABAGISMO"). Se só houver "Estação X" + tema, junte os dois.
+- specialty: uma de "Clínica Médica", "Cirurgia", "Pediatria", "Ginecologia e Obstetrícia", "Medicina de Família e Comunidade". Inferir SOMENTE da especialidade declarada ("ÁREA: ...") ou tema óbvio; nunca inventar.
 - difficulty: "Fácil" | "Intermediário" | "Avançado". Use "Intermediário" se não estiver explícito.
-- duration_minutes: número entre 3 e 30. Use 10 se não houver indicação.
-- clinical_case: a apresentação do caso (cenário, queixa, contexto). Texto LITERAL da fonte.
-- candidate_task: a(s) tarefa(s)/instrução(ões) ao candidato. Texto LITERAL.
-- patient_info, support_materials, patient_script, evaluator_notes, scoring_criteria, post_materials: copie LITERALMENTE quando existirem; null quando não houver.
+- duration_minutes: número entre 3 e 30. Procure "Nos próximos X minutos" / "duração de X minutos". Use 10 se não houver.
+- clinical_case: SOMENTE o bloco "CENÁRIO DE ATUAÇÃO" (local, infraestrutura). NÃO incluir descrição do caso nem tarefas.
+- patient_info: SOMENTE o bloco "DESCRIÇÃO DO CASO" (quem é o paciente, queixa, contexto).
+- candidate_task: SOMENTE as tarefas/instruções ao candidato.
+- patient_script: SOMENTE o bloco "ORIENTAÇÕES AO ATOR/ATRIZ" — copie LITERAL e COMPLETO, todos os itens com "*" e linhas em branco preservadas, até começar o próximo cabeçalho do texto fonte. NÃO trunque.
+- support_materials, evaluator_notes, scoring_criteria, post_materials: copie LITERALMENTE quando existirem; null quando não houver. NÃO duplique conteúdo já colocado em outro campo.
 - competencies: lista curta de competências/temas declarados na fonte (ex.: ["Anamnese", "Comunicação"]). [] se não houver.
 
 CHECKLIST (checklist_items):
-- Cada item do PEP/checklist vira um ChecklistItem.
+- EXTRAIA TODOS os itens do PEP, em ordem. Não pule nenhum. Itens são numerados (1, 2, 3...) e cada um tem título, ações descritas e níveis de pontuação.
 - category: COPIE LITERALMENTE o título do item, removendo SOMENTE o número inicial e o ":" final. Ex.: "1. Apresentação:" → "Apresentação".
-- description: sub-itens/ações sob a categoria, LITERAIS, sem incluir os níveis. "" se for só título + níveis.
-- points: valor MÁXIMO do item (idêntico à fonte). 0 se ausente.
-- levels: SÓ inclua se a fonte explicitamente listar níveis (Inadequado/Parcialmente adequado/Adequado ou similares). Copie label e description LITERALMENTE.
+- description: as ações/sub-itens listados sob a categoria (ex.: "(1) cumprimenta o paciente; (2) identifica-se; ..."). LITERAL, sem incluir as linhas dos níveis. "" se só houver título e níveis.
+- points: pontuação MÁXIMA do item (ex.: 0,50 → 0.5). Procure "Pontuação: X" ou o maior valor entre os níveis. 0 se ausente.
+- levels: SEMPRE inclua os 3 níveis quando a fonte mostrar "Inadequado / Parcialmente adequado / Adequado" (ou similar). label e description LITERAIS, points conforme a fonte (Inadequado=0, Adequado=máximo).
 
 Schema esperado:
 {
@@ -495,7 +511,7 @@ export const importStationsFromText = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal absoluta) e o schema. Retorne SOMENTE JSON com { "stations": [...] }.\n\n=== TEXTO ===\n${data.text}\n=== FIM ===`;
+    const userText = `Abaixo está o TEXTO BRUTO de uma ou várias estações clínicas. Aplique a REGRA DE OURO (fidelidade literal) e a REGRA DE FRONTEIRA (cada seção do texto vai para EXATAMENTE UM campo — não duplique conteúdo, não misture cenário com descrição do caso nem com tarefas). Retorne SOMENTE JSON com { "stations": [...] }.\n\nLembrete crítico:\n- "CENÁRIO DE ATUAÇÃO" → clinical_case (PARE quando começar "DESCRIÇÃO DO CASO").\n- "DESCRIÇÃO DO CASO" → patient_info (PARE quando começar tarefas).\n- "TAREFAS" / "Nos próximos X minutos" / "INSTRUÇÕES PARA O(A) PARTICIPANTE" → candidate_task.\n- "ORIENTAÇÕES AO ATOR/ATRIZ" → patient_script (copie TODO o bloco, completo, até o próximo cabeçalho).\n- "PEP" / "CHECKLIST" → checklist_items (TODOS os itens, com category, description, points e os 3 levels).\n\n=== TEXTO ===\n${data.text}\n=== FIM ===`;
 
     async function requestAndParse(model: string, timeoutMs: number) {
       const { content } = await callGemini(apiKey!, model, SYSTEM_PROMPT, userText, [], {
@@ -509,11 +525,12 @@ export const importStationsFromText = createServerFn({ method: "POST" })
 
     let parsed: unknown;
     try {
-      parsed = await requestAndParse("google/gemini-2.5-flash", 180_000);
+      // Pro como padrão para texto: precisão de segmentação importa mais que custo.
+      parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (!/abort|timeout|504|502|truncad|incompleto|inválido|nao retornou json|não retornou json/i.test(msg)) throw err;
-      parsed = await requestAndParse("google/gemini-2.5-pro", 300_000);
+      parsed = await requestAndParse("google/gemini-2.5-flash", 240_000);
     }
 
     if (Array.isArray(parsed)) parsed = { stations: parsed };
