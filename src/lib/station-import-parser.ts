@@ -837,7 +837,8 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
   const hasStationMarker = /esta[çc][ãa]o\s*\d{1,3}/i.test(text);
   if (recognizedHeaders === 0 && !hasStationMarker) return [];
 
-  return splitStationBlocks(text)
+  return mergeStationsByNumber(
+    splitStationBlocks(text)
     .map((block, index) => {
       const sections: Record<SectionKey, string[]> = {
         clinical_case: [],
@@ -917,7 +918,8 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
 
       const pepSource = cleanMultilineText(sections.pep.join("\n")) || extractPepFallbackFromBlock(block.body);
 
-      const station: ParsedImportedStation = {
+      const stationNumber = extractStationNumberFromBlock([block.header, block.body].filter(Boolean).join("\n"));
+      const station: ParsedImportedStation & { _stationNumber: number | null } = {
         title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`, metaTitle),
         specialty: normalizeSpecialty(specialtyContext),
         difficulty: "Intermediário",
@@ -932,6 +934,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         post_materials: null,
         competencies: [],
         checklist_items: parsePepChecklist(pepSource),
+        _stationNumber: stationNumber,
       };
 
       return station;
@@ -945,5 +948,6 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
           station.support_materials ||
           station.checklist_items.length,
       );
-    });
+    }),
+  );
 }
