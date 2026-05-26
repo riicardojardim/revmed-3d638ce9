@@ -583,6 +583,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       };
       const meta: Record<string, string> = {};
       let currentSection: SectionKey | null = null;
+      let pendingMetaKey: string | null = null;
 
       block.body.split(/\r?\n/).forEach((line) => {
         if (isDividerLine(line) || isPageMarkerLine(line)) {
@@ -596,6 +597,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
 
         const section = detectSection(line);
         if (section) {
+          pendingMetaKey = null;
           if (currentSection === "pep" && section.key !== "pep") {
             currentSection = null;
           }
@@ -609,9 +611,31 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         }
 
         if (!currentSection) {
-          const metaMatch = line.match(/^\s*([A-Za-zÀ-ÿ /]+)\s*:\s*(.+)\s*$/);
+          const normalizedLine = normalizeHeader(line);
+
+          if (/^(AREA|ESPECIALIDADE)$/.test(normalizedLine)) {
+            pendingMetaKey = normalizedLine;
+            return;
+          }
+
+          if (pendingMetaKey && line.trim()) {
+            meta[pendingMetaKey] = line.trim();
+            pendingMetaKey = null;
+            return;
+          }
+
+          const metaMatch = line.match(/^\s*([A-Za-zÀ-ÿ /]+?)\s*[:\-–—]\s*(.+)\s*$/);
           if (metaMatch) {
             meta[normalizeHeader(metaMatch[1])] = metaMatch[2].trim();
+            return;
+          }
+
+          const inlineAreaMatch = line.match(/^\s*(?:[ÁA]REA|ESPECIALIDADE)\s+(.+)\s*$/i);
+          if (inlineAreaMatch) {
+            const value = inlineAreaMatch[1].replace(/^[:\-–—\s]+/, "").trim();
+            if (value) {
+              meta[/^\s*ESPECIALIDADE/i.test(line) ? "ESPECIALIDADE" : "AREA"] = value;
+            }
           }
           return;
         }
@@ -619,9 +643,13 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         sections[currentSection].push(line);
       });
 
+      const specialtyContext = [meta.AREA, meta.ESPECIALIDADE, extractHeaderSpecialtyContext(block.body)]
+        .filter(Boolean)
+        .join("\n");
+
       const station: ParsedImportedStation = {
         title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`),
-        specialty: normalizeSpecialty(meta.AREA),
+        specialty: normalizeSpecialty(specialtyContext),
         difficulty: "Intermediário",
         duration_minutes: 10,
         clinical_case: cleanMultilineText(sections.clinical_case.join("\n")),
