@@ -435,28 +435,36 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY ausente no servidor");
 
-    // Processa o PDF em LOTES de páginas. PDFs grandes (>30 páginas) em uma
-    // única chamada fazem o Gemini retornar resposta vazia silenciosamente.
-    const BATCH_SIZE = 20;
-    const batches: string[][] = [];
-    for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {
-      batches.push(data.pagePaths.slice(i, i + BATCH_SIZE));
+    let transcript = "";
+    let allStations: ImportedStation[] = [];
+    try {
+      transcript = await transcribePdfInBatches(apiKey, data.pagePaths, context.userId);
+      allStations = await extractStationsFromTranscript(apiKey, transcript, context.userId, data.filename);
+    } catch (e) {
+      console.error("[pdf-import] transcript-first strategy failed, falling back to direct vision", e);
     }
 
-    const allStations: ImportedStation[] = [];
-    for (let i = 0; i < batches.length; i++) {
-      const urls = await signPagePaths(batches[i]);
-      try {
-        const partial = await extractStationsViaVision(apiKey, urls, context.userId);
-        allStations.push(...partial.stations);
-      } catch (e) {
-        console.error(`[pdf-import] batch ${i + 1}/${batches.length} failed`, e);
+    if (allStations.length === 0) {
+      const BATCH_SIZE = 20;
+      const batches: string[][] = [];
+      for (let i = 0; i < data.pagePaths.length; i += BATCH_SIZE) {
+        batches.push(data.pagePaths.slice(i, i + BATCH_SIZE));
+      }
+
+      for (let i = 0; i < batches.length; i++) {
+        const urls = await signPagePaths(batches[i]);
+        try {
+          const partial = await extractStationsViaVision(apiKey, urls, context.userId);
+          allStations.push(...partial.stations);
+        } catch (e) {
+          console.error(`[pdf-import] batch ${i + 1}/${batches.length} failed`, e);
+        }
       }
     }
 
     if (allStations.length === 0) {
       throw new Error(
-        `A IA não conseguiu extrair nenhuma estação deste PDF (${data.pagePaths.length} páginas, ${batches.length} lotes). ` +
+        `A IA não conseguiu extrair nenhuma estação deste PDF (${data.pagePaths.length} páginas). ` +
         `Verifique se o PDF tem texto/imagens legíveis ou tente a opção "Colar texto".`,
       );
     }
@@ -470,8 +478,7 @@ export const importStationsFromPdf = createServerFn({ method: "POST" })
     if (data.actorPagePaths && data.actorPagePaths.length > 0) {
       try {
         actorPages = data.actorPagePaths.length;
-        const actorUrls = await signPagePaths(data.actorPagePaths);
-        const actorText = await transcribeViaVision(apiKey, actorUrls, context.userId);
+        const actorText = await transcribePdfInBatches(apiKey, data.actorPagePaths, context.userId);
         const segments = splitActorByStation(actorText);
         actorSegments = segments.length;
         const byNumber = new Map<number, string>();
