@@ -138,6 +138,7 @@ function isStationMetaLine(line: string): boolean {
   return Boolean(
     normalized &&
       (/^AREA\b/.test(normalized) ||
+        /^ESPECIALIDADE\b/.test(normalized) ||
         /^ESTACAO\b/.test(normalized) ||
         /^AVALIACAO DE HABILIDADES CLINICAS/.test(normalized)),
   );
@@ -183,13 +184,39 @@ function parseDurationMinutes(value: string): number {
   return Math.max(3, Math.min(30, Math.round(parsed)));
 }
 
+function mapNormalizedSpecialty(normalized: string): ParsedImportedStation["specialty"] | null {
+  if (!normalized) return null;
+  if (/\bCIRURG(?:IA|ICA|ICO)?\b|\bCG\b/.test(normalized)) return "Cirurgia";
+  if (/\bPEDIATR(?:IA|ICO|ICA)?\b|\bPED\b/.test(normalized)) return "Pediatria";
+  if (/GINECO|OBST|\bGO\b|TOCOGINECO/.test(normalized)) return "Ginecologia e Obstetrícia";
+  if (/FAMILIA|COMUNIDADE|\bMFC\b|ATENCAO PRIMARIA|APS\b|UBS\b|PSF\b|SAUDE DA FAMILIA/.test(normalized)) {
+    return "Medicina de Família e Comunidade";
+  }
+  if (/CLINICA MEDICA|\bCM\b|MEDICINA INTERNA/.test(normalized)) return "Clínica Médica";
+  return null;
+}
+
 function normalizeSpecialty(value: string | undefined): ParsedImportedStation["specialty"] {
-  const normalized = normalizeHeader(value ?? "");
-  if (/CIRURG/.test(normalized)) return "Cirurgia";
-  if (/PEDIATR/.test(normalized)) return "Pediatria";
-  if (/GINECO|OBST|GO\b/.test(normalized)) return "Ginecologia e Obstetrícia";
-  if (/FAMILIA|COMUNIDADE|PREVENTIVA|ATENCAO PRIMARIA|UBS|PSF/.test(normalized)) return "Medicina de Família e Comunidade";
-  return "Clínica Médica";
+  return mapNormalizedSpecialty(normalizeHeader(value ?? "")) ?? "Clínica Médica";
+}
+
+function extractHeaderSpecialtyContext(body: string): string {
+  const lines = body.replace(/\r\n/g, "\n").split("\n");
+  const headerLines: string[] = [];
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) {
+      if (headerLines.length > 0) break;
+      continue;
+    }
+    if (isDividerLine(line) || isPageMarkerLine(line)) continue;
+    if (detectSection(line)) break;
+    headerLines.push(line);
+    if (headerLines.length >= 12) break;
+  }
+
+  return headerLines.join("\n");
 }
 
 function splitStationBlocks(text: string): Array<{ header: string; body: string }> {
@@ -200,8 +227,17 @@ function splitStationBlocks(text: string): Array<{ header: string; body: string 
   const collectMarker = (index: number) => {
     let start = index;
     for (let back = index - 1; back >= Math.max(0, index - 3); back--) {
-      if (!lines[back].trim()) continue;
-      if (isStationMetaLine(lines[back])) start = back;
+      const trimmed = lines[back].trim();
+      if (!trimmed) continue;
+      const normalized = normalizeHeader(trimmed);
+      const prevNormalized = back > 0 ? normalizeHeader(lines[back - 1]) : "";
+      if (
+        isStationMetaLine(lines[back]) ||
+        /^(AREA|ESPECIALIDADE)\b/.test(normalized) ||
+        (/^(AREA|ESPECIALIDADE)$/.test(prevNormalized) && trimmed.length > 0)
+      ) {
+        start = back;
+      }
       else break;
     }
     return start;
@@ -526,6 +562,7 @@ export function normalizeImportedStations<T extends ParsedImportedStation>(stati
     return {
       ...station,
       title: cleanMultilineText(station.title || "Estação sem título") || "Estação sem título",
+      specialty: normalizeSpecialty(station.specialty),
       clinical_case: cleanMultilineText(station.clinical_case ?? ""),
       candidate_task: cleanMultilineText(station.candidate_task ?? ""),
       patient_info: emptyToNull(station.patient_info),
@@ -557,6 +594,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
       };
       const meta: Record<string, string> = {};
       let currentSection: SectionKey | null = null;
+      let pendingMetaKey: string | null = null;
 
       block.body.split(/\r?\n/).forEach((line) => {
         if (isDividerLine(line) || isPageMarkerLine(line)) {
@@ -570,6 +608,7 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
 
         const section = detectSection(line);
         if (section) {
+          pendingMetaKey = null;
           if (currentSection === "pep" && section.key !== "pep") {
             currentSection = null;
           }
@@ -583,9 +622,31 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         }
 
         if (!currentSection) {
-          const metaMatch = line.match(/^\s*([A-Za-zÀ-ÿ /]+)\s*:\s*(.+)\s*$/);
+          const normalizedLine = normalizeHeader(line);
+
+          if (/^(AREA|ESPECIALIDADE)$/.test(normalizedLine)) {
+            pendingMetaKey = normalizedLine;
+            return;
+          }
+
+          if (pendingMetaKey && line.trim()) {
+            meta[pendingMetaKey] = line.trim();
+            pendingMetaKey = null;
+            return;
+          }
+
+          const metaMatch = line.match(/^\s*([A-Za-zÀ-ÿ /]+?)\s*[:\-–—]\s*(.+)\s*$/);
           if (metaMatch) {
             meta[normalizeHeader(metaMatch[1])] = metaMatch[2].trim();
+            return;
+          }
+
+          const inlineAreaMatch = line.match(/^\s*(?:[ÁA]REA|ESPECIALIDADE)\s+(.+)\s*$/i);
+          if (inlineAreaMatch) {
+            const value = inlineAreaMatch[1].replace(/^[:\-–—\s]+/, "").trim();
+            if (value) {
+              meta[/^\s*ESPECIALIDADE/i.test(line) ? "ESPECIALIDADE" : "AREA"] = value;
+            }
           }
           return;
         }
@@ -593,9 +654,13 @@ export function parseStructuredStationsFromText(text: string, sourceLabel = "Tex
         sections[currentSection].push(line);
       });
 
+      const specialtyContext = [meta.AREA, meta.ESPECIALIDADE, extractHeaderSpecialtyContext(block.body)]
+        .filter(Boolean)
+        .join("\n");
+
       const station: ParsedImportedStation = {
         title: parseStationTitle(block.body, `${sourceLabel} — Estação ${index + 1}`),
-        specialty: normalizeSpecialty(meta.AREA),
+        specialty: normalizeSpecialty(specialtyContext),
         difficulty: "Intermediário",
         duration_minutes: 10,
         clinical_case: cleanMultilineText(sections.clinical_case.join("\n")),
