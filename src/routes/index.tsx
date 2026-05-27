@@ -1208,10 +1208,10 @@ function Investimento({
 /* ----------------------------- SOBRE O FUNDADOR ----------------------------- */
 
 const FUNDADOR_SLIDES = [
-  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil.", photo: anoar1 },
-  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático.", photo: anoar2 },
-  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED.", photo: anoar3 },
-  { icon: Sparkles, title: "Missão REVMED", body: "Levar a maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia.", photo: anoar4 },
+  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil.", photo: anoar1, objectPos: "center 20%" },
+  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático.", photo: anoar2, objectPos: "center 20%" },
+  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED.", photo: anoar3, objectPos: "center 25%" },
+  { icon: Sparkles, title: "Missão REVMED", body: "Levar a primeira e maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia.", photo: anoar4, objectPos: "center 85%" },
 ];
 
 function SobreFundador() {
@@ -1251,7 +1251,8 @@ function SobreFundador() {
                       scale: i === idx ? 1 : 1.05,
                     }}
                     transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    style={{ objectPosition: s.objectPos }}
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 ))}
                 {/* Vinheta inferior */}
@@ -1289,7 +1290,7 @@ function SobreFundador() {
                         : "border-border opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <img src={s.photo} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    <img src={s.photo} alt="" style={{ objectPosition: s.objectPos }} className="h-full w-full object-cover" loading="lazy" />
                   </button>
                 ))}
               </div>
@@ -1298,24 +1299,24 @@ function SobreFundador() {
 
           {/* COLUNA TEXTO */}
           <div className="lg:col-span-7">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Quem está por trás</p>
-            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary md:text-base">Quem está por trás</p>
+            <h2 className="mt-3 font-display text-[2rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-5xl lg:text-6xl">
               Quem é o <span className="text-primary">Dr. Anoar Jezini?</span>
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground md:text-base lg:text-lg">
-              O médico por trás da maior mentoria online do Brasil. Conheça a trajetória, o método e a missão que já aprovaram milhares de médicos no Revalida INEP.
+            <p className="mt-5 text-base text-muted-foreground md:text-lg lg:text-xl lg:leading-relaxed">
+              O médico por trás da <span className="font-semibold text-foreground">primeira e maior mentoria online do Brasil</span>. Conheça a trajetória, o método e a missão que já aprovaram milhares de médicos no Revalida INEP.
             </p>
 
             {/* Cards de stats */}
-            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="mt-7 grid grid-cols-3 gap-2 sm:gap-3 md:mt-8">
               {[
                 { n: "+1.000", l: "Aprovados" },
                 { n: "10+", l: "Anos de mentoria" },
                 { n: "1ª", l: "Mentoria do Brasil" },
               ].map((s) => (
-                <div key={s.l} className="rounded-2xl border border-border bg-card/60 p-3 text-center backdrop-blur sm:p-4">
-                  <div className="font-display text-xl font-black text-primary sm:text-2xl">{s.n}</div>
-                  <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">{s.l}</div>
+                <div key={s.l} className="rounded-2xl border border-border bg-card/60 p-4 text-center backdrop-blur sm:p-5">
+                  <div className="font-display text-2xl font-black text-primary sm:text-3xl">{s.n}</div>
+                  <div className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">{s.l}</div>
                 </div>
               ))}
             </div>
@@ -1326,16 +1327,16 @@ function SobreFundador() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              className="mt-6 rounded-3xl border border-border bg-card/80 p-6 backdrop-blur md:p-8"
+              className="mt-6 rounded-3xl border border-border bg-card/80 p-6 backdrop-blur md:mt-8 md:p-8 lg:p-10"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
-                  <Icon className="h-5 w-5" />
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+                  <Icon className="h-6 w-6" />
                 </span>
-                <h3 className="font-display text-lg font-bold tracking-tight sm:text-xl">{slide.title}</h3>
+                <h3 className="font-display text-xl font-bold tracking-tight sm:text-2xl">{slide.title}</h3>
               </div>
-              <p className="mt-4 text-sm text-muted-foreground sm:text-base">{slide.body}</p>
-              <div className="mt-6 flex items-center justify-between gap-3">
+              <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">{slide.body}</p>
+              <div className="mt-8 flex items-center justify-between gap-3">
                 <div className="flex gap-1.5">
                   {FUNDADOR_SLIDES.map((_, i) => (
                     <button
