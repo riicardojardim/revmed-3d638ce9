@@ -46,6 +46,10 @@ import avatar1 from "@/assets/hero-avatar-1.jpg";
 import avatar2 from "@/assets/hero-avatar-2.jpg";
 import avatar3 from "@/assets/hero-avatar-3.jpg";
 import avatar4 from "@/assets/hero-avatar-4.jpg";
+import anoar1 from "@/assets/anoar-1.png";
+import anoar2 from "@/assets/anoar-2.png";
+import anoar3 from "@/assets/anoar-3.png";
+import anoar4 from "@/assets/anoar-4.png";
 import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
 import { AprovadosMarquee } from "@/components/landing/AprovadosMarquee";
@@ -1204,41 +1208,128 @@ function Investimento({
 /* ----------------------------- SOBRE O FUNDADOR ----------------------------- */
 
 const FUNDADOR_SLIDES = [
-  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil." },
-  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático." },
-  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED." },
-  { icon: Sparkles, title: "Missão REVMED", body: "Levar a maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia." },
+  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil.", photo: anoar1 },
+  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático.", photo: anoar2 },
+  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED.", photo: anoar3 },
+  { icon: Sparkles, title: "Missão REVMED", body: "Levar a maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia.", photo: anoar4 },
 ];
 
 function SobreFundador() {
   const [idx, setIdx] = useState(0);
   const slide = FUNDADOR_SLIDES[idx];
   const Icon = slide.icon;
+
+  // Auto-advance a cada 6s
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % FUNDADOR_SLIDES.length), 6000);
+    return () => clearInterval(t);
+  }, []);
+
   return (
-    <section id="fundador" className="relative py-16 md:py-24 lg:py-32">
+    <section id="fundador" className="relative overflow-hidden py-16 md:py-24 lg:py-32">
+      {/* Glow de fundo */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute left-1/2 top-1/2 h-[60vh] w-[60vh] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[120px]" />
+      </div>
+
       <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <div className="grid items-center gap-8 md:gap-10 lg:grid-cols-12">
+        <div className="grid items-center gap-10 md:gap-14 lg:grid-cols-12">
+          {/* COLUNA FOTO */}
           <div className="lg:col-span-5">
-            <div className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card">
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/40">
-                <UserIcon className="h-32 w-32" strokeWidth={1} />
+            <div className="relative">
+              {/* Moldura com gradiente */}
+              <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-primary/20 bg-gradient-to-br from-primary/20 via-background to-background shadow-[0_30px_80px_-20px_rgba(255,140,0,0.35)]">
+                {FUNDADOR_SLIDES.map((s, i) => (
+                  <motion.img
+                    key={i}
+                    src={s.photo}
+                    alt={`Dr. Anoar Jezini — ${s.title}`}
+                    loading="lazy"
+                    initial={false}
+                    animate={{
+                      opacity: i === idx ? 1 : 0,
+                      scale: i === idx ? 1 : 1.05,
+                    }}
+                    transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                  />
+                ))}
+                {/* Vinheta inferior */}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background via-background/60 to-transparent" />
+
+                {/* Selo flutuante */}
+                <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-primary/40 bg-background/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+                  Fundador REVMED
+                </div>
+
+                {/* Assinatura inferior */}
+                <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3">
+                  <div>
+                    <p className="font-display text-lg font-black tracking-tight text-foreground sm:text-xl">
+                      Dr. Anoar Jezini
+                    </p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/90">
+                      CRM · Mentor-chefe
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
-                Foto do Dr. Anoar (em breve)
+
+              {/* Thumbs */}
+              <div className="mt-4 grid grid-cols-4 gap-2 sm:gap-3">
+                {FUNDADOR_SLIDES.map((s, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setIdx(i)}
+                    aria-label={`Ver ${s.title}`}
+                    className={`relative aspect-square overflow-hidden rounded-xl border transition-all ${
+                      i === idx
+                        ? "border-primary shadow-[0_0_0_2px_rgba(255,140,0,0.35)]"
+                        : "border-border opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={s.photo} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  </button>
+                ))}
               </div>
             </div>
           </div>
+
+          {/* COLUNA TEXTO */}
           <div className="lg:col-span-7">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Quem está por trás</p>
             <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
               Quem é o <span className="text-primary">Dr. Anoar Jezini?</span>
             </h2>
             <p className="mt-4 text-sm text-muted-foreground md:text-base lg:text-lg">
-              Conheça a trajetória, experiência, conquistas e o método por trás da REVMED.
+              O médico por trás da maior mentoria online do Brasil. Conheça a trajetória, o método e a missão que já aprovaram milhares de médicos no Revalida INEP.
             </p>
-            <div className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">
+
+            {/* Cards de stats */}
+            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+              {[
+                { n: "+1.000", l: "Aprovados" },
+                { n: "10+", l: "Anos de mentoria" },
+                { n: "1ª", l: "Mentoria do Brasil" },
+              ].map((s) => (
+                <div key={s.l} className="rounded-2xl border border-border bg-card/60 p-3 text-center backdrop-blur sm:p-4">
+                  <div className="font-display text-xl font-black text-primary sm:text-2xl">{s.n}</div>
+                  <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-[11px]">{s.l}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Slide ativo */}
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              className="mt-6 rounded-3xl border border-border bg-card/80 p-6 backdrop-blur md:p-8"
+            >
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="font-display text-lg font-bold tracking-tight sm:text-xl">{slide.title}</h3>
@@ -1251,7 +1342,7 @@ function SobreFundador() {
                       key={i}
                       onClick={() => setIdx(i)}
                       aria-label={`Slide ${i + 1}`}
-                      className={`h-1.5 rounded-full transition-all ${i === idx ? "w-8 bg-primary" : "w-4 bg-border"}`}
+                      className={`h-1.5 rounded-full transition-all ${i === idx ? "w-8 bg-primary" : "w-4 bg-border hover:bg-primary/40"}`}
                     />
                   ))}
                 </div>
@@ -1262,7 +1353,7 @@ function SobreFundador() {
                   Próximo <ArrowUpRight className="h-3.5 w-3.5" />
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
