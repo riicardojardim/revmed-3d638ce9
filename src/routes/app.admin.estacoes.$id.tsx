@@ -221,6 +221,7 @@ function StationEditor() {
           description: material.description ?? "",
           content: material.content ?? "",
           imageUrl: material.imageUrl,
+          imageUrls: Array.isArray(material.imageUrls) ? material.imageUrls : undefined,
           autoDeliver: material.autoDeliver,
         }))
       : null;
@@ -234,6 +235,7 @@ function StationEditor() {
           description: material.description,
           content: material.content,
           imageUrl: material.imageUrl,
+          imageUrls: material.imageUrls,
           autoDeliver: material.autoDeliver,
         }));
     const caseDescription = ((raw.case_description as string | null) ?? (raw.patient_info as string | null) ?? null);
