@@ -1379,15 +1379,27 @@ function VejaPlataforma() {
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-6">
           {[
-            { tag: "Vídeo explicativo", title: "App REVMED por dentro", desc: "Aulas, cronograma, resumos, flashcards, mentoria e acompanhamento — tudo num só lugar." },
+            { tag: "Vídeo explicativo", title: "App REVMED por dentro", desc: "Aulas, cronograma, resumos, flashcards, mentoria e acompanhamento — tudo num só lugar.", src: "/videos/app-por-dentro.mp4" },
             { tag: "Aulão gravado", title: "Esqueleto INEP — Dr. Anoar", desc: "Aprenda a lógica da prova, os principais pontos cobrados e como direcionar seus estudos com estratégia." },
           ].map((v) => (
             <div key={v.title} className="group relative overflow-hidden rounded-3xl border border-border bg-card transition-transform hover:-translate-y-1">
-              <div className="relative flex aspect-video items-center justify-center bg-gradient-to-br from-primary/20 via-card to-background">
-                <PlayCircle className="h-16 w-16 text-primary/80 transition-transform group-hover:scale-110" strokeWidth={1.5} />
-                <span className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
-                  Vídeo em breve
-                </span>
+              <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-gradient-to-br from-primary/20 via-card to-background">
+                {v.src ? (
+                  <video
+                    src={v.src}
+                    className="h-full w-full object-contain"
+                    controls
+                    playsInline
+                    preload="metadata"
+                  />
+                ) : (
+                  <>
+                    <PlayCircle className="h-16 w-16 text-primary/80 transition-transform group-hover:scale-110" strokeWidth={1.5} />
+                    <span className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
+                      Vídeo em breve
+                    </span>
+                  </>
+                )}
               </div>
               <div className="p-6">
                 <span className="rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">{v.tag}</span>
