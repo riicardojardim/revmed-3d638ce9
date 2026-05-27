@@ -81,18 +81,32 @@ export function parseDeliverableMaterialsFromSupportText(
   if (!text) return [];
 
   const normalizedText = text
-    .replace(/(?:^|\n)\s*((?:(?:MATERIAL\s*\/??\s*)?IMPRESSO)\s*\d{1,3}\b)/gi, "\n$1")
-    .replace(/(?:^|\n)\s*(===\s*(?:(?:MATERIAL\s*\/??\s*)?IMPRESSO)\s*\d{1,3}\b)/gi, "\n$1");
+    .replace(
+      /(?:^|\n)\s*((?:(?:MATERIAL\s*\/??\s*)?IMPRESSO)\s+\d{1,3}(?:\.\d+)*(?:\s*[A-Z])?\b)/gi,
+      "\n$1",
+    )
+    .replace(
+      /(?:^|\n)\s*(===\s*(?:(?:MATERIAL\s*\/??\s*)?IMPRESSO)\s+\d{1,3}(?:\.\d+)*(?:\s*[A-Z])?\b)/gi,
+      "\n$1",
+    );
   const lines = normalizedText.split("\n");
-  const markerRegex = /^(?:=+\s*)?(?:MATERIAL\s*\/??\s*)?IMPRESSO\s*(\d{1,3})\b(?:\s*[-–—:]\s*(.+?))?\s*(?:=+)?$/i;
+  // Matches: "IMPRESSO 1", "IMPRESSO 1 - Title", "IMPRESSO 1 A (Title)",
+  // "IMPRESSO 1.1 A (Title)", "IMPRESSO 2 B (Title)", "IMPRESSO 3.1 (Title)" etc.
+  const markerRegex =
+    /^(?:=+\s*)?(?:MATERIAL\s*\/??\s*)?IMPRESSO\s+(\d{1,3}(?:\.\d+)*(?:\s*[A-Z])?)\s*(?:[-–—:]\s*(.+?)|\((.+?)\))?\s*(?:=+)?$/i;
   const markers: Array<{ index: number; title: string }> = [];
 
   lines.forEach((line, index) => {
     const match = line.trim().match(markerRegex);
     if (!match) return;
+    const idLabel = (match[1] ?? "").replace(/\s+/g, " ").trim();
+    const rawTitle = cleanBlock(match[2] ?? match[3] ?? "");
+    const combinedTitle = rawTitle
+      ? `${idLabel} — ${rawTitle}`
+      : idLabel;
     markers.push({
       index,
-      title: cleanBlock(match[2] ?? ""),
+      title: combinedTitle,
     });
   });
 
