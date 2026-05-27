@@ -1199,6 +1199,117 @@ function Investimento({
 
 /* ----------------------------- FAQ ----------------------------- */
 
+/* ----------------------------- SOBRE O FUNDADOR ----------------------------- */
+
+const FUNDADOR_SLIDES = [
+  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil." },
+  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático." },
+  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED." },
+  { icon: Sparkles, title: "Missão REVMED", body: "Levar a maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia." },
+];
+
+function SobreFundador() {
+  const [idx, setIdx] = useState(0);
+  const slide = FUNDADOR_SLIDES[idx];
+  const Icon = slide.icon;
+  return (
+    <section id="fundador" className="relative py-16 md:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <div className="grid items-center gap-8 md:gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <div className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card">
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/40">
+                <UserIcon className="h-32 w-32" strokeWidth={1} />
+              </div>
+              <div className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
+                Foto do Dr. Anoar (em breve)
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Quem está por trás</p>
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
+              Quem é o <span className="text-primary">Dr. Anoar Jezini?</span>
+            </h2>
+            <p className="mt-4 text-sm text-muted-foreground md:text-base lg:text-lg">
+              Conheça a trajetória, experiência, conquistas e o método por trás da REVMED.
+            </p>
+            <div className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="font-display text-lg font-bold tracking-tight sm:text-xl">{slide.title}</h3>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground sm:text-base">{slide.body}</p>
+              <div className="mt-6 flex items-center justify-between gap-3">
+                <div className="flex gap-1.5">
+                  {FUNDADOR_SLIDES.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setIdx(i)}
+                      aria-label={`Slide ${i + 1}`}
+                      className={`h-1.5 rounded-full transition-all ${i === idx ? "w-8 bg-primary" : "w-4 bg-border"}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setIdx((idx + 1) % FUNDADOR_SLIDES.length)}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                >
+                  Próximo <ArrowUpRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------- VEJA A PLATAFORMA + AULÃO ----------------------------- */
+
+function VejaPlataforma() {
+  return (
+    <section className="relative py-16 md:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Veja por dentro</p>
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
+            Conheça a plataforma e o <span className="text-primary">Aulão do Esqueleto INEP</span>.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:text-base">
+            Assista ao vídeo explicativo do App REVMED e ao aulão gravado do Dr. Anoar sobre a estrutura da prova do INEP.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-6">
+          {[
+            { tag: "Vídeo explicativo", title: "App REVMED por dentro", desc: "Aulas, cronograma, resumos, flashcards, mentoria e acompanhamento — tudo num só lugar." },
+            { tag: "Aulão gravado", title: "Esqueleto INEP — Dr. Anoar", desc: "Aprenda a lógica da prova, os principais pontos cobrados e como direcionar seus estudos com estratégia." },
+          ].map((v) => (
+            <div key={v.title} className="group relative overflow-hidden rounded-3xl border border-border bg-card transition-transform hover:-translate-y-1">
+              <div className="relative flex aspect-video items-center justify-center bg-gradient-to-br from-primary/20 via-card to-background">
+                <PlayCircle className="h-16 w-16 text-primary/80 transition-transform group-hover:scale-110" strokeWidth={1.5} />
+                <span className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
+                  Vídeo em breve
+                </span>
+              </div>
+              <div className="p-6">
+                <span className="rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">{v.tag}</span>
+                <h3 className="mt-3 font-display text-lg font-bold tracking-tight sm:text-xl">{v.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{v.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------- FAQ ----------------------------- */
+
 const FAQS = [
   {
     q: "Pra quem é a REVMED?",
