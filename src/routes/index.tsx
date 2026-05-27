@@ -330,8 +330,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
-            <span className="lg:hidden">Chegue na prova </span>
-            <span className="hidden lg:inline">Chegue na prova do Revalida </span>
+            <span>A 1ª maior mentoria online do Brasil, </span>
             <span
               style={{
                 backgroundImage:
@@ -341,8 +340,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              <span className="lg:hidden">já tendo feito a prova.</span>
-              <span className="hidden lg:inline">já tendo feito a prova dezenas de vezes.</span>
+              agora na melhor versão — App REVMED.
             </span>
           </motion.h1>
 
@@ -352,14 +350,8 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:mt-6 lg:text-lg"
           >
-            Sala ao vivo com ator-avaliador, cronômetro do INEP e
-            checklist da banca — tudo num app que dá vontade de abrir
-            todo dia.
-            <span className="hidden lg:inline">
-              {" "}Treine estações completas com correção objetiva nos 3 níveis
-              da banca, acompanhe sua evolução semana a semana e chegue no dia
-              da prova com a confiança de quem já passou por ela dezenas de vezes.
-            </span>
+            Venha treinar com o time que mais aprova na Revalidação de Diploma Médico.
+            Plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
