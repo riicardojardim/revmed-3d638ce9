@@ -1162,7 +1162,7 @@ function Investimento({
                       type="button"
                       onClick={() =>
                         onChoosePlan({
-                          slug: p.name === "Full" ? "completo" : "ator",
+                          slug: p.name === "Plano Plataforma" ? "completo" : "ator",
                           name: p.name,
                           price: p.price,
                           cadence: p.cadence,
@@ -1185,7 +1185,7 @@ function Investimento({
         </div>
 
         <p className="mt-8 text-center text-[0.7rem] text-muted-foreground sm:mt-10 sm:text-xs">
-          Cancela quando quiser. 7 dias de garantia nos planos Ator e Full.
+          Cancela quando quiser. 7 dias de garantia nos planos Ator e Plataforma.
         </p>
       </div>
     </section>
