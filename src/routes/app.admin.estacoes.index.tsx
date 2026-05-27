@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { SpecialtyBadge } from "@/components/SpecialtyBadge";
 import { getSpecialtyMeta } from "@/lib/specialtyMeta";
-import { toTitleCase } from "@/lib/title-case";
 
 export const Route = createFileRoute("/app/admin/estacoes/")({
   component: AdminStationsPage,
