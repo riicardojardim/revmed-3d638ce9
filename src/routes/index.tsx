@@ -335,7 +335,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
-            <span>A 1ª maior mentoria online do Brasil, </span>
+            <span>A primeira e maior Mentoria On-line do Brasil, </span>
             <span
               style={{
                 backgroundImage:
@@ -345,7 +345,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              agora na melhor versão — App REVMED.
+              agora na Melhor versão - App RevMed
             </span>
           </motion.h1>
 
@@ -886,7 +886,7 @@ function Mentoria() {
             </h2>
             <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
-              um mentor por perto, com grupo de 5 alunos, encontros ao vivo e
+              um mentor por perto, com Turmas Programadas de 5 pessoas, encontros ao vivo e
               psicólogo no programa, pode entrar na mentoria — um plus à parte,
               em turmas pequenas que fecham rápido.
             </p>
@@ -1001,7 +1001,7 @@ const PLANS: Plan[] = [
     price: "Sob consulta",
     cadence: "turmas reduzidas",
     installments: "Parcelamos em até 10x sem juros no cartão",
-    desc: "Programa completo com mentor presente, turmas de 5 alunos, psicólogo no time, WhatsApp 24h e plataforma inclusa.",
+    desc: "Programa completo com mentor presente, Turmas Programadas de 5 pessoas, psicólogo no time, WhatsApp 24h e plataforma inclusa.",
     features: [
       "Tudo do plano Plataforma",
       "20 encontros práticos ao vivo",
