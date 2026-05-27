@@ -166,7 +166,7 @@ function LandingPage() {
         onSignOut={signOut}
       />
       <main className="overflow-clip">
-        <Hero isLogged={mounted && !!user} />
+        <Hero isLogged={mounted && !!user} mounted={mounted} />
         <MarqueeStrip />
         <ComoFunciona />
         <Manifesto />
