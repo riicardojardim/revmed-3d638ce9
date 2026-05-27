@@ -720,8 +720,17 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
                   <div>
                     <Label>Imagem (opcional) — ex: ECG, radiografia, foto de lesão</Label>
                     <MaterialImageUpload
-                      value={m.imageUrl}
-                      onChange={(url) => update(i, { imageUrl: url })}
+                      values={[
+                        ...(Array.isArray(m.imageUrls) ? m.imageUrls : []),
+                        ...(m.imageUrl && !(m.imageUrls ?? []).includes(m.imageUrl) ? [m.imageUrl] : []),
+                      ]}
+                      onChange={(urls) =>
+                        update(i, {
+                          imageUrls: urls,
+                          // mantém imageUrl (primeira) para compatibilidade com views antigas
+                          imageUrl: urls[0],
+                        })
+                      }
                     />
                   </div>
                 </>
