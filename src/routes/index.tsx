@@ -1235,10 +1235,10 @@ function FAQ() {
     <section className="py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-          Perguntas honestas
+          Dúvidas Frequentes
         </p>
         <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
-          O que a gente costuma ouvir.
+          Tirou a dúvida? <span className="text-primary">Vem com a gente.</span>
         </h2>
         <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
           {FAQS.map((f, i) => (
@@ -1269,6 +1269,27 @@ function FAQ() {
               )}
             </div>
           ))}
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-mint/30 bg-mint/[0.06] p-6 text-center md:mt-12 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-mint">
+            Ainda com dúvida?
+          </p>
+          <h3 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+            Entra no nosso grupo do WhatsApp
+          </h3>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Fala direto com nosso time, tira dúvidas em tempo real e ainda conhece a comunidade REVMED por dentro.
+          </p>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow-[0_15px_40px_-10px_rgba(37,211,102,0.55)] transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base"
+          >
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2.4} />
+            Entrar no grupo do WhatsApp
+          </a>
         </div>
       </div>
     </section>
