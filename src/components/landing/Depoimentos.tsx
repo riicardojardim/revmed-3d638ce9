@@ -23,6 +23,26 @@ import depoMarinaSet from "@/assets/depoimento-marina.png?w=320;480;720&format=w
 import depoMarinaSrc from "@/assets/depoimento-marina.png?w=480&format=webp";
 import depoGabriellySet from "@/assets/depoimento-gabrielly.png?w=320;480;720&format=webp&as=srcset";
 import depoGabriellySrc from "@/assets/depoimento-gabrielly.png?w=480&format=webp";
+import depoUisleiSet from "@/assets/depoimento-uislei.jpg?w=320;480;720&format=webp&as=srcset";
+import depoUisleiSrc from "@/assets/depoimento-uislei.jpg?w=480&format=webp";
+import depoGabriellaSet from "@/assets/depoimento-gabriella.jpg?w=320;480;720&format=webp&as=srcset";
+import depoGabriellaSrc from "@/assets/depoimento-gabriella.jpg?w=480&format=webp";
+import depoGelySet from "@/assets/depoimento-gely.jpg?w=320;480;720&format=webp&as=srcset";
+import depoGelySrc from "@/assets/depoimento-gely.jpg?w=480&format=webp";
+import depoJuniorJusielSet from "@/assets/depoimento-juniorjusiel.jpg?w=320;480;720&format=webp&as=srcset";
+import depoJuniorJusielSrc from "@/assets/depoimento-juniorjusiel.jpg?w=480&format=webp";
+import depoFelipeSet from "@/assets/depoimento-felipe.jpg?w=320;480;720&format=webp&as=srcset";
+import depoFelipeSrc from "@/assets/depoimento-felipe.jpg?w=480&format=webp";
+import depoFabielleSet from "@/assets/depoimento-fabielle.jpg?w=320;480;720&format=webp&as=srcset";
+import depoFabielleSrc from "@/assets/depoimento-fabielle.jpg?w=480&format=webp";
+import depoVickMartinsSet from "@/assets/depoimento-vickmartins.jpg?w=320;480;720&format=webp&as=srcset";
+import depoVickMartinsSrc from "@/assets/depoimento-vickmartins.jpg?w=480&format=webp";
+import depoRefundidoSet from "@/assets/depoimento-refundido.jpg?w=320;480;720&format=webp&as=srcset";
+import depoRefundidoSrc from "@/assets/depoimento-refundido.jpg?w=480&format=webp";
+import depoFlavioSet from "@/assets/depoimento-flavio.jpg?w=320;480;720&format=webp&as=srcset";
+import depoFlavioSrc from "@/assets/depoimento-flavio.jpg?w=480&format=webp";
+import depoLauraSet from "@/assets/depoimento-laura.jpg?w=320;480;720&format=webp&as=srcset";
+import depoLauraSrc from "@/assets/depoimento-laura.jpg?w=480&format=webp";
 
 const ITEMS = [
   { src: depoAlexandreSrc, srcSet: depoAlexandreSet, name: "Dr. Alexandre Severino Siqueira" },
@@ -36,10 +56,21 @@ const ITEMS = [
   { src: depoErlemSrc, srcSet: depoErlemSet, name: "Dra. Erlem Priscila da Silva Soares" },
   { src: depoMarinaSrc, srcSet: depoMarinaSet, name: "Dra. Marina Cartaxo" },
   { src: depoGabriellySrc, srcSet: depoGabriellySet, name: "Dra. Gabrielly Messias" },
+  { src: depoUisleiSrc, srcSet: depoUisleiSet, name: "Dr. Uislei Inácio de Melo" },
+  { src: depoGabriellaSrc, srcSet: depoGabriellaSet, name: "Dra. Gabriella Cassiano M." },
+  { src: depoGelySrc, srcSet: depoGelySet, name: "Dra. Gely Bianca Cuellar Bruckner" },
+  { src: depoJuniorJusielSrc, srcSet: depoJuniorJusielSet, name: "Dr. Junior Jusiel" },
+  { src: depoFelipeSrc, srcSet: depoFelipeSet, name: "Dr. Felipe Oliveira" },
+  { src: depoFabielleSrc, srcSet: depoFabielleSet, name: "Dra. Fabielle Meranca" },
+  { src: depoVickMartinsSrc, srcSet: depoVickMartinsSet, name: "Dra. Victoria Martins" },
+  { src: depoRefundidoSrc, srcSet: depoRefundidoSet, name: "Dr. Refundido" },
+  { src: depoFlavioSrc, srcSet: depoFlavioSet, name: "Dr. Flávio Mendonça" },
+  { src: depoLauraSrc, srcSet: depoLauraSet, name: "Dra. Laura Damaceno Sousa" },
 ];
 
-const ROW_A = ITEMS.filter((_, i) => i % 2 === 0);
-const ROW_B = ITEMS.filter((_, i) => i % 2 === 1);
+const ROW_A = ITEMS.filter((_, i) => i % 3 === 0);
+const ROW_B = ITEMS.filter((_, i) => i % 3 === 1);
+const ROW_C = ITEMS.filter((_, i) => i % 3 === 2);
 
 function MarqueeRow({
   items,
@@ -71,13 +102,13 @@ function MarqueeRow({
         {loop.map((d, i) => (
           <figure
             key={`${d.name}-${i}`}
-            className="group relative shrink-0 w-[68vw] sm:w-[340px] lg:w-[380px]"
+            className="group relative shrink-0 w-[58vw] sm:w-[280px] lg:w-[320px]"
           >
             <div className="relative overflow-hidden rounded-xl border border-border/70 bg-card/40 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/[0.03] transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_30px_80px_-20px_color-mix(in_oklab,var(--primary)_30%,transparent)] sm:rounded-2xl">
               <img
                 src={d.src}
                 srcSet={d.srcSet}
-                sizes="(max-width: 640px) 68vw, (max-width: 1024px) 340px, 380px"
+                sizes="(max-width: 640px) 58vw, (max-width: 1024px) 280px, 320px"
                 alt={`Depoimento de ${d.name} — aprovado no Revalida INEP 25.1`}
                 loading={i < 2 ? "eager" : "lazy"}
                 fetchPriority={i < 2 ? "high" : "low"}
@@ -137,6 +168,7 @@ export function Depoimentos() {
         >
           <MarqueeRow items={ROW_A} duration={22} />
           <MarqueeRow items={ROW_B} duration={28} reverse />
+          <MarqueeRow items={ROW_C} duration={34} />
         </motion.div>
 
         <div className="mt-8 flex flex-col items-center gap-4 md:mt-12">
