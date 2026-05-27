@@ -43,6 +43,8 @@ import depoFlavioSet from "@/assets/depoimento-flavio.jpg?w=320;480;720&format=w
 import depoFlavioSrc from "@/assets/depoimento-flavio.jpg?w=480&format=webp";
 import depoLauraSet from "@/assets/depoimento-laura.jpg?w=320;480;720&format=webp&as=srcset";
 import depoLauraSrc from "@/assets/depoimento-laura.jpg?w=480&format=webp";
+import depoLorenaSet from "@/assets/depoimento-lorena.jpg?w=320;480;720&format=webp&as=srcset";
+import depoLorenaSrc from "@/assets/depoimento-lorena.jpg?w=480&format=webp";
 
 const ITEMS = [
   { src: depoAlexandreSrc, srcSet: depoAlexandreSet, name: "Dr. Alexandre Severino Siqueira" },
@@ -66,6 +68,7 @@ const ITEMS = [
   { src: depoRefundidoSrc, srcSet: depoRefundidoSet, name: "Dr. Refundido" },
   { src: depoFlavioSrc, srcSet: depoFlavioSet, name: "Dr. Flávio Mendonça" },
   { src: depoLauraSrc, srcSet: depoLauraSet, name: "Dra. Laura Damaceno Sousa" },
+  { src: depoLorenaSrc, srcSet: depoLorenaSet, name: "Dra. Lorena Ferreira Barbosa" },
 ];
 
 const ROW_A = ITEMS.filter((_, i) => i % 3 === 0);
