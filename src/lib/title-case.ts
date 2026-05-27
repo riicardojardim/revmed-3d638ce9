@@ -3,15 +3,25 @@ const LOWERCASE_WORDS = new Set([
   "a", "o", "as", "os", "com", "para", "por", "ou",
 ]);
 
+// Detecta siglas: tokens com 2+ caracteres todos em maiúsculas (permitindo dígitos
+// e símbolos como "+"), ex.: "LGBTQIAPN+", "IOT", "HIV", "DPOC", "AVC", "TDAH".
+function isAcronym(token: string): boolean {
+  if (token.length < 2) return false;
+  const letters = token.match(/\p{L}/gu);
+  if (!letters || letters.length < 2) return false;
+  return letters.every((c) => c === c.toLocaleUpperCase("pt-BR") && c !== c.toLocaleLowerCase("pt-BR"));
+}
+
 export function toTitleCase(input: string): string {
   if (!input) return "";
   return input
-    .toLocaleLowerCase("pt-BR")
     .split(/(\s+|[-–—/])/)
     .map((tok, i) => {
       if (/^\s+$/.test(tok) || /^[-–—/]$/.test(tok)) return tok;
-      if (i > 0 && LOWERCASE_WORDS.has(tok)) return tok;
-      return tok.replace(/(^|[(\[{"'])(\p{L})/u, (_, p, c) => p + c.toLocaleUpperCase("pt-BR"));
+      if (isAcronym(tok)) return tok;
+      const lower = tok.toLocaleLowerCase("pt-BR");
+      if (i > 0 && LOWERCASE_WORDS.has(lower)) return lower;
+      return lower.replace(/(^|[(\[{"'])(\p{L})/u, (_, p, c) => p + c.toLocaleUpperCase("pt-BR"));
     })
     .join("");
 }
