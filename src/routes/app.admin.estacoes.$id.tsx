@@ -46,6 +46,7 @@ interface DeliverableMaterial {
   description?: string;
   content: string;
   imageUrl?: string;
+  imageUrls?: string[];
   autoDeliver?: boolean;
 }
 
@@ -220,6 +221,7 @@ function StationEditor() {
           description: material.description ?? "",
           content: material.content ?? "",
           imageUrl: material.imageUrl,
+          imageUrls: Array.isArray(material.imageUrls) ? material.imageUrls : undefined,
           autoDeliver: material.autoDeliver,
         }))
       : null;
@@ -233,6 +235,7 @@ function StationEditor() {
           description: material.description,
           content: material.content,
           imageUrl: material.imageUrl,
+          imageUrls: material.imageUrls,
           autoDeliver: material.autoDeliver,
         }));
     const caseDescription = ((raw.case_description as string | null) ?? (raw.patient_info as string | null) ?? null);
@@ -523,59 +526,89 @@ function SectionCaseActor({ station, up }: { station: Station; up: <K extends ke
   );
 }
 
-function MaterialImageUpload({ value, onChange }: { value: string | undefined; onChange: (url: string | undefined) => void }) {
+function MaterialImageUpload({
+  values,
+  onChange,
+}: {
+  values: string[];
+  onChange: (urls: string[]) => void;
+}) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast.error("Selecione um arquivo de imagem.");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Imagem muito grande (máx 10MB).");
-      return;
-    }
+  async function uploadOne(file: File): Promise<string> {
+    if (!file.type.startsWith("image/")) throw new Error("Arquivo não é imagem.");
+    if (file.size > 10 * 1024 * 1024) throw new Error(`"${file.name}" passa de 10MB.`);
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id ?? "anon";
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("station-materials").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    });
+    if (upErr) throw upErr;
+    const { data: pub } = supabase.storage.from("station-materials").getPublicUrl(path);
+    return pub.publicUrl;
+  }
+
+  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     setUploading(true);
+    const added: string[] = [];
     try {
-      const { data: auth } = await supabase.auth.getUser();
-      const uid = auth.user?.id ?? "anon";
-      const ext = file.name.split(".").pop() || "png";
-      const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("station-materials").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type,
-      });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("station-materials").getPublicUrl(path);
-      onChange(pub.publicUrl);
-      toast.success("Imagem enviada.");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      toast.error("Falha no upload", { description: msg });
+      for (const f of files) {
+        try {
+          added.push(await uploadOne(f));
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          toast.error("Falha no upload", { description: msg });
+        }
+      }
+      if (added.length) {
+        onChange([...(values ?? []), ...added]);
+        toast.success(
+          added.length === 1 ? "Imagem enviada." : `${added.length} imagens enviadas.`,
+        );
+      }
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
+  function removeAt(idx: number) {
+    onChange(values.filter((_, i) => i !== idx));
+  }
+
   return (
     <div className="space-y-2">
-      {value ? (
-        <div className="relative inline-block">
-          <img src={value} alt="Material" className="max-h-48 rounded-lg border border-border" />
-          <Button
-            type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute -right-2 -top-2 h-6 w-6"
-            onClick={() => onChange(undefined)}
-          >
-            <X className="h-3 w-3" />
-          </Button>
+      {values.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {values.map((url, idx) => (
+            <div key={`${url}-${idx}`} className="relative">
+              <img
+                src={url}
+                alt={`Material ${idx + 1}`}
+                className="h-32 w-auto rounded-lg border border-border object-contain"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="absolute -right-2 -top-2 h-6 w-6"
+                onClick={() => removeAt(idx)}
+                title="Remover imagem"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+              <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                {idx + 1}
+              </span>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
@@ -587,8 +620,9 @@ function MaterialImageUpload({ value, onChange }: { value: string | undefined; o
         ref={inputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
-        onChange={handleFile}
+        onChange={handleFiles}
       />
       <Button
         type="button"
@@ -597,8 +631,14 @@ function MaterialImageUpload({ value, onChange }: { value: string | undefined; o
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
       >
-        <Upload className="h-4 w-4" /> {uploading ? "Enviando..." : value ? "Trocar imagem" : "Enviar imagem"}
+        <Upload className="h-4 w-4" />{" "}
+        {uploading ? "Enviando..." : values.length ? "Adicionar mais imagens" : "Enviar imagens"}
       </Button>
+      {values.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {values.length} imagem{values.length === 1 ? "" : "s"} · você pode selecionar várias de uma vez.
+        </p>
+      )}
     </div>
   );
 }
@@ -680,8 +720,17 @@ function SectionMaterials({ materials, onChange }: { materials: DeliverableMater
                   <div>
                     <Label>Imagem (opcional) — ex: ECG, radiografia, foto de lesão</Label>
                     <MaterialImageUpload
-                      value={m.imageUrl}
-                      onChange={(url) => update(i, { imageUrl: url })}
+                      values={[
+                        ...(Array.isArray(m.imageUrls) ? m.imageUrls : []),
+                        ...(m.imageUrl && !(m.imageUrls ?? []).includes(m.imageUrl) ? [m.imageUrl] : []),
+                      ]}
+                      onChange={(urls) =>
+                        update(i, {
+                          imageUrls: urls,
+                          // mantém imageUrl (primeira) para compatibilidade com views antigas
+                          imageUrl: urls[0],
+                        })
+                      }
                     />
                   </div>
                 </>
@@ -1273,13 +1322,20 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                             </button>
                             {isOpen && (
                               <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
-                                {m.imageUrl && (
-                                  <img
-                                    src={m.imageUrl}
-                                    alt={m.name || "Material"}
-                                    className="mb-3 block h-auto w-full rounded-md border border-border"
-                                  />
-                                )}
+                                {(() => {
+                                  const imgs = [
+                                    ...(Array.isArray(m.imageUrls) ? m.imageUrls : []),
+                                    ...(m.imageUrl && !(m.imageUrls ?? []).includes(m.imageUrl) ? [m.imageUrl] : []),
+                                  ];
+                                  return imgs.map((u, ix) => (
+                                    <img
+                                      key={`${u}-${ix}`}
+                                      src={u}
+                                      alt={m.name || "Material"}
+                                      className="mb-3 block h-auto w-full rounded-md border border-border"
+                                    />
+                                  ));
+                                })()}
                                 {m.content
                                   ? <ScriptText text={m.content} />
                                   : (!m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}

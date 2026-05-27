@@ -5,8 +5,29 @@ export type ImportedDeliverableMaterial = {
   description: string;
   content: string;
   imageUrl?: string;
+  imageUrls?: string[];
   autoDeliver?: boolean;
 };
+
+/** Retorna a lista completa de imagens de um impresso, mesclando o campo
+ * legado `imageUrl` (single) com `imageUrls` (array) e removendo duplicatas.
+ */
+export function getMaterialImages(
+  m: { imageUrl?: string | null; imageUrls?: string[] | null } | null | undefined,
+): string[] {
+  if (!m) return [];
+  const arr = Array.isArray(m.imageUrls) ? m.imageUrls.filter(Boolean) : [];
+  const single = m.imageUrl ? [m.imageUrl] : [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const url of [...arr, ...single]) {
+    if (url && !seen.has(url)) {
+      seen.add(url);
+      out.push(url);
+    }
+  }
+  return out;
+}
 
 function cleanBlock(value: string): string {
   return value.replace(/\r\n/g, "\n").replace(/^\s+|\s+$/g, "").replace(/\n{3,}/g, "\n\n");
@@ -153,6 +174,7 @@ export function mergeDeliverableMaterials(
       description: material.description || previous?.description || "",
       content: material.content || previous?.content || "",
       imageUrl: material.imageUrl ?? previous?.imageUrl,
+      imageUrls: material.imageUrls ?? previous?.imageUrls,
       autoDeliver: material.autoDeliver ?? previous?.autoDeliver ?? false,
     });
   });

@@ -84,6 +84,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
           description: material.description ?? "",
           content: material.content ?? "",
           imageUrl: material.imageUrl,
+          imageUrls: Array.isArray(material.imageUrls) ? material.imageUrls : undefined,
           autoDeliver: material.autoDeliver,
         }))
       : [];
@@ -113,6 +114,7 @@ export async function loadStation(id: string): Promise<LoadedStation | null> {
         description: material.description,
         content: material.content,
         imageUrl: material.imageUrl,
+        imageUrls: material.imageUrls,
       })),
       educationalGoal: (sx.educational_goal as string) ?? undefined,
       expectedConduct: (sx.expected_conduct as string) ?? undefined,
