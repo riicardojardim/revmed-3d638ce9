@@ -1333,11 +1333,11 @@ const FAQS = [
   },
   {
     q: "Preciso entrar na mentoria pra usar a plataforma?",
-    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards inteligentes, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
+    a: "Não. A mentoria é um plus à parte. No plano Plataforma você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards inteligentes, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
   },
   {
     q: "Tem garantia?",
-    a: "Sete dias nos planos Ator e Full. Se não fizer sentido, devolvemos 100% do valor.",
+    a: "Sete dias nos planos Ator e Plataforma. Se não fizer sentido, devolvemos 100% do valor.",
   },
   {
     q: "Funciona no celular?",
