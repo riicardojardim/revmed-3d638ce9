@@ -364,7 +364,7 @@ function AdminStationRow({ station, selected, onToggleSelect, onTogglePublish, o
             <Badge variant="outline" className="border-warning/30 text-warning">Rascunho</Badge>
           )}
         </div>
-        <div className="mt-2 font-display text-lg font-semibold">{toTitleCase(station.title)}</div>
+        <div className="mt-2 font-display text-lg font-semibold">{station.title}</div>
         <div className="text-xs text-muted-foreground">
           Criada em {new Date(station.created_at).toLocaleDateString("pt-BR")}
         </div>
