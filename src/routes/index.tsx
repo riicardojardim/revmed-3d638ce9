@@ -307,7 +307,7 @@ function TopNav({
 
 function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
   return (
-    <section className="relative">
+    <section className="relative" suppressHydrationWarning>
       {/* radial orange glow */}
       <div
         aria-hidden
