@@ -58,17 +58,17 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "REVMED — Treine a estação do Revalida como se fosse hoje" },
+      { title: "REVMED — A maior mentoria online para Revalidação de Diploma Médico" },
       {
         name: "description",
         content:
-          "Sala ao vivo com ator-avaliador, cronômetro do INEP, checklist nos 3 níveis da banca e flashcards inteligentes. Descubra semana a semana se já passaria no Revalida.",
+          "A 1ª maior mentoria online do Brasil agora em sua melhor versão — App REVMED. Treine com o time que mais aprova na Revalidação de Diploma Médico: plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.",
       },
-      { property: "og:title", content: "REVMED — Chegue na prova já tendo feito a prova" },
+      { property: "og:title", content: "REVMED — A maior mentoria online para Revalidação de Diploma Médico" },
       {
         property: "og:description",
         content:
-          "Estação ao vivo com ator-avaliador, checklist igual ao INEP, flashcards inteligentes e sua nota comparada ao corte. Comece em 1 minuto.",
+          "Venha treinar com o time que mais aprova na Revalidação de Diploma Médico. Plataforma completa + mentoria 1:5 com acompanhamento humano.",
       },
     ],
     links: NOTIFICATION_AVATAR_SOURCES.map((src) => ({
