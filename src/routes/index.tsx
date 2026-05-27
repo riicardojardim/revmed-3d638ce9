@@ -166,7 +166,7 @@ function LandingPage() {
         onSignOut={signOut}
       />
       <main className="overflow-clip">
-        <Hero isLogged={mounted && !!user} mounted={mounted} />
+        <Hero isLogged={mounted && !!user} />
         <MarqueeStrip />
         <ComoFunciona />
         <Manifesto />
@@ -305,10 +305,7 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
-function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
-  const MotionDiv = mounted ? motion.div : "div";
-  const MotionH1 = mounted ? motion.h1 : "h1";
-  const MotionP = mounted ? motion.p : "p";
+function Hero({ isLogged }: { isLogged: boolean }) {
   return (
     <section className="relative">
       {/* radial orange glow */}
@@ -322,7 +319,7 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
       />
       <div className="mx-auto grid max-w-7xl items-stretch gap-6 px-5 pt-3 pb-14 md:px-8 md:pt-12 md:pb-20 md:gap-10 lg:pt-16 lg:pb-28 lg:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-6 lg:order-2">
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -330,9 +327,9 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
           >
             <Flame className="h-3.5 w-3.5" />
             Plataforma de treino • Revalida INEP
-          </MotionDiv>
+          </motion.div>
 
-          <MotionH1
+          <motion.h1
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
@@ -350,9 +347,9 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
             >
               agora na melhor versão — App REVMED.
             </span>
-          </MotionH1>
+          </motion.h1>
 
-          <MotionP
+          <motion.p
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
@@ -360,7 +357,7 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
           >
             Venha treinar com o time que mais aprova na Revalidação de Diploma Médico.
             Plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.
-          </MotionP>
+          </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
           <div className="relative mt-4 lg:hidden">
@@ -375,7 +372,7 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
             <MockupCarousel />
           </div>
 
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
@@ -398,9 +395,9 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 md:h-5 md:w-5" />
               </a>
             )}
-          </MotionDiv>
+          </motion.div>
 
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -433,10 +430,10 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
               <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
               <span className="font-bold text-foreground">Sala estável</span> mesmo com a turma cheia
             </span>
-          </MotionDiv>
+          </motion.div>
         </div>
 
-        <MotionDiv
+        <motion.div
           initial={{ opacity: 1, scale: 1 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -453,7 +450,7 @@ function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
             />
             <MockupCarousel />
           </div>
-        </MotionDiv>
+        </motion.div>
       </div>
     </section>
   );
@@ -1336,11 +1333,11 @@ const FAQS = [
   },
   {
     q: "Preciso entrar na mentoria pra usar a plataforma?",
-    a: "Não. A mentoria é um plus à parte. No plano Plataforma você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards inteligentes, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
+    a: "Não. A mentoria é um plus à parte. No plano Full você tem acesso completo a estações ao vivo, checklists 3 níveis, flashcards inteligentes, resumos, simulados, comunidade e painel de desempenho — sem precisar de mentor.",
   },
   {
     q: "Tem garantia?",
-    a: "Sete dias nos planos Ator e Plataforma. Se não fizer sentido, devolvemos 100% do valor.",
+    a: "Sete dias nos planos Ator e Full. Se não fizer sentido, devolvemos 100% do valor.",
   },
   {
     q: "Funciona no celular?",
