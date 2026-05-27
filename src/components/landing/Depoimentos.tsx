@@ -17,6 +17,12 @@ import depoAndreSet from "@/assets/depoimento-andre.webp?w=320;480;720&format=we
 import depoAndreSrc from "@/assets/depoimento-andre.webp?w=480&format=webp";
 import depoNicolasSet from "@/assets/depoimento-nicolas.webp?w=320;480;720&format=webp&as=srcset";
 import depoNicolasSrc from "@/assets/depoimento-nicolas.webp?w=480&format=webp";
+import depoErlemSet from "@/assets/depoimento-erlem.jpeg?w=320;480;720&format=webp&as=srcset";
+import depoErlemSrc from "@/assets/depoimento-erlem.jpeg?w=480&format=webp";
+import depoMarinaSet from "@/assets/depoimento-marina.png?w=320;480;720&format=webp&as=srcset";
+import depoMarinaSrc from "@/assets/depoimento-marina.png?w=480&format=webp";
+import depoGabriellySet from "@/assets/depoimento-gabrielly.png?w=320;480;720&format=webp&as=srcset";
+import depoGabriellySrc from "@/assets/depoimento-gabrielly.png?w=480&format=webp";
 
 const ITEMS = [
   { src: depoAlexandreSrc, srcSet: depoAlexandreSet, name: "Dr. Alexandre Severino Siqueira" },
@@ -27,6 +33,9 @@ const ITEMS = [
   { src: depoCristhianSrc, srcSet: depoCristhianSet, name: "Dr. Cristhian Herran Giacomozzi" },
   { src: depoAndreSrc, srcSet: depoAndreSet, name: "Dr. André Teixeira Siqueira" },
   { src: depoNicolasSrc, srcSet: depoNicolasSet, name: "Dr. Nicolas Henrique" },
+  { src: depoErlemSrc, srcSet: depoErlemSet, name: "Dra. Erlem Priscila da Silva Soares" },
+  { src: depoMarinaSrc, srcSet: depoMarinaSet, name: "Dra. Marina Cartaxo" },
+  { src: depoGabriellySrc, srcSet: depoGabriellySet, name: "Dra. Gabrielly Messias" },
 ];
 
 const ROW_A = ITEMS.filter((_, i) => i % 2 === 0);
