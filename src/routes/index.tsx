@@ -21,6 +21,9 @@ import {
   Home as HomeIcon,
   User as UserIcon,
   LogOut,
+  PlayCircle,
+  Award,
+  Stethoscope,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -58,17 +61,17 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
   head: () => ({
     meta: [
-      { title: "REVMED — Treine a estação do Revalida como se fosse hoje" },
+      { title: "REVMED — A maior mentoria online para Revalidação de Diploma Médico" },
       {
         name: "description",
         content:
-          "Sala ao vivo com ator-avaliador, cronômetro do INEP, checklist nos 3 níveis da banca e flashcards inteligentes. Descubra semana a semana se já passaria no Revalida.",
+          "A 1ª maior mentoria online do Brasil agora em sua melhor versão — App REVMED. Treine com o time que mais aprova na Revalidação de Diploma Médico: plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.",
       },
-      { property: "og:title", content: "REVMED — Chegue na prova já tendo feito a prova" },
+      { property: "og:title", content: "REVMED — A maior mentoria online para Revalidação de Diploma Médico" },
       {
         property: "og:description",
         content:
-          "Estação ao vivo com ator-avaliador, checklist igual ao INEP, flashcards inteligentes e sua nota comparada ao corte. Comece em 1 minuto.",
+          "Venha treinar com o time que mais aprova na Revalidação de Diploma Médico. Plataforma completa + mentoria 1:5 com acompanhamento humano.",
       },
     ],
     links: NOTIFICATION_AVATAR_SOURCES.map((src) => ({
@@ -171,6 +174,8 @@ function LandingPage() {
         <Comparativo />
         <Resultados />
         <Depoimentos />
+        <SobreFundador />
+        <VejaPlataforma />
         <Mentoria />
         <Investimento
           isLogged={mounted && !!user}
@@ -330,8 +335,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="mt-3 font-display text-[1.75rem] font-black leading-[1.05] tracking-[-0.035em] md:mt-6 md:text-[2.6rem] lg:text-5xl xl:text-6xl"
           >
-            <span className="lg:hidden">Chegue na prova </span>
-            <span className="hidden lg:inline">Chegue na prova do Revalida </span>
+            <span>A 1ª maior mentoria online do Brasil, </span>
             <span
               style={{
                 backgroundImage:
@@ -341,8 +345,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
                 color: "transparent",
               }}
             >
-              <span className="lg:hidden">já tendo feito a prova.</span>
-              <span className="hidden lg:inline">já tendo feito a prova dezenas de vezes.</span>
+              agora na melhor versão — App REVMED.
             </span>
           </motion.h1>
 
@@ -352,14 +355,8 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:mt-6 lg:text-lg"
           >
-            Sala ao vivo com ator-avaliador, cronômetro do INEP e
-            checklist da banca — tudo num app que dá vontade de abrir
-            todo dia.
-            <span className="hidden lg:inline">
-              {" "}Treine estações completas com correção objetiva nos 3 níveis
-              da banca, acompanhe sua evolução semana a semana e chegue no dia
-              da prova com a confiança de quem já passou por ela dezenas de vezes.
-            </span>
+            Venha treinar com o time que mais aprova na Revalidação de Diploma Médico.
+            Plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
@@ -943,6 +940,9 @@ type Plan = {
   tagline: string;
   price: string;
   cadence: string;
+  installments?: string;
+  oldPrice?: string;
+  discountTag?: string;
   desc: string;
   features: string[];
   cta: string;
@@ -954,10 +954,11 @@ type Plan = {
 
 const PLANS: Plan[] = [
   {
-    name: "Ator",
+    name: "Plano Ator",
     tagline: "Treine como paciente",
     price: "R$ 147,00",
     cadence: "até o dia da prova",
+    installments: "ou 10x de R$ 14,70 sem juros",
     desc: "Para quem quer praticar estações como ator simulando paciente. Acesso ao módulo de simulações ao vivo.",
     features: [
       "Iniciar sessões como ator",
@@ -972,10 +973,13 @@ const PLANS: Plan[] = [
     accent: "from-mint/20",
   },
   {
-    name: "Full",
-    tagline: "Plataforma completa",
+    name: "Plano Plataforma",
+    tagline: "App REVMED completo",
     price: "R$ 597,00",
     cadence: "até o dia da prova",
+    installments: "ou 10x de R$ 59,70 sem juros",
+    oldPrice: "R$ 897,00",
+    discountTag: "33% OFF",
     desc: "Acesso total à plataforma REVMED — checklists, flashcards, simulados cronometrados e banco de resumos.",
     features: [
       "Tudo do plano Ator",
@@ -993,17 +997,19 @@ const PLANS: Plan[] = [
   },
   {
     name: "Mentoria 1:5",
-    tagline: "Acompanhamento humano",
+    tagline: "Acompanhamento humano + plataforma",
     price: "Sob consulta",
-    cadence: "",
-    desc: "Programa completo com mentor presente, cinco alunos por turma, psicólogo no time e plataforma inclusa.",
+    cadence: "turmas reduzidas",
+    installments: "Parcelamos em até 10x sem juros no cartão",
+    desc: "Programa completo com mentor presente, turmas de 5 alunos, psicólogo no time, WhatsApp 24h e plataforma inclusa.",
     features: [
-      "Tudo do plano Full",
+      "Tudo do plano Plataforma",
       "20 encontros práticos ao vivo",
-      "10 encontros nas grandes áreas",
-      "6 sessões com psicólogo",
-      "Cronograma personalizado",
-      "WhatsApp direto com mentor",
+      "10 encontros extras nas grandes áreas",
+      "6 sessões com psicólogo do programa",
+      "Grupo geral + comunidade exclusiva",
+      "WhatsApp 24h com acesso direto ao mentor",
+      "Cronograma personalizado de estudos",
     ],
     cta: "Falar no WhatsApp",
     ctaType: "whatsapp",
@@ -1035,7 +1041,8 @@ function Investimento({
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
-            Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
+            Plano Ator, Plano Plataforma ou Mentoria 1:5 com acompanhamento humano.
+            Pague uma vez e use até o dia da prova — <span className="font-semibold text-foreground">parcelamos em até 10x sem juros no cartão</span>.
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
@@ -1087,6 +1094,11 @@ function Investimento({
                   </p>
 
                   <div className="mt-5 flex flex-wrap items-end gap-1.5 sm:mt-6">
+                    {p.oldPrice && (
+                      <span className="mb-1.5 mr-2 text-sm text-muted-foreground line-through">
+                        {p.oldPrice}
+                      </span>
+                    )}
                     <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-4xl lg:text-5xl">
                       {p.price}
                     </span>
@@ -1095,7 +1107,17 @@ function Investimento({
                         {p.cadence}
                       </span>
                     )}
+                    {p.discountTag && (
+                      <span className="mb-1 ml-1 rounded-full bg-mint/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mint">
+                        {p.discountTag}
+                      </span>
+                    )}
                   </div>
+                  {p.installments && (
+                    <p className="mt-2 text-[0.75rem] font-semibold text-primary sm:text-sm">
+                      {p.installments}
+                    </p>
+                  )}
 
                   <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:my-7" />
 
@@ -1145,7 +1167,7 @@ function Investimento({
                       type="button"
                       onClick={() =>
                         onChoosePlan({
-                          slug: p.name === "Full" ? "completo" : "ator",
+                          slug: p.name === "Plano Plataforma" ? "completo" : "ator",
                           name: p.name,
                           price: p.price,
                           cadence: p.cadence,
@@ -1168,8 +1190,119 @@ function Investimento({
         </div>
 
         <p className="mt-8 text-center text-[0.7rem] text-muted-foreground sm:mt-10 sm:text-xs">
-          Cancela quando quiser. 7 dias de garantia nos planos Ator e Full.
+          Cancela quando quiser. 7 dias de garantia nos planos Ator e Plataforma.
         </p>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------- FAQ ----------------------------- */
+
+/* ----------------------------- SOBRE O FUNDADOR ----------------------------- */
+
+const FUNDADOR_SLIDES = [
+  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil." },
+  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático." },
+  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED." },
+  { icon: Sparkles, title: "Missão REVMED", body: "Levar a maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia." },
+];
+
+function SobreFundador() {
+  const [idx, setIdx] = useState(0);
+  const slide = FUNDADOR_SLIDES[idx];
+  const Icon = slide.icon;
+  return (
+    <section id="fundador" className="relative py-16 md:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <div className="grid items-center gap-8 md:gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <div className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card">
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/40">
+                <UserIcon className="h-32 w-32" strokeWidth={1} />
+              </div>
+              <div className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
+                Foto do Dr. Anoar (em breve)
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Quem está por trás</p>
+            <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
+              Quem é o <span className="text-primary">Dr. Anoar Jezini?</span>
+            </h2>
+            <p className="mt-4 text-sm text-muted-foreground md:text-base lg:text-lg">
+              Conheça a trajetória, experiência, conquistas e o método por trás da REVMED.
+            </p>
+            <div className="mt-6 rounded-3xl border border-border bg-card p-6 md:p-8">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="font-display text-lg font-bold tracking-tight sm:text-xl">{slide.title}</h3>
+              </div>
+              <p className="mt-4 text-sm text-muted-foreground sm:text-base">{slide.body}</p>
+              <div className="mt-6 flex items-center justify-between gap-3">
+                <div className="flex gap-1.5">
+                  {FUNDADOR_SLIDES.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setIdx(i)}
+                      aria-label={`Slide ${i + 1}`}
+                      className={`h-1.5 rounded-full transition-all ${i === idx ? "w-8 bg-primary" : "w-4 bg-border"}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => setIdx((idx + 1) % FUNDADOR_SLIDES.length)}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                >
+                  Próximo <ArrowUpRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------- VEJA A PLATAFORMA + AULÃO ----------------------------- */
+
+function VejaPlataforma() {
+  return (
+    <section className="relative py-16 md:py-24 lg:py-32">
+      <div className="mx-auto max-w-7xl px-5 md:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">Veja por dentro</p>
+          <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
+            Conheça a plataforma e o <span className="text-primary">Aulão do Esqueleto INEP</span>.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:text-base">
+            Assista ao vídeo explicativo do App REVMED e ao aulão gravado do Dr. Anoar sobre a estrutura da prova do INEP.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-6">
+          {[
+            { tag: "Vídeo explicativo", title: "App REVMED por dentro", desc: "Aulas, cronograma, resumos, flashcards, mentoria e acompanhamento — tudo num só lugar." },
+            { tag: "Aulão gravado", title: "Esqueleto INEP — Dr. Anoar", desc: "Aprenda a lógica da prova, os principais pontos cobrados e como direcionar seus estudos com estratégia." },
+          ].map((v) => (
+            <div key={v.title} className="group relative overflow-hidden rounded-3xl border border-border bg-card transition-transform hover:-translate-y-1">
+              <div className="relative flex aspect-video items-center justify-center bg-gradient-to-br from-primary/20 via-card to-background">
+                <PlayCircle className="h-16 w-16 text-primary/80 transition-transform group-hover:scale-110" strokeWidth={1.5} />
+                <span className="absolute bottom-3 left-3 rounded-full bg-background/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground backdrop-blur">
+                  Vídeo em breve
+                </span>
+              </div>
+              <div className="p-6">
+                <span className="rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary">{v.tag}</span>
+                <h3 className="mt-3 font-display text-lg font-bold tracking-tight sm:text-xl">{v.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{v.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -1218,10 +1351,10 @@ function FAQ() {
     <section className="py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-          Perguntas honestas
+          Dúvidas Frequentes
         </p>
         <h2 className="mt-3 font-display text-[1.85rem] font-black leading-[1.05] tracking-[-0.03em] md:mt-4 md:text-4xl lg:text-5xl">
-          O que a gente costuma ouvir.
+          Tirou a dúvida? <span className="text-primary">Vem com a gente.</span>
         </h2>
         <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
           {FAQS.map((f, i) => (
@@ -1252,6 +1385,27 @@ function FAQ() {
               )}
             </div>
           ))}
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-3 rounded-3xl border border-mint/30 bg-mint/[0.06] p-6 text-center md:mt-12 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-mint">
+            Ainda com dúvida?
+          </p>
+          <h3 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+            Entra no nosso grupo do WhatsApp
+          </h3>
+          <p className="max-w-md text-sm text-muted-foreground">
+            Fala direto com nosso time, tira dúvidas em tempo real e ainda conhece a comunidade REVMED por dentro.
+          </p>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-sm font-bold text-white shadow-[0_15px_40px_-10px_rgba(37,211,102,0.55)] transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base"
+          >
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={2.4} />
+            Entrar no grupo do WhatsApp
+          </a>
         </div>
       </div>
     </section>
