@@ -21,6 +21,9 @@ import {
   Home as HomeIcon,
   User as UserIcon,
   LogOut,
+  PlayCircle,
+  Award,
+  Stethoscope,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useAuth } from "@/hooks/use-auth";
@@ -171,6 +174,8 @@ function LandingPage() {
         <Comparativo />
         <Resultados />
         <Depoimentos />
+        <SobreFundador />
+        <VejaPlataforma />
         <Mentoria />
         <Investimento
           isLogged={mounted && !!user}
