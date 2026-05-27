@@ -1208,10 +1208,10 @@ function Investimento({
 /* ----------------------------- SOBRE O FUNDADOR ----------------------------- */
 
 const FUNDADOR_SLIDES = [
-  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil.", photo: anoar1 },
-  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático.", photo: anoar2 },
-  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED.", photo: anoar3 },
-  { icon: Sparkles, title: "Missão REVMED", body: "Levar a maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia.", photo: anoar4 },
+  { icon: Stethoscope, title: "Trajetória médica", body: "Médico com anos de atuação clínica e dedicação à formação de novos médicos no Brasil.", photo: anoar1, objectPos: "center 20%" },
+  { icon: GraduationCap, title: "Especialista em Revalida", body: "Referência na preparação para a Revalidação de Diploma Médico, com método próprio de treino prático.", photo: anoar2, objectPos: "center 20%" },
+  { icon: Award, title: "Conquistas", body: "Milhares de médicos aprovados em diferentes edições do Revalida INEP através das mentorias REVMED.", photo: anoar3, objectPos: "center 25%" },
+  { icon: Sparkles, title: "Missão REVMED", body: "Levar a primeira e maior mentoria online do Brasil a quem sonha em revalidar seu diploma — com método, acompanhamento e tecnologia.", photo: anoar4, objectPos: "center 85%" },
 ];
 
 function SobreFundador() {
