@@ -1322,13 +1322,20 @@ function StationLivePreview({ station, items }: { station: Station; items: Item[
                             </button>
                             {isOpen && (
                               <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-sm leading-relaxed whitespace-pre-wrap">
-                                {m.imageUrl && (
-                                  <img
-                                    src={m.imageUrl}
-                                    alt={m.name || "Material"}
-                                    className="mb-3 block h-auto w-full rounded-md border border-border"
-                                  />
-                                )}
+                                {(() => {
+                                  const imgs = [
+                                    ...(Array.isArray(m.imageUrls) ? m.imageUrls : []),
+                                    ...(m.imageUrl && !(m.imageUrls ?? []).includes(m.imageUrl) ? [m.imageUrl] : []),
+                                  ];
+                                  return imgs.map((u, ix) => (
+                                    <img
+                                      key={`${u}-${ix}`}
+                                      src={u}
+                                      alt={m.name || "Material"}
+                                      className="mb-3 block h-auto w-full rounded-md border border-border"
+                                    />
+                                  ));
+                                })()}
                                 {m.content
                                   ? <ScriptText text={m.content} />
                                   : (!m.imageUrl && <span className="italic text-muted-foreground">Sem conteúdo cadastrado.</span>)}
