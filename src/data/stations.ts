@@ -52,6 +52,7 @@ export interface DeliverableMaterial {
   description?: string;
   content: string;
   imageUrl?: string;
+  imageUrls?: string[];
   autoDeliver?: boolean;
 }
 
