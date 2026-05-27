@@ -935,6 +935,9 @@ type Plan = {
   tagline: string;
   price: string;
   cadence: string;
+  installments?: string;
+  oldPrice?: string;
+  discountTag?: string;
   desc: string;
   features: string[];
   cta: string;
@@ -946,10 +949,11 @@ type Plan = {
 
 const PLANS: Plan[] = [
   {
-    name: "Ator",
+    name: "Plano Ator",
     tagline: "Treine como paciente",
     price: "R$ 147,00",
     cadence: "até o dia da prova",
+    installments: "ou 10x de R$ 14,70 sem juros",
     desc: "Para quem quer praticar estações como ator simulando paciente. Acesso ao módulo de simulações ao vivo.",
     features: [
       "Iniciar sessões como ator",
@@ -964,10 +968,13 @@ const PLANS: Plan[] = [
     accent: "from-mint/20",
   },
   {
-    name: "Full",
-    tagline: "Plataforma completa",
+    name: "Plano Plataforma",
+    tagline: "App REVMED completo",
     price: "R$ 597,00",
     cadence: "até o dia da prova",
+    installments: "ou 10x de R$ 59,70 sem juros",
+    oldPrice: "R$ 897,00",
+    discountTag: "33% OFF",
     desc: "Acesso total à plataforma REVMED — checklists, flashcards, simulados cronometrados e banco de resumos.",
     features: [
       "Tudo do plano Ator",
@@ -985,17 +992,19 @@ const PLANS: Plan[] = [
   },
   {
     name: "Mentoria 1:5",
-    tagline: "Acompanhamento humano",
+    tagline: "Acompanhamento humano + plataforma",
     price: "Sob consulta",
-    cadence: "",
-    desc: "Programa completo com mentor presente, cinco alunos por turma, psicólogo no time e plataforma inclusa.",
+    cadence: "turmas reduzidas",
+    installments: "Parcelamos em até 10x sem juros no cartão",
+    desc: "Programa completo com mentor presente, turmas de 5 alunos, psicólogo no time, WhatsApp 24h e plataforma inclusa.",
     features: [
-      "Tudo do plano Full",
+      "Tudo do plano Plataforma",
       "20 encontros práticos ao vivo",
-      "10 encontros nas grandes áreas",
-      "6 sessões com psicólogo",
-      "Cronograma personalizado",
-      "WhatsApp direto com mentor",
+      "10 encontros extras nas grandes áreas",
+      "6 sessões com psicólogo do programa",
+      "Grupo geral + comunidade exclusiva",
+      "WhatsApp 24h com acesso direto ao mentor",
+      "Cronograma personalizado de estudos",
     ],
     cta: "Falar no WhatsApp",
     ctaType: "whatsapp",
