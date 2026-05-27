@@ -1036,7 +1036,8 @@ function Investimento({
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
-            Plataforma completa, acesso só de ator, ou mentoria com acompanhamento ao vivo. Pague uma vez e use até o dia da prova.
+            Plano Ator, Plano Plataforma ou Mentoria 1:5 com acompanhamento humano.
+            Pague uma vez e use até o dia da prova — <span className="font-semibold text-foreground">parcelamos em até 10x sem juros no cartão</span>.
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
@@ -1088,6 +1089,11 @@ function Investimento({
                   </p>
 
                   <div className="mt-5 flex flex-wrap items-end gap-1.5 sm:mt-6">
+                    {p.oldPrice && (
+                      <span className="mb-1.5 mr-2 text-sm text-muted-foreground line-through">
+                        {p.oldPrice}
+                      </span>
+                    )}
                     <span className="font-display text-4xl font-black leading-none tracking-[-0.04em] sm:text-[2.75rem] md:text-4xl lg:text-5xl">
                       {p.price}
                     </span>
@@ -1096,7 +1102,17 @@ function Investimento({
                         {p.cadence}
                       </span>
                     )}
+                    {p.discountTag && (
+                      <span className="mb-1 ml-1 rounded-full bg-mint/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mint">
+                        {p.discountTag}
+                      </span>
+                    )}
                   </div>
+                  {p.installments && (
+                    <p className="mt-2 text-[0.75rem] font-semibold text-primary sm:text-sm">
+                      {p.installments}
+                    </p>
+                  )}
 
                   <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:my-7" />
 
