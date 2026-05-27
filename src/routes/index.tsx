@@ -305,7 +305,7 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
-function Hero({ isLogged }: { isLogged: boolean }) {
+function Hero({ isLogged, mounted }: { isLogged: boolean; mounted: boolean }) {
   return (
     <section className="relative">
       {/* radial orange glow */}
