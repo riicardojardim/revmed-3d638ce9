@@ -1387,7 +1387,7 @@ function VejaPlataforma() {
                 {v.src ? (
                   <video
                     src={v.src}
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                     controls
                     playsInline
                     preload="metadata"
