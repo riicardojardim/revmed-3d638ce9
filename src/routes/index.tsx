@@ -48,6 +48,7 @@ import avatar3 from "@/assets/hero-avatar-3.jpg";
 import avatar4 from "@/assets/hero-avatar-4.jpg";
 import { Tilt } from "@/components/landing/motion-primitives";
 import { Depoimentos } from "@/components/landing/Depoimentos";
+import { AprovadosMarquee } from "@/components/landing/AprovadosMarquee";
 import { ComoFunciona, Comparativo } from "@/components/landing/ComoFunciona";
 import {
   FakeNotifications,
@@ -174,6 +175,7 @@ function LandingPage() {
         <Comparativo />
         <Resultados />
         <Depoimentos />
+        <AprovadosMarquee />
         <SobreFundador />
         <VejaPlataforma />
         <Mentoria />
