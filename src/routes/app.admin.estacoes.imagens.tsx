@@ -33,8 +33,10 @@ type PendingItem = {
   content: string;
 };
 
-const PLACEHOLDER_RE =
-  /\[IMAGEM[^\]]*?(?:CAPTURAR\s*TELA|CAPTURA\s*DE\s*TELA|SCREENSHOT|IMAGEM\s*NECESS[ÁA]RIA)[^\]]*\]/i;
+// Qualquer bloco entre colchetes que comece com "IMAGEM" — captura tela, screenshot,
+// imagem necessária, etc. Mantemos amplo para que a limpeza após upload remova todas as
+// variações que aparecem nos PDFs importados.
+const PLACEHOLDER_RE = /\[\s*IMAGEM[^\]]*\]/i;
 const PAGE_RE = /P[ÁA]GINA\s*(\d+)/i;
 const DAY_RE = /DIA\s*(\d+)/i;
 
