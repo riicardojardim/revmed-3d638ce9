@@ -1235,7 +1235,7 @@ function Investimento({
                     )}
                   </div>
                   {p.installments && (
-                    <p className="mt-2 text-[0.75rem] font-semibold text-primary sm:text-sm">
+                    <p className={`mt-2 text-[0.75rem] font-semibold sm:text-sm ${p.highlight ? "text-primary brightness-125" : "text-primary"}`}>
                       {p.installments}
                     </p>
                   )}
