@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { createHmac, timingSafeEqual } from "crypto";
+import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
 
 const MP_API = "https://api.mercadopago.com";
 
@@ -106,6 +107,27 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
 
         if (mp.status === "approved" && userId && planSlug) {
           await activateSubscription(userId, planSlug);
+          try {
+            const { data: u } = await supabaseAdmin.auth.admin.getUserById(userId);
+            const email = u?.user?.email;
+            if (email) {
+              const { data: profile } = await supabaseAdmin
+                .from("profiles").select("first_name,title").eq("id", userId).maybeSingle();
+              const name = profile?.first_name
+                ? `${profile.title ? profile.title + " " : ""}${profile.first_name}`.trim()
+                : undefined;
+              const amount = typeof mp.transaction_amount === "number"
+                ? `R$ ${mp.transaction_amount.toFixed(2).replace(".", ",")}`
+                : undefined;
+              const planName = planSlug === "completo" ? "Plano Plataforma" : "Plano Ator";
+              await sendPaymentApprovedEmail({
+                recipientEmail: email, name, planName, amount,
+                idempotencyKey: `payment-approved-${mp.id}`,
+              });
+            }
+          } catch (e) {
+            console.error("[mp-webhook] email send failed", e);
+          }
         }
 
         return Response.json({ received: true, processed: true, status: mp.status });
