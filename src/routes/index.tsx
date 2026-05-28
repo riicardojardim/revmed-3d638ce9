@@ -1166,7 +1166,7 @@ function Investimento({
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
-            Plano Ator, Plano Plataforma ou Mentoria 1:5 com acompanhamento humano.
+            {dbPlans.length > 0 ? dbPlans.map(p => p.name).join(", ") : "Plano Ator, Plano Plataforma ou Mentoria 1:5"} com acompanhamento humano.
             Pague uma vez e use até o dia da prova — <span className="font-semibold text-foreground">parcelamos em até 10x sem juros no cartão</span>.
           </p>
         </div>
