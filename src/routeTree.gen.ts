@@ -58,6 +58,7 @@ import { Route as AppAdminResumosRouteImport } from './routes/app.admin.resumos'
 import { Route as AppAdminProvedoresRouteImport } from './routes/app.admin.provedores'
 import { Route as AppAdminPlanosRouteImport } from './routes/app.admin.planos'
 import { Route as AppAdminPagamentosRouteImport } from './routes/app.admin.pagamentos'
+import { Route as AppAdminNotificacoesRouteImport } from './routes/app.admin.notificacoes'
 import { Route as AppAdminIntegracoesRouteImport } from './routes/app.admin.integracoes'
 import { Route as AppAdminGeralRouteImport } from './routes/app.admin.geral'
 import { Route as AppAdminFlashcardsRouteImport } from './routes/app.admin.flashcards'
@@ -331,6 +332,11 @@ const AppAdminPagamentosRoute = AppAdminPagamentosRouteImport.update({
   path: '/pagamentos',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminNotificacoesRoute = AppAdminNotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminIntegracoesRoute = AppAdminIntegracoesRouteImport.update({
   id: '/integracoes',
   path: '/integracoes',
@@ -507,6 +513,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
   '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
+  '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/provedores': typeof AppAdminProvedoresRoute
@@ -580,6 +587,7 @@ export interface FileRoutesByTo {
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
+  '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/provedores': typeof AppAdminProvedoresRoute
@@ -657,6 +665,7 @@ export interface FileRoutesById {
   '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
   '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
+  '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
   '/app/admin/pagamentos': typeof AppAdminPagamentosRoute
   '/app/admin/planos': typeof AppAdminPlanosRoute
   '/app/admin/provedores': typeof AppAdminProvedoresRoute
@@ -737,6 +746,7 @@ export interface FileRouteTypes {
     | '/app/admin/flashcards'
     | '/app/admin/geral'
     | '/app/admin/integracoes'
+    | '/app/admin/notificacoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
     | '/app/admin/provedores'
@@ -810,6 +820,7 @@ export interface FileRouteTypes {
     | '/app/admin/conteudo'
     | '/app/admin/geral'
     | '/app/admin/integracoes'
+    | '/app/admin/notificacoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
     | '/app/admin/provedores'
@@ -886,6 +897,7 @@ export interface FileRouteTypes {
     | '/app/admin/flashcards'
     | '/app/admin/geral'
     | '/app/admin/integracoes'
+    | '/app/admin/notificacoes'
     | '/app/admin/pagamentos'
     | '/app/admin/planos'
     | '/app/admin/provedores'
@@ -1298,6 +1310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminPagamentosRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/notificacoes': {
+      id: '/app/admin/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/app/admin/notificacoes'
+      preLoaderRoute: typeof AppAdminNotificacoesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/integracoes': {
       id: '/app/admin/integracoes'
       path: '/integracoes'
@@ -1541,6 +1560,7 @@ interface AppAdminRouteChildren {
   AppAdminFlashcardsRoute: typeof AppAdminFlashcardsRouteWithChildren
   AppAdminGeralRoute: typeof AppAdminGeralRoute
   AppAdminIntegracoesRoute: typeof AppAdminIntegracoesRoute
+  AppAdminNotificacoesRoute: typeof AppAdminNotificacoesRoute
   AppAdminPagamentosRoute: typeof AppAdminPagamentosRoute
   AppAdminPlanosRoute: typeof AppAdminPlanosRoute
   AppAdminProvedoresRoute: typeof AppAdminProvedoresRoute
@@ -1557,6 +1577,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminFlashcardsRoute: AppAdminFlashcardsRouteWithChildren,
   AppAdminGeralRoute: AppAdminGeralRoute,
   AppAdminIntegracoesRoute: AppAdminIntegracoesRoute,
+  AppAdminNotificacoesRoute: AppAdminNotificacoesRoute,
   AppAdminPagamentosRoute: AppAdminPagamentosRoute,
   AppAdminPlanosRoute: AppAdminPlanosRoute,
   AppAdminProvedoresRoute: AppAdminProvedoresRoute,

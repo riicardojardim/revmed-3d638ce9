@@ -24,7 +24,6 @@ import {
   ClipboardList,
   User,
   LogOut,
-  
   Brain,
   BookOpen,
   Activity,
@@ -44,6 +43,7 @@ import {
   Users2,
   Settings2,
   KeyRound,
+  Bell,
 } from "lucide-react";
 import {
   Sidebar,
@@ -141,6 +141,7 @@ function AppLayout() {
           { to: "/app/admin/resumos", label: "Resumos", icon: FileText },
           { to: "/app/admin/videoaulas", label: "Vídeo Aulas", icon: Video },
           { to: "/app/admin/usuarios", label: "Usuários", icon: Users },
+          { to: "/app/admin/notificacoes", label: "Notificações", icon: Bell },
           { to: "/app/admin/conteudo", label: "Conteúdo", icon: FileStack },
           { to: "/app/admin/planos", label: "Planos", icon: CreditCard },
           { to: "/app/admin/pagamentos", label: "Pagamentos", icon: DollarSign },
