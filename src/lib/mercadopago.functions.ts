@@ -152,7 +152,14 @@ export const createPixPayment = createServerFn({ method: "POST" })
     });
 
     const qr = mp?.point_of_interaction?.transaction_data;
+    
+    // Sincroniza o perfil imediatamente na criação do Pix
+    if (data.signupData) {
+      await syncUserProfile(userId, data.signupData);
+    }
+
     const { data: row, error } = await supabaseAdmin
+
       .from("payments")
       .insert({
         user_id: userId,
