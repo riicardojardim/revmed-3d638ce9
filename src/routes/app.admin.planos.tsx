@@ -15,13 +15,20 @@ type Plan = {
   slug: string;
   name: string;
   description: string | null;
+  tagline: string | null;
   price_cents: number;
+  old_price_cents: number | null;
+  discount_tag: string | null;
+  cta_text: string | null;
+  highlight: boolean;
+  accent_color: string | null;
   active: boolean;
   trial_days: number;
   allows_candidato: boolean;
   allows_ator: boolean;
   features: string[];
 };
+
 
 function emptyPlan(): Omit<Plan, "id"> {
   return {
