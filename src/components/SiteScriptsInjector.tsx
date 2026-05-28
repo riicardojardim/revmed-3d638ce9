@@ -32,6 +32,12 @@ function injectRawHTML(id: string, html: string, target: "head" | "body") {
 export function SiteScriptsInjector() {
   const { settings } = useSiteSettings();
 
+  // Inject Mercado Pago Security Script (Always needed for anti-fraud)
+  useEffect(() => {
+    injectScript("mp-security", "https://www.mercadopago.com/v2/security.js");
+  }, []);
+
+
   // Apply colors as CSS variables
   useEffect(() => {
     if (!settings?.colors) return;
