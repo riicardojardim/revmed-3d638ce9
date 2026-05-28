@@ -124,14 +124,16 @@ export function SignupPaymentModal({
     // Identificação rápida local para feedback instantâneo
     if (digits.startsWith("4")) {
       setCardBrand("visa");
-    } else if (/^(5[1-5])/.test(digits)) {
+    } else if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(digits)) {
       setCardBrand("master");
     } else if (/^(34|37)/.test(digits)) {
       setCardBrand("amex");
-    } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)/.test(digits)) {
+    } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|651|655)/.test(digits)) {
       setCardBrand("elo");
-    } else if (/^(6062|3841)/.test(digits)) {
+    } else if (/^(6062|3841|60)/.test(digits)) {
       setCardBrand("hipercard");
+    } else if (/^(50)/.test(digits)) {
+      setCardBrand("maestro");
     } else if (digits.length >= 6 && mpPublicKey) {
       // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
       try {
