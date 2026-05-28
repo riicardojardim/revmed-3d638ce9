@@ -109,7 +109,9 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
         // Se o usuário for apenas um "aluno" (sem outras roles) e NÃO tiver assinatura,
         // ocultamos da lista principal de usuários até que ele pague.
         const isBasicStudent = u.roles.length === 0 || (u.roles.length === 1 && u.roles[0] === "aluno");
-        if (isBasicStudent && !u.subscription && !isAdmin) return false;
+        const hasAdminRole = u.roles.includes("admin") || u.roles.includes("professor");
+        if (isBasicStudent && !u.subscription && !hasAdminRole) return false;
+
 
         if (!q) return true;
 
