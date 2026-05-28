@@ -219,7 +219,6 @@ export const createCardPayment = createServerFn({ method: "POST" })
       token: data.token,
       description: `REVMED · ${plan.name}`,
       installments: data.installments,
-      payment_method_id: data.paymentMethodId,
       external_reference: `${userId}:${data.planSlug}`,
       notification_url: "https://revmed.app.br/api/public/webhooks/mercadopago",
       payer: {
