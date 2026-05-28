@@ -41,6 +41,8 @@ export function usePushNotifications() {
 
     try {
       setLoading(true);
+      
+      // No iOS, a solicitação de permissão deve ser feita através de um gesto do usuário
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
 
@@ -49,44 +51,57 @@ export function usePushNotifications() {
         return;
       }
 
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.subscribe({
+      // Garante que o service worker está registrado e ativo
+      let registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js');
+      }
+      
+      // Espera o service worker estar pronto
+      const readyRegistration = await navigator.serviceWorker.ready;
+
+      const subscription = await readyRegistration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
 
       const { data: { user } } = await supabase.auth.getUser();
-      // Removido o bloqueio para permitir inscrição de convidados/visitantes
-      // se houver lógica que dependa de user_id, ela lidará com null ou criaremos anônimo
-      
       const subscriptionData = subscription.toJSON();
       
-      const { error } = await supabase.from('push_subscriptions').upsert({
-        user_id: user?.id || null, // Permite nulo para visitantes
+      const { error: upsertError } = await supabase.from('push_subscriptions').upsert({
+        user_id: user?.id || null,
         endpoint: subscription.endpoint,
         p256dh: subscriptionData.keys?.p256dh ?? '',
         auth: subscriptionData.keys?.auth ?? '',
       }, { onConflict: 'endpoint' });
 
-      if (error) throw error;
+      if (upsertError) throw upsertError;
 
-      // Envia notificação de boas-vindas se o usuário estiver logado
       if (user) {
-        await supabase.functions.invoke("send-push-notification", {
-          body: { 
-            title: 'Notificações Ativadas! 🔔', 
-            body: 'Você agora receberá as principais novidades do REVMED diretamente aqui.', 
-            url: '/app/perfil',
-            userId: user.id
-          },
-        });
+        try {
+          await supabase.functions.invoke("send-push-notification", {
+            body: { 
+              title: 'Notificações Ativadas! 🔔', 
+              body: 'Você agora receberá as principais novidades do REVMED diretamente aqui.', 
+              url: '/app/perfil',
+              userId: user.id
+            },
+          });
+        } catch (e) {
+          console.error("Erro ao enviar boas-vindas:", e);
+        }
       }
 
       setIsSubscribed(true);
       toast.success('Notificações ativadas com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to subscribe', error);
-      toast.error('Erro ao ativar notificações.');
+      // Erro comum no iOS se não estiver em PWA ou HTTPS
+      if (error.name === 'NotAllowedError') {
+        toast.error('Ação não permitida. Tente adicionar o site à tela de início.');
+      } else {
+        toast.error(`Erro ao ativar: ${error.message || 'Erro desconhecido'}`);
+      }
     } finally {
       setLoading(false);
     }
