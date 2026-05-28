@@ -239,7 +239,6 @@ export const createCardPayment = createServerFn({ method: "POST" })
       issuer: data.issuerId,
       token: data.token.slice(0, 10) + "..."
     });
-    if (data.issuerId) body.issuer_id = data.issuerId;
 
     const mp = await mpFetch("/v1/payments", {
       method: "POST",
