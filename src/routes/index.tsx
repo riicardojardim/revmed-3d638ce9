@@ -1094,8 +1094,10 @@ function Investimento({
         desc: dbPlan.description || "",
         features: dbPlan.features || [],
         icon: dbPlan.slug === "completo" ? Crown : dbPlan.slug === "ator" ? Drama : GraduationCap,
-        installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : undefined
+        installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : undefined,
+        cadence: "acesso vitalício" // ou qualquer valor padrão que desejar
       }));
+
 
     return [...merged, ...additional];
   }, [dbPlans]);
