@@ -3,17 +3,20 @@ import { ArrowRight, Sparkles, Theater } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export function AtorDashboard() {
   const { profile, user } = useAuth();
+  const { plan } = useSubscription();
   const name = (profile?.full_name || user?.email || "Ator").split(" ")[0];
+  const planName = plan?.name || "Plano Ator";
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       {/* Header */}
       <header className="space-y-3">
         <Badge className="border-mint/40 bg-mint/15 text-mint hover:bg-mint/15">
-          <Theater className="mr-1 h-3 w-3" /> Plano Ator
+          <Theater className="mr-1 h-3 w-3" /> {planName}
         </Badge>
         <p className="text-sm text-muted-foreground">Bem-vindo, ator</p>
         <h1 className="font-display text-2xl font-bold leading-tight md:text-3xl">

@@ -195,7 +195,7 @@ function LandingPage() {
         onSignOut={signOut}
       />
       <main className="overflow-clip">
-        <Hero isLogged={mounted && !!user} />
+        <Hero isLogged={mounted && !!user} dbPlans={dbPlans} />
         <MarqueeStrip />
         <ComoFunciona />
         <Manifesto />
@@ -206,7 +206,7 @@ function LandingPage() {
         <AprovadosMarquee />
         <SobreFundador />
         <VejaPlataforma />
-        <Mentoria />
+        <Mentoria dbPlans={dbPlans} />
         <Investimento
           isLogged={mounted && !!user}
           onChoosePlan={(p) => setSignupPlan(p)}
@@ -214,7 +214,7 @@ function LandingPage() {
           loadingPlans={loadingPlans}
         />
 
-        <FAQ />
+        <FAQ dbPlans={dbPlans} />
         <FinalCTA isLogged={mounted && !!user} />
       </main>
       <Footer />
@@ -338,7 +338,14 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
-function Hero({ isLogged }: { isLogged: boolean }) {
+function Hero({ isLogged, dbPlans }: { isLogged: boolean; dbPlans: any[] }) {
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+
+  const mentoriaName = getPlanName('mentoria', 'mentoria 1:5');
+  const completoName = getPlanName('completo', 'Plataforma completa');
   return (
     <section className="relative">
       {/* radial orange glow */}
@@ -389,7 +396,7 @@ function Hero({ isLogged }: { isLogged: boolean }) {
             className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:mt-6 lg:text-lg"
           >
             Venha treinar com o time que mais aprova na Revalidação de Diploma Médico.
-            Plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.
+            {completoName} com aulas, cronograma, resumos, flashcards, simulados e {mentoriaName.toLowerCase()} integrada.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
@@ -904,7 +911,12 @@ const MENTORIA_BENEFITS = [
   "WhatsApp direto com o mentor",
 ];
 
-function Mentoria() {
+function Mentoria({ dbPlans }: { dbPlans: any[] }) {
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+  const mentoriaName = getPlanName('mentoria', 'mentoria');
   return (
     <section id="mentoria" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -915,19 +927,19 @@ function Mentoria() {
             </p>
             <h2 className="mt-3 font-display text-[1.55rem] font-black leading-[1.08] tracking-[-0.03em] sm:text-[1.75rem] md:mt-4 md:text-[2rem] lg:text-5xl">
               Quer alguém do seu lado?{" "}
-              <span className="whitespace-nowrap text-primary">Tem mentoria.</span>
+              <span className="whitespace-nowrap text-primary">Tem {mentoriaName.toLowerCase()}.</span>
             </h2>
             <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com Turmas Programadas de 5 pessoas, encontros ao vivo e
-              psicólogo no programa, pode entrar na mentoria — um plus à parte,
+              psicólogo no programa, pode entrar na {mentoriaName.toLowerCase()} — um plus à parte,
               em turmas pequenas que fecham rápido.
             </p>
             <Link
               to="/cadastro"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] md:mt-8 md:px-6 md:py-3.5 md:text-base"
             >
-              Saber mais da mentoria
+              Saber mais da {mentoriaName.toLowerCase()}
               <ArrowUpRight className="h-4 w-4 md:h-5 md:w-5" />
             </Link>
           </div>
@@ -942,7 +954,7 @@ function Mentoria() {
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
                 <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-3xl lg:text-4xl">
-                  O que vem na mentoria
+                  O que vem na {mentoriaName.toLowerCase()}
                 </h3>
                 <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
                   {MENTORIA_BENEFITS.map((b) => (
@@ -1010,7 +1022,7 @@ const PLANS: Plan[] = [
   },
   {
     slug: "completo",
-    name: "Plano Plataforma",
+    name: "Plano Completo",
     tagline: "App REVMED completo",
     price: "R$ 597,00",
     cadence: "até o dia da prova",
@@ -1071,6 +1083,10 @@ function Investimento({
   loadingPlans: boolean;
 }) {
   const BRL_CURRENCY = "BRL";
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
   const allPlans = useMemo(() => {
     // Se não houver planos no banco, usamos os estáticos como fallback
     if (!dbPlans || dbPlans.length === 0) {
@@ -1107,7 +1123,9 @@ function Investimento({
         highlight: dbPlan.highlight ?? staticPlan.highlight,
         accent: dbPlan.accent_color || staticPlan.accent,
         desc: dbPlan.description || staticPlan.desc,
-        features: Array.isArray(dbPlan.features) && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+        features: Array.isArray(dbPlan.features) && dbPlan.features.length > 0 
+          ? dbPlan.features.map((f: string) => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma/gi, getPlanName('completo', 'Plano Completo')))
+          : staticPlan.features.map(f => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma/gi, getPlanName('completo', 'Plano Completo'))),
         installments: dbPlan.price_cents > 0 
           ? `ou 10x de ${(priceValue / 10).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` 
           : staticPlan.installments
@@ -1166,7 +1184,7 @@ function Investimento({
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
-            {dbPlans.length > 0 ? dbPlans.map(p => p.name).join(", ") : "Plano Ator, Plano Plataforma ou Mentoria 1:5"} com acompanhamento humano.
+            {dbPlans.length > 0 ? dbPlans.map(p => p.name).join(", ") : "Plano Ator, Plano Completo ou Mentoria 1:5"} com acompanhamento humano.
             Pague uma vez e use até o dia da prova — <span className="font-semibold text-foreground">parcelamos em até 10x sem juros no cartão</span>.
           </p>
         </div>
@@ -1594,8 +1612,38 @@ const FAQS = [
   },
 ];
 
-function FAQ() {
+function FAQ({ dbPlans }: { dbPlans: any[] }) {
   const [open, setOpen] = useState<number | null>(0);
+  
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+
+  const dynamicFaqs = useMemo(() => {
+    return FAQS.map(faq => {
+      let a = faq.a;
+      let q = faq.q;
+      
+      // Replace names dynamically
+      const names = [
+        { slug: 'completo', fallback: 'Plano Full' },
+        { slug: 'ator', fallback: 'Plano Ator' },
+        { slug: 'mentoria', fallback: 'Mentoria 1:5' }
+      ];
+
+      names.forEach(({ slug, fallback }) => {
+        const dynamicName = getPlanName(slug, fallback);
+        // Usamos regex global para substituir todas as ocorrências
+        const regex = new RegExp(fallback, 'g');
+        a = a.replace(regex, dynamicName);
+        q = q.replace(regex, dynamicName);
+      });
+
+      return { ...faq, q, a };
+    });
+  }, [dbPlans]);
+
   return (
     <section className="py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
@@ -1606,7 +1654,7 @@ function FAQ() {
           Tirou a dúvida? <span className="text-primary">Vem com a gente.</span>
         </h2>
         <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
-          {FAQS.map((f, i) => (
+          {dynamicFaqs.map((f, i) => (
             <div key={f.q}>
               <button
                 onClick={() => setOpen(open === i ? null : i)}
