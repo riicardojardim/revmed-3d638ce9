@@ -72,9 +72,9 @@ function writeAuthCache(cache: AuthCache | null) {
 function hasPersistedSupabaseSession(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+    const keys = Object.keys(localStorage);
+    for (const k of keys) {
+      if (k.startsWith("sb-") || k.includes("auth-token")) {
         const v = localStorage.getItem(k);
         if (v && v.length > 10) return true;
       }
@@ -149,7 +149,9 @@ async function enforcePlanAccess(userId: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const cached = typeof window !== "undefined" ? readAuthCache() : null;
   const hasPersisted = hasPersistedSupabaseSession();
-  const seedUser = cached?.user && hasPersisted
+  const isLoggedOutUrl = typeof window !== "undefined" && window.location.search.includes("logged_out=true");
+  
+  const seedUser = cached?.user && hasPersisted && !isLoggedOutUrl
     ? ({ id: cached.user.id, email: cached.user.email ?? undefined } as unknown as User)
     : null;
 
@@ -188,6 +190,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    // Se detectarmos o parâmetro de logout, forçamos uma limpeza total preventiva
+    if (typeof window !== "undefined" && window.location.search.includes("logged_out=true")) {
+      const keys = Object.keys(localStorage);
+      keys.forEach(k => {
+        if (k.startsWith("sb-") || k.includes("auth-token") || k.startsWith("er_")) {
+          localStorage.removeItem(k);
+        }
+      });
+      sessionStorage.clear();
+      // Limpa a URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("logged_out");
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
@@ -259,28 +276,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-      writeAuthCache(null);
-      
+      // 1. Tenta parar o refresh automático se o cliente suportar
+      if ((supabase.auth as any).stopAutoRefresh) {
+        (supabase.auth as any).stopAutoRefresh();
+      }
+
+      // 2. Tenta o logout global no servidor
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (e) {
+        console.warn("SignOut global falhou:", e);
+      }
+    } finally {
+      // 3. LIMPEZA NUCLEAR - Independentemente de erros no servidor, limpamos TUDO localmente
       if (typeof window !== "undefined") {
-        // Clear all Supabase auth tokens from localStorage
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
-            keysToRemove.push(key);
+        // Remove nosso cache específico
+        writeAuthCache(null);
+        
+        // Limpa TUDO no localStorage e sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Limpeza agressiva de Cookies (Supabase pode usá-los em setups específicos)
+        const domain = window.location.hostname;
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          
+          const clearCookie = (d?: string) => {
+            let s = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            if (d) s += ";domain=" + d;
+            document.cookie = s;
+          };
+
+          clearCookie();
+          clearCookie(domain);
+          clearCookie("." + domain);
+          // Tenta limpar domínio raiz se houver subdomínio (ex: .revmed.app.br)
+          const parts = domain.split(".");
+          if (parts.length > 2) {
+            clearCookie("." + parts.slice(-2).join("."));
           }
         }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
         
-        // Force a hard redirect to the home page to clear all React state
-        window.location.href = "/";
-      }
-    } catch (error) {
-      console.error("Error during sign out:", error);
-      // Even if it fails, try to redirect
-      if (typeof window !== "undefined") {
-        window.location.href = "/";
+        // 4. Redirecionamento forçado para a página de login com flag de limpeza
+        window.location.replace("/login?logged_out=true");
       }
     }
   };
