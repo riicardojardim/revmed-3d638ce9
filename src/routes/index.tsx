@@ -1055,7 +1055,7 @@ function Investimento({
   dbPlans: any[];
 }) {
   const mergedPlans = PLANS.map(staticPlan => {
-    const dbPlan = dbPlans.find(p => p.slug === (staticPlan.name === "Plano Ator" ? "ator" : staticPlan.name === "Plano Plataforma" ? "completo" : "mentoria"));
+    const dbPlan = dbPlans.find(p => p.slug === staticPlan.slug);
     if (!dbPlan) return staticPlan;
     
     return {
@@ -1066,6 +1066,7 @@ function Investimento({
       installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} sem juros` : staticPlan.installments
     };
   });
+
 
   return (
 
