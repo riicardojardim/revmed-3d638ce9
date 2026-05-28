@@ -1601,7 +1601,12 @@ const FAQS = [
   },
 ];
 
-function FAQ({ dbPlans }: { dbPlans: any[] }) {
+function Mentoria({ dbPlans }: { dbPlans: any[] }) {
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+  const mentoriaName = getPlanName('mentoria', 'Mentoria');
   const [open, setOpen] = useState<number | null>(0);
   
   const getPlanName = (slug: string, fallback: string) => {
