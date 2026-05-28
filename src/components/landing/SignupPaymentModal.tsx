@@ -300,11 +300,10 @@ export function SignupPaymentModal({
       } else {
         setStep("processing");
         const { publicKey } = await callGetPublicKey({});
-        const bin = card.number.replace(/\D/g, "").slice(0, 6);
-        const pm = await getPaymentMethodFromBin(publicKey, bin);
-        if (!pm) throw new Error("Cartão não reconhecido pelo Mercado Pago.");
         const [expMonth, expYear] = card.expiry.split("/");
-        const token = await createCardToken(publicKey, {
+        
+        // Criamos o token e já recebemos o payment_method_id correto do Mercado Pago
+        const cardTokenData = await createCardToken(publicKey, {
           cardNumber: card.number,
           cardholderName: card.name,
           expMonth,
@@ -312,13 +311,14 @@ export function SignupPaymentModal({
           securityCode: card.cvv,
           docNumber: cpfDigits,
         });
+
         const result = await callCreateCard({
           data: {
             planSlug: plan.slug,
-            token,
+            token: cardTokenData.id,
             installments,
-            paymentMethodId: pm.id,
-            issuerId: pm.issuer_id,
+            paymentMethodId: cardTokenData.payment_method_id,
+            issuerId: cardTokenData.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
           },
