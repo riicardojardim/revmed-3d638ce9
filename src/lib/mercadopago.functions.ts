@@ -37,6 +37,10 @@ async function mpFetch(path: string, init: RequestInit & { idempotencyKey?: stri
   if (!res.ok) {
     console.error("[mercadopago] error", res.status, json);
     const message = (json as any)?.message || `Mercado Pago retornou ${res.status}`;
+    const cause = (json as any)?.cause?.[0];
+    if (cause?.description) {
+      console.error("[mercadopago] cause:", cause.description);
+    }
     throw new Error(message);
   }
   return json as any;
