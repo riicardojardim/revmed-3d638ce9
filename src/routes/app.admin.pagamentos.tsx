@@ -6,8 +6,10 @@ import { listInternalUserIdsAdmin } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { DollarSign, Search, TrendingUp, Users as UsersIcon, CreditCard } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DollarSign, Search, TrendingUp, Users as UsersIcon, CreditCard, Clock, CheckCircle2, XCircle, AlertCircle, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/app/admin/pagamentos")({
   component: AdminPayments,
