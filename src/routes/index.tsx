@@ -1022,7 +1022,7 @@ const PLANS: Plan[] = [
   },
   {
     slug: "completo",
-    name: "Plano Plataforma",
+    name: "Plano Completo",
     tagline: "App REVMED completo",
     price: "R$ 597,00",
     cadence: "até o dia da prova",
