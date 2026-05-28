@@ -152,72 +152,156 @@ function AdminPayments() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card shadow-card">
-        <div className="flex items-center justify-between gap-3 border-b border-border p-4">
-          <h3 className="font-display font-semibold">Assinaturas ({filtered.length})</h3>
-          <div className="relative w-72 max-w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome" className="pl-9" />
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-muted-foreground border-b border-border">
-              <tr>
-                <th className="px-4 py-3">Usuário</th>
-                <th className="px-4 py-3">Plano</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Renova em</th>
-                <th className="px-4 py-3">Valor</th>
-                <th className="px-4 py-3 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Carregando…</td></tr>
-              ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhuma assinatura.</td></tr>
-              ) : filtered.map((s) => {
-                const plan = planById.get(s.plan_id);
-                return (
-                  <tr key={s.id} className="border-b border-border/60 hover:bg-muted/30">
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{s.profile?.full_name || s.profile?.username || "—"}</div>
-                      <div className="text-xs text-muted-foreground font-mono">{s.user_id.slice(0, 8)}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <select
-                        value={s.plan_id}
-                        onChange={(e) => changePlan(s, e.target.value)}
-                        className="rounded-md border border-border bg-background px-2 py-1 text-sm"
-                      >
-                        {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant={s.status === "active" ? "default" : "outline"}
-                        className={s.status === "active" ? "bg-mint/15 text-mint hover:bg-mint/15" : ""}>
-                        {s.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {s.current_period_end ? new Date(s.current_period_end).toLocaleDateString("pt-BR") : "—"}
-                    </td>
-                    <td className="px-4 py-3 font-medium">{fmtBRL(plan?.price_cents ?? 0)}</td>
-                    <td className="px-4 py-3 text-right">
-                      {s.status === "active" ? (
-                        <Button size="sm" variant="outline" onClick={() => changeStatus(s, "canceled")}>Cancelar</Button>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => changeStatus(s, "active")}>Reativar</Button>
-                      )}
-                    </td>
+      <Tabs defaultValue="subs" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="subs" className="gap-2">
+            <UsersIcon className="h-4 w-4" />
+            Assinaturas
+          </TabsTrigger>
+          <TabsTrigger value="attempts" className="gap-2">
+            <Clock className="h-4 w-4" />
+            Tentativas de Pagamento
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="subs">
+          <div className="rounded-2xl border border-border bg-card shadow-card">
+            <div className="flex items-center justify-between gap-3 border-b border-border p-4">
+              <h3 className="font-display font-semibold">Assinaturas ({filtered.length})</h3>
+              <div className="relative w-72 max-w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar por nome" className="pl-9" />
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs uppercase text-muted-foreground border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3">Usuário</th>
+                    <th className="px-4 py-3">Plano</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Renova em</th>
+                    <th className="px-4 py-3">Valor</th>
+                    <th className="px-4 py-3 text-right">Ações</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Carregando…</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhuma assinatura.</td></tr>
+                  ) : filtered.map((s) => {
+                    const plan = planById.get(s.plan_id);
+                    return (
+                      <tr key={s.id} className="border-b border-border/60 hover:bg-muted/30">
+                        <td className="px-4 py-3">
+                          <div className="font-medium">{s.profile?.full_name || s.profile?.username || "—"}</div>
+                          <div className="text-xs text-muted-foreground font-mono">{s.user_id.slice(0, 8)}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={s.plan_id}
+                            onChange={(e) => changePlan(s, e.target.value)}
+                            className="rounded-md border border-border bg-background px-2 py-1 text-sm"
+                          >
+                            {plans.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge variant={s.status === "active" ? "default" : "outline"}
+                            className={s.status === "active" ? "bg-mint/15 text-mint hover:bg-mint/15" : ""}>
+                            {s.status}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {s.current_period_end ? new Date(s.current_period_end).toLocaleDateString("pt-BR") : "—"}
+                        </td>
+                        <td className="px-4 py-3 font-medium">{fmtBRL(plan?.price_cents ?? 0)}</td>
+                        <td className="px-4 py-3 text-right">
+                          {s.status === "active" ? (
+                            <Button size="sm" variant="outline" onClick={() => changeStatus(s, "canceled")}>Cancelar</Button>
+                          ) : (
+                            <Button size="sm" variant="outline" onClick={() => changeStatus(s, "active")}>Reativar</Button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="attempts">
+          <div className="rounded-2xl border border-border bg-card shadow-card">
+            <div className="flex items-center justify-between gap-3 border-b border-border p-4">
+              <h3 className="font-display font-semibold">Tentativas de Pagamento ({attempts.length})</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-left text-xs uppercase text-muted-foreground border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3">Usuário</th>
+                    <th className="px-4 py-3">Plano</th>
+                    <th className="px-4 py-3">Método</th>
+                    <th className="px-4 py-3">Valor</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Data</th>
+                    <th className="px-4 py-3 text-right">Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">Carregando…</td></tr>
+                  ) : attempts.length === 0 ? (
+                    <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">Nenhuma tentativa registrada.</td></tr>
+                  ) : attempts.map((a) => (
+                    <tr key={a.id} className="border-b border-border/60 hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <div className="font-medium">{a.profile?.full_name || a.profile?.username || "—"}</div>
+                        <div className="text-[10px] text-muted-foreground font-mono">{a.user_id.slice(0, 8)}</div>
+                      </td>
+                      <td className="px-4 py-3 capitalize">{a.plan_slug}</td>
+                      <td className="px-4 py-3 capitalize">{a.method === "card" ? "Cartão" : a.method}</td>
+                      <td className="px-4 py-3 font-medium">{fmtBRL(a.amount_cents)}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-1">
+                          <Badge 
+                            variant={a.status === "approved" ? "default" : a.status === "pending" ? "secondary" : "destructive"}
+                            className={a.status === "approved" ? "bg-mint/15 text-mint hover:bg-mint/15 w-fit" : "w-fit"}
+                          >
+                            {a.status === "approved" && <CheckCircle2 className="mr-1 h-3 w-3" />}
+                            {a.status === "pending" && <Clock className="mr-1 h-3 w-3" />}
+                            {(a.status === "rejected" || a.status === "cancelled") && <XCircle className="mr-1 h-3 w-3" />}
+                            {a.status}
+                          </Badge>
+                          {a.mp_status_detail && (
+                            <span className="text-[10px] text-muted-foreground">{a.mp_status_detail}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                        {new Date(a.created_at).toLocaleString("pt-BR")}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {a.mp_ticket_url && (
+                          <Button asChild size="icon" variant="ghost" className="h-8 w-8">
+                            <a href={a.mp_ticket_url} target="_blank" rel="noreferrer">
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
     </div>
   );
 }
