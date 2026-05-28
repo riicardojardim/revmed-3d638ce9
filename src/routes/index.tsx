@@ -1171,7 +1171,11 @@ function Investimento({
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
-          {!loadingPlans && allPlans.filter((p: any) => dbPlans.some((db: any) => db.slug === p.slug)).map((p: any, idx: number) => {
+          {loadingPlans ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-[500px] animate-pulse rounded-3xl border border-border/50 bg-card/20" />
+            ))
+          ) : allPlans.filter((p: any) => dbPlans.some((db: any) => db.slug === p.slug)).map((p: any, idx: number) => {
 
 
             const Icon = p.icon;
