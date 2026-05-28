@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(seedUser);
   const [profile, setProfile] = useState<Profile | null>(seedUser ? cached?.profile ?? null : null);
   const [roles, setRoles] = useState<AppRole[]>(seedUser ? cached?.roles ?? [] : []);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!seedUser && hasPersisted);
 
   async function loadExtras(uid: string) {
     try {
