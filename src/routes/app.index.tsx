@@ -93,7 +93,7 @@ function getRank(total: number) {
 
 function Dashboard() {
   const { user, profile } = useAuth();
-  const { isCompletoLike, isAtorOnly, loading: subLoading } = useSubscription();
+  const { isCompletoLike, isAtorOnly, canBeCandidato, loading: subLoading } = useSubscription();
   const [attempts, setAttempts] = useState<AttemptRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [openSim, setOpenSim] = useState<Record<string, boolean>>({});
