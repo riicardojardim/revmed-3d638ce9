@@ -1055,16 +1055,17 @@ function Investimento({
   onChoosePlan: (p: SignupModalPlan) => void;
   dbPlans: any[];
 }) {
+  const BRL_CURRENCY = "BRL";
   const allPlans = useMemo(() => {
     const merged = PLANS.map(staticPlan => {
-      const dbPlan = dbPlans.find(p => p.slug === staticPlan.slug);
+      const dbPlan = (dbPlans || []).find(p => p.slug === staticPlan.slug);
       if (!dbPlan) return staticPlan;
       
       return {
         ...staticPlan,
         name: dbPlan.name,
         tagline: dbPlan.tagline || staticPlan.tagline,
-        price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+        price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }),
         priceCents: dbPlan.price_cents,
         oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
         discountTag: dbPlan.discount_tag || undefined,
@@ -1072,12 +1073,12 @@ function Investimento({
         highlight: dbPlan.highlight,
         accent: dbPlan.accent_color || staticPlan.accent,
         desc: dbPlan.description || staticPlan.desc,
-        features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+        features: Array.isArray(dbPlan.features) ? dbPlan.features : staticPlan.features,
         installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : staticPlan.installments
       };
     });
 
-    const additional = dbPlans
+    const additional = (dbPlans || [])
       .filter(dbPlan => !PLANS.some(staticPlan => staticPlan.slug === dbPlan.slug))
       .map(dbPlan => ({
         slug: dbPlan.slug,
@@ -1092,26 +1093,21 @@ function Investimento({
         highlight: dbPlan.highlight,
         accent: dbPlan.accent_color || "from-primary/20",
         desc: dbPlan.description || "",
-        features: dbPlan.features || [],
+        features: Array.isArray(dbPlan.features) ? dbPlan.features : [],
         icon: dbPlan.slug === "completo" ? Crown : dbPlan.slug === "ator" ? Drama : GraduationCap,
         installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : undefined,
-        cadence: "acesso vitalício" // ou qualquer valor padrão que desejar
+        cadence: "acesso vitalício" 
       }));
-
 
     return [...merged, ...additional];
   }, [dbPlans]);
 
-  const BRL_CURRENCY = "BRL";
-
-
-
   return (
-
     <section
       id="investimento"
       className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
     >
+
       <span id="planos" className="absolute -top-20" aria-hidden />
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <div className="text-center">
