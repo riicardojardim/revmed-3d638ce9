@@ -372,7 +372,7 @@ export function SignupPaymentModal({
           expMonth,
           expYear,
           securityCode: card.cvv,
-          docNumber: cpfDigits,
+          docNumber: card.cpf ? card.cpf.replace(/\D/g, "") : cpfDigits,
         });
 
         // 3. Determinar o ID final da bandeira (Payment Method)
