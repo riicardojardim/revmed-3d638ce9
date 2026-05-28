@@ -219,7 +219,12 @@ export function SignupPaymentModal({
           birth_date: form.birth_date,
           selected_plan: plan.slug,
           payment_method: payment,
+          // Garante que o nome vai nos metadados padrão do Supabase também
+          first_name: form.first_name.trim(),
+          last_name: form.last_name.trim(),
+          title: form.title,
         },
+
       },
     });
 
