@@ -1054,7 +1054,7 @@ const PLANS: Plan[] = [
     installments: "Parcelamos em até 10x sem juros no cartão",
     desc: "Programa completo com mentor presente, Turmas Programadas de 5 pessoas, psicólogo no time, WhatsApp 24h e plataforma inclusa.",
     features: [
-      "Tudo do plano Plataforma",
+      "Tudo do Plano Completo",
       "20 encontros práticos ao vivo",
       "10 encontros extras nas grandes áreas",
       "6 sessões com psicólogo do programa",
