@@ -96,6 +96,9 @@ export function SignupPaymentModal({
       setStep("form");
       setPixData(null);
       setCopied(false);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+
       setInstallments(1);
     }
   }, [open]);
