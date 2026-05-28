@@ -103,10 +103,30 @@ export function SignupPaymentModal({
       setCopied(false);
       setShowPassword(false);
       setShowConfirmPassword(false);
-
       setInstallments(1);
+      setCardBrand(null);
+      setCard({ number: "", name: "", expiry: "", cvv: "" });
+      
+      callGetPublicKey({}).then(res => setMpPublicKey(res.publicKey)).catch(console.error);
     }
-  }, [open]);
+  }, [open, callGetPublicKey]);
+
+  async function handleCardNumberChange(value: string) {
+    const formatted = formatCardNumber(value);
+    setCard((c) => ({ ...c, number: formatted }));
+    
+    const bin = formatted.replace(/\D/g, "").slice(0, 6);
+    if (bin.length >= 6 && mpPublicKey) {
+      try {
+        const pm = await getPaymentMethodFromBin(mpPublicKey, bin);
+        setCardBrand(pm?.id || null);
+      } catch (e) {
+        console.error("Error identifying card brand", e);
+      }
+    } else if (bin.length < 6) {
+      setCardBrand(null);
+    }
+  }
 
   // Poll status do PIX a cada 4s enquanto estiver na tela PIX
   useEffect(() => {
