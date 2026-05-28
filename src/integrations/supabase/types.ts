@@ -1075,6 +1075,42 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduled_notifications: {
+        Row: {
+          active: boolean | null
+          body: string
+          created_at: string
+          id: string
+          interval_days: number | null
+          last_sent_at: string | null
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          body: string
+          created_at?: string
+          id?: string
+          interval_days?: number | null
+          last_sent_at?: string | null
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          body?: string
+          created_at?: string
+          id?: string
+          interval_days?: number | null
+          last_sent_at?: string | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           cnpj: string | null
