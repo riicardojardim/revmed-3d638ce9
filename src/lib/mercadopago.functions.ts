@@ -258,6 +258,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
     const mp = await mpFetch("/v1/payments", {
       method: "POST",
       idempotencyKey,
+      headers: data.deviceId ? { "X-Meli-Session-Id": data.deviceId } : {},
       body: JSON.stringify(body),
     });
 
