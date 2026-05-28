@@ -187,7 +187,12 @@ export function SignupPaymentModal({
     }
 
     setSubmitting(true);
+    
+    // Garantir que não há sessão antiga interferindo (especialmente se um usuário foi deletado recentemente)
+    await supabase.auth.signOut();
+
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
+
     const cpfDigits = form.cpf.replace(/\D/g, "");
 
     let signupResponse = await supabase.auth.signUp({
@@ -221,16 +226,24 @@ export function SignupPaymentModal({
       // Se der erro no login (senha errada), avisamos que o e-mail já está em uso
       if (signupResponse.error) {
         setSubmitting(false);
-        toast.error("Este e-mail já possui uma conta", { 
-          description: "Por favor, use a senha correta ou recupere sua senha para continuar com este e-mail." 
-        });
+        const isInvalidCredentials = signupResponse.error.message.includes("Invalid login credentials") || signupResponse.error.message.includes("E-mail ou senha incorretos");
+        
+        if (isInvalidCredentials) {
+          toast.error("Este e-mail já possui uma conta", { 
+            description: "A senha informada está incorreta. Por favor, use a senha correta ou recupere sua senha para continuar com este e-mail." 
+          });
+        } else {
+          toast.error("Erro no cadastro", { description: translateError(signupResponse.error.message) });
+        }
         return;
       }
     } else if (signupResponse.error) {
       setSubmitting(false);
+      console.error("[signup error]", signupResponse.error);
       toast.error("Erro no cadastro", { description: translateError(signupResponse.error.message) });
       return;
     }
+
 
 
     const signupData = signupResponse.data;
