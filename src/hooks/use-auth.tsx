@@ -149,7 +149,7 @@ async function enforcePlanAccess(userId: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const cached = typeof window !== "undefined" ? readAuthCache() : null;
   const hasPersisted = hasPersistedSupabaseSession();
-  const isLoggedOutUrl = typeof window !== "undefined" && window.location.search.includes("logged_out=true");
+  const isLoggedOutUrl = typeof window !== "undefined" && (window.location.search.includes("logged_out=true") || document.cookie.includes("er_logged_out=true"));
   
   const seedUser = cached?.user && hasPersisted && !isLoggedOutUrl
     ? ({ id: cached.user.id, email: cached.user.email ?? undefined } as unknown as User)
@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(seedUser);
   const [profile, setProfile] = useState<Profile | null>(seedUser ? cached?.profile ?? null : null);
   const [roles, setRoles] = useState<AppRole[]>(seedUser ? cached?.roles ?? [] : []);
-  const [loading, setLoading] = useState(!seedUser);
+  const [loading, setLoading] = useState(!seedUser && hasPersisted && !isLoggedOutUrl);
 
   async function loadExtras(uid: string) {
     try {
