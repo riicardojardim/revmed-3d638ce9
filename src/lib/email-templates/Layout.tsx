@@ -3,7 +3,7 @@ import {
   Body, Container, Head, Html, Preview, Section, Img, Link, Text
 } from '@react-email/components'
 
-const LOGO_URL = 'https://fvlzmyqioojykoxoboce.supabase.co/storage/v1/object/public/site-assets/logo-revmed.png'
+const LOGO_URL = 'https://fvlzmyqioojykoxoboce.supabase.co/storage/v1/object/public/site-assets/logo-revmed-horizontal.png'
 const SITE_NAME = 'REVMED'
 
 interface LayoutProps {
@@ -21,7 +21,7 @@ export const Layout = ({ previewText, children, unsubscribeUrl }: LayoutProps) =
         <Section style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Img
             src={LOGO_URL}
-            width="180"
+            width="200"
             alt={SITE_NAME}
             style={{ margin: '0 auto' }}
           />
