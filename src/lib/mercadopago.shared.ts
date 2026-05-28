@@ -35,3 +35,13 @@ export async function syncUserProfile(userId: string, data: any) {
   );
 }
 
+export async function getPlanMeta(slug: string) {
+  const { data: plan } = await supabaseAdmin
+    .from(\"plans\")
+    .select(\"id, name, price_cents\")
+    .eq(\"slug\", slug)
+    .maybeSingle();
+  if (!plan) throw new Error(`Plano ${slug} não encontrado`);
+  return { cents: plan.price_cents, name: plan.name };
+}
+
