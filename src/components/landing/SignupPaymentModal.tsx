@@ -509,12 +509,49 @@ export function SignupPaymentModal({
                 </div>
                 <div>
                   <Label htmlFor="m_pwd">Senha</Label>
-                  <Input id="m_pwd" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} required minLength={6} autoComplete="new-password" />
+                  <div className="relative">
+                    <Input
+                      id="m_pwd"
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={(e) => update("password", e.target.value)}
+                      required
+                      minLength={6}
+                      autoComplete="new-password"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="m_cpwd">Confirmar senha</Label>
-                  <Input id="m_cpwd" type="password" value={form.confirm} onChange={(e) => update("confirm", e.target.value)} required minLength={6} autoComplete="new-password" />
+                  <div className="relative">
+                    <Input
+                      id="m_cpwd"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={form.confirm}
+                      onChange={(e) => update("confirm", e.target.value)}
+                      required
+                      minLength={6}
+                      autoComplete="new-password"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
+
               </div>
             </div>
 
