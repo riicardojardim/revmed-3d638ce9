@@ -518,6 +518,24 @@ export function SignupPaymentModal({
                       <Input id="m_card_cvv" inputMode="numeric" placeholder="123" maxLength={4} value={card.cvv} onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value.replace(/\D/g, "") }))} autoComplete="cc-csc" />
                     </div>
                   </div>
+                  <div>
+                    <Label htmlFor="m_card_inst">Parcelamento</Label>
+                    <select
+                      id="m_card_inst"
+                      value={installments}
+                      onChange={(e) => setInstallments(Number(e.target.value))}
+                      className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    >
+                      {installmentOptions.map((opt) => (
+                        <option key={opt.n} value={opt.n}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1.5 text-[11px] text-mint">
+                      ✨ Em até 10x sem juros no cartão.
+                    </p>
+                  </div>
                   <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <Lock className="h-3 w-3" /> Seus dados são processados em ambiente seguro.
                   </p>
