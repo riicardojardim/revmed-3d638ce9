@@ -85,6 +85,9 @@ export function SignupPaymentModal({
     amountCents: number;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   useEffect(() => {
     if (open) {
