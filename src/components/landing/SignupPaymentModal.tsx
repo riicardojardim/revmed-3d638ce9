@@ -76,7 +76,7 @@ export function SignupPaymentModal({
     confirm: "",
   });
   const [payment, setPayment] = useState<"pix" | "cartao">("pix");
-  const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "", cpf: "" });
   const [cardBrand, setCardBrand] = useState<string | null>(null);
   const [mpPublicKey, setMpPublicKey] = useState<string | null>(null);
   const [installments, setInstallments] = useState<number>(1);
