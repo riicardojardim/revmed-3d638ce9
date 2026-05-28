@@ -1175,9 +1175,9 @@ function Investimento({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 ${
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 transition-all duration-300 ${
                   p.highlight
-                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
+                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.05] z-10"
                     : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
                 }`}
               >
