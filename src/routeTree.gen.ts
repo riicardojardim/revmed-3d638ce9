@@ -17,6 +17,7 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as ECodeRouteImport } from './routes/e.$code'
 import { Route as ConviteCodeRouteImport } from './routes/convite.$code'
 import { Route as AppVideoaulasRouteImport } from './routes/app.videoaulas'
@@ -38,6 +39,7 @@ import { Route as AppProfessorIndexRouteImport } from './routes/app.professor.in
 import { Route as AppFlashcardsIndexRouteImport } from './routes/app.flashcards.index'
 import { Route as AppEntrarIndexRouteImport } from './routes/app.entrar.index'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AppSimulacaoIdRouteImport } from './routes/app.simulacao.$id'
 import { Route as AppSalaCodeRouteImport } from './routes/app.sala.$code'
 import { Route as AppResumosIdRouteImport } from './routes/app.resumos.$id'
@@ -65,6 +67,8 @@ import { Route as AppSalaCodeIndexRouteImport } from './routes/app.sala.$code.in
 import { Route as AppAdminResumosIndexRouteImport } from './routes/app.admin.resumos.index'
 import { Route as AppAdminFlashcardsIndexRouteImport } from './routes/app.admin.flashcards.index'
 import { Route as AppAdminEstacoesIndexRouteImport } from './routes/app.admin.estacoes.index'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as AppSalaCodePacienteRouteImport } from './routes/app.sala.$code.paciente'
 import { Route as AppSalaCodeCandidatoRouteImport } from './routes/app.sala.$code.candidato'
@@ -118,6 +122,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ECodeRoute = ECodeRouteImport.update({
   id: '/e/$code',
@@ -223,6 +232,11 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppAdminRoute,
+} as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppSimulacaoIdRoute = AppSimulacaoIdRouteImport.update({
   id: '/simulacao/$id',
@@ -359,6 +373,18 @@ const AppAdminEstacoesIndexRoute = AppAdminEstacoesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -454,6 +480,7 @@ export interface FileRoutesByFullPath {
   '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -478,6 +505,7 @@ export interface FileRoutesByFullPath {
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
@@ -494,6 +522,8 @@ export interface FileRoutesByFullPath {
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
@@ -522,6 +552,7 @@ export interface FileRoutesByTo {
   '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app': typeof AppIndexRoute
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -542,6 +573,7 @@ export interface FileRoutesByTo {
   '/app/resultado/$id': typeof AppResultadoIdRoute
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin': typeof AppAdminIndexRoute
   '/app/entrar': typeof AppEntrarIndexRoute
   '/app/flashcards': typeof AppFlashcardsIndexRoute
@@ -558,6 +590,8 @@ export interface FileRoutesByTo {
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos': typeof AppAdminResumosIndexRoute
@@ -590,6 +624,7 @@ export interface FileRoutesById {
   '/app/videoaulas': typeof AppVideoaulasRoute
   '/convite/$code': typeof ConviteCodeRoute
   '/e/$code': typeof ECodeRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
@@ -614,6 +649,7 @@ export interface FileRoutesById {
   '/app/resumos/$id': typeof AppResumosIdRoute
   '/app/sala/$code': typeof AppSalaCodeRouteWithChildren
   '/app/simulacao/$id': typeof AppSimulacaoIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/app/admin/': typeof AppAdminIndexRoute
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
@@ -630,6 +666,8 @@ export interface FileRoutesById {
   '/app/sala/$code/candidato': typeof AppSalaCodeCandidatoRoute
   '/app/sala/$code/paciente': typeof AppSalaCodePacienteRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/app/admin/estacoes/': typeof AppAdminEstacoesIndexRoute
   '/app/admin/flashcards/': typeof AppAdminFlashcardsIndexRoute
   '/app/admin/resumos/': typeof AppAdminResumosIndexRoute
@@ -663,6 +701,7 @@ export interface FileRouteTypes {
     | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
+    | '/email/unsubscribe'
     | '/app/'
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
@@ -687,6 +726,7 @@ export interface FileRouteTypes {
     | '/app/resumos/$id'
     | '/app/sala/$code'
     | '/app/simulacao/$id'
+    | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/entrar/'
     | '/app/flashcards/'
@@ -703,6 +743,8 @@ export interface FileRouteTypes {
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
     | '/app/admin/resumos/'
@@ -731,6 +773,7 @@ export interface FileRouteTypes {
     | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
+    | '/email/unsubscribe'
     | '/app'
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
@@ -751,6 +794,7 @@ export interface FileRouteTypes {
     | '/app/resultado/$id'
     | '/app/resumos/$id'
     | '/app/simulacao/$id'
+    | '/lovable/email/suppression'
     | '/app/admin'
     | '/app/entrar'
     | '/app/flashcards'
@@ -767,6 +811,8 @@ export interface FileRouteTypes {
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/app/admin/estacoes'
     | '/app/admin/flashcards'
     | '/app/admin/resumos'
@@ -798,6 +844,7 @@ export interface FileRouteTypes {
     | '/app/videoaulas'
     | '/convite/$code'
     | '/e/$code'
+    | '/email/unsubscribe'
     | '/app/'
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
@@ -822,6 +869,7 @@ export interface FileRouteTypes {
     | '/app/resumos/$id'
     | '/app/sala/$code'
     | '/app/simulacao/$id'
+    | '/lovable/email/suppression'
     | '/app/admin/'
     | '/app/entrar/'
     | '/app/flashcards/'
@@ -838,6 +886,8 @@ export interface FileRouteTypes {
     | '/app/sala/$code/candidato'
     | '/app/sala/$code/paciente'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/app/admin/estacoes/'
     | '/app/admin/flashcards/'
     | '/app/admin/resumos/'
@@ -855,8 +905,12 @@ export interface RootRouteChildren {
   TermosRoute: typeof TermosRoute
   ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
   ApiPublicWebhooksPaymentSplatRoute: typeof ApiPublicWebhooksPaymentSplatRoute
 }
 
@@ -917,6 +971,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/e/$code': {
       id: '/e/$code'
@@ -1064,6 +1125,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/admin/'
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRoute
+    }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/simulacao/$id': {
       id: '/app/simulacao/$id'
@@ -1253,6 +1321,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/admin/estacoes/'
       preLoaderRoute: typeof AppAdminEstacoesIndexRouteImport
       parentRoute: typeof AppAdminEstacoesRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -1578,20 +1660,14 @@ const rootRouteChildren: RootRouteChildren = {
   TermosRoute: TermosRoute,
   ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
   ApiPublicWebhooksPaymentSplatRoute: ApiPublicWebhooksPaymentSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
