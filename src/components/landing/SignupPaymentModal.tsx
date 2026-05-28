@@ -268,16 +268,8 @@ export function SignupPaymentModal({
           payment_method: payment,
         },
 
-
       },
-  }).filter(Boolean) as { n: number; label: string }[];
-  
-  // Se as parcelas atuais não estiverem nas opções, reseta para 1
-  useEffect(() => {
-    if (!installmentOptions.find(o => o.n === installments)) {
-      setInstallments(1);
-    }
-  }, [installmentOptions, installments]);
+    });
 
     // Se o usuário já existir, tentamos fazer login com a mesma senha.
     // Isso permite que o usuário retome um pagamento interrompido.
