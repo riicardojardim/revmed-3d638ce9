@@ -1107,7 +1107,7 @@ function Investimento({
       // Calculamos o desconto automaticamente se houver preço antigo
       let calculatedDiscount = dbPlan.discount_tag;
       if (dbPlan.old_price_cents && dbPlan.old_price_cents > dbPlan.price_cents) {
-        const discountPercent = Math.round(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
+        const discountPercent = Math.floor(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
         calculatedDiscount = `${discountPercent}% OFF`;
       }
 
@@ -1141,7 +1141,7 @@ function Investimento({
         // Calculamos o desconto automaticamente se houver preço antigo
         let calculatedDiscount = dbPlan.discount_tag;
         if (dbPlan.old_price_cents && dbPlan.old_price_cents > dbPlan.price_cents) {
-          const discountPercent = Math.round(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
+          const discountPercent = Math.floor(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
           calculatedDiscount = `${discountPercent}% OFF`;
         }
 
