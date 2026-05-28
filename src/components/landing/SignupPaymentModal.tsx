@@ -400,6 +400,18 @@ export function SignupPaymentModal({
           else if (bin.startsWith("4")) finalPaymentMethodId = "visa";
         }
 
+        // 4. Capturar Device ID para Anti-Fraude
+        let deviceId = undefined;
+        try {
+          // @ts-ignore
+          if (window.MP_DEVICE_SESSION_ID) {
+            // @ts-ignore
+            deviceId = window.MP_DEVICE_SESSION_ID;
+          } else if (typeof (window as any).MP_ANS !== 'undefined') {
+            // Fallback ou via data-mp-ans
+          }
+        } catch (e) {}
+
         const result = await callCreateCard({
           data: {
             planSlug: plan.slug,
@@ -407,6 +419,7 @@ export function SignupPaymentModal({
             installments,
             paymentMethodId: finalPaymentMethodId || 'master', // Last resort fallback
             issuerId: cardTokenData.issuer_id || pmInfo?.issuer_id,
+            deviceId,
             payer: payerInput,
             signupData: signupDetails,
           },

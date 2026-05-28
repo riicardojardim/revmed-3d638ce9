@@ -130,6 +130,7 @@ export const createPixPayment = createServerFn({ method: "POST" })
       installments: 1,
 
       description: `REVMED · ${plan.name}`,
+      statement_descriptor: "REVMED",
       payment_method_id: "pix",
       external_reference: `${userId}:${data.planSlug}`,
       notification_url: "https://revmed.app.br/api/public/webhooks/mercadopago",
@@ -201,6 +202,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
         installments: z.number().int().min(1).max(12),
         paymentMethodId: z.string().max(50).optional(),
         issuerId: z.string().optional(),
+        deviceId: z.string().optional(),
         payer: payerSchema,
         signupData: signupDataSchema.optional(),
       })
@@ -218,6 +220,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
       binary_mode: true,
       token: data.token,
       description: `REVMED · ${plan.name}`,
+      statement_descriptor: "REVMED",
       installments: data.installments,
       external_reference: `${userId}:${data.planSlug}`,
       notification_url: "https://revmed.app.br/api/public/webhooks/mercadopago",
@@ -226,6 +229,10 @@ export const createCardPayment = createServerFn({ method: "POST" })
         first_name: data.payer.firstName,
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
+        phone: data.signupData?.whatsapp ? {
+          area_code: data.signupData.whatsapp.slice(0, 2),
+          number: data.signupData.whatsapp.slice(2)
+        } : undefined,
       },
       metadata: { 
         user_id: userId, 
@@ -253,6 +260,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
     const mp = await mpFetch("/v1/payments", {
       method: "POST",
       idempotencyKey,
+      headers: data.deviceId ? { "X-Meli-Session-Id": data.deviceId } : {},
       body: JSON.stringify(body),
     });
 
