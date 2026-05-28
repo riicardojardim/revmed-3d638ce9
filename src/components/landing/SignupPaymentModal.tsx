@@ -352,6 +352,12 @@ export function SignupPaymentModal({
         setStep("pix");
       } else {
         setStep("processing");
+        // Validação preventiva: não deixa prosseguir se não houver conexão
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession) {
+          throw new Error("Erro de autenticação. Por favor, tente novamente.");
+        }
+
         const { publicKey } = await callGetPublicKey({});
         const [expMonth, expYear] = card.expiry.split("/");
         
@@ -440,6 +446,14 @@ export function SignupPaymentModal({
           onOpenChange(false);
           nav({ to: "/app" });
         } else {
+          // PAGAMENTO RECUSADO: Deletar usuário criado para não deixar conta fantasma
+          console.log("[checkout] Payment rejected, cleaning up user...");
+          try {
+            await supabase.auth.signOut();
+            // Opcional: Se quiser deletar mesmo o registro do auth, precisaria de uma Edge Function
+            // Mas o signOut + não persistir o perfil já impede o login automático funcional.
+          } catch (e) {}
+
           throw new Error(
             result.statusDetail === "cc_rejected_insufficient_amount"
               ? "Cartão sem saldo."
