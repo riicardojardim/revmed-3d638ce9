@@ -104,6 +104,8 @@ function LandingPage() {
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [signupPlan, setSignupPlan] = useState<SignupModalPlan | null>(null);
+  const [dbPlans, setDbPlans] = useState<any[]>([]);
+
   const lastY = useRef(0);
 
   useEffect(() => setMounted(true), []);
