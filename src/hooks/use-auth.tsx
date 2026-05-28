@@ -150,26 +150,10 @@ async function enforcePlanAccess(userId: string) {
 
     if (hasAccess) return;
 
-    // Sem plano → bloqueia.
-    try {
-      sessionStorage.setItem(
-        ACCESS_BLOCK_NOTICE_KEY,
-        JSON.stringify({
-          reason: "no_plan",
-          ts: Date.now(),
-        }),
-      );
-    } catch {}
-    await supabase.auth.signOut();
-    try {
-      const { toast } = await import("sonner");
-      toast.error("Acesso bloqueado", {
-        description: "Você precisa de um plano ativo para entrar. Escolha um plano para continuar.",
-      });
-    } catch {}
     if (typeof window !== "undefined") {
       window.location.href = "/#planos";
     }
+
   } catch {
     // Em caso de falha de rede, não derruba a sessão.
   }
