@@ -187,6 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       setProfile(null);
       setRoles([]);
+      setLoading(false);
     }
   }
 
