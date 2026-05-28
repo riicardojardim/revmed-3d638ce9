@@ -11,7 +11,7 @@ interface WelcomeProps {
 }
 
 const WelcomeEmail = ({ name }: WelcomeProps) => (
-  <Layout previewText={`Bem-vindo(a) à ${SITE_NAME} — Sua jornada começa aqui!`}>
+  <Layout previewText={`Seja muito bem-vindo(a) à ${SITE_NAME}!`}>
     <Section style={emailStyles.badge}>
       <Text style={emailStyles.badgeText}>BEM-VINDO(A)</Text>
     </Section>
