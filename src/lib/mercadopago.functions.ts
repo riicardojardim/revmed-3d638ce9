@@ -152,7 +152,14 @@ export const createPixPayment = createServerFn({ method: "POST" })
     });
 
     const qr = mp?.point_of_interaction?.transaction_data;
+    
+    // Sincroniza o perfil imediatamente na criação do Pix
+    if (data.signupData) {
+      await syncUserProfile(userId, data.signupData);
+    }
+
     const { data: row, error } = await supabaseAdmin
+
       .from("payments")
       .insert({
         user_id: userId,
@@ -234,7 +241,13 @@ export const createCardPayment = createServerFn({ method: "POST" })
       body: JSON.stringify(body),
     });
 
+    // Sincroniza o perfil imediatamente na criação do pagamento via cartão
+    if (data.signupData) {
+      await syncUserProfile(userId, data.signupData);
+    }
+
     const { data: row, error } = await supabaseAdmin
+
       .from("payments")
       .insert({
         user_id: userId,
@@ -302,9 +315,10 @@ export const getPaymentStatus = createServerFn({ method: "POST" })
             })
             .eq("id", row.id);
           if (mp.status === "approved") {
-            await activateSubscription(userId, row.plan_slug);
             const signupData = mp.metadata?.signup_data || (row.raw_response as any)?.metadata?.signup_data;
             if (signupData) await syncUserProfile(userId, signupData);
+            await activateSubscription(userId, row.plan_slug);
+
             await notifyPaymentApproved(userId, row.plan_slug, String(row.mp_payment_id));
           }
 

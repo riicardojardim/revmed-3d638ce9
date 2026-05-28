@@ -106,7 +106,15 @@ export const listUsersAdmin = createServerFn({ method: "POST" })
         };
       })
       .filter((u) => {
+        // Se o usuário for apenas um "aluno" (sem outras roles) e NÃO tiver assinatura,
+        // ocultamos da lista principal de usuários até que ele pague.
+        const isBasicStudent = u.roles.length === 0 || (u.roles.length === 1 && u.roles[0] === "aluno");
+        const hasAdminRole = u.roles.includes("admin") || u.roles.includes("professor");
+        if (isBasicStudent && !u.subscription && !hasAdminRole) return false;
+
+
         if (!q) return true;
+
         return (
           u.email.toLowerCase().includes(q) ||
           (u.full_name ?? "").toLowerCase().includes(q) ||

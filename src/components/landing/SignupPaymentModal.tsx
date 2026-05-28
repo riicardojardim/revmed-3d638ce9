@@ -192,7 +192,12 @@ export function SignupPaymentModal({
     setSubmitting(true);
     
     // Garantir que não há sessão antiga interferindo (especialmente se um usuário foi deletado recentemente)
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn("signOut error", e);
+    }
+
 
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
 
@@ -215,6 +220,8 @@ export function SignupPaymentModal({
           selected_plan: plan.slug,
           payment_method: payment,
         },
+
+
       },
     });
 
