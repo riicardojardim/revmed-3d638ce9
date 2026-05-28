@@ -227,7 +227,12 @@ export const createCardPayment = createServerFn({ method: "POST" })
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
       },
-      metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
+      metadata: { 
+        user_id: userId, 
+        plan_slug: data.planSlug, 
+        signup_data: data.signupData,
+        debug_payment_method: data.paymentMethodId 
+      },
     };
     if (data.paymentMethodId) {
       body.payment_method_id = data.paymentMethodId;
