@@ -190,19 +190,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Se detectarmos o parâmetro de logout, forçamos uma limpeza total preventiva
-    if (typeof window !== "undefined" && window.location.search.includes("logged_out=true")) {
-      const keys = Object.keys(localStorage);
-      keys.forEach(k => {
-        if (k.startsWith("sb-") || k.includes("auth-token") || k.startsWith("er_")) {
-          localStorage.removeItem(k);
-        }
-      });
-      sessionStorage.clear();
-      // Limpa a URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete("logged_out");
-      window.history.replaceState({}, document.title, url.toString());
+    // Se detectarmos o parâmetro de logout ou o cookie de logout, forçamos uma limpeza total preventiva
+    const isLoggedOut = typeof window !== "undefined" && (window.location.search.includes("logged_out=true") || document.cookie.includes("er_logged_out=true"));
+    
+    if (isLoggedOut) {
+      console.log("[auth] Forced logout detected, cleaning up...");
+      
+      // Limpa TUDO no localStorage e sessionStorage
+      if (typeof window !== "undefined") {
+        const keys = Object.keys(localStorage);
+        keys.forEach(k => {
+          if (k.startsWith("sb-") || k.includes("auth-token") || k.startsWith("er_")) {
+            localStorage.removeItem(k);
+          }
+        });
+        localStorage.clear(); 
+        sessionStorage.clear();
+        
+        // Remove o cookie de logout e outros cookies de sessão
+        document.cookie = "er_logged_out=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+
+      // Limpa a URL se necessário
+      if (window.location.search.includes("logged_out=true")) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("logged_out");
+        window.history.replaceState({}, document.title, url.toString());
+      }
     }
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
