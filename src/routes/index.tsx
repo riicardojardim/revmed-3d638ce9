@@ -110,18 +110,22 @@ function LandingPage() {
   const [dbPlans, setDbPlans] = useState<any[]>([]);
 
   const lastY = useRef(0);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
   useEffect(() => {
     setMounted(true);
     const fetchPlans = async () => {
+      setLoadingPlans(true);
       const { data, error } = await supabase.from("plans").select("*").eq("active", true).order("price_cents");
       if (error) {
         console.error("Erro ao buscar planos:", error);
+        setLoadingPlans(false);
         return;
       }
       if (data) {
         setDbPlans(data);
       }
+      setLoadingPlans(false);
     };
 
     fetchPlans();
