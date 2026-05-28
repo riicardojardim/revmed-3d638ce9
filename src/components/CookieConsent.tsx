@@ -8,14 +8,28 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
 
 function getConsent(): "accepted" | "declined" | null {
   if (typeof document === "undefined") return null;
+  
+  // Tenta Cookie primeiro
   const match = document.cookie.split("; ").find((c) => c.startsWith(`${COOKIE_KEY}=`));
-  if (!match) return null;
-  const value = match.split("=")[1];
-  return value === "accepted" || value === "declined" ? value : null;
+  if (match) {
+    const value = match.split("=")[1];
+    if (value === "accepted" || value === "declined") return value;
+  }
+  
+  // Tenta LocalStorage como fallback de segurança
+  try {
+    const stored = localStorage.getItem(COOKIE_KEY);
+    if (stored === "accepted" || stored === "declined") return stored;
+  } catch (e) {}
+  
+  return null;
 }
 
 function setConsent(value: "accepted" | "declined") {
   document.cookie = `${COOKIE_KEY}=${value}; path=/; max-age=${ONE_YEAR}; SameSite=Lax`;
+  try {
+    localStorage.setItem(COOKIE_KEY, value);
+  } catch (e) {}
 }
 
 export function CookieConsent() {
@@ -24,7 +38,7 @@ export function CookieConsent() {
   useEffect(() => {
     const id = setTimeout(() => {
       if (!getConsent()) setOpen(true);
-    }, 800);
+    }, 1500); // Aumentado o delay para não conflitar visualmente com outros prompts
     return () => clearTimeout(id);
   }, []);
 
@@ -61,7 +75,7 @@ export function CookieConsent() {
             onClick={() => {
               setConsent("accepted");
               setOpen(false);
-              if (typeof window !== "undefined") window.location.reload();
+              // Não recarrega para evitar loop visual, apenas fecha
             }}
           >
             Aceitar
