@@ -1054,20 +1054,53 @@ function Investimento({
   onChoosePlan: (p: SignupModalPlan) => void;
   dbPlans: any[];
 }) {
-  const mergedPlans = PLANS.map(staticPlan => {
-    const dbPlan = dbPlans.find(p => p.slug === staticPlan.slug);
-    if (!dbPlan) return staticPlan;
-    
-    return {
-      ...staticPlan,
-      name: dbPlan.name,
-      price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
-      priceCents: dbPlan.price_cents,
-      features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+  const allPlans = useMemo(() => {
+    const merged = PLANS.map(staticPlan => {
+      const dbPlan = dbPlans.find(p => p.slug === staticPlan.slug);
+      if (!dbPlan) return staticPlan;
+      
+      return {
+        ...staticPlan,
+        name: dbPlan.name,
+        tagline: dbPlan.tagline || staticPlan.tagline,
+        price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+        priceCents: dbPlan.price_cents,
+        oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
+        discountTag: dbPlan.discount_tag || undefined,
+        cta: dbPlan.cta_text || staticPlan.cta,
+        highlight: dbPlan.highlight,
+        accent: dbPlan.accent_color || staticPlan.accent,
+        desc: dbPlan.description || staticPlan.desc,
+        features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+        installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : staticPlan.installments
+      };
+    });
 
-      installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} sem juros` : staticPlan.installments
-    };
-  });
+    const additional = dbPlans
+      .filter(dbPlan => !PLANS.some(staticPlan => staticPlan.slug === dbPlan.slug))
+      .map(dbPlan => ({
+        slug: dbPlan.slug,
+        name: dbPlan.name,
+        tagline: dbPlan.tagline || "Novo plano",
+        price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }),
+        priceCents: dbPlan.price_cents,
+        oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
+        discountTag: dbPlan.discount_tag || undefined,
+        cta: dbPlan.cta_text || "Começar agora",
+        ctaType: "internal" as const,
+        highlight: dbPlan.highlight,
+        accent: dbPlan.accent_color || "from-primary/20",
+        desc: dbPlan.description || "",
+        features: dbPlan.features || [],
+        icon: dbPlan.slug === "completo" ? Crown : dbPlan.slug === "ator" ? Drama : GraduationCap,
+        installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : undefined
+      }));
+
+    return [...merged, ...additional];
+  }, [dbPlans]);
+
+  const BRL_CURRENCY = "BRL";
+
 
 
   return (
