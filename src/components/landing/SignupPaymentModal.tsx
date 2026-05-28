@@ -134,7 +134,7 @@ export function SignupPaymentModal({
   }, [step, pixData, callGetStatus, nav, onOpenChange]);
 
   if (!plan) return null;
-  const displayStep = "success";
+  
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
   const planAmountCents = plan.priceCents;
 
@@ -525,7 +525,7 @@ export function SignupPaymentModal({
                 </div>
                 <div>
                   <Label htmlFor="m_birth">Nascimento</Label>
-                  <Input id="m_birth" type="date" value={form.birth_date} onChange={(e) => update("birth_date", e.target.value)} required max={new Date().toISOString().slice(0, 10)} />
+                  <Input id="m_birth" type="date" value={form.birth_date} onChange={(e) => update("birth_date", e.target.value)} required max={typeof window !== "undefined" ? new Date().toISOString().slice(0, 10) : undefined} />
                 </div>
                 <div className="sm:col-span-2">
                   <Label htmlFor="m_cpf">CPF</Label>

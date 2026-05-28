@@ -1834,7 +1834,7 @@ function Footer() {
         {/* legal bar */}
         <div className="mt-10 flex flex-col items-center gap-2 border-t border-border/60 pt-6 text-center text-xs text-muted-foreground/70 md:flex-row md:justify-between md:text-left">
           <p>{cnpj}</p>
-          <p>© {new Date().getFullYear()} REVMED. Todos os direitos reservados.</p>
+          <p>© {typeof window !== "undefined" ? new Date().getFullYear() : ""} REVMED. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>
