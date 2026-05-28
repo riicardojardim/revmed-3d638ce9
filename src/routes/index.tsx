@@ -954,7 +954,7 @@ function Mentoria({ dbPlans }: { dbPlans: any[] }) {
                   <Sparkles className="h-4 w-4" /> Programa completo
                 </div>
                 <h3 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl md:mt-4 md:text-3xl lg:text-4xl">
-                  O que vem na mentoria
+                  O que vem na {mentoriaName.toLowerCase()}
                 </h3>
                 <ul className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
                   {MENTORIA_BENEFITS.map((b) => (
