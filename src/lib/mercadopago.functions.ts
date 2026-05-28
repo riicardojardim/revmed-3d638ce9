@@ -12,10 +12,16 @@ export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async ()
   return { publicKey: key };
 });
 
-const PLAN_AMOUNTS: Record<string, { cents: number; name: string }> = {
-  ator: { cents: 14700, name: "Plano Ator" },
-  completo: { cents: 59700, name: "Plano Plataforma" },
-};
+async function getPlanMeta(slug: string) {
+  const { data: plan } = await supabaseAdmin
+    .from("plans")
+    .select("id, name, price_cents")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!plan) throw new Error(`Plano ${slug} não encontrado`);
+  return { cents: plan.price_cents, name: plan.name };
+}
+
 
 const MP_API = "https://api.mercadopago.com";
 
@@ -68,7 +74,7 @@ async function notifyPaymentApproved(userId: string, planSlug: string, paymentId
     if (!email) return;
     const { data: profile } = await supabaseAdmin
       .from("profiles").select("first_name,title").eq("id", userId).maybeSingle();
-    const planMeta = PLAN_AMOUNTS[planSlug];
+    const planMeta = await getPlanMeta(planSlug);
     const name = profile?.first_name
       ? `${profile.title ? profile.title + " " : ""}${profile.first_name}`.trim()
       : undefined;
@@ -83,6 +89,7 @@ async function notifyPaymentApproved(userId: string, planSlug: string, paymentId
     console.error("[notifyPaymentApproved] failed", e);
   }
 }
+
 
 const payerSchema = z.object({
   email: z.string().email(),
@@ -116,11 +123,14 @@ export const createPixPayment = createServerFn({ method: "POST" })
 
   .handler(async ({ data, context }) => {
     const userId = context.userId;
-    const plan = PLAN_AMOUNTS[data.planSlug];
+    const plan = await getPlanMeta(data.planSlug);
+
 
     const idempotencyKey = `pix-${userId}-${data.planSlug}-${Date.now()}`;
     const body = {
       transaction_amount: plan.cents / 100,
+      installments: 1,
+
       description: `REVMED · ${plan.name}`,
       payment_method_id: "pix",
       external_reference: `${userId}:${data.planSlug}`,
@@ -194,11 +204,14 @@ export const createCardPayment = createServerFn({ method: "POST" })
 
   .handler(async ({ data, context }) => {
     const userId = context.userId;
-    const plan = PLAN_AMOUNTS[data.planSlug];
+    const plan = await getPlanMeta(data.planSlug);
+
 
     const idempotencyKey = `card-${userId}-${data.planSlug}-${Date.now()}`;
     const body: Record<string, unknown> = {
       transaction_amount: plan.cents / 100,
+      binary_mode: true,
+
       token: data.token,
       description: `REVMED · ${plan.name}`,
       installments: data.installments,

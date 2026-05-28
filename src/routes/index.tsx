@@ -26,8 +26,10 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+
 import { UserAvatar } from "@/components/UserAvatar";
 import {
   DropdownMenu,
@@ -104,9 +106,19 @@ function LandingPage() {
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [signupPlan, setSignupPlan] = useState<SignupModalPlan | null>(null);
+  const [dbPlans, setDbPlans] = useState<any[]>([]);
+
   const lastY = useRef(0);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const fetchPlans = async () => {
+      const { data } = await supabase.from("plans").select("*").eq("active", true).order("price_cents");
+      if (data) setDbPlans(data);
+    };
+    fetchPlans();
+  }, []);
+
 
   useEffect(() => {
     lastY.current = window.scrollY;
@@ -186,7 +198,9 @@ function LandingPage() {
         <Investimento
           isLogged={mounted && !!user}
           onChoosePlan={(p) => setSignupPlan(p)}
+          dbPlans={dbPlans}
         />
+
         <FAQ />
         <FinalCTA isLogged={mounted && !!user} />
       </main>
@@ -942,7 +956,9 @@ const WHATSAPP_URL =
   "https://wa.me/5521987860985?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20a%20Mentoria%20REVMED.";
 
 type Plan = {
+  slug: string;
   name: string;
+
   tagline: string;
   price: string;
   cadence: string;
@@ -960,6 +976,7 @@ type Plan = {
 
 const PLANS: Plan[] = [
   {
+    slug: "ator",
     name: "Plano Ator",
     tagline: "Treine como paciente",
     price: "R$ 147,00",
@@ -979,6 +996,7 @@ const PLANS: Plan[] = [
     accent: "from-mint/20",
   },
   {
+    slug: "completo",
     name: "Plano Plataforma",
     tagline: "App REVMED completo",
     price: "R$ 597,00",
@@ -1002,6 +1020,7 @@ const PLANS: Plan[] = [
     accent: "from-primary/25",
   },
   {
+    slug: "mentoria",
     name: "Mentoria 1:5",
     tagline: "Acompanhamento humano + plataforma",
     price: "Sob consulta",
@@ -1025,14 +1044,34 @@ const PLANS: Plan[] = [
   },
 ];
 
+
 function Investimento({
   isLogged,
   onChoosePlan,
+  dbPlans,
 }: {
   isLogged: boolean;
   onChoosePlan: (p: SignupModalPlan) => void;
+  dbPlans: any[];
 }) {
+  const mergedPlans = PLANS.map(staticPlan => {
+    const dbPlan = dbPlans.find(p => p.slug === staticPlan.slug);
+    if (!dbPlan) return staticPlan;
+    
+    return {
+      ...staticPlan,
+      name: dbPlan.name,
+      price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      priceCents: dbPlan.price_cents,
+      features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+
+      installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} sem juros` : staticPlan.installments
+    };
+  });
+
+
   return (
+
     <section
       id="investimento"
       className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
@@ -1052,7 +1091,8 @@ function Investimento({
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
-          {PLANS.map((p, idx) => {
+          {mergedPlans.map((p, idx) => {
+
             const Icon = p.icon;
             return (
               <motion.div
@@ -1128,7 +1168,7 @@ function Investimento({
                   <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:my-7" />
 
                   <ul className="space-y-2.5 sm:space-y-3">
-                    {p.features.map((f) => (
+                    {p.features.map((f: string) => (
                       <li key={f} className="flex items-start gap-3 text-[0.8rem] sm:text-sm">
                         <span
                           className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
@@ -1173,12 +1213,15 @@ function Investimento({
                       type="button"
                       onClick={() =>
                         onChoosePlan({
-                          slug: p.name === "Plano Plataforma" ? "completo" : "ator",
+                          slug: p.slug as SignupModalPlan["slug"],
                           name: p.name,
                           price: p.price,
+                          priceCents: (p as any).priceCents ?? 0,
                           cadence: p.cadence,
                         })
+
                       }
+
                       className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
                           ? "bg-primary text-primary-foreground shadow-elegant"

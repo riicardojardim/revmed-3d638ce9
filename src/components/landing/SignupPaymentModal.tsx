@@ -32,8 +32,10 @@ export type SignupModalPlan = {
   slug: PlanSlug;
   name: string;
   price: string;
+  priceCents: number;
   cadence?: string;
 };
+
 
 function formatCardNumber(v: string) {
   return v.replace(/\D/g, "").slice(0, 19).replace(/(\d{4})(?=\d)/g, "$1 ");
@@ -133,7 +135,8 @@ export function SignupPaymentModal({
 
   if (!plan) return null;
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
-  const planAmountCents = plan.slug === "completo" ? 59700 : 14700;
+  const planAmountCents = plan.priceCents;
+
   const installmentOptions = Array.from({ length: 10 }, (_, i) => {
     const n = i + 1;
     const value = planAmountCents / 100 / n;
