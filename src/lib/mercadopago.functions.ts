@@ -241,7 +241,13 @@ export const createCardPayment = createServerFn({ method: "POST" })
       body: JSON.stringify(body),
     });
 
+    // Sincroniza o perfil imediatamente na criação do pagamento via cartão
+    if (data.signupData) {
+      await syncUserProfile(userId, data.signupData);
+    }
+
     const { data: row, error } = await supabaseAdmin
+
       .from("payments")
       .insert({
         user_id: userId,
