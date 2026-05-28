@@ -119,8 +119,16 @@ const ACCESS_BLOCK_NOTICE_KEY = "er_access_block_notice";
  * Admin/Professor passam livre. Sem plano ativo → sign out + redirect /#planos.
  */
 async function enforcePlanAccess(userId: string) {
+  if (typeof window === "undefined") return;
+  const path = window.location.pathname;
+
+  // Só aplica a verificação de plano se o usuário estiver tentando acessar a área restrita (/app).
+  // Se estiver na landing page ou outras páginas públicas, ele pode estar logado (ex: durante checkout).
+  if (!path.startsWith("/app") || path.startsWith("/app/admin")) return;
+
   try {
     // Privilegiados (admin/professor) sempre têm acesso.
+
     const { data: rs } = await supabase
       .from("user_roles")
       .select("role")
@@ -142,26 +150,10 @@ async function enforcePlanAccess(userId: string) {
 
     if (hasAccess) return;
 
-    // Sem plano → bloqueia.
-    try {
-      sessionStorage.setItem(
-        ACCESS_BLOCK_NOTICE_KEY,
-        JSON.stringify({
-          reason: "no_plan",
-          ts: Date.now(),
-        }),
-      );
-    } catch {}
-    await supabase.auth.signOut();
-    try {
-      const { toast } = await import("sonner");
-      toast.error("Acesso bloqueado", {
-        description: "Você precisa de um plano ativo para entrar. Escolha um plano para continuar.",
-      });
-    } catch {}
     if (typeof window !== "undefined") {
       window.location.href = "/#planos";
     }
+
   } catch {
     // Em caso de falha de rede, não derruba a sessão.
   }
