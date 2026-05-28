@@ -88,7 +88,7 @@ function AppLayout() {
   const waEnabled = settings?.whatsapp_banner_enabled !== false;
   const waUrl = settings?.whatsapp_banner_url || "https://chat.whatsapp.com/";
   const waLabel = settings?.whatsapp_banner_label || "Grupo Premium 25/2";
-  const { plan, isPrivileged, isCompletoLike, isAtorOnly } = useSubscription();
+  const { plan, isPrivileged, isCompletoLike, isAtorOnly, canBeCandidato, canBeAtor } = useSubscription();
 
   const isAdmin = roles.includes("admin");
   const isTeacher = roles.includes("professor") || isAdmin;
