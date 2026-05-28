@@ -214,7 +214,7 @@ function LandingPage() {
           loadingPlans={loadingPlans}
         />
 
-        <FAQ />
+        <FAQ dbPlans={dbPlans} />
         <FinalCTA isLogged={mounted && !!user} />
       </main>
       <Footer />
