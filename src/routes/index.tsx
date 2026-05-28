@@ -114,9 +114,16 @@ function LandingPage() {
   useEffect(() => {
     setMounted(true);
     const fetchPlans = async () => {
-      const { data } = await supabase.from("plans").select("*").eq("active", true).order("price_cents");
-      if (data) setDbPlans(data);
+      const { data, error } = await supabase.from("plans").select("*").eq("active", true).order("price_cents");
+      if (error) {
+        console.error("Erro ao buscar planos:", error);
+        return;
+      }
+      if (data) {
+        setDbPlans(data);
+      }
     };
+
     fetchPlans();
   }, []);
 
