@@ -106,7 +106,7 @@ function LandingPage() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [signupPlan, setSignupPlan] = useState<SignupModalPlan | null>({ slug: 'completo', name: 'Plano Completo', price: 'R$ 897', priceCents: 89700 });
+  const [signupPlan, setSignupPlan] = useState<SignupModalPlan | null>(null);
   const [dbPlans, setDbPlans] = useState<any[]>([]);
 
   const lastY = useRef(0);
