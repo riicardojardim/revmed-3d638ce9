@@ -1594,8 +1594,38 @@ const FAQS = [
   },
 ];
 
-function FAQ() {
+function FAQ({ dbPlans }: { dbPlans: any[] }) {
   const [open, setOpen] = useState<number | null>(0);
+  
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+
+  const dynamicFaqs = useMemo(() => {
+    return FAQS.map(faq => {
+      let a = faq.a;
+      let q = faq.q;
+      
+      // Replace names dynamically
+      const names = [
+        { slug: 'completo', fallback: 'Plano Full' },
+        { slug: 'ator', fallback: 'Plano Ator' },
+        { slug: 'mentoria', fallback: 'Mentoria 1:5' }
+      ];
+
+      names.forEach(({ slug, fallback }) => {
+        const dynamicName = getPlanName(slug, fallback);
+        // Usamos regex global para substituir todas as ocorrências
+        const regex = new RegExp(fallback, 'g');
+        a = a.replace(regex, dynamicName);
+        q = q.replace(regex, dynamicName);
+      });
+
+      return { ...faq, q, a };
+    });
+  }, [dbPlans]);
+
   return (
     <section className="py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
@@ -1606,7 +1636,7 @@ function FAQ() {
           Tirou a dúvida? <span className="text-primary">Vem com a gente.</span>
         </h2>
         <div className="mt-8 divide-y divide-border border-y border-border md:mt-10">
-          {FAQS.map((f, i) => (
+          {dynamicFaqs.map((f, i) => (
             <div key={f.q}>
               <button
                 onClick={() => setOpen(open === i ? null : i)}
