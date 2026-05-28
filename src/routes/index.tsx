@@ -1065,15 +1065,27 @@ function Investimento({
 }) {
   const BRL_CURRENCY = "BRL";
   const allPlans = useMemo(() => {
+    // Se não houver planos no banco, usamos os estáticos como fallback
+    if (!dbPlans || dbPlans.length === 0) {
+      return PLANS;
+    }
+
+    // Mapeamos os planos estáticos para sobrescrever com dados do banco
     const merged = PLANS.map(staticPlan => {
-      const dbPlan = (dbPlans || []).find(p => p.slug === staticPlan.slug);
+      const dbPlan = dbPlans.find(p => p.slug === staticPlan.slug);
+      
       if (!dbPlan) return staticPlan;
       
+      const priceValue = dbPlan.price_cents / 100;
+      const formattedPrice = dbPlan.price_cents > 0 
+        ? priceValue.toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })
+        : (staticPlan.slug === "mentoria" ? "Sob consulta" : "R$ 0,00");
+
       return {
         ...staticPlan,
-        name: dbPlan.name,
+        name: dbPlan.name || staticPlan.name,
         tagline: dbPlan.tagline || staticPlan.tagline,
-        price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }),
+        price: formattedPrice,
         priceCents: dbPlan.price_cents,
         oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
         discountTag: dbPlan.discount_tag || undefined,
@@ -1081,31 +1093,37 @@ function Investimento({
         highlight: dbPlan.highlight,
         accent: dbPlan.accent_color || staticPlan.accent,
         desc: dbPlan.description || staticPlan.desc,
-        features: Array.isArray(dbPlan.features) ? dbPlan.features : staticPlan.features,
-        installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : staticPlan.installments
+        features: Array.isArray(dbPlan.features) && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+        installments: dbPlan.price_cents > 0 
+          ? `ou 10x de ${(priceValue / 10).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` 
+          : staticPlan.installments
       };
     });
 
-    const additional = (dbPlans || [])
+    // Adicionamos planos extras que existam no banco mas não no array estático
+    const additional = dbPlans
       .filter(dbPlan => !PLANS.some(staticPlan => staticPlan.slug === dbPlan.slug))
-      .map(dbPlan => ({
-        slug: dbPlan.slug,
-        name: dbPlan.name,
-        tagline: dbPlan.tagline || "Novo plano",
-        price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }),
-        priceCents: dbPlan.price_cents,
-        oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
-        discountTag: dbPlan.discount_tag || undefined,
-        cta: dbPlan.cta_text || "Começar agora",
-        ctaType: "internal" as const,
-        highlight: dbPlan.highlight,
-        accent: dbPlan.accent_color || "from-primary/20",
-        desc: dbPlan.description || "",
-        features: Array.isArray(dbPlan.features) ? dbPlan.features : [],
-        icon: dbPlan.slug === "completo" ? Crown : dbPlan.slug === "ator" ? Drama : GraduationCap,
-        installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : undefined,
-        cadence: "acesso vitalício" 
-      }));
+      .map(dbPlan => {
+        const priceValue = dbPlan.price_cents / 100;
+        return {
+          slug: dbPlan.slug,
+          name: dbPlan.name,
+          tagline: dbPlan.tagline || "Novo plano",
+          price: priceValue > 0 ? priceValue.toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : "Grátis",
+          priceCents: dbPlan.price_cents,
+          oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
+          discountTag: dbPlan.discount_tag || undefined,
+          cta: dbPlan.cta_text || "Começar agora",
+          ctaType: "internal" as const,
+          highlight: dbPlan.highlight,
+          accent: dbPlan.accent_color || "from-primary/20",
+          desc: dbPlan.description || "",
+          features: Array.isArray(dbPlan.features) ? dbPlan.features : [],
+          icon: dbPlan.slug === "completo" ? Crown : dbPlan.slug === "ator" ? Drama : GraduationCap,
+          installments: dbPlan.price_cents > 0 ? `ou 10x de ${(priceValue / 10).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` : undefined,
+          cadence: "acesso vitalício" 
+        };
+      });
 
     return [...merged, ...additional];
   }, [dbPlans]);
