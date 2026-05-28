@@ -1062,7 +1062,9 @@ function Investimento({
       ...staticPlan,
       name: dbPlan.name,
       price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      priceCents: dbPlan.price_cents,
       features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+
       installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} sem juros` : staticPlan.installments
     };
   });
