@@ -84,7 +84,7 @@ import { Heading } from '@react-email/components'
 
 export const template = {
   component: PaymentApprovedEmail,
-  subject: 'Seja bem-vindo(a)! Seu pagamento foi aprovado e o acesso está liberado',
+  subject: 'Pagamento aprovado — Seja bem-vindo(a) à REVMED!',
   displayName: 'Pagamento aprovado',
   previewData: { name: 'Dra. Ana', planName: 'Plano Mentoria Completa', amount: 'R$ 597,00', installmentAmount: 'R$ 59,70', paymentMethod: 'credit_card', last4: '4242', installments: 10 },
 } satisfies TemplateEntry
