@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { motion, AnimatePresence } from "framer-motion";
 
-const PROMPT_KEY = "revmed:push-prompt-dismissed";
+const PROMPT_KEY = "revmed:push-prompt-v2";
 
 export function PushNotificationPrompt() {
   const { isSubscribed, permission, subscribe, loading } = usePushNotifications();
