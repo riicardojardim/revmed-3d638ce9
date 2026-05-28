@@ -35,7 +35,13 @@ function emptyPlan(): Omit<Plan, "id"> {
     slug: "",
     name: "",
     description: "",
+    tagline: "",
     price_cents: 0,
+    old_price_cents: null,
+    discount_tag: "",
+    cta_text: "Assinar agora",
+    highlight: false,
+    accent_color: "from-primary/20",
     active: true,
     trial_days: 0,
     allows_candidato: true,
@@ -43,6 +49,7 @@ function emptyPlan(): Omit<Plan, "id"> {
     features: [],
   };
 }
+
 
 function AdminPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
