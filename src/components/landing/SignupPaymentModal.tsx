@@ -115,15 +115,32 @@ export function SignupPaymentModal({
     const formatted = formatCardNumber(value);
     setCard((c) => ({ ...c, number: formatted }));
     
-    const bin = formatted.replace(/\D/g, "").slice(0, 6);
-    if (bin.length >= 6 && mpPublicKey) {
+    const digits = formatted.replace(/\D/g, "");
+    if (digits.length === 0) {
+      setCardBrand(null);
+      return;
+    }
+
+    // Identificação rápida local para feedback instantâneo
+    if (digits.startsWith("4")) {
+      setCardBrand("visa");
+    } else if (/^(5[1-5])/.test(digits)) {
+      setCardBrand("master");
+    } else if (/^(34|37)/.test(digits)) {
+      setCardBrand("amex");
+    } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)/.test(digits)) {
+      setCardBrand("elo");
+    } else if (/^(6062|3841)/.test(digits)) {
+      setCardBrand("hipercard");
+    } else if (digits.length >= 6 && mpPublicKey) {
+      // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
       try {
-        const pm = await getPaymentMethodFromBin(mpPublicKey, bin);
-        setCardBrand(pm?.id || null);
+        const pm = await getPaymentMethodFromBin(mpPublicKey, digits.slice(0, 6));
+        if (pm?.id) setCardBrand(pm.id);
       } catch (e) {
-        console.error("Error identifying card brand", e);
+        console.warn("Card identification error", e);
       }
-    } else if (bin.length < 6) {
+    } else {
       setCardBrand(null);
     }
   }
