@@ -23,7 +23,12 @@ export const getProviderEnvStatus = createServerFn({ method: "GET" })
         api_secret: !!process.env.LIVEKIT_API_SECRET,
         api_url: !!process.env.LIVEKIT_URL,
       },
+      mercadopago: {
+        api_key: !!process.env.MERCADOPAGO_ACCESS_TOKEN,
+        webhook_secret: !!process.env.MERCADOPAGO_WEBHOOK_SECRET,
+      },
     };
+
   });
 
 /**
@@ -68,3 +73,42 @@ export const importLivekitFromEnv = createServerFn({ method: "POST" })
     if (error) return { ok: false, error: error.message };
     return { ok: true };
   });
+
+export const importMercadoPagoFromEnv = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({}).parse(i ?? {}))
+  .handler(async ({ context }) => {
+    const { data: roles } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const isAdmin = (roles ?? []).some((r: any) => r.role === "admin");
+    if (!isAdmin) throw new Error("forbidden");
+
+    const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+
+    if (!accessToken) {
+      return { ok: false, error: "Secret MERCADOPAGO_ACCESS_TOKEN não configurado no servidor." };
+    }
+
+    // desativa outros provedores da categoria
+    await supabaseAdmin
+      .from("provider_settings")
+      .update({ is_active: false })
+      .eq("category", "payment");
+
+    const { error } = await supabaseAdmin
+      .from("provider_settings")
+      .update({
+        api_key: accessToken,
+        webhook_secret: webhookSecret ?? null,
+        is_active: true,
+      })
+      .eq("category", "payment")
+      .eq("provider_key", "mercado_pago");
+
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  });
+
