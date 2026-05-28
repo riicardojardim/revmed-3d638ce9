@@ -107,6 +107,17 @@ const signupDataSchema = z.object({
   selected_plan: z.string().optional(),
 });
 
+// Data ISO de criação da conta do usuário (usada em additional_info.payer.registration_date).
+// Mercado Pago usa esse campo no scoring anti-fraude — quanto mais contexto, maior a aprovação.
+async function getUserRegistrationDate(userId: string): Promise<string | undefined> {
+  try {
+    const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
+    return data?.user?.created_at ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export const createPixPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -214,10 +225,47 @@ export const createCardPayment = createServerFn({ method: "POST" })
     const plan = await getPlanMeta(data.planSlug);
 
 
-    const idempotencyKey = `card-${userId}-${data.planSlug}-${Date.now()}`;
+    // Idempotency key estável por tentativa (token = 1 tentativa de cartão).
+    // Evita duplicar cobranças se a requisição for retransmitida pela rede.
+    const idempotencyKey = `card-${userId}-${data.planSlug}-${data.token.slice(0, 12)}`;
+
+    // Telefone (DDD + número) somente dígitos — exigido pelo motor anti-fraude do MP.
+    const wppDigits = (data.signupData?.whatsapp || "").replace(/\D/g, "");
+    const phone = wppDigits.length >= 10
+      ? { area_code: wppDigits.slice(0, 2), number: wppDigits.slice(2) }
+      : undefined;
+
+    const registrationDate = await getUserRegistrationDate(userId);
+
+    // additional_info é o fator #1 listado pelo Mercado Pago para aumentar
+    // a taxa de aprovação: quanto mais contexto sobre comprador + item, melhor
+    // o scoring anti-fraude tanto do MP quanto do banco emissor.
+    const additionalInfo: Record<string, unknown> = {
+      items: [
+        {
+          id: data.planSlug,
+          title: `REVMED · ${plan.name}`,
+          description: `Assinatura REVMED — plano ${plan.name}`,
+          category_id: "learnings",
+          quantity: 1,
+          unit_price: plan.cents / 100,
+        },
+      ],
+      payer: {
+        first_name: data.payer.firstName,
+        last_name: data.payer.lastName,
+        ...(phone ? { phone } : {}),
+        ...(registrationDate ? { registration_date: registrationDate } : {}),
+      },
+    };
+
     const body: Record<string, unknown> = {
       transaction_amount: plan.cents / 100,
-      binary_mode: true,
+      // binary_mode FALSE permite que o MP devolva "in_process" (análise anti-fraude).
+      // Com TRUE qualquer pagamento que não seja aprovado na hora vira "rejected",
+      // derrubando a taxa de aprovação. Mantemos FALSE e tratamos in_process no front.
+      binary_mode: false,
+      capture: true,
       token: data.token,
       description: `REVMED · ${plan.name}`,
       statement_descriptor: "REVMED",
@@ -229,16 +277,14 @@ export const createCardPayment = createServerFn({ method: "POST" })
         first_name: data.payer.firstName,
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
-        phone: data.signupData?.whatsapp ? {
-          area_code: data.signupData.whatsapp.slice(0, 2),
-          number: data.signupData.whatsapp.slice(2)
-        } : undefined,
+        ...(phone ? { phone } : {}),
       },
-      metadata: { 
-        user_id: userId, 
-        plan_slug: data.planSlug, 
+      additional_info: additionalInfo,
+      metadata: {
+        user_id: userId,
+        plan_slug: data.planSlug,
         signup_data: data.signupData,
-        debug_payment_method: data.paymentMethodId 
+        debug_payment_method: data.paymentMethodId,
       },
     };
     if (data.paymentMethodId) {
