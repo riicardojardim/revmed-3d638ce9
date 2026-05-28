@@ -737,29 +737,29 @@ function ActivityHeatmap({ cells, activeDays }: { cells: { date: Date; key: stri
           <span className="font-semibold text-foreground">{activeDays}</span> dias ativos
         </span>
       </div>
-      <div className="mt-4 overflow-x-auto">
-        <div className="inline-block">
-          <div className="mb-1 flex gap-[3px] pl-7 text-[10px] text-muted-foreground">
+      <div className="mt-4 flex gap-2 sm:gap-3">
+        <div className="flex flex-col justify-between py-[2px] text-[10px] font-medium text-muted-foreground">
+          {["", "Seg", "", "Qua", "", "Sex", ""].map((d, i) => (
+            <div key={i} className="flex-1 leading-none flex items-center">{d}</div>
+          ))}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="mb-1.5 flex gap-[2%] text-[10px] font-medium text-muted-foreground">
             {weeks.map((_, i) => {
               const ml = monthLabels.find((m) => m.col === i);
-              return <div key={i} className="w-[14px]">{ml ? ml.label : ""}</div>;
+              return <div key={i} className="flex-1 min-w-0 truncate">{ml ? ml.label : ""}</div>;
             })}
           </div>
-          <div className="flex gap-[3px]">
-            <div className="flex flex-col gap-[3px] pr-1 text-[10px] text-muted-foreground">
-              {["", "Seg", "", "Qua", "", "Sex", ""].map((d, i) => (
-                <div key={i} className="h-[14px] leading-[14px]">{d}</div>
-              ))}
-            </div>
+          <div className="flex gap-[2%]">
             {weeks.map((w, wi) => (
-              <div key={wi} className="flex flex-col gap-[3px]">
+              <div key={wi} className="flex flex-1 min-w-0 flex-col gap-[6px]">
                 {Array.from({ length: 7 }).map((_, di) => {
                   const cell = w[di];
-                  if (!cell) return <div key={di} className="h-[14px] w-[14px]" />;
+                  if (!cell) return <div key={di} className="aspect-square w-full" />;
                   return (
                     <div
                       key={di}
-                      className={`h-[14px] w-[14px] rounded-[3px] ${intensity(cell.count)}`}
+                      className={`aspect-square w-full rounded-md transition-transform hover:scale-110 ${intensity(cell.count)}`}
                       title={`${cell.date.toLocaleDateString("pt-BR")} — ${cell.count} ${cell.count === 1 ? "estação" : "estações"}`}
                     />
                   );
