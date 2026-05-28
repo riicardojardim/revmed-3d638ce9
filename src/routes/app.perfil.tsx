@@ -328,7 +328,7 @@ function ProfilePage() {
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
-              max={new Date().toISOString().slice(0, 10)}
+              max={typeof window !== "undefined" ? new Date().toISOString().slice(0, 10) : undefined}
             />
           </div>
 
