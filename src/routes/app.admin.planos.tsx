@@ -151,12 +151,41 @@ function PlanCard({ plan, onChange, onSave, onDelete }: {
       <input value={plan.name} onChange={(e) => onChange({ ...plan, name: e.target.value })}
         className="w-full rounded-lg border border-border bg-background px-3 py-2 font-display text-lg font-bold" />
       <textarea value={plan.description ?? ""} onChange={(e) => onChange({ ...plan, description: e.target.value })}
-        rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder="Descrição..." />
+        rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder="Descrição (para o checkout)..." />
+      
+      <label className="block text-xs text-muted-foreground">Chamada (Tagline)
+        <input value={plan.tagline ?? ""} onChange={(e) => onChange({ ...plan, tagline: e.target.value })}
+          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: App completo" />
+      </label>
+
       <div className="grid grid-cols-2 gap-2">
-        <label className="block text-xs text-muted-foreground">Preço (R$)
+        <label className="block text-xs text-muted-foreground">Preço Atual (R$)
           <input type="number" step="0.01" value={(plan.price_cents / 100).toFixed(2)}
             onChange={(e) => onChange({ ...plan, price_cents: Math.round(Number(e.target.value) * 100) })}
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+        </label>
+        <label className="block text-xs text-muted-foreground">Preço Antigo (R$)
+          <input type="number" step="0.01" value={plan.old_price_cents ? (plan.old_price_cents / 100).toFixed(2) : ""}
+            onChange={(e) => onChange({ ...plan, old_price_cents: e.target.value ? Math.round(Number(e.target.value) * 100) : null })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: 897,00" />
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block text-xs text-muted-foreground">Tag de Desconto
+          <input value={plan.discount_tag ?? ""} onChange={(e) => onChange({ ...plan, discount_tag: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: 33% OFF" />
+        </label>
+        <label className="block text-xs text-muted-foreground">Texto do Botão (CTA)
+          <input value={plan.cta_text ?? ""} onChange={(e) => onChange({ ...plan, cta_text: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block text-xs text-muted-foreground">Cor de Destaque
+          <input value={plan.accent_color ?? ""} onChange={(e) => onChange({ ...plan, accent_color: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: from-primary/25" />
         </label>
         <label className="block text-xs text-muted-foreground">Trial (dias)
           <input type="number" value={plan.trial_days}
@@ -164,9 +193,17 @@ function PlanCard({ plan, onChange, onSave, onDelete }: {
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
         </label>
       </div>
+
       <div className="space-y-1.5 text-sm">
+        <label className="flex items-center gap-2 font-semibold text-primary">
+          <input type="checkbox" checked={plan.highlight}
+            onChange={(e) => onChange({ ...plan, highlight: e.target.checked })} /> 
+          Destacar este plano (Recomendado)
+        </label>
+        <div className="h-px bg-border my-1" />
         <label className="flex items-center gap-2"><input type="checkbox" checked={plan.active}
           onChange={(e) => onChange({ ...plan, active: e.target.checked })} /> Ativo</label>
+
         <label className="flex items-center gap-2"><input type="checkbox" checked={plan.allows_candidato}
           onChange={(e) => onChange({ ...plan, allows_candidato: e.target.checked })} /> Permite atuar como candidato</label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={plan.allows_ator}
