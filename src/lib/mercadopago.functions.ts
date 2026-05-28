@@ -130,6 +130,7 @@ export const createPixPayment = createServerFn({ method: "POST" })
       installments: 1,
 
       description: `REVMED · ${plan.name}`,
+      statement_descriptor: "REVMED",
       payment_method_id: "pix",
       external_reference: `${userId}:${data.planSlug}`,
       notification_url: "https://revmed.app.br/api/public/webhooks/mercadopago",
