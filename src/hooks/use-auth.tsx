@@ -257,19 +257,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { void supabase.removeChannel(channel); };
   }, [user, roles]);
 
-  async function signOut() {
-    await supabase.auth.signOut();
-    writeAuthCache(null);
-    if (typeof window !== "undefined") {
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
-          localStorage.removeItem(k);
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      writeAuthCache(null);
+      
+      if (typeof window !== "undefined") {
+        // Clear all Supabase auth tokens from localStorage
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+            keysToRemove.push(key);
+          }
         }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        // Force a hard redirect to the home page to clear all React state
+        window.location.href = "/";
       }
-      window.location.href = "/";
+    } catch (error) {
+      console.error("Error during sign out:", error);
+      // Even if it fails, try to redirect
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
     }
-  }
+  };
 
   async function refresh() {
     if (user) await loadExtras(user.id);
