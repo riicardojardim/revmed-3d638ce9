@@ -927,7 +927,7 @@ function Mentoria({ dbPlans }: { dbPlans: any[] }) {
             </p>
             <h2 className="mt-3 font-display text-[1.55rem] font-black leading-[1.08] tracking-[-0.03em] sm:text-[1.75rem] md:mt-4 md:text-[2rem] lg:text-5xl">
               Quer alguém do seu lado?{" "}
-              <span className="whitespace-nowrap text-primary">Tem mentoria.</span>
+              <span className="whitespace-nowrap text-primary">Tem {mentoriaName.toLowerCase()}.</span>
             </h2>
             <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
