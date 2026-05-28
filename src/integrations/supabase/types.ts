@@ -713,44 +713,62 @@ export type Database = {
       }
       plans: {
         Row: {
+          accent_color: string | null
           active: boolean
           allows_ator: boolean
           allows_candidato: boolean
           created_at: string
+          cta_text: string | null
           description: string | null
+          discount_tag: string | null
           features: Json
+          highlight: boolean | null
           id: string
           name: string
+          old_price_cents: number | null
           price_cents: number
           slug: string
+          tagline: string | null
           trial_days: number
           updated_at: string
         }
         Insert: {
+          accent_color?: string | null
           active?: boolean
           allows_ator?: boolean
           allows_candidato?: boolean
           created_at?: string
+          cta_text?: string | null
           description?: string | null
+          discount_tag?: string | null
           features?: Json
+          highlight?: boolean | null
           id?: string
           name: string
+          old_price_cents?: number | null
           price_cents?: number
           slug: string
+          tagline?: string | null
           trial_days?: number
           updated_at?: string
         }
         Update: {
+          accent_color?: string | null
           active?: boolean
           allows_ator?: boolean
           allows_candidato?: boolean
           created_at?: string
+          cta_text?: string | null
           description?: string | null
+          discount_tag?: string | null
           features?: Json
+          highlight?: boolean | null
           id?: string
           name?: string
+          old_price_cents?: number | null
           price_cents?: number
           slug?: string
+          tagline?: string | null
           trial_days?: number
           updated_at?: string
         }

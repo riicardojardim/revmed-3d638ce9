@@ -15,7 +15,13 @@ type Plan = {
   slug: string;
   name: string;
   description: string | null;
+  tagline: string | null;
   price_cents: number;
+  old_price_cents: number | null;
+  discount_tag: string | null;
+  cta_text: string | null;
+  highlight: boolean;
+  accent_color: string | null;
   active: boolean;
   trial_days: number;
   allows_candidato: boolean;
@@ -23,12 +29,19 @@ type Plan = {
   features: string[];
 };
 
+
 function emptyPlan(): Omit<Plan, "id"> {
   return {
     slug: "",
     name: "",
     description: "",
+    tagline: "",
     price_cents: 0,
+    old_price_cents: null,
+    discount_tag: "",
+    cta_text: "Assinar agora",
+    highlight: false,
+    accent_color: "from-primary/20",
     active: true,
     trial_days: 0,
     allows_candidato: true,
@@ -36,6 +49,7 @@ function emptyPlan(): Omit<Plan, "id"> {
     features: [],
   };
 }
+
 
 function AdminPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -56,11 +70,22 @@ function AdminPlans() {
 
   async function save(p: Plan) {
     const { error } = await supabase.from("plans").update({
-      name: p.name, description: p.description, price_cents: p.price_cents,
-      active: p.active, trial_days: p.trial_days,
-      allows_candidato: p.allows_candidato, allows_ator: p.allows_ator,
+      name: p.name, 
+      description: p.description, 
+      tagline: p.tagline,
+      price_cents: p.price_cents,
+      old_price_cents: p.old_price_cents,
+      discount_tag: p.discount_tag,
+      cta_text: p.cta_text,
+      highlight: p.highlight,
+      accent_color: p.accent_color,
+      active: p.active, 
+      trial_days: p.trial_days,
+      allows_candidato: p.allows_candidato, 
+      allows_ator: p.allows_ator,
       features: p.features,
     }).eq("id", p.id);
+
     if (error) return toast.error(error.message);
     toast.success("Plano atualizado");
     void load();
@@ -126,12 +151,41 @@ function PlanCard({ plan, onChange, onSave, onDelete }: {
       <input value={plan.name} onChange={(e) => onChange({ ...plan, name: e.target.value })}
         className="w-full rounded-lg border border-border bg-background px-3 py-2 font-display text-lg font-bold" />
       <textarea value={plan.description ?? ""} onChange={(e) => onChange({ ...plan, description: e.target.value })}
-        rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder="Descrição..." />
+        rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" placeholder="Descrição (para o checkout)..." />
+      
+      <label className="block text-xs text-muted-foreground">Chamada (Tagline)
+        <input value={plan.tagline ?? ""} onChange={(e) => onChange({ ...plan, tagline: e.target.value })}
+          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: App completo" />
+      </label>
+
       <div className="grid grid-cols-2 gap-2">
-        <label className="block text-xs text-muted-foreground">Preço (R$)
+        <label className="block text-xs text-muted-foreground">Preço Atual (R$)
           <input type="number" step="0.01" value={(plan.price_cents / 100).toFixed(2)}
             onChange={(e) => onChange({ ...plan, price_cents: Math.round(Number(e.target.value) * 100) })}
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+        </label>
+        <label className="block text-xs text-muted-foreground">Preço Antigo (R$)
+          <input type="number" step="0.01" value={plan.old_price_cents ? (plan.old_price_cents / 100).toFixed(2) : ""}
+            onChange={(e) => onChange({ ...plan, old_price_cents: e.target.value ? Math.round(Number(e.target.value) * 100) : null })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: 897,00" />
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block text-xs text-muted-foreground">Tag de Desconto
+          <input value={plan.discount_tag ?? ""} onChange={(e) => onChange({ ...plan, discount_tag: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: 33% OFF" />
+        </label>
+        <label className="block text-xs text-muted-foreground">Texto do Botão (CTA)
+          <input value={plan.cta_text ?? ""} onChange={(e) => onChange({ ...plan, cta_text: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block text-xs text-muted-foreground">Cor de Destaque
+          <input value={plan.accent_color ?? ""} onChange={(e) => onChange({ ...plan, accent_color: e.target.value })}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: from-primary/25" />
         </label>
         <label className="block text-xs text-muted-foreground">Trial (dias)
           <input type="number" value={plan.trial_days}
@@ -139,9 +193,17 @@ function PlanCard({ plan, onChange, onSave, onDelete }: {
             className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
         </label>
       </div>
+
       <div className="space-y-1.5 text-sm">
+        <label className="flex items-center gap-2 font-semibold text-primary">
+          <input type="checkbox" checked={plan.highlight}
+            onChange={(e) => onChange({ ...plan, highlight: e.target.checked })} /> 
+          Destacar este plano (Recomendado)
+        </label>
+        <div className="h-px bg-border my-1" />
         <label className="flex items-center gap-2"><input type="checkbox" checked={plan.active}
           onChange={(e) => onChange({ ...plan, active: e.target.checked })} /> Ativo</label>
+
         <label className="flex items-center gap-2"><input type="checkbox" checked={plan.allows_candidato}
           onChange={(e) => onChange({ ...plan, allows_candidato: e.target.checked })} /> Permite atuar como candidato</label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={plan.allows_ator}
@@ -197,23 +259,38 @@ function NewPlanDialog({ open, onOpenChange, onCreate }: {
             <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
-          <label className="block text-sm">Descrição
+          <label className="block text-sm">Chamada (Tagline)
+            <input value={draft.tagline ?? ""} onChange={(e) => setDraft({ ...draft, tagline: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" placeholder="Ex: App completo" />
+          </label>
+          <label className="block text-sm">Descrição (checkout)
             <textarea value={draft.description ?? ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })}
               rows={2} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="block text-sm">Preço (R$)
+            <label className="block text-sm">Preço Atual (R$)
               <input type="number" step="0.01" value={(draft.price_cents / 100).toFixed(2)}
                 onChange={(e) => setDraft({ ...draft, price_cents: Math.round(Number(e.target.value) * 100) })}
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
             </label>
-            <label className="block text-sm">Trial (dias)
-              <input type="number" value={draft.trial_days}
-                onChange={(e) => setDraft({ ...draft, trial_days: Number(e.target.value) })}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            <label className="block text-sm">Preço Antigo (R$)
+              <input type="number" step="0.01" value={draft.old_price_cents ? (draft.old_price_cents / 100).toFixed(2) : ""}
+                onChange={(e) => setDraft({ ...draft, old_price_cents: e.target.value ? Math.round(Number(e.target.value) * 100) : null })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" placeholder="Ex: 897,00" />
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block text-sm text-muted-foreground">Tag de Desconto
+              <input value={draft.discount_tag ?? ""} onChange={(e) => setDraft({ ...draft, discount_tag: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: 33% OFF" />
+            </label>
+            <label className="block text-sm text-muted-foreground">Texto do Botão (CTA)
+              <input value={draft.cta_text ?? ""} onChange={(e) => setDraft({ ...draft, cta_text: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
             </label>
           </div>
         </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button variant="hero" onClick={() => onCreate(draft)} disabled={!draft.slug || !draft.name}>Criar</Button>
