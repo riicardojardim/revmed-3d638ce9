@@ -216,10 +216,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
-      setLoading(false);
-
-
+      
       if (s?.user) {
+        setLoading(true);
         setTimeout(() => { void loadExtras(s.user.id); }, 0);
         if (event === "SIGNED_IN") {
           setTimeout(() => { void claimActiveSession(s.user.id); }, 0);
@@ -229,6 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
         setRoles([]);
         writeAuthCache(null);
+        setLoading(false);
       }
     });
 
