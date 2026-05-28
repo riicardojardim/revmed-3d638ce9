@@ -216,7 +216,6 @@ export const createCardPayment = createServerFn({ method: "POST" })
     const body: Record<string, unknown> = {
       transaction_amount: plan.cents / 100,
       binary_mode: true,
-
       token: data.token,
       description: `REVMED · ${plan.name}`,
       installments: data.installments,
@@ -231,6 +230,14 @@ export const createCardPayment = createServerFn({ method: "POST" })
       },
       metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
     };
+
+    console.log("[mercadopago] creating payment:", {
+      amount: body.transaction_amount,
+      method: body.payment_method_id,
+      installments: body.installments,
+      issuer: data.issuerId,
+      token: data.token.slice(0, 10) + "..."
+    });
     if (data.issuerId) body.issuer_id = data.issuerId;
 
     const mp = await mpFetch("/v1/payments", {
