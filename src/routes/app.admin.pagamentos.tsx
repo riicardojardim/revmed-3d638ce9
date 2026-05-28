@@ -24,16 +24,33 @@ interface SubRow {
   status: string;
   current_period_end: string | null;
   created_at: string;
-  profile?: { full_name: string | null; username: string | null; avatar_url: string | null };
+  profile?: { full_name: string | null; username: string | null; avatar_url: string | null; email?: string | null };
+}
+interface PaymentAttemptRow {
+  id: string;
+  user_id: string;
+  plan_slug: string;
+  amount_cents: number;
+  method: string;
+  status: string;
+  mp_status_detail: string | null;
+  created_at: string;
+  paid_at: string | null;
+  mp_payment_id: string | null;
+  mp_ticket_url: string | null;
+  profile?: { full_name: string | null; username: string | null; email?: string | null };
 }
 
-const fmtBRL = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const fmtBRL = (c: number) => (c / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CODE });
+const BRL_CODE = "BRL";
 
 function AdminPayments() {
   const [subs, setSubs] = useState<SubRow[]>([]);
   const [plans, setPlans] = useState<PlanRow[]>([]);
+  const [attempts, setAttempts] = useState<PaymentAttemptRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+
   const [internalIds, setInternalIds] = useState<Set<string>>(new Set());
   const fetchInternalIds = useServerFn(listInternalUserIdsAdmin);
 
