@@ -211,13 +211,21 @@ export function SignupPaymentModal({
         email: form.email.trim().toLowerCase(),
         password: form.password,
       });
-    }
-
-    if (signupResponse.error) {
+      
+      // Se der erro no login (senha errada), avisamos que o e-mail já está em uso
+      if (signupResponse.error) {
+        setSubmitting(false);
+        toast.error("Este e-mail já possui uma conta", { 
+          description: "Por favor, use a senha correta ou recupere sua senha para continuar com este e-mail." 
+        });
+        return;
+      }
+    } else if (signupResponse.error) {
       setSubmitting(false);
       toast.error("Erro no cadastro", { description: translateError(signupResponse.error.message) });
       return;
     }
+
 
     const signupData = signupResponse.data;
 
