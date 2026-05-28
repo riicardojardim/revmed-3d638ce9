@@ -26,8 +26,10 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+
 import { UserAvatar } from "@/components/UserAvatar";
 import {
   DropdownMenu,
