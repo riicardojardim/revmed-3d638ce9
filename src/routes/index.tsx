@@ -338,7 +338,14 @@ function TopNav({
 
 /* ----------------------------- HERO ----------------------------- */
 
-function Hero({ isLogged }: { isLogged: boolean }) {
+function Hero({ isLogged, dbPlans }: { isLogged: boolean; dbPlans: any[] }) {
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+
+  const mentoriaName = getPlanName('mentoria', 'mentoria 1:5');
+  const completoName = getPlanName('completo', 'Plataforma completa');
   return (
     <section className="relative">
       {/* radial orange glow */}
