@@ -1062,10 +1062,12 @@ function Investimento({
   isLogged,
   onChoosePlan,
   dbPlans,
+  loadingPlans,
 }: {
   isLogged: boolean;
   onChoosePlan: (p: SignupModalPlan) => void;
   dbPlans: any[];
+  loadingPlans: boolean;
 }) {
   const BRL_CURRENCY = "BRL";
   const allPlans = useMemo(() => {
