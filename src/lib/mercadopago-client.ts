@@ -18,12 +18,8 @@ export async function getPaymentMethodFromBin(
         return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
       }
     }
-  } catch (err) {
-    console.warn("[mercadopago] API bin identification failed", err);
-  }
-
-    // 2. Fallback local para as principais bandeiras se a API falhar
-    // Isso garante que o pagamento pelo menos tente ser processado no servidor
+    
+    // Fallback local para as principais bandeiras se a API falhar
     const digits = bin.replace(/\D/g, "");
     if (digits.startsWith("4")) return { id: "visa" };
     if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(digits)) return { id: "master" };
