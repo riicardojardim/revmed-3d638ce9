@@ -286,6 +286,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signOut() {
     await supabase.auth.signOut();
+    writeAuthCache(null);
+    if (typeof window !== \"undefined\") {
+      // Remove tokens do Supabase manualmente para garantir
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(\"sb-\") && k.endsWith(\"-auth-token\")) {
+          localStorage.removeItem(k);
+        }
+      }
+      // Redireciona para forçar a limpeza do estado do React Router / TanStack
+      window.location.href = \"/\";
+    }
   }
 
   async function refresh() {
