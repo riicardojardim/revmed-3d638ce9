@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const VAPID_PUBLIC_KEY = "BHYbFkCwVEUijC_UiHh0UXVuX_Yg3GLUB0_0sCKkGbm138b5kF8uiDbM7BGAVxz-omlasAVwNnzdH1RKhIbiPy4";
+const VAPID_PUBLIC_KEY = "BFE9sPojxQQCmwoI8wL5iaHph1s1V3B37SAIu-DrrzsyTn0JxVFhvxo5Qcbb7aIIlC9zsYzS5bjFJzjLHOA1250";
 
 export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
