@@ -1246,13 +1246,13 @@ function Investimento({
                     {p.features.map((f: string) => (
                       <li key={f} className="flex items-start gap-3 text-[0.8rem] sm:text-sm">
                         <span
-                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors ${
                             p.highlight
-                              ? "bg-primary/15 text-primary"
+                              ? "bg-primary text-primary-foreground shadow-sm"
                               : "bg-muted text-foreground"
                           }`}
                         >
-                          <Check className="h-3 w-3" strokeWidth={3} />
+                          <Check className="h-3 w-3" strokeWidth={3.5} />
                         </span>
                         <span className="leading-snug">{f}</span>
                       </li>
