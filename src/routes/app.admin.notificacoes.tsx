@@ -10,7 +10,10 @@ import {
   Clock, 
   Globe,
   Smartphone,
-  Info
+  Info,
+  Play,
+  Trash2,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +22,21 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/app/admin/notificacoes")({
   component: AdminNotifications,
 });
+
+interface ScheduledNotification {
+  id: string;
+  title: string;
+  body: string;
+  url: string;
+  interval_days: number;
+  last_sent_at: string | null;
+}
+
 
 function AdminNotifications() {
   const [title, setTitle] = useState("");
@@ -31,9 +45,12 @@ function AdminNotifications() {
   const [sending, setSending] = useState(false);
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [scheduled, setScheduled] = useState<ScheduledNotification[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchSubscriberCount();
+    fetchScheduled();
   }, []);
 
   async function fetchSubscriberCount() {
@@ -48,6 +65,57 @@ function AdminNotifications() {
       console.error("Error fetching subscriber count:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function fetchScheduled() {
+    const { data } = await supabase
+      .from("scheduled_notifications")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setScheduled(data as ScheduledNotification[]);
+  }
+
+  async function handleSendTest() {
+    if (!user) return;
+    setSending(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-push-notification", {
+        body: { 
+          title: "🔔 Teste de Notificação", 
+          body: "Esta é uma notificação de teste enviada agora pelo painel admin.", 
+          url: "/app/admin/notificacoes",
+          userId: user.id
+        },
+      });
+      if (error) throw error;
+      toast.success("Notificação de teste enviada para você!");
+    } catch (error) {
+      toast.error("Erro ao enviar teste.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function handleSendNow(notif: ScheduledNotification) {
+    setSending(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-push-notification", {
+        body: { title: notif.title, body: notif.body, url: notif.url },
+      });
+      if (error) throw error;
+      
+      await supabase
+        .from("scheduled_notifications")
+        .update({ last_sent_at: new Date().toISOString() })
+        .eq("id", notif.id);
+      
+      toast.success("Notificação enviada com sucesso!");
+      fetchScheduled();
+    } catch (error) {
+      toast.error("Erro ao enviar.");
+    } finally {
+      setSending(false);
     }
   }
 
@@ -145,8 +213,19 @@ function AdminNotifications() {
               onClick={handleSendNotification}
               disabled={sending || subscriberCount === 0}
             >
-              {sending ? "Enviando..." : "Enviar Notificação"}
+              {sending ? "Enviando..." : "Enviar Notificação em Massa"}
             </Button>
+            
+            <Button 
+              variant="outline"
+              className="w-full" 
+              onClick={handleSendTest}
+              disabled={sending}
+            >
+              <Play className="mr-2 h-4 w-4" />
+              Enviar Teste para Mim
+            </Button>
+
             {subscriberCount === 0 && (
               <p className="text-xs text-center text-warning flex items-center justify-center gap-1">
                 <AlertCircle className="h-3 w-3" />
@@ -159,60 +238,39 @@ function AdminNotifications() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-mint" />
-              Dicas de Automação
+              <Calendar className="h-5 w-5 text-mint" />
+              Notificações Automáticas
             </CardTitle>
             <CardDescription>
-              Sugestões de notificações automáticas para implementar.
+              Mensagens programadas para serem enviadas periodicamente.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  Alerta de Novo Conteúdo
-                </h4>
-                <Badge variant="secondary">Alta Conversão</Badge>
+          <CardContent className="space-y-4">
+            {scheduled.map((notif) => (
+              <div key={notif.id} className="rounded-lg border border-border p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold">{notif.title}</h4>
+                  <Badge variant="secondary">Cada {notif.interval_days} dias</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-2">{notif.body}</p>
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <span className="text-[10px] text-muted-foreground">
+                    Último envio: {notif.last_sent_at ? new Date(notif.last_sent_at).toLocaleDateString("pt-BR") : "Nunca"}
+                  </span>
+                  <Button size="sm" variant="ghost" className="h-7 text-[10px]" onClick={() => handleSendNow(notif)} disabled={sending}>
+                    <Send className="mr-1 h-3 w-3" /> Enviar agora
+                  </Button>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Sempre que publicar um novo checklist ou deck de flashcards, envie uma notificação automática.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <Info className="h-4 w-4 text-blue-500" />
-                  Lembrete de Estudo
-                </h4>
-                <Badge variant="secondary">Retenção</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Se o usuário não fizer uma tentativa em 48h, envie um lembrete: "Sua evolução não pode parar! Vamos treinar hoje?"
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-purple-500" />
-                  Novidades da Prova
-                </h4>
-                <Badge variant="secondary">Informativo</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Notificações sobre prazos do INEP, edital ou mudanças na prova prática.
-              </p>
-            </div>
-
+            ))}
+            
             <div className="rounded-lg bg-muted p-4 space-y-2">
               <div className="flex items-center gap-2 font-semibold text-sm">
-                <Smartphone className="h-4 w-4" />
-                Dica Técnica
+                <Info className="h-4 w-4 text-blue-500" />
+                Como funciona?
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                As notificações push funcionam melhor quando o usuário instala o PWA. No iOS, o suporte exige que o app esteja na tela de início.
+                As notificações automáticas são enviadas aos usuários para manter o engajamento. Você pode forçar o envio manual clicando em "Enviar agora".
               </p>
             </div>
           </CardContent>
