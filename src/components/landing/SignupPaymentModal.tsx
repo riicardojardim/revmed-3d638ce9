@@ -352,6 +352,12 @@ export function SignupPaymentModal({
         setStep("pix");
       } else {
         setStep("processing");
+        // Validação preventiva: não deixa prosseguir se não houver conexão
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession) {
+          throw new Error("Erro de autenticação. Por favor, tente novamente.");
+        }
+
         const { publicKey } = await callGetPublicKey({});
         const [expMonth, expYear] = card.expiry.split("/");
         
