@@ -7,7 +7,9 @@ import { useSubscription } from "@/hooks/use-subscription";
 
 export function AtorDashboard() {
   const { profile, user } = useAuth();
+  const { plan } = useSubscription();
   const name = (profile?.full_name || user?.email || "Ator").split(" ")[0];
+  const planName = plan?.name || "Plano Ator";
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
