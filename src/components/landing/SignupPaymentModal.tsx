@@ -644,7 +644,23 @@ export function SignupPaymentModal({
                 <TabsContent value="cartao" className="mt-4 space-y-3">
                   <div>
                     <Label htmlFor="m_card_num">Número do cartão</Label>
-                    <Input id="m_card_num" inputMode="numeric" placeholder="0000 0000 0000 0000" value={card.number} onChange={(e) => setCard((c) => ({ ...c, number: formatCardNumber(e.target.value) }))} autoComplete="cc-number" />
+                    <div className="relative">
+                      <Input 
+                        id="m_card_num" 
+                        inputMode="numeric" 
+                        placeholder="0000 0000 0000 0000" 
+                        value={card.number} 
+                        onChange={(e) => handleCardNumberChange(e.target.value)} 
+                        autoComplete="cc-number" 
+                        className="pr-20"
+                      />
+                      {cardBrand && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 rounded-md bg-muted/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary ring-1 ring-primary/20">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
+                          {cardBrand === "master" ? "Mastercard" : cardBrand.charAt(0).toUpperCase() + cardBrand.slice(1)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="m_card_name">Nome impresso no cartão</Label>
