@@ -123,7 +123,8 @@ export const createPixPayment = createServerFn({ method: "POST" })
 
   .handler(async ({ data, context }) => {
     const userId = context.userId;
-    const plan = PLAN_AMOUNTS[data.planSlug];
+    const plan = await getPlanMeta(data.planSlug);
+
 
     const idempotencyKey = `pix-${userId}-${data.planSlug}-${Date.now()}`;
     const body = {
