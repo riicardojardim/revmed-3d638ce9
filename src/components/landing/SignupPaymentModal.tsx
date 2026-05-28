@@ -124,14 +124,22 @@ export function SignupPaymentModal({
     // Identificação rápida local para feedback instantâneo
     if (digits.startsWith("4")) {
       setCardBrand("visa");
-    } else if (/^(5[1-5])/.test(digits)) {
+    } else if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(digits)) {
       setCardBrand("master");
     } else if (/^(34|37)/.test(digits)) {
       setCardBrand("amex");
-    } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)/.test(digits)) {
+    } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|651|655)/.test(digits)) {
       setCardBrand("elo");
-    } else if (/^(6062|3841)/.test(digits)) {
+    } else if (/^(6062|3841|60)/.test(digits)) {
       setCardBrand("hipercard");
+    } else if (/^(50)/.test(digits)) {
+      setCardBrand("maestro");
+    } else if (/^(30[0-5]|36|38)/.test(digits)) {
+      setCardBrand("diners");
+    } else if (/^(352[89]|35[3-8][0-9])/.test(digits)) {
+      setCardBrand("jcb");
+    } else if (/^(6011|622|64|65)/.test(digits)) {
+      setCardBrand("discover");
     } else if (digits.length >= 6 && mpPublicKey) {
       // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
       try {
@@ -342,11 +350,17 @@ export function SignupPaymentModal({
         const { publicKey } = await callGetPublicKey({});
         const [expMonth, expYear] = card.expiry.split("/");
         
-        // Buscamos o método pelo BIN primeiro
         const bin = card.number.replace(/\D/g, "").slice(0, 6);
-        const pmInfo = await getPaymentMethodFromBin(publicKey, bin);
+        
+        // 1. Tentar identificar a bandeira pela API do Mercado Pago (mais confiável)
+        let pmInfo = null;
+        try {
+          pmInfo = await getPaymentMethodFromBin(publicKey, bin);
+        } catch (e) {
+          console.warn("[checkout] getPaymentMethodFromBin error", e);
+        }
 
-        // Criamos o token
+        // 2. Criar o token do cartão
         const cardTokenData = await createCardToken(publicKey, {
           cardNumber: card.number,
           cardholderName: card.name,
@@ -356,17 +370,27 @@ export function SignupPaymentModal({
           docNumber: cpfDigits,
         });
 
-        // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN (ou o fallback local)
-        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
+        // 3. Determinar o ID final da bandeira (Payment Method)
+        // Ordem de prioridade: Token > API por BIN > Estado Local
+        let finalPaymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
         
-        console.log("[checkout] Payment method detection:", {
-          fromToken: cardTokenData.payment_method_id,
-          fromBin: pmInfo?.id,
-          fromState: cardBrand,
-          final: paymentMethodId
+        // Se ainda assim não identificou, mas o número começa com 5, assume master como último recurso
+        if (!finalPaymentMethodId && bin.startsWith("5")) {
+          finalPaymentMethodId = "master";
+        }
+        if (!finalPaymentMethodId && bin.startsWith("4")) {
+          finalPaymentMethodId = "visa";
+        }
+
+        console.log("[checkout] Payment identification summary:", {
+          bin,
+          tokenPM: cardTokenData.payment_method_id,
+          apiPM: pmInfo?.id,
+          statePM: cardBrand,
+          finalPM: finalPaymentMethodId
         });
 
-        if (!paymentMethodId) {
+        if (!finalPaymentMethodId) {
           throw new Error("Cannot infer Payment Method");
         }
 
@@ -375,7 +399,7 @@ export function SignupPaymentModal({
             planSlug: plan.slug,
             token: cardTokenData.id,
             installments,
-            paymentMethodId: paymentMethodId,
+            paymentMethodId: finalPaymentMethodId,
             issuerId: cardTokenData.issuer_id || pmInfo?.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
