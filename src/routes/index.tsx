@@ -108,7 +108,15 @@ function LandingPage() {
 
   const lastY = useRef(0);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const fetchPlans = async () => {
+      const { data } = await supabase.from("plans").select("*").eq("active", true).order("price_cents");
+      if (data) setDbPlans(data);
+    };
+    fetchPlans();
+  }, []);
+
 
   useEffect(() => {
     lastY.current = window.scrollY;
