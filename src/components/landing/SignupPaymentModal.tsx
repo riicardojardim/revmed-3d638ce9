@@ -454,7 +454,7 @@ export function SignupPaymentModal({
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">Validando cartão com segurança…</p>
           </div>
-        ) : step === "success" ? (
+        ) : (true || step === "success") ? (
           <div className="relative flex flex-col items-center gap-5 overflow-hidden px-5 py-14 text-center sm:px-7">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-mint/10 via-transparent to-primary/10" />
             <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-mint/15 ring-4 ring-mint/30">
