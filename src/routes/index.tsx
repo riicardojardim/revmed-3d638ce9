@@ -939,7 +939,7 @@ function Mentoria({ dbPlans }: { dbPlans: any[] }) {
               to="/cadastro"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] md:mt-8 md:px-6 md:py-3.5 md:text-base"
             >
-              Saber mais da mentoria
+              Saber mais da {mentoriaName.toLowerCase()}
               <ArrowUpRight className="h-4 w-4 md:h-5 md:w-5" />
             </Link>
           </div>
