@@ -241,6 +241,7 @@ export function SignupPaymentModal({
       if (!card.name.trim()) { toast.error("Informe o nome impresso no cartão."); return; }
       if (!/^\d{2}\/\d{2}$/.test(card.expiry)) { toast.error("Validade inválida (MM/AA)."); return; }
       if (!/^\d{3,4}$/.test(card.cvv)) { toast.error("CVV inválido."); return; }
+      if (card.cpf && !isValidCPF(card.cpf)) { toast.error("CPF do titular inválido."); return; }
     }
 
     setSubmitting(true);
