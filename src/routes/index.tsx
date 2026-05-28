@@ -206,7 +206,7 @@ function LandingPage() {
         <AprovadosMarquee />
         <SobreFundador />
         <VejaPlataforma />
-        <Mentoria />
+        <Mentoria dbPlans={dbPlans} />
         <Investimento
           isLogged={mounted && !!user}
           onChoosePlan={(p) => setSignupPlan(p)}
