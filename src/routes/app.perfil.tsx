@@ -11,10 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LogOut, MessageCircle, User as UserIcon, Mail, Lock, Save } from "lucide-react";
+import { LogOut, MessageCircle, User as UserIcon, Mail, Lock, Save, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useSubscription } from "@/hooks/use-subscription";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 import { formatCPF, isValidCPF, normalizeCPF } from "@/lib/cpf";
@@ -45,6 +46,7 @@ function deduceExamYear(): string {
 function ProfilePage() {
   const { user, profile, roles, signOut, refresh } = useAuth();
   const { plan, daysLeft, loading: subLoading, isCompletoLike, isAtorOnly } = useSubscription();
+  const { isSubscribed, subscribe, unsubscribe, loading: pushLoading } = usePushNotifications();
   const nav = useNavigate();
 
   // -------- Plan display --------
@@ -429,6 +431,37 @@ function ProfilePage() {
           </Button>
         </div>
       </form>
+
+      {/* Notifications */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card space-y-4">
+        <div className="flex items-center gap-2">
+          <Bell className="h-4 w-4 text-mint" />
+          <h3 className="font-semibold">Notificações</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Receba alertas sobre novos conteúdos, lembretes de estudo e novidades da prova diretamente no seu dispositivo.
+        </p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm font-medium">
+            {isSubscribed ? (
+              <span className="text-mint flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-mint animate-pulse" />
+                Ativas neste navegador
+              </span>
+            ) : (
+              <span className="text-muted-foreground">Desativadas</span>
+            )}
+          </div>
+          <Button 
+            variant={isSubscribed ? "outline" : "hero"} 
+            onClick={isSubscribed ? unsubscribe : subscribe}
+            disabled={pushLoading}
+            size="sm"
+          >
+            {pushLoading ? "Processando..." : isSubscribed ? "Desativar" : "Ativar Notificações"}
+          </Button>
+        </div>
+      </div>
 
       {/* Subscription */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
