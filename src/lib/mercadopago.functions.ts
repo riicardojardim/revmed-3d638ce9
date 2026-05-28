@@ -74,7 +74,7 @@ async function notifyPaymentApproved(userId: string, planSlug: string, paymentId
     if (!email) return;
     const { data: profile } = await supabaseAdmin
       .from("profiles").select("first_name,title").eq("id", userId).maybeSingle();
-    const planMeta = PLAN_AMOUNTS[planSlug];
+    const planMeta = await getPlanMeta(planSlug);
     const name = profile?.first_name
       ? `${profile.title ? profile.title + " " : ""}${profile.first_name}`.trim()
       : undefined;
@@ -89,6 +89,7 @@ async function notifyPaymentApproved(userId: string, planSlug: string, paymentId
     console.error("[notifyPaymentApproved] failed", e);
   }
 }
+
 
 const payerSchema = z.object({
   email: z.string().email(),
