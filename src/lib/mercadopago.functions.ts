@@ -201,6 +201,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
         installments: z.number().int().min(1).max(12),
         paymentMethodId: z.string().max(50).optional(),
         issuerId: z.string().optional(),
+        deviceId: z.string().optional(),
         payer: payerSchema,
         signupData: signupDataSchema.optional(),
       })
