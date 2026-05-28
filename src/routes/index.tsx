@@ -1216,8 +1216,10 @@ function Investimento({
                           slug: p.slug as SignupModalPlan["slug"],
                           name: p.name,
                           price: p.price,
+                          priceCents: (p as any).priceCents ?? 0,
                           cadence: p.cadence,
                         })
+
                       }
 
                       className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${

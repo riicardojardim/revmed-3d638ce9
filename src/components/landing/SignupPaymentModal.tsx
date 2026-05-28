@@ -135,7 +135,8 @@ export function SignupPaymentModal({
 
   if (!plan) return null;
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
-  const planAmountCents = plan.slug === "completo" ? 59700 : 14700;
+  const planAmountCents = plan.priceCents;
+
   const installmentOptions = Array.from({ length: 10 }, (_, i) => {
     const n = i + 1;
     const value = planAmountCents / 100 / n;
