@@ -51,15 +51,9 @@ function ProfilePage() {
   const isAtorPlan = isAtorOnly;
   const isMonthly = plan?.slug === "completo_mensal" && !plan.expired;
   const isCompletoPlan = plan?.slug === "completo" && !plan.expired;
-  const planName = isAtorPlan
-    ? "Plano Ator"
-    : isMonthly
-      ? "Plano Completo Mensal"
-      : isCompletoPlan
-        ? "Plano Completo"
-        : plan && !plan.expired
-          ? `Plano ${plan.name}`
-          : "Plano Free";
+  const planName = plan && !plan.expired
+    ? plan.name
+    : "Plano Free";
   const planDescription = isAtorPlan
     ? "Você atua como ator em salas de treino."
     : isCompletoLike

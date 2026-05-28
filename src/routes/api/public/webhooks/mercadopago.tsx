@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
-import { syncUserProfile } from "@/lib/mercadopago.shared";
+import { syncUserProfile, getPlanMeta } from "@/lib/mercadopago.shared";
 
 
 const MP_API = "https://api.mercadopago.com";
@@ -123,13 +123,14 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
             if (email) {
               const { data: profile } = await supabaseAdmin
                 .from("profiles").select("first_name,title").eq("id", userId).maybeSingle();
+              const planMeta = await getPlanMeta(planSlug).catch(() => null);
               const name = profile?.first_name
                 ? `${profile.title ? profile.title + " " : ""}${profile.first_name}`.trim()
                 : undefined;
               const amount = typeof mp.transaction_amount === "number"
                 ? `R$ ${mp.transaction_amount.toFixed(2).replace(".", ",")}`
                 : undefined;
-              const planName = planSlug === "completo" ? "Plano Plataforma" : "Plano Ator";
+              const planName = planMeta?.name || (planSlug === "completo" ? "Plano Completo" : "Plano Ator");
               const paymentMethod = mp.payment_method_id === "pix" ? "pix" : "credit_card";
               const last4 = mp.card?.last_four_digits || undefined;
               const installments = mp.installments || undefined;

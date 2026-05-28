@@ -31,12 +31,12 @@ type Notif = {
 
 const POOL: Omit<Notif, "id" | "time">[] = [
   { name: "Dra. Marina S.", action: "garantiu vaga na turma 2026.1", avatar: notif1 },
-  { name: "Dr. Rafael M.", action: "começou o plano Plataforma", avatar: notif2 },
+  { name: "Dr. Rafael M.", action: "começou o Plano Completo", avatar: notif2 },
   { name: "Dra. Camila R.", action: "fez uma simulação cronometrada", avatar: notif3 },
   { name: "Dr. Henrique T.", action: "garantiu vaga na turma 2026.1", avatar: notif4 },
   { name: "Dra. Letícia P.", action: "completou um checklist INEP", avatar: notif5 },
   { name: "Dr. André V.", action: "agendou conversa com a equipe", avatar: notif6 },
-  { name: "Dra. Beatriz F.", action: "começou o plano Plataforma", avatar: notif7 },
+  { name: "Dra. Beatriz F.", action: "começou o Plano Completo", avatar: notif7 },
   { name: "Dr. Lucas D.", action: "garantiu vaga na turma 2026.1", avatar: notif8 },
   { name: "Dra. Júlia A.", action: "fez uma estação de pediatria", avatar: notif3 },
   { name: "Dr. Eduardo L.", action: "completou 50 flashcards hoje", avatar: notif2 },

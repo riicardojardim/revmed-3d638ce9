@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
-import { syncUserProfile } from "./mercadopago.shared";
+import { syncUserProfile, getPlanMeta } from "./mercadopago.shared";
 
 
 export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async () => {
@@ -12,15 +12,6 @@ export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async ()
   return { publicKey: key };
 });
 
-async function getPlanMeta(slug: string) {
-  const { data: plan } = await supabaseAdmin
-    .from("plans")
-    .select("id, name, price_cents")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (!plan) throw new Error(`Plano ${slug} não encontrado`);
-  return { cents: plan.price_cents, name: plan.name };
-}
 
 
 const MP_API = "https://api.mercadopago.com";

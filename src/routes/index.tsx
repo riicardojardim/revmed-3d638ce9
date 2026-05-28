@@ -1054,7 +1054,7 @@ const PLANS: Plan[] = [
     installments: "Parcelamos em até 10x sem juros no cartão",
     desc: "Programa completo com mentor presente, Turmas Programadas de 5 pessoas, psicólogo no time, WhatsApp 24h e plataforma inclusa.",
     features: [
-      "Tudo do plano Plataforma",
+      "Tudo do Plano Completo",
       "20 encontros práticos ao vivo",
       "10 encontros extras nas grandes áreas",
       "6 sessões com psicólogo do programa",
@@ -1124,8 +1124,8 @@ function Investimento({
         accent: dbPlan.accent_color || staticPlan.accent,
         desc: dbPlan.description || staticPlan.desc,
         features: Array.isArray(dbPlan.features) && dbPlan.features.length > 0 
-          ? dbPlan.features.map((f: string) => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma/gi, getPlanName('completo', 'Plano Completo')))
-          : staticPlan.features.map(f => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma/gi, getPlanName('completo', 'Plano Completo'))),
+          ? dbPlan.features.map((f: string) => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma|plano Completo/gi, getPlanName('completo', 'Plano Completo')))
+          : staticPlan.features.map(f => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma|plano Completo/gi, getPlanName('completo', 'Plano Completo'))),
         installments: dbPlan.price_cents > 0 
           ? `ou 10x de ${(priceValue / 10).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` 
           : staticPlan.installments
@@ -1627,17 +1627,17 @@ function FAQ({ dbPlans }: { dbPlans: any[] }) {
       
       // Replace names dynamically
       const names = [
-        { slug: 'completo', fallback: 'Full' },
-        { slug: 'ator', fallback: 'Ator' },
-        { slug: 'mentoria', fallback: 'Mentoria' }
+        { slug: 'completo', search: /Plano Completo|Plataforma|Full/gi },
+        { slug: 'ator', search: /Plano Ator|Ator/gi },
+        { slug: 'mentoria', search: /Mentoria/gi }
       ];
 
-      names.forEach(({ slug, fallback }) => {
-        const dynamicName = getPlanName(slug, fallback);
-        // Usamos regex global para substituir todas as ocorrências
-        const regex = new RegExp(fallback, 'g');
-        a = a.replace(regex, dynamicName);
-        q = q.replace(regex, dynamicName);
+      names.forEach(({ slug, search }) => {
+        const dynamicName = getPlanName(slug, '');
+        if (dynamicName) {
+          a = a.replace(search, dynamicName);
+          q = q.replace(search, dynamicName);
+        }
       });
 
       return { ...faq, q, a };
