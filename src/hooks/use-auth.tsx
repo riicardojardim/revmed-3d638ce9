@@ -291,29 +291,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, roles]);
 
   const signOut = async () => {
+    console.log("[auth] Starting aggressive signOut...");
+    
     try {
-      // 1. Tenta parar o refresh automático se o cliente suportar
+      // 1. Tenta o logout no Supabase com um timeout curto
+      const signOutPromise = supabase.auth.signOut({ scope: 'global' });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1500));
+      
+      try {
+        await Promise.race([signOutPromise, timeoutPromise]);
+      } catch (e) {
+        console.warn("[auth] Supabase signOut timed out or failed, proceeding with local clear", e);
+      }
+
+      // 2. Para auto-refresh
       if ((supabase.auth as any).stopAutoRefresh) {
         (supabase.auth as any).stopAutoRefresh();
       }
-
-      // 2. Tenta o logout global no servidor
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (e) {
-        console.warn("SignOut global falhou:", e);
-      }
+    } catch (e) {
+      console.error("[auth] SignOut error:", e);
     } finally {
-      // 3. LIMPEZA NUCLEAR - Independentemente de erros no servidor, limpamos TUDO localmente
+      // 3. LIMPEZA NUCLEAR LOCAL
       if (typeof window !== "undefined") {
-        // Remove nosso cache específico
-        writeAuthCache(null);
+        // Marca que saímos explicitamente via Cookie (persiste mais que localStorage em alguns fechamentos de aba)
+        document.cookie = "er_logged_out=true; path=/; max-age=31536000"; // 1 ano
         
-        // Limpa TUDO no localStorage e sessionStorage
+        // Limpa Storage
         localStorage.clear();
         sessionStorage.clear();
         
-        // Limpeza agressiva de Cookies (Supabase pode usá-los em setups específicos)
+        // Limpa IndexedDB (Onde o Supabase pode guardar sessões persistentes)
+        try {
+          const dbs = await window.indexedDB.databases?.() || [];
+          for (const db of dbs) {
+            if (db.name) window.indexedDB.deleteDatabase(db.name);
+          }
+        } catch (e) {
+          console.warn("[auth] Failed to clear IndexedDB:", e);
+        }
+
+        // Limpa Caches de API e Service Workers
+        try {
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+          }
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map(reg => reg.unregister()));
+          }
+        } catch (e) {}
+
+        // Limpeza de Cookies de Domínio
         const domain = window.location.hostname;
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
@@ -330,15 +359,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           clearCookie();
           clearCookie(domain);
           clearCookie("." + domain);
-          // Tenta limpar domínio raiz se houver subdomínio (ex: .revmed.app.br)
           const parts = domain.split(".");
-          if (parts.length > 2) {
-            clearCookie("." + parts.slice(-2).join("."));
-          }
+          if (parts.length > 2) clearCookie("." + parts.slice(-2).join("."));
         }
+
+        console.log("[auth] Local cleanup complete, redirecting...");
         
-        // 4. Redirecionamento forçado para a página de login com flag de limpeza
-        window.location.replace("/login?logged_out=true");
+        // 4. Redirecionamento forçado
+        window.location.href = "/login?logged_out=true";
       }
     }
   };
