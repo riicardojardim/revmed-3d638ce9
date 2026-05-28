@@ -1253,7 +1253,7 @@ function Investimento({
                           name: p.name,
                           price: p.price,
                           priceCents: (p as any).priceCents ?? 0,
-                          cadence: p.cadence,
+                          cadence: p.cadence || "",
                         })
 
                       }
