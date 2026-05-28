@@ -911,7 +911,12 @@ const MENTORIA_BENEFITS = [
   "WhatsApp direto com o mentor",
 ];
 
-function Mentoria() {
+function Mentoria({ dbPlans }: { dbPlans: any[] }) {
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
+  const mentoriaName = getPlanName('mentoria', 'mentoria');
   return (
     <section id="mentoria" className="relative py-16 md:py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
