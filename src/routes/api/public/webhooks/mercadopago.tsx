@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
+import { syncUserProfile } from "@/lib/mercadopago.shared";
+
 
 const MP_API = "https://api.mercadopago.com";
 
@@ -107,7 +109,11 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
 
         if (mp.status === "approved" && userId && planSlug) {
           await activateSubscription(userId, planSlug);
+          if (meta.signup_data) {
+            await syncUserProfile(userId, meta.signup_data);
+          }
           try {
+
             const { data: u } = await supabaseAdmin.auth.admin.getUserById(userId);
             const email = u?.user?.email;
             if (email) {
