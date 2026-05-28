@@ -32,8 +32,10 @@ export type SignupModalPlan = {
   slug: PlanSlug;
   name: string;
   price: string;
+  priceCents: number;
   cadence?: string;
 };
+
 
 function formatCardNumber(v: string) {
   return v.replace(/\D/g, "").slice(0, 19).replace(/(\d{4})(?=\d)/g, "$1 ");
