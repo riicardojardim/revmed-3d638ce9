@@ -37,9 +37,6 @@ interface ScheduledNotification {
   last_sent_at: string | null;
 }
 
-export const Route = createFileRoute("/app/admin/notificacoes")({
-  component: AdminNotifications,
-});
 
 function AdminNotifications() {
   const [title, setTitle] = useState("");
