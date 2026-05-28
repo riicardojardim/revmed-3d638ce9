@@ -1104,7 +1104,7 @@ function Investimento({
         oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
         discountTag: calculatedDiscount || undefined,
         cta: dbPlan.cta_text || staticPlan.cta,
-        highlight: dbPlan.highlight,
+        highlight: dbPlan.highlight ?? staticPlan.highlight,
         accent: dbPlan.accent_color || staticPlan.accent,
         desc: dbPlan.description || staticPlan.desc,
         features: Array.isArray(dbPlan.features) && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
