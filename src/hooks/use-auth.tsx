@@ -276,32 +276,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      // 1. Primeiro limpamos o cache local para que a UI responda imediatamente
+      // 1. Invalidamos a sessão globalmente no servidor ANTES de limpar o storage local
+      // assim o token ainda está disponível para o request de signout.
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (e) {
+        console.warn("SignOut global falhou (pode já estar deslogado):", e);
+      }
+
+      // 2. Limpamos nosso cache interno
       writeAuthCache(null);
       
       if (typeof window !== "undefined") {
-        // 2. Limpeza profunda de TODOS os tokens do Supabase e cache da aplicação
-        const keys = Object.keys(localStorage);
-        for (const key of keys) {
-          if (key.startsWith("sb-") || key.startsWith("er_") || key === AUTH_CACHE_KEY) {
-            localStorage.removeItem(key);
-          }
-        }
+        // 3. Limpeza NUCLEAR de todos os storages possíveis
+        localStorage.clear();
         sessionStorage.clear();
-      }
-
-      // 3. Invalidamos a sessão globalmente no servidor do Supabase
-      await supabase.auth.signOut({ scope: 'global' });
-      
-      if (typeof window !== "undefined") {
-        // 4. Redirecionamento forçado (replace) para limpar o histórico e estado do navegador
+        
+        // 4. Limpeza agressiva de cookies (Supabase pode usá-los em domínios customizados)
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          // Tenta limpar também com o domínio atual para garantir
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+        }
+        
+        // 5. Redirecionamento forçado para garantir que o estado do React morra
         window.location.replace("/login?logged_out=true");
       }
     } catch (error) {
-      console.error("Erro crítico no logout:", error);
+      console.error("Erro no logout:", error);
       if (typeof window !== "undefined") {
         localStorage.clear();
-        sessionStorage.clear();
         window.location.replace("/");
       }
     }
