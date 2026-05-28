@@ -396,7 +396,7 @@ function Hero({ isLogged, dbPlans }: { isLogged: boolean; dbPlans: any[] }) {
             className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground md:mt-5 md:text-base lg:mt-6 lg:text-lg"
           >
             Venha treinar com o time que mais aprova na Revalidação de Diploma Médico.
-            Plataforma completa com aulas, cronograma, resumos, flashcards, simulados e mentoria integrada.
+            {completoName} com aulas, cronograma, resumos, flashcards, simulados e {mentoriaName.toLowerCase()} integrada.
           </motion.p>
 
           {/* Mockup inline somente no mobile/tablet — segue a ordem pedida: texto → mockup → botões → prova social */}
