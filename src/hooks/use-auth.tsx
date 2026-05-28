@@ -190,31 +190,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Se detectarmos o parâmetro de logout ou o cookie de logout, forçamos uma limpeza total preventiva
-    const isLoggedOut = typeof window !== "undefined" && (window.location.search.includes("logged_out=true") || document.cookie.includes("er_logged_out=true"));
+    // Só executa limpeza se houver flag explícita na URL ou no Cookie
+    const hasLoggedOutParam = typeof window !== "undefined" && window.location.search.includes("logged_out=true");
+    const hasLoggedOutCookie = typeof window !== "undefined" && document.cookie.includes("er_logged_out=true");
     
-    if (isLoggedOut) {
+    if (hasLoggedOutParam || hasLoggedOutCookie) {
       console.log("[auth] Forced logout detected, cleaning up...");
       
-      // Limpa TUDO no localStorage e sessionStorage
-      if (typeof window !== "undefined") {
-        const keys = Object.keys(localStorage);
-        keys.forEach(k => {
-          if (k.startsWith("sb-") || k.includes("auth-token") || k.startsWith("er_")) {
-            localStorage.removeItem(k);
-          }
-        });
-        localStorage.clear(); 
+      try {
+        localStorage.clear();
         sessionStorage.clear();
-        
-        // Remove o cookie de logout e outros cookies de sessão
+        // Remove o cookie
         document.cookie = "er_logged_out=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      }
+      } catch (e) {}
 
-      // Limpa a URL se necessário
-      if (window.location.search.includes("logged_out=true")) {
+      if (hasLoggedOutParam) {
         const url = new URL(window.location.href);
         url.searchParams.delete("logged_out");
         window.history.replaceState({}, document.title, url.toString());
