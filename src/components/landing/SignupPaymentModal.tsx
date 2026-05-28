@@ -140,8 +140,6 @@ export function SignupPaymentModal({
       setCardBrand("jcb");
     } else if (/^(6011|622|64|65)/.test(digits)) {
       setCardBrand("discover");
-    } else if (/^(50)/.test(digits)) {
-      setCardBrand("maestro");
     } else if (digits.length >= 6 && mpPublicKey) {
       // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
       try {
