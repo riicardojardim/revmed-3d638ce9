@@ -149,7 +149,9 @@ async function enforcePlanAccess(userId: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const cached = typeof window !== "undefined" ? readAuthCache() : null;
   const hasPersisted = hasPersistedSupabaseSession();
-  const seedUser = cached?.user && hasPersisted
+  const isLoggedOutUrl = typeof window !== "undefined" && window.location.search.includes("logged_out=true");
+  
+  const seedUser = cached?.user && hasPersisted && !isLoggedOutUrl
     ? ({ id: cached.user.id, email: cached.user.email ?? undefined } as unknown as User)
     : null;
 
