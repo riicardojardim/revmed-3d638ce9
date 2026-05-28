@@ -227,6 +227,10 @@ export const createCardPayment = createServerFn({ method: "POST" })
         first_name: data.payer.firstName,
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
+        phone: data.signupData?.whatsapp ? {
+          area_code: data.signupData.whatsapp.slice(0, 2),
+          number: data.signupData.whatsapp.slice(2)
+        } : undefined,
       },
       metadata: { 
         user_id: userId, 
