@@ -176,10 +176,8 @@ export function SignupPaymentModal({
     };
   }, [step, pixData, callGetStatus, nav, onOpenChange]);
 
-  if (!plan) return null;
-  
-  const PlanIcon = plan.slug === "completo" ? Crown : Drama;
-  const planAmountCents = plan.priceCents;
+  const PlanIcon = plan?.slug === "completo" ? Crown : Drama;
+  const planAmountCents = plan?.priceCents ?? 0;
 
   const installmentOptions = Array.from({ length: 10 }, (_, i) => {
     const n = i + 1;
@@ -196,6 +194,8 @@ export function SignupPaymentModal({
       setInstallments(1);
     }
   }, [installmentOptions, installments]);
+
+  if (!plan) return null;
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
