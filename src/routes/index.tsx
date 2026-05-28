@@ -956,7 +956,9 @@ const WHATSAPP_URL =
   "https://wa.me/5521987860985?text=Ol%C3%A1!%20Quero%20saber%20mais%20sobre%20a%20Mentoria%20REVMED.";
 
 type Plan = {
+  slug: string;
   name: string;
+
   tagline: string;
   price: string;
   cadence: string;
