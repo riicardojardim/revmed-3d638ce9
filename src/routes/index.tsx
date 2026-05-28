@@ -1276,7 +1276,7 @@ function Investimento({
                       to="/app"
                       className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
-                          ? "bg-primary text-primary-foreground shadow-elegant"
+                          ? "bg-primary text-primary-foreground shadow-[0_10px_30px_-5px_rgba(255,140,0,0.5)] hover:shadow-[0_15px_40px_-5px_rgba(255,140,0,0.6)]"
                           : "border border-border bg-card text-foreground hover:bg-muted"
                       }`}
                     >
