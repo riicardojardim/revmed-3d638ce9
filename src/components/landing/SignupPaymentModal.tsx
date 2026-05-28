@@ -15,7 +15,17 @@ import { useServerFn } from "@tanstack/react-start";
 import { createPixPayment, createCardPayment, getPaymentStatus, getMpPublicKey } from "@/lib/mercadopago.functions";
 import { createCardToken, getPaymentMethodFromBin } from "@/lib/mercadopago-client";
 
+function translateError(msg: string): string {
+  if (msg.includes("Password is known to be weak")) return "Esta senha é muito fraca e fácil de adivinhar. Por favor, escolha uma senha mais forte.";
+  if (msg.includes("User already registered")) return "Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.";
+  if (msg.includes("Collector user without key enabled")) return "A chave Pix não está configurada na conta do Mercado Pago. Por favor, verifique suas configurações de Pix no Mercado Pago.";
+  if (msg.includes("Email already in use")) return "Este e-mail já está em uso.";
+  if (msg.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
+  return msg;
+}
+
 export type PlanSlug = "ator" | "completo";
+
 
 export type SignupModalPlan = {
   slug: PlanSlug;
@@ -195,7 +205,7 @@ export function SignupPaymentModal({
 
     if (error) {
       setSubmitting(false);
-      toast.error("Erro ao criar conta", { description: error.message });
+      toast.error("Erro ao criar conta", { description: translateError(error.message) });
       return;
     }
 
@@ -307,7 +317,7 @@ export function SignupPaymentModal({
       }
     } catch (err: any) {
       console.error("[checkout]", err);
-      toast.error("Falha no pagamento", { description: err?.message || "Tente novamente." });
+      toast.error("Falha no pagamento", { description: translateError(err?.message || "Tente novamente.") });
       setStep("form");
     } finally {
       setSubmitting(false);
