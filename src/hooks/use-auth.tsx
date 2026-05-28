@@ -122,14 +122,13 @@ async function enforcePlanAccess(userId: string) {
   if (typeof window === "undefined") return;
   const path = window.location.pathname;
 
-  // Não aplica o bloqueio se o usuário estiver na landing page, login ou fluxo de checkout.
-  // Isso permite que ele complete o pagamento sem ser deslogado.
-  const isPublicRoute = path === "/" || path.startsWith("/login") || path.startsWith("/cadastro") || path.startsWith("/api");
-  if (isPublicRoute) return;
+  // Só aplica a verificação de plano se o usuário estiver tentando acessar a área restrita (/app).
+  // Se estiver na landing page ou outras páginas públicas, ele pode estar logado (ex: durante checkout).
+  if (!path.startsWith("/app") || path.startsWith("/app/admin")) return;
 
   try {
-
     // Privilegiados (admin/professor) sempre têm acesso.
+
     const { data: rs } = await supabase
       .from("user_roles")
       .select("role")
