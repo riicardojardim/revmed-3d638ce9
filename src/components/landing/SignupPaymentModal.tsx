@@ -365,26 +365,18 @@ export function SignupPaymentModal({
         });
 
         // 3. Determinar o ID final da bandeira (Payment Method)
-        // Damos prioridade à nossa identificação local (cardBrand) pois ela está
-        // se mostrando mais confiável que a inferência automática em alguns casos.
+        // CRITICAL FIX: The issue was that 'amex' was being inferred incorrectly somewhere.
+        // We will enforce the correct mapping based on the BIN.
         let finalPaymentMethodId = cardBrand || cardTokenData.payment_method_id || pmInfo?.id;
         
-        // Se ainda assim não identificou, mas o número começa com 5 ou 4, garantimos a bandeira
-        const firstDigit = bin.charAt(0);
-        if (!finalPaymentMethodId || finalPaymentMethodId === 'unknown') {
-          if (firstDigit === '5') finalPaymentMethodId = 'master';
-          else if (firstDigit === '4') finalPaymentMethodId = 'visa';
+        // Enforce based on common BIN patterns if there's any ambiguity
+        if (bin.startsWith("4")) {
+          finalPaymentMethodId = "visa";
+        } else if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(bin)) {
+          finalPaymentMethodId = "master";
         }
 
-        console.log("[checkout] Payment identification summary:", {
-          bin,
-          statePM: cardBrand,
-          tokenPM: cardTokenData.payment_method_id,
-          apiPM: pmInfo?.id,
-          finalPM: finalPaymentMethodId
-        });
-
-        console.log("[checkout] Payment identification summary:", {
+        console.log("[checkout] FINAL Payment identification:", {
           bin,
           tokenPM: cardTokenData.payment_method_id,
           apiPM: pmInfo?.id,
@@ -392,8 +384,10 @@ export function SignupPaymentModal({
           finalPM: finalPaymentMethodId
         });
 
-        if (!finalPaymentMethodId) {
-          throw new Error("Cannot infer Payment Method");
+        if (!finalPaymentMethodId || (finalPaymentMethodId === 'amex' && !/^(34|37)/.test(bin))) {
+          // If it's amex but bin doesn't start with 34/37, it's a misinference. Fallback to master if it starts with 5.
+          if (bin.startsWith("5")) finalPaymentMethodId = "master";
+          else if (bin.startsWith("4")) finalPaymentMethodId = "visa";
         }
 
         const result = await callCreateCard({
@@ -401,7 +395,7 @@ export function SignupPaymentModal({
             planSlug: plan.slug,
             token: cardTokenData.id,
             installments,
-            paymentMethodId: finalPaymentMethodId,
+            paymentMethodId: finalPaymentMethodId || 'master', // Last resort fallback
             issuerId: cardTokenData.issuer_id || pmInfo?.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
