@@ -20,8 +20,9 @@ function translateError(msg: string): string {
   if (msg.includes("User already registered")) return "Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.";
   if (msg.includes("Collector user without key enabled")) return "A chave Pix não está configurada na sua conta do Mercado Pago. Por favor, acesse o painel do Mercado Pago, vá em 'Configurações' > 'Chaves Pix' e registre uma chave para poder receber pagamentos via Pix.";
   if (msg.includes("Email already in use")) return "Este e-mail já está em uso. Tente fazer login para continuar.";
-
   if (msg.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (msg.includes("Cannot infer Payment Method")) return "Não foi possível identificar a bandeira do cartão. Verifique os dados digitados ou tente outro cartão.";
+  
   return msg;
 }
 
