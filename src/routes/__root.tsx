@@ -12,6 +12,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SiteScriptsInjector } from "@/components/SiteScriptsInjector";
+import { PushNotificationProvider } from "@/components/PushNotificationProvider";
 
 import appCss from "../styles.css?url";
 
@@ -134,11 +135,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
-        <PWAInstallBanner />
-        <SiteScriptsInjector />
-        <CookieConsent />
-        <Toaster richColors position="top-center" />
+        <PushNotificationProvider>
+          <Outlet />
+          <PWAInstallBanner />
+          <SiteScriptsInjector />
+          <CookieConsent />
+          <Toaster richColors position="top-center" />
+        </PushNotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
