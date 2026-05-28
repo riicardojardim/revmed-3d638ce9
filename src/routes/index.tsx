@@ -976,6 +976,7 @@ type Plan = {
 
 const PLANS: Plan[] = [
   {
+    slug: "ator",
     name: "Plano Ator",
     tagline: "Treine como paciente",
     price: "R$ 147,00",
@@ -995,6 +996,7 @@ const PLANS: Plan[] = [
     accent: "from-mint/20",
   },
   {
+    slug: "completo",
     name: "Plano Plataforma",
     tagline: "App REVMED completo",
     price: "R$ 597,00",
@@ -1018,6 +1020,7 @@ const PLANS: Plan[] = [
     accent: "from-primary/25",
   },
   {
+    slug: "mentoria",
     name: "Mentoria 1:5",
     tagline: "Acompanhamento humano + plataforma",
     price: "Sob consulta",
@@ -1040,6 +1043,7 @@ const PLANS: Plan[] = [
     accent: "from-amber-500/20",
   },
 ];
+
 
 function Investimento({
   isLogged,
