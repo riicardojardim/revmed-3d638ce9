@@ -12,15 +12,6 @@ export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async ()
   return { publicKey: key };
 });
 
-async function getPlanMeta(slug: string) {
-  const { data: plan } = await supabaseAdmin
-    .from("plans")
-    .select("id, name, price_cents")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (!plan) throw new Error(`Plano ${slug} não encontrado`);
-  return { cents: plan.price_cents, name: plan.name };
-}
 
 
 const MP_API = "https://api.mercadopago.com";
