@@ -371,16 +371,24 @@ export function SignupPaymentModal({
         });
 
         // 3. Determinar o ID final da bandeira (Payment Method)
-        // Ordem de prioridade: Token > API por BIN > Estado Local
-        let finalPaymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
+        // Damos prioridade à nossa identificação local (cardBrand) pois ela está
+        // se mostrando mais confiável que a inferência automática em alguns casos.
+        let finalPaymentMethodId = cardBrand || cardTokenData.payment_method_id || pmInfo?.id;
         
-        // Se ainda assim não identificou, mas o número começa com 5, assume master como último recurso
-        if (!finalPaymentMethodId && bin.startsWith("5")) {
-          finalPaymentMethodId = "master";
+        // Se ainda assim não identificou, mas o número começa com 5 ou 4, garantimos a bandeira
+        const firstDigit = bin.charAt(0);
+        if (!finalPaymentMethodId || finalPaymentMethodId === 'unknown') {
+          if (firstDigit === '5') finalPaymentMethodId = 'master';
+          else if (firstDigit === '4') finalPaymentMethodId = 'visa';
         }
-        if (!finalPaymentMethodId && bin.startsWith("4")) {
-          finalPaymentMethodId = "visa";
-        }
+
+        console.log("[checkout] Payment identification summary:", {
+          bin,
+          statePM: cardBrand,
+          tokenPM: cardTokenData.payment_method_id,
+          apiPM: pmInfo?.id,
+          finalPM: finalPaymentMethodId
+        });
 
         console.log("[checkout] Payment identification summary:", {
           bin,

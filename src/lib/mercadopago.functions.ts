@@ -227,23 +227,26 @@ export const createCardPayment = createServerFn({ method: "POST" })
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
       },
-      metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
+      metadata: { 
+        user_id: userId, 
+        plan_slug: data.planSlug, 
+        signup_data: data.signupData,
+        debug_payment_method: data.paymentMethodId 
+      },
     };
     if (data.paymentMethodId) {
       body.payment_method_id = data.paymentMethodId;
-    } else {
-      // Emergency fallback if for some reason frontend didn't send it
-      const bin = data.token.slice(0, 6); // this might not work if token is encrypted differently but often it contains bin
-      // Better to rely on the fact that if it's missing, Mercado Pago usually complains.
-      // But we can try to guess from the payer if needed? No.
     }
-    if (data.issuerId) body.issuer_id = data.issuerId;
+    
+    if (data.issuerId) {
+      body.issuer_id = Number(data.issuerId);
+    }
 
     console.log("[mercadopago] creating payment:", {
       amount: body.transaction_amount,
       method: body.payment_method_id,
       installments: body.installments,
-      issuer: data.issuerId,
+      issuer: body.issuer_id,
       token: data.token.slice(0, 10) + "..."
     });
 
