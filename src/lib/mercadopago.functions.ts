@@ -12,10 +12,16 @@ export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async ()
   return { publicKey: key };
 });
 
-const PLAN_AMOUNTS: Record<string, { cents: number; name: string }> = {
-  ator: { cents: 14700, name: "Plano Ator" },
-  completo: { cents: 59700, name: "Plano Plataforma" },
-};
+async function getPlanMeta(slug: string) {
+  const { data: plan } = await supabaseAdmin
+    .from("plans")
+    .select("id, name, price_cents")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!plan) throw new Error(`Plano ${slug} não encontrado`);
+  return { cents: plan.price_cents, name: plan.name };
+}
+
 
 const MP_API = "https://api.mercadopago.com";
 
