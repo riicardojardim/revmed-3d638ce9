@@ -1082,7 +1082,8 @@ function Investimento({
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
-          {PLANS.map((p, idx) => {
+          {mergedPlans.map((p, idx) => {
+
             const Icon = p.icon;
             return (
               <motion.div
