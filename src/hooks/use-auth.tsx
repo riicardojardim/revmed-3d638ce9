@@ -301,63 +301,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error("[auth] SignOut error:", e);
     } finally {
-      // 3. LIMPEZA NUCLEAR LOCAL
       if (typeof window !== "undefined") {
-        // Marca que saímos explicitamente via Cookie (persiste mais que localStorage em alguns fechamentos de aba)
-        document.cookie = "er_logged_out=true; path=/; max-age=31536000"; // 1 ano
-        
-        // Limpa Storage
         localStorage.clear();
         sessionStorage.clear();
         
-        // Limpa IndexedDB (Onde o Supabase pode guardar sessões persistentes)
-        try {
-          const dbs = await window.indexedDB.databases?.() || [];
-          for (const db of dbs) {
-            if (db.name) window.indexedDB.deleteDatabase(db.name);
-          }
-        } catch (e) {
-          console.warn("[auth] Failed to clear IndexedDB:", e);
-        }
+        // Limpeza simples de cookies
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
 
-        // Limpa Caches de API e Service Workers
-        try {
-          if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(name => caches.delete(name)));
-          }
-          if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map(reg => reg.unregister()));
-          }
-        } catch (e) {}
-
-        // Limpeza de Cookies de Domínio
-        const domain = window.location.hostname;
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i];
-          const eqPos = cookie.indexOf("=");
-          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-          
-          const clearCookie = (d?: string) => {
-            let s = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-            if (d) s += ";domain=" + d;
-            document.cookie = s;
-          };
-
-          clearCookie();
-          clearCookie(domain);
-          clearCookie("." + domain);
-          const parts = domain.split(".");
-          if (parts.length > 2) clearCookie("." + parts.slice(-2).join("."));
-        }
-
-        console.log("[auth] Local cleanup complete, redirecting...");
-        
-        // 4. Redirecionamento forçado
         window.location.href = "/login?logged_out=true";
       }
+    }
+
     }
   };
 
