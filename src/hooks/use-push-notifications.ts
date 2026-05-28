@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Chaves VAPID sincronizadas (Atualizadas para evitar Mismatch)
-const VAPID_PUBLIC_KEY = "BBfWRvZW1Pd4zpLdKk4ky2YYQpHpQyzN_a8pY83wdctKlw98CxsD_n7fXmw2ix7CUlvigzqpEjyXch_BmOiVXh4";
+// Chaves VAPID fornecidas pelo usuário
+const VAPID_PUBLIC_KEY = "BHob7rwXNuo0NXUaXR_F2y2IpsnHG8j8I7Tuhdi90ltYe4U9I6sMs7al1n1UPKKN40Wkx6kayrs3kgd7OJn8elI";
 
 export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -21,15 +21,7 @@ export function usePushNotifications() {
     try {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      
-      // Se houver uma inscrição, verificamos se ela usa a chave correta
-      // Se não usar, forçamos o descadastro para que o usuário possa se cadastrar com a nova chave
-      if (subscription) {
-        setIsSubscribed(true);
-      } else {
-        setIsSubscribed(false);
-      }
-      
+      setIsSubscribed(!!subscription);
       setPermission(Notification.permission);
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -59,7 +51,6 @@ export function usePushNotifications() {
         return;
       }
 
-      // Garante que o service worker está registrado e ativo
       let registration = await navigator.serviceWorker.getRegistration();
       if (!registration) {
         registration = await navigator.serviceWorker.register('/sw.js');
@@ -67,7 +58,7 @@ export function usePushNotifications() {
       
       const readyRegistration = await navigator.serviceWorker.ready;
 
-      // Se já houver uma inscrição, vamos removê-la primeiro para garantir que usamos a chave nova
+      // Forçar descadastro se já houver para garantir que use as chaves novas
       const existingSub = await readyRegistration.pushManager.getSubscription();
       if (existingSub) {
         await existingSub.unsubscribe();

@@ -1,5 +1,5 @@
 // Service Worker para Notificações Push REVMED
-const VAPID_PUBLIC_KEY = "BBfWRvZW1Pd4zpLdKk4ky2YYQpHpQyzN_a8pY83wdctKlw98CxsD_n7fXmw2ix7CUlvigzqpEjyXch_BmOiVXh4";
+const VAPID_PUBLIC_KEY = "BHob7rwXNuo0NXUaXR_F2y2IpsnHG8j8I7Tuhdi90ltYe4U9I6sMs7al1n1UPKKN40Wkx6kayrs3kgd7OJn8elI";
 
 self.addEventListener('push', (event) => {
   if (!event.data) return;
@@ -31,7 +31,6 @@ self.addEventListener('notificationclick', (event) => {
   }
 });
 
-// Forçar atualização do SW quando as chaves mudarem
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
