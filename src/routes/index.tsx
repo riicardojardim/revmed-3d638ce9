@@ -110,18 +110,22 @@ function LandingPage() {
   const [dbPlans, setDbPlans] = useState<any[]>([]);
 
   const lastY = useRef(0);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
   useEffect(() => {
     setMounted(true);
     const fetchPlans = async () => {
+      setLoadingPlans(true);
       const { data, error } = await supabase.from("plans").select("*").eq("active", true).order("price_cents");
       if (error) {
         console.error("Erro ao buscar planos:", error);
+        setLoadingPlans(false);
         return;
       }
       if (data) {
         setDbPlans(data);
       }
+      setLoadingPlans(false);
     };
 
     fetchPlans();
@@ -207,6 +211,7 @@ function LandingPage() {
           isLogged={mounted && !!user}
           onChoosePlan={(p) => setSignupPlan(p)}
           dbPlans={dbPlans}
+          loadingPlans={loadingPlans}
         />
 
         <FAQ />
@@ -1058,10 +1063,12 @@ function Investimento({
   isLogged,
   onChoosePlan,
   dbPlans,
+  loadingPlans,
 }: {
   isLogged: boolean;
   onChoosePlan: (p: SignupModalPlan) => void;
   dbPlans: any[];
+  loadingPlans: boolean;
 }) {
   const BRL_CURRENCY = "BRL";
   const allPlans = useMemo(() => {
@@ -1159,12 +1166,16 @@ function Investimento({
             Escolha como você quer treinar.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:text-lg">
-            Plano Ator, Plano Plataforma ou Mentoria 1:5 com acompanhamento humano.
+            {dbPlans.length > 0 ? dbPlans.map(p => p.name).join(", ") : "Plano Ator, Plano Plataforma ou Mentoria 1:5"} com acompanhamento humano.
             Pague uma vez e use até o dia da prova — <span className="font-semibold text-foreground">parcelamos em até 10x sem juros no cartão</span>.
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
-          {allPlans.map((p: any, idx: number) => {
+          {loadingPlans ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-[500px] animate-pulse rounded-3xl border border-border/50 bg-card/20" />
+            ))
+          ) : allPlans.filter((p: any) => dbPlans.some((db: any) => db.slug === p.slug)).map((p: any, idx: number) => {
 
 
             const Icon = p.icon;
