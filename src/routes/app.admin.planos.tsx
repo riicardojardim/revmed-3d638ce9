@@ -259,23 +259,38 @@ function NewPlanDialog({ open, onOpenChange, onCreate }: {
             <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
-          <label className="block text-sm">Descrição
+          <label className="block text-sm">Chamada (Tagline)
+            <input value={draft.tagline ?? ""} onChange={(e) => setDraft({ ...draft, tagline: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" placeholder="Ex: App completo" />
+          </label>
+          <label className="block text-sm">Descrição (checkout)
             <textarea value={draft.description ?? ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })}
               rows={2} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="block text-sm">Preço (R$)
+            <label className="block text-sm">Preço Atual (R$)
               <input type="number" step="0.01" value={(draft.price_cents / 100).toFixed(2)}
                 onChange={(e) => setDraft({ ...draft, price_cents: Math.round(Number(e.target.value) * 100) })}
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
             </label>
-            <label className="block text-sm">Trial (dias)
-              <input type="number" value={draft.trial_days}
-                onChange={(e) => setDraft({ ...draft, trial_days: Number(e.target.value) })}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" />
+            <label className="block text-sm">Preço Antigo (R$)
+              <input type="number" step="0.01" value={draft.old_price_cents ? (draft.old_price_cents / 100).toFixed(2) : ""}
+                onChange={(e) => setDraft({ ...draft, old_price_cents: e.target.value ? Math.round(Number(e.target.value) * 100) : null })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2" placeholder="Ex: 897,00" />
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="block text-sm text-muted-foreground">Tag de Desconto
+              <input value={draft.discount_tag ?? ""} onChange={(e) => setDraft({ ...draft, discount_tag: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" placeholder="Ex: 33% OFF" />
+            </label>
+            <label className="block text-sm text-muted-foreground">Texto do Botão (CTA)
+              <input value={draft.cta_text ?? ""} onChange={(e) => setDraft({ ...draft, cta_text: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground" />
             </label>
           </div>
         </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button variant="hero" onClick={() => onCreate(draft)} disabled={!draft.slug || !draft.name}>Criar</Button>
