@@ -13,6 +13,7 @@ import { PWAInstallBanner } from "@/components/PWAInstallBanner";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SiteScriptsInjector } from "@/components/SiteScriptsInjector";
 import { PushNotificationProvider } from "@/components/PushNotificationProvider";
+import { PushNotificationPrompt } from "@/components/PushNotificationPrompt";
 
 import appCss from "../styles.css?url";
 
@@ -138,6 +139,7 @@ function RootComponent() {
         <PushNotificationProvider>
           <Outlet />
           <PWAInstallBanner />
+          <PushNotificationPrompt />
           <SiteScriptsInjector />
           <CookieConsent />
           <Toaster richColors position="top-center" />
