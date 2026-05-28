@@ -391,7 +391,22 @@ function AdminProviders() {
                       </div>
                     )}
 
+                    {row.provider_key === "mercado_pago" && !row.is_active && envStatus?.mercadopago.api_key && (
+                      <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-xs space-y-2">
+                        <p>
+                          Os pagamentos <strong>já estão funcionando</strong> usando o secret
+                          <code className="mx-1">MERCADOPAGO_ACCESS_TOKEN</code> do servidor (fallback automático).
+                          Para o painel refletir este estado e permitir edição, importe os valores:
+                        </p>
+                        <Button size="sm" variant="outline" onClick={handleImportMercadoPago} disabled={!!importing}>
+                          {importing === "mercadopago" && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                          Importar secrets do servidor & ativar
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="grid gap-3">
+
                       <div>
                         <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">API Key / Token</Label>
                         <Input
