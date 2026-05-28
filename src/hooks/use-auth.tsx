@@ -173,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const nextRoles = ((rs ?? []) as { role: AppRole }[]).map((r) => r.role);
       setProfile(nextProfile);
       setRoles(nextRoles);
+      setLoading(false);
       try {
         const { data } = await supabase.auth.getUser();
         if (data?.user) {
