@@ -289,7 +289,18 @@ export const updateUserProfileAdmin = createServerFn({ method: "POST" })
       if (ex && ex.id !== data.user_id) throw new Error("CPF já está em uso por outro usuário.");
     }
 
+    const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, {
+      user_metadata: {
+        full_name,
+        first_name: first || null,
+        last_name: last || null,
+        title: data.title || null,
+      }
+    });
+    if (authErr) console.error("[updateUserProfileAdmin] auth update failed", authErr);
+
     const { error } = await supabaseAdmin
+
       .from("profiles")
       .upsert(
         {
