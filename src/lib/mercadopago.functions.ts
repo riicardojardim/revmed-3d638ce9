@@ -129,6 +129,8 @@ export const createPixPayment = createServerFn({ method: "POST" })
     const idempotencyKey = `pix-${userId}-${data.planSlug}-${Date.now()}`;
     const body = {
       transaction_amount: plan.cents / 100,
+      installments: 1,
+
       description: `REVMED · ${plan.name}`,
       payment_method_id: "pix",
       external_reference: `${userId}:${data.planSlug}`,
@@ -208,6 +210,8 @@ export const createCardPayment = createServerFn({ method: "POST" })
     const idempotencyKey = `card-${userId}-${data.planSlug}-${Date.now()}`;
     const body: Record<string, unknown> = {
       transaction_amount: plan.cents / 100,
+      binary_mode: true,
+
       token: data.token,
       description: `REVMED · ${plan.name}`,
       installments: data.installments,
