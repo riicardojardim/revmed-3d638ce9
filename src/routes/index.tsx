@@ -1627,17 +1627,17 @@ function FAQ({ dbPlans }: { dbPlans: any[] }) {
       
       // Replace names dynamically
       const names = [
-        { slug: 'completo', fallback: 'Full' },
-        { slug: 'ator', fallback: 'Ator' },
-        { slug: 'mentoria', fallback: 'Mentoria' }
+        { slug: 'completo', search: /Plano Completo|Plataforma|Full/gi },
+        { slug: 'ator', search: /Plano Ator|Ator/gi },
+        { slug: 'mentoria', search: /Mentoria/gi }
       ];
 
-      names.forEach(({ slug, fallback }) => {
-        const dynamicName = getPlanName(slug, fallback);
-        // Usamos regex global para substituir todas as ocorrências
-        const regex = new RegExp(fallback, 'g');
-        a = a.replace(regex, dynamicName);
-        q = q.replace(regex, dynamicName);
+      names.forEach(({ slug, search }) => {
+        const dynamicName = getPlanName(slug, '');
+        if (dynamicName) {
+          a = a.replace(search, dynamicName);
+          q = q.replace(search, dynamicName);
+        }
       });
 
       return { ...faq, q, a };
