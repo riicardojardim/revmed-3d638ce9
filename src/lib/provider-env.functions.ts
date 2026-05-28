@@ -25,9 +25,11 @@ export const getProviderEnvStatus = createServerFn({ method: "GET" })
       },
       mercadopago: {
         api_key: !!process.env.MERCADOPAGO_ACCESS_TOKEN,
+        api_secret: !!process.env.MERCADOPAGO_PUBLIC_KEY,
         webhook_secret: !!process.env.MERCADOPAGO_WEBHOOK_SECRET,
       },
     };
+
 
   });
 
@@ -86,7 +88,9 @@ export const importMercadoPagoFromEnv = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("forbidden");
 
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const publicKey = process.env.MERCADOPAGO_PUBLIC_KEY;
     const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+
 
     if (!accessToken) {
       return { ok: false, error: "Secret MERCADOPAGO_ACCESS_TOKEN não configurado no servidor." };
@@ -102,9 +106,11 @@ export const importMercadoPagoFromEnv = createServerFn({ method: "POST" })
       .from("provider_settings")
       .update({
         api_key: accessToken,
+        api_secret: publicKey ?? null,
         webhook_secret: webhookSecret ?? null,
         is_active: true,
       })
+
       .eq("category", "payment")
       .eq("provider_key", "mercado_pago");
 
