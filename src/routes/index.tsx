@@ -1627,9 +1627,9 @@ function FAQ({ dbPlans }: { dbPlans: any[] }) {
       
       // Replace names dynamically
       const names = [
-        { slug: 'completo', fallback: 'Plano Full' },
-        { slug: 'ator', fallback: 'Plano Ator' },
-        { slug: 'mentoria', fallback: 'Mentoria 1:5' }
+        { slug: 'completo', fallback: 'Full' },
+        { slug: 'ator', fallback: 'Ator' },
+        { slug: 'mentoria', fallback: 'Mentoria' }
       ];
 
       names.forEach(({ slug, fallback }) => {
