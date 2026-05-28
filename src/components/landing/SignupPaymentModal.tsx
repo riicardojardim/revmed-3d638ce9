@@ -187,7 +187,12 @@ export function SignupPaymentModal({
     }
 
     setSubmitting(true);
+    
+    // Garantir que não há sessão antiga interferindo (especialmente se um usuário foi deletado recentemente)
+    await supabase.auth.signOut();
+
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
+
     const cpfDigits = form.cpf.replace(/\D/g, "");
 
     let signupResponse = await supabase.auth.signUp({
