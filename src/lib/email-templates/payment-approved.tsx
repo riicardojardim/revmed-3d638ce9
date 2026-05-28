@@ -10,12 +10,13 @@ interface PaymentApprovedProps {
   name?: string
   planName?: string
   amount?: string
+  installmentAmount?: string
   paymentMethod?: 'pix' | 'credit_card' | string
   last4?: string
   installments?: number
 }
 
-const PaymentApprovedEmail = ({ name, planName, amount, paymentMethod, last4, installments }: PaymentApprovedProps) => (
+const PaymentApprovedEmail = ({ name, planName, amount, installmentAmount, paymentMethod, last4, installments }: PaymentApprovedProps) => (
   <Layout previewText={`Seu pagamento foi aprovado — acesso liberado na ${SITE_NAME}`}>
     <Section style={emailStyles.badge}>
       <Text style={emailStyles.badgeText}>✓ PAGAMENTO APROVADO</Text>
@@ -55,7 +56,9 @@ const PaymentApprovedEmail = ({ name, planName, amount, paymentMethod, last4, in
             <Text style={emailStyles.cardLabel}>Forma de pagamento</Text>
             <Text style={emailStyles.cardValue}>
               Cartão {last4 ? `final ${last4}` : ''}
-              {installments ? ` — ${installments}x` : ''}
+              {installments && installments > 1 
+                ? ` — ${installments}x de ${installmentAmount || 'R$ --'}` 
+                : ' — À vista'}
             </Text>
           </>
         )}
@@ -83,5 +86,5 @@ export const template = {
   component: PaymentApprovedEmail,
   subject: 'Seja bem-vindo(a)! Seu pagamento foi aprovado e o acesso está liberado',
   displayName: 'Pagamento aprovado',
-  previewData: { name: 'Dra. Ana', planName: 'Plano Mentoria Completa', amount: 'R$ 597,00', paymentMethod: 'credit_card', last4: '4242', installments: 10 },
+  previewData: { name: 'Dra. Ana', planName: 'Plano Mentoria Completa', amount: 'R$ 597,00', installmentAmount: 'R$ 59,70', paymentMethod: 'credit_card', last4: '4242', installments: 10 },
 } satisfies TemplateEntry

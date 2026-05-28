@@ -18,6 +18,7 @@ export async function sendPaymentApprovedEmail(args: {
   name?: string;
   planName?: string;
   amount?: string;
+  installmentAmount?: string;
   paymentMethod?: string;
   last4?: string;
   installments?: number;
@@ -53,6 +54,7 @@ export async function sendPaymentApprovedEmail(args: {
     name: args.name, 
     planName: args.planName, 
     amount: args.amount,
+    installmentAmount: args.installmentAmount,
     paymentMethod: args.paymentMethod,
     last4: args.last4,
     installments: args.installments,

@@ -123,12 +123,16 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
               const paymentMethod = mp.payment_method_id === "pix" ? "pix" : "credit_card";
               const last4 = mp.card?.last_four_digits || undefined;
               const installments = mp.installments || undefined;
+              const installmentAmount = mp.transaction_details?.installment_amount
+                ? `R$ ${mp.transaction_details.installment_amount.toFixed(2).replace(".", ",")}`
+                : undefined;
 
               await sendPaymentApprovedEmail({
                 recipientEmail: email, 
                 name, 
                 planName, 
                 amount,
+                installmentAmount,
                 paymentMethod,
                 last4,
                 installments,
