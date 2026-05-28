@@ -739,6 +739,11 @@ export function SignupPaymentModal({
                     </div>
                   </div>
                   <div>
+                    <Label htmlFor="m_card_cpf">CPF do Titular do Cartão</Label>
+                    <Input id="m_card_cpf" value={card.cpf} onChange={(e) => setCard((c) => ({ ...c, cpf: formatCPF(e.target.value) }))} placeholder="000.000.000-00 (Opcional)" />
+                    <p className="mt-1 text-[10px] text-muted-foreground">Preencha apenas se o cartão não for seu.</p>
+                  </div>
+                  <div>
                     <Label htmlFor="m_card_inst">Parcelamento</Label>
                     <select
                       id="m_card_inst"
