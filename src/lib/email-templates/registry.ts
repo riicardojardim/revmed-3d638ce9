@@ -19,13 +19,13 @@ export interface TemplateEntry {
 }
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  'payment-approved': paymentApproved,
-  'password-reset': passwordReset,
-  'welcome': welcome,
-  'signup': { component: SignupEmail, subject: 'Confirme seu e-mail — REVMED' },
-  'invite': { component: InviteEmail, subject: 'Você foi convidado(a) — REVMED' },
-  'magiclink': { component: MagicLinkEmail, subject: 'Seu link de acesso — REVMED' },
-  'recovery': { component: RecoveryEmail, subject: 'Redefinição de senha — REVMED' },
-  'email_change': { component: EmailChangeEmail, subject: 'Confirme seu novo e-mail — REVMED' },
-  'reauthentication': { component: ReauthenticationEmail, subject: 'Seu código de verificação — REVMED' },
+  'pagamento-aprovado': paymentApproved,
+  'recuperacao-de-senha': passwordReset,
+  'boas-vindas': welcome,
+  'confirmacao-de-email': { component: SignupEmail, subject: 'Confirme seu e-mail — REVMED' },
+  'convite': { component: InviteEmail, subject: 'Você foi convidado(a) — REVMED' },
+  'link-de-acesso': { component: MagicLinkEmail, subject: 'Seu link de acesso — REVMED' },
+  'redefinicao-de-senha': { component: RecoveryEmail, subject: 'Redefinição de senha — REVMED' },
+  'alteracao-de-email': { component: EmailChangeEmail, subject: 'Confirme seu novo e-mail — REVMED' },
+  'autenticacao': { component: ReauthenticationEmail, subject: 'Seu código de verificação — REVMED' },
 }
