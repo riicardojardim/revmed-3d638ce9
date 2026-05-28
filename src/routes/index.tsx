@@ -1159,7 +1159,7 @@ function Investimento({
                   <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-border to-transparent sm:my-7" />
 
                   <ul className="space-y-2.5 sm:space-y-3">
-                    {p.features.map((f) => (
+                    {p.features.map((f: string) => (
                       <li key={f} className="flex items-start gap-3 text-[0.8rem] sm:text-sm">
                         <span
                           className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
