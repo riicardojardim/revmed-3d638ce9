@@ -99,7 +99,6 @@ function getDeviceId(): string {
 async function claimActiveSession(userId: string) {
   const device_id = getDeviceId();
   try {
-    // Admin pode ficar logado em vários lugares — não reivindica a sessão única.
     const { data: rolesRows } = await supabase
       .from("user_roles")
       .select("role")
@@ -112,23 +111,13 @@ async function claimActiveSession(userId: string) {
   } catch {}
 }
 
-const ACCESS_BLOCK_NOTICE_KEY = "er_access_block_notice";
-
-/**
- * Confere se o usuário tem acesso pago (plano não expirado).
- * Admin/Professor passam livre. Sem plano ativo → sign out + redirect /#planos.
- */
 async function enforcePlanAccess(userId: string) {
   if (typeof window === "undefined") return;
   const path = window.location.pathname;
 
-  // Só aplica a verificação de plano se o usuário estiver tentando acessar a área restrita (/app).
-  // Se estiver na landing page ou outras páginas públicas, ele pode estar logado (ex: durante checkout).
   if (!path.startsWith("/app") || path.startsWith("/app/admin")) return;
 
   try {
-    // Privilegiados (admin/professor) sempre têm acesso.
-
     const { data: rs } = await supabase
       .from("user_roles")
       .select("role")
@@ -154,16 +143,10 @@ async function enforcePlanAccess(userId: string) {
       window.location.href = "/#planos";
     }
 
-  } catch {
-    // Em caso de falha de rede, não derruba a sessão.
-  }
+  } catch {}
 }
 
-
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Seed sincronamente a partir do cache local para evitar o "flicker" de
-  // mostrar Login antes do estado autenticado ser carregado.
   const cached = typeof window !== "undefined" ? readAuthCache() : null;
   const hasPersisted = hasPersistedSupabaseSession();
   const seedUser = cached?.user && hasPersisted
@@ -174,8 +157,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(seedUser);
   const [profile, setProfile] = useState<Profile | null>(seedUser ? cached?.profile ?? null : null);
   const [roles, setRoles] = useState<AppRole[]>(seedUser ? cached?.roles ?? [] : []);
-  // Se há sessão persistida e cache, considera "não loading" para a UI já
-  // renderizar o avatar imediatamente.
   const [loading, setLoading] = useState(!seedUser);
 
   async function loadExtras(uid: string) {
@@ -190,7 +171,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const nextRoles = ((rs ?? []) as { role: AppRole }[]).map((r) => r.role);
       setProfile(nextProfile);
       setRoles(nextRoles);
-      // Atualiza cache para próximo carregamento
       try {
         const { data } = await supabase.auth.getUser();
         if (data?.user) {
@@ -211,10 +191,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
-      // Libera a UI imediatamente assim que sabemos o estado de auth.
       setLoading(false);
       if (s?.user) {
-        // Carrega profile/roles em background — não bloqueia render.
         setTimeout(() => { void loadExtras(s.user.id); }, 0);
         if (event === "SIGNED_IN") {
           setTimeout(() => { void claimActiveSession(s.user.id); }, 0);
@@ -232,7 +210,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(s?.user ?? null);
       setLoading(false);
       if (s?.user) {
-        // Background: não trava o render do app.
         void loadExtras(s.user.id);
         void claimActiveSession(s.user.id);
         void enforcePlanAccess(s.user.id);
@@ -250,11 +227,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-
-  // Single-session enforcement: listen for active-session changes
   useEffect(() => {
     if (!user) return;
-    // Admin não é deslogado ao logar em outro dispositivo.
     if (roles.includes("admin")) return;
     const myDevice = getDeviceId();
     const channel = supabase
@@ -271,7 +245,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 duration: 6000,
               });
             } catch {}
-            // Pequeno delay para o toast aparecer antes do redirect.
             void supabase.auth.signOut().finally(() => {
               window.setTimeout(() => {
                 window.location.href = "/login?reason=other-device";
@@ -286,6 +259,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signOut() {
     await supabase.auth.signOut();
+    writeAuthCache(null);
+    if (typeof window !== "undefined") {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+          localStorage.removeItem(k);
+        }
+      }
+      window.location.href = "/";
+    }
   }
 
   async function refresh() {
