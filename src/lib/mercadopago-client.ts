@@ -13,7 +13,8 @@ export async function getPaymentMethodFromBin(
     const res = await fetch(url);
     if (res.ok) {
       const json = await res.json().catch(() => []);
-      const pm = Array.isArray(json) ? json[0] : json?.results?.[0];
+      // API can return an array or an object with results
+      const pm = Array.isArray(json) ? json[0] : (json?.results?.[0] || json);
       if (pm?.id) {
         return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
       }
