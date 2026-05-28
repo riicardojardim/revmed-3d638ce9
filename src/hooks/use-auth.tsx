@@ -149,7 +149,7 @@ async function enforcePlanAccess(userId: string) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const cached = typeof window !== "undefined" ? readAuthCache() : null;
   const hasPersisted = hasPersistedSupabaseSession();
-  const isLoggedOutUrl = typeof window !== "undefined" && (window.location.search.includes("logged_out=true") || document.cookie.includes("er_logged_out=true"));
+  const isLoggedOutUrl = typeof window !== "undefined" && window.location.search.includes("logged_out=true");
   
   const seedUser = cached?.user && hasPersisted && !isLoggedOutUrl
     ? ({ id: cached.user.id, email: cached.user.email ?? undefined } as unknown as User)
@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(seedUser);
   const [profile, setProfile] = useState<Profile | null>(seedUser ? cached?.profile ?? null : null);
   const [roles, setRoles] = useState<AppRole[]>(seedUser ? cached?.roles ?? [] : []);
-  const [loading, setLoading] = useState(!seedUser && hasPersisted && !isLoggedOutUrl);
+  const [loading, setLoading] = useState(!seedUser);
 
   async function loadExtras(uid: string) {
     try {
@@ -190,31 +190,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Se detectarmos o parâmetro de logout ou o cookie de logout, forçamos uma limpeza total preventiva
-    const isLoggedOut = typeof window !== "undefined" && (window.location.search.includes("logged_out=true") || document.cookie.includes("er_logged_out=true"));
+    // Só executa limpeza se houver flag explícita na URL ou no Cookie
+    const hasLoggedOutParam = typeof window !== "undefined" && window.location.search.includes("logged_out=true");
+    const hasLoggedOutCookie = typeof window !== "undefined" && document.cookie.includes("er_logged_out=true");
     
-    if (isLoggedOut) {
+    if (hasLoggedOutParam || hasLoggedOutCookie) {
       console.log("[auth] Forced logout detected, cleaning up...");
       
-      // Limpa TUDO no localStorage e sessionStorage
-      if (typeof window !== "undefined") {
-        const keys = Object.keys(localStorage);
-        keys.forEach(k => {
-          if (k.startsWith("sb-") || k.includes("auth-token") || k.startsWith("er_")) {
-            localStorage.removeItem(k);
-          }
-        });
-        localStorage.clear(); 
+      try {
+        localStorage.clear();
         sessionStorage.clear();
-        
-        // Remove o cookie de logout e outros cookies de sessão
+        // Remove o cookie
         document.cookie = "er_logged_out=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-      }
+      } catch (e) {}
 
-      // Limpa a URL se necessário
-      if (window.location.search.includes("logged_out=true")) {
+      if (hasLoggedOutParam) {
         const url = new URL(window.location.href);
         url.searchParams.delete("logged_out");
         window.history.replaceState({}, document.title, url.toString());
@@ -311,61 +301,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error("[auth] SignOut error:", e);
     } finally {
-      // 3. LIMPEZA NUCLEAR LOCAL
       if (typeof window !== "undefined") {
-        // Marca que saímos explicitamente via Cookie (persiste mais que localStorage em alguns fechamentos de aba)
-        document.cookie = "er_logged_out=true; path=/; max-age=31536000"; // 1 ano
-        
-        // Limpa Storage
         localStorage.clear();
         sessionStorage.clear();
         
-        // Limpa IndexedDB (Onde o Supabase pode guardar sessões persistentes)
-        try {
-          const dbs = await window.indexedDB.databases?.() || [];
-          for (const db of dbs) {
-            if (db.name) window.indexedDB.deleteDatabase(db.name);
-          }
-        } catch (e) {
-          console.warn("[auth] Failed to clear IndexedDB:", e);
-        }
+        // Limpeza simples de cookies
+        document.cookie.split(";").forEach(c => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
 
-        // Limpa Caches de API e Service Workers
-        try {
-          if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(name => caches.delete(name)));
-          }
-          if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(registrations.map(reg => reg.unregister()));
-          }
-        } catch (e) {}
-
-        // Limpeza de Cookies de Domínio
-        const domain = window.location.hostname;
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i];
-          const eqPos = cookie.indexOf("=");
-          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-          
-          const clearCookie = (d?: string) => {
-            let s = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-            if (d) s += ";domain=" + d;
-            document.cookie = s;
-          };
-
-          clearCookie();
-          clearCookie(domain);
-          clearCookie("." + domain);
-          const parts = domain.split(".");
-          if (parts.length > 2) clearCookie("." + parts.slice(-2).join("."));
-        }
-
-        console.log("[auth] Local cleanup complete, redirecting...");
-        
-        // 4. Redirecionamento forçado
         window.location.href = "/login?logged_out=true";
       }
     }
