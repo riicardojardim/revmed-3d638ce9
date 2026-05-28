@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
-import { syncUserProfile } from "@/lib/mercadopago.shared";
+import { syncUserProfile, getPlanMeta } from "@/lib/mercadopago.shared";
 
 
 const MP_API = "https://api.mercadopago.com";
