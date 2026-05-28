@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
-import { syncUserProfile } from "./mercadopago.shared";
+import { syncUserProfile, getPlanMeta } from "./mercadopago.shared";
 
 
 export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async () => {
