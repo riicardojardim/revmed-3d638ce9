@@ -13,15 +13,22 @@ export type SignupModalPlan = {
 };
 
 export function SignupPaymentModal({
-  open,
+  open: originalOpen,
   onOpenChange,
-  plan,
+  plan: originalPlan,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   plan: SignupModalPlan | null;
 }) {
-  if (!plan) return null;
+  const open = true;
+  const plan: SignupModalPlan = originalPlan || {
+    slug: "completo",
+    name: "Plano Completo",
+    price: "R$ 897",
+    priceCents: 89700
+  };
+
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
 
   return (
