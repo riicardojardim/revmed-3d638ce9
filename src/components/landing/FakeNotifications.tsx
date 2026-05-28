@@ -31,7 +31,7 @@ type Notif = {
 
 const POOL: Omit<Notif, "id" | "time">[] = [
   { name: "Dra. Marina S.", action: "garantiu vaga na turma 2026.1", avatar: notif1 },
-  { name: "Dr. Rafael M.", action: "começou o plano Plataforma", avatar: notif2 },
+  { name: "Dr. Rafael M.", action: "começou o Plano Completo", avatar: notif2 },
   { name: "Dra. Camila R.", action: "fez uma simulação cronometrada", avatar: notif3 },
   { name: "Dr. Henrique T.", action: "garantiu vaga na turma 2026.1", avatar: notif4 },
   { name: "Dra. Letícia P.", action: "completou um checklist INEP", avatar: notif5 },
