@@ -70,15 +70,17 @@ export function usePushNotifications() {
 
       if (error) throw error;
 
-      // Envia notificação de boas-vindas
-      await supabase.functions.invoke("send-push-notification", {
-        body: { 
-          title: 'Notificações Ativadas! 🔔', 
-          body: 'Você agora receberá as principais novidades do REVMED diretamente aqui.', 
-          url: '/app/perfil',
-          userId: user.id
-        },
-      });
+      // Envia notificação de boas-vindas se o usuário estiver logado
+      if (user) {
+        await supabase.functions.invoke("send-push-notification", {
+          body: { 
+            title: 'Notificações Ativadas! 🔔', 
+            body: 'Você agora receberá as principais novidades do REVMED diretamente aqui.', 
+            url: '/app/perfil',
+            userId: user.id
+          },
+        });
+      }
 
       setIsSubscribed(true);
       toast.success('Notificações ativadas com sucesso!');
