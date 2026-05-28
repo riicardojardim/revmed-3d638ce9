@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import { CreditCard, Video, Upload, Loader2, KeyRound, Copy, Check, BookOpen } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useServerFn } from "@tanstack/react-start";
-import { getProviderEnvStatus, importLivekitFromEnv } from "@/lib/provider-env.functions";
+import { getProviderEnvStatus, importLivekitFromEnv, importMercadoPagoFromEnv } from "@/lib/provider-env.functions";
+
 
 export const Route = createFileRoute("/app/admin/provedores")({
   component: AdminProviders,
