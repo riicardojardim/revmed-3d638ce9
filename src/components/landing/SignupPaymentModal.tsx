@@ -362,13 +362,14 @@ export function SignupPaymentModal({
         console.log("[checkout] Payment method detection:", {
           fromToken: cardTokenData.payment_method_id,
           fromBin: pmInfo?.id,
-          final: paymentMethodId
+          fromState: cardBrand,
+          final: cardTokenData.payment_method_id || pmInfo?.id || cardBrand
         });
 
+        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
+
         if (!paymentMethodId) {
-          // Se ainda assim não identificarmos, o Mercado Pago provavelmente recusará no servidor, 
-          // mas vamos tentar avisar o usuário de forma clara.
-          throw new Error("Não foi possível identificar a bandeira do cartão. Verifique se o número está correto.");
+          throw new Error("Cannot infer Payment Method");
         }
 
         const result = await callCreateCard({
