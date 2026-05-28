@@ -13,7 +13,7 @@ import { formatCPF, isValidCPF } from "@/lib/cpf";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { createPixPayment, createCardPayment, getPaymentStatus, getMpPublicKey } from "@/lib/mercadopago.functions";
-import { createCardToken } from "@/lib/mercadopago-client";
+import { createCardToken, getPaymentMethodFromBin } from "@/lib/mercadopago-client";
 
 function translateError(msg: string): string {
   if (msg.includes("Password is known to be weak")) return "Esta senha é muito fraca e fácil de adivinhar. Por favor, escolha uma senha mais forte.";
@@ -303,7 +303,11 @@ export function SignupPaymentModal({
         const { publicKey } = await callGetPublicKey({});
         const [expMonth, expYear] = card.expiry.split("/");
         
-        // Criamos o token e já recebemos o payment_method_id correto do Mercado Pago
+        // Buscamos o método pelo BIN primeiro
+        const bin = card.number.replace(/\D/g, "").slice(0, 6);
+        const pmInfo = await getPaymentMethodFromBin(publicKey, bin);
+
+        // Criamos o token
         const cardTokenData = await createCardToken(publicKey, {
           cardNumber: card.number,
           cardholderName: card.name,
@@ -313,13 +317,20 @@ export function SignupPaymentModal({
           docNumber: cpfDigits,
         });
 
+        // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN
+        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id;
+        
+        if (!paymentMethodId) {
+          throw new Error("Não foi possível identificar a bandeira do cartão. Verifique o número digitado.");
+        }
+
         const result = await callCreateCard({
           data: {
             planSlug: plan.slug,
             token: cardTokenData.id,
             installments,
-            paymentMethodId: cardTokenData.payment_method_id,
-            issuerId: cardTokenData.issuer_id,
+            paymentMethodId: paymentMethodId,
+            issuerId: cardTokenData.issuer_id || pmInfo?.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
           },
