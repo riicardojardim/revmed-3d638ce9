@@ -342,11 +342,17 @@ export function SignupPaymentModal({
         const { publicKey } = await callGetPublicKey({});
         const [expMonth, expYear] = card.expiry.split("/");
         
-        // Buscamos o método pelo BIN primeiro
         const bin = card.number.replace(/\D/g, "").slice(0, 6);
-        const pmInfo = await getPaymentMethodFromBin(publicKey, bin);
+        
+        // 1. Tentar identificar a bandeira pela API do Mercado Pago (mais confiável)
+        let pmInfo = null;
+        try {
+          pmInfo = await getPaymentMethodFromBin(publicKey, bin);
+        } catch (e) {
+          console.warn("[checkout] getPaymentMethodFromBin error", e);
+        }
 
-        // Criamos o token
+        // 2. Criar o token do cartão
         const cardTokenData = await createCardToken(publicKey, {
           cardNumber: card.number,
           cardholderName: card.name,
@@ -356,17 +362,27 @@ export function SignupPaymentModal({
           docNumber: cpfDigits,
         });
 
-        // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN (ou o fallback local)
-        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
+        // 3. Determinar o ID final da bandeira (Payment Method)
+        // Ordem de prioridade: Token > API por BIN > Estado Local
+        let finalPaymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
         
-        console.log("[checkout] Payment method detection:", {
-          fromToken: cardTokenData.payment_method_id,
-          fromBin: pmInfo?.id,
-          fromState: cardBrand,
-          final: paymentMethodId
+        // Se ainda assim não identificou, mas o número começa com 5, assume master como último recurso
+        if (!finalPaymentMethodId && bin.startsWith("5")) {
+          finalPaymentMethodId = "master";
+        }
+        if (!finalPaymentMethodId && bin.startsWith("4")) {
+          finalPaymentMethodId = "visa";
+        }
+
+        console.log("[checkout] Payment identification summary:", {
+          bin,
+          tokenPM: cardTokenData.payment_method_id,
+          apiPM: pmInfo?.id,
+          statePM: cardBrand,
+          finalPM: finalPaymentMethodId
         });
 
-        if (!paymentMethodId) {
+        if (!finalPaymentMethodId) {
           throw new Error("Cannot infer Payment Method");
         }
 
@@ -375,7 +391,7 @@ export function SignupPaymentModal({
             planSlug: plan.slug,
             token: cardTokenData.id,
             installments,
-            paymentMethodId: paymentMethodId,
+            paymentMethodId: finalPaymentMethodId,
             issuerId: cardTokenData.issuer_id || pmInfo?.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
