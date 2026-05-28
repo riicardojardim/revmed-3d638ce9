@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import { CreditCard, Video, Upload, Loader2, KeyRound, Copy, Check, BookOpen } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useServerFn } from "@tanstack/react-start";
-import { getProviderEnvStatus, importLivekitFromEnv } from "@/lib/provider-env.functions";
+import { getProviderEnvStatus, importLivekitFromEnv, importMercadoPagoFromEnv } from "@/lib/provider-env.functions";
+
 
 export const Route = createFileRoute("/app/admin/provedores")({
   component: AdminProviders,
@@ -176,11 +177,16 @@ function AdminProviders() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [openGuide, setOpenGuide] = useState<string | null>(null);
-  const [envStatus, setEnvStatus] = useState<{ livekit: { api_key: boolean; api_secret: boolean; api_url: boolean } } | null>(null);
-  const [importing, setImporting] = useState(false);
+  const [envStatus, setEnvStatus] = useState<{ 
+    livekit: { api_key: boolean; api_secret: boolean; api_url: boolean },
+    mercadopago: { api_key: boolean; webhook_secret: boolean }
+  } | null>(null);
+  const [importing, setImporting] = useState<string | null>(null);
 
   const fetchEnvStatus = useServerFn(getProviderEnvStatus);
   const importLivekit = useServerFn(importLivekitFromEnv);
+  const importMercadoPago = useServerFn(importMercadoPagoFromEnv);
+
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -203,7 +209,7 @@ function AdminProviders() {
   }, []);
 
   async function handleImportLivekit() {
-    setImporting(true);
+    setImporting("livekit");
     try {
       const res = await importLivekit({ data: {} });
       if (res.ok) {
@@ -215,9 +221,27 @@ function AdminProviders() {
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao importar");
     } finally {
-      setImporting(false);
+      setImporting(null);
     }
   }
+
+  async function handleImportMercadoPago() {
+    setImporting("mercadopago");
+    try {
+      const res = await importMercadoPago({ data: {} });
+      if (res.ok) {
+        toast.success("Mercado Pago importado dos secrets do servidor e ativado");
+        load();
+      } else {
+        toast.error(res.error ?? "Falha ao importar");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao importar");
+    } finally {
+      setImporting(null);
+    }
+  }
+
 
   function patchLocal(id: string, patch: Partial<ProviderRow>) {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -333,6 +357,12 @@ function AdminProviders() {
                             Em uso via secrets do servidor
                           </Badge>
                         )}
+                        {row.provider_key === "mercado_pago" && !row.is_active && envStatus?.mercadopago.api_key && (
+                          <Badge className="bg-amber-500/15 text-amber-500 hover:bg-amber-500/15">
+                            Em uso via secrets do servidor
+                          </Badge>
+                        )}
+
                       </div>
                       <div className="flex items-center gap-2">
                         <Switch
@@ -353,14 +383,30 @@ function AdminProviders() {
                           <code className="mx-1">LIVEKIT_API_SECRET</code> do servidor (fallback automático).
                           Para o painel mostrar "Ativo" e centralizar tudo aqui, importe os valores:
                         </p>
-                        <Button size="sm" variant="outline" onClick={handleImportLivekit} disabled={importing}>
-                          {importing && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                        <Button size="sm" variant="outline" onClick={handleImportLivekit} disabled={!!importing}>
+                          {importing === "livekit" && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                          Importar secrets do servidor & ativar
+                        </Button>
+
+                      </div>
+                    )}
+
+                    {row.provider_key === "mercado_pago" && !row.is_active && envStatus?.mercadopago.api_key && (
+                      <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-xs space-y-2">
+                        <p>
+                          Os pagamentos <strong>já estão funcionando</strong> usando o secret
+                          <code className="mx-1">MERCADOPAGO_ACCESS_TOKEN</code> do servidor (fallback automático).
+                          Para o painel refletir este estado e permitir edição, importe os valores:
+                        </p>
+                        <Button size="sm" variant="outline" onClick={handleImportMercadoPago} disabled={!!importing}>
+                          {importing === "mercadopago" && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
                           Importar secrets do servidor & ativar
                         </Button>
                       </div>
                     )}
 
                     <div className="grid gap-3">
+
                       <div>
                         <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">API Key / Token</Label>
                         <Input
