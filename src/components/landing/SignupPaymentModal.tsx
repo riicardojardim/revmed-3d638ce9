@@ -134,6 +134,14 @@ export function SignupPaymentModal({
       setCardBrand("hipercard");
     } else if (/^(50)/.test(digits)) {
       setCardBrand("maestro");
+    } else if (/^(30[0-5]|36|38)/.test(digits)) {
+      setCardBrand("diners");
+    } else if (/^(352[89]|35[3-8][0-9])/.test(digits)) {
+      setCardBrand("jcb");
+    } else if (/^(6011|622|64|65)/.test(digits)) {
+      setCardBrand("discover");
+    } else if (/^(50)/.test(digits)) {
+      setCardBrand("maestro");
     } else if (digits.length >= 6 && mpPublicKey) {
       // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
       try {
