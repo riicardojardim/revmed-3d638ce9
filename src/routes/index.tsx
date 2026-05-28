@@ -1030,6 +1030,7 @@ const PLANS: Plan[] = [
   {
     slug: "mentoria",
     name: "Mentoria 1:5",
+
     tagline: "Acompanhamento humano + plataforma",
     price: "Sob consulta",
     cadence: "turmas reduzidas",
