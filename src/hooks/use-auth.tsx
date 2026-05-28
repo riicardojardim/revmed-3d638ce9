@@ -313,8 +313,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         window.location.href = "/login?logged_out=true";
       }
     }
-
-    }
   };
 
   async function refresh() {
