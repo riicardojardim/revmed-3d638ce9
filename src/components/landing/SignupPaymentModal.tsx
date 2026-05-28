@@ -13,15 +13,16 @@ import { formatCPF, isValidCPF } from "@/lib/cpf";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { createPixPayment, createCardPayment, getPaymentStatus, getMpPublicKey } from "@/lib/mercadopago.functions";
-import { createCardToken, getPaymentMethodFromBin } from "@/lib/mercadopago-client";
+import { createCardToken } from "@/lib/mercadopago-client";
 
 function translateError(msg: string): string {
   if (msg.includes("Password is known to be weak")) return "Esta senha é muito fraca e fácil de adivinhar. Por favor, escolha uma senha mais forte.";
   if (msg.includes("User already registered")) return "Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.";
   if (msg.includes("Collector user without key enabled")) return "A chave Pix não está configurada na sua conta do Mercado Pago. Por favor, acesse o painel do Mercado Pago, vá em 'Configurações' > 'Chaves Pix' e registre uma chave para poder receber pagamentos via Pix.";
   if (msg.includes("Email already in use")) return "Este e-mail já está em uso. Tente fazer login para continuar.";
-
   if (msg.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (msg.includes("Cannot infer Payment Method")) return "Não foi possível identificar a bandeira do cartão. Verifique os dados digitados ou tente outro cartão.";
+  
   return msg;
 }
 
@@ -300,11 +301,10 @@ export function SignupPaymentModal({
       } else {
         setStep("processing");
         const { publicKey } = await callGetPublicKey({});
-        const bin = card.number.replace(/\D/g, "").slice(0, 6);
-        const pm = await getPaymentMethodFromBin(publicKey, bin);
-        if (!pm) throw new Error("Cartão não reconhecido pelo Mercado Pago.");
         const [expMonth, expYear] = card.expiry.split("/");
-        const token = await createCardToken(publicKey, {
+        
+        // Criamos o token e já recebemos o payment_method_id correto do Mercado Pago
+        const cardTokenData = await createCardToken(publicKey, {
           cardNumber: card.number,
           cardholderName: card.name,
           expMonth,
@@ -312,13 +312,14 @@ export function SignupPaymentModal({
           securityCode: card.cvv,
           docNumber: cpfDigits,
         });
+
         const result = await callCreateCard({
           data: {
             planSlug: plan.slug,
-            token,
+            token: cardTokenData.id,
             installments,
-            paymentMethodId: pm.id,
-            issuerId: pm.issuer_id,
+            paymentMethodId: cardTokenData.payment_method_id,
+            issuerId: cardTokenData.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
           },

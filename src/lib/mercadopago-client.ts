@@ -27,7 +27,7 @@ export async function createCardToken(
     securityCode: string;
     docNumber: string;
   },
-): Promise<string> {
+): Promise<{ id: string; payment_method_id: string; issuer_id?: string }> {
   const expirationYear =
     input.expYear.length === 2 ? `20${input.expYear}` : input.expYear;
 
@@ -52,5 +52,10 @@ export async function createCardToken(
     const msg = json?.cause?.[0]?.description || json?.message || "Não foi possível validar o cartão.";
     throw new Error(msg);
   }
-  return json.id as string;
+  
+  return { 
+    id: json.id as string, 
+    payment_method_id: json.payment_method_id as string,
+    issuer_id: json.issuer?.id ? String(json.issuer.id) : undefined
+  };
 }
