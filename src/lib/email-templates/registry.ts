@@ -1,5 +1,7 @@
 import type { ComponentType } from 'react'
 import { template as paymentApproved } from './payment-approved'
+import { template as passwordReset } from './password-reset'
+import { template as welcome } from './welcome'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -10,14 +12,8 @@ export interface TemplateEntry {
   to?: string
 }
 
-/**
- * Template registry — maps template names to their React Email components.
- * Import and register new templates here after creating them in this directory.
- *
- * Example:
- *   import { template as welcomeTemplate } from './welcome'
- *   // then add to TEMPLATES: 'welcome': welcomeTemplate
- */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'payment-approved': paymentApproved,
+  'password-reset': passwordReset,
+  'welcome': welcome,
 }
