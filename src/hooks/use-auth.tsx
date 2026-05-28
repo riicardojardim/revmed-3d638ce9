@@ -159,7 +159,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(seedUser);
   const [profile, setProfile] = useState<Profile | null>(seedUser ? cached?.profile ?? null : null);
   const [roles, setRoles] = useState<AppRole[]>(seedUser ? cached?.roles ?? [] : []);
-  const [loading, setLoading] = useState(!seedUser && hasPersisted);
+  const [loading, setLoading] = useState(!seedUser);
 
   async function loadExtras(uid: string) {
     try {
@@ -216,10 +216,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
-      setLoading(false);
-
-
+      
       if (s?.user) {
+        setLoading(true);
         setTimeout(() => { void loadExtras(s.user.id); }, 0);
         if (event === "SIGNED_IN") {
           setTimeout(() => { void claimActiveSession(s.user.id); }, 0);
@@ -229,19 +228,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
         setRoles([]);
         writeAuthCache(null);
+        setLoading(false);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
-      setLoading(false);
       if (s?.user) {
+        setLoading(true);
         void loadExtras(s.user.id);
         void claimActiveSession(s.user.id);
         void enforcePlanAccess(s.user.id);
       } else {
         writeAuthCache(null);
+        setLoading(false);
       }
     }).catch(() => {
       setSession(null);
