@@ -1194,9 +1194,9 @@ function Investimento({
 
                 <div className="relative">
                   <div
-                    className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl sm:h-12 sm:w-12 ${
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl sm:h-12 sm:w-12 transition-transform duration-300 group-hover:scale-110 ${
                       p.highlight
-                        ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                        ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(255,140,0,0.4)]"
                         : "bg-muted/60 text-foreground ring-1 ring-border"
                     }`}
                   >
