@@ -435,7 +435,9 @@ export function SignupPaymentModal({
               ? "Data de validade incorreta."
               : result.statusDetail === "cc_rejected_call_for_authorize"
               ? "Autorize a compra com seu banco e tente novamente."
-              : "Pagamento recusado. Tente outro cartão.",
+              : result.statusDetail === "cc_rejected_high_risk" || result.statusDetail === "cc_rejected_other_reason"
+              ? "Pagamento recusado. Para valores muito baixos (como R$ 5,00), alguns bancos bloqueiam a transação por segurança. Tente outro cartão ou use Pix."
+              : "Pagamento recusado pelo banco. Tente outro cartão ou use Pix."
           );
         }
       }
