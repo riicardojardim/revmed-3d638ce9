@@ -1,84 +1,45 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Link,
-  Preview,
-  Text,
-} from '@react-email/components'
+import { Text, Button, Section, Heading } from '@react-email/components'
+import { Layout, emailStyles } from './Layout'
 
 interface SignupEmailProps {
   siteName: string
-  siteUrl: string
   recipient: string
   confirmationUrl: string
 }
 
 export const SignupEmail = ({
   siteName,
-  siteUrl,
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Confirm your email for {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
-        <Text style={text}>
-          Thanks for signing up for{' '}
-          <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
-          </Link>
-          !
-        </Text>
-        <Text style={text}>
-          Please confirm your email address (
-          <Link href={`mailto:${recipient}`} style={link}>
-            {recipient}
-          </Link>
-          ) by clicking the button below:
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Verify Email
-        </Button>
-        <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <Layout previewText={`Confirme seu e-mail na ${siteName}`}>
+    <Section style={emailStyles.badge}>
+      <Text style={emailStyles.badgeText}>BEM-VINDO(A)</Text>
+    </Section>
+    
+    <Heading style={emailStyles.h1}>
+      Confirme seu e-mail
+    </Heading>
+    
+    <Text style={emailStyles.text}>
+      Ficamos felizes em ter você conosco na <strong>{siteName}</strong>! <br /><br />
+      Para começar sua preparação para o Revalida, por favor confirme seu endereço de e-mail ({recipient}) clicando no botão abaixo:
+    </Text>
+    
+    <Section style={{ textAlign: 'center', margin: '40px 0' }}>
+      <Button href={confirmationUrl} style={emailStyles.button}>
+        Confirmar meu e-mail
+      </Button>
+    </Section>
+    
+    <Text style={emailStyles.text}>
+      Se o botão não funcionar, copie e cole o link abaixo no seu navegador: <br />
+      <span style={{ color: '#f97316', fontSize: '14px', wordBreak: 'break-all' }}>
+        {confirmationUrl}
+      </span>
+    </Text>
+  </Layout>
 )
 
 export default SignupEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const link = { color: 'inherit', textDecoration: 'underline' }
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

@@ -1,15 +1,6 @@
 import * as React from 'react'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from '@react-email/components'
+import { Text, Button, Section, Heading } from '@react-email/components'
+import { Layout, emailStyles } from './Layout'
 
 interface MagicLinkEmailProps {
   siteName: string
@@ -20,49 +11,30 @@ export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Your login link for {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Your login link</Heading>
-        <Text style={text}>
-          Click the button below to log in to {siteName}. This link will expire
-          shortly.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Log In
-        </Button>
-        <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+  <Layout previewText={`Seu link de acesso para ${siteName}`}>
+    <Section style={emailStyles.badge}>
+      <Text style={emailStyles.badgeText}>ACESSO RÁPIDO</Text>
+    </Section>
+    
+    <Heading style={emailStyles.h1}>
+      Seu link de acesso
+    </Heading>
+    
+    <Text style={emailStyles.text}>
+      Clique no botão abaixo para entrar na sua conta na <strong>{siteName}</strong>. 
+      Este link é válido por tempo limitado.
+    </Text>
+    
+    <Section style={{ textAlign: 'center', margin: '40px 0' }}>
+      <Button href={confirmationUrl} style={emailStyles.button}>
+        Entrar na plataforma
+      </Button>
+    </Section>
+    
+    <Text style={emailStyles.text}>
+      Se você não solicitou este link, pode ignorar este e-mail.
+    </Text>
+  </Layout>
 )
 
 export default MagicLinkEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

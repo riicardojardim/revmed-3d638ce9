@@ -12,12 +12,12 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+  signup: 'Confirme seu e-mail — REVMED',
+  invite: 'Você foi convidado(a) — REVMED',
+  magiclink: 'Seu link de acesso — REVMED',
+  recovery: 'Redefinição de senha — REVMED',
+  email_change: 'Confirme seu novo e-mail — REVMED',
+  reauthentication: 'Seu código de verificação — REVMED',
 }
 
 // Template mapping
@@ -31,7 +31,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "revmed"
+const SITE_NAME = "REVMED"
 const SENDER_DOMAIN = "notify.revmed.app.br"
 const ROOT_DOMAIN = "revmed.app.br"
 const FROM_DOMAIN = "revmed.app.br"
