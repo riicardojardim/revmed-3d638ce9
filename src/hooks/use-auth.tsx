@@ -276,41 +276,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      // 1. Invalidamos a sessão globalmente no servidor ANTES de limpar o storage local
-      // assim o token ainda está disponível para o request de signout.
+      // 1. Tenta parar o refresh automático se o cliente suportar
+      if ((supabase.auth as any).stopAutoRefresh) {
+        (supabase.auth as any).stopAutoRefresh();
+      }
+
+      // 2. Tenta o logout global no servidor
       try {
         await supabase.auth.signOut({ scope: 'global' });
       } catch (e) {
-        console.warn("SignOut global falhou (pode já estar deslogado):", e);
+        console.warn("SignOut global falhou:", e);
       }
-
-      // 2. Limpamos nosso cache interno
-      writeAuthCache(null);
-      
+    } finally {
+      // 3. LIMPEZA NUCLEAR - Independentemente de erros no servidor, limpamos TUDO localmente
       if (typeof window !== "undefined") {
-        // 3. Limpeza NUCLEAR de todos os storages possíveis
+        // Remove nosso cache específico
+        writeAuthCache(null);
+        
+        // Limpa TUDO no localStorage e sessionStorage
         localStorage.clear();
         sessionStorage.clear();
         
-        // 4. Limpeza agressiva de cookies (Supabase pode usá-los em domínios customizados)
+        // Limpeza agressiva de Cookies (Supabase pode usá-los em setups específicos)
+        const domain = window.location.hostname;
         const cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
           const cookie = cookies[i];
           const eqPos = cookie.indexOf("=");
           const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-          // Tenta limpar também com o domínio atual para garantir
-          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+          
+          const clearCookie = (d?: string) => {
+            let s = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            if (d) s += ";domain=" + d;
+            document.cookie = s;
+          };
+
+          clearCookie();
+          clearCookie(domain);
+          clearCookie("." + domain);
+          // Tenta limpar domínio raiz se houver subdomínio (ex: .revmed.app.br)
+          const parts = domain.split(".");
+          if (parts.length > 2) {
+            clearCookie("." + parts.slice(-2).join("."));
+          }
         }
         
-        // 5. Redirecionamento forçado para garantir que o estado do React morra
+        // 4. Redirecionamento forçado para a página de login com flag de limpeza
         window.location.replace("/login?logged_out=true");
-      }
-    } catch (error) {
-      console.error("Erro no logout:", error);
-      if (typeof window !== "undefined") {
-        localStorage.clear();
-        window.location.replace("/");
       }
     }
   };
