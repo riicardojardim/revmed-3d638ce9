@@ -3,6 +3,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
+import { syncUserProfile } from "./mercadopago.shared";
+
 
 export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async () => {
   const key = process.env.MERCADOPAGO_PUBLIC_KEY;
@@ -89,6 +91,17 @@ const payerSchema = z.object({
   cpf: z.string().regex(/^\d{11}$/),
 });
 
+const signupDataSchema = z.object({
+  title: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  username: z.string().optional(),
+  whatsapp: z.string().optional(),
+  cpf: z.string().optional(),
+  birth_date: z.string().optional(),
+  selected_plan: z.string().optional(),
+});
+
 export const createPixPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -96,9 +109,11 @@ export const createPixPayment = createServerFn({ method: "POST" })
       .object({
         planSlug: z.enum(["ator", "completo"]),
         payer: payerSchema,
+        signupData: signupDataSchema.optional(),
       })
       .parse(input),
   )
+
   .handler(async ({ data, context }) => {
     const userId = context.userId;
     const plan = PLAN_AMOUNTS[data.planSlug];
@@ -116,7 +131,8 @@ export const createPixPayment = createServerFn({ method: "POST" })
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
       },
-      metadata: { user_id: userId, plan_slug: data.planSlug },
+      metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
+
     };
 
     const mp = await mpFetch("/v1/payments", {
@@ -171,9 +187,11 @@ export const createCardPayment = createServerFn({ method: "POST" })
         paymentMethodId: z.string().min(1).max(50),
         issuerId: z.string().optional(),
         payer: payerSchema,
+        signupData: signupDataSchema.optional(),
       })
       .parse(input),
   )
+
   .handler(async ({ data, context }) => {
     const userId = context.userId;
     const plan = PLAN_AMOUNTS[data.planSlug];
@@ -193,7 +211,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
         last_name: data.payer.lastName,
         identification: { type: "CPF", number: data.payer.cpf },
       },
-      metadata: { user_id: userId, plan_slug: data.planSlug },
+      metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
     };
     if (data.issuerId) body.issuer_id = data.issuerId;
 
@@ -226,7 +244,9 @@ export const createCardPayment = createServerFn({ method: "POST" })
 
     if (mp.status === "approved") {
       await activateSubscription(userId, data.planSlug);
+      await syncUserProfile(userId, data.signupData);
       await notifyPaymentApproved(userId, data.planSlug, String(mp.id));
+
     }
 
     return {
@@ -270,8 +290,11 @@ export const getPaymentStatus = createServerFn({ method: "POST" })
             .eq("id", row.id);
           if (mp.status === "approved") {
             await activateSubscription(userId, row.plan_slug);
+            const signupData = mp.metadata?.signup_data || (row.raw_response as any)?.metadata?.signup_data;
+            if (signupData) await syncUserProfile(userId, signupData);
             await notifyPaymentApproved(userId, row.plan_slug, String(row.mp_payment_id));
           }
+
           return { status: mp.status as string };
         }
       } catch (e) {

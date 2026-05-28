@@ -18,8 +18,9 @@ import { createCardToken, getPaymentMethodFromBin } from "@/lib/mercadopago-clie
 function translateError(msg: string): string {
   if (msg.includes("Password is known to be weak")) return "Esta senha é muito fraca e fácil de adivinhar. Por favor, escolha uma senha mais forte.";
   if (msg.includes("User already registered")) return "Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.";
-  if (msg.includes("Collector user without key enabled")) return "A chave Pix não está configurada na conta do Mercado Pago. Por favor, verifique suas configurações de Pix no Mercado Pago.";
-  if (msg.includes("Email already in use")) return "Este e-mail já está em uso.";
+  if (msg.includes("Collector user without key enabled")) return "A chave Pix não está configurada na sua conta do Mercado Pago. Por favor, acesse o painel do Mercado Pago, vá em 'Configurações' > 'Chaves Pix' e registre uma chave para poder receber pagamentos via Pix.";
+  if (msg.includes("Email already in use")) return "Este e-mail já está em uso. Tente fazer login para continuar.";
+
   if (msg.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
   return msg;
 }
@@ -183,7 +184,7 @@ export function SignupPaymentModal({
     const fullName = `${form.first_name.trim()} ${form.last_name.trim()}`;
     const cpfDigits = form.cpf.replace(/\D/g, "");
 
-    const { data: signupData, error } = await supabase.auth.signUp({
+    let signupResponse = await supabase.auth.signUp({
       email: form.email.trim().toLowerCase(),
       password: form.password,
       options: {
@@ -203,44 +204,39 @@ export function SignupPaymentModal({
       },
     });
 
-    if (error) {
-      setSubmitting(false);
-      toast.error("Erro ao criar conta", { description: translateError(error.message) });
-      return;
-    }
-
-    const uid = signupData.user?.id;
-    if (uid) {
-      await supabase.from("profiles").upsert(
-        {
-          id: uid,
-          full_name: fullName,
-          title: form.title,
-          first_name: form.first_name.trim(),
-          last_name: form.last_name.trim(),
-          username: form.username.trim(),
-          whatsapp: wppDigits,
-          cpf: cpfDigits,
-          birth_date: form.birth_date,
-          selected_plan: plan.slug,
-        },
-        { onConflict: "id" },
-      );
-    }
-
-    // Garante sessão ativa (signUp já cria sessão se auto-confirm estiver on;
-    // se não, faz login com a senha recém-criada)
-    if (!signupData.session) {
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
+    // Se o usuário já existir, tentamos fazer login com a mesma senha.
+    // Isso permite que o usuário retome um pagamento interrompido.
+    if (signupResponse.error?.message.includes("already registered") || signupResponse.error?.message.includes("already in use")) {
+      signupResponse = await supabase.auth.signInWithPassword({
         email: form.email.trim().toLowerCase(),
         password: form.password,
       });
-      if (signInErr) {
-        setSubmitting(false);
-        toast.error("Confirme seu e-mail antes de pagar.", { description: signInErr.message });
-        return;
-      }
     }
+
+    if (signupResponse.error) {
+      setSubmitting(false);
+      toast.error("Erro no cadastro", { description: translateError(signupResponse.error.message) });
+      return;
+    }
+
+    const signupData = signupResponse.data;
+
+
+    const uid = signupData.user?.id;
+    // Não criamos o profile aqui no front-end mais.
+    // O profile e a assinatura serão criados pelo backend APÓS aprovação do pagamento.
+
+    const signupDetails = {
+      title: form.title,
+      first_name: form.first_name.trim(),
+      last_name: form.last_name.trim(),
+      username: form.username.trim(),
+      whatsapp: wppDigits,
+      cpf: cpfDigits,
+      birth_date: form.birth_date,
+      selected_plan: plan.slug,
+    };
+
 
     const payerInput = {
       email: form.email.trim().toLowerCase(),
@@ -251,7 +247,7 @@ export function SignupPaymentModal({
 
     try {
       if (payment === "pix") {
-        const res = await callCreatePix({ data: { planSlug: plan.slug, payer: payerInput } });
+        const res = await callCreatePix({ data: { planSlug: plan.slug, payer: payerInput, signupData: signupDetails } });
         if (!res.qrCode || !res.qrCodeBase64) {
           throw new Error("Mercado Pago não retornou QR Code.");
         }
@@ -286,8 +282,10 @@ export function SignupPaymentModal({
             paymentMethodId: pm.id,
             issuerId: pm.issuer_id,
             payer: payerInput,
+            signupData: signupDetails,
           },
         });
+
         if (result.status === "approved") {
           setStep("success");
           toast.success("Pagamento aprovado!");
