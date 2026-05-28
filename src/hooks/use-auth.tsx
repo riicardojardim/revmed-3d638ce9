@@ -259,28 +259,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      // 1. Primeiro limpamos o cache local para que a UI responda imediatamente
       writeAuthCache(null);
       
       if (typeof window !== "undefined") {
-        // Clear all Supabase auth tokens from localStorage
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
-            keysToRemove.push(key);
+        // 2. Limpeza profunda de TODOS os tokens do Supabase e cache da aplicação
+        const keys = Object.keys(localStorage);
+        for (const key of keys) {
+          if (key.startsWith("sb-") || key.startsWith("er_") || key === AUTH_CACHE_KEY) {
+            localStorage.removeItem(key);
           }
         }
-        keysToRemove.forEach(key => localStorage.removeItem(key));
-        
-        // Force a hard redirect to the home page to clear all React state
-        window.location.href = "/";
+        sessionStorage.clear();
+      }
+
+      // 3. Invalidamos a sessão globalmente no servidor do Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      if (typeof window !== "undefined") {
+        // 4. Redirecionamento forçado (replace) para limpar o histórico e estado do navegador
+        window.location.replace("/login?logged_out=true");
       }
     } catch (error) {
-      console.error("Error during sign out:", error);
-      // Even if it fails, try to redirect
+      console.error("Erro crítico no logout:", error);
       if (typeof window !== "undefined") {
-        window.location.href = "/";
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.replace("/");
       }
     }
   };
