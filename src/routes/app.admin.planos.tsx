@@ -70,11 +70,22 @@ function AdminPlans() {
 
   async function save(p: Plan) {
     const { error } = await supabase.from("plans").update({
-      name: p.name, description: p.description, price_cents: p.price_cents,
-      active: p.active, trial_days: p.trial_days,
-      allows_candidato: p.allows_candidato, allows_ator: p.allows_ator,
+      name: p.name, 
+      description: p.description, 
+      tagline: p.tagline,
+      price_cents: p.price_cents,
+      old_price_cents: p.old_price_cents,
+      discount_tag: p.discount_tag,
+      cta_text: p.cta_text,
+      highlight: p.highlight,
+      accent_color: p.accent_color,
+      active: p.active, 
+      trial_days: p.trial_days,
+      allows_candidato: p.allows_candidato, 
+      allows_ator: p.allows_ator,
       features: p.features,
     }).eq("id", p.id);
+
     if (error) return toast.error(error.message);
     toast.success("Plano atualizado");
     void load();
