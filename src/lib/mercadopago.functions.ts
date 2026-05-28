@@ -257,12 +257,23 @@ export const createCardPayment = createServerFn({ method: "POST" })
       token: data.token.slice(0, 10) + "..."
     });
 
-    const mp = await mpFetch("/v1/payments", {
-      method: "POST",
-      idempotencyKey,
-      headers: data.deviceId ? { "X-Meli-Session-Id": data.deviceId } : {},
-      body: JSON.stringify(body),
-    });
+    let mp;
+    try {
+      mp = await mpFetch("/v1/payments", {
+        method: "POST",
+        idempotencyKey,
+        headers: data.deviceId ? { "X-Meli-Session-Id": data.deviceId } : {},
+        body: JSON.stringify(body),
+      });
+    } catch (err: any) {
+      console.error("[mercadopago] Payment request failed:", err.message);
+      
+      // Se o pagamento for recusado ou der erro, e for um novo usuário (sem assinatura ativa),
+      // podemos deletar o usuário para evitar criação de conta fantasma.
+      // No entanto, como o Supabase Auth cria o usuário ANTES de chamar a função,
+      // a estratégia mais segura é o frontend só persistir se houver sucesso.
+      throw err;
+    }
 
     // Sincroniza o perfil imediatamente na criação do pagamento via cartão
     if (data.signupData) {
