@@ -35,11 +35,14 @@ async function mpFetch(path: string, init: RequestInit & { idempotencyKey?: stri
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    console.error("[mercadopago] error", res.status, json);
+    console.error(`[mercadopago] error ${res.status} path=${path}`, json);
     const message = (json as any)?.message || `Mercado Pago retornou ${res.status}`;
     const cause = (json as any)?.cause?.[0];
     if (cause?.description) {
-      console.error("[mercadopago] cause:", cause.description);
+      console.error("[mercadopago] cause description:", cause.description);
+    }
+    if ((json as any)?.cause) {
+      console.error("[mercadopago] full cause:", JSON.stringify((json as any).cause));
     }
     throw new Error(message);
   }
