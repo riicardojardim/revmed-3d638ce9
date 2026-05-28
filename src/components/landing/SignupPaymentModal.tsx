@@ -121,36 +121,30 @@ export function SignupPaymentModal({
       return;
     }
 
-    // Identificação rápida local para feedback instantâneo
+    // Identificação local precisa
+    let brand = null;
     if (digits.startsWith("4")) {
-      setCardBrand("visa");
+      brand = "visa";
     } else if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(digits)) {
-      setCardBrand("master");
+      brand = "master";
     } else if (/^(34|37)/.test(digits)) {
-      setCardBrand("amex");
+      brand = "amex";
     } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|651|655)/.test(digits)) {
-      setCardBrand("elo");
+      brand = "elo";
     } else if (/^(6062|3841|60)/.test(digits)) {
-      setCardBrand("hipercard");
+      brand = "hipercard";
     } else if (/^(50)/.test(digits)) {
-      setCardBrand("maestro");
+      brand = "maestro";
     } else if (/^(30[0-5]|36|38)/.test(digits)) {
-      setCardBrand("diners");
+      brand = "diners";
     } else if (/^(352[89]|35[3-8][0-9])/.test(digits)) {
-      setCardBrand("jcb");
+      brand = "jcb";
     } else if (/^(6011|622|64|65)/.test(digits)) {
-      setCardBrand("discover");
-    } else if (digits.length >= 6 && mpPublicKey) {
-      // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
-      try {
-        const pm = await getPaymentMethodFromBin(mpPublicKey, digits.slice(0, 6));
-        if (pm?.id) setCardBrand(pm.id);
-      } catch (e) {
-        console.warn("Card identification error", e);
-      }
-    } else {
-      setCardBrand(null);
+      brand = "discover";
     }
+
+    setCardBrand(brand);
+    console.log("[checkout] Local card brand detected:", brand);
   }
 
   // Poll status do PIX a cada 4s enquanto estiver na tela PIX
