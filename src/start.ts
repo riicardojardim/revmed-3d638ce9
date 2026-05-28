@@ -5,10 +5,13 @@ import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
+  const request = getRequest();
+  if (new URL(request.url).pathname.startsWith("/lovable/")) {
+    return next();
+  }
   try {
     return await next();
   } catch (error) {
-    const request = getRequest();
     const isServerFunctionRequest = request.headers.get("x-tsr-rpc") === "server-fn"
       || request.url.includes("_server-fn")
       || request.url.includes("_serverFn");
