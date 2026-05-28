@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Theater } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export function AtorDashboard() {
   const { profile, user } = useAuth();
