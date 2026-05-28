@@ -320,8 +320,14 @@ export function SignupPaymentModal({
         // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN
         const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id;
         
+        console.log("[checkout] Payment method detection:", {
+          fromToken: cardTokenData.payment_method_id,
+          fromBin: pmInfo?.id,
+          final: paymentMethodId
+        });
+
         if (!paymentMethodId) {
-          throw new Error("Não foi possível identificar a bandeira do cartão. Verifique o número digitado.");
+          throw new Error("Não foi possível identificar a bandeira do cartão. Verifique o número digitado ou tente outro cartão.");
         }
 
         const result = await callCreateCard({
