@@ -184,8 +184,18 @@ export function SignupPaymentModal({
   const installmentOptions = Array.from({ length: 10 }, (_, i) => {
     const n = i + 1;
     const value = planAmountCents / 100 / n;
+    // O Mercado Pago exige que cada parcela tenha um valor mínimo (geralmente R$ 1,00 ou R$ 5,00 dependendo da conta)
+    // Para evitar erros, só mostramos opções onde a parcela seja >= R$ 5,00
+    if (n > 1 && value < 5) return null;
     return { n, label: `${n}x de R$ ${value.toFixed(2).replace(".", ",")} sem juros` };
-  });
+  }).filter(Boolean) as { n: number; label: string }[];
+  
+  // Se as parcelas atuais não estiverem nas opções, reseta para 1
+  useEffect(() => {
+    if (!installmentOptions.find(o => o.n === installments)) {
+      setInstallments(1);
+    }
+  }, [installmentOptions, installments]);
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -264,7 +274,6 @@ export function SignupPaymentModal({
           selected_plan: plan.slug,
           payment_method: payment,
         },
-
 
       },
     });
@@ -426,7 +435,9 @@ export function SignupPaymentModal({
               ? "Data de validade incorreta."
               : result.statusDetail === "cc_rejected_call_for_authorize"
               ? "Autorize a compra com seu banco e tente novamente."
-              : "Pagamento recusado. Tente outro cartão.",
+              : result.statusDetail === "cc_rejected_high_risk" || result.statusDetail === "cc_rejected_other_reason"
+              ? "Pagamento recusado. Para valores muito baixos (como R$ 5,00), alguns bancos bloqueiam a transação por segurança. Tente outro cartão ou use Pix."
+              : "Pagamento recusado pelo banco. Tente outro cartão ou use Pix."
           );
         }
       }
