@@ -62,6 +62,7 @@ export function SignupPaymentModal({
   });
   const [payment, setPayment] = useState<"pix" | "cartao">("pix");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [installments, setInstallments] = useState<number>(1);
   const [submitting, setSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [step, setStep] = useState<"form" | "pix" | "processing" | "success">("form");
@@ -81,6 +82,7 @@ export function SignupPaymentModal({
       setStep("form");
       setPixData(null);
       setCopied(false);
+      setInstallments(1);
     }
   }, [open]);
 
