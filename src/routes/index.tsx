@@ -1042,11 +1042,27 @@ const PLANS: Plan[] = [
 function Investimento({
   isLogged,
   onChoosePlan,
+  dbPlans,
 }: {
   isLogged: boolean;
   onChoosePlan: (p: SignupModalPlan) => void;
+  dbPlans: any[];
 }) {
+  const mergedPlans = PLANS.map(staticPlan => {
+    const dbPlan = dbPlans.find(p => p.slug === (staticPlan.name === "Plano Ator" ? "ator" : staticPlan.name === "Plano Plataforma" ? "completo" : "mentoria"));
+    if (!dbPlan) return staticPlan;
+    
+    return {
+      ...staticPlan,
+      name: dbPlan.name,
+      price: (dbPlan.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }),
+      features: dbPlan.features && dbPlan.features.length > 0 ? dbPlan.features : staticPlan.features,
+      installments: dbPlan.price_cents > 0 ? `ou 10x de ${(dbPlan.price_cents / 1000).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} sem juros` : staticPlan.installments
+    };
+  });
+
   return (
+
     <section
       id="investimento"
       className="relative border-y border-border/60 bg-card/30 py-16 md:py-24 lg:py-32"
