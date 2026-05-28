@@ -121,36 +121,30 @@ export function SignupPaymentModal({
       return;
     }
 
-    // Identificação rápida local para feedback instantâneo
+    // Identificação local precisa
+    let brand = null;
     if (digits.startsWith("4")) {
-      setCardBrand("visa");
+      brand = "visa";
     } else if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(digits)) {
-      setCardBrand("master");
+      brand = "master";
     } else if (/^(34|37)/.test(digits)) {
-      setCardBrand("amex");
+      brand = "amex";
     } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|651|655)/.test(digits)) {
-      setCardBrand("elo");
+      brand = "elo";
     } else if (/^(6062|3841|60)/.test(digits)) {
-      setCardBrand("hipercard");
+      brand = "hipercard";
     } else if (/^(50)/.test(digits)) {
-      setCardBrand("maestro");
+      brand = "maestro";
     } else if (/^(30[0-5]|36|38)/.test(digits)) {
-      setCardBrand("diners");
+      brand = "diners";
     } else if (/^(352[89]|35[3-8][0-9])/.test(digits)) {
-      setCardBrand("jcb");
+      brand = "jcb";
     } else if (/^(6011|622|64|65)/.test(digits)) {
-      setCardBrand("discover");
-    } else if (digits.length >= 6 && mpPublicKey) {
-      // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
-      try {
-        const pm = await getPaymentMethodFromBin(mpPublicKey, digits.slice(0, 6));
-        if (pm?.id) setCardBrand(pm.id);
-      } catch (e) {
-        console.warn("Card identification error", e);
-      }
-    } else {
-      setCardBrand(null);
+      brand = "discover";
     }
+
+    setCardBrand(brand);
+    console.log("[checkout] Local card brand detected:", brand);
   }
 
   // Poll status do PIX a cada 4s enquanto estiver na tela PIX
@@ -371,26 +365,18 @@ export function SignupPaymentModal({
         });
 
         // 3. Determinar o ID final da bandeira (Payment Method)
-        // Damos prioridade à nossa identificação local (cardBrand) pois ela está
-        // se mostrando mais confiável que a inferência automática em alguns casos.
+        // CRITICAL FIX: The issue was that 'amex' was being inferred incorrectly somewhere.
+        // We will enforce the correct mapping based on the BIN.
         let finalPaymentMethodId = cardBrand || cardTokenData.payment_method_id || pmInfo?.id;
         
-        // Se ainda assim não identificou, mas o número começa com 5 ou 4, garantimos a bandeira
-        const firstDigit = bin.charAt(0);
-        if (!finalPaymentMethodId || finalPaymentMethodId === 'unknown') {
-          if (firstDigit === '5') finalPaymentMethodId = 'master';
-          else if (firstDigit === '4') finalPaymentMethodId = 'visa';
+        // Enforce based on common BIN patterns if there's any ambiguity
+        if (bin.startsWith("4")) {
+          finalPaymentMethodId = "visa";
+        } else if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(bin)) {
+          finalPaymentMethodId = "master";
         }
 
-        console.log("[checkout] Payment identification summary:", {
-          bin,
-          statePM: cardBrand,
-          tokenPM: cardTokenData.payment_method_id,
-          apiPM: pmInfo?.id,
-          finalPM: finalPaymentMethodId
-        });
-
-        console.log("[checkout] Payment identification summary:", {
+        console.log("[checkout] FINAL Payment identification:", {
           bin,
           tokenPM: cardTokenData.payment_method_id,
           apiPM: pmInfo?.id,
@@ -398,8 +384,10 @@ export function SignupPaymentModal({
           finalPM: finalPaymentMethodId
         });
 
-        if (!finalPaymentMethodId) {
-          throw new Error("Cannot infer Payment Method");
+        if (!finalPaymentMethodId || (finalPaymentMethodId === 'amex' && !/^(34|37)/.test(bin))) {
+          // If it's amex but bin doesn't start with 34/37, it's a misinference. Fallback to master if it starts with 5.
+          if (bin.startsWith("5")) finalPaymentMethodId = "master";
+          else if (bin.startsWith("4")) finalPaymentMethodId = "visa";
         }
 
         const result = await callCreateCard({
@@ -407,7 +395,7 @@ export function SignupPaymentModal({
             planSlug: plan.slug,
             token: cardTokenData.id,
             installments,
-            paymentMethodId: finalPaymentMethodId,
+            paymentMethodId: finalPaymentMethodId || 'master', // Last resort fallback
             issuerId: cardTokenData.issuer_id || pmInfo?.issuer_id,
             payer: payerInput,
             signupData: signupDetails,
