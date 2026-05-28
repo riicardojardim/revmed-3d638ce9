@@ -9,35 +9,26 @@ export async function getPaymentMethodFromBin(
   bin: string,
 ): Promise<{ id: string; issuer_id?: string } | null> {
   try {
-    // 1. Tentamos o endpoint mais comum para BINs
-    const url = `${MP}/v1/payment_methods?public_key=${encodeURIComponent(publicKey)}`;
+    const url = `${MP}/v1/payment_methods?public_key=${encodeURIComponent(publicKey)}&bin=${encodeURIComponent(bin)}`;
     const res = await fetch(url);
     if (res.ok) {
-      const list = await res.json().catch(() => []);
-      if (Array.isArray(list)) {
-        // Filtramos os métodos que aceitam este BIN
-        // Infelizmente a API de listagem simples não traz a lista de BINs por padrão em alguns casos,
-        // mas traz o pattern ou podemos inferir.
-        // No entanto, o endpoint com ?bin= é o oficial.
-        
-        const resWithBin = await fetch(`${url}&bin=${encodeURIComponent(bin)}`);
-        if (resWithBin.ok) {
-          const jsonBin = await resWithBin.json().catch(() => []);
-          const pm = Array.isArray(jsonBin) ? jsonBin[0] : jsonBin?.results?.[0];
-          if (pm?.id) {
-            return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
-          }
-        }
+      const json = await res.json().catch(() => []);
+      const pm = Array.isArray(json) ? json[0] : json?.results?.[0];
+      if (pm?.id) {
+        return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
       }
     }
-
-    // 2. Fallback local para as principais bandeiras se a API falhar
-    // Isso garante que o pagamento pelo menos tente ser processado no servidor
-    if (bin.startsWith("4")) return { id: "visa" };
-    if (/^(5[1-5])/.test(bin)) return { id: "master" };
-    if (/^(34|37)/.test(bin)) return { id: "amex" };
-    if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)/.test(bin)) return { id: "elo" };
-    if (/^(6062|3841)/.test(bin)) return { id: "hipercard" };
+    
+    // Fallback local para as principais bandeiras se a API falhar
+    const digits = bin.replace(/\D/g, "");
+    if (digits.startsWith("4")) return { id: "visa" };
+    if (/^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)/.test(digits)) return { id: "master" };
+    if (/^(34|37)/.test(digits)) return { id: "amex" };
+    if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363|650|651|655)/.test(digits)) return { id: "elo" };
+    if (/^(6062|3841|5067|4576|4011)/.test(digits)) return { id: "hipercard" };
+    if (/^(6011|622|64|65)/.test(digits)) return { id: "discover" };
+    if (/^(30[0-5]|36|38)/.test(digits)) return { id: "diners" };
+    if (/^(352[89]|35[3-8][0-9])/.test(digits)) return { id: "jcb" };
 
   } catch (err) {
     console.error("[mercadopago] getPaymentMethodFromBin failed", err);

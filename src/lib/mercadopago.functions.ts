@@ -35,11 +35,14 @@ async function mpFetch(path: string, init: RequestInit & { idempotencyKey?: stri
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    console.error("[mercadopago] error", res.status, json);
+    console.error(`[mercadopago] error ${res.status} path=${path}`, json);
     const message = (json as any)?.message || `Mercado Pago retornou ${res.status}`;
     const cause = (json as any)?.cause?.[0];
     if (cause?.description) {
-      console.error("[mercadopago] cause:", cause.description);
+      console.error("[mercadopago] cause description:", cause.description);
+    }
+    if ((json as any)?.cause) {
+      console.error("[mercadopago] full cause:", JSON.stringify((json as any).cause));
     }
     throw new Error(message);
   }
@@ -196,7 +199,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
         planSlug: z.enum(["ator", "completo"]),
         token: z.string().min(10),
         installments: z.number().int().min(1).max(12),
-        paymentMethodId: z.string().min(1).max(50),
+        paymentMethodId: z.string().max(50).optional(),
         issuerId: z.string().optional(),
         payer: payerSchema,
         signupData: signupDataSchema.optional(),
@@ -213,11 +216,9 @@ export const createCardPayment = createServerFn({ method: "POST" })
     const body: Record<string, unknown> = {
       transaction_amount: plan.cents / 100,
       binary_mode: true,
-
       token: data.token,
       description: `REVMED · ${plan.name}`,
       installments: data.installments,
-      payment_method_id: data.paymentMethodId,
       external_reference: `${userId}:${data.planSlug}`,
       notification_url: "https://revmed.app.br/api/public/webhooks/mercadopago",
       payer: {
@@ -228,7 +229,16 @@ export const createCardPayment = createServerFn({ method: "POST" })
       },
       metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
     };
+    if (data.paymentMethodId) body.payment_method_id = data.paymentMethodId;
     if (data.issuerId) body.issuer_id = data.issuerId;
+
+    console.log("[mercadopago] creating payment:", {
+      amount: body.transaction_amount,
+      method: body.payment_method_id,
+      installments: body.installments,
+      issuer: data.issuerId,
+      token: data.token.slice(0, 10) + "..."
+    });
 
     const mp = await mpFetch("/v1/payments", {
       method: "POST",
