@@ -1194,7 +1194,7 @@ function Investimento({
               >
                 {/* Glow de fundo */}
                 <div
-                  className={`pointer-events-none absolute -top-32 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-gradient-to-b ${p.accent} to-transparent opacity-60 blur-3xl`}
+                  className={`pointer-events-none absolute -top-32 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-gradient-to-b ${p.highlight ? 'from-primary/40' : p.accent} to-transparent opacity-80 blur-3xl`}
                 />
 
                 {p.highlight && (
