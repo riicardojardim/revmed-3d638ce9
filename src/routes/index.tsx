@@ -211,6 +211,7 @@ function LandingPage() {
           isLogged={mounted && !!user}
           onChoosePlan={(p) => setSignupPlan(p)}
           dbPlans={dbPlans}
+          loadingPlans={loadingPlans}
         />
 
         <FAQ />
