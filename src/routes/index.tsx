@@ -198,7 +198,9 @@ function LandingPage() {
         <Investimento
           isLogged={mounted && !!user}
           onChoosePlan={(p) => setSignupPlan(p)}
+          dbPlans={dbPlans}
         />
+
         <FAQ />
         <FinalCTA isLogged={mounted && !!user} />
       </main>
