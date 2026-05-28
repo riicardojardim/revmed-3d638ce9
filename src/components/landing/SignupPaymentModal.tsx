@@ -440,6 +440,14 @@ export function SignupPaymentModal({
           onOpenChange(false);
           nav({ to: "/app" });
         } else {
+          // PAGAMENTO RECUSADO: Deletar usuário criado para não deixar conta fantasma
+          console.log("[checkout] Payment rejected, cleaning up user...");
+          try {
+            await supabase.auth.signOut();
+            // Opcional: Se quiser deletar mesmo o registro do auth, precisaria de uma Edge Function
+            // Mas o signOut + não persistir o perfil já impede o login automático funcional.
+          } catch (e) {}
+
           throw new Error(
             result.statusDetail === "cc_rejected_insufficient_amount"
               ? "Cartão sem saldo."
