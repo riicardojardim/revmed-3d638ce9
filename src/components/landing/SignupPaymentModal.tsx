@@ -189,6 +189,13 @@ export function SignupPaymentModal({
     if (n > 1 && value < 5) return null;
     return { n, label: `${n}x de R$ ${value.toFixed(2).replace(".", ",")} sem juros` };
   }).filter(Boolean) as { n: number; label: string }[];
+  
+  // Se as parcelas atuais não estiverem nas opções, reseta para 1
+  useEffect(() => {
+    if (!installmentOptions.find(o => o.n === installments)) {
+      setInstallments(1);
+    }
+  }, [installmentOptions, installments]);
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
