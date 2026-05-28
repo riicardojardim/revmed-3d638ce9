@@ -8,13 +8,32 @@ export async function getPaymentMethodFromBin(
   publicKey: string,
   bin: string,
 ): Promise<{ id: string; issuer_id?: string } | null> {
-  const url = `${MP}/v1/payment_methods/search?public_key=${encodeURIComponent(publicKey)}&bin=${encodeURIComponent(bin)}`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const json = await res.json().catch(() => null);
-  const pm = json?.results?.[0];
-  if (!pm) return null;
-  return { id: pm.id as string, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
+  try {
+    // Tentamos o endpoint de busca por BIN primeiro
+    const url = `${MP}/v1/payment_methods?public_key=${encodeURIComponent(publicKey)}&bin=${encodeURIComponent(bin)}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const json = await res.json().catch(() => []);
+      const pm = Array.isArray(json) ? json[0] : json?.results?.[0];
+      if (pm?.id) {
+        return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
+      }
+    }
+
+    // Se falhar, tentamos o search que alguns SDKs usam
+    const searchUrl = `${MP}/v1/payment_methods/search?public_key=${encodeURIComponent(publicKey)}&bin=${encodeURIComponent(bin)}`;
+    const resSearch = await fetch(searchUrl);
+    if (resSearch.ok) {
+      const jsonSearch = await resSearch.json().catch(() => ({}));
+      const pmSearch = jsonSearch?.results?.[0];
+      if (pmSearch?.id) {
+        return { id: pmSearch.id, issuer_id: pmSearch.issuer?.id ? String(pmSearch.issuer.id) : undefined };
+      }
+    }
+  } catch (err) {
+    console.error("[mercadopago] getPaymentMethodFromBin failed", err);
+  }
+  return null;
 }
 
 export async function createCardToken(
