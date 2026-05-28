@@ -56,15 +56,13 @@ export function usePushNotifications() {
       });
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('Você precisa estar logado para ativar as notificações.');
-        return;
-      }
-
+      // Removido o bloqueio para permitir inscrição de convidados/visitantes
+      // se houver lógica que dependa de user_id, ela lidará com null ou criaremos anônimo
+      
       const subscriptionData = subscription.toJSON();
       
       const { error } = await supabase.from('push_subscriptions').upsert({
-        user_id: user.id,
+        user_id: user?.id || null, // Permite nulo para visitantes
         endpoint: subscription.endpoint,
         p256dh: subscriptionData.keys?.p256dh ?? '',
         auth: subscriptionData.keys?.auth ?? '',
@@ -72,15 +70,17 @@ export function usePushNotifications() {
 
       if (error) throw error;
 
-      // Envia notificação de boas-vindas
-      await supabase.functions.invoke("send-push-notification", {
-        body: { 
-          title: 'Notificações Ativadas! 🔔', 
-          body: 'Você agora receberá as principais novidades do REVMED diretamente aqui.', 
-          url: '/app/perfil',
-          userId: user.id
-        },
-      });
+      // Envia notificação de boas-vindas se o usuário estiver logado
+      if (user) {
+        await supabase.functions.invoke("send-push-notification", {
+          body: { 
+            title: 'Notificações Ativadas! 🔔', 
+            body: 'Você agora receberá as principais novidades do REVMED diretamente aqui.', 
+            url: '/app/perfil',
+            userId: user.id
+          },
+        });
+      }
 
       setIsSubscribed(true);
       toast.success('Notificações ativadas com sucesso!');

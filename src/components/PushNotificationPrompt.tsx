@@ -11,17 +11,16 @@ export function PushNotificationPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
-    // Só mostramos se:
     // 1. Não está inscrito
     // 2. A permissão não foi negada anteriormente pelo navegador
     // 3. O usuário não fechou este prompt específico recentemente
     const isDismissed = localStorage.getItem(PROMPT_KEY);
     
     if (!isSubscribed && permission === 'default' && !isDismissed) {
-      // Pequeno delay para não aparecer instantaneamente após o login
+      // Aparece quase instantaneamente para garantir que o usuário veja
       const timer = setTimeout(() => {
         setShowPrompt(true);
-      }, 2000);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [isSubscribed, permission]);
