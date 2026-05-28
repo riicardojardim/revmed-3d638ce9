@@ -199,7 +199,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
         planSlug: z.enum(["ator", "completo"]),
         token: z.string().min(10),
         installments: z.number().int().min(1).max(12),
-        paymentMethodId: z.string().min(1).max(50),
+        paymentMethodId: z.string().max(50).optional(),
         issuerId: z.string().optional(),
         payer: payerSchema,
         signupData: signupDataSchema.optional(),
