@@ -188,6 +188,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    // Se detectarmos o parâmetro de logout, forçamos uma limpeza total preventiva
+    if (typeof window !== "undefined" && window.location.search.includes("logged_out=true")) {
+      const keys = Object.keys(localStorage);
+      keys.forEach(k => {
+        if (k.startsWith("sb-") || k.includes("auth-token") || k.startsWith("er_")) {
+          localStorage.removeItem(k);
+        }
+      });
+      sessionStorage.clear();
+      // Limpa a URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("logged_out");
+      window.history.replaceState({}, document.title, url.toString());
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
