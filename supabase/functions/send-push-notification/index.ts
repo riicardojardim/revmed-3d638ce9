@@ -23,13 +23,16 @@ Deno.serve(async (req) => {
       VAPID_PRIVATE_KEY
     );
 
-    const { title, body, url } = await req.json();
+    const { title, body, url, userId } = await req.json();
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const { data: subscriptions, error } = await supabase
-      .from("push_subscriptions")
-      .select("*");
+    const query = supabase.from("push_subscriptions").select("*");
+    if (userId) {
+      query.eq("user_id", userId);
+    }
+
+    const { data: subscriptions, error } = await query;
 
     if (error) throw error;
 
