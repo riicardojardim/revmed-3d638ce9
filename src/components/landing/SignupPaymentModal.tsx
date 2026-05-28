@@ -134,6 +134,7 @@ export function SignupPaymentModal({
   }, [step, pixData, callGetStatus, nav, onOpenChange]);
 
   if (!plan) return null;
+  const displayStep = "success";
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
   const planAmountCents = plan.priceCents;
 
