@@ -3,6 +3,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async () => {
+  const key = process.env.MERCADOPAGO_PUBLIC_KEY;
+  if (!key) throw new Error("MERCADOPAGO_PUBLIC_KEY não configurada");
+  return { publicKey: key };
+});
+
 const PLAN_AMOUNTS: Record<string, { cents: number; name: string }> = {
   ator: { cents: 14700, name: "Plano Ator" },
   completo: { cents: 59700, name: "Plano Plataforma" },
