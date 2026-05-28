@@ -62,6 +62,7 @@ export function SignupPaymentModal({
   });
   const [payment, setPayment] = useState<"pix" | "cartao">("pix");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [installments, setInstallments] = useState<number>(1);
   const [submitting, setSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [step, setStep] = useState<"form" | "pix" | "processing" | "success">("form");
@@ -81,6 +82,7 @@ export function SignupPaymentModal({
       setStep("form");
       setPixData(null);
       setCopied(false);
+      setInstallments(1);
     }
   }, [open]);
 
@@ -114,6 +116,12 @@ export function SignupPaymentModal({
 
   if (!plan) return null;
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
+  const planAmountCents = plan.slug === "completo" ? 59700 : 14700;
+  const installmentOptions = Array.from({ length: 10 }, (_, i) => {
+    const n = i + 1;
+    const value = planAmountCents / 100 / n;
+    return { n, label: `${n}x de R$ ${value.toFixed(2).replace(".", ",")} sem juros` };
+  });
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -264,7 +272,7 @@ export function SignupPaymentModal({
           data: {
             planSlug: plan.slug,
             token,
-            installments: 1,
+            installments,
             paymentMethodId: pm.id,
             issuerId: pm.issuer_id,
             payer: payerInput,
@@ -401,10 +409,27 @@ export function SignupPaymentModal({
             <p className="text-sm text-muted-foreground">Validando cartão com segurança…</p>
           </div>
         ) : step === "success" ? (
-          <div className="flex flex-col items-center gap-4 px-5 py-12 sm:px-7">
-            <CheckCircle2 className="h-14 w-14 text-mint" />
-            <p className="font-display text-xl font-black">Pagamento confirmado!</p>
-            <p className="text-sm text-muted-foreground">Redirecionando para a plataforma…</p>
+          <div className="relative flex flex-col items-center gap-5 overflow-hidden px-5 py-14 text-center sm:px-7">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-mint/10 via-transparent to-primary/10" />
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-mint/15 ring-4 ring-mint/30">
+              <div className="absolute inset-0 animate-ping rounded-full bg-mint/20" />
+              <CheckCircle2 className="relative h-14 w-14 text-mint" strokeWidth={2.5} />
+            </div>
+            <div className="relative space-y-2">
+              <h2 className="font-display text-3xl font-black tracking-tight text-foreground sm:text-4xl">
+                Pagamento aprovado! 🎉
+              </h2>
+              <p className="text-sm text-muted-foreground sm:text-base">
+                Seu acesso à REVMED foi liberado.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Enviamos um e-mail de confirmação para <span className="font-semibold text-foreground">{form.email}</span>.
+              </p>
+            </div>
+            <div className="relative flex items-center gap-2 rounded-full border border-mint/30 bg-mint/10 px-4 py-2 text-xs font-semibold text-mint">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Redirecionando para o painel…
+            </div>
           </div>
         ) : (
         <div className="px-5 py-5 sm:px-7 sm:py-6">
@@ -509,6 +534,24 @@ export function SignupPaymentModal({
                       <Label htmlFor="m_card_cvv">CVV</Label>
                       <Input id="m_card_cvv" inputMode="numeric" placeholder="123" maxLength={4} value={card.cvv} onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value.replace(/\D/g, "") }))} autoComplete="cc-csc" />
                     </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="m_card_inst">Parcelamento</Label>
+                    <select
+                      id="m_card_inst"
+                      value={installments}
+                      onChange={(e) => setInstallments(Number(e.target.value))}
+                      className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    >
+                      {installmentOptions.map((opt) => (
+                        <option key={opt.n} value={opt.n}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1.5 text-[11px] text-mint">
+                      ✨ Em até 10x sem juros no cartão.
+                    </p>
                   </div>
                   <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                     <Lock className="h-3 w-3" /> Seus dados são processados em ambiente seguro.
