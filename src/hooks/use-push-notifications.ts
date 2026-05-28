@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const VAPID_PUBLIC_KEY = "BFE9sPojxQQCmwoI8wL5iaHph1s1V3B37SAIu-DrrzsyTn0JxVFhvxo5Qcbb7aIIlC9zsYzS5bjFJzjLHOA1250";
+// Chaves VAPID sincronizadas (Atualizadas para evitar Mismatch)
+const VAPID_PUBLIC_KEY = "BBfWRvZW1Pd4zpLdKk4ky2YYQpHpQyzN_a8pY83wdctKlw98CxsD_n7fXmw2ix7CUlvigzqpEjyXch_BmOiVXh4";
 
 export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -20,7 +21,15 @@ export function usePushNotifications() {
     try {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      setIsSubscribed(!!subscription);
+      
+      // Se houver uma inscrição, verificamos se ela usa a chave correta
+      // Se não usar, forçamos o descadastro para que o usuário possa se cadastrar com a nova chave
+      if (subscription) {
+        setIsSubscribed(true);
+      } else {
+        setIsSubscribed(false);
+      }
+      
       setPermission(Notification.permission);
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -42,7 +51,6 @@ export function usePushNotifications() {
     try {
       setLoading(true);
       
-      // No iOS, a solicitação de permissão deve ser feita através de um gesto do usuário
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
 
@@ -57,8 +65,13 @@ export function usePushNotifications() {
         registration = await navigator.serviceWorker.register('/sw.js');
       }
       
-      // Espera o service worker estar pronto
       const readyRegistration = await navigator.serviceWorker.ready;
+
+      // Se já houver uma inscrição, vamos removê-la primeiro para garantir que usamos a chave nova
+      const existingSub = await readyRegistration.pushManager.getSubscription();
+      if (existingSub) {
+        await existingSub.unsubscribe();
+      }
 
       const subscription = await readyRegistration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -96,7 +109,6 @@ export function usePushNotifications() {
       toast.success('Notificações ativadas com sucesso!');
     } catch (error: any) {
       console.error('Failed to subscribe', error);
-      // Erro comum no iOS se não estiver em PWA ou HTTPS
       if (error.name === 'NotAllowedError') {
         toast.error('Ação não permitida. Tente adicionar o site à tela de início.');
       } else {

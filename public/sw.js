@@ -1,4 +1,5 @@
-const VAPID_PUBLIC_KEY = "BFE9sPojxQQCmwoI8wL5iaHph1s1V3B37SAIu-DrrzsyTn0JxVFhvxo5Qcbb7aIIlC9zsYzS5bjFJzjLHOA1250";
+// Service Worker para Notificações Push REVMED
+const VAPID_PUBLIC_KEY = "BBfWRvZW1Pd4zpLdKk4ky2YYQpHpQyzN_a8pY83wdctKlw98CxsD_n7fXmw2ix7CUlvigzqpEjyXch_BmOiVXh4";
 
 self.addEventListener('push', (event) => {
   if (!event.data) return;
@@ -10,7 +11,7 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
       self.registration.showNotification(title || 'Nova Notificação', {
         body: body || 'Você tem uma nova atualização do REVMED.',
-        icon: '/favicon.ico', // Ajuste para o seu ícone
+        icon: '/favicon.ico',
         badge: '/favicon.ico',
         data: { url: url || '/' }
       })
@@ -28,4 +29,9 @@ self.addEventListener('notificationclick', (event) => {
       clients.openWindow(event.notification.data.url)
     );
   }
+});
+
+// Forçar atualização do SW quando as chaves mudarem
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
 });
