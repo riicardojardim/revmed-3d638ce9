@@ -76,6 +76,8 @@ export function SignupPaymentModal({
   });
   const [payment, setPayment] = useState<"pix" | "cartao">("pix");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [cardBrand, setCardBrand] = useState<string | null>(null);
+  const [mpPublicKey, setMpPublicKey] = useState<string | null>(null);
   const [installments, setInstallments] = useState<number>(1);
   const [submitting, setSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -101,10 +103,47 @@ export function SignupPaymentModal({
       setCopied(false);
       setShowPassword(false);
       setShowConfirmPassword(false);
-
       setInstallments(1);
+      setCardBrand(null);
+      setCard({ number: "", name: "", expiry: "", cvv: "" });
+      
+      callGetPublicKey({}).then(res => setMpPublicKey(res.publicKey)).catch(console.error);
     }
-  }, [open]);
+  }, [open, callGetPublicKey]);
+
+  async function handleCardNumberChange(value: string) {
+    const formatted = formatCardNumber(value);
+    setCard((c) => ({ ...c, number: formatted }));
+    
+    const digits = formatted.replace(/\D/g, "");
+    if (digits.length === 0) {
+      setCardBrand(null);
+      return;
+    }
+
+    // Identificação rápida local para feedback instantâneo
+    if (digits.startsWith("4")) {
+      setCardBrand("visa");
+    } else if (/^(5[1-5])/.test(digits)) {
+      setCardBrand("master");
+    } else if (/^(34|37)/.test(digits)) {
+      setCardBrand("amex");
+    } else if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)/.test(digits)) {
+      setCardBrand("elo");
+    } else if (/^(6062|3841)/.test(digits)) {
+      setCardBrand("hipercard");
+    } else if (digits.length >= 6 && mpPublicKey) {
+      // Se tiver 6 dígitos e não bater com as principais, consulta a API do Mercado Pago
+      try {
+        const pm = await getPaymentMethodFromBin(mpPublicKey, digits.slice(0, 6));
+        if (pm?.id) setCardBrand(pm.id);
+      } catch (e) {
+        console.warn("Card identification error", e);
+      }
+    } else {
+      setCardBrand(null);
+    }
+  }
 
   // Poll status do PIX a cada 4s enquanto estiver na tela PIX
   useEffect(() => {
@@ -622,7 +661,23 @@ export function SignupPaymentModal({
                 <TabsContent value="cartao" className="mt-4 space-y-3">
                   <div>
                     <Label htmlFor="m_card_num">Número do cartão</Label>
-                    <Input id="m_card_num" inputMode="numeric" placeholder="0000 0000 0000 0000" value={card.number} onChange={(e) => setCard((c) => ({ ...c, number: formatCardNumber(e.target.value) }))} autoComplete="cc-number" />
+                    <div className="relative">
+                      <Input 
+                        id="m_card_num" 
+                        inputMode="numeric" 
+                        placeholder="0000 0000 0000 0000" 
+                        value={card.number} 
+                        onChange={(e) => handleCardNumberChange(e.target.value)} 
+                        autoComplete="cc-number" 
+                        className="pr-20"
+                      />
+                      {cardBrand && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 rounded-md bg-muted/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary ring-1 ring-primary/20">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-mint" />
+                          {cardBrand === "master" ? "Mastercard" : cardBrand.charAt(0).toUpperCase() + cardBrand.slice(1)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="m_card_name">Nome impresso no cartão</Label>
