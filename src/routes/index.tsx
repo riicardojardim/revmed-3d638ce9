@@ -1124,8 +1124,8 @@ function Investimento({
         accent: dbPlan.accent_color || staticPlan.accent,
         desc: dbPlan.description || staticPlan.desc,
         features: Array.isArray(dbPlan.features) && dbPlan.features.length > 0 
-          ? dbPlan.features.map((f: string) => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma/gi, getPlanName('completo', 'Plano Completo')))
-          : staticPlan.features.map(f => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma/gi, getPlanName('completo', 'Plano Completo'))),
+          ? dbPlan.features.map((f: string) => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma|plano Completo/gi, getPlanName('completo', 'Plano Completo')))
+          : staticPlan.features.map(f => f.replace(/plano Ator/gi, getPlanName('ator', 'Plano Ator')).replace(/plano Plataforma|plano Completo/gi, getPlanName('completo', 'Plano Completo'))),
         installments: dbPlan.price_cents > 0 
           ? `ou 10x de ${(priceValue / 10).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })} sem juros` 
           : staticPlan.installments
