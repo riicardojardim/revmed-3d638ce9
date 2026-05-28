@@ -119,7 +119,16 @@ const ACCESS_BLOCK_NOTICE_KEY = "er_access_block_notice";
  * Admin/Professor passam livre. Sem plano ativo → sign out + redirect /#planos.
  */
 async function enforcePlanAccess(userId: string) {
+  if (typeof window === "undefined") return;
+  const path = window.location.pathname;
+
+  // Não aplica o bloqueio se o usuário estiver na landing page, login ou fluxo de checkout.
+  // Isso permite que ele complete o pagamento sem ser deslogado.
+  const isPublicRoute = path === "/" || path.startsWith("/login") || path.startsWith("/cadastro") || path.startsWith("/api");
+  if (isPublicRoute) return;
+
   try {
+
     // Privilegiados (admin/professor) sempre têm acesso.
     const { data: rs } = await supabase
       .from("user_roles")
