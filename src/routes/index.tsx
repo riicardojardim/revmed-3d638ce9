@@ -1308,10 +1308,10 @@ function Investimento({
 
                       }
 
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-all duration-300 hover:scale-[1.03] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
-                          ? "bg-primary text-primary-foreground shadow-elegant"
-                          : "border border-border bg-card text-foreground hover:bg-muted"
+                          ? "bg-primary text-primary-foreground shadow-[0_15px_35px_-5px_rgba(255,140,0,0.5)] hover:shadow-[0_20px_45px_-5px_rgba(255,140,0,0.6)]"
+                          : "border border-border bg-card text-foreground hover:bg-muted shadow-sm"
                       }`}
                     >
                       {p.cta}
