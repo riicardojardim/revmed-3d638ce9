@@ -160,7 +160,13 @@ export const createUserAdmin = createServerFn({ method: "POST" })
       email: data.email,
       password: data.password,
       email_confirm: true,
-      user_metadata: { full_name },
+      user_metadata: { 
+        full_name,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        title: data.title,
+      },
+
     });
     if (error) throw new Error(error.message);
 
@@ -313,7 +319,10 @@ export const resetPasswordAdmin = createServerFn({ method: "POST" })
   .inputValidator(z.object({ user_id: z.string().uuid(), password: z.string().min(8) }).parse)
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, { password: data.password });
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.user_id, { 
+      password: data.password 
+    });
+
     if (error) throw new Error(error.message);
     return { ok: true };
   });
