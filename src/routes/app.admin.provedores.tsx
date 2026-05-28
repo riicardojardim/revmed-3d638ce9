@@ -383,10 +383,11 @@ function AdminProviders() {
                           <code className="mx-1">LIVEKIT_API_SECRET</code> do servidor (fallback automático).
                           Para o painel mostrar "Ativo" e centralizar tudo aqui, importe os valores:
                         </p>
-                        <Button size="sm" variant="outline" onClick={handleImportLivekit} disabled={importing}>
-                          {importing && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                        <Button size="sm" variant="outline" onClick={handleImportLivekit} disabled={!!importing}>
+                          {importing === "livekit" && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
                           Importar secrets do servidor & ativar
                         </Button>
+
                       </div>
                     )}
 
