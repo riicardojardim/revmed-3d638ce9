@@ -1188,17 +1188,17 @@ function Investimento({
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
                 className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 transition-all duration-300 ${
                   p.highlight
-                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.05] z-10"
+                    ? "border-2 border-primary/80 bg-gradient-to-br from-primary/[0.15] via-background to-background shadow-[0_40px_100px_-30px_rgba(255,140,0,0.4)] lg:scale-[1.06] z-10"
                     : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
                 }`}
               >
                 {/* Glow de fundo */}
                 <div
-                  className={`pointer-events-none absolute -top-32 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-gradient-to-b ${p.accent} to-transparent opacity-60 blur-3xl`}
+                  className={`pointer-events-none absolute -top-32 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-gradient-to-b ${p.highlight ? 'from-primary/40' : p.accent} to-transparent opacity-80 blur-3xl`}
                 />
 
                 {p.highlight && (
-                  <div className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-primary-foreground shadow-elegant sm:right-6 sm:top-6 sm:px-3 sm:text-[10px]">
+                  <div className="absolute right-4 top-4 rounded-full bg-primary px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary-foreground shadow-[0_8px_20px_rgba(255,140,0,0.5)] sm:right-6 sm:top-6 sm:px-4 sm:text-[11px] animate-pulse">
                     Recomendado
                   </div>
                 )}
@@ -1207,7 +1207,7 @@ function Investimento({
                   <div
                     className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl sm:h-12 sm:w-12 transition-transform duration-300 group-hover:scale-110 ${
                       p.highlight
-                        ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(255,140,0,0.4)]"
+                        ? "bg-primary text-primary-foreground shadow-[0_0_25px_rgba(255,140,0,0.6)]"
                         : "bg-muted/60 text-foreground ring-1 ring-border"
                     }`}
                   >
@@ -1257,13 +1257,13 @@ function Investimento({
                     {p.features.map((f: string) => (
                       <li key={f} className="flex items-start gap-3 text-[0.8rem] sm:text-sm">
                         <span
-                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors ${
+                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
                             p.highlight
-                              ? "bg-primary text-primary-foreground shadow-sm"
+                              ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(255,140,0,0.5)] scale-110"
                               : "bg-muted text-foreground"
                           }`}
                         >
-                          <Check className="h-3 w-3" strokeWidth={3.5} />
+                          <Check className="h-3 w-3" strokeWidth={4} />
                         </span>
                         <span className="leading-snug">{f}</span>
                       </li>
@@ -1308,10 +1308,10 @@ function Investimento({
 
                       }
 
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-all duration-300 hover:scale-[1.03] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
-                          ? "bg-primary text-primary-foreground shadow-elegant"
-                          : "border border-border bg-card text-foreground hover:bg-muted"
+                          ? "bg-primary text-primary-foreground shadow-[0_15px_35px_-5px_rgba(255,140,0,0.5)] hover:shadow-[0_20px_45px_-5px_rgba(255,140,0,0.6)]"
+                          : "border border-border bg-card text-foreground hover:bg-muted shadow-sm"
                       }`}
                     >
                       {p.cta}
