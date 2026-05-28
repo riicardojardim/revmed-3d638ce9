@@ -18,6 +18,7 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   recovery: 'Redefinição de senha — REVMED',
   email_change: 'Confirme seu novo e-mail — REVMED',
   reauthentication: 'Seu código de verificação — REVMED',
+  welcome: 'Bem-vindo(a) à REVMED — Sua jornada rumo à aprovação!',
 }
 
 // Template mapping
