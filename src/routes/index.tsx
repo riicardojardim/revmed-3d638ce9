@@ -1304,7 +1304,21 @@ function SobreFundador() {
               Quem é o <span className="text-primary">Dr. Anoar Jezini?</span>
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-              Médico brasileiro, idealizador e mentor-chefe da REVMED — a <span className="font-semibold text-foreground">primeira e maior mentoria online do Brasil</span> voltada exclusivamente para a Revalidação de Diploma Médico (Revalida INEP). Com mais de uma década dedicada à formação de médicos e centenas de aprovados em todas as edições recentes da prova, Dr. Anoar construiu um método próprio que une treino prático em estações, acompanhamento individual, suporte psicológico e uma plataforma completa de estudos. Sua missão é simples: transformar o sonho da revalidação em rotina, com estratégia, disciplina e tecnologia.
+              Minha trajetória com a revalidação médica começou através da própria vivência das dificuldades, medos e desafios que o processo do Revalida impõe.
+              <br /><br />
+              Ao invés de transformar isso em desistência, transformei em propósito.
+              <br /><br />
+              Sou médico, fisioterapeuta e faixa preta de Jiu-Jitsu, natural de Manaus e atualmente residente no Rio de Janeiro.
+              <br /><br />
+              Há 4 anos atuo diretamente com preparação para o Revalida INEP, construindo uma metodologia focada em prática, estratégia e preparo emocional.
+              <br /><br />
+              Foi assim que nasceram a RevMed Mentoria e o Revalida360, projetos que já realizaram 6 grandes edições e ajudaram na revalidação de mais de 1200 diplomas médicos.
+              <br /><br />
+              Mais do que ensinar Medicina, nossa missão é devolver esperança, direção e confiança para médicos que sonham em exercer sua profissão no Brasil.
+              <br /><br />
+              Hoje, a RevMed representa muito mais que uma mentoria:
+              <br /><br />
+              é uma família construída através de propósito, trabalho, fé e transformação de vidas.
             </p>
 
             {/* Cards de stats */}
