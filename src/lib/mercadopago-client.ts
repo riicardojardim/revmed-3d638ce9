@@ -29,6 +29,8 @@ export async function getPaymentMethodFromBin(
     if (/^(6011|622|64|65)/.test(digits)) return { id: "discover" };
     if (/^(30[0-5]|36|38)/.test(digits)) return { id: "diners" };
     if (/^(352[89]|35[3-8][0-9])/.test(digits)) return { id: "jcb" };
+    if (/^(60)/.test(digits)) return { id: "hipercard" };
+    if (/^(50)/.test(digits)) return { id: "maestro" };
 
   } catch (err) {
     console.error("[mercadopago] getPaymentMethodFromBin failed", err);
