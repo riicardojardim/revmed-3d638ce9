@@ -76,7 +76,7 @@ export function SignupPaymentModal({
     confirm: "",
   });
   const [payment, setPayment] = useState<"pix" | "cartao">("pix");
-  const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "", cpf: "" });
   const [cardBrand, setCardBrand] = useState<string | null>(null);
   const [mpPublicKey, setMpPublicKey] = useState<string | null>(null);
   const [installments, setInstallments] = useState<number>(1);
@@ -106,7 +106,7 @@ export function SignupPaymentModal({
       setShowConfirmPassword(false);
       setInstallments(1);
       setCardBrand(null);
-      setCard({ number: "", name: "", expiry: "", cvv: "" });
+      setCard({ number: "", name: "", expiry: "", cvv: "", cpf: "" });
       
       callGetPublicKey({}).then(res => setMpPublicKey(res.publicKey)).catch(console.error);
     }
@@ -241,6 +241,7 @@ export function SignupPaymentModal({
       if (!card.name.trim()) { toast.error("Informe o nome impresso no cartão."); return; }
       if (!/^\d{2}\/\d{2}$/.test(card.expiry)) { toast.error("Validade inválida (MM/AA)."); return; }
       if (!/^\d{3,4}$/.test(card.cvv)) { toast.error("CVV inválido."); return; }
+      if (card.cpf && !isValidCPF(card.cpf)) { toast.error("CPF do titular inválido."); return; }
     }
 
     setSubmitting(true);
@@ -371,7 +372,7 @@ export function SignupPaymentModal({
           expMonth,
           expYear,
           securityCode: card.cvv,
-          docNumber: cpfDigits,
+          docNumber: card.cpf ? card.cpf.replace(/\D/g, "") : cpfDigits,
         });
 
         // 3. Determinar o ID final da bandeira (Payment Method)
@@ -736,6 +737,11 @@ export function SignupPaymentModal({
                       <Label htmlFor="m_card_cvv">CVV</Label>
                       <Input id="m_card_cvv" inputMode="numeric" placeholder="123" maxLength={4} value={card.cvv} onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value.replace(/\D/g, "") }))} autoComplete="cc-csc" />
                     </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="m_card_cpf">CPF do Titular do Cartão</Label>
+                    <Input id="m_card_cpf" value={card.cpf} onChange={(e) => setCard((c) => ({ ...c, cpf: formatCPF(e.target.value) }))} placeholder="000.000.000-00 (Opcional)" />
+                    <p className="mt-1 text-[10px] text-muted-foreground">Preencha apenas se o cartão não for seu.</p>
                   </div>
                   <div>
                     <Label htmlFor="m_card_inst">Parcelamento</Label>
