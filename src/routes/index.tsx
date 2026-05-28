@@ -1125,7 +1125,7 @@ function Investimento({
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:mt-12 md:gap-6 lg:grid-cols-3 lg:mt-14 lg:gap-7">
-          {allPlans.map((p, idx) => {
+          {allPlans.map((p: any, idx: number) => {
 
 
             const Icon = p.icon;
