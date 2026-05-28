@@ -72,9 +72,9 @@ function writeAuthCache(cache: AuthCache | null) {
 function hasPersistedSupabaseSession(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+    const keys = Object.keys(localStorage);
+    for (const k of keys) {
+      if (k.startsWith("sb-") || k.includes("auth-token")) {
         const v = localStorage.getItem(k);
         if (v && v.length > 10) return true;
       }
