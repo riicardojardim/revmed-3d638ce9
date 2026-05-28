@@ -209,7 +209,7 @@ function AdminProviders() {
   }, []);
 
   async function handleImportLivekit() {
-    setImporting(true);
+    setImporting("livekit");
     try {
       const res = await importLivekit({ data: {} });
       if (res.ok) {
@@ -221,9 +221,27 @@ function AdminProviders() {
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao importar");
     } finally {
-      setImporting(false);
+      setImporting(null);
     }
   }
+
+  async function handleImportMercadoPago() {
+    setImporting("mercadopago");
+    try {
+      const res = await importMercadoPago({ data: {} });
+      if (res.ok) {
+        toast.success("Mercado Pago importado dos secrets do servidor e ativado");
+        load();
+      } else {
+        toast.error(res.error ?? "Falha ao importar");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao importar");
+    } finally {
+      setImporting(null);
+    }
+  }
+
 
   function patchLocal(id: string, patch: Partial<ProviderRow>) {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
