@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { CheckCircle2, Loader2, Crown, Drama } from "lucide-react";
 
 export type PlanSlug = "ator" | "completo";
@@ -21,7 +19,6 @@ export function SignupPaymentModal({
   onOpenChange: (v: boolean) => void;
   plan: SignupModalPlan | null;
 }) {
-  const open = true;
   const plan: SignupModalPlan = originalPlan || {
     slug: "completo",
     name: "Plano Completo",
@@ -32,10 +29,10 @@ export function SignupPaymentModal({
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-2xl overflow-y-auto p-0 sm:w-full">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div className="bg-background rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-border">
         <div className="border-b border-border bg-gradient-to-br from-primary/10 via-card to-card px-5 py-5 sm:px-7 sm:py-6">
-          <DialogHeader className="space-y-2 text-left">
+          <div className="space-y-2 text-left">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
                 <PlanIcon className="h-5 w-5" />
@@ -44,16 +41,16 @@ export function SignupPaymentModal({
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Plano selecionado
                 </div>
-                <DialogTitle className="font-display text-lg font-black tracking-tight sm:text-xl">
+                <div className="font-display text-lg font-black tracking-tight sm:text-xl text-foreground">
                   {plan.name} · {plan.price}
                   {plan.cadence ? <span className="ml-1.5 text-xs font-medium text-muted-foreground">{plan.cadence}</span> : null}
-                </DialogTitle>
+                </div>
               </div>
             </div>
-            <DialogDescription className="text-xs text-muted-foreground sm:text-sm">
+            <p className="text-xs text-muted-foreground sm:text-sm">
               Pagamento confirmado!
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
         </div>
 
         <div className="relative flex flex-col items-center gap-5 overflow-hidden px-5 py-14 text-center sm:px-7">
@@ -78,7 +75,8 @@ export function SignupPaymentModal({
             Redirecionando para o painel…
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        <button onClick={() => onOpenChange(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">X</button>
+      </div>
+    </div>
   );
 }
