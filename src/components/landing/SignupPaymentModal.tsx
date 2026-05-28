@@ -184,8 +184,11 @@ export function SignupPaymentModal({
   const installmentOptions = Array.from({ length: 10 }, (_, i) => {
     const n = i + 1;
     const value = planAmountCents / 100 / n;
+    // O Mercado Pago exige que cada parcela tenha um valor mínimo (geralmente R$ 1,00 ou R$ 5,00 dependendo da conta)
+    // Para evitar erros, só mostramos opções onde a parcela seja >= R$ 5,00
+    if (n > 1 && value < 5) return null;
     return { n, label: `${n}x de R$ ${value.toFixed(2).replace(".", ",")} sem juros` };
-  });
+  }).filter(Boolean) as { n: number; label: string }[];
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
