@@ -357,16 +357,14 @@ export function SignupPaymentModal({
         });
 
         // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN (ou o fallback local)
-        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id;
+        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
         
         console.log("[checkout] Payment method detection:", {
           fromToken: cardTokenData.payment_method_id,
           fromBin: pmInfo?.id,
           fromState: cardBrand,
-          final: cardTokenData.payment_method_id || pmInfo?.id || cardBrand
+          final: paymentMethodId
         });
-
-        const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id || cardBrand;
 
         if (!paymentMethodId) {
           throw new Error("Cannot infer Payment Method");
