@@ -9,27 +9,36 @@ export async function getPaymentMethodFromBin(
   bin: string,
 ): Promise<{ id: string; issuer_id?: string } | null> {
   try {
-    // Tentamos o endpoint de busca por BIN primeiro
-    const url = `${MP}/v1/payment_methods?public_key=${encodeURIComponent(publicKey)}&bin=${encodeURIComponent(bin)}`;
+    // 1. Tentamos o endpoint mais comum para BINs
+    const url = `${MP}/v1/payment_methods?public_key=${encodeURIComponent(publicKey)}`;
     const res = await fetch(url);
     if (res.ok) {
-      const json = await res.json().catch(() => []);
-      const pm = Array.isArray(json) ? json[0] : json?.results?.[0];
-      if (pm?.id) {
-        return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
+      const list = await res.json().catch(() => []);
+      if (Array.isArray(list)) {
+        // Filtramos os métodos que aceitam este BIN
+        // Infelizmente a API de listagem simples não traz a lista de BINs por padrão em alguns casos,
+        // mas traz o pattern ou podemos inferir.
+        // No entanto, o endpoint com ?bin= é o oficial.
+        
+        const resWithBin = await fetch(`${url}&bin=${encodeURIComponent(bin)}`);
+        if (resWithBin.ok) {
+          const jsonBin = await resWithBin.json().catch(() => []);
+          const pm = Array.isArray(jsonBin) ? jsonBin[0] : jsonBin?.results?.[0];
+          if (pm?.id) {
+            return { id: pm.id, issuer_id: pm.issuer?.id ? String(pm.issuer.id) : undefined };
+          }
+        }
       }
     }
 
-    // Se falhar, tentamos o search que alguns SDKs usam
-    const searchUrl = `${MP}/v1/payment_methods/search?public_key=${encodeURIComponent(publicKey)}&bin=${encodeURIComponent(bin)}`;
-    const resSearch = await fetch(searchUrl);
-    if (resSearch.ok) {
-      const jsonSearch = await resSearch.json().catch(() => ({}));
-      const pmSearch = jsonSearch?.results?.[0];
-      if (pmSearch?.id) {
-        return { id: pmSearch.id, issuer_id: pmSearch.issuer?.id ? String(pmSearch.issuer.id) : undefined };
-      }
-    }
+    // 2. Fallback local para as principais bandeiras se a API falhar
+    // Isso garante que o pagamento pelo menos tente ser processado no servidor
+    if (bin.startsWith("4")) return { id: "visa" };
+    if (/^(5[1-5])/.test(bin)) return { id: "master" };
+    if (/^(34|37)/.test(bin)) return { id: "amex" };
+    if (/^(4011|4389|4514|4576|5041|5066|5067|509|6277|6362|6363)/.test(bin)) return { id: "elo" };
+    if (/^(6062|3841)/.test(bin)) return { id: "hipercard" };
+
   } catch (err) {
     console.error("[mercadopago] getPaymentMethodFromBin failed", err);
   }
