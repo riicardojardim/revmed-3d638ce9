@@ -116,6 +116,12 @@ export function SignupPaymentModal({
 
   if (!plan) return null;
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
+  const planAmountCents = plan.slug === "completo" ? 59700 : 14700;
+  const installmentOptions = Array.from({ length: 10 }, (_, i) => {
+    const n = i + 1;
+    const value = planAmountCents / 100 / n;
+    return { n, label: `${n}x de R$ ${value.toFixed(2).replace(".", ",")} sem juros` };
+  });
 
   function update<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -266,7 +272,7 @@ export function SignupPaymentModal({
           data: {
             planSlug: plan.slug,
             token,
-            installments: 1,
+            installments,
             paymentMethodId: pm.id,
             issuerId: pm.issuer_id,
             payer: payerInput,
