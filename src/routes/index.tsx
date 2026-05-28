@@ -1306,19 +1306,19 @@ function SobreFundador() {
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
               Minha trajetória com a revalidação médica começou através da própria vivência das dificuldades, medos e desafios que o processo do Revalida impõe.
               <br /><br />
-              Ao invés de transformar isso em desistência, transformei em propósito.
+              <strong className="font-bold text-foreground">Ao invés de transformar isso em desistência, transformei em propósito.</strong>
               <br /><br />
-              Sou médico, fisioterapeuta e faixa preta de Jiu-Jitsu, natural de Manaus e atualmente residente no Rio de Janeiro.
+              Sou <strong className="font-bold text-foreground">médico, fisioterapeuta e faixa preta de Jiu-Jitsu</strong>, natural de Manaus e atualmente residente no Rio de Janeiro.
               <br /><br />
-              Há 4 anos atuo diretamente com preparação para o Revalida INEP, construindo uma metodologia focada em prática, estratégia e preparo emocional.
+              <strong className="font-bold text-foreground">Há 4 anos</strong> atuo diretamente com preparação para o Revalida INEP, construindo uma metodologia focada em prática, estratégia e preparo emocional.
               <br /><br />
-              Foi assim que nasceram a RevMed Mentoria e o Revalida360, projetos que já realizaram 6 grandes edições e ajudaram na revalidação de mais de 1200 diplomas médicos.
+              Foi assim que nasceram a <strong className="font-bold text-foreground">RevMed Mentoria</strong> e o <strong className="font-bold text-foreground">Revalida360</strong>, projetos que já realizaram <strong className="font-bold text-foreground">6 grandes edições</strong> e ajudaram na revalidação de <strong className="font-bold text-foreground">mais de 1200 diplomas médicos</strong>.
               <br /><br />
-              Mais do que ensinar Medicina, nossa missão é devolver esperança, direção e confiança para médicos que sonham em exercer sua profissão no Brasil.
+              Mais do que ensinar Medicina, nossa missão é <strong className="font-bold text-foreground">devolver esperança, direção e confiança</strong> para médicos que sonham em exercer sua profissão no Brasil.
               <br /><br />
               Hoje, a RevMed representa muito mais que uma mentoria:
               <br /><br />
-              é uma família construída através de propósito, trabalho, fé e transformação de vidas.
+              <strong className="font-bold text-foreground">é uma família construída através de propósito, trabalho, fé e transformação de vidas.</strong>
             </p>
 
             {/* Cards de stats */}
