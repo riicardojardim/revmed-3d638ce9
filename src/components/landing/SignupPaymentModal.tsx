@@ -13,7 +13,7 @@ import { formatCPF, isValidCPF } from "@/lib/cpf";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { createPixPayment, createCardPayment, getPaymentStatus, getMpPublicKey } from "@/lib/mercadopago.functions";
-import { createCardToken, getPaymentMethodFromBin } from "@/lib/mercadopago-client";
+import { createCardToken } from "@/lib/mercadopago-client";
 
 function translateError(msg: string): string {
   if (msg.includes("Password is known to be weak")) return "Esta senha é muito fraca e fácil de adivinhar. Por favor, escolha uma senha mais forte.";
