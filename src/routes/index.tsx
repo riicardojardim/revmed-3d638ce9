@@ -1083,6 +1083,10 @@ function Investimento({
   loadingPlans: boolean;
 }) {
   const BRL_CURRENCY = "BRL";
+  const getPlanName = (slug: string, fallback: string) => {
+    const p = dbPlans?.find(x => x.slug === slug);
+    return p?.name || fallback;
+  };
   const allPlans = useMemo(() => {
     // Se não houver planos no banco, usamos os estáticos como fallback
     if (!dbPlans || dbPlans.length === 0) {
