@@ -107,12 +107,16 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
           })
           .eq("mp_payment_id", String(mp.id));
 
+        // Sincroniza o perfil IMEDIATAMENTE, independente do status do pagamento
+        // Assim o admin já vê o nome correto na aba de "Tentativas de Pagamento"
+        if (userId && meta.signup_data) {
+          await syncUserProfile(userId, meta.signup_data);
+        }
+
         if (mp.status === "approved" && userId && planSlug) {
           await activateSubscription(userId, planSlug);
-          if (meta.signup_data) {
-            await syncUserProfile(userId, meta.signup_data);
-          }
           try {
+
 
             const { data: u } = await supabaseAdmin.auth.admin.getUserById(userId);
             const email = u?.user?.email;
