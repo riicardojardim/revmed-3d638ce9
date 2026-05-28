@@ -106,7 +106,7 @@ export function SignupPaymentModal({
       setShowConfirmPassword(false);
       setInstallments(1);
       setCardBrand(null);
-      setCard({ number: "", name: "", expiry: "", cvv: "" });
+      setCard({ number: "", name: "", expiry: "", cvv: "", cpf: "" });
       
       callGetPublicKey({}).then(res => setMpPublicKey(res.publicKey)).catch(console.error);
     }
