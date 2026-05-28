@@ -235,13 +235,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s);
       setUser(s?.user ?? null);
-      setLoading(false);
       if (s?.user) {
+        setLoading(true);
         void loadExtras(s.user.id);
         void claimActiveSession(s.user.id);
         void enforcePlanAccess(s.user.id);
       } else {
         writeAuthCache(null);
+        setLoading(false);
       }
     }).catch(() => {
       setSession(null);
