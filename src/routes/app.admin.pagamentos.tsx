@@ -56,22 +56,31 @@ function AdminPayments() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: subData }, { data: planData }, internalRes] = await Promise.all([
+    const [{ data: subData }, { data: planData }, { data: attemptData }, internalRes] = await Promise.all([
       supabase.from("user_subscriptions").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("plans").select("id, name, slug, price_cents").order("price_cents"),
+      supabase.from("payments").select("*").order("created_at", { ascending: false }).limit(500),
       fetchInternalIds().catch(() => ({ ids: [] as string[] })),
     ]);
     setInternalIds(new Set(internalRes?.ids ?? []));
-    const ids = Array.from(new Set((subData ?? []).map((s: any) => s.user_id)));
+    
+    const userIds = Array.from(new Set([
+      ...(subData ?? []).map((s: any) => s.user_id),
+      ...(attemptData ?? []).map((p: any) => p.user_id)
+    ]));
+
     let profileMap = new Map<string, any>();
-    if (ids.length) {
-      const { data: profs } = await supabase.from("profiles").select("id, full_name, username, avatar_url").in("id", ids);
+    if (userIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("id, full_name, username, avatar_url").in("id", userIds);
       profileMap = new Map((profs ?? []).map((p: any) => [p.id, p]));
     }
+
     setSubs(((subData ?? []) as any[]).map((s) => ({ ...s, profile: profileMap.get(s.user_id) })));
+    setAttempts(((attemptData ?? []) as any[]).map((p) => ({ ...p, profile: profileMap.get(p.user_id) })));
     setPlans((planData ?? []) as any);
     setLoading(false);
   };
+
 
   useEffect(() => { load(); }, []);
 
