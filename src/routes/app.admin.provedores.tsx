@@ -177,11 +177,16 @@ function AdminProviders() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [openGuide, setOpenGuide] = useState<string | null>(null);
-  const [envStatus, setEnvStatus] = useState<{ livekit: { api_key: boolean; api_secret: boolean; api_url: boolean } } | null>(null);
-  const [importing, setImporting] = useState(false);
+  const [envStatus, setEnvStatus] = useState<{ 
+    livekit: { api_key: boolean; api_secret: boolean; api_url: boolean },
+    mercadopago: { api_key: boolean; webhook_secret: boolean }
+  } | null>(null);
+  const [importing, setImporting] = useState<string | null>(null);
 
   const fetchEnvStatus = useServerFn(getProviderEnvStatus);
   const importLivekit = useServerFn(importLivekitFromEnv);
+  const importMercadoPago = useServerFn(importMercadoPagoFromEnv);
+
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
