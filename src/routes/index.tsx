@@ -1188,6 +1188,7 @@ function Investimento({
                         {p.cadence}
                       </span>
                     )}
+
                     {p.discountTag && (
                       <span className="mb-1 ml-1 rounded-full bg-mint/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-mint">
                         {p.discountTag}
