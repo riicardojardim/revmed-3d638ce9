@@ -932,7 +932,7 @@ function Mentoria({ dbPlans }: { dbPlans: any[] }) {
             <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground md:mt-6 md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
               A plataforma já te dá tudo pra treinar sozinho. Mas quem prefere
               um mentor por perto, com Turmas Programadas de 5 pessoas, encontros ao vivo e
-              psicólogo no programa, pode entrar na mentoria — um plus à parte,
+              psicólogo no programa, pode entrar na {mentoriaName.toLowerCase()} — um plus à parte,
               em turmas pequenas que fecham rápido.
             </p>
             <Link
