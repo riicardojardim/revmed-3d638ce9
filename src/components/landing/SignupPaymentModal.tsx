@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight, CreditCard, QrCode, Crown, Drama, Lock } from "lucide-react";
+import { ArrowRight, CreditCard, QrCode, Crown, Drama, Lock, Copy, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatWhatsapp, normalizeWhatsapp, isValidWhatsapp } from "@/lib/whatsapp";
 import { formatCPF, isValidCPF } from "@/lib/cpf";
 import { useNavigate, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { createPixPayment, createCardPayment, getPaymentStatus, getMpPublicKey } from "@/lib/mercadopago.functions";
+import { createCardToken, getPaymentMethodFromBin } from "@/lib/mercadopago-client";
 
 export type PlanSlug = "ator" | "completo";
 
@@ -40,6 +43,11 @@ export function SignupPaymentModal({
   plan: SignupModalPlan | null;
 }) {
   const nav = useNavigate();
+  const callCreatePix = useServerFn(createPixPayment);
+  const callCreateCard = useServerFn(createCardPayment);
+  const callGetStatus = useServerFn(getPaymentStatus);
+  const callGetPublicKey = useServerFn(getMpPublicKey);
+
   const [form, setForm] = useState({
     title: "",
     first_name: "",
@@ -56,13 +64,53 @@ export function SignupPaymentModal({
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
   const [submitting, setSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [step, setStep] = useState<"form" | "pix" | "processing" | "success">("form");
+  const [pixData, setPixData] = useState<{
+    paymentId: string;
+    qrCode: string;
+    qrCodeBase64: string;
+    ticketUrl: string | null;
+    amountCents: number;
+  } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (open) {
       setPayment("pix");
       setAcceptedTerms(false);
+      setStep("form");
+      setPixData(null);
+      setCopied(false);
     }
   }, [open]);
+
+  // Poll status do PIX a cada 4s enquanto estiver na tela PIX
+  useEffect(() => {
+    if (step !== "pix" || !pixData) return;
+    let stop = false;
+    const tick = async () => {
+      try {
+        const { status } = await callGetStatus({ data: { paymentId: pixData.paymentId } });
+        if (status === "approved") {
+          if (!stop) {
+            setStep("success");
+            toast.success("Pagamento confirmado!", { description: "Seu acesso foi liberado." });
+            setTimeout(() => {
+              onOpenChange(false);
+              nav({ to: "/app" });
+            }, 1800);
+          }
+        }
+      } catch (e) {
+        // silencioso
+      }
+    };
+    const id = setInterval(tick, 4000);
+    return () => {
+      stop = true;
+      clearInterval(id);
+    };
+  }, [step, pixData, callGetStatus, nav, onOpenChange]);
 
   if (!plan) return null;
   const PlanIcon = plan.slug === "completo" ? Crown : Drama;
@@ -162,15 +210,112 @@ export function SignupPaymentModal({
       );
     }
 
-    setSubmitting(false);
-    toast.success("Conta criada!", {
-      description:
-        payment === "pix"
-          ? `Plano ${plan.name}. Em instantes geramos seu Pix.`
-          : `Plano ${plan.name}. Confirmaremos a cobrança no cartão em instantes.`,
-    });
-    onOpenChange(false);
-    nav({ to: "/app" });
+    // Garante sessão ativa (signUp já cria sessão se auto-confirm estiver on;
+    // se não, faz login com a senha recém-criada)
+    if (!signupData.session) {
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      });
+      if (signInErr) {
+        setSubmitting(false);
+        toast.error("Confirme seu e-mail antes de pagar.", { description: signInErr.message });
+        return;
+      }
+    }
+
+    const payerInput = {
+      email: form.email.trim().toLowerCase(),
+      firstName: form.first_name.trim(),
+      lastName: form.last_name.trim(),
+      cpf: cpfDigits,
+    };
+
+    try {
+      if (payment === "pix") {
+        const res = await callCreatePix({ data: { planSlug: plan.slug, payer: payerInput } });
+        if (!res.qrCode || !res.qrCodeBase64) {
+          throw new Error("Mercado Pago não retornou QR Code.");
+        }
+        setPixData({
+          paymentId: res.paymentId,
+          qrCode: res.qrCode,
+          qrCodeBase64: res.qrCodeBase64,
+          ticketUrl: res.ticketUrl ?? null,
+          amountCents: res.amountCents,
+        });
+        setStep("pix");
+      } else {
+        setStep("processing");
+        const { publicKey } = await callGetPublicKey({});
+        const bin = card.number.replace(/\D/g, "").slice(0, 6);
+        const pm = await getPaymentMethodFromBin(publicKey, bin);
+        if (!pm) throw new Error("Cartão não reconhecido pelo Mercado Pago.");
+        const [expMonth, expYear] = card.expiry.split("/");
+        const token = await createCardToken(publicKey, {
+          cardNumber: card.number,
+          cardholderName: card.name,
+          expMonth,
+          expYear,
+          securityCode: card.cvv,
+          docNumber: cpfDigits,
+        });
+        const result = await callCreateCard({
+          data: {
+            planSlug: plan.slug,
+            token,
+            installments: 1,
+            paymentMethodId: pm.id,
+            issuerId: pm.issuer_id,
+            payer: payerInput,
+          },
+        });
+        if (result.status === "approved") {
+          setStep("success");
+          toast.success("Pagamento aprovado!");
+          setTimeout(() => {
+            onOpenChange(false);
+            nav({ to: "/app" });
+          }, 1800);
+        } else if (result.status === "in_process" || result.status === "pending") {
+          toast.info("Pagamento em análise", {
+            description: "Você receberá uma confirmação por e-mail em instantes.",
+          });
+          onOpenChange(false);
+          nav({ to: "/app" });
+        } else {
+          throw new Error(
+            result.statusDetail === "cc_rejected_insufficient_amount"
+              ? "Cartão sem saldo."
+              : result.statusDetail === "cc_rejected_bad_filled_security_code"
+              ? "CVV incorreto."
+              : result.statusDetail === "cc_rejected_bad_filled_date"
+              ? "Data de validade incorreta."
+              : result.statusDetail === "cc_rejected_call_for_authorize"
+              ? "Autorize a compra com seu banco e tente novamente."
+              : "Pagamento recusado. Tente outro cartão.",
+          );
+        }
+      }
+    } catch (err: any) {
+      console.error("[checkout]", err);
+      toast.error("Falha no pagamento", { description: err?.message || "Tente novamente." });
+      setStep("form");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function copyPix() {
+    if (!pixData) return;
+    try {
+      await navigator.clipboard.writeText(pixData.qrCode);
+      setCopied(true);
+      toast.success("Código Pix copiado!");
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      toast.error("Não foi possível copiar. Selecione e copie manualmente.");
+    }
   }
 
   return (
@@ -193,11 +338,75 @@ export function SignupPaymentModal({
               </div>
             </div>
             <DialogDescription className="text-xs text-muted-foreground sm:text-sm">
-              Preencha seus dados e escolha como pagar. Você é redirecionado para a plataforma após confirmar.
+              {step === "form"
+                ? "Preencha seus dados e escolha como pagar. Você é redirecionado para a plataforma após confirmar."
+                : step === "pix"
+                ? "Escaneie o QR Code com o app do seu banco ou copie o código abaixo. Confirmação automática."
+                : step === "processing"
+                ? "Estamos validando seu cartão com segurança junto ao Mercado Pago…"
+                : "Pagamento confirmado!"}
             </DialogDescription>
           </DialogHeader>
         </div>
 
+        {step === "pix" && pixData ? (
+          <div className="px-5 py-5 sm:px-7 sm:py-6 space-y-5">
+            <div className="flex flex-col items-center gap-4">
+              <div className="rounded-2xl border border-border bg-white p-4">
+                <img
+                  src={`data:image/png;base64,${pixData.qrCodeBase64}`}
+                  alt="QR Code Pix"
+                  className="h-56 w-56"
+                />
+              </div>
+              <div className="text-center">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Valor</div>
+                <div className="font-display text-2xl font-black tracking-tight">
+                  R$ {(pixData.amountCents / 100).toFixed(2).replace(".", ",")}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                Pix copia e cola
+              </Label>
+              <div className="flex gap-2">
+                <Input readOnly value={pixData.qrCode} className="font-mono text-xs" />
+                <Button type="button" variant="outline" onClick={copyPix} className="shrink-0">
+                  {copied ? <CheckCircle2 className="h-4 w-4 text-mint" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              Aguardando confirmação do pagamento…
+            </div>
+
+            {pixData.ticketUrl ? (
+              <a
+                href={pixData.ticketUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-xs text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Abrir comprovante no Mercado Pago
+              </a>
+            ) : null}
+          </div>
+        ) : step === "processing" ? (
+          <div className="flex flex-col items-center gap-4 px-5 py-12 sm:px-7">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Validando cartão com segurança…</p>
+          </div>
+        ) : step === "success" ? (
+          <div className="flex flex-col items-center gap-4 px-5 py-12 sm:px-7">
+            <CheckCircle2 className="h-14 w-14 text-mint" />
+            <p className="font-display text-xl font-black">Pagamento confirmado!</p>
+            <p className="text-sm text-muted-foreground">Redirecionando para a plataforma…</p>
+          </div>
+        ) : (
         <div className="px-5 py-5 sm:px-7 sm:py-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -335,6 +544,7 @@ export function SignupPaymentModal({
             </Button>
           </form>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );

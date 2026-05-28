@@ -76,6 +76,7 @@ import { Route as AppAdminFlashcardsIdRouteImport } from './routes/app.admin.fla
 import { Route as AppAdminEstacoesImportarRouteImport } from './routes/app.admin.estacoes.importar'
 import { Route as AppAdminEstacoesImagensRouteImport } from './routes/app.admin.estacoes.imagens'
 import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estacoes.$id'
+import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as ApiPublicWebhooksPaymentSplatRouteImport } from './routes/api/public/webhooks/payment/$'
 
 const TermosRoute = TermosRouteImport.update({
@@ -415,6 +416,12 @@ const AppAdminEstacoesIdRoute = AppAdminEstacoesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AppAdminEstacoesRoute,
 } as any)
+const ApiPublicWebhooksMercadopagoRoute =
+  ApiPublicWebhooksMercadopagoRouteImport.update({
+    id: '/api/public/webhooks/mercadopago',
+    path: '/api/public/webhooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksPaymentSplatRoute =
   ApiPublicWebhooksPaymentSplatRouteImport.update({
     id: '/api/public/webhooks/payment/$',
@@ -475,6 +482,7 @@ export interface FileRoutesByFullPath {
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/estacoes/imagens': typeof AppAdminEstacoesImagensRoute
   '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
@@ -538,6 +546,7 @@ export interface FileRoutesByTo {
   '/app/entrar': typeof AppEntrarIndexRoute
   '/app/flashcards': typeof AppFlashcardsIndexRoute
   '/app/professor': typeof AppProfessorIndexRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/estacoes/imagens': typeof AppAdminEstacoesImagensRoute
   '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
@@ -609,6 +618,7 @@ export interface FileRoutesById {
   '/app/entrar/': typeof AppEntrarIndexRoute
   '/app/flashcards/': typeof AppFlashcardsIndexRoute
   '/app/professor/': typeof AppProfessorIndexRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/app/admin/estacoes/$id': typeof AppAdminEstacoesIdRoute
   '/app/admin/estacoes/imagens': typeof AppAdminEstacoesImagensRoute
   '/app/admin/estacoes/importar': typeof AppAdminEstacoesImportarRoute
@@ -681,6 +691,7 @@ export interface FileRouteTypes {
     | '/app/entrar/'
     | '/app/flashcards/'
     | '/app/professor/'
+    | '/api/public/webhooks/mercadopago'
     | '/app/admin/estacoes/$id'
     | '/app/admin/estacoes/imagens'
     | '/app/admin/estacoes/importar'
@@ -744,6 +755,7 @@ export interface FileRouteTypes {
     | '/app/entrar'
     | '/app/flashcards'
     | '/app/professor'
+    | '/api/public/webhooks/mercadopago'
     | '/app/admin/estacoes/$id'
     | '/app/admin/estacoes/imagens'
     | '/app/admin/estacoes/importar'
@@ -814,6 +826,7 @@ export interface FileRouteTypes {
     | '/app/entrar/'
     | '/app/flashcards/'
     | '/app/professor/'
+    | '/api/public/webhooks/mercadopago'
     | '/app/admin/estacoes/$id'
     | '/app/admin/estacoes/imagens'
     | '/app/admin/estacoes/importar'
@@ -842,6 +855,7 @@ export interface RootRouteChildren {
   TermosRoute: typeof TermosRoute
   ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
+  ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   ApiPublicWebhooksPaymentSplatRoute: typeof ApiPublicWebhooksPaymentSplatRoute
 }
@@ -1317,6 +1331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminEstacoesIdRouteImport
       parentRoute: typeof AppAdminEstacoesRoute
     }
+    '/api/public/webhooks/mercadopago': {
+      id: '/api/public/webhooks/mercadopago'
+      path: '/api/public/webhooks/mercadopago'
+      fullPath: '/api/public/webhooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/payment/$': {
       id: '/api/public/webhooks/payment/$'
       path: '/api/public/webhooks/payment/$'
@@ -1557,19 +1578,10 @@ const rootRouteChildren: RootRouteChildren = {
   TermosRoute: TermosRoute,
   ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
+  ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   ApiPublicWebhooksPaymentSplatRoute: ApiPublicWebhooksPaymentSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
