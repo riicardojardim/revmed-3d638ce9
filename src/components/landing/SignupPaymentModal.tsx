@@ -22,6 +22,7 @@ function translateError(msg: string): string {
   if (msg.includes("Email already in use")) return "Este e-mail já está em uso. Tente fazer login para continuar.";
   if (msg.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
   if (msg.includes("Cannot infer Payment Method")) return "Não foi possível identificar a bandeira do cartão. Verifique os dados digitados ou tente outro cartão.";
+  if (msg.includes("Invalid transaction_amount")) return "O valor da transação é inválido. Para pagamentos no cartão, o Mercado Pago exige um valor mínimo de R$ 5,00.";
   
   return msg;
 }
