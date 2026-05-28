@@ -120,8 +120,18 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
                 ? `R$ ${mp.transaction_amount.toFixed(2).replace(".", ",")}`
                 : undefined;
               const planName = planSlug === "completo" ? "Plano Plataforma" : "Plano Ator";
+              const paymentMethod = mp.payment_method_id === "pix" ? "pix" : "credit_card";
+              const last4 = mp.card?.last_four_digits || undefined;
+              const installments = mp.installments || undefined;
+
               await sendPaymentApprovedEmail({
-                recipientEmail: email, name, planName, amount,
+                recipientEmail: email, 
+                name, 
+                planName, 
+                amount,
+                paymentMethod,
+                last4,
+                installments,
                 idempotencyKey: `payment-approved-${mp.id}`,
               });
             }

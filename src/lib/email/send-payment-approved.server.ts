@@ -18,6 +18,9 @@ export async function sendPaymentApprovedEmail(args: {
   name?: string;
   planName?: string;
   amount?: string;
+  paymentMethod?: string;
+  last4?: string;
+  installments?: number;
   idempotencyKey: string;
 }) {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -47,7 +50,12 @@ export async function sendPaymentApprovedEmail(args: {
   }
 
   const element = React.createElement(paymentApproved.component, {
-    name: args.name, planName: args.planName, amount: args.amount,
+    name: args.name, 
+    planName: args.planName, 
+    amount: args.amount,
+    paymentMethod: args.paymentMethod,
+    last4: args.last4,
+    installments: args.installments,
   });
   const html = await render(element);
   const text = await render(element, { plainText: true });
