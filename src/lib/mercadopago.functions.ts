@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendPaymentApprovedEmail } from "@/lib/email/send-payment-approved.server";
 
 export const getMpPublicKey = createServerFn({ method: "GET" }).handler(async () => {
   const key = process.env.MERCADOPAGO_PUBLIC_KEY;
@@ -56,6 +57,29 @@ async function activateSubscription(userId: string, planSlug: string) {
       { user_id: userId, plan_id: plan.id, status: "active", current_period_end: periodEnd },
       { onConflict: "user_id" },
     );
+}
+
+async function notifyPaymentApproved(userId: string, planSlug: string, paymentId: string) {
+  try {
+    const { data: u } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const email = u?.user?.email;
+    if (!email) return;
+    const { data: profile } = await supabaseAdmin
+      .from("profiles").select("first_name,title").eq("id", userId).maybeSingle();
+    const planMeta = PLAN_AMOUNTS[planSlug];
+    const name = profile?.first_name
+      ? `${profile.title ? profile.title + " " : ""}${profile.first_name}`.trim()
+      : undefined;
+    await sendPaymentApprovedEmail({
+      recipientEmail: email,
+      name,
+      planName: planMeta?.name,
+      amount: planMeta ? `R$ ${(planMeta.cents / 100).toFixed(2).replace(".", ",")}` : undefined,
+      idempotencyKey: `payment-approved-${paymentId}`,
+    });
+  } catch (e) {
+    console.error("[notifyPaymentApproved] failed", e);
+  }
 }
 
 const payerSchema = z.object({
@@ -202,6 +226,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
 
     if (mp.status === "approved") {
       await activateSubscription(userId, data.planSlug);
+      await notifyPaymentApproved(userId, data.planSlug, String(mp.id));
     }
 
     return {
@@ -245,6 +270,7 @@ export const getPaymentStatus = createServerFn({ method: "POST" })
             .eq("id", row.id);
           if (mp.status === "approved") {
             await activateSubscription(userId, row.plan_slug);
+            await notifyPaymentApproved(userId, row.plan_slug, String(row.mp_payment_id));
           }
           return { status: mp.status as string };
         }
