@@ -317,11 +317,19 @@ export function SignupPaymentModal({
           docNumber: cpfDigits,
         });
 
-        // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN
+        // Priorizamos o payment_method_id vindo do token se existir, senão usamos o do BIN (ou o fallback local)
         const paymentMethodId = cardTokenData.payment_method_id || pmInfo?.id;
         
+        console.log("[checkout] Payment method detection:", {
+          fromToken: cardTokenData.payment_method_id,
+          fromBin: pmInfo?.id,
+          final: paymentMethodId
+        });
+
         if (!paymentMethodId) {
-          throw new Error("Não foi possível identificar a bandeira do cartão. Verifique o número digitado.");
+          // Se ainda assim não identificarmos, o Mercado Pago provavelmente recusará no servidor, 
+          // mas vamos tentar avisar o usuário de forma clara.
+          throw new Error("Não foi possível identificar a bandeira do cartão. Verifique se o número está correto.");
         }
 
         const result = await callCreateCard({
