@@ -221,9 +221,7 @@ export const createCardPayment = createServerFn({ method: "POST" })
       installments: data.installments,
       external_reference: `${userId}:${data.planSlug}`,
       notification_url: "https://revmed.app.br/api/public/webhooks/mercadopago",
-    };
-    if (data.paymentMethodId) body.payment_method_id = data.paymentMethodId;
-    if (data.issuerId) body.issuer_id = data.issuerId;
+      payer: {
         email: data.payer.email,
         first_name: data.payer.firstName,
         last_name: data.payer.lastName,
@@ -231,6 +229,8 @@ export const createCardPayment = createServerFn({ method: "POST" })
       },
       metadata: { user_id: userId, plan_slug: data.planSlug, signup_data: data.signupData },
     };
+    if (data.paymentMethodId) body.payment_method_id = data.paymentMethodId;
+    if (data.issuerId) body.issuer_id = data.issuerId;
 
     console.log("[mercadopago] creating payment:", {
       amount: body.transaction_amount,
