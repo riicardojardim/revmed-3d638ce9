@@ -1081,6 +1081,13 @@ function Investimento({
         ? priceValue.toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })
         : (staticPlan.slug === "mentoria" ? "Sob consulta" : "R$ 0,00");
 
+      // Calculamos o desconto automaticamente se houver preço antigo
+      let calculatedDiscount = dbPlan.discount_tag;
+      if (dbPlan.old_price_cents && dbPlan.old_price_cents > dbPlan.price_cents) {
+        const discountPercent = Math.round(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
+        calculatedDiscount = `${discountPercent}% OFF`;
+      }
+
       return {
         ...staticPlan,
         name: dbPlan.name || staticPlan.name,
@@ -1088,7 +1095,7 @@ function Investimento({
         price: formattedPrice,
         priceCents: dbPlan.price_cents,
         oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
-        discountTag: dbPlan.discount_tag || undefined,
+        discountTag: calculatedDiscount || undefined,
         cta: dbPlan.cta_text || staticPlan.cta,
         highlight: dbPlan.highlight,
         accent: dbPlan.accent_color || staticPlan.accent,
@@ -1105,6 +1112,14 @@ function Investimento({
       .filter(dbPlan => !PLANS.some(staticPlan => staticPlan.slug === dbPlan.slug))
       .map(dbPlan => {
         const priceValue = dbPlan.price_cents / 100;
+        
+        // Calculamos o desconto automaticamente se houver preço antigo
+        let calculatedDiscount = dbPlan.discount_tag;
+        if (dbPlan.old_price_cents && dbPlan.old_price_cents > dbPlan.price_cents) {
+          const discountPercent = Math.round(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
+          calculatedDiscount = `${discountPercent}% OFF`;
+        }
+
         return {
           slug: dbPlan.slug,
           name: dbPlan.name,
@@ -1112,7 +1127,7 @@ function Investimento({
           price: priceValue > 0 ? priceValue.toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : "Grátis",
           priceCents: dbPlan.price_cents,
           oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
-          discountTag: dbPlan.discount_tag || undefined,
+          discountTag: calculatedDiscount || undefined,
           cta: dbPlan.cta_text || "Começar agora",
           ctaType: "internal" as const,
           highlight: dbPlan.highlight,
