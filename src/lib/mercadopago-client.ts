@@ -27,7 +27,7 @@ export async function createCardToken(
     securityCode: string;
     docNumber: string;
   },
-): Promise<{ id: string; payment_method_id: string; issuer_id?: string }> {
+): Promise<{ id: string; payment_method_id?: string; issuer_id?: string }> {
   const expirationYear =
     input.expYear.length === 2 ? `20${input.expYear}` : input.expYear;
 
@@ -47,15 +47,18 @@ export async function createCardToken(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+  
   const json = await res.json().catch(() => ({}));
+  
   if (!res.ok || !json?.id) {
+    console.error("[mercadopago] card_token error", json);
     const msg = json?.cause?.[0]?.description || json?.message || "Não foi possível validar o cartão.";
     throw new Error(msg);
   }
   
   return { 
     id: json.id as string, 
-    payment_method_id: json.payment_method_id as string,
+    payment_method_id: json.payment_method_id as string | undefined,
     issuer_id: json.issuer?.id ? String(json.issuer.id) : undefined
   };
 }
