@@ -4,18 +4,17 @@
 //     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
-import { defineConfig, loadEnv } from "@lovable.dev/vite-tanstack-config";
+import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { loadEnv } from "vite";
 import { imagetools } from "vite-imagetools";
 import { fileURLToPath } from "node:url";
 
-// Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-// @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode ?? "development", process.cwd(), "");
-  for (const [k, v] of Object.entries(env)) {
-    if (process.env[k] === undefined) process.env[k] = v;
-  }
-  return {
+const env = loadEnv(process.env.NODE_ENV ?? "development", process.cwd(), "");
+for (const [k, v] of Object.entries(env)) {
+  if (process.env[k] === undefined && typeof v === "string") process.env[k] = v;
+}
+
+export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
@@ -27,5 +26,4 @@ export default defineConfig(({ mode }) => {
       },
     },
   },
-  };
 });
