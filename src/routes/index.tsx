@@ -1081,6 +1081,13 @@ function Investimento({
         ? priceValue.toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY })
         : (staticPlan.slug === "mentoria" ? "Sob consulta" : "R$ 0,00");
 
+      // Calculamos o desconto automaticamente se houver preço antigo
+      let calculatedDiscount = dbPlan.discount_tag;
+      if (dbPlan.old_price_cents && dbPlan.old_price_cents > dbPlan.price_cents) {
+        const discountPercent = Math.round(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
+        calculatedDiscount = `${discountPercent}% OFF`;
+      }
+
       return {
         ...staticPlan,
         name: dbPlan.name || staticPlan.name,
@@ -1088,7 +1095,7 @@ function Investimento({
         price: formattedPrice,
         priceCents: dbPlan.price_cents,
         oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
-        discountTag: dbPlan.discount_tag || undefined,
+        discountTag: calculatedDiscount || undefined,
         cta: dbPlan.cta_text || staticPlan.cta,
         highlight: dbPlan.highlight,
         accent: dbPlan.accent_color || staticPlan.accent,
@@ -1105,6 +1112,14 @@ function Investimento({
       .filter(dbPlan => !PLANS.some(staticPlan => staticPlan.slug === dbPlan.slug))
       .map(dbPlan => {
         const priceValue = dbPlan.price_cents / 100;
+        
+        // Calculamos o desconto automaticamente se houver preço antigo
+        let calculatedDiscount = dbPlan.discount_tag;
+        if (dbPlan.old_price_cents && dbPlan.old_price_cents > dbPlan.price_cents) {
+          const discountPercent = Math.round(100 - (dbPlan.price_cents * 100) / dbPlan.old_price_cents);
+          calculatedDiscount = `${discountPercent}% OFF`;
+        }
+
         return {
           slug: dbPlan.slug,
           name: dbPlan.name,
@@ -1112,7 +1127,7 @@ function Investimento({
           price: priceValue > 0 ? priceValue.toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : "Grátis",
           priceCents: dbPlan.price_cents,
           oldPrice: dbPlan.old_price_cents ? (dbPlan.old_price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: BRL_CURRENCY }) : undefined,
-          discountTag: dbPlan.discount_tag || undefined,
+          discountTag: calculatedDiscount || undefined,
           cta: dbPlan.cta_text || "Começar agora",
           ctaType: "internal" as const,
           highlight: dbPlan.highlight,
@@ -1160,9 +1175,9 @@ function Investimento({
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
-                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 ${
+                className={`group relative flex flex-col overflow-hidden rounded-3xl p-6 sm:p-7 md:p-8 lg:p-9 transition-all duration-300 ${
                   p.highlight
-                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.03]"
+                    ? "border border-primary/60 bg-gradient-to-br from-primary/[0.12] via-background to-background shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_70%,transparent)] lg:scale-[1.05] z-10"
                     : "border border-border/80 bg-background/80 backdrop-blur-sm hover:border-border"
                 }`}
               >
@@ -1179,9 +1194,9 @@ function Investimento({
 
                 <div className="relative">
                   <div
-                    className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl sm:h-12 sm:w-12 ${
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl sm:h-12 sm:w-12 transition-transform duration-300 group-hover:scale-110 ${
                       p.highlight
-                        ? "bg-primary/15 text-primary ring-1 ring-primary/30"
+                        ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(255,140,0,0.4)]"
                         : "bg-muted/60 text-foreground ring-1 ring-border"
                     }`}
                   >
@@ -1220,7 +1235,7 @@ function Investimento({
                     )}
                   </div>
                   {p.installments && (
-                    <p className="mt-2 text-[0.75rem] font-semibold text-primary sm:text-sm">
+                    <p className={`mt-2 text-[0.75rem] font-semibold sm:text-sm ${p.highlight ? "text-primary brightness-125" : "text-primary"}`}>
                       {p.installments}
                     </p>
                   )}
@@ -1231,13 +1246,13 @@ function Investimento({
                     {p.features.map((f: string) => (
                       <li key={f} className="flex items-start gap-3 text-[0.8rem] sm:text-sm">
                         <span
-                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors ${
                             p.highlight
-                              ? "bg-primary/15 text-primary"
+                              ? "bg-primary text-primary-foreground shadow-sm"
                               : "bg-muted text-foreground"
                           }`}
                         >
-                          <Check className="h-3 w-3" strokeWidth={3} />
+                          <Check className="h-3 w-3" strokeWidth={3.5} />
                         </span>
                         <span className="leading-snug">{f}</span>
                       </li>
@@ -1261,7 +1276,7 @@ function Investimento({
                       to="/app"
                       className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-transform hover:scale-[1.02] sm:px-6 sm:py-3.5 sm:text-base ${
                         p.highlight
-                          ? "bg-primary text-primary-foreground shadow-elegant"
+                          ? "bg-primary text-primary-foreground shadow-[0_10px_30px_-5px_rgba(255,140,0,0.5)] hover:shadow-[0_15px_40px_-5px_rgba(255,140,0,0.6)]"
                           : "border border-border bg-card text-foreground hover:bg-muted"
                       }`}
                     >
