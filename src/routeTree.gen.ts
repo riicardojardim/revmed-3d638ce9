@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -83,6 +84,11 @@ import { Route as AppAdminEstacoesIdRouteImport } from './routes/app.admin.estac
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as ApiPublicWebhooksPaymentSplatRouteImport } from './routes/api/public/webhooks/payment/$'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
@@ -463,6 +469,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
@@ -537,6 +544,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
   '/app/comunidade': typeof AppComunidadeRoute
@@ -607,6 +615,7 @@ export interface FileRoutesById {
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/termos': typeof TermosRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/aulas': typeof AppAulasRoute
   '/app/checklists': typeof AppChecklistsRoute
@@ -684,6 +693,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/termos'
+    | '/unsubscribe'
     | '/app/admin'
     | '/app/aulas'
     | '/app/checklists'
@@ -758,6 +768,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/termos'
+    | '/unsubscribe'
     | '/app/aulas'
     | '/app/checklists'
     | '/app/comunidade'
@@ -827,6 +838,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/termos'
+    | '/unsubscribe'
     | '/app/admin'
     | '/app/aulas'
     | '/app/checklists'
@@ -903,6 +915,7 @@ export interface RootRouteChildren {
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermosRoute: typeof TermosRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   ConviteCodeRoute: typeof ConviteCodeRoute
   ECodeRoute: typeof ECodeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -916,6 +929,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/termos': {
       id: '/termos'
       path: '/termos'
@@ -1658,6 +1678,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermosRoute: TermosRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   ConviteCodeRoute: ConviteCodeRoute,
   ECodeRoute: ECodeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
