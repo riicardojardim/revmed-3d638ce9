@@ -357,6 +357,12 @@ function AdminProviders() {
                             Em uso via secrets do servidor
                           </Badge>
                         )}
+                        {row.provider_key === "mercado_pago" && !row.is_active && envStatus?.mercadopago.api_key && (
+                          <Badge className="bg-amber-500/15 text-amber-500 hover:bg-amber-500/15">
+                            Em uso via secrets do servidor
+                          </Badge>
+                        )}
+
                       </div>
                       <div className="flex items-center gap-2">
                         <Switch
