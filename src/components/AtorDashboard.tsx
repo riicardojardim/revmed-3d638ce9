@@ -16,7 +16,7 @@ export function AtorDashboard() {
       {/* Header */}
       <header className="space-y-3">
         <Badge className="border-mint/40 bg-mint/15 text-mint hover:bg-mint/15">
-          <Theater className="mr-1 h-3 w-3" /> Plano Ator
+          <Theater className="mr-1 h-3 w-3" /> {planName}
         </Badge>
         <p className="text-sm text-muted-foreground">Bem-vindo, ator</p>
         <h1 className="font-display text-2xl font-bold leading-tight md:text-3xl">
