@@ -62,6 +62,7 @@ import { Route as AppAdminNotificacoesRouteImport } from './routes/app.admin.not
 import { Route as AppAdminIntegracoesRouteImport } from './routes/app.admin.integracoes'
 import { Route as AppAdminGeralRouteImport } from './routes/app.admin.geral'
 import { Route as AppAdminFlashcardsRouteImport } from './routes/app.admin.flashcards'
+import { Route as AppAdminExportSecretsRouteImport } from './routes/app.admin.export-secrets'
 import { Route as AppAdminEstacoesRouteImport } from './routes/app.admin.estacoes'
 import { Route as AppAdminConteudoRouteImport } from './routes/app.admin.conteudo'
 import { Route as AppAdminAparenciaRouteImport } from './routes/app.admin.aparencia'
@@ -352,6 +353,11 @@ const AppAdminFlashcardsRoute = AppAdminFlashcardsRouteImport.update({
   path: '/flashcards',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminExportSecretsRoute = AppAdminExportSecretsRouteImport.update({
+  id: '/export-secrets',
+  path: '/export-secrets',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminEstacoesRoute = AppAdminEstacoesRouteImport.update({
   id: '/estacoes',
   path: '/estacoes',
@@ -510,6 +516,7 @@ export interface FileRoutesByFullPath {
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
+  '/app/admin/export-secrets': typeof AppAdminExportSecretsRoute
   '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
   '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
@@ -585,6 +592,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
+  '/app/admin/export-secrets': typeof AppAdminExportSecretsRoute
   '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
   '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
@@ -662,6 +670,7 @@ export interface FileRoutesById {
   '/app/admin/aparencia': typeof AppAdminAparenciaRoute
   '/app/admin/conteudo': typeof AppAdminConteudoRoute
   '/app/admin/estacoes': typeof AppAdminEstacoesRouteWithChildren
+  '/app/admin/export-secrets': typeof AppAdminExportSecretsRoute
   '/app/admin/flashcards': typeof AppAdminFlashcardsRouteWithChildren
   '/app/admin/geral': typeof AppAdminGeralRoute
   '/app/admin/integracoes': typeof AppAdminIntegracoesRoute
@@ -743,6 +752,7 @@ export interface FileRouteTypes {
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
+    | '/app/admin/export-secrets'
     | '/app/admin/flashcards'
     | '/app/admin/geral'
     | '/app/admin/integracoes'
@@ -818,6 +828,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
+    | '/app/admin/export-secrets'
     | '/app/admin/geral'
     | '/app/admin/integracoes'
     | '/app/admin/notificacoes'
@@ -894,6 +905,7 @@ export interface FileRouteTypes {
     | '/app/admin/aparencia'
     | '/app/admin/conteudo'
     | '/app/admin/estacoes'
+    | '/app/admin/export-secrets'
     | '/app/admin/flashcards'
     | '/app/admin/geral'
     | '/app/admin/integracoes'
@@ -1338,6 +1350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminFlashcardsRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/export-secrets': {
+      id: '/app/admin/export-secrets'
+      path: '/export-secrets'
+      fullPath: '/app/admin/export-secrets'
+      preLoaderRoute: typeof AppAdminExportSecretsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/estacoes': {
       id: '/app/admin/estacoes'
       path: '/estacoes'
@@ -1557,6 +1576,7 @@ interface AppAdminRouteChildren {
   AppAdminAparenciaRoute: typeof AppAdminAparenciaRoute
   AppAdminConteudoRoute: typeof AppAdminConteudoRoute
   AppAdminEstacoesRoute: typeof AppAdminEstacoesRouteWithChildren
+  AppAdminExportSecretsRoute: typeof AppAdminExportSecretsRoute
   AppAdminFlashcardsRoute: typeof AppAdminFlashcardsRouteWithChildren
   AppAdminGeralRoute: typeof AppAdminGeralRoute
   AppAdminIntegracoesRoute: typeof AppAdminIntegracoesRoute
@@ -1574,6 +1594,7 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminAparenciaRoute: AppAdminAparenciaRoute,
   AppAdminConteudoRoute: AppAdminConteudoRoute,
   AppAdminEstacoesRoute: AppAdminEstacoesRouteWithChildren,
+  AppAdminExportSecretsRoute: AppAdminExportSecretsRoute,
   AppAdminFlashcardsRoute: AppAdminFlashcardsRouteWithChildren,
   AppAdminGeralRoute: AppAdminGeralRoute,
   AppAdminIntegracoesRoute: AppAdminIntegracoesRoute,
