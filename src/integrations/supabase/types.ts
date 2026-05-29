@@ -1763,6 +1763,32 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_inactive_users_for_push: {
+        Args: never
+        Returns: {
+          avatar_url: string | null
+          birth_date: string | null
+          cpf: string | null
+          created_at: string
+          exam_year: string | null
+          first_name: string | null
+          full_name: string | null
+          gender: string | null
+          id: string
+          last_name: string | null
+          selected_plan: string | null
+          title: string | null
+          updated_at: string
+          username: string | null
+          whatsapp: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_profile: {
         Args: never
         Returns: {
