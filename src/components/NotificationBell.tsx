@@ -141,6 +141,11 @@ export function NotificationBell() {
     if (n.type === "room_invite_declined") {
       return { title: `${name} recusou seu convite` };
     }
+    if (n.type === "automated_push") {
+      const title = (p.title as string) || "";
+      const body = (p.body as string) || "";
+      return { title: title && body ? `${title} — ${body}` : title || body || "Nova mensagem" };
+    }
     return { title: n.type };
   }
 
