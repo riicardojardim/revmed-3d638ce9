@@ -6,6 +6,38 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const MOTIVATIONAL_MESSAGES = [
+  "Sua meta de hoje te espera. Vamos iniciar uma nova estação?",
+  "A constância é o que separa o sonho da aprovação. Pronto para hoje?",
+  "Cada minuto de estudo é um passo a mais rumo ao CRM. Vamos praticar?",
+  "O Revalida está chegando. Que tal revisar uma estação agora?",
+  "Foco total hoje! Escolha um tema e vamos para a sala de treinamento.",
+  "Dê o seu melhor em cada checklist. A excelência vem da prática!",
+  "Sua dedicação hoje é o seu sucesso amanhã. Vamos juntos?",
+  "Não pare até se orgulhar. Tem estação nova esperando por você!"
+];
+
+const INACTIVITY_MESSAGES = [
+  "Sentimos sua falta! Que tal praticar uma estação hoje?",
+  "Não deixe o ritmo cair! A constância é o segredo da aprovação.",
+  "O tempo voa! Vamos garantir que você esteja afiado para o Revalida?",
+  "Um pequeno passo hoje é um grande salto na prova. Vamos treinar?"
+];
+
+function getSalutation(profile: any) {
+  const title = profile.title || "";
+  const firstName = profile.first_name || profile.full_name?.split(' ')[0] || "Doutor(a)";
+  
+  if (title.includes("Dra")) return `Dra. ${firstName}`;
+  if (title.includes("Dr")) return `Dr. ${firstName}`;
+  
+  // Fallback based on gender if title is missing
+  if (profile.gender === 'feminino') return `Dra. ${firstName}`;
+  if (profile.gender === 'masculino') return `Dr. ${firstName}`;
+  
+  return `Doutor(a) ${firstName}`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -31,20 +63,21 @@ Deno.serve(async (req) => {
     let notificationsToSend = [];
 
     if (type === 'inactivity_check') {
-      // 1. Find users who haven't joined a room in more than 48 hours
-      // and haven't received a push in the last 24 hours
       const { data: inactiveUsers, error: userError } = await supabase.rpc('get_inactive_users_for_push');
-      
       if (userError) throw userError;
 
-      notificationsToSend = inactiveUsers.map(user => ({
-        userId: user.id,
-        title: "Sentimos sua falta! 🩺",
-        body: "Que tal praticar uma estação hoje? A constância é o segredo da aprovação!",
-        url: "/dashboard"
-      }));
+      notificationsToSend = inactiveUsers.map((user: any) => {
+        const salutation = getSalutation(user);
+        const randomMsg = INACTIVITY_MESSAGES[Math.floor(Math.random() * INACTIVITY_MESSAGES.length)];
+        return {
+          userId: user.id,
+          title: `Olá, ${salutation}! 🩺`,
+          body: randomMsg,
+          url: "/dashboard"
+        };
+      });
     } else if (type === 'daily_motivation') {
-      // 2. Daily morning motivation for all active subscribers
+      // Get all users with push subscriptions
       const { data: subs, error: subError } = await supabase
         .from('push_subscriptions')
         .select('user_id')
@@ -52,12 +85,26 @@ Deno.serve(async (req) => {
 
       if (subError) throw subError;
 
-      notificationsToSend = subs.map(sub => ({
-        userId: sub.user_id,
-        title: "Bom dia, Doutor(a)! ☀️",
-        body: "Sua meta de hoje te espera. Vamos iniciar uma nova estação?",
-        url: "/dashboard"
-      }));
+      // Fetch profiles for these users to get names/titles
+      const userIds = subs.map(s => s.user_id);
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, first_name, gender, title')
+        .in('id', userIds);
+
+      if (profileError) throw profileError;
+
+      notificationsToSend = profiles.map((profile: any) => {
+        const salutation = getSalutation(profile);
+        // Random message so it's different for each user and each day
+        const randomMsg = MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
+        return {
+          userId: profile.id,
+          title: `Bom dia, ${salutation}! ☀️`,
+          body: randomMsg,
+          url: "/dashboard"
+        };
+      });
     }
 
     // Process sending
@@ -92,7 +139,6 @@ Deno.serve(async (req) => {
         }
       }
       
-      // Log notification in the database
       await supabase.from('notifications').insert({
         user_id: notification.userId,
         type: 'automated_push',
